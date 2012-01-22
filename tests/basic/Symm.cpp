@@ -166,8 +166,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestSymm<dcomplex>
-        ( side, uplo, m, n, (dcomplex)3, (dcomplex)4, printMatrices, g ); 
+        TestSymm<Complex<double> >
+        ( side, uplo, m, n, 
+          Complex<double>(3), Complex<double>(4), printMatrices, g ); 
     }
     catch( exception& e )
     {

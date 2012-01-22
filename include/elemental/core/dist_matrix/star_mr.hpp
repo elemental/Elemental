@@ -157,12 +157,12 @@ public:
     // Routines that are only valid for complex datatypes
     //
 
-    virtual typename RealBase<T>::type GetReal( Int i, Int j ) const;
-    virtual typename RealBase<T>::type GetImag( Int i, Int j ) const;
-    virtual void SetReal( Int i, Int j, typename RealBase<T>::type u );
-    virtual void SetImag( Int i, Int j, typename RealBase<T>::type u );
-    virtual void UpdateReal( Int i, Int j, typename RealBase<T>::type u );
-    virtual void UpdateImag( Int i, Int j, typename RealBase<T>::type u );
+    virtual typename Base<T>::type GetReal( Int i, Int j ) const;
+    virtual typename Base<T>::type GetImag( Int i, Int j ) const;
+    virtual void SetReal( Int i, Int j, typename Base<T>::type u );
+    virtual void SetImag( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateReal( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateImag( Int i, Int j, typename Base<T>::type u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,MR] distribution                              //
@@ -321,9 +321,9 @@ private:
         static void Func( DistMatrix<Z,STAR,MR,Int>& parent );
     };
     template<typename Z>
-    struct SetToRandomHermitianHelper<std::complex<Z> >
+    struct SetToRandomHermitianHelper<Complex<Z> >
     {
-        static void Func( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent );
+        static void Func( DistMatrix<Complex<Z>,STAR,MR,Int>& parent );
     };
     template<typename Z> friend struct SetToRandomHermitianHelper;
 
@@ -333,9 +333,9 @@ private:
         static void Func( DistMatrix<Z,STAR,MR,Int>& parent );
     };
     template<typename Z>
-    struct SetToRandomHPDHelper<std::complex<Z> >
+    struct SetToRandomHPDHelper<Complex<Z> >
     {
-        static void Func( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent );
+        static void Func( DistMatrix<Complex<Z>,STAR,MR,Int>& parent );
     };
     template<typename Z> friend struct SetToRandomHPDHelper;
 
@@ -345,10 +345,10 @@ private:
         static Z Func( const DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetRealHelper<std::complex<Z> >
+    struct GetRealHelper<Complex<Z> >
     {
         static Z Func
-        ( const DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
+        ( const DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetRealHelper;
 
@@ -358,10 +358,10 @@ private:
         static Z Func( const DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetImagHelper<std::complex<Z> >
+    struct GetImagHelper<Complex<Z> >
     {
         static Z Func
-        ( const DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
+        ( const DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetImagHelper;
 
@@ -372,11 +372,10 @@ private:
         ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetRealHelper<std::complex<Z> >
+    struct SetRealHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j, 
-          Z alpha );
+        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetRealHelper;
 
@@ -387,11 +386,10 @@ private:
         ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetImagHelper<std::complex<Z> >
+    struct SetImagHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j, 
-          Z alpha );
+        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetImagHelper;
 
@@ -402,11 +400,10 @@ private:
         ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateRealHelper<std::complex<Z> >
+    struct UpdateRealHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j, 
-          Z alpha );
+        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateRealHelper;
 
@@ -417,11 +414,10 @@ private:
         ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateImagHelper<std::complex<Z> >
+    struct UpdateImagHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,STAR,MR,Int>& parent, Int i, Int j, 
-          Z alpha );
+        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagHelper;
 };

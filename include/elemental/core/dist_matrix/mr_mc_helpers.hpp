@@ -44,7 +44,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPD()
 { SetToRandomHPDHelper<T>::Func( *this ); }
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 DistMatrix<T,MR,MC,Int>::GetReal( Int i, Int j ) const
 { return GetRealHelper<T>::Func( *this, i, j ); }
 
@@ -61,7 +61,7 @@ DistMatrix<T,MR,MC,Int>::GetRealHelper<Z>::Func
 }
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 DistMatrix<T,MR,MC,Int>::GetImag( Int i, Int j ) const
 { return GetImagHelper<T>::Func( *this, i, j ); }
 
@@ -80,7 +80,7 @@ DistMatrix<T,MR,MC,Int>::GetImagHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetReal
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { SetRealHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -98,7 +98,7 @@ DistMatrix<T,MR,MC,Int>::SetRealHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetImag
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { SetImagHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -116,7 +116,7 @@ DistMatrix<T,MR,MC,Int>::SetImagHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::UpdateReal
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -134,7 +134,7 @@ DistMatrix<T,MR,MC,Int>::UpdateRealHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::UpdateImag
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -152,7 +152,7 @@ DistMatrix<T,MR,MC,Int>::UpdateImagHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::GetRealDiagonal
-( DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) const
+( DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset ) const
 { GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -171,7 +171,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::GetRealDiagonal
-( DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) const
+( DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset ) const
 { GetRealDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -190,7 +190,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::GetImagDiagonal
-( DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) const
+( DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset ) const
 { GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -209,7 +209,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::GetImagDiagonal
-( DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) const
+( DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset ) const
 { GetImagDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -228,7 +228,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetRealDiagonal
-( const DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset )
+( const DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset )
 { SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -247,7 +247,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetRealDiagonal
-( const DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) 
+( const DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset ) 
 { SetRealDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -266,7 +266,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetImagDiagonal
-( const DistMatrix<typename RealBase<T>::type,MD,STAR,Int>& d, Int offset ) 
+( const DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset ) 
 { SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -285,7 +285,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Z>::Func
 template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,MC,Int>::SetImagDiagonal
-( const DistMatrix<typename RealBase<T>::type,STAR,MD,Int>& d, Int offset ) 
+( const DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset ) 
 { SetImagDiagonalHelper<T>::Func( *this, d, offset ); }
 
 template<typename T,typename Int>
@@ -323,8 +323,8 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent )
+DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetToRandomHermitian");
@@ -343,7 +343,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
 
     parent.SetToRandom();
 
-    std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+    Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
     const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
@@ -356,7 +356,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<std::complex<Z> >::Func
             const Int jLocal = (i-rowShift) / r;
             if( jLocal < localWidth )
             {
-                const Z value = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                const Z value = thisLocalBuffer[iLocal+jLocal*thisLDim].real;
                 thisLocalBuffer[iLocal+jLocal*thisLDim] = value;
             }
         }
@@ -413,8 +413,8 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent )
+DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetToRandomHPD");
@@ -434,7 +434,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
 
     parent.SetToRandom();
 
-    std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+    Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
     const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
     #pragma omp parallel for
@@ -447,7 +447,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
             const Int jLocal = (i-rowShift) / r;
             if( jLocal < localWidth )
             {
-                const Z value = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                const Z value = thisLocalBuffer[iLocal+jLocal*thisLDim].real;
                 thisLocalBuffer[iLocal+jLocal*thisLDim] = value + width;
             }
         }
@@ -460,8 +460,8 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,MR,MC,Int>::GetRealHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j ) 
+DistMatrix<T,MR,MC,Int>::GetRealHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetReal");
@@ -492,8 +492,8 @@ DistMatrix<T,MR,MC,Int>::GetRealHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline Z
-DistMatrix<T,MR,MC,Int>::GetImagHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j ) 
+DistMatrix<T,MR,MC,Int>::GetImagHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::GetImag");
@@ -524,8 +524,8 @@ DistMatrix<T,MR,MC,Int>::GetImagHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetRealHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
+DistMatrix<T,MR,MC,Int>::SetRealHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetReal");
@@ -550,8 +550,8 @@ DistMatrix<T,MR,MC,Int>::SetRealHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetImagHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
+DistMatrix<T,MR,MC,Int>::SetImagHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::SetImag");
@@ -576,8 +576,8 @@ DistMatrix<T,MR,MC,Int>::SetImagHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::UpdateRealHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
+DistMatrix<T,MR,MC,Int>::UpdateRealHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::UpdateReal");
@@ -602,8 +602,8 @@ DistMatrix<T,MR,MC,Int>::UpdateRealHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::UpdateImagHelper<std::complex<Z> >::Func
-( DistMatrix<std::complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
+DistMatrix<T,MR,MC,Int>::UpdateImagHelper<Complex<Z> >::Func
+( DistMatrix<Complex<Z>,MR,MC,Int>& parent, Int i, Int j, Z u )
 {
 #ifndef RELEASE
     PushCallStack("[MR,MC]::UpdateImag");
@@ -628,8 +628,8 @@ DistMatrix<T,MR,MC,Int>::UpdateImagHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, 
+DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, 
         DistMatrix<Z,MD,STAR,Int>& d, Int offset ) 
 {
 #ifndef RELEASE
@@ -681,7 +681,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
         const Int localDiagLength = d.LocalHeight();
 
         Z* dLocalBuffer = d.LocalBuffer();
-        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
         const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -690,7 +690,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            dLocalBuffer[k] = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            dLocalBuffer[k] = thisLocalBuffer[iLocal+jLocal*thisLDim].real;
         }
     }
 #ifndef RELEASE
@@ -701,8 +701,8 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, 
+DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, 
         DistMatrix<Z,MD,STAR,Int>& d, Int offset ) 
 {
 #ifndef RELEASE
@@ -754,7 +754,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
         const Int localDiagLength = d.LocalHeight();
 
         Z* dLocalBuffer = d.LocalBuffer();
-        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
         const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -763,7 +763,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            dLocalBuffer[k] = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            dLocalBuffer[k] = thisLocalBuffer[iLocal+jLocal*thisLDim].imag;
         }
     }
 #ifndef RELEASE
@@ -774,8 +774,8 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, 
+DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, 
         DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
@@ -828,7 +828,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
 
         Z* dLocalBuffer = d.LocalBuffer();
         const Int dLDim = d.LocalLDim();
-        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
         const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -838,7 +838,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
             dLocalBuffer[k*dLDim] = 
-                real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                thisLocalBuffer[iLocal+jLocal*thisLDim].real;
         }
     }
 #ifndef RELEASE
@@ -849,8 +849,8 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
-( const DistMatrix<std::complex<Z>,MR,MC,Int>& parent, 
+DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Complex<Z> >::Func
+( const DistMatrix<Complex<Z>,MR,MC,Int>& parent, 
         DistMatrix<Z,STAR,MD,Int>& d, Int offset ) 
 {
 #ifndef RELEASE
@@ -903,7 +903,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
 
         Z* dLocalBuffer = d.LocalBuffer();
         const Int dLDim = d.LocalLDim();
-        const std::complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
+        const Complex<Z>* thisLocalBuffer = parent.LockedLocalBuffer();
         const Int thisLDim = parent.LocalLDim();
 #ifdef _OPENMP
         #pragma omp parallel for
@@ -913,7 +913,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
             dLocalBuffer[k*dLDim] = 
-                imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                thisLocalBuffer[iLocal+jLocal*thisLDim].imag;
         }
     }
 #ifndef RELEASE
@@ -924,8 +924,8 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
-(       DistMatrix<std::complex<Z>,MR,MC,Int>& parent,
+DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Complex<Z> >::Func
+(       DistMatrix<Complex<Z>,MR,MC,Int>& parent,
   const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
@@ -972,7 +972,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 
         const Int localDiagLength = d.LocalHeight();
 
-        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const Int thisLDim = parent.LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
 #ifdef _OPENMP
@@ -983,8 +983,8 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
             const Z u = dLocalBuffer[k];
-            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
+            const Z v = thisLocalBuffer[iLocal+jLocal*thisLDim].imag;
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = Complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -995,8 +995,8 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
-(       DistMatrix<std::complex<Z>,MR,MC,Int>& parent,
+DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Complex<Z> >::Func
+(       DistMatrix<Complex<Z>,MR,MC,Int>& parent,
   const DistMatrix<Z,MD,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
@@ -1043,7 +1043,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
 
         const Int localDiagLength = d.LocalHeight();
 
-        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const Int thisLDim = parent.LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
 #ifdef _OPENMP
@@ -1053,9 +1053,9 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z u = thisLocalBuffer[iLocal+jLocal*thisLDim].real;
             const Z v = dLocalBuffer[k];
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = Complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -1066,8 +1066,8 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
-(       DistMatrix<std::complex<Z>,MR,MC,Int>& parent,
+DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Complex<Z> >::Func
+(       DistMatrix<Complex<Z>,MR,MC,Int>& parent,
   const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
@@ -1114,7 +1114,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 
         const Int localDiagLength = d.LocalWidth();
 
-        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const Int thisLDim = parent.LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
         const Int dLDim = d.LocalLDim();
@@ -1126,8 +1126,8 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
             const Z u = dLocalBuffer[k*dLDim];
-            const Z v = imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
+            const Z v = thisLocalBuffer[iLocal+jLocal*thisLDim].imag;
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = Complex<Z>(u,v);
         }
     }
 #ifndef RELEASE
@@ -1138,8 +1138,8 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<std::complex<Z> >::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
-(       DistMatrix<std::complex<Z>,MR,MC,Int>& parent,
+DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Complex<Z> >::Func
+(       DistMatrix<Complex<Z>,MR,MC,Int>& parent,
   const DistMatrix<Z,STAR,MD,Int>& d, Int offset )
 {
 #ifndef RELEASE
@@ -1186,7 +1186,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
 
         const Int localDiagLength = d.LocalWidth();
 
-        std::complex<Z>* thisLocalBuffer = parent.LocalBuffer();
+        Complex<Z>* thisLocalBuffer = parent.LocalBuffer();
         const Int thisLDim = parent.LocalLDim();
         const Z* dLocalBuffer = d.LockedLocalBuffer();
         const Int dLDim = d.LocalLDim();
@@ -1197,9 +1197,9 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<std::complex<Z> >::Func
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            const Z u = real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            const Z u = thisLocalBuffer[iLocal+jLocal*thisLDim].real;
             const Z v = dLocalBuffer[k*dLDim];
-            thisLocalBuffer[iLocal+jLocal*thisLDim] = std::complex<Z>(u,v);
+            thisLocalBuffer[iLocal+jLocal*thisLDim] = Complex<Z>(u,v);
         }
     }
 #ifndef RELEASE

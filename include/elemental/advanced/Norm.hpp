@@ -69,7 +69,7 @@ Norm( const Matrix<R>& A, NormType type )
 
 template<typename R>
 inline R
-Norm( const Matrix<std::complex<R> >& A, NormType type )
+Norm( const Matrix<Complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
@@ -127,7 +127,7 @@ Norm( const DistMatrix<R,MC,MR>& A, NormType type )
 
 template<typename R> 
 inline R
-Norm( const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+Norm( const DistMatrix<Complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");

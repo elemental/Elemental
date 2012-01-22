@@ -153,7 +153,7 @@ inline void HermitianTridiagU( Matrix<R>& A )
 
 template<typename R>
 inline void HermitianTridiagL
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
+( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagL");
@@ -165,7 +165,7 @@ inline void HermitianTridiagL
     if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
         throw std::logic_error("t is of the wrong size");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     if( !t.Viewing() )
         t.ResizeTo( tHeight, 1 );
@@ -223,7 +223,7 @@ inline void HermitianTridiagL
 
 template<typename R>
 inline void HermitianTridiagU
-( Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
+( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiagU");
@@ -235,7 +235,7 @@ inline void HermitianTridiagU
     if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
         throw std::logic_error("t is of the wrong size");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     
     if( !t.Viewing() )
         t.ResizeTo( tHeight, 1 );
@@ -312,7 +312,7 @@ inline void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
 
 template<typename R> 
 inline void HermitianTridiag
-( UpperOrLower uplo, Matrix<std::complex<R> >& A, Matrix<std::complex<R> >& t )
+( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");

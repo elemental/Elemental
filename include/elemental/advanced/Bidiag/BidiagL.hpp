@@ -138,9 +138,9 @@ internal::BidiagL( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 internal::BidiagL
-( DistMatrix<std::complex<R>,MC,  MR  >& A,
-  DistMatrix<std::complex<R>,STAR,STAR>& tP,
-  DistMatrix<std::complex<R>,STAR,STAR>& tQ )
+( DistMatrix<Complex<R>,MC,  MR  >& A,
+  DistMatrix<Complex<R>,STAR,STAR>& tP,
+  DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
     PushCallStack("internal::BidiagL");
@@ -152,7 +152,7 @@ internal::BidiagL
     if( tP.Viewing() || tQ.Viewing() )
         throw std::logic_error("tP and tQ must not be views");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = A.Grid();
     const int tPHeight = std::max(A.Height()-1,0);

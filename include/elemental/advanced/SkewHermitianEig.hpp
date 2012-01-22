@@ -41,9 +41,9 @@ namespace elemental {
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z )
+  DistMatrix<double,         MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -54,7 +54,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -62,9 +62,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -86,9 +86,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<double,         MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z,
   int a, int b )
 {
 #ifndef RELEASE
@@ -100,7 +100,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -108,9 +108,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();    
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -130,9 +130,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,              MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<double,         MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z,
   double a, double b )
 {
 #ifndef RELEASE
@@ -144,7 +144,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -152,9 +152,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();    
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -185,7 +185,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -193,9 +193,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();    
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -230,7 +230,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -238,9 +238,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();    
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -273,7 +273,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<std::complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double>,MC,MR> A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -281,9 +281,9 @@ SkewHermitianEig
     const int localWidth = A.LocalWidth();
     const int ALDim = A.LocalLDim();
     const int GLDim = G.LocalLDim();    
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     const double* GBuffer = G.LocalBuffer();
-    std::complex<double>* ABuffer = A.LocalBuffer();
+    Complex<double>* ABuffer = A.LocalBuffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -302,9 +302,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z )
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -313,7 +313,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
 
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
@@ -333,9 +333,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z,
   int a, int b )
 {
 #ifndef RELEASE
@@ -345,7 +345,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
@@ -363,9 +363,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
-  DistMatrix<std::complex<double>,MC,  MR>& Z,
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& Z,
   double a, double b )
 {
 #ifndef RELEASE
@@ -375,7 +375,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
@@ -391,8 +391,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag )
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -401,7 +401,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
@@ -421,8 +421,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
   int a, int b )
 {
 #ifndef RELEASE
@@ -432,7 +432,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve
@@ -450,8 +450,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<double>,MC,  MR>& G,
-  DistMatrix<double,              VR,STAR>& wImag,
+  DistMatrix<Complex<double>,MC,  MR>& G,
+  DistMatrix<double,         VR,STAR>& wImag,
   double a, double b )
 {
 #ifndef RELEASE
@@ -461,7 +461,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const std::complex<double> negativeImagOne(0,-1.);
+    const Complex<double> negativeImagOne(0,-1.);
     G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
 
     // Perform the Hermitian eigensolve

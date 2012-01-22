@@ -44,28 +44,28 @@ namespace elemental {
 template<typename T> void SetLocalHemvBlocksize( int blocksize );
 template<> void SetLocalHemvBlocksize<float>( int blocksize );
 template<> void SetLocalHemvBlocksize<double>( int blocksize );
-template<> void SetLocalHemvBlocksize<std::complex<float> >( int blocksize );
-template<> void SetLocalHemvBlocksize<std::complex<double> >( int blocksize );
+template<> void SetLocalHemvBlocksize<Complex<float> >( int blocksize );
+template<> void SetLocalHemvBlocksize<Complex<double> >( int blocksize );
 
 template<typename T> void SetLocalSymvBlocksize( int blocksize );
 template<> void SetLocalSymvBlocksize<float>( int blocksize );
 template<> void SetLocalSymvBlocksize<double>( int blocksize );
-template<> void SetLocalSymvBlocksize<std::complex<float> >( int blocksize );
-template<> void SetLocalSymvBlocksize<std::complex<double> >( int blocksize );
+template<> void SetLocalSymvBlocksize<Complex<float> >( int blocksize );
+template<> void SetLocalSymvBlocksize<Complex<double> >( int blocksize );
 
 template<typename T> void SetLocalTrrkBlocksize( int blocksize );
 template<> void SetLocalTrrkBlocksize<float>( int blocksize );
 template<> void SetLocalTrrkBlocksize<double>( int blocksize );
 template<> void 
-SetLocalTrrkBlocksize<std::complex<float> >( int blocksize );
+SetLocalTrrkBlocksize<Complex<float> >( int blocksize );
 template<> void 
-SetLocalTrrkBlocksize<std::complex<double> >( int blocksize );
+SetLocalTrrkBlocksize<Complex<double> >( int blocksize );
 
 template<typename T> void SetLocalTrr2kBlocksize( int blocksize );
 template<> void SetLocalTrr2kBlocksize<float>( int blocksize );
 template<> void SetLocalTrr2kBlocksize<double>( int blocksize );
-template<> void SetLocalTrr2kBlocksize<std::complex<float> >( int blocksize );
-template<> void SetLocalTrr2kBlocksize<std::complex<double> >( int blocksize );
+template<> void SetLocalTrr2kBlocksize<Complex<float> >( int blocksize );
+template<> void SetLocalTrr2kBlocksize<Complex<double> >( int blocksize );
 
 template<typename T> int LocalHemvBlocksize();
 template<> int LocalHemvBlocksize<float>();
@@ -248,7 +248,7 @@ R Nrm2( const Matrix<R>& x );
 
 // Serial version for complex datatypes
 template<typename R>
-R Nrm2( const Matrix<std::complex<R> >& x );
+R Nrm2( const Matrix<Complex<R> >& x );
 
 // Parallel version for real datatypes
 template<typename R>
@@ -256,7 +256,7 @@ R Nrm2( const DistMatrix<R,MC,MR>& x );
 
 // Parallel version for complex datatypes
 template<typename R>
-R Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x );
+R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x );
 
 // 
 // Scal:
@@ -290,7 +290,7 @@ void Conjugate( Matrix<Z>& A );
 
 // In-place serial version for complex datatypes.
 template<typename Z>
-void Conjugate( Matrix<std::complex<Z> >& A );
+void Conjugate( Matrix<Complex<Z> >& A );
 
 // In-place parallel version
 template<typename T, Distribution U, Distribution V>
@@ -1205,7 +1205,7 @@ Nrm2( const Matrix<R>& x )
 
 template<typename R>
 inline R
-Nrm2( const Matrix<std::complex<R> >& x )
+Nrm2( const Matrix<Complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("Nrm2");
@@ -1258,7 +1258,7 @@ Conjugate( Matrix<Z>& A )
 // Specialization is to complex datatypes
 template<typename Z>
 inline void
-Conjugate( Matrix<std::complex<Z> >& A )
+Conjugate( Matrix<Complex<Z> >& A )
 {
 #ifndef RELEASE
     PushCallStack("Conjugate (in-place)");

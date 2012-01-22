@@ -57,7 +57,7 @@ internal::MaxNorm( const Matrix<R>& A )
 
 template<typename R>
 inline R
-internal::MaxNorm( const Matrix<std::complex<R> >& A )
+internal::MaxNorm( const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
@@ -106,7 +106,7 @@ internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline R
-internal::MaxNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+internal::MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");

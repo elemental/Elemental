@@ -71,7 +71,7 @@ scomplex Dot( int n, const scomplex* x, int incx, const scomplex* y, int incy )
 { 
     scomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
-        alpha += std::conj(x[i*incx])*y[i*incy];
+        alpha += Conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
@@ -79,7 +79,7 @@ dcomplex Dot( int n, const dcomplex* x, int incx, const dcomplex* y, int incy )
 {
     dcomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
-        alpha += std::conj(x[i*incx])*y[i*incy];
+        alpha += Conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
@@ -93,7 +93,7 @@ scomplex Dotc( int n, const scomplex* x, int incx, const scomplex* y, int incy )
 { 
     scomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
-        alpha += std::conj(x[i*incx])*y[i*incy];
+        alpha += Conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 
@@ -101,7 +101,7 @@ dcomplex Dotc( int n, const dcomplex* x, int incx, const dcomplex* y, int incy )
 { 
     dcomplex alpha = 0;
     for( int i=0; i<n; ++i ) 
-        alpha += std::conj(x[i*incx])*y[i*incy];
+        alpha += Conj(x[i*incx])*y[i*incy];
     return alpha;
 }
 

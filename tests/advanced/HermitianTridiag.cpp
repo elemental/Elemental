@@ -127,11 +127,11 @@ template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, 
-  const DistMatrix<complex<R>,MC,  MR  >& A, 
-  const DistMatrix<complex<R>,STAR,STAR>& t,
-        DistMatrix<complex<R>,MC,  MR  >& AOrig )
+  const DistMatrix<Complex<R>,MC,  MR  >& A, 
+  const DistMatrix<Complex<R>,STAR,STAR>& t,
+        DistMatrix<Complex<R>,MC,  MR  >& AOrig )
 {
-    typedef complex<R> C;
+    typedef Complex<R> C;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
@@ -258,12 +258,12 @@ void TestHermitianTridiag<double>
 }
 
 template<>
-void TestHermitianTridiag<complex<double> >
+void TestHermitianTridiag<Complex<double> >
 ( bool testCorrectness, bool printMatrices,
   UpperOrLower uplo, int m, const Grid& g )
 {
     typedef double R;
-    typedef complex<R> C;
+    typedef Complex<R> C;
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,  MR  > A(g);
@@ -298,7 +298,7 @@ void TestHermitianTridiag<complex<double> >
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
-    gFlops = internal::HermitianTridiagGFlops<complex<R> >( m, runTime );
+    gFlops = internal::HermitianTridiagGFlops<Complex<R> >( m, runTime );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -351,7 +351,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocalSymv );
-        SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
+        SetLocalHemvBlocksize<Complex<double> >( nbLocalSymv );
 
         if( rank == 0 )
             cout << "Will test HermitianTridiag" << UpperOrLowerToChar(uplo) 
@@ -398,7 +398,7 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<complex<double> >
+        TestHermitianTridiag<Complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -411,7 +411,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<complex<double> >
+        TestHermitianTridiag<Complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -424,7 +424,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<complex<double> >
+        TestHermitianTridiag<Complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
     }
     catch( exception& e )

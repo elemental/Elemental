@@ -177,9 +177,9 @@ inline void BidiagU( Matrix<R>& A )
 
 template<typename R>
 inline void BidiagL
-( Matrix<std::complex<R> >& A,
-  Matrix<std::complex<R> >& tP,
-  Matrix<std::complex<R> >& tQ )
+( Matrix<Complex<R> >& A,
+  Matrix<Complex<R> >& tP,
+  Matrix<Complex<R> >& tQ )
 {
 #ifndef RELEASE
     PushCallStack("bidiag::BidiagL");
@@ -194,7 +194,7 @@ inline void BidiagL
     if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
         throw std::logic_error("tQ is the wrong height");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     if( !tP.Viewing() )
         tP.ResizeTo( tPHeight, 1 );
@@ -268,9 +268,9 @@ inline void BidiagL
 
 template<typename R> 
 inline void BidiagU
-( Matrix<std::complex<R> >& A, 
-  Matrix<std::complex<R> >& tP,
-  Matrix<std::complex<R> >& tQ )
+( Matrix<Complex<R> >& A, 
+  Matrix<Complex<R> >& tP,
+  Matrix<Complex<R> >& tQ )
 {
 #ifndef RELEASE
     PushCallStack("BidiagU");
@@ -285,7 +285,7 @@ inline void BidiagU
     if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
         throw std::logic_error("tQ is the wrong height");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     if( !tP.Viewing() )
         tP.ResizeTo( tPHeight, 1 );
@@ -381,9 +381,9 @@ Bidiag( Matrix<R>& A )
 
 template<typename R> 
 inline void Bidiag
-( Matrix<std::complex<R> >& A, 
-  Matrix<std::complex<R> >& tP, 
-  Matrix<std::complex<R> >& tQ )
+( Matrix<Complex<R> >& A, 
+  Matrix<Complex<R> >& tP, 
+  Matrix<Complex<R> >& tQ )
 {
 #ifndef RELEASE
     PushCallStack("Bidiag");

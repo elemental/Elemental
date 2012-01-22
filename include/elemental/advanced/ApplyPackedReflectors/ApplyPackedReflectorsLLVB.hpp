@@ -155,9 +155,9 @@ template<typename R> // representation of a real number
 inline void
 internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,STAR>& t,
-        DistMatrix<std::complex<R>,MC,MR  >& A )
+  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R>,MD,STAR>& t,
+        DistMatrix<Complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsLLVB");
@@ -175,7 +175,7 @@ internal::ApplyPackedReflectorsLLVB
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     const Grid& g = H.Grid();
 
     // Matrix views    

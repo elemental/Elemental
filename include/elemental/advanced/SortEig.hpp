@@ -46,9 +46,9 @@ struct IndexValuePair {
 };
 
 template<typename R>
-struct IndexValuePair<std::complex<R> > {
+struct IndexValuePair<Complex<R> > {
     int index;
-    std::complex<R> value;    
+    Complex<R> value;    
 
     static bool Compare
     ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
@@ -126,7 +126,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
 
 template<typename R> 
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -135,7 +135,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
     const int k = Z.Width();
     const Grid& g = Z.Grid();
 
-    DistMatrix<std::complex<R>,VC,STAR> Z_VC_STAR( Z );
+    DistMatrix<Complex<R>,VC,STAR> Z_VC_STAR( Z );
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
 
     // Initialize the pairs of indices and eigenvalues
@@ -152,13 +152,13 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<std::complex<R>,MC,MR>& Z )
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const int mLocal = Z_VC_STAR.LocalHeight();
-    DistMatrix<std::complex<R>,VC,STAR> ZPerm_VC_STAR( n, k, g );
+    DistMatrix<Complex<R>,VC,STAR> ZPerm_VC_STAR( n, k, g );
     for( int j=0; j<k; ++j )
     {
         const int source = pairs[j].index;
         std::memcpy
         ( ZPerm_VC_STAR.LocalBuffer(0,j), Z_VC_STAR.LockedLocalBuffer(0,source),
-          mLocal*sizeof(std::complex<R>) );
+          mLocal*sizeof(Complex<R>) );
         w_STAR_STAR.SetLocalEntry(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();

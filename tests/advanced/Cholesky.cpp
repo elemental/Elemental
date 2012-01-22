@@ -207,7 +207,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
 
         if( rank == 0 )
             cout << "Will test Cholesky" << UpperOrLowerToChar(uplo) << endl;
@@ -227,7 +227,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestCholesky<dcomplex>
+        TestCholesky<Complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
     }
     catch( exception& e )

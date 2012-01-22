@@ -293,9 +293,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestGemm<dcomplex>
+        TestGemm<Complex<double> >
         ( printMatrices, orientationOfA, orientationOfB,
-          m, n, k, (dcomplex)3, (dcomplex)4, g );
+          m, n, k, Complex<double>(3), Complex<double>(4), g );
     }
     catch( exception& e )
     {

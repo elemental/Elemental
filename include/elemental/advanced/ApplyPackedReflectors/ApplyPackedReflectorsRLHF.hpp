@@ -57,9 +57,9 @@ template<typename R>
 inline void
 internal::ApplyPackedReflectorsRLHF
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<std::complex<R>,MC,MR  >& H,
-  const DistMatrix<std::complex<R>,MD,STAR>& t,
-        DistMatrix<std::complex<R>,MC,MR  >& A )
+  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R>,MD,STAR>& t,
+        DistMatrix<Complex<R>,MC,MR  >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsRLHF");

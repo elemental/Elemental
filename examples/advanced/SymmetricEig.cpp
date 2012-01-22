@@ -59,7 +59,7 @@ main( int argc, char* argv[] )
         // r x c grid.
         Grid g( comm );
     
-        // Create an n x n complex distributed matrix, 
+        // Create an n x n real distributed matrix, 
         // [MC,MR] is standard 2d matrix distribution. 
         // We distribute the matrix using grid 'g'.
         //

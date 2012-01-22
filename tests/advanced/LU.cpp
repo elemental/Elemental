@@ -204,8 +204,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestLU<double>
-        ( pivot, testCorrectness, printMatrices, m, g );
+        TestLU<double>( pivot, testCorrectness, printMatrices, m, g );
 
         if( rank == 0 )
         {
@@ -213,8 +212,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLU<dcomplex>
-        ( pivot, testCorrectness, printMatrices, m, g );
+        TestLU<Complex<double> >( pivot, testCorrectness, printMatrices, m, g );
     }
     catch( exception& e )
     {

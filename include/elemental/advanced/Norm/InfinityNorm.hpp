@@ -56,7 +56,7 @@ internal::InfinityNorm( const Matrix<R>& A )
 
 template<typename R> 
 inline R
-internal::InfinityNorm( const Matrix<std::complex<R> >& A )
+internal::InfinityNorm( const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::InfinityNorm");
@@ -115,7 +115,7 @@ internal::InfinityNorm( const DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline R
 internal::InfinityNorm
-( const DistMatrix<std::complex<R>,MC,MR>& A )
+( const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::InfinityNorm");

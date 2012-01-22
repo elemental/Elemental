@@ -37,8 +37,8 @@ namespace elemental {
 
 typedef unsigned char byte;
  
-typedef std::complex<float>  scomplex; 
-typedef std::complex<double> dcomplex;
+typedef Complex<float>  scomplex; 
+typedef Complex<double> dcomplex;
 
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)
@@ -47,7 +47,7 @@ template<typename F,typename Int=int>
 struct SafeProduct
 {
     F rho;
-    typename RealBase<F>::type kappa;
+    typename Base<F>::type kappa;
     Int n;
 
     SafeProduct( Int numEntries ) : rho(1), kappa(0), n(numEntries) { }

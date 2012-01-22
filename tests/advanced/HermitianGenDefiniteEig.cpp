@@ -284,12 +284,12 @@ void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   UpperOrLower uplo,
-  const DistMatrix<complex<double>,MC,MR  >& A,
-  const DistMatrix<complex<double>,MC,MR  >& B,
+  const DistMatrix<Complex<double>,MC,MR  >& A,
+  const DistMatrix<Complex<double>,MC,MR  >& B,
   const DistMatrix<        double, VR,STAR>& w,
-  const DistMatrix<complex<double>,MC,MR  >& X,
-  const DistMatrix<complex<double>,MC,MR  >& AOrig,
-  const DistMatrix<complex<double>,MC,MR  >& BOrig )
+  const DistMatrix<Complex<double>,MC,MR  >& X,
+  const DistMatrix<Complex<double>,MC,MR  >& AOrig,
+  const DistMatrix<Complex<double>,MC,MR  >& BOrig )
 {
     const Grid& g = A.Grid();
     const int n = X.Height();
@@ -310,13 +310,13 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
-        DistMatrix<complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
         ( LEFT, uplo, 
-          complex<double>(1), BOrig, X, 
-          complex<double>(0), Y );
+          Complex<double>(1), BOrig, X, 
+          Complex<double>(0), Y );
         for( int jLocal=0; jLocal<Y.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
@@ -326,8 +326,8 @@ void TestCorrectnessDoubleComplex
         // Y := Y - AX = BXW - AX
         Hemm
         ( LEFT, uplo, 
-          complex<double>(-1), AOrig, X, 
-          complex<double>(1), Y );
+          Complex<double>(-1), AOrig, X, 
+          Complex<double>(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
         double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
         double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
@@ -354,20 +354,18 @@ void TestCorrectnessDoubleComplex
                  << "  Testing orthonormality of eigenvectors w.r.t. B..."
                  << endl;
         }
-        DistMatrix<complex<double>,MC,MR> Z(g);
+        DistMatrix<Complex<double>,MC,MR> Z(g);
         Z = X;
         if( uplo == LOWER )
-            Trmm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
-            Trmm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
+            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         Herk
         ( uplo, ADJOINT, 
-          complex<double>(-1), Z, 
-          complex<double>(1), Y );
+          Complex<double>(-1), Z, 
+          Complex<double>(1), Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
         frobNormOfError = Norm( Y, FROBENIUS_NORM );
@@ -381,27 +379,27 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
-        DistMatrix<complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
         ( LEFT, uplo, 
-          complex<double>(1), BOrig, X, 
-          complex<double>(0), Y );
+          Complex<double>(1), BOrig, X, 
+          Complex<double>(0), Y );
         // Set Z := AY = ABX
-        DistMatrix<complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<Complex<double>,MC,MR> Z( n, k, g );
         Hemm
         ( LEFT, uplo, 
-          complex<double>(1), AOrig, Y, 
-          complex<double>(0), Z );
+          Complex<double>(1), AOrig, Y, 
+          Complex<double>(0), Z );
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const complex<double> zeta = 
+                const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+                const Complex<double> zeta = 
                     Z.GetLocalEntry(iLocal,jLocal);
                 Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
             }
@@ -434,17 +432,15 @@ void TestCorrectnessDoubleComplex
         }
         Z = X;
         if( uplo == LOWER )
-            Trmm
-            ( LEFT, LOWER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
-            Trmm
-            ( LEFT, UPPER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
+            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         Herk
         ( uplo, ADJOINT, 
-          complex<double>(-1), Z, 
-          complex<double>(1), Y );
+          Complex<double>(-1), Z, 
+          Complex<double>(1), Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
         frobNormOfError = Norm( Y, FROBENIUS_NORM );
@@ -458,27 +454,27 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
-        DistMatrix<complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double>,MC,MR> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
         ( LEFT, uplo, 
-          complex<double>(1), AOrig, X, 
-          complex<double>(0), Y );
+          Complex<double>(1), AOrig, X, 
+          Complex<double>(0), Y );
         // Set Z := BY = BAX
-        DistMatrix<complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<Complex<double>,MC,MR> Z( n, k, g );
         Hemm
         ( LEFT, uplo, 
-          complex<double>(1), BOrig, Y, 
-          complex<double>(0), Z );
+          Complex<double>(1), BOrig, Y, 
+          Complex<double>(0), Z );
         // Set Z := Z - XW = BAX-XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
+                const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+                const Complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
                 Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
             }
         }
@@ -510,17 +506,15 @@ void TestCorrectnessDoubleComplex
         }
         Z = X;
         if( uplo == LOWER )
-            Trsm
-            ( LEFT, LOWER, NORMAL, NON_UNIT, complex<double>(1), B, Z );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
         else
-            Trsm
-            ( LEFT, UPPER, ADJOINT, NON_UNIT, complex<double>(1), B, Z );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         Y.ResizeTo( k, k );
         Y.SetToIdentity();
         Herk
         ( uplo, ADJOINT, 
-          complex<double>(-1), Z, 
-          complex<double>(1), Y );
+          Complex<double>(-1), Z, 
+          Complex<double>(1), Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
         frobNormOfError = Norm( Y, FROBENIUS_NORM );
@@ -628,24 +622,24 @@ void TestHermitianGenDefiniteEigDoubleComplex
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<complex<double>,MC,MR  > A(m,m,g);
-    DistMatrix<complex<double>,MC,MR  > B(m,m,g);
-    DistMatrix<complex<double>,MC,MR  > AOrig(g);
-    DistMatrix<complex<double>,MC,MR  > BOrig(g);
+    DistMatrix<Complex<double>,MC,MR  > A(m,m,g);
+    DistMatrix<Complex<double>,MC,MR  > B(m,m,g);
+    DistMatrix<Complex<double>,MC,MR  > AOrig(g);
+    DistMatrix<Complex<double>,MC,MR  > BOrig(g);
     DistMatrix<        double, VR,STAR> w(g);
-    DistMatrix<complex<double>,MC,MR  > X(g);
+    DistMatrix<Complex<double>,MC,MR  > X(g);
 
     A.SetToRandomHPD();
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        DistMatrix<complex<double>,MC,MR> C(m,m,g);
+        DistMatrix<Complex<double>,MC,MR> C(m,m,g);
         C.SetToRandom();
         Herk
         ( uplo, ADJOINT, 
-          complex<double>(1), C, 
-          complex<double>(0), B );
+          Complex<double>(1), C, 
+          Complex<double>(0), B );
     }
     else
     {
@@ -798,7 +792,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocalSymv );
-        SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
+        SetLocalHemvBlocksize<Complex<double> >( nbLocalSymv );
 
         if( rank == 0 )
         {

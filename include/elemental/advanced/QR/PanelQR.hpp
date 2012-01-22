@@ -121,8 +121,8 @@ internal::PanelQR( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 internal::PanelQR
-( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,STAR>& t )
+( DistMatrix<Complex<R>,MC,MR  >& A,
+  DistMatrix<Complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
@@ -134,7 +134,7 @@ internal::PanelQR
     if( !t.AlignedWithDiagonal( A, 0 ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -204,7 +204,7 @@ internal::PanelQR
         Z_MR_STAR.SumOverCol(); 
 
         Ger
-        ( -conj(tau), 
+        ( -Conj(tau), 
           aLeftCol_MC_STAR.LockedLocalMatrix(), 
           Z_MR_STAR.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );

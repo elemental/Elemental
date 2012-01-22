@@ -160,9 +160,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTrmm<dcomplex>
+        TestTrmm<Complex<double> >
         ( printMatrices, side, uplo, orientation, diagonal, 
-          m, n, (dcomplex)3, g );
+          m, n, Complex<double>(3), g );
     }
     catch( exception& e )
     {

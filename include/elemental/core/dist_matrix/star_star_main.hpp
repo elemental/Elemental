@@ -134,7 +134,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
             for( Int i=0; i<height; ++i )
             {
                 for( Int j=0; j<width; ++j )
-                    os << WrapScalar(this->GetLocalEntry(i,j)) << " ";
+                    os << this->GetLocalEntry(i,j) << " ";
                 os << "\n";
             }
             os << std::endl;

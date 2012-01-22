@@ -140,8 +140,8 @@ internal::HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 internal::HermitianTridiagUSquare
-( DistMatrix<std::complex<R>,MC,  MR  >& A,
-  DistMatrix<std::complex<R>,STAR,STAR>& t )
+( DistMatrix<Complex<R>,MC,  MR  >& A,
+  DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianTridiagUSquare");
@@ -155,7 +155,7 @@ internal::HermitianTridiagUSquare
     if( t.Viewing() )
         throw std::logic_error("t must not be a view");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     DistMatrix<C,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, 1 );

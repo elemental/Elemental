@@ -76,7 +76,7 @@ internal::HermitianOneNorm( UpperOrLower uplo, const Matrix<R>& A )
 template<typename R> 
 inline R
 internal::HermitianOneNorm
-( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianOneNorm");
@@ -237,7 +237,7 @@ internal::HermitianOneNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 template<typename R> 
 R
 internal::HermitianOneNorm
-( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianOneNorm");

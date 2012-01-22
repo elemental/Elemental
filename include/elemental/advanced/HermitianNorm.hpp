@@ -70,7 +70,7 @@ HermitianNorm( UpperOrLower uplo, const Matrix<R>& A, NormType type )
 template<typename R> 
 inline R
 HermitianNorm
-( UpperOrLower uplo, const Matrix<std::complex<R> >& A, NormType type )
+( UpperOrLower uplo, const Matrix<Complex<R> >& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("HermitianNorm");
@@ -129,7 +129,7 @@ HermitianNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
 template<typename R> 
 inline R
 HermitianNorm
-( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("HermitianNorm");

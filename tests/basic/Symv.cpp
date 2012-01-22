@@ -139,7 +139,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocalDouble );
-        SetLocalSymvBlocksize<complex<double> >( nbLocalComplexDouble );
+        SetLocalSymvBlocksize<Complex<double> >( nbLocalComplexDouble );
 
         if( rank == 0 )
             cout << "Will test Symv" << UpperOrLowerToChar(uplo) << endl;
@@ -159,8 +159,8 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestSymv<dcomplex>
-        ( uplo, m, (dcomplex)3, (dcomplex)4, printMatrices, g );
+        TestSymv<Complex<double> >
+        ( uplo, m, Complex<double>(3), Complex<double>(4), printMatrices, g );
     }
     catch( exception& e )
     {

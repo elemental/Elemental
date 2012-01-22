@@ -79,7 +79,7 @@ inline R Nrm2( const DistMatrix<R,MC,MR>& x )
 }
 
 template<typename R>
-inline R Nrm2( const DistMatrix<std::complex<R>, MC, MR >& x )
+inline R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x )
 {
 #ifndef RELEASE
     PushCallStack("Nrm2");

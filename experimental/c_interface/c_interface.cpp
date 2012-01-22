@@ -45,7 +45,7 @@ namespace {
 std::vector<Grid*> gridList;
 
 std::vector<DistMatrix<double,MC,MR>*> realDistMatList;
-std::vector<DistMatrix<std::complex<double>,MC,MR>*> complexDistMatList;
+std::vector<DistMatrix<Complex<double>,MC,MR>*> complexDistMatList;
 
 std::vector<DistMatrix<double,VR,STAR>*> realDistColVecList;
 
@@ -56,7 +56,7 @@ DistMatrix<double,MC,MR>& TranslateRealDistMatHandle
 ( RealDistMatHandle handle )
 { return *realDistMatList[handle]; }
 
-DistMatrix<std::complex<double>,MC,MR>& TranslateComplexDistMatHandle
+DistMatrix<Complex<double>,MC,MR>& TranslateComplexDistMatHandle
 ( ComplexDistMatHandle handle )
 { return *complexDistMatList[handle]; }
 
@@ -86,8 +86,7 @@ RealDistMatHandle CreateEmptyRealDistMat( const Grid& grid )
 ComplexDistMatHandle CreateEmptyComplexDistMat( const Grid& grid )
 {
     const unsigned index = GetOpenIndex( complexDistMatList );
-    complexDistMatList[index] = 
-        new DistMatrix<std::complex<double>,MC,MR>( grid );
+    complexDistMatList[index] = new DistMatrix<Complex<double>,MC,MR>( grid );
     return index;
 }
 
@@ -184,13 +183,13 @@ ComplexDistMatHandle RegisterComplexDistMat
 ( int height, int width, int colAlignment, int rowAlignment, 
   void* voidBuffer, int ldim, GridHandle gridHandle )
 {
-    typedef std::complex<double> C;
+    typedef Complex<double> C;
     C* buffer = static_cast<C*>(voidBuffer);
 
     const Grid& grid = TranslateGridHandle( gridHandle );
     const unsigned index = GetOpenIndex( complexDistMatList );
     complexDistMatList[index] = 
-        new DistMatrix<std::complex<double>,MC,MR>
+        new DistMatrix<Complex<double>,MC,MR>
         (height,width,colAlignment,rowAlignment,buffer,ldim,grid);
     return index;
 }
@@ -199,8 +198,7 @@ ComplexDistMatHandle CreateEmptyComplexDistMat( GridHandle gridHandle )
 {
     const Grid& grid = TranslateGridHandle( gridHandle );
     const unsigned index = GetOpenIndex( complexDistMatList );
-    complexDistMatList[index] = 
-        new DistMatrix<std::complex<double>,MC,MR>( grid );
+    complexDistMatList[index] = new DistMatrix<Complex<double>,MC,MR>( grid );
     return index;
 }
 
@@ -230,7 +228,7 @@ void PrintRealDistMat( RealDistMatHandle AHandle )
 
 void PrintComplexDistMat( ComplexDistMatHandle AHandle )
 {
-    typedef std::complex<double> C;
+    typedef Complex<double> C;
     const DistMatrix<C,MC,MR>& A = TranslateComplexDistMatHandle( AHandle );
     A.Print();
 }
@@ -318,7 +316,7 @@ void HermitianAxBx
 ( ComplexDistMatHandle AHandle, ComplexDistMatHandle BHandle,
   RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle )
 {
-    typedef std::complex<double> C;
+    typedef Complex<double> C;
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( BHandle );
@@ -336,7 +334,7 @@ void HermitianAxBxPartialRange
   RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle,
   double a, double b )
 {
-    typedef std::complex<double> C;
+    typedef Complex<double> C;
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( BHandle );
@@ -354,7 +352,7 @@ void HermitianAxBxPartialIndices
   RealDistColVecHandle* wHandle, ComplexDistMatHandle* XHandle,
   int a, int b )
 {
-    typedef std::complex<double> C;
+    typedef Complex<double> C;
 
     DistMatrix<C,MC,MR>& A        = TranslateComplexDistMatHandle( AHandle );
     DistMatrix<C,MC,MR>& B        = TranslateComplexDistMatHandle( BHandle );

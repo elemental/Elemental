@@ -130,13 +130,13 @@ template<typename R>
 inline void
 HermitianTridiag
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR  >& A,
-  DistMatrix<std::complex<R>,STAR,STAR>& t )
+  DistMatrix<Complex<R>,MC,  MR  >& A,
+  DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = A.Grid();
     const HermitianTridiagApproach approach = GetHermitianTridiagApproach();

@@ -127,16 +127,16 @@ template<typename R,class RealFunctor>
 inline void
 ReformHermitianMatrix
 ( UpperOrLower uplo,
-        DistMatrix<std::complex<R>,MC,MR>& A,
-  const DistMatrix<R,VR,STAR>& w,
-  const DistMatrix<std::complex<R>,MC,MR>& Z,
+        DistMatrix<Complex<R>,MC,MR  >& A,
+  const DistMatrix<R,         VR,STAR>& w,
+  const DistMatrix<Complex<R>,MC,MR  >& Z,
   const RealFunctor& f )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     DistMatrix<C,MC,MR> ZL(g), ZR(g),
                         Z0(g), Z1(g), Z2(g);
@@ -212,16 +212,16 @@ ReformHermitianMatrix
 template<typename R,class ComplexFunctor>
 inline void
 ReformNormalMatrix
-(       DistMatrix<std::complex<R>,MC,MR>& A,
-  const DistMatrix<R,VR,STAR>& w,
-  const DistMatrix<std::complex<R>,MC,MR>& Z,
+(       DistMatrix<Complex<R>,MC,MR  >& A,
+  const DistMatrix<R,         VR,STAR>& w,
+  const DistMatrix<Complex<R>,MC,MR  >& Z,
   const ComplexFunctor& f )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformNormalMatrix");
 #endif
     const Grid& g = A.Grid();
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     DistMatrix<C,MC,MR> ZL(g), ZR(g),
                         Z0(g), Z1(g), Z2(g);
@@ -326,7 +326,7 @@ template<typename R,class RealFunctor>
 inline void
 RealHermitianFunction
 ( UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,MR>& A, const RealFunctor& f )
+  DistMatrix<Complex<R>,MC,MR>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
     PushCallStack("RealHermitianFunction");
@@ -337,7 +337,7 @@ RealHermitianFunction
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<std::complex<R>,MC,MR> Z(g);
+    DistMatrix<Complex<R>,MC,MR> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Form the custom outer product, Z f(Omega) Z^H
@@ -357,7 +357,7 @@ RealHermitianFunction
 template<typename R,class ComplexFunctor>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A, 
+( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, 
   const ComplexFunctor& f )
 {
 #ifndef RELEASE
@@ -369,7 +369,7 @@ ComplexHermitianFunction
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<std::complex<R>,MC,MR> Z(g);
+    DistMatrix<Complex<R>,MC,MR> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Form the custom outer product, Z f(Omega) Z^H

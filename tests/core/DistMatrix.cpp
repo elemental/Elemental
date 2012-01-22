@@ -338,7 +338,7 @@ main( int argc, char* argv[] )
                       << "Testing with single-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<scomplex>( m, n, g );
+        DistMatrixTest<Complex<float> >( m, n, g );
         
         if( commRank == 0 )
         {
@@ -346,7 +346,7 @@ main( int argc, char* argv[] )
                       << "Testing with double-precision complex:\n"
                       << "--------------------------------------" << std::endl;
         }
-        DistMatrixTest<dcomplex>( m, n, g );
+        DistMatrixTest<Complex<double> >( m, n, g );
     }
     catch( std::exception& e )
     {

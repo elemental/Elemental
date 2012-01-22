@@ -137,10 +137,10 @@ void TestCorrectnessDouble
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   UpperOrLower uplo,
-  const DistMatrix<complex<double>,MC,  MR>& A,
+  const DistMatrix<Complex<double>,MC,  MR>& A,
   const DistMatrix<        double, VR,STAR>& w,
-  const DistMatrix<complex<double>,MC,  MR>& Z,
-  const DistMatrix<complex<double>,MC  ,MR>& AOrig )
+  const DistMatrix<Complex<double>,MC,  MR>& Z,
+  const DistMatrix<Complex<double>,MC  ,MR>& AOrig )
 {
     const Grid& g = A.Grid();
     const int n = Z.Height();
@@ -158,12 +158,12 @@ void TestCorrectnessDoubleComplex
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<complex<double>,MC,MR> X( k, k, g );
+    DistMatrix<Complex<double>,MC,MR> X( k, k, g );
     X.SetToIdentity();
     Herk
     ( uplo, ADJOINT, 
-      complex<double>(-1), Z, 
-      complex<double>(1), X );
+      Complex<double>(-1), Z, 
+      Complex<double>(1), X );
     double oneNormOfError = Norm( X, ONE_NORM );
     double infNormOfError = Norm( X, INFINITY_NORM );
     double frobNormOfError = Norm( X, FROBENIUS_NORM );
@@ -179,16 +179,16 @@ void TestCorrectnessDoubleComplex
     X.ResizeTo( n, k );
     Hemm
     ( LEFT, uplo, 
-      complex<double>(1), AOrig, Z, 
-      complex<double>(0), X );
+      Complex<double>(1), AOrig, Z, 
+      Complex<double>(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
         const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
         for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
-            const complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-            const complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
+            const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
+            const Complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
             X.SetLocalEntry(iLocal,jLocal,chi-omega*zeta);
         }
     }
@@ -291,10 +291,10 @@ void TestHermitianEigDoubleComplex
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<complex<double>,MC,  MR> A(m,m,g);
-    DistMatrix<complex<double>,MC,  MR> AOrig(g);
+    DistMatrix<Complex<double>,MC,  MR> A(m,m,g);
+    DistMatrix<Complex<double>,MC,  MR> AOrig(g);
     DistMatrix<        double, VR,STAR> w(g);
-    DistMatrix<complex<double>,MC,  MR> Z(g);
+    DistMatrix<Complex<double>,MC,  MR> Z(g);
 
     A.SetToRandomHermitian();
     if( testCorrectness )
@@ -422,7 +422,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocalSymv );
-        SetLocalHemvBlocksize<complex<double> >( nbLocalSymv );
+        SetLocalHemvBlocksize<Complex<double> >( nbLocalSymv );
 
         if( rank == 0 )
         {

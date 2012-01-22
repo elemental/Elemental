@@ -101,8 +101,8 @@ template<typename R>
 void
 FixDiagonal
 ( Conjugation conjugation,
-  const DistMatrix<std::complex<R>,STAR,STAR>& t,
-        DistMatrix<std::complex<R>,STAR,STAR>& SInv )
+  const DistMatrix<Complex<R>,STAR,STAR>& t,
+        DistMatrix<Complex<R>,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
     PushCallStack("FixDiagonal");
@@ -111,8 +111,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const std::complex<R> value = 
-                std::complex<R>(1)/t.GetLocalEntry(j,0);
+            const Complex<R> value = Complex<R>(1)/t.GetLocalEntry(j,0);
             SInv.SetLocalEntry(j,j,value);
         }
     }
@@ -120,8 +119,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const std::complex<R> value = 
-                std::complex<R>(1)/Conj(t.GetLocalEntry(j,0));
+            const Complex<R> value = Complex<R>(1)/Conj(t.GetLocalEntry(j,0));
             SInv.SetLocalEntry(j,j,value);
         }
     }

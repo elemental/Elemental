@@ -138,18 +138,18 @@ public:
 
     // Only valid for complex datatypes
 
-    typename RealBase<T>::type 
+    typename Base<T>::type 
     GetRealLocalEntry( Int iLocal, Int jLocal ) const;
-    typename RealBase<T>::type 
+    typename Base<T>::type 
     GetImagLocalEntry( Int iLocal, Int jLocal ) const;
     void SetRealLocalEntry
-    ( Int iLocal, Int jLocal, typename RealBase<T>::type alpha );
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     void SetImagLocalEntry
-    ( Int iLocal, Int jLocal, typename RealBase<T>::type alpha );
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     void UpdateRealLocalEntry
-    ( Int iLocal, Int jLocal, typename RealBase<T>::type alpha );
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     void UpdateImagLocalEntry
-    ( Int iLocal, Int jLocal, typename RealBase<T>::type alpha );
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
 
     //
     // Viewing 
@@ -185,18 +185,12 @@ public:
 
     // Only valid for complex datatypes
 
-    virtual typename RealBase<T>::type GetReal
-    ( Int i, Int j ) const = 0;
-    virtual typename RealBase<T>::type GetImag
-    ( Int i, Int j ) const = 0;
-    virtual void SetReal
-    ( Int i, Int j, typename RealBase<T>::type alpha ) = 0;
-    virtual void SetImag
-    ( Int i, Int j, typename RealBase<T>::type alpha ) = 0;
-    virtual void UpdateReal
-    ( Int i, Int j, typename RealBase<T>::type alpha ) = 0;
-    virtual void UpdateImag
-    ( Int i, Int j, typename RealBase<T>::type alpha ) = 0;
+    virtual typename Base<T>::type GetReal( Int i, Int j ) const = 0;
+    virtual typename Base<T>::type GetImag( Int i, Int j ) const = 0;
+    virtual void SetReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void SetImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void UpdateReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void UpdateImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
 
     //
     // Utilities
@@ -775,13 +769,13 @@ AbstractDistMatrix<T,Int>::Write
 //
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetRealLocalEntry
 ( Int iLocal, Int jLocal ) const
 { return this->localMatrix_.GetReal(iLocal,jLocal); }
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetImagLocalEntry
 ( Int iLocal, Int jLocal ) const
 { return this->localMatrix_.GetImag(iLocal,jLocal); }
@@ -789,25 +783,25 @@ AbstractDistMatrix<T,Int>::GetImagLocalEntry
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::SetRealLocalEntry
-( Int iLocal, Int jLocal, typename RealBase<T>::type alpha )
+( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.SetReal(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::SetImagLocalEntry
-( Int iLocal, Int jLocal, typename RealBase<T>::type alpha )
+( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.SetImag(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::UpdateRealLocalEntry
-( Int iLocal, Int jLocal, typename RealBase<T>::type alpha )
+( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.UpdateReal(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::UpdateImagLocalEntry
-( Int iLocal, Int jLocal, typename RealBase<T>::type alpha )
+( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.UpdateImag(iLocal,jLocal,alpha); }
 
 } // elemental

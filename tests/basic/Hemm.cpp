@@ -167,8 +167,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestHemm<dcomplex>
-        ( printMatrices, side, uplo, m, n, (dcomplex)3, (dcomplex)4, g );
+        TestHemm<Complex<double> >
+        ( printMatrices, side, uplo, m, n, 
+          Complex<double>(3), Complex<double>(l4), g );
     }
     catch( exception& e )
     {

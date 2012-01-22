@@ -158,12 +158,12 @@ public:
     // Routines that are only valid for complex datatypes
     //
 
-    virtual typename RealBase<T>::type GetReal( Int i, Int j ) const;
-    virtual typename RealBase<T>::type GetImag( Int i, Int j ) const;
-    virtual void SetReal( Int i, Int j, typename RealBase<T>::type u );
-    virtual void SetImag( Int i, Int j, typename RealBase<T>::type u );
-    virtual void UpdateReal( Int i, Int j, typename RealBase<T>::type u );
-    virtual void UpdateImag( Int i, Int j, typename RealBase<T>::type u );
+    virtual typename Base<T>::type GetReal( Int i, Int j ) const;
+    virtual typename Base<T>::type GetImag( Int i, Int j ) const;
+    virtual void SetReal( Int i, Int j, typename Base<T>::type u );
+    virtual void SetImag( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateReal( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateImag( Int i, Int j, typename Base<T>::type u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [MC,* ] distribution                              //
@@ -306,29 +306,21 @@ public:
     //
 
     void GetRealDiagonal
-    ( DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, 
-      Int offset=0 ) const;
+    ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset=0 ) const;
     void GetImagDiagonal
-    ( DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, 
-      Int offset=0 ) const;
+    ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset=0 ) const;
     void GetRealDiagonal
-    ( DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, 
-      Int offset=0 ) const;
+    ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset=0 ) const;
     void GetImagDiagonal
-    ( DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, 
-      Int offset=0 ) const;
+    ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset=0 ) const;
     void SetRealDiagonal
-    ( const DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, 
-      Int offset=0 );
+    ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset=0 );
     void SetImagDiagonal
-    ( const DistMatrix<typename RealBase<T>::type,MC,STAR,Int>& d, 
-      Int offset=0 );
+    ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset=0 );
     void SetRealDiagonal
-    ( const DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, 
-      Int offset=0 );
+    ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset=0 );
     void SetImagDiagonal
-    ( const DistMatrix<typename RealBase<T>::type,STAR,MC,Int>& d, 
-      Int offset=0 );
+    ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset=0 );
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
@@ -343,9 +335,9 @@ private:
         static void Func( DistMatrix<Z,MC,STAR,Int>& parent );
     };
     template<typename Z>
-    struct SetToRandomHermitianHelper<std::complex<Z> >
+    struct SetToRandomHermitianHelper<Complex<Z> >
     {
-        static void Func( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent );
+        static void Func( DistMatrix<Complex<Z>,MC,STAR,Int>& parent );
     };
     template<typename Z> friend struct SetToRandomHermitianHelper;
 
@@ -355,9 +347,9 @@ private:
         static void Func( DistMatrix<Z,MC,STAR,Int>& parent );
     };
     template<typename Z>
-    struct SetToRandomHPDHelper<std::complex<Z> >
+    struct SetToRandomHPDHelper<Complex<Z> >
     {
-        static void Func( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent );
+        static void Func( DistMatrix<Complex<Z>,MC,STAR,Int>& parent );
     };
     template<typename Z> friend struct SetToRandomHPDHelper;
 
@@ -367,10 +359,10 @@ private:
         static Z Func( const DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetRealHelper<std::complex<Z> >
+    struct GetRealHelper<Complex<Z> >
     {
         static Z Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, Int i, Int j );
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetRealHelper;
 
@@ -380,10 +372,10 @@ private:
         static Z Func( const DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetImagHelper<std::complex<Z> >
+    struct GetImagHelper<Complex<Z> >
     {
         static Z Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, Int i, Int j );
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetImagHelper;
 
@@ -394,11 +386,10 @@ private:
         ( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetRealHelper<std::complex<Z> >
+    struct SetRealHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, 
-          Int i, Int j, Z alpha );
+        ( DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetRealHelper;
 
@@ -409,11 +400,10 @@ private:
         ( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetImagHelper<std::complex<Z> >
+    struct SetImagHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, 
-          Int i, Int j, Z alpha );
+        ( DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetImagHelper;
 
@@ -424,11 +414,10 @@ private:
         ( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateRealHelper<std::complex<Z> >
+    struct UpdateRealHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, 
-          Int i, Int j, Z alpha );
+        ( DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateRealHelper;
 
@@ -439,11 +428,10 @@ private:
         ( DistMatrix<Z,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateImagHelper<std::complex<Z> >
+    struct UpdateImagHelper<Complex<Z> >
     {
         static void Func
-        ( DistMatrix<std::complex<Z>,MC,STAR,Int>& parent, 
-          Int i, Int j, Z alpha );
+        ( DistMatrix<Complex<Z>,MC,STAR,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagHelper;
 
@@ -458,13 +446,13 @@ private:
                 DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z>
-    struct GetRealDiagonalHelper<std::complex<Z> >
+    struct GetRealDiagonalHelper<Complex<Z> >
     {
         static void Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
                 DistMatrix<Z,MC,STAR,Int>& d, Int offset );
         static void Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
                 DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z> friend struct GetRealDiagonalHelper;
@@ -480,13 +468,13 @@ private:
                 DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z>
-    struct GetImagDiagonalHelper<std::complex<Z> >
+    struct GetImagDiagonalHelper<Complex<Z> >
     {
         static void Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
                 DistMatrix<Z,MC,STAR,Int>& d, Int offset );
         static void Func
-        ( const DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        ( const DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
                 DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z> friend struct GetImagDiagonalHelper;
@@ -501,13 +489,13 @@ private:
           const DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z>
-    struct SetRealDiagonalHelper<std::complex<Z> >
+    struct SetRealDiagonalHelper<Complex<Z> >
     {
         static void Func
-        (       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        (       DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
           const DistMatrix<Z,MC,STAR,Int>& d, Int offset );
         static void Func
-        (       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        (       DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
           const DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z> friend struct SetRealDiagonalHelper;
@@ -523,13 +511,13 @@ private:
           const DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z>
-    struct SetImagDiagonalHelper<std::complex<Z> >
+    struct SetImagDiagonalHelper<Complex<Z> >
     {
         static void Func
-        (       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        (       DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
           const DistMatrix<Z,MC,STAR,Int>& d, Int offset );
         static void Func
-        (       DistMatrix<std::complex<Z>,MC,STAR,Int>& parent,
+        (       DistMatrix<Complex<Z>,MC,STAR,Int>& parent,
           const DistMatrix<Z,STAR,MC,Int>& d, Int offset );
     };
     template<typename Z> friend struct SetImagDiagonalHelper;

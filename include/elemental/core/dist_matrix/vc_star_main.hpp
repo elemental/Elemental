@@ -498,7 +498,7 @@ DistMatrix<T,VC,STAR,Int>::PrintBase
         for( Int i=0; i<height; ++i )
         {
             for( Int j=0; j<width; ++j )
-                os << WrapScalar(recvBuf[i+j*height]) << " ";
+                os << recvBuf[i+j*height] << " ";
             os << "\n";
         }
         os << std::endl;

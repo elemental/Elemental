@@ -75,7 +75,7 @@ internal::HermitianMaxNorm( UpperOrLower uplo, const Matrix<R>& A )
 template<typename R>
 inline R
 internal::HermitianMaxNorm
-( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianMaxNorm");
@@ -167,7 +167,7 @@ internal::HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
 template<typename R>
 inline R
 internal::HermitianMaxNorm
-( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianMaxNorm");

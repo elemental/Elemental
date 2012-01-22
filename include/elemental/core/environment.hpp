@@ -66,8 +66,9 @@
 # endif 
 #endif
 
-
 namespace elemental {
+
+template<typename Z> struct Complex;
 
 #ifndef RELEASE
 void PushCallStack( std::string s );
@@ -76,36 +77,16 @@ void DumpCallStack();
 #endif // ifndef RELEASE
 
 // For extracting the underlying real datatype, 
-// e.g., typename RealBase<Scalar>::type a = 3.0;
-template<typename R>
-struct RealBase
-{ typedef R type; };
+// e.g., typename Base<Scalar>::type a = 3.0;
+template<typename Z>
+struct Base { typedef Z type; };
+template<typename Z>
+struct Base<Complex<Z> > { typedef Z type; };
 
-template<typename R>
-struct RealBase<std::complex<R> >
-{ typedef R type; };
-
-template<typename R>
-struct IsComplex
-{ enum { val=0 }; };
-
-template<typename R>
-struct IsComplex<std::complex<R> >
-{ enum { val=1 }; };
-
-} // namespace elemental
-
-#include "elemental/core/types.hpp"
-#include "elemental/core/utilities.hpp"
-
-#include "elemental/imports.hpp"
-
-#include "elemental/core/memory.hpp"
-#include "elemental/core/grid.hpp"
-#include "elemental/core/random.hpp"
-#include "elemental/core/timer.hpp"
-
-namespace elemental {
+template<typename Z>
+struct IsComplex { enum { val=0 }; };
+template<typename Z>
+struct IsComplex<Complex<Z> > { enum { val=1 }; };
 
 void Initialize( int& argc, char**& argv );
 void Finalize();
@@ -120,25 +101,23 @@ void SetBlocksize( int blocksize );
 void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
-const Grid& DefaultGrid();
+template<typename R>
+R Abs( R alpha );
 
-template<typename Z>
-Z Abs( Z alpha );
-
-template<typename Z>
-Z Abs( std::complex<Z> alpha );
+template<typename R>
+R Abs( Complex<R> alpha );
 
 template<typename Z>
 Z FastAbs( Z alpha );
 
 template<typename Z>
-Z FastAbs( std::complex<Z> alpha );
+Z FastAbs( Complex<Z> alpha );
 
 template<typename Z>
 Z Conj( Z alpha );
 
 template<typename Z>
-std::complex<Z> Conj( std::complex<Z> alpha );
+Complex<Z> Conj( Complex<Z> alpha );
 
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 
@@ -180,92 +159,246 @@ struct NullStream : std::ostream
     { }
 };
 
-// Create a wrappers around real and std::complex<real> types so that they
-// can be conveniently printed in a more Matlab-compatible format.
-//
-// All printing of scalars should now be performed in the fashion:
-//     std::cout << WrapScalar(alpha);
-// where 'alpha' can be real or complex.
-
-template<typename R>
-class ScalarWrapper
+// TODO: Pull into separate header and think about creating a generic version
+//       which does not require the base type to be a field.
+template<typename Z>
+struct Complex 
 {
-    const R value_;
-public:
-    ScalarWrapper( R alpha ) : value_(alpha) { }
+    typedef Z Base;
+    Z real, imag;
 
-    friend std::ostream& operator<<
-    ( std::ostream& out, ScalarWrapper<R> alpha )
-    {
-        out << alpha.value_;
-        return out;
+    Complex() { }
+    Complex( Z a ) : real(a), imag(0) { }
+    Complex( Z a, Z b ) : real(a), imag(b) { }
+
+    Complex( const std::complex<Z>& alpha ) 
+    : real(std::real(alpha)), imag(std::imag(alpha)) 
+    { }
+
+    Complex<Z>& operator=( const Z& alpha )
+    { 
+        real = alpha;
+        imag = 0;
+        return *this;
     }
-};
 
-template<typename R>
-class ScalarWrapper<std::complex<R> >
-{
-    const std::complex<R> value_;
-public:
-    ScalarWrapper( std::complex<R> alpha ) : value_(alpha) { }
+    Complex<Z>& operator+=( const Z& alpha )
+    {
+        real += alpha;
+        return *this;
+    }
+
+    Complex<Z>& operator-=( const Z& alpha )
+    {
+        real -= alpha;
+        return *this;
+    }
+
+    Complex<Z>& operator*=( const Z& alpha )
+    {
+        real *= alpha;
+        imag *= alpha;
+        return *this;
+    }
+
+    Complex<Z>& operator/=( const Z& alpha )
+    {
+        real /= alpha;
+        imag /= alpha;
+        return *this;
+    }
+
+    Complex<Z>& operator=( const Complex<Z>& alpha )
+    {
+        real = alpha.real;
+        imag = alpha.imag;
+        return *this;
+    }
+
+    Complex<Z>& operator+=( const Complex<Z>& alpha )
+    {
+        real += alpha.real;
+        imag += alpha.imag;
+        return *this;
+    }
+
+    Complex<Z>& operator-=( const Complex<Z>& alpha )
+    {
+        real -= alpha.real;
+        imag -= alpha.imag;
+        return *this;
+    }
+
+    Complex<Z>& operator*=( const Complex<Z>& alpha )
+    {
+        const Z a=real, b=imag, c=alpha.real, d=alpha.imag;
+        real = a*c - b*d;
+        imag = a*d + b*c;
+        return *this;
+    }
+
+    Complex<Z>& operator/=( const Complex<Z>& alpha )
+    {
+        const Z a=real, b=imag, c=alpha.real, d=alpha.imag;
+        if( Abs(c) >= Abs(d) )
+        {
+            const Z ratio = d/c;
+            const Z denom = c + d*ratio;
+            real = (a+b*ratio)/denom;
+            imag = (b-a*ratio)/denom;
+        }
+        else
+        {
+            const Z ratio = c/d;
+            const Z denom = c*ratio + d;
+            real = (a*ratio+b)/denom;
+            imag = (b*ratio-a)/denom;
+        }
+        return *this;
+    }
+
+    friend Complex<Z> operator+
+    ( const Complex<Z>& alpha, const Complex<Z>& beta )
+    { return Complex<Z>(alpha.real+beta.real,alpha.imag+beta.imag); }
+
+    friend Complex<Z> operator+
+    ( const Complex<Z>& alpha, const Z& beta )
+    { return Complex<Z>(alpha.real+beta,alpha.imag); }
+
+    friend Complex<Z> operator+
+    ( const Z& alpha, const Complex<Z>& beta )
+    { return Complex<Z>(alpha+beta.real,beta.imag); }
+
+    friend Complex<Z> operator-
+    ( const Complex<Z>& alpha, const Complex<Z>& beta )
+    { return Complex<Z>(alpha.real-beta.real,alpha.imag-beta.imag); }
+
+    friend Complex<Z> operator-
+    ( const Complex<Z>& alpha, const Z& beta )
+    { return Complex<Z>(alpha.real-beta,alpha.imag); }
+
+    friend Complex<Z> operator-
+    ( const Z& alpha, const Complex<Z>& beta )
+    { return Complex<Z>(alpha-beta.real,-beta.imag); }
+
+    friend Complex<Z> operator*
+    ( const Complex<Z>& alpha, const Complex<Z>& beta )
+    {
+        const Z a=alpha.real, b=alpha.imag, c=beta.real, d=beta.imag;
+        return Complex<Z>(a*c-b*d,a*d+b*c);
+    }
+
+    friend Complex<Z> operator*
+    ( const Complex<Z>& alpha, const Z& beta )
+    { return Complex<Z>(alpha.real*beta,alpha.imag*beta); }
+
+    friend Complex<Z> operator*
+    ( const Z& alpha, const Complex<Z>& beta )
+    { return Complex<Z>(alpha*beta.real,alpha*beta.imag); }
+
+    friend Complex<Z> operator/
+    ( const Complex<Z>& alpha, const Complex<Z>& beta )
+    {
+        const Z a=alpha.real, b=alpha.imag, c=beta.real, d=beta.imag;
+        if( Abs(c) >= Abs(d) )
+        {
+            const Z ratio = d/c;
+            const Z denom = c + d*ratio;
+            const Z u = (a+b*ratio)/denom;
+            const Z v = (b-a*ratio)/denom;
+            return Complex<Z>(u,v);
+        }
+        else
+        {
+            const Z ratio = c/d;
+            const Z denom = c*ratio + d;
+            const Z u = (a*ratio+b)/denom;
+            const Z v = (b*ratio-a)/denom;
+            return Complex<Z>(u,v);
+        }
+    }
+
+    friend Complex<Z> operator/
+    ( const Complex<Z>& alpha, const Z& beta )
+    { return Complex<Z>(alpha.real/beta,alpha.imag/beta); }
+
+    friend Complex<Z> operator/
+    ( const Z& alpha, const Complex<Z>& beta )
+    {
+        const Z c=beta.real, d=beta.imag;
+        if( Abs(c) >= Abs(d) )
+        {
+            const Z ratio = d/c;
+            const Z denom = c + d*ratio;
+            const Z u = alpha/denom;
+            const Z v = -alpha*ratio/denom;
+            return Complex<Z>(u,v);
+        }
+        else
+        {
+            const Z ratio = c/d;
+            const Z denom = c*ratio + d;
+            const Z u = alpha*ratio/denom;
+            const Z v = -alpha/denom;
+            return Complex<Z>(u,v);
+        }
+    }
+
+    friend Complex<Z> operator+( const Complex<Z>& alpha )
+    { return alpha; }
+
+    friend Complex<Z> operator-( const Complex<Z>& alpha )
+    { return Complex<Z>(-alpha.real,-alpha.imag); }
+
+    friend bool operator==( const Complex<Z>& alpha, const Complex<Z>& beta )
+    { return alpha.real==beta.real && alpha.imag==beta.imag; }
+
+    friend bool operator==( const Complex<Z>& alpha, const Z& beta )
+    { return alpha.real==beta && alpha.imag==0; }
+
+    friend bool operator==( const Z& alpha, const Complex<Z>& beta )
+    { return alpha==beta.real && 0==beta.imag; }
+
+    friend bool operator!=( const Complex<Z>& alpha, const Complex<Z>& beta )
+    { return alpha.real!=beta.real || alpha.imag!=beta.imag; }
+
+    friend bool operator!=( const Complex<Z>& alpha, const Z& beta )
+    { return alpha.real!=beta || alpha.imag!=0; }
+
+    friend bool operator!=( const Z& alpha, const Complex<Z>& beta )
+    { return alpha!=beta.real || 0!=beta.imag; }
 
     friend std::ostream& operator<<
-    ( std::ostream& os, ScalarWrapper<std::complex<R> > alpha )
+    ( std::ostream& os, Complex<Z> alpha )
     {
-        os << std::real(alpha.value_) << "+" << std::imag(alpha.value_) << "i";
+        os << alpha.real << "+" << alpha.imag << "i";
         return os;
     }
 };
 
-// There is a known bug in the Darwin g++ that causes an internal compiler
-// error, so, by default, this routine is subverted.
-#ifdef DISABLE_SCALAR_WRAPPER
 template<typename R>
-R WrapScalar( R alpha );
-template<typename R>
-std::complex<R> WrapScalar( std::complex<R> alpha );
-#else  // ifdef DISABLE_SCALAR_WRAPPER
-template<typename R>
-ScalarWrapper<R> WrapScalar( R alpha );
-template<typename R>
-ScalarWrapper<std::complex<R> > WrapScalar( std::complex<R> alpha );
-#endif // ifdef DISABLE_SCALAR_WRAPPER
-
-//----------------------------------------------------------------------------//
-// Implementation begins here                                                 //
-//----------------------------------------------------------------------------//
-
-#ifdef DISABLE_SCALAR_WRAPPER
-template<typename R>
-inline R
-WrapScalar( R alpha )
-{ return alpha; }
-
-template<typename R>
-inline std::complex<R>
-WrapScalar( std::complex<R> alpha )
-{ return alpha; }
-#else // ifdef DISABLE_SCALAR_WRAPPER
-template<typename R>
-inline ScalarWrapper<R>
-WrapScalar( R alpha )
-{ return ScalarWrapper<R>( alpha ); }
-
-template<typename R>
-inline ScalarWrapper<std::complex<R> >
-WrapScalar( std::complex<R> alpha )
-{ return ScalarWrapper<std::complex<R> >( alpha ); }
-#endif // ifdef DISABLE_SCALAR_WRAPPER
-
-template<typename Z>
-inline Z 
-Abs( Z alpha )
+inline R 
+Abs( R alpha )
 { return std::abs(alpha); }
 
-template<typename Z>
-inline Z
-Abs( std::complex<Z> alpha )
-{ return std::abs( alpha ); }
+template<typename R>
+inline R
+Abs( Complex<R> alpha )
+{
+    const R x=alpha.real, y=alpha.imag;
+    if( x >= y )
+    {
+        const R xMag = std::abs( x );
+        const R ratio = y/x;
+        return xMag*sqrt(1+ratio*ratio);
+    }
+    else
+    {
+        const R yMag = std::abs( y );
+        const R ratio = x/y;
+        return yMag*sqrt(1+ratio*ratio);
+    }
+}
 
 template<typename Z>
 inline Z
@@ -274,19 +407,34 @@ FastAbs( Z alpha )
 
 template<typename Z>
 inline Z
-FastAbs( std::complex<Z> alpha )
-{ return std::abs( std::real(alpha) ) + std::abs( std::imag(alpha) ); }
+FastAbs( Complex<Z> alpha )
+{ return std::abs(alpha.real) + std::abs(alpha.imag); }
 
 template<typename Z>
 inline Z
-Conj
-( Z alpha )
+Conj( Z alpha )
 { return alpha; }
 
 template<typename Z>
-inline std::complex<Z>
-Conj( std::complex<Z> alpha )
-{ return std::conj( alpha ); }
+inline Complex<Z>
+Conj( Complex<Z> alpha )
+{ return Complex<Z>(alpha.real,-alpha.imag); }
+
+} // namespace elemental
+
+#include "elemental/core/types.hpp"
+#include "elemental/core/utilities.hpp"
+
+#include "elemental/imports.hpp"
+
+#include "elemental/core/memory.hpp"
+#include "elemental/core/grid.hpp"
+#include "elemental/core/random.hpp"
+#include "elemental/core/timer.hpp"
+
+namespace elemental {
+
+const Grid& DefaultGrid();
 
 } // namespace elemental
 

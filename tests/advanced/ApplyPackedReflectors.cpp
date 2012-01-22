@@ -135,10 +135,10 @@ void TestCorrectness
   Conjugation conjugation,
   int offset,
   bool printMatrices,
-  const DistMatrix<complex<R>,MC,MR  >& H,
-  const DistMatrix<complex<R>,MD,STAR>& t )
+  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R>,MD,STAR>& t )
 {
-    typedef complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = H.Grid();
     const int m = H.Height();
@@ -209,7 +209,8 @@ void TestCorrectness
 
 template<typename F> // represents a real or complex number
 void TestUT
-( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
+( Side side, UpperOrLower uplo, 
+  ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g );
 
@@ -262,12 +263,12 @@ void TestUT<double>
 }
 
 template<>
-void TestUT< complex<double> >
+void TestUT<Complex<double> >
 ( Side side, UpperOrLower uplo, ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    typedef complex<double> C;
+    typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > H(g);
@@ -409,7 +410,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestUT<dcomplex>
+        TestUT<Complex<double> >
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }

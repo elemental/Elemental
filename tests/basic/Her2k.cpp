@@ -150,7 +150,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalTrr2kBlocksize<double>( nbLocal );
-        SetLocalTrr2kBlocksize<complex<double> >( nbLocal );
+        SetLocalTrr2kBlocksize<Complex<double> >( nbLocal );
 
         if( rank == 0 )
         {
@@ -174,9 +174,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestHer2k<dcomplex>
+        TestHer2k<Complex<double> >
         ( printMatrices, uplo, orientation, 
-          m, k, (dcomplex)3, (dcomplex)4, g );
+          m, k, Complex<double>(3), Complex<double>(4), g );
     }
     catch( exception& e )
     {

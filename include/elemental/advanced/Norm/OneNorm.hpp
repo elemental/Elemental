@@ -56,7 +56,7 @@ internal::OneNorm( const Matrix<R>& A )
 
 template<typename R>
 inline R
-internal::OneNorm( const Matrix<std::complex<R> >& A )
+internal::OneNorm( const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::OneNorm");
@@ -114,7 +114,7 @@ internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline R
-internal::OneNorm( const DistMatrix<std::complex<R>,MC,MR>& A )
+internal::OneNorm( const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::OneNorm");

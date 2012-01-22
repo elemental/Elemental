@@ -33,7 +33,7 @@
 #ifndef PARALLEL_LCG_HPP
 #define PARALLEL_LCG_HPP 1
 
-#include <complex>
+#include <cmath>
 
 namespace plcg {
 
@@ -95,10 +95,6 @@ template<typename R>
 void SerialGaussianRandomVariable( R& X );
 template<typename R>
 void ParallelGaussianRandomVariable( R& X );
-template<typename R>
-void SerialGaussianRandomVariable( std::complex<R>& X );
-template<typename R>
-void ParallelGaussianRandomVariable( std::complex<R>& X );
 
 } // namespace plcg
 
@@ -292,8 +288,7 @@ inline double plcg::ParallelUniform<double>()
 
 template<typename R>
 inline void
-plcg::SerialBoxMuller
-( R& X, R& Y )
+plcg::SerialBoxMuller( R& X, R& Y )
 {
     const R U = SerialUniform<R>();
     const R V = SerialUniform<R>();
@@ -306,8 +301,7 @@ plcg::SerialBoxMuller
 
 template<typename R>
 inline void
-plcg::ParallelBoxMuller
-( R& X, R& Y )
+plcg::ParallelBoxMuller( R& X, R& Y )
 {
     const R U = ParallelUniform<R>();
     const R V = ParallelUniform<R>();
@@ -320,8 +314,7 @@ plcg::ParallelBoxMuller
 
 template<typename R>
 inline void
-plcg::SerialGaussianRandomVariable
-( R& X )
+plcg::SerialGaussianRandomVariable( R& X )
 {
     // Use half of Box-Muller
     const R U = SerialUniform<R>();
@@ -331,33 +324,12 @@ plcg::SerialGaussianRandomVariable
 
 template<typename R>
 inline void
-plcg::ParallelGaussianRandomVariable
-( R& X )
+plcg::ParallelGaussianRandomVariable( R& X )
 {
     // Use half of Box-Muller
     const R U = ParallelUniform<R>();
     const R V = ParallelUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
-}
-
-template<typename R>
-inline void
-plcg::SerialGaussianRandomVariable
-( std::complex<R>& X )
-{
-    R Y, Z;
-    SerialBoxMuller( Y, Z );
-    X = std::complex<R>( Y, Z );
-}
-
-template<typename R>
-inline void
-plcg::ParallelGaussianRandomVariable
-( std::complex<R>& X )
-{
-    R Y, Z;
-    ParallelBoxMuller( Y, Z );
-    X = std::complex<R>( Y, Z );
 }
 
 #endif // PARALLEL_LCG_HPP

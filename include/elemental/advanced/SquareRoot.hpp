@@ -109,7 +109,7 @@ SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-SquareRoot( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
+SquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("SquareRoot");
@@ -117,7 +117,7 @@ SquareRoot( UpperOrLower uplo, DistMatrix<std::complex<R>,MC,MR>& A )
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<std::complex<R>,MC,MR> Z(g);
+    DistMatrix<Complex<R>,MC,MR> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Compute the two-norm of A as the maximum absolute value 

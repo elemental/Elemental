@@ -33,18 +33,6 @@
 #ifndef ELEMENTAL_RANDOM_HPP
 #define ELEMENTAL_RANDOM_HPP 1
 
-// Template conventions:
-//   G: general datatype
-//
-//   T: any ring, e.g., the (Gaussian) integers and the real/complex numbers
-//   Z: representation of a real ring, e.g., the integers or real numbers
-//   std::complex<Z>: representation of a complex ring, e.g. Gaussian integers
-//                    or complex numbers
-//
-//   F: representation of real or complex number
-//   R: representation of real number
-//   std::complex<R>: representation of complex number
-
 namespace elemental {
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
@@ -75,9 +63,9 @@ SampleUnitBall<int>()
 }
 
 template<>
-inline std::complex<int>
-SampleUnitBall< std::complex<int> >()
-{ return std::complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
+inline Complex<int>
+SampleUnitBall<Complex<int> >()
+{ return Complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
 
 template<>
 inline float
@@ -90,27 +78,21 @@ SampleUnitBall<double>()
 { return 2*plcg::ParallelUniform<double>()-1.0; }
 
 template<>
-inline std::complex<float>
-SampleUnitBall< std::complex<float> >()
+inline Complex<float>
+SampleUnitBall<Complex<float> >()
 {
     const float r = plcg::ParallelUniform<float>();
     const float angle = 2*Pi*plcg::ParallelUniform<float>();
-
-    std::complex<float> u = std::polar(r,angle);
-
-    return u;
+    return Complex<float>(r*cos(angle),r*sin(angle));
 }
 
 template<>
-inline std::complex<double>
-SampleUnitBall< std::complex<double> >()
+inline Complex<double>
+SampleUnitBall<Complex<double> >()
 {
     const double r = plcg::ParallelUniform<double>();
     const double angle = 2*Pi*plcg::ParallelUniform<double>();
-
-    std::complex<double> u = std::polar(r,angle);
-
-    return u;
+    return Complex<double>(r*cos(angle),r*sin(angle));
 }
 
 } // elemental

@@ -127,9 +127,9 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 }
 
 template<typename R> 
-inline std::complex<R>
+inline Complex<R>
 internal::ColReflector
-( DistMatrix<std::complex<R>,MC,MR>& chi, DistMatrix<std::complex<R>,MC,MR>& x )
+( DistMatrix<Complex<R>,MC,MR>& chi, DistMatrix<Complex<R>,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::ColReflector");
@@ -145,7 +145,7 @@ internal::ColReflector
     if( x.Grid().MRRank() != x.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.MCComm();
     const int gridHeight = grid.Height();
@@ -162,7 +162,7 @@ internal::ColReflector
         alpha = chi.GetLocalEntry(0,0);
     mpi::Broadcast( &alpha, 1, colAlignment, colComm );
 
-    if( norm == (R)0 && imag(alpha) == (R)0 )
+    if( norm == (R)0 && alpha.imag == (R)0 )
     {
         if( gridRow == colAlignment )
             chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
@@ -173,10 +173,10 @@ internal::ColReflector
     }
 
     R beta;
-    if( real(alpha) <= 0 )
-        beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
+    if( alpha.real <= 0 )
+        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
     else
-        beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
 
     const R one = 1;
     const R safeMin = lapack::MachineSafeMin<R>();
@@ -197,13 +197,13 @@ internal::ColReflector
         localNorm = Nrm2( x.LockedLocalMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
         norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
-        if( real(alpha) <= 0 )
-            beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        if( alpha.real <= 0 )
+            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
         else
-            beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
+            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
     }
 
-    C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
+    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )

@@ -33,6 +33,8 @@
 
 namespace elemental {
 
+// TODO: Switch to non-naive methods which are less likely to overflow
+
 template<typename R> 
 inline R
 internal::FrobeniusNorm( const Matrix<R>& A )
@@ -58,7 +60,7 @@ internal::FrobeniusNorm( const Matrix<R>& A )
 
 template<typename R>
 inline R
-internal::FrobeniusNorm( const Matrix<std::complex<R> >& A )
+internal::FrobeniusNorm( const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
@@ -68,9 +70,8 @@ internal::FrobeniusNorm( const Matrix<std::complex<R> >& A )
     {
         for( int i=0; i<A.Height(); ++i )
         {
-            const std::complex<R> alpha = A.Get(i,j);
-            // The std::norm function is a field norm rather than a vector norm.
-            normSquared += norm(alpha);
+            const Complex<R> alpha = A.Get(i,j);
+            normSquared += Abs(alpha)*Abs(alpha);
         }
     }
     R norm = sqrt(normSquared);
@@ -112,7 +113,7 @@ internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline R
 internal::FrobeniusNorm
-( const DistMatrix<std::complex<R>,MC,MR>& A )
+( const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
@@ -122,9 +123,8 @@ internal::FrobeniusNorm
     {
         for( int i=0; i<A.LocalHeight(); ++i )
         {
-            const std::complex<R> alpha = A.GetLocalEntry(i,j);
-            // The std::norm function is a field norm rather than a vector norm.
-            localNormSquared += norm(alpha);
+            const Complex<R> alpha = A.GetLocalEntry(i,j);
+            localNormSquared += Abs(alpha)*Abs(alpha);
         }
     }
 

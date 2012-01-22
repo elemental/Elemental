@@ -413,13 +413,13 @@ internal::PanelBidiagU
 template<typename R> 
 inline void
 internal::PanelBidiagU
-( DistMatrix<std::complex<R>,MC,  MR  >& A, 
-  DistMatrix<std::complex<R>,MD,  STAR>& tP,
-  DistMatrix<std::complex<R>,MD,  STAR>& tQ,
-  DistMatrix<std::complex<R>,MC,  MR  >& X, 
-  DistMatrix<std::complex<R>,MC,  MR  >& Y,
-  DistMatrix<std::complex<R>,MC,  STAR>& AColPan_MC_STAR,
-  DistMatrix<std::complex<R>,STAR,MR  >& ARowPan_STAR_MR )
+( DistMatrix<Complex<R>,MC,  MR  >& A, 
+  DistMatrix<Complex<R>,MD,  STAR>& tP,
+  DistMatrix<Complex<R>,MD,  STAR>& tQ,
+  DistMatrix<Complex<R>,MC,  MR  >& X, 
+  DistMatrix<Complex<R>,MC,  MR  >& Y,
+  DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
+  DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
@@ -450,7 +450,7 @@ internal::PanelBidiagU
         A.RowAlignment() != Y.RowAlignment() )
         throw std::logic_error("A and Y must be aligned");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = A.Grid();
     const int r = g.Height();
@@ -833,7 +833,7 @@ internal::PanelBidiagU
 
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
-    DistMatrix<std::complex<R>,MC,MR> ATLExpanded(g);
+    DistMatrix<Complex<R>,MC,MR> ATLExpanded(g);
     ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetDiagonal( e, 1 );
 #ifndef RELEASE

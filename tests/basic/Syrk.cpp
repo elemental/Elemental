@@ -142,7 +142,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r, c );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
 
         if( rank == 0 )
         {
@@ -166,9 +166,9 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestSyrk<dcomplex>
+        TestSyrk<Complex<double> >
         ( printMatrices, uplo, orientation, 
-          m, k, (dcomplex)3, (dcomplex)4, g );
+          m, k, Complex<double>(3), Complex<double>(4), g );
     }
     catch( exception& e )
     {

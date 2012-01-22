@@ -101,18 +101,18 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 }
 
 template<typename R>
-inline std::complex<R>
-Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x )
+inline Complex<R>
+Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("Reflector");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     R norm = Nrm2( x );
     C alpha = chi.Get(0,0);
 
-    if( norm == 0 && imag(alpha) == (R)0 )
+    if( norm == 0 && alpha.imag == (R)0 )
     {
         chi.Set(0,0,-chi.Get(0,0));
 #ifndef RELEASE
@@ -122,10 +122,10 @@ Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x )
     }
 
     R beta;
-    if( real(alpha) <= 0 )
-        beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
+    if( alpha.real <= 0 )
+        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
     else
-        beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
 
     const R one = 1;
     const R safeMin = lapack::MachineSafeMin<R>();
@@ -144,13 +144,13 @@ Reflector( Matrix<std::complex<R> >& chi, Matrix<std::complex<R> >& x )
         } while( Abs(beta) < safeInv );
 
         norm = Nrm2( x );
-        if( real(alpha) <= 0 )
-            beta = lapack::SafeNorm( real(alpha), imag(alpha), norm );
+        if( alpha.real <= 0 )
+            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
         else
-            beta = -lapack::SafeNorm( real(alpha), imag(alpha), norm );
+            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
     }
 
-    C tau = C( (beta-real(alpha))/beta, -imag(alpha)/beta );
+    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     Scal( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )

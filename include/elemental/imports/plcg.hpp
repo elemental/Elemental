@@ -95,10 +95,6 @@ template<typename R>
 void SerialGaussianRandomVariable( R& X );
 template<typename R>
 void ParallelGaussianRandomVariable( R& X );
-template<typename R>
-void SerialGaussianRandomVariable( std::complex<R>& X );
-template<typename R>
-void ParallelGaussianRandomVariable( std::complex<R>& X );
 
 //----------------------------------------------------------------------------//
 // Header implementations                                                     //
@@ -332,23 +328,6 @@ ParallelGaussianRandomVariable( R& X )
     const R U = ParallelUniform<R>();
     const R V = ParallelUniform<R>();
     X = sqrt(-2*log(U)) * cos(2*M_PI*V);
-}
-
-template<typename R>
-inline void
-SerialGaussianRandomVariable( std::complex<R>& X )
-{
-    R Y, Z;
-    SerialBoxMuller( Y, Z );
-    X = std::complex<R>( Y, Z );
-}
-
-template<typename R>
-inline void ParallelGaussianRandomVariable( std::complex<R>& X )
-{
-    R Y, Z;
-    ParallelBoxMuller( Y, Z );
-    X = std::complex<R>( Y, Z );
 }
 
 } // namespace plcg

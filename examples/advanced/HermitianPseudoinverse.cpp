@@ -36,7 +36,7 @@ using namespace elemental;
 
 // Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;
-typedef complex<R> C;
+typedef Complex<R> C;
 
 int
 main( int argc, char* argv[] )

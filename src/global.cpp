@@ -119,8 +119,8 @@ void Initialize( int& argc, char**& argv )
     // Build the pivot operations needed by the distributed LU
     internal::CreatePivotOp<float>();
     internal::CreatePivotOp<double>();
-    internal::CreatePivotOp<std::complex<float> >();
-    internal::CreatePivotOp<std::complex<double> >();
+    internal::CreatePivotOp<Complex<float> >();
+    internal::CreatePivotOp<Complex<double> >();
 
     // Seed the parallel random number generator, PLCG
     plcg::UInt64 seed;
@@ -154,8 +154,8 @@ void Finalize()
         // Destroy the pivot ops needed by the distributed LU
         internal::DestroyPivotOp<float>();
         internal::DestroyPivotOp<double>();
-        internal::DestroyPivotOp<std::complex<float> >();
-        internal::DestroyPivotOp<std::complex<double> >();
+        internal::DestroyPivotOp<Complex<float> >();
+        internal::DestroyPivotOp<Complex<double> >();
 
         // Delete the default grid
         delete ::defaultGrid;
@@ -228,11 +228,11 @@ void SetLocalHemvBlocksize<double>( int blocksize )
 { ::localHemvDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalHemvBlocksize<std::complex<float> >( int blocksize )
+void SetLocalHemvBlocksize<Complex<float> >( int blocksize )
 { ::localHemvComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalHemvBlocksize<std::complex<double> >( int blocksize )
+void SetLocalHemvBlocksize<Complex<double> >( int blocksize )
 { ::localHemvComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -244,11 +244,11 @@ int LocalHemvBlocksize<double>()
 { return ::localHemvDoubleBlocksize; }
 
 template<>
-int LocalHemvBlocksize<std::complex<float> >()
+int LocalHemvBlocksize<Complex<float> >()
 { return ::localHemvComplexFloatBlocksize; }
 
 template<>
-int LocalHemvBlocksize<std::complex<double> >()
+int LocalHemvBlocksize<Complex<double> >()
 { return ::localHemvComplexDoubleBlocksize; }
 
 template<>
@@ -260,11 +260,11 @@ void SetLocalSymvBlocksize<double>( int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<std::complex<float> >( int blocksize )
+void SetLocalSymvBlocksize<Complex<float> >( int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<std::complex<double> >( int blocksize )
+void SetLocalSymvBlocksize<Complex<double> >( int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -276,11 +276,11 @@ int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
 template<>
-int LocalSymvBlocksize<std::complex<float> >()
+int LocalSymvBlocksize<Complex<float> >()
 { return ::localSymvComplexFloatBlocksize; }
 
 template<>
-int LocalSymvBlocksize<std::complex<double> >()
+int LocalSymvBlocksize<Complex<double> >()
 { return ::localSymvComplexDoubleBlocksize; }
 
 template<>
@@ -292,11 +292,11 @@ void SetLocalTrr2kBlocksize<double>( int blocksize )
 { ::localTrr2kDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<std::complex<float> >( int blocksize )
+void SetLocalTrr2kBlocksize<Complex<float> >( int blocksize )
 { ::localTrr2kComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<std::complex<double> >( int blocksize )
+void SetLocalTrr2kBlocksize<Complex<double> >( int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -308,11 +308,11 @@ int LocalTrr2kBlocksize<double>()
 { return ::localTrr2kDoubleBlocksize; }
 
 template<>
-int LocalTrr2kBlocksize<std::complex<float> >()
+int LocalTrr2kBlocksize<Complex<float> >()
 { return ::localTrr2kComplexFloatBlocksize; }
 
 template<>
-int LocalTrr2kBlocksize<std::complex<double> >()
+int LocalTrr2kBlocksize<Complex<double> >()
 { return ::localTrr2kComplexDoubleBlocksize; }
 
 template<>
@@ -324,11 +324,11 @@ void SetLocalTrrkBlocksize<double>( int blocksize )
 { ::localTrrkDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<std::complex<float> >( int blocksize )
+void SetLocalTrrkBlocksize<Complex<float> >( int blocksize )
 { ::localTrrkComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<std::complex<double> >( int blocksize )
+void SetLocalTrrkBlocksize<Complex<double> >( int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -340,11 +340,11 @@ int LocalTrrkBlocksize<double>()
 { return ::localTrrkDoubleBlocksize; }
 
 template<>
-int LocalTrrkBlocksize<std::complex<float> >()
+int LocalTrrkBlocksize<Complex<float> >()
 { return ::localTrrkComplexFloatBlocksize; }
 
 template<>
-int LocalTrrkBlocksize<std::complex<double> >()
+int LocalTrrkBlocksize<Complex<double> >()
 { return ::localTrrkComplexDoubleBlocksize; }
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach )

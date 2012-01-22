@@ -121,11 +121,11 @@ void TestCorrectness
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<complex<R>,MC,MR  >& A,
-  const DistMatrix<complex<R>,MD,STAR>& t,
-        DistMatrix<complex<R>,MC,MR  >& AOrig )
+  const DistMatrix<Complex<R>,MC,MR  >& A,
+  const DistMatrix<Complex<R>,MD,STAR>& t,
+        DistMatrix<Complex<R>,MC,MR  >& AOrig )
 {
-    typedef complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = A.Grid();
     const int m = A.Height();
@@ -250,11 +250,11 @@ void TestQR<double>
 }
 
 template<>
-void TestQR< complex<double> >
+void TestQR<Complex<double> >
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
-    typedef complex<double> C;
+    typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > A(g);
@@ -347,8 +347,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestQR<double>
-        ( testCorrectness, printMatrices, m, n, g );
+        TestQR<double>( testCorrectness, printMatrices, m, n, g );
 
         if( rank == 0 )
         {
@@ -356,8 +355,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestQR<dcomplex>
-        ( testCorrectness, printMatrices, m, n, g );
+        TestQR<Complex<double> >( testCorrectness, printMatrices, m, n, g );
     }
     catch( exception& e )
     {

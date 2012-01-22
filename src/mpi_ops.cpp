@@ -32,7 +32,6 @@
 */
 #include "elemental.hpp"
 
-
 namespace {
 bool createdPivotOpFloat = false;
 bool createdPivotOpDouble = false;
@@ -107,7 +106,7 @@ void internal::CreatePivotOp<double>()
 }
 
 template<>
-void internal::CreatePivotOp<std::complex<float> >()
+void internal::CreatePivotOp<Complex<float> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::CreatePivotOp");
@@ -115,7 +114,7 @@ void internal::CreatePivotOp<std::complex<float> >()
         throw std::logic_error("Alread created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<std::complex<float> >, true, 
+    ( (mpi::UserFunction*)PivotFunc<Complex<float> >, true, 
       ::pivotOpScomplex );
     ::createdPivotOpScomplex = true;
 #ifndef RELEASE
@@ -124,7 +123,7 @@ void internal::CreatePivotOp<std::complex<float> >()
 }
 
 template<>
-void internal::CreatePivotOp<std::complex<double> >()
+void internal::CreatePivotOp<Complex<double> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::CreatePivotOp");
@@ -132,7 +131,7 @@ void internal::CreatePivotOp<std::complex<double> >()
         throw std::logic_error("Already created pivot op");
 #endif
     mpi::OpCreate
-    ( (mpi::UserFunction*)PivotFunc<std::complex<double> >, true, 
+    ( (mpi::UserFunction*)PivotFunc<Complex<double> >, true, 
       ::pivotOpDcomplex );
     ::createdPivotOpDcomplex = true;
 #ifndef RELEASE
@@ -173,7 +172,7 @@ void internal::DestroyPivotOp<double>()
 }
 
 template<>
-void internal::DestroyPivotOp<std::complex<float> >()
+void internal::DestroyPivotOp<Complex<float> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::DestroyPivotOp");
@@ -189,7 +188,7 @@ void internal::DestroyPivotOp<std::complex<float> >()
 }
 
 template<>
-void internal::DestroyPivotOp<std::complex<double> >()
+void internal::DestroyPivotOp<Complex<double> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::DestroyPivotOp");
@@ -229,7 +228,7 @@ mpi::Op internal::PivotOp<double>()
 }
 
 template<>
-mpi::Op internal::PivotOp<std::complex<float> >()
+mpi::Op internal::PivotOp<Complex<float> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::PivotOp");
@@ -241,7 +240,7 @@ mpi::Op internal::PivotOp<std::complex<float> >()
 }
 
 template<>
-mpi::Op internal::PivotOp<std::complex<double> >()
+mpi::Op internal::PivotOp<Complex<double> >()
 {
 #ifndef RELEASE
     PushCallStack("internal::PivotOp");
@@ -263,9 +262,9 @@ elemental::internal::PivotFunc<double>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::internal::PivotFunc<std::complex<float> >
+elemental::internal::PivotFunc<elemental::Complex<float> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::internal::PivotFunc<std::complex<double> >
+elemental::internal::PivotFunc<elemental::Complex<double> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );

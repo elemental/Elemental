@@ -131,8 +131,8 @@ template<typename R>
 inline void
 HouseholderSolve
 ( Orientation orientation, 
-  DistMatrix<std::complex<R>,MC,MR>& A, 
-  DistMatrix<std::complex<R>,MC,MR>& B )
+  DistMatrix<Complex<R>,MC,MR>& A, 
+  DistMatrix<Complex<R>,MC,MR>& B )
 {
 #ifndef RELEASE
     PushCallStack("HouseholderSolve");
@@ -142,7 +142,7 @@ HouseholderSolve
         throw std::logic_error("Invalid orientation");
 #endif
     // TODO: Add scaling
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     const int m = A.Height();
     const int n = A.Width();
     DistMatrix<C,MD,STAR> t;

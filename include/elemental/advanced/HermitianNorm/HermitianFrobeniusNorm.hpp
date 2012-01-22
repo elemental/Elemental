@@ -33,6 +33,8 @@
 
 namespace elemental {
 
+// TODO: Switch to non-naive methods which are not as likely to overflow
+
 template<typename R>
 inline R
 internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A )
@@ -81,15 +83,13 @@ internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A )
 template<typename R>
 inline R
 internal::HermitianFrobeniusNorm
-( UpperOrLower uplo, const Matrix<std::complex<R> >& A )
+( UpperOrLower uplo, const Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
-
-    // The std::norm function is a field norm rather than a vector norm.
 
     R normSquared = 0;
     if( uplo == UPPER )
@@ -98,11 +98,11 @@ internal::HermitianFrobeniusNorm
         {
             for( int i=0; i<j; ++i )
             {
-                std::complex<R> alpha = A.Get(i,j);
-                normSquared += 2*norm(alpha);
+                Complex<R> alpha = A.Get(i,j);
+                normSquared += 2*Abs(alpha)*Abs(alpha);
             }
-            std::complex<R> alpha = A.Get(j,j);
-            normSquared += norm(alpha);
+            Complex<R> alpha = A.Get(j,j);
+            normSquared += Abs(alpha)*Abs(alpha);
         }
     }
     else
@@ -111,11 +111,11 @@ internal::HermitianFrobeniusNorm
         {
             for( int i=j+1; i<A.Height(); ++i )
             {
-                std::complex<R> alpha = A.Get(i,j);
-                normSquared += 2*norm(alpha);
+                Complex<R> alpha = A.Get(i,j);
+                normSquared += 2*Abs(alpha)*Abs(alpha);
             }
-            std::complex<R> alpha = A.Get(j,j);
-            normSquared += norm(alpha);
+            Complex<R> alpha = A.Get(j,j);
+            normSquared += Abs(alpha)*Abs(alpha);
         }
     }
 
@@ -194,7 +194,7 @@ internal::HermitianFrobeniusNorm
 template<typename R> 
 inline R
 internal::HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistMatrix<std::complex<R>,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");
@@ -219,11 +219,11 @@ internal::HermitianFrobeniusNorm
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                std::complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
+                Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
                 if( i != j )
-                    localNormSquared += 2*norm(alpha);
+                    localNormSquared += 2*Abs(alpha)*Abs(alpha);
                 else
-                    localNormSquared += norm(alpha);
+                    localNormSquared += Abs(alpha)*Abs(alpha);
             }
         }
     }
@@ -237,11 +237,11 @@ internal::HermitianFrobeniusNorm
                  iLocal<A.LocalHeight(); ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                std::complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
+                Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
                 if( i != j )
-                    localNormSquared += 2*norm(alpha);
+                    localNormSquared += 2*Abs(alpha)*Abs(alpha);
                 else
-                    localNormSquared += norm(alpha);
+                    localNormSquared += Abs(alpha)*Abs(alpha);
             }
         }
     }

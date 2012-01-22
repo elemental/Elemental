@@ -769,15 +769,15 @@ internal::HermitianPanelTridiagLSquare
 template<typename R>
 inline void
 internal::HermitianPanelTridiagLSquare
-( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,STAR>& t,
-  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR, 
-  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
-  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
-  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR )
+( DistMatrix<Complex<R>,MC,MR  >& A,
+  DistMatrix<Complex<R>,MC,MR  >& W,
+  DistMatrix<Complex<R>,MD,STAR>& t,
+  DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR, 
+  DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<Complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<Complex<R>,MR,STAR>& W_MR_STAR )
 {
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     const int panelSize = W.Width();
     const int bottomSize = W.Height()-panelSize;

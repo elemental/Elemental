@@ -98,25 +98,25 @@ public:
 
     // Only valid for complex datatypes
 
-    typename RealBase<T>::type GetReal( Int i, Int j ) const;
-    typename RealBase<T>::type GetImag( Int i, Int j ) const;
-    void SetReal( Int i, Int j, typename RealBase<T>::type alpha );
-    void SetImag( Int i, Int j, typename RealBase<T>::type alpha );
-    void UpdateReal( Int i, Int j, typename RealBase<T>::type alpha );
-    void UpdateImag( Int i, Int j, typename RealBase<T>::type alpha );
+    typename Base<T>::type GetReal( Int i, Int j ) const;
+    typename Base<T>::type GetImag( Int i, Int j ) const;
+    void SetReal( Int i, Int j, typename Base<T>::type alpha );
+    void SetImag( Int i, Int j, typename Base<T>::type alpha );
+    void UpdateReal( Int i, Int j, typename Base<T>::type alpha );
+    void UpdateImag( Int i, Int j, typename Base<T>::type alpha );
 
     void GetRealDiagonal
-    ( Matrix<typename RealBase<T>::type>& d, Int offset=0 ) const;
+    ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
     void GetImagDiagonal
-    ( Matrix<typename RealBase<T>::type>& d, Int offset=0 ) const;
+    ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
     void SetRealDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
+    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
     void SetImagDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
+    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
     void UpdateRealDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
+    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
     void UpdateImagDiagonal
-    ( const Matrix<typename RealBase<T>::type>& d, Int offset=0 );
+    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
 
     //
     // Viewing other matrix instances (or buffers)
@@ -181,10 +181,9 @@ private:
         static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetRealHelper<std::complex<Z> >
+    struct GetRealHelper<Complex<Z> >
     {
-        static Z Func
-        ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
+        static Z Func( const Matrix<Complex<Z> >& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetRealHelper;
 
@@ -194,10 +193,9 @@ private:
         static Z Func( const Matrix<Z>& parent, Int i, Int j );
     };
     template<typename Z>
-    struct GetImagHelper<std::complex<Z> >
+    struct GetImagHelper<Complex<Z> >
     {
-        static Z Func
-        ( const Matrix<std::complex<Z> >& parent, Int i, Int j );
+        static Z Func( const Matrix<Complex<Z> >& parent, Int i, Int j );
     };
     template<typename Z> friend struct GetImagHelper;
 
@@ -207,10 +205,9 @@ private:
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetRealHelper<std::complex<Z> >
+    struct SetRealHelper<Complex<Z> >
     {
-        static void Func
-        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetRealHelper;
 
@@ -220,10 +217,9 @@ private:
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetImagHelper<std::complex<Z> >
+    struct SetImagHelper<Complex<Z> >
     {
-        static void Func
-        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetImagHelper;
 
@@ -233,10 +229,9 @@ private:
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateRealHelper<std::complex<Z> >
+    struct UpdateRealHelper<Complex<Z> >
     {
-        static void Func
-        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateRealHelper;
 
@@ -246,10 +241,9 @@ private:
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateImagHelper<std::complex<Z> >
+    struct UpdateImagHelper<Complex<Z> >
     {
-        static void Func
-        ( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagHelper;
 };
@@ -701,7 +695,7 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 }
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 Matrix<T,Int>::GetReal( Int i, Int j ) const
 { return GetRealHelper<T>::Func( *this, i, j ); }
 
@@ -720,8 +714,8 @@ Matrix<T,Int>::GetRealHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Int>::GetRealHelper<std::complex<Z> >::Func
-( const Matrix<std::complex<Z> >& parent, Int i, Int j ) 
+Matrix<T,Int>::GetRealHelper<Complex<Z> >::Func
+( const Matrix<Complex<Z> >& parent, Int i, Int j ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealHelper::Func");
@@ -738,13 +732,13 @@ Matrix<T,Int>::GetRealHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
     if( parent.lockedData_ )
-        return std::real(parent.lockedData_[i+j*parent.ldim_]);
+        return parent.lockedData_[i+j*parent.ldim_].real;
     else
-        return std::real(parent.data_[i+j*parent.ldim_]);
+        return parent.data_[i+j*parent.ldim_].real;
 }
 
 template<typename T,typename Int>
-inline typename RealBase<T>::type
+inline typename Base<T>::type
 Matrix<T,Int>::GetImag( Int i, Int j ) const
 { return GetImagHelper<T>::Func( *this, i, j ); }
 
@@ -763,8 +757,8 @@ Matrix<T,Int>::GetImagHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline Z
-Matrix<T,Int>::GetImagHelper<std::complex<Z> >::Func
-( const Matrix<std::complex<Z> >& parent, Int i, Int j )
+Matrix<T,Int>::GetImagHelper<Complex<Z> >::Func
+( const Matrix<Complex<Z> >& parent, Int i, Int j )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagHelper::Func");
@@ -781,15 +775,15 @@ Matrix<T,Int>::GetImagHelper<std::complex<Z> >::Func
     PopCallStack();
 #endif
     if( parent.lockedData_ )
-        return std::imag(parent.lockedData_[i+j*parent.ldim_]);
+        return parent.lockedData_[i+j*parent.ldim_].imag;
     else
-        return std::imag(parent.data_[i+j*parent.ldim_]);
+        return parent.data_[i+j*parent.ldim_].imag;
 }
 
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::SetReal
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { SetRealHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -807,8 +801,8 @@ Matrix<T,Int>::SetRealHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetRealHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
+Matrix<T,Int>::SetRealHelper<Complex<Z> >::Func
+( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealHelper::Func");
@@ -826,14 +820,14 @@ Matrix<T,Int>::SetRealHelper<std::complex<Z> >::Func
         throw std::logic_error("Cannot modify data of locked matrices");
     PopCallStack();
 #endif
-    const Z beta = std::imag(parent.data_[i+j*parent.ldim_]);
-    parent.data_[i+j*parent.ldim_] = std::complex<Z>( alpha, beta );
+    const Z beta = parent.data_[i+j*parent.ldim_].imag;
+    parent.data_[i+j*parent.ldim_] = Complex<Z>( alpha, beta );
 }
 
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::SetImag
-( Int i, Int j, typename RealBase<T>::type alpha ) 
+( Int i, Int j, typename Base<T>::type alpha ) 
 { SetImagHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -851,8 +845,8 @@ Matrix<T,Int>::SetImagHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetImagHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha ) 
+Matrix<T,Int>::SetImagHelper<Complex<Z> >::Func
+( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagHelper::Func");
@@ -870,14 +864,14 @@ Matrix<T,Int>::SetImagHelper<std::complex<Z> >::Func
         throw std::logic_error("Cannot modify data of locked matrices");
     PopCallStack();
 #endif
-    const Z beta = std::real(parent.data_[i+j*parent.ldim_]);
-    parent.data_[i+j*parent.ldim_] = std::complex<Z>( beta, alpha );
+    const Z beta = parent.data_[i+j*parent.ldim_].real;
+    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta, alpha );
 }
 
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::UpdateReal
-( Int i, Int j, typename RealBase<T>::type alpha )
+( Int i, Int j, typename Base<T>::type alpha )
 { UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -895,8 +889,8 @@ Matrix<T,Int>::UpdateRealHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateRealHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
+Matrix<T,Int>::UpdateRealHelper<Complex<Z> >::Func
+( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealHelper::Func");
@@ -914,15 +908,14 @@ Matrix<T,Int>::UpdateRealHelper<std::complex<Z> >::Func
         throw std::logic_error("Cannot modify data of locked matrices");
     PopCallStack();
 #endif
-    const std::complex<Z> beta = parent.data_[i+j*parent.ldim_];
-    parent.data_[i+j*parent.ldim_] = 
-        std::complex<Z>( std::real(beta)+alpha, std::imag(beta) );
+    const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
+    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real+alpha, beta.imag );
 }
 
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::UpdateImag
-( Int i, Int j, typename RealBase<T>::type alpha ) 
+( Int i, Int j, typename Base<T>::type alpha ) 
 { UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -940,8 +933,8 @@ Matrix<T,Int>::UpdateImagHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateImagHelper<std::complex<Z> >::Func
-( Matrix<std::complex<Z> >& parent, Int i, Int j, Z alpha )
+Matrix<T,Int>::UpdateImagHelper<Complex<Z> >::Func
+( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagHelper::Func");
@@ -959,15 +952,14 @@ Matrix<T,Int>::UpdateImagHelper<std::complex<Z> >::Func
         throw std::logic_error("Cannot modify data of locked matrices");
     PopCallStack();
 #endif
-    const std::complex<Z> beta = parent.data_[i+j*parent.ldim_];
-    parent.data_[i+j*parent.ldim_] = 
-        std::complex<Z>( std::real(beta), std::imag(beta)+alpha );
+    const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
+    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real, beta.imag+alpha );
 }
 
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::GetRealDiagonal
-( Matrix<typename RealBase<T>::type>& d, Int offset ) const
+( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealDiagonal");
@@ -994,7 +986,7 @@ Matrix<T,Int>::GetRealDiagonal
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::GetImagDiagonal
-( Matrix<typename RealBase<T>::type>& d, Int offset ) const
+( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagDiagonal");
@@ -1021,7 +1013,7 @@ Matrix<T,Int>::GetImagDiagonal
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::SetRealDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Int offset )
+( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealDiagonal");
@@ -1043,7 +1035,7 @@ Matrix<T,Int>::SetRealDiagonal
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::SetImagDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Int offset )
+( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagDiagonal");
@@ -1065,7 +1057,7 @@ Matrix<T,Int>::SetImagDiagonal
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::UpdateRealDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Int offset )
+( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealDiagonal");
@@ -1087,7 +1079,7 @@ Matrix<T,Int>::UpdateRealDiagonal
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::UpdateImagDiagonal
-( const Matrix<typename RealBase<T>::type>& d, Int offset )
+( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagDiagonal");

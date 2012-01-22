@@ -118,8 +118,8 @@ internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 template<typename R>
 inline void
 internal::PanelLQ
-( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MD,STAR>& t )
+( DistMatrix<Complex<R>,MC,MR  >& A,
+  DistMatrix<Complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -131,7 +131,7 @@ internal::PanelLQ
     if( !t.AlignedWithDiagonal( A, 0 ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -200,7 +200,7 @@ internal::PanelLQ
         Z_MC_STAR.SumOverRow();
 
         Ger
-        ( -conj(tau),
+        ( -Conj(tau),
           Z_MC_STAR.LockedLocalMatrix(),
           aTopRowConj_STAR_MR.LockedLocalMatrix(),
           ABottomPan.LocalMatrix() );

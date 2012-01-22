@@ -750,13 +750,13 @@ internal::HermitianPanelTridiagUSquare
 template<typename R>
 inline void
 internal::HermitianPanelTridiagUSquare
-( DistMatrix<std::complex<R>,MC,MR  >& A,
-  DistMatrix<std::complex<R>,MC,MR  >& W,
-  DistMatrix<std::complex<R>,MD,STAR>& t,
-  DistMatrix<std::complex<R>,MC,STAR>& APan_MC_STAR, 
-  DistMatrix<std::complex<R>,MR,STAR>& APan_MR_STAR,
-  DistMatrix<std::complex<R>,MC,STAR>& W_MC_STAR,
-  DistMatrix<std::complex<R>,MR,STAR>& W_MR_STAR )
+( DistMatrix<Complex<R>,MC,MR  >& A,
+  DistMatrix<Complex<R>,MC,MR  >& W,
+  DistMatrix<Complex<R>,MD,STAR>& t,
+  DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR, 
+  DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
+  DistMatrix<Complex<R>,MC,STAR>& W_MC_STAR,
+  DistMatrix<Complex<R>,MR,STAR>& W_MR_STAR )
 {
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
@@ -775,7 +775,7 @@ internal::HermitianPanelTridiagUSquare
         throw std::logic_error
         ("t must be a column vector of the same length as W's width.");
 #endif
-    typedef std::complex<R> C;
+    typedef Complex<R> C;
 
     const Grid& g = A.Grid();
     const int r = g.Height();

@@ -247,10 +247,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X )
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w,
+  DistMatrix<Complex<R>,MC,  MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("HermitianGenDefiniteEig");
@@ -266,16 +266,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -290,10 +290,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X,
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w,
+  DistMatrix<Complex<R>,MC,  MR>& X,
   int a, int b )
 {
 #ifndef RELEASE
@@ -310,16 +310,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -332,10 +332,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w,
-  DistMatrix<std::complex<R>,MC,  MR>& X,
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w,
+  DistMatrix<Complex<R>,MC,  MR>& X,
   R a, R b )
 {
 #ifndef RELEASE
@@ -352,16 +352,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<R>(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, std::complex<R>(1), B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<R>(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -373,9 +373,9 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w )
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w )
 {
 #ifndef RELEASE
     PushCallStack("HermitianGenDefiniteEig");
@@ -401,9 +401,9 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w,
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w,
   int a, int b )
 {
 #ifndef RELEASE
@@ -428,9 +428,9 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<std::complex<R>,MC,  MR>& A,
-  DistMatrix<std::complex<R>,MC,  MR>& B,
-  DistMatrix<             R, VR,STAR>& w,
+  DistMatrix<Complex<R>,MC,  MR>& A,
+  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<        R, VR,STAR>& w,
   R a, R b )
 {
 #ifndef RELEASE
