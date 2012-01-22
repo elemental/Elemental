@@ -84,11 +84,11 @@ internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 #endif
     // Compute the partial column sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialColSums(A.LocalWidth());
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        myPartialColSums[j] = 0;
-        for( int i=0; i<A.LocalHeight(); ++i )
-            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
+        myPartialColSums[jLocal] = 0;
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+            myPartialColSums[jLocal] += Abs(A.GetLocalEntry(iLocal,jLocal));
     }
 
     // Sum our partial column sums to get the column sums over A[* ,MR]
@@ -99,8 +99,8 @@ internal::OneNorm( const DistMatrix<R,MC,MR>& A )
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
-        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+        myMaxColSum = std::max( myMaxColSum, myColSums[jLocal] );
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
@@ -121,11 +121,11 @@ internal::OneNorm( const DistMatrix<Complex<R>,MC,MR>& A )
 #endif
     // Compute the partial column sums defined by our local matrix, A[MC,MR]
     std::vector<R> myPartialColSums(A.LocalWidth());
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        myPartialColSums[j] = 0;
-        for( int i=0; i<A.LocalHeight(); ++i )
-            myPartialColSums[j] += Abs(A.GetLocalEntry(i,j));
+        myPartialColSums[jLocal] = 0;
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+            myPartialColSums[jLocal] += Abs(A.GetLocalEntry(iLocal,jLocal));
     }
 
     // Sum our partial column sums to get the column sums over A[* ,MR]
@@ -136,8 +136,8 @@ internal::OneNorm( const DistMatrix<Complex<R>,MC,MR>& A )
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
-        myMaxColSum = std::max( myMaxColSum, myColSums[j] );
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+        myMaxColSum = std::max( myMaxColSum, myColSums[jLocal] );
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;

@@ -194,18 +194,13 @@ inline R
 Abs( Complex<R> alpha )
 {
     const R x=alpha.real, y=alpha.imag;
-    if( x >= y )
-    {
-        const R xMag = Abs( x );
-        const R ratio = y/x;
-        return xMag*sqrt(1+ratio*ratio);
-    }
+    const R xMag=Abs(x), yMag=Abs(y);
+    const R minMag = std::min(xMag,yMag);
+    const R maxMag = std::max(xMag,yMag);
+    if( minMag == (R)0 )
+        return maxMag;
     else
-    {
-        const R yMag = Abs( y );
-        const R ratio = x/y;
-        return yMag*sqrt(1+ratio*ratio);
-    }
+        return maxMag*sqrt(1+(minMag/maxMag)*(minMag/maxMag));
 }
 
 template<typename Z>

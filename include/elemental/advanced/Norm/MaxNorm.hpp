@@ -85,11 +85,11 @@ internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
     PushCallStack("internal::MaxNorm");
 #endif
     R localMaxAbs = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        for( int i=0; i<A.LocalHeight(); ++i )
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R thisAbs = Abs(A.GetLocalEntry(i,j));
+            const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
@@ -97,7 +97,6 @@ internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
     R maxAbs;
     mpi::AllReduce
     ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -112,11 +111,11 @@ internal::MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A )
     PushCallStack("internal::MaxNorm");
 #endif
     R localMaxAbs = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        for( int i=0; i<A.LocalHeight(); ++i )
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R thisAbs = Abs(A.GetLocalEntry(i,j));
+            const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
@@ -124,7 +123,6 @@ internal::MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A )
     R maxAbs;
     mpi::AllReduce
     ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
-
 #ifndef RELEASE
     PopCallStack();
 #endif

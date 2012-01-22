@@ -89,11 +89,11 @@ internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
     PushCallStack("internal::FrobeniusNorm");
 #endif
     R localNormSquared = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        for( int i=0; i<A.LocalHeight(); ++i )
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R alpha = A.GetLocalEntry(i,j);
+            const R alpha = A.GetLocalEntry(iLocal,jLocal);
             localNormSquared += alpha*alpha;
         }
     }
@@ -112,18 +112,17 @@ internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline R
-internal::FrobeniusNorm
-( const DistMatrix<Complex<R>,MC,MR>& A )
+internal::FrobeniusNorm( const DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
 #endif
     R localNormSquared = 0;
-    for( int j=0; j<A.LocalWidth(); ++j )
+    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
-        for( int i=0; i<A.LocalHeight(); ++i )
+        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const Complex<R> alpha = A.GetLocalEntry(i,j);
+            const Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
             localNormSquared += Abs(alpha)*Abs(alpha);
         }
     }
