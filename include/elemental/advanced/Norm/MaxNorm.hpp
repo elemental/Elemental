@@ -33,13 +33,15 @@
 
 namespace elem {
 
-template<typename R> 
-inline R
-internal::MaxNorm( const Matrix<R>& A )
+template<typename F> 
+inline typename Base<F>::type
+internal::MaxNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
 #endif
+    typedef typename Base<F>::type R;
+
     R maxAbs = 0;
     for( int j=0; j<A.Width(); ++j )
     {
@@ -55,61 +57,15 @@ internal::MaxNorm( const Matrix<R>& A )
     return maxAbs;
 }
 
-template<typename R>
-inline R
-internal::MaxNorm( const Matrix<Complex<R> >& A )
+template<typename F>
+inline typename Base<F>::type
+internal::MaxNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
 #endif
-    R maxAbs = 0;
-    for( int j=0; j<A.Width(); ++j )
-    {
-        for( int i=0; i<A.Height(); ++i )
-        {
-            const R thisAbs = Abs(A.Get(i,j));
-            maxAbs = std::max( maxAbs, thisAbs );
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return maxAbs;
-}
+    typedef typename Base<F>::type R;
 
-template<typename R>
-inline R
-internal::MaxNorm( const DistMatrix<R,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::MaxNorm");
-#endif
-    R localMaxAbs = 0;
-    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
-    {
-        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
-        {
-            const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
-            localMaxAbs = std::max( localMaxAbs, thisAbs );
-        }
-    }
-
-    R maxAbs;
-    mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return maxAbs;
-}
-
-template<typename R>
-inline R
-internal::MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::MaxNorm");
-#endif
     R localMaxAbs = 0;
     for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {

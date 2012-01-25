@@ -33,106 +33,97 @@
 
 namespace elem {
 
-// TODO: Switch to non-naive methods which are less likely to overflow
-
-template<typename R> 
-inline R
-internal::FrobeniusNorm( const Matrix<R>& A )
+template<typename F> 
+inline typename Base<F>::type
+internal::FrobeniusNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
 #endif
-    R normSquared = 0;
+    typedef typename Base<F>::type R;
+
+    R scale = 0;
+    R scaledSquare = 1;
+
     for( int j=0; j<A.Width(); ++j )
     {
         for( int i=0; i<A.Height(); ++i )
         {
-            const R alpha = A.Get(i,j);
-            normSquared += alpha*alpha;
+            const R alphaAbs = Abs(A.Get(i,j));
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= scale )
+                {
+                    const R relScale = alphaAbs/scale;
+                    scaledSquare += relScale*relScale;
+                }
+                else
+                {
+                    const R relScale = scale/alphaAbs;
+                    scaledSquare = scaledSquare*relScale*relScale + 1;
+                    scale = alphaAbs;
+                }
+            }
         }
     }
-    R norm = sqrt(normSquared);
+    const R norm = scale*sqrt(scaledSquare);
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-template<typename R>
-inline R
-internal::FrobeniusNorm( const Matrix<Complex<R> >& A )
+template<typename F> 
+inline typename Base<F>::type
+internal::FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
 #endif
-    R normSquared = 0;
-    for( int j=0; j<A.Width(); ++j )
-    {
-        for( int i=0; i<A.Height(); ++i )
-        {
-            const Complex<R> alpha = A.Get(i,j);
-            normSquared += Abs(alpha)*Abs(alpha);
-        }
-    }
-    R norm = sqrt(normSquared);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
+    typedef typename Base<F>::type R;
 
-template<typename R> 
-inline R
-internal::FrobeniusNorm( const DistMatrix<R,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::FrobeniusNorm");
-#endif
-    R localNormSquared = 0;
+    R localScale = 0;
+    R localScaledSquare = 1;
     for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R alpha = A.GetLocalEntry(iLocal,jLocal);
-            localNormSquared += alpha*alpha;
+            const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= localScale )
+                {
+                    const R relScale = alphaAbs/localScale;
+                    localScaledSquare += relScale*relScale;
+                }
+                else
+                {
+                    const R relScale = localScale/alphaAbs;
+                    localScaledSquare = localScaledSquare*relScale*relScale + 1;
+                    localScale = alphaAbs; 
+                }
+            }
         }
     }
 
-    // The norm squared is simply the sum of the local contributions
-    R normSquared;
-    mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
+    // Find the maximum relative scale
+    R scale;
+    mpi::AllReduce( &localScale, &scale, 1, mpi::MAX, A.Grid().VCComm() );
 
-    R norm = sqrt(normSquared);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename R> 
-inline R
-internal::FrobeniusNorm( const DistMatrix<Complex<R>,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::FrobeniusNorm");
-#endif
-    R localNormSquared = 0;
-    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+    R norm = 0;
+    if( scale != 0 )
     {
-        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
-        {
-            const Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
-            localNormSquared += Abs(alpha)*Abs(alpha);
-        }
+        // Equilibrate our local scaled sum to the maximum scale
+        R relScale = localScale/scale;
+        localScaledSquare *= relScale*relScale;
+
+        // The scaled square is now simply the sum of the local contributions
+        R scaledSquare;
+        mpi::AllReduce
+        ( &localScaledSquare, &scaledSquare, 1, mpi::SUM, A.Grid().VCComm() );
+
+        norm = scale*sqrt(scaledSquare);
     }
-
-    // The norm squared is simply the sum of the local contributions
-    R normSquared;
-    mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
-
-    R norm = sqrt(normSquared);
 #ifndef RELEASE
     PopCallStack();
 #endif

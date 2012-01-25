@@ -33,30 +33,58 @@
 
 namespace elem {
 
-// TODO: Switch to non-naive methods which are not as likely to overflow
-
-template<typename R>
-inline R
-internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A )
+template<typename F>
+inline typename Base<F>::type 
+internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");
 #endif
+    typedef typename Base<F>::type R;
+
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    R normSquared = 0;
+    R scale = 0;
+    R scaledSquare = 1;
+
     if( uplo == UPPER )
     {
         for( int j=0; j<A.Width(); ++j )
         {
             for( int i=0; i<j; ++i )
             {
-                R alpha = A.Get(i,j);
-                normSquared += 2*alpha*alpha;
+                const R alphaAbs = Abs(A.Get(i,j));
+                if( alphaAbs != 0 )
+                {
+                    if( alphaAbs <= scale )
+                    {
+                        const R relScale = alphaAbs/scale;
+                        scaledSquare += 2*relScale*relScale;
+                    }
+                    else
+                    {
+                        const R relScale = scale/alphaAbs;
+                        scaledSquare = scaledSquare*relScale*relScale + 2;
+                        scale = alphaAbs;
+                    }
+                }
             }
-            R alpha = A.Get(j,j);
-            normSquared += alpha*alpha;
+            const R alphaAbs = Abs(A.Get(j,j));
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= scale )
+                {
+                    const R relScale = alphaAbs/scale;
+                    scaledSquare += relScale*relScale;
+                }
+                else
+                {
+                    const R relScale = scale/alphaAbs;
+                    scaledSquare = scaledSquare*relScale*relScale + 1;
+                    scale = alphaAbs;
+                }
+            }
         }
     }
     else
@@ -65,75 +93,57 @@ internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A )
         {
             for( int i=j+1; i<A.Height(); ++i )
             {
-                R alpha = A.Get(i,j);
-                normSquared += 2*alpha*alpha;
+                const R alphaAbs = Abs(A.Get(i,j));
+                if( alphaAbs != 0 )
+                {
+                    if( alphaAbs <= scale )
+                    {
+                        const R relScale = alphaAbs/scale;
+                        scaledSquare += 2*relScale*relScale;
+                    }
+                    else
+                    {
+                        const R relScale = scale/alphaAbs;
+                        scaledSquare = scaledSquare*relScale*relScale + 2;
+                        scale = alphaAbs;
+                    }
+                }
             }
-            R alpha = A.Get(j,j);
-            normSquared += alpha*alpha;
+            const R alphaAbs = Abs(A.Get(j,j));
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= scale )
+                {   
+                    const R relScale = alphaAbs/scale;
+                    scaledSquare += relScale*relScale;
+                }   
+                else
+                {
+                    const R relScale = scale/alphaAbs;
+                    scaledSquare = scaledSquare*relScale*relScale + 1;
+                    scale = alphaAbs;
+                }
+            }
         }
     }
 
-    R norm = sqrt(normSquared);
+    const R norm = scale*sqrt(scaledSquare);
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-template<typename R>
-inline R
+template<typename F>
+inline typename Base<F>::type
 internal::HermitianFrobeniusNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A )
+( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+    typedef typename Base<F>::type R;
 
-    R normSquared = 0;
-    if( uplo == UPPER )
-    {
-        for( int j=0; j<A.Width(); ++j )
-        {
-            for( int i=0; i<j; ++i )
-            {
-                Complex<R> alpha = A.Get(i,j);
-                normSquared += 2*Abs(alpha)*Abs(alpha);
-            }
-            Complex<R> alpha = A.Get(j,j);
-            normSquared += Abs(alpha)*Abs(alpha);
-        }
-    }
-    else
-    {
-        for( int j=0; j<A.Width(); ++j )
-        {
-            for( int i=j+1; i<A.Height(); ++i )
-            {
-                Complex<R> alpha = A.Get(i,j);
-                normSquared += 2*Abs(alpha)*Abs(alpha);
-            }
-            Complex<R> alpha = A.Get(j,j);
-            normSquared += Abs(alpha)*Abs(alpha);
-        }
-    }
-
-    R norm = sqrt(normSquared);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename R>
-inline R
-internal::HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::HermitianFrobeniusNorm");
-#endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -142,7 +152,9 @@ internal::HermitianFrobeniusNorm
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
-    R localNormSquared = 0;
+    R localScale = 0;
+    R localScaledSquare = 1;
+
     if( uplo == UPPER )
     {
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
@@ -152,11 +164,28 @@ internal::HermitianFrobeniusNorm
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                R alpha = A.GetLocalEntry(iLocal,jLocal);
-                if( i != j )
-                    localNormSquared += 2*alpha*alpha;
-                else
-                    localNormSquared += alpha*alpha;
+                const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                if( alphaAbs != 0 )
+                {
+                    if( alphaAbs <= localScale )
+                    {
+                        const R relScale = alphaAbs/localScale;
+                        if( i != j )
+                            localScaledSquare += 2*relScale*relScale;
+                        else
+                            localScaledSquare += relScale*relScale;
+                    }
+                    else
+                    {
+                        const R relScale = localScale/alphaAbs;
+                        if( i != j )
+                            localScaledSquare = 
+                                localScaledSquare*relScale*relScale + 2;
+                        else
+                            localScaledSquare = 
+                                localScaledSquare*relScale*relScale + 1;
+                    }
+                }
             }
         }
     }
@@ -170,88 +199,50 @@ internal::HermitianFrobeniusNorm
                  iLocal<A.LocalHeight(); ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                R alpha = A.GetLocalEntry(iLocal,jLocal);
-                if( i != j )
-                    localNormSquared += 2*alpha*alpha;
-                else
-                    localNormSquared += alpha*alpha;
+                const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                if( alphaAbs != 0 )
+                {
+                    if( alphaAbs <= localScale )
+                    {
+                        const R relScale = alphaAbs/localScale;
+                        if( i != j )
+                            localScaledSquare += 2*relScale*relScale;
+                        else
+                            localScaledSquare += relScale*relScale;
+                    }
+                    else
+                    {
+                        const R relScale = localScale/alphaAbs;
+                        if( i != j )
+                            localScaledSquare = 
+                                localScaledSquare*relScale*relScale + 2;
+                        else
+                            localScaledSquare =
+                                localScaledSquare*relScale*relScale + 1; 
+                    }
+                }
             }
         }
     }
 
-    // Sum the local contributions
-    R normSquared;
-    mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
+    // Find the maximum relative scale
+    R scale;
+    mpi::AllReduce( &localScale, &scale, 1, mpi::MAX, A.Grid().VCComm() );
 
-    R norm = sqrt(normSquared);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename R> 
-inline R
-internal::HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::HermitianFrobeniusNorm");
-#endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
-
-    const int r = A.Grid().Height();
-    const int c = A.Grid().Width();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-
-    // The std::norm function is a field norm rather than a vector norm.
-
-    R localNormSquared = 0;
-    if( uplo == UPPER )
+    R norm = 0;
+    if( scale != 0 )
     {
-        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
-        {
-            int j = rowShift + jLocal*c;
-            int numUpperRows = LocalLength(j+1,colShift,r);
-            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
-            {
-                int i = colShift + iLocal*r;
-                Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
-                if( i != j )
-                    localNormSquared += 2*Abs(alpha)*Abs(alpha);
-                else
-                    localNormSquared += Abs(alpha)*Abs(alpha);
-            }
-        }
-    }
-    else
-    {
-        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
-        {
-            int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = LocalLength(j,colShift,r);
-            for( int iLocal=numStrictlyUpperRows; 
-                 iLocal<A.LocalHeight(); ++iLocal )
-            {
-                int i = colShift + iLocal*r;
-                Complex<R> alpha = A.GetLocalEntry(iLocal,jLocal);
-                if( i != j )
-                    localNormSquared += 2*Abs(alpha)*Abs(alpha);
-                else
-                    localNormSquared += Abs(alpha)*Abs(alpha);
-            }
-        }
-    }
+        // Equilibrate our local scaled sum to the maximum scale
+        R relScale = localScale/scale;
+        localScaledSquare *= relScale*relScale;
 
-    // Sum the local contributions
-    R normSquared;
-    mpi::AllReduce
-    ( &localNormSquared, &normSquared, 1, mpi::SUM, A.Grid().VCComm() );
+        // The scaled square is now simply the sum of the local contributions
+        R scaledSquare;
+        mpi::AllReduce
+        ( &localScaledSquare, &scaledSquare, 1, mpi::SUM, A.Grid().VCComm() );
 
-    R norm = sqrt(normSquared);
+        norm = scale*sqrt(scaledSquare);
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -241,89 +241,53 @@ void PanelLQ
 // Norm                                                                       //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-R FrobeniusNorm( const Matrix<R>& A );
-template<typename R>
-R InfinityNorm( const Matrix<R>& A );
-template<typename R>
-R MaxNorm( const Matrix<R>& A );
-template<typename R>
-R OneNorm( const Matrix<R>& A );
+template<typename F>
+typename Base<F>::type FrobeniusNorm( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type InfinityNorm( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type MaxNorm( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type OneNorm( const Matrix<F>& A );
 
-template<typename R>
-R FrobeniusNorm( const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R InfinityNorm( const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R MaxNorm( const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R OneNorm( const DistMatrix<R,MC,MR>& A );
-
-template<typename R>
-R FrobeniusNorm( const Matrix<Complex<R> >& A );
-template<typename R>
-R InfinityNorm( const Matrix<Complex<R> >& A );
-template<typename R>
-R MaxNorm( const Matrix<Complex<R> >& A );
-template<typename R>
-R OneNorm( const Matrix<Complex<R> >& A );
-
-template<typename R>
-R FrobeniusNorm( const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R InfinityNorm( const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R OneNorm( const DistMatrix<Complex<R>,MC,MR>& A );
+template<typename F>
+typename Base<F>::type FrobeniusNorm( const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type InfinityNorm( const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type MaxNorm( const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type OneNorm( const DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // HermitianNorm                                                              //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-R HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<R>& A );
-template<typename R>
-R HermitianInfinityNorm( UpperOrLower uplo, const Matrix<R>& A );
-template<typename R>
-R HermitianMaxNorm( UpperOrLower uplo, const Matrix<R>& A );
-template<typename R>
-R HermitianOneNorm( UpperOrLower uplo, const Matrix<R>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A );
 
-template<typename R>
-R HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
-template<typename R>
-R HermitianOneNorm( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A );
-
-template<typename R>
-R HermitianFrobeniusNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A );
-template<typename R>
-R HermitianInfinityNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A );
-template<typename R>
-R HermitianMaxNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A );
-template<typename R>
-R HermitianOneNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A );
-
-template<typename R>
-R HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R HermitianInfinityNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R HermitianMaxNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A );
-template<typename R>
-R HermitianOneNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type 
+HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type
+HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
+template<typename F>
+typename Base<F>::type
+HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // QR                                                                         //

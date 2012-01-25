@@ -747,65 +747,42 @@ void LQ
 // Norm                                                                       //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-R Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM );
+template<typename F>
+typename Base<F>::type 
+Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 
-template<typename R>
-R Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R Norm( const Matrix<Complex<R> >& A, NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R Norm
-( const DistMatrix<Complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM );
+template<typename F>
+typename Base<F>::type 
+Norm( const DistMatrix<F,MC,MR>& A, NormType type=FROBENIUS_NORM );
 
 //----------------------------------------------------------------------------//
 // HermitianNorm                                                              //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-R HermitianNorm
-( UpperOrLower uplo, const Matrix<R>& A, 
-  NormType type=FROBENIUS_NORM );
+template<typename F>
+typename Base<F>::type 
+HermitianNorm
+( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 
-template<typename R>
-R HermitianNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
-  NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R HermitianNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A, 
-  NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R HermitianNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A, 
+template<typename F>
+typename Base<F>::type
+HermitianNorm
+( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
 //----------------------------------------------------------------------------//
 // SymmetricNorm                                                              //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-R SymmetricNorm
-( UpperOrLower uplo, const Matrix<R>& A, 
-  NormType type=FROBENIUS_NORM );
+template<typename F>
+typename Base<F>::type
+SymmetricNorm
+( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 
-template<typename R>
-R SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, 
-  NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R SymmetricNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A, 
-  NormType type=FROBENIUS_NORM );
-
-template<typename R>
-R SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A, 
+template<typename F>
+typename Base<F>::type 
+SymmetricNorm
+( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A, 
   NormType type=FROBENIUS_NORM );
 
 //----------------------------------------------------------------------------//
@@ -1174,59 +1151,35 @@ LU( Matrix<F>& A, Matrix<int>& p )
 #endif
 }
 
-template<typename R>
-inline R
-SymmetricNorm( UpperOrLower uplo, const Matrix<R>& A, NormType type )
+template<typename F>
+inline typename Base<F>::type
+SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");
 #endif
-    HermitianNorm( uplo, A, type );
+    typedef typename Base<F>::type R;
+    const R norm = HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return norm;
 }
 
-template<typename R>
-inline R
+template<typename F>
+inline typename Base<F>::type
 SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<R,MC,MR>& A, NormType type )
+( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A, NormType type )
 { 
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");
 #endif
-    HermitianNorm( uplo, A, type );
+    typedef typename Base<F>::type R;
+    const R norm = HermitianNorm( uplo, A, type );
 #ifndef RELEASE
     PopCallStack();
 #endif
-}
-
-template<typename R>
-inline R
-SymmetricNorm
-( UpperOrLower uplo, const Matrix<Complex<R> >& A, NormType type )
-{ 
-#ifndef RELEASE
-    PushCallStack("SymmetricNorm");
-#endif
-    HermitianNorm( uplo, A, type );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-inline R
-SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<Complex<R>,MC,MR>& A, NormType type )
-{ 
-#ifndef RELEASE
-    PushCallStack("SymmetricNorm");
-#endif
-    HermitianNorm( uplo, A, type );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    return norm;
 }
 
 template<typename F>

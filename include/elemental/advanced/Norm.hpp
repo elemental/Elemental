@@ -38,13 +38,15 @@
 
 namespace elem {
 
-template<typename R>
-inline R
-Norm( const Matrix<R>& A, NormType type )
+template<typename F>
+inline typename Base<F>::type
+Norm( const Matrix<F>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
+    typedef typename Base<F>::type R;
+
     R norm = 0;
     switch( type )
     {
@@ -67,71 +69,15 @@ Norm( const Matrix<R>& A, NormType type )
     return norm;
 }
 
-template<typename R>
-inline R
-Norm( const Matrix<Complex<R> >& A, NormType type )
+template<typename F> 
+inline typename Base<F>::type
+Norm( const DistMatrix<F,MC,MR>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
-    R norm = 0;
-    switch( type )
-    {
-    case INFINITY_NORM:
-        norm = internal::InfinityNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
-        break;
-    case MAX_NORM:
-        norm = internal::MaxNorm( A );
-        break;
-    case ONE_NORM:
-        norm = internal::OneNorm( A );
-        break;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
+    typedef typename Base<F>::type R;
 
-template<typename R> 
-inline R
-Norm( const DistMatrix<R,MC,MR>& A, NormType type )
-{
-#ifndef RELEASE
-    PushCallStack("Norm");
-#endif
-    R norm = 0;
-    switch( type )
-    {
-    case INFINITY_NORM:
-        norm = internal::InfinityNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
-        break;
-    case MAX_NORM:
-        norm = internal::MaxNorm( A );
-        break;
-    case ONE_NORM:
-        norm = internal::OneNorm( A );
-        break;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename R> 
-inline R
-Norm( const DistMatrix<Complex<R>,MC,MR>& A, NormType type )
-{
-#ifndef RELEASE
-    PushCallStack("Norm");
-#endif
     R norm = 0;
     switch( type )
     {
