@@ -34,7 +34,7 @@
 #include "./Hemv/HemvL.hpp"
 #include "./Hemv/HemvU.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -267,4 +267,4 @@ Hemv
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

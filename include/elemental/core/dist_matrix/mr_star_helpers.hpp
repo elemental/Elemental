@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -291,7 +291,7 @@ DistMatrix<T,MR,STAR,Int>::GetRealHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // columns within each process row
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     Z u;
@@ -320,7 +320,7 @@ DistMatrix<T,MR,STAR,Int>::GetImagHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // columns within each process row
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     Z u;
@@ -347,7 +347,7 @@ DistMatrix<T,MR,STAR,Int>::SetRealHelper<Complex<Z> >::Func
     PushCallStack("[MR,* ]::SetReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -370,7 +370,7 @@ DistMatrix<T,MR,STAR,Int>::SetImagHelper<Complex<Z> >::Func
     PushCallStack("[MR,* ]::SetImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -393,7 +393,7 @@ DistMatrix<T,MR,STAR,Int>::UpdateRealHelper<Complex<Z> >::Func
     PushCallStack("[MR,* ]::UpdateReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -416,7 +416,7 @@ DistMatrix<T,MR,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
     PushCallStack("[MR,* ]::UpdateImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
 
     if( g.MRRank() == ownerCol )
@@ -429,4 +429,4 @@ DistMatrix<T,MR,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

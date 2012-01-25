@@ -38,7 +38,7 @@
 #include "./Reflector/ColReflector.hpp"
 #include "./Reflector/RowReflector.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R
@@ -196,4 +196,4 @@ Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
     return tau;
 }
 
-} // namespace elemental
+} // namespace elem

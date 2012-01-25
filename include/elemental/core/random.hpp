@@ -33,19 +33,19 @@
 #ifndef ELEMENTAL_RANDOM_HPP
 #define ELEMENTAL_RANDOM_HPP 1
 
-namespace elemental {
+namespace elem {
 
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
 template<typename T> T SampleUnitBall();
 
-} // elemental
+} // namespace elem
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-namespace elemental {
+namespace elem {
 
 const double Pi = 3.141592653589793;
 
@@ -95,7 +95,7 @@ SampleUnitBall<Complex<double> >()
     return Complex<double>(r*cos(angle),r*sin(angle));
 }
 
-} // elemental
+} // namespace elem
 
 #endif  /* ELEMENTAL_RANDOM_HPP */
 

@@ -32,7 +32,7 @@
 */
 #include "elemental.hpp"
 using namespace std;
-using namespace elemental;
+using namespace elem;
 
 // Create a typedef for convenience
 typedef double R;

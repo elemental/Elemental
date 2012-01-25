@@ -41,7 +41,7 @@
 #include "./Trmm/TrmmRUN.hpp"
 #include "./Trmm/TrmmRUT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -85,4 +85,4 @@ Trmm
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

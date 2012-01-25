@@ -33,7 +33,7 @@
 
 #ifndef WITHOUT_PMRRR
 
-namespace elemental {
+namespace elem {
 
 namespace hermitian_pseudoinverse {
 
@@ -132,6 +132,6 @@ HermitianPseudoinverse
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -210,4 +210,4 @@ internal::TrsvUN
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -35,7 +35,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R
@@ -217,4 +217,4 @@ internal::ColReflector
     return tau;
 }
 
-} // namespace elemental
+} // namespace elem

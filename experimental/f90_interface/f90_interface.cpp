@@ -32,7 +32,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental.hpp"
-using namespace elemental;
+using namespace elem;
 
 typedef int GridHandle;
 typedef int RealDistMatHandle;
@@ -109,17 +109,17 @@ void FC_GLOBAL(initialize,NAME)()
 {
     int argc = 0;
     char** argv = 0;
-    elemental::Initialize( argc, argv );
+    elem::Initialize( argc, argv );
 }
 
 void FC_GLOBAL(finalize,NAME)()
-{ elemental::Finalize(); }
+{ elem::Finalize(); }
 
 void FC_GLOBAL_(set_blocksize,NAME)( int blocksize )
-{ elemental::SetBlocksize( blocksize ); }
+{ elem::SetBlocksize( blocksize ); }
 
 void FC_GLOBAL(blocksize,NAME)( int* blocksize )
-{ *blocksize = elemental::Blocksize(); }
+{ *blocksize = elem::Blocksize(); }
 
 //
 // Process grid management
@@ -386,6 +386,6 @@ void FC_GLOBAL_(hermitian_axbx_partial_indices,NAME)
 
 void FC_GLOBAL_(local_length,NAME)
 ( int* n, int* shift, int* modulus, int* localLength )
-{ *localLength = elemental::LocalLength<int>(*n,*shift,*modulus); }
+{ *localLength = elem::LocalLength<int>(*n,*shift,*modulus); }
 
 } // extern "C"

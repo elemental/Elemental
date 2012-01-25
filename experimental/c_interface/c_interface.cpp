@@ -32,7 +32,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 #include "elemental.hpp"
-using namespace elemental;
+using namespace elem;
 
 typedef int GridHandle;
 typedef int RealDistMatHandle;
@@ -106,16 +106,16 @@ extern "C" {
 //
 
 void Initialize( int* argc, char** argv[] )
-{ elemental::Initialize( *argc, *argv ); }
+{ elem::Initialize( *argc, *argv ); }
 
 void Finalize()
-{ elemental::Finalize(); }
+{ elem::Finalize(); }
 
 void SetBlocksize( int blocksize )
-{ elemental::SetBlocksize( blocksize ); }
+{ elem::SetBlocksize( blocksize ); }
 
 int Blocksize()
-{ return elemental::Blocksize(); }
+{ return elem::Blocksize(); }
 
 //
 // Process grid management
@@ -370,6 +370,6 @@ void HermitianAxBxPartialIndices
 //
 
 int LocalLength( int n, int shift, int modulus )
-{ return elemental::LocalLength<int>(n,shift,modulus); }
+{ return elem::LocalLength<int>(n,shift,modulus); }
 
 } // extern "C"

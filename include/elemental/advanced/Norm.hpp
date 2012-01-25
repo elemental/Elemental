@@ -36,7 +36,7 @@
 #include "./Norm/MaxNorm.hpp"
 #include "./Norm/OneNorm.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R
@@ -154,4 +154,4 @@ Norm( const DistMatrix<Complex<R>,MC,MR>& A, NormType type )
     return norm;
 }
 
-} // namespace elemental
+} // namespace elem

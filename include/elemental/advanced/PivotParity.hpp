@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // A permutation is even if and only if it is the product of an even number 
 // of transpositions, so we can decide this by simply checking how many 
@@ -94,4 +94,4 @@ PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset )
     return isOdd;
 }
 
-} // namespace elemental
+} // namespace elem

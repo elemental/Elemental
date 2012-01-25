@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 //
 // This approach is based upon a (conjugate)-transposition of the reordered 
@@ -147,4 +147,4 @@ internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

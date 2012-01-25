@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline R
@@ -129,4 +129,4 @@ internal::MaxNorm( const DistMatrix<Complex<R>,MC,MR>& A )
     return maxAbs;
 }
 
-} // namespace elemental
+} // namespace elem

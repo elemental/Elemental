@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_DIST_MATRIX_MC_MR_HPP
 #define ELEMENTAL_DIST_MATRIX_MC_MR_HPP 1
 
-namespace elemental {
+namespace elem {
 
 // Partial specialization to A[MC,MR].
 //
@@ -46,40 +46,39 @@ class DistMatrix<T,MC,MR,Int> : public AbstractDistMatrix<T,Int>
 {
 public:
     // Create a 0 x 0 distributed matrix
-    DistMatrix( const elemental::Grid& g=DefaultGrid() );
+    DistMatrix( const elem::Grid& g=DefaultGrid() );
 
     // Create a height x width distributed matrix
     DistMatrix
-    ( Int height, Int width, const elemental::Grid& g=DefaultGrid() );
+    ( Int height, Int width, const elem::Grid& g=DefaultGrid() );
 
     // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
     ( bool constrainedColAlignment, bool constrainedRowAlignment,
-      Int colAlignment, Int rowAlignment, const elemental::Grid& g );
+      Int colAlignment, Int rowAlignment, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     DistMatrix
     ( Int height, Int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      Int colAlignment, Int rowAlignment, const elemental::Grid& g );
+      Int colAlignment, Int rowAlignment, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
     ( Int height, Int width,
       bool constrainedColAlignment, bool constrainedRowAlignment,
-      Int colAlignment, Int rowAlignment, Int ldim, 
-      const elemental::Grid& g );
+      Int colAlignment, Int rowAlignment, Int ldim, const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlignment, Int rowAlignment,
-      const T* buffer, Int ldim, const elemental::Grid& g );
+      const T* buffer, Int ldim, const elem::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrix
     ( Int height, Int width, Int colAlignment, Int rowAlignment,
-      T* buffer, Int ldim, const elemental::Grid& g );
+      T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
     template<Distribution U,Distribution V>
@@ -140,7 +139,7 @@ public:
     // Collective routines
     //
 
-    virtual void SetGrid( const elemental::Grid& grid );
+    virtual void SetGrid( const elem::Grid& grid );
 
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
@@ -260,10 +259,10 @@ public:
     // Create a 0 x 0 distributed matrix using the default grid
     void View
     ( Int height, Int width, Int colAlignment, Int rowAlignment,
-      T* buffer, Int ldim, const elemental::Grid& grid );
+      T* buffer, Int ldim, const elem::Grid& grid );
     void LockedView
     ( Int height, Int width, Int colAlignment, Int rowAlignment,
-      const T* buffer, Int ldim, const elemental::Grid& grid );      
+      const T* buffer, Int ldim, const elem::Grid& grid );      
 
     // (Immutable) view of a portion of a distributed matrix
     void View
@@ -548,7 +547,7 @@ private:
     template<typename Z> friend struct SetImagDiagonalHelper;
 };
 
-} // namespace elemental
+} // namespace elem
 
 #include "./mc_mr_main.hpp"
 #include "./mc_mr_helpers.hpp"

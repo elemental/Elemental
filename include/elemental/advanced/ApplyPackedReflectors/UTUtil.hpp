@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 template<typename T> 
@@ -129,4 +129,4 @@ FixDiagonal
 }
 
 } // internal
-} // elemental
+} // elem

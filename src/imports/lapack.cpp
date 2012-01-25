@@ -32,7 +32,7 @@
 */
 #include "elemental/core/environment.hpp"
 
-namespace elemental {
+namespace elem {
 namespace lapack {
 
 //
@@ -531,4 +531,4 @@ void TriangularInverse
 }
 
 } // namespace lapack
-} // namespace elemental
+} // namespace elem

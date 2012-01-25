@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Meant for composing an entire pivot vector for an n x n matrix.
 // Requires O(n) work for an n x n matrix.
@@ -151,4 +151,4 @@ internal::ComposePanelPivots
   std::vector<int>& image, std::vector<int>& preimage )
 { ComposePanelPivots( p.LockedLocalMatrix(), pivotOffset, image, preimage ); }
 
-} // namespace elemental
+} // namespace elem

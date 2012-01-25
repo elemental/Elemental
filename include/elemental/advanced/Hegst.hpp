@@ -50,7 +50,7 @@
 #include "./Hegst/HegstRUVar4.hpp"
 #include "./Hegst/HegstRUVar5.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline void
@@ -80,4 +80,4 @@ Hegst
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -36,7 +36,7 @@
 #include "./Syr2k/Syr2kUN.hpp"
 #include "./Syr2k/Syr2kUT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -65,4 +65,4 @@ Syr2k
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

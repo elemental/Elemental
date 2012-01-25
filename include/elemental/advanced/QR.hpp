@@ -33,7 +33,7 @@
 
 #include "./QR/PanelQR.hpp"
 
-namespace elemental {
+namespace elem {
 
 // On exit, the upper triangle of A is overwritten by R, and the Householder
 // transforms that determine Q are stored below the diagonal of A with an 
@@ -187,4 +187,4 @@ QR( DistMatrix<Complex<R>,MC,MR  >& A,
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

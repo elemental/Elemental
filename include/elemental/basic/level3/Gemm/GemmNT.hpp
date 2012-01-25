@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -354,4 +354,4 @@ internal::GemmNTC
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

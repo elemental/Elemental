@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // TODO: Switch to non-naive methods which are less likely to overflow
 
@@ -139,4 +139,4 @@ internal::FrobeniusNorm( const DistMatrix<Complex<R>,MC,MR>& A )
     return norm;
 }
 
-} // namespace elemental
+} // namespace elem

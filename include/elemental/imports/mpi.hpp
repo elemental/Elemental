@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_IMPORTS_MPI_HPP
 #define ELEMENTAL_IMPORTS_MPI_HPP 1
 
-namespace elemental {
+namespace elem {
 namespace mpi {
 
 #if defined(HAVE_MPI3_NONBLOCKING_COLLECTIVES) || \
@@ -671,7 +671,7 @@ void IReduceScatter
 #endif
 
 } // mpi
-} // elemental
+} // elem
 
 #endif /* ELEMENTAL_IMPORTS_MPI_HPP */
 

@@ -36,7 +36,7 @@
 #include "./Hemm/HemmRL.hpp"
 #include "./Hemm/HemmRU.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -70,4 +70,4 @@ Hemm
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

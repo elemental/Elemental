@@ -35,13 +35,13 @@
 
 #include "elemental/basic.hpp"
 
-namespace elemental {
+namespace elem {
 
 //
 // We ensure that all enums are lifted into the elemental namespace so that
 // they can be conveniently used as function arguments, e.g., 
 //
-// using namespace elemental;
+// using namespace elem;
 // Matrix<double> A;
 // ...
 // double norm = Norm( A, ONE_NORM );
@@ -1071,7 +1071,7 @@ template<typename F>
 void TriangularInverse
 ( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A  );
 
-} // elemental
+} // namespace elem
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
@@ -1111,7 +1111,7 @@ void TriangularInverse
 #include "./advanced/Trace.hpp"
 #include "./advanced/TriangularInverse.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -1248,7 +1248,7 @@ TriangularInverse
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_ADVANCED_HPP */
 

@@ -49,7 +49,7 @@
 #include "./ApplyPackedReflectors/ApplyPackedReflectorsRUVB.hpp"
 #include "./ApplyPackedReflectors/ApplyPackedReflectorsRUVF.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline void
@@ -234,4 +234,4 @@ ApplyPackedReflectors
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

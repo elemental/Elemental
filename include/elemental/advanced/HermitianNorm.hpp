@@ -36,7 +36,7 @@
 #include "./HermitianNorm/HermitianMaxNorm.hpp"
 #include "./HermitianNorm/HermitianOneNorm.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R
@@ -156,4 +156,4 @@ HermitianNorm
     return norm;
 }
 
-} // namespace elemental
+} // namespace elem

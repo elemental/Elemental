@@ -50,7 +50,7 @@ SafeMpi( int mpiError )
 
 } // anonymous namespace
 
-namespace elemental {
+namespace elem {
 namespace mpi {
 
 //----------------------------//
@@ -3517,4 +3517,4 @@ void ReduceScatter
 }
 
 } // namespace mpi
-} // namespace elemental
+} // namespace elem

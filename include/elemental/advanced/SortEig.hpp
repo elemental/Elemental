@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 namespace internal {
 
@@ -170,4 +170,4 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

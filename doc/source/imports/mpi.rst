@@ -158,7 +158,7 @@ Routines
    .. code-block:: cpp
 
       #include "elemental.hpp"
-      using namespace elemental;
+      using namespace elem;
 
       int main( int argc, char* argv[] )
       {

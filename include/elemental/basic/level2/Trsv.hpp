@@ -36,7 +36,7 @@
 #include "./Trsv/TrsvUN.hpp"
 #include "./Trsv/TrsvUT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -69,4 +69,4 @@ Trsv
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

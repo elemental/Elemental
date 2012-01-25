@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline void
@@ -192,4 +192,4 @@ internal::ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

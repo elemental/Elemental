@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -289,7 +289,7 @@ DistMatrix<T,VR,STAR,Int>::GetRealHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     Z u;
@@ -318,7 +318,7 @@ DistMatrix<T,VR,STAR,Int>::GetImagHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     Z u;
@@ -345,7 +345,7 @@ DistMatrix<T,VR,STAR,Int>::SetRealHelper<Complex<Z> >::Func
     PushCallStack("[VR,* ]::SetReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -368,7 +368,7 @@ DistMatrix<T,VR,STAR,Int>::SetImagHelper<Complex<Z> >::Func
     PushCallStack("[VR,* ]::SetImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -391,7 +391,7 @@ DistMatrix<T,VR,STAR,Int>::UpdateRealHelper<Complex<Z> >::Func
     PushCallStack("[VR,* ]::UpdateReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -414,7 +414,7 @@ DistMatrix<T,VR,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
     PushCallStack("[VR,* ]::UpdateImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (i + parent.ColAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -427,4 +427,4 @@ DistMatrix<T,VR,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

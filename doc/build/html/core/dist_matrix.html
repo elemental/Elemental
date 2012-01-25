@@ -121,7 +121,7 @@ space for.</p>
 
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::GridC">
-const elemental::Grid&amp; <tt class="descname">Grid</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GridC" title="Permalink to this definition">¶</a></dt>
+const elem::Grid&amp; <tt class="descname">Grid</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GridC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the grid that this distributed matrix is distributed over.</p>
 </dd></dl>
 
@@ -388,8 +388,8 @@ void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetGrid__elemental::GridCR">
-void <tt class="descname">SetGrid</tt><big>(</big>const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetGrid__elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetGrid__elem::GridCR">
+void <tt class="descname">SetGrid</tt><big>(</big>const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetGrid__elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the distributed matrix&#8217;s contents and reconfigure for the new
 process grid.</p>
 </dd></dl>
@@ -473,20 +473,20 @@ matrix), the individual entries would be owned as follows:</p>
 <dd><p class="rubric">Constructors</p>
 <dl class="function">
 <dt>
-<tt class="descname">DistMatrix( const elemental::Grid&amp; grid=DefaultGrid() )</tt></dt>
+<tt class="descname">DistMatrix( const elem::Grid&amp; grid=DefaultGrid() )</tt></dt>
 <dd><p>Create a <img class="math" src="../_images/math/43205564ab7e64a12e040330eb778d2812a4701f.png" alt="0 \times 0"/> distributed matrix over the specified grid.</p>
 </dd></dl>
 
 <dl class="function">
 <dt>
-<tt class="descname">DistMatrix( int height, int width, const elemental::Grid&amp; grid=DefaultGrid() )</tt></dt>
+<tt class="descname">DistMatrix( int height, int width, const elem::Grid&amp; grid=DefaultGrid() )</tt></dt>
 <dd><p>Create a <tt class="docutils literal"><span class="pre">height</span></tt> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <tt class="docutils literal"><span class="pre">width</span></tt> distributed matrix over the
 specified grid.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elem::GridCR">
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a <tt class="docutils literal"><span class="pre">height</span></tt> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <tt class="docutils literal"><span class="pre">width</span></tt> distributed matrix
 distributed over the specified process grid, but with the top-left entry
 owned by the <tt class="docutils literal"><span class="pre">colAlignment</span></tt> process row and the <tt class="docutils literal"><span class="pre">rowAlignment</span></tt>
@@ -495,22 +495,22 @@ constant when redistributing data into this <tt class="docutils literal"><span c
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elem::GridCR">
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, bool <em>constrainedColAlignment</em>, bool <em>constrainedRowAlignment</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, int <em>ldim</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.b.b.i.i.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the local leading dimension is also specified.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elem::GridCR">
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TCP.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>View a constant distributed matrix&#8217;s buffer; the buffer must correspond
 to the local portion of an elemental distributed matrix with the
 specified row and column alignments and leading dimension, <tt class="docutils literal"><span class="pre">ldim</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR">
- <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elem::GridCR">
+ <tt class="descname">DistMatrix</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::DistMatrix__i.i.i.i.TP.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the contents of the matrix are modifiable.</p>
 </dd></dl>
 
@@ -898,16 +898,16 @@ change the data from <tt class="docutils literal"><span class="pre">A</span></tt
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR">
-void <tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elem::GridCR">
+void <tt class="descname">View</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, T* <em>buffer</em>, int <em>ldim</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::View__i.i.i.i.TP.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure this distributed matrix around an implicit <tt class="docutils literal"><span class="pre">[M_C,M_R]</span></tt>
 distributed matrix of the specified dimensions, alignments, local buffer,
 local leading dimension, and process grid.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR">
-void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elemental::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elemental::GridCR" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elem::GridCR">
+void <tt class="descname">LockedView</tt><big>(</big>int <em>height</em>, int <em>width</em>, int <em>colAlignment</em>, int <em>rowAlignment</em>, const T* <em>buffer</em>, int <em>ldim</em>, const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::LockedView__i.i.i.i.TCP.i.elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but the resulting matrix is &#8220;locked&#8221;, meaning that it
 cannot modify the underlying local data.</p>
 </dd></dl>

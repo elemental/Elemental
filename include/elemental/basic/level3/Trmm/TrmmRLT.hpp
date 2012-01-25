@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Right Lower Adjoint/Transpose (Non)Unit Trmm
 //   X := X tril(L)^T,
@@ -348,4 +348,4 @@ internal::LocalTrmmAccumulateRLT
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -38,7 +38,7 @@
 // We create specialized redistribution routines for redistributing the 
 // real eigenvectors of the symmetric tridiagonal matrix at the core of our 
 // eigensolver in order to minimize the temporary memory usage.
-namespace elemental {
+namespace elem {
 
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
@@ -1888,6 +1888,6 @@ HermitianEig
 
 #undef TARGET_CHUNKS
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

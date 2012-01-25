@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_TIMER_HPP
 #define ELEMENTAL_TIMER_HPP 1
 
-namespace elemental {
+namespace elem {
 
 class Timer
 {
@@ -113,7 +113,7 @@ inline double Timer::Time() const
     return time_;
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_TIMER_HPP */
 

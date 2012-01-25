@@ -41,7 +41,7 @@
 #include "./HermitianTridiag/HermitianTridiagUSquare.hpp"
 #include "./HermitianTridiag/LocalHermitianTridiag.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline void
@@ -214,4 +214,4 @@ HermitianTridiag
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

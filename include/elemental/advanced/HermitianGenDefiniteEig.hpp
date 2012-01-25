@@ -33,7 +33,7 @@
 
 #ifndef WITHOUT_PMRRR
 
-namespace elemental {
+namespace elem {
 
 // Grab the full set of eigenpairs.
 template<typename R> 
@@ -449,6 +449,6 @@ HermitianGenDefiniteEig
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

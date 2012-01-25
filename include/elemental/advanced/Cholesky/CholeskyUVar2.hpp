@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 /*
    Parallelization of Variant 2 Upper Cholesky factorization. 
@@ -268,4 +268,4 @@ internal::CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

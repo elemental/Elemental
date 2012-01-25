@@ -36,7 +36,7 @@
 #include "./Syrk/SyrkUN.hpp"
 #include "./Syrk/SyrkUT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -64,4 +64,4 @@ Syrk
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

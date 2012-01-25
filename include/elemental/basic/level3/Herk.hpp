@@ -36,7 +36,7 @@
 #include "./Herk/HerkUC.hpp"
 #include "./Herk/HerkUN.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -68,4 +68,4 @@ Herk
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

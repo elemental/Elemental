@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Right Upper Normal (Non)Unit Trsm
 //   X := X triu(U)^-1, and
@@ -131,4 +131,4 @@ internal::TrsmRUN
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

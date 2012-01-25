@@ -34,7 +34,7 @@
 #include "./HPDInverse/HPDInverseLVar2.hpp"
 #include "./HPDInverse/HPDInverseUVar2.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -52,4 +52,4 @@ HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A  )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

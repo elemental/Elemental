@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_PROCESSGRID_HPP
 #define ELEMENTAL_PROCESSGRID_HPP 1
 
-namespace elemental {
+namespace elem {
 
 class Grid
 {
@@ -374,7 +374,7 @@ inline void Grid::SetUpGrid()
         throw std::logic_error( msg.str().c_str() );
     }
 
-    gcd_ = elemental::GCD( height_, width_ );
+    gcd_ = elem::GCD( height_, width_ );
     int lcm = size_ / gcd_;
 
     // Split the viewing comm into the owning and not owning subsets
@@ -494,7 +494,7 @@ inline Grid::~Grid()
     }
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_PROCESSGRID_HPP */
 

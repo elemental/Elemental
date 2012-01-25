@@ -34,7 +34,7 @@
 #include "./Symv/SymvL.hpp"
 #include "./Symv/SymvU.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -267,4 +267,4 @@ Symv
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

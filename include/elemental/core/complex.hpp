@@ -35,7 +35,7 @@
 
 #include <complex>
 
-namespace elemental {
+namespace elem {
 
 // TODO: Think about extending to rings instead of just fields.
 template<typename R>
@@ -290,6 +290,6 @@ struct Complex
     }
 };
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_COMPLEX_HPP */

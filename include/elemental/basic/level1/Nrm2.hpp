@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R Nrm2( const DistMatrix<R,MC,MR>& x )
@@ -123,4 +123,4 @@ inline R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x )
     return norm;
 }
 
-} // namespace elemental
+} // namespace elem

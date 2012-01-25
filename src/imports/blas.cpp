@@ -32,7 +32,7 @@
 */
 #include "elemental/core/environment.hpp"
 
-namespace elemental {
+namespace elem {
 namespace blas {
 
 //----------------------------------------------------------------------------//
@@ -851,4 +851,4 @@ void Trsm
 } 
 
 } // namespace blas
-} // namespace elemental
+} // namespace elem

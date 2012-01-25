@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -405,4 +405,4 @@ DistMatrix<T,STAR,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

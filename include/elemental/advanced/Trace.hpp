@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline F Trace( const DistMatrix<F,MC,MR>& A )
@@ -81,4 +81,4 @@ inline F Trace( const Matrix<F>& A )
     return trace;
 }
 
-} // namespace elemental
+} // namespace elem

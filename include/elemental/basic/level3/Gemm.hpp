@@ -36,7 +36,7 @@
 #include "./Gemm/GemmTN.hpp"
 #include "./Gemm/GemmTT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -211,4 +211,4 @@ internal::GemmDot
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

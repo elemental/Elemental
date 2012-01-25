@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_IMPORTS_LAPACK_HPP
 #define ELEMENTAL_IMPORTS_LAPACK_HPP 1
 
-namespace elemental {
+namespace elem {
 namespace lapack {
 
 //
@@ -164,8 +164,8 @@ void TriangularInverse
 void TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda );
 
-} // lapack
-} // elemental
+} // namespace lapack
+} // namespace elem
 
 extern "C" {
 
@@ -191,11 +191,11 @@ void LAPACK(dlartg)
 ( const double* phi, const double* gamma,
   double* c, double* s, double* rho );
 void LAPACK(clartg)
-( const elemental::scomplex* phi, const elemental::scomplex* gamma,
-  float* c, elemental::scomplex* s, elemental::scomplex* rho );
+( const elem::scomplex* phi, const elem::scomplex* gamma,
+  float* c, elem::scomplex* s, elem::scomplex* rho );
 void LAPACK(zlartg)
-( const elemental::dcomplex* phi, const elemental::dcomplex* gamma,
-  double* c, elemental::dcomplex* s, elemental::dcomplex* rho );
+( const elem::dcomplex* phi, const elem::dcomplex* gamma,
+  double* c, elem::dcomplex* s, elem::dcomplex* rho );
 
 // Cholesky factorization
 void LAPACK(spotrf)
@@ -205,10 +205,10 @@ void LAPACK(dpotrf)
 ( const char* uplo, const int* n, const double* A, const int* lda,
   int* info );
 void LAPACK(cpotrf)
-( const char* uplo, const int* n, const elemental::scomplex* A, 
+( const char* uplo, const int* n, const elem::scomplex* A, 
   const int* lda, int* info );
 void LAPACK(zpotrf)
-( const char* uplo, const int* n, const elemental::dcomplex* A, 
+( const char* uplo, const int* n, const elem::dcomplex* A, 
   const int* lda, int* info );
 
 // LU factorization (with partial pivoting)
@@ -220,10 +220,10 @@ void LAPACK(dgetrf)
   double* A, const int* lda, int* p, int* info );
 void LAPACK(cgetrf)
 ( const int* m, const int* n, 
-  elemental::scomplex* A, const int* lda, int* p, int* info );
+  elem::scomplex* A, const int* lda, int* p, int* info );
 void LAPACK(zgetrf)
 ( const int* m, const int* n, 
-  elemental::dcomplex* A, const int* lda, int* p, int* info );
+  elem::dcomplex* A, const int* lda, int* p, int* info );
 
 // For reducing well-conditioned Hermitian generalized EVP to Hermitian 
 // standard form
@@ -235,12 +235,12 @@ void LAPACK(dsygst)
   double* A, int* lda, const double* B, int* ldb, int* info );
 void LAPACK(chegst)
 ( const int* itype, const char* uplo, const int* n,
-        elemental::scomplex* A, const int* lda, 
-  const elemental::scomplex* B, const int* ldb, int* info );
+        elem::scomplex* A, const int* lda, 
+  const elem::scomplex* B, const int* ldb, int* info );
 void LAPACK(zhegst)
 ( const int* itype, const char* uplo, const int* n,
-        elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb, int* info );
+        elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb, int* info );
 
 // Triangular inversion
 void LAPACK(strtri)
@@ -251,10 +251,10 @@ void LAPACK(dtrtri)
   const int* n, const double* A, const int* lda, int* info );
 void LAPACK(ctrtri)
 ( const char* uplo, const char* diag,
-  const int* n, const elemental::scomplex* A, const int* lda, int* info );
+  const int* n, const elem::scomplex* A, const int* lda, int* info );
 void LAPACK(ztrtri)
 ( const char* uplo, const char* diag,
-  const int* n, const elemental::dcomplex* A, const int* lda, int* info );
+  const int* n, const elem::dcomplex* A, const int* lda, int* info );
 
 } // extern "C"
 

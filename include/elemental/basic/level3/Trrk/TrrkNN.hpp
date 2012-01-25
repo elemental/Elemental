@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Distributed C := alpha A B + beta C
 template<typename T>
@@ -101,4 +101,4 @@ internal::TrrkNN
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

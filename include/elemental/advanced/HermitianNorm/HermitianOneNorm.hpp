@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline R
@@ -353,4 +353,4 @@ internal::HermitianOneNorm
     return maxColSum;
 }
 
-} // namespace elemental
+} // namespace elem

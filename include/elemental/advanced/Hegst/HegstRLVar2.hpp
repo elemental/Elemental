@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // This routine has only partially been optimized. The ReduceScatter operations
 // need to be (conjugate-)transposed in order to play nice with cache.
@@ -198,4 +198,4 @@ internal::HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Left Upper (Conjugate)Transpose (Non)Unit Trsm
 //   X := triu(U)^-T  X, 
@@ -362,4 +362,4 @@ internal::TrsmLUTSmall
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

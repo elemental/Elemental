@@ -66,7 +66,7 @@
 # endif 
 #endif
 
-namespace elemental {
+namespace elem {
 
 // Forward declarations
 class Grid;
@@ -166,7 +166,7 @@ struct NullStream : std::ostream
     { }
 };
 
-} // namespace elemental
+} // namespace elem
 
 #include "elemental/core/types.hpp"
 #include "elemental/core/utilities.hpp"
@@ -182,7 +182,7 @@ struct NullStream : std::ostream
 // Implementation begins here
 //
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline R 
@@ -223,7 +223,7 @@ inline Complex<Z>
 Conj( Complex<Z> alpha )
 { return Complex<Z>(alpha.real,-alpha.imag); }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_ENVIRONMENT_HPP */
 

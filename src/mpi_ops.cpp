@@ -37,13 +37,13 @@ bool createdPivotOpFloat = false;
 bool createdPivotOpDouble = false;
 bool createdPivotOpScomplex = false;
 bool createdPivotOpDcomplex = false;
-elemental::mpi::Op pivotOpFloat;
-elemental::mpi::Op pivotOpDouble;
-elemental::mpi::Op pivotOpScomplex;
-elemental::mpi::Op pivotOpDcomplex;
+elem::mpi::Op pivotOpFloat;
+elem::mpi::Op pivotOpDouble;
+elem::mpi::Op pivotOpScomplex;
+elem::mpi::Op pivotOpDcomplex;
 }   
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 void
@@ -251,20 +251,20 @@ mpi::Op internal::PivotOp<Complex<double> >()
     return ::pivotOpDcomplex;
 }
 
-} // namespace elemental
+} // namespace elem
 
 template void
-elemental::internal::PivotFunc<float>
+elem::internal::PivotFunc<float>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::internal::PivotFunc<double>
+elem::internal::PivotFunc<double>
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::internal::PivotFunc<elemental::Complex<float> >
+elem::internal::PivotFunc<elem::Complex<float> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 
 template void
-elemental::internal::PivotFunc<elemental::Complex<double> >
+elem::internal::PivotFunc<elem::Complex<double> >
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );

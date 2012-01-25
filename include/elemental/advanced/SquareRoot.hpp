@@ -33,7 +33,7 @@
 
 #ifndef WITHOUT_PMRRR
 
-namespace elemental {
+namespace elem {
 
 namespace square_root {
 
@@ -154,6 +154,6 @@ SquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

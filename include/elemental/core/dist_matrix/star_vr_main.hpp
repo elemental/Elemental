@@ -31,11 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline
-DistMatrix<T,STAR,VR,Int>::DistMatrix( const elemental::Grid& g )
+DistMatrix<T,STAR,VR,Int>::DistMatrix( const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,false,0,0,
    0,(g.InGrid() ? g.VRRank() : 0 ),
@@ -45,7 +45,7 @@ DistMatrix<T,STAR,VR,Int>::DistMatrix( const elemental::Grid& g )
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
-( Int height, Int width, const elemental::Grid& g )
+( Int height, Int width, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,false,0,0,
    0,(g.InGrid() ? g.VRRank() : 0),
@@ -56,7 +56,7 @@ DistMatrix<T,STAR,VR,Int>::DistMatrix
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
-( bool constrainedRowAlignment, Int rowAlignment, const elemental::Grid& g )
+( bool constrainedRowAlignment, Int rowAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,constrainedRowAlignment,0,rowAlignment,
    0,(g.InGrid() ? Shift(g.VRRank(),rowAlignment,g.Size()) : 0),
@@ -67,7 +67,7 @@ template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
-  const elemental::Grid& g )
+  const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,constrainedRowAlignment,0,rowAlignment,
    0,(g.InGrid() ? Shift(g.VRRank(),rowAlignment,g.Size()) : 0),
@@ -80,7 +80,7 @@ template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
-  Int ldim, const elemental::Grid& g )
+  Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,constrainedRowAlignment,0,rowAlignment,
    0,(g.InGrid() ? Shift(g.VRRank(),rowAlignment,g.Size()) : 0),
@@ -93,7 +93,7 @@ template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, const T* buffer, Int ldim,
-  const elemental::Grid& g )
+  const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,rowAlignment,
    0,(g.InGrid() ? Shift(g.VRRank(),rowAlignment,g.Size()) : 0),
@@ -106,7 +106,7 @@ template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, T* buffer, Int ldim,
-  const elemental::Grid& g )
+  const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,rowAlignment,
    0,(g.InGrid() ? Shift(g.VRRank(),rowAlignment,g.Size()) : 0),
@@ -141,7 +141,7 @@ DistMatrix<T,STAR,VR,Int>::~DistMatrix()
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,VR,Int>::SetGrid( const elemental::Grid& grid )
+DistMatrix<T,STAR,VR,Int>::SetGrid( const elem::Grid& grid )
 {
     this->Empty();
     this->grid_ = &grid;
@@ -159,7 +159,7 @@ DistMatrix<T,STAR,VR,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.RowAlignment();
     this->rowShift_ = Shift( g.VRRank(), this->RowAlignment(), g.Size() );
     this->constrainedRowAlignment_ = true;
@@ -181,7 +181,7 @@ DistMatrix<T,STAR,VR,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.ColAlignment();
     this->rowShift_ = Shift( g.VRRank(), this->RowAlignment(), g.Size() );
     this->constrainedRowAlignment_ = true;
@@ -203,7 +203,7 @@ DistMatrix<T,STAR,VR,Int>::AlignWith( const DistMatrix<S,MR,STAR,N>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.ColAlignment();
     this->rowShift_ = Shift( g.VRRank(), this->RowAlignment(), g.Size() );
     this->constrainedRowAlignment_ = true;
@@ -225,7 +225,7 @@ DistMatrix<T,STAR,VR,Int>::AlignWith( const DistMatrix<S,STAR,MR,N>& A )
     this->AssertFreeRowAlignment();
     this->AssertSameGrid( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.RowAlignment();
     this->rowShift_ = Shift( g.VRRank(), this->RowAlignment(), g.Size() );
     this->constrainedRowAlignment_ = true;
@@ -323,7 +323,7 @@ DistMatrix<T,STAR,VR,Int>::PrintBase
 #ifndef RELEASE
     PushCallStack("[* ,VR]::PrintBase");
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.VRRank() == 0 && msg != "" )
         os << msg << std::endl;
 
@@ -400,7 +400,7 @@ DistMatrix<T,STAR,VR,Int>::AlignRows( Int rowAlignment )
     PushCallStack("[* ,VR]::AlignRows");
     this->AssertFreeRowAlignment();
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
 #ifndef RELEASE
     if( rowAlignment < 0 || rowAlignment >= g.Size() )
         throw std::runtime_error("Invalid row alignment for [* ,VR]");
@@ -442,7 +442,7 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,VR,Int>::View
 ( Int height, Int width, Int rowAlignment,
-  T* buffer, Int ldim, const elemental::Grid& grid )
+  T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::View");
@@ -489,7 +489,7 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,VR,Int>::LockedView
 ( Int height, Int width, Int rowAlignment,
-  const T* buffer, Int ldim, const elemental::Grid& grid )
+  const T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::LockedView");
@@ -525,7 +525,7 @@ DistMatrix<T,STAR,VR,Int>::View
     this->height_ = height;
     this->width_ = width;
     {
-        const elemental::Grid& g = this->Grid();
+        const elem::Grid& g = this->Grid();
         const Int rowMajorRank = g.VRRank();
         const Int size = g.Size();
 
@@ -560,7 +560,7 @@ DistMatrix<T,STAR,VR,Int>::LockedView
     this->height_ = height;
     this->width_ = width;
     {
-        const elemental::Grid& g = this->Grid();
+        const elem::Grid& g = this->Grid();
         const Int rowMajorRank = g.VRRank();
         const Int size = g.Size();
 
@@ -755,7 +755,7 @@ DistMatrix<T,STAR,VR,Int>::ResizeTo( Int height, Int width )
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     this->height_ = height;
     this->width_ = width;
     this->localMatrix_.ResizeTo
@@ -775,7 +775,7 @@ DistMatrix<T,STAR,VR,Int>::Get( Int i, Int j ) const
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     T u;
@@ -800,7 +800,7 @@ DistMatrix<T,STAR,VR,Int>::Set( Int i, Int j, T u )
     PushCallStack("[* ,VR]::Set");
     this->AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -821,7 +821,7 @@ DistMatrix<T,STAR,VR,Int>::Update( Int i, Int j, T u )
     PushCallStack("[* ,VR]::Update");
     this->AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int ownerRank = (j + this->RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -847,7 +847,7 @@ DistMatrix<T,STAR,VR,Int>::MakeTrapezoidal
     PushCallStack("[* ,VR]::MakeTrapezoidal");
     this->AssertNotLockedView();
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int height = this->Height();
     const Int width = this->Width();
     const Int localWidth = this->LocalWidth();
@@ -908,7 +908,7 @@ DistMatrix<T,STAR,VR,Int>::ScaleTrapezoid
     PushCallStack("[* ,VR]::ScaleTrapezoid");
     this->AssertNotLockedView();
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int height = this->Height();
     const Int width = this->Width();
     const Int localWidth = this->LocalWidth();
@@ -962,7 +962,7 @@ DistMatrix<T,STAR,VR,Int>::SetToIdentity()
     PushCallStack("[* ,VR]::SetToIdentity");
     this->AssertNotLockedView();
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int height = this->Height();
     const Int localWidth = this->LocalWidth();
     const Int p = g.Size();
@@ -1015,7 +1015,7 @@ DistMatrix<T,STAR,VR,Int>::AdjointFrom( const DistMatrix<T,MR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1133,7 +1133,7 @@ DistMatrix<T,STAR,VR,Int>::TransposeFrom( const DistMatrix<T,MR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1251,7 +1251,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1451,7 +1451,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(g);
 
     A_MC_MR = A;
@@ -1473,7 +1473,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -1632,7 +1632,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VC,Int> A_STAR_VC(g);
 
     A_STAR_VC = A;
@@ -1654,7 +1654,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,MR,MC,Int> > A_MR_MC
     ( new DistMatrix<T,MR,MC,Int>(g) );
     *A_MR_MC = A;
@@ -1682,7 +1682,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VC,Int> A_STAR_VC(g);
 
     A_STAR_VC = A;
@@ -1704,7 +1704,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(g);
 
     A_MC_MR = A;
@@ -1726,7 +1726,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
     
@@ -1807,7 +1807,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,MR,MC,Int> > A_MR_MC
     ( new DistMatrix<T,MR,MC,Int>(g) );
     *A_MR_MC = A;
@@ -1851,7 +1851,7 @@ DistMatrix<T,STAR,VR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     }
     else
     {
-        const elemental::Grid& g = this->Grid();
+        const elem::Grid& g = this->Grid();
 #ifdef UNALIGNED_WARNINGS
         if( g.VCRank() == 0 )
             std::cerr << "Unaligned [* ,VR] <- [* ,VR]." << std::endl;
@@ -1966,7 +1966,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
     {
         if( !this->ConstrainedRowAlignment() )
@@ -2062,7 +2062,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
     this->AssertSameGrid( A );
     this->AssertSameSize( A );
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( this->RowAlignment() % g.Width() == A.RowAlignment() )
     {
         const Int r = g.Height();
@@ -2137,4 +2137,4 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

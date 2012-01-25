@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R>
 inline void
@@ -230,4 +230,4 @@ HouseholderSolve
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -34,7 +34,7 @@
 #include "./LU/LocalLU.hpp"
 #include "./LU/PanelLU.hpp"
 
-namespace elemental {
+namespace elem {
 
 // Performs LU factorization without pivoting
 template<typename F> 
@@ -223,4 +223,4 @@ LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

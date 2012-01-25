@@ -36,7 +36,7 @@
 #include "./Her2k/Her2kUC.hpp"
 #include "./Her2k/Her2kUN.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -65,4 +65,4 @@ Her2k
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

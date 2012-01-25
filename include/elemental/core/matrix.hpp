@@ -35,7 +35,7 @@
 
 #include "elemental/core/environment.hpp"
 
-namespace elemental {
+namespace elem {
 
 // Matrix base for arbitrary rings
 template<typename T,typename Int=int>
@@ -407,7 +407,7 @@ Matrix<T,Int>::Width() const
 template<typename T,typename Int>
 inline Int
 Matrix<T,Int>::DiagonalLength( Int offset ) const
-{ return elemental::DiagonalLength(height_,width_,offset); }
+{ return elem::DiagonalLength(height_,width_,offset); }
 
 template<typename T,typename Int>
 inline Int
@@ -534,7 +534,7 @@ Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
     for( Int i=0; i<height; ++i )
     {
         for( Int j=0; j<width; ++j )
-            os << WrapScalar(Get(i,j)) << " ";
+            os << Get(i,j) << " ";
         os << std::endl;
     }
     os << std::endl;
@@ -1753,7 +1753,7 @@ Matrix<T,Int>::SetToZero()
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_MATRIX_HPP */
 

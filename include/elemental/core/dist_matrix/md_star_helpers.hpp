@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -300,7 +300,7 @@ DistMatrix<T,MD,STAR,Int>::GetRealHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -338,7 +338,7 @@ DistMatrix<T,MD,STAR,Int>::GetImagHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -375,7 +375,7 @@ DistMatrix<T,MD,STAR,Int>::SetRealHelper<Complex<Z> >::Func
     parent.AssertValidEntry( i, j );
 #endif
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -408,7 +408,7 @@ DistMatrix<T,MD,STAR,Int>::SetImagHelper<Complex<Z> >::Func
     parent.AssertValidEntry( i, j );
 #endif
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -441,7 +441,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateRealHelper<Complex<Z> >::Func
     parent.AssertValidEntry( i, j );
 #endif
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -474,7 +474,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
     parent.AssertValidEntry( i, j );
 #endif
     Int ownerRank;
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -496,4 +496,4 @@ DistMatrix<T,MD,STAR,Int>::UpdateImagHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -61,4 +61,4 @@ CholeskySolve
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

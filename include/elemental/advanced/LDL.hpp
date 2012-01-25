@@ -33,7 +33,7 @@
 
 #include "./LDL/LocalLDL.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
@@ -177,4 +177,4 @@ internal::LDLVar3
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

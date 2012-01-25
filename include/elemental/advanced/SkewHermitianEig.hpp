@@ -33,7 +33,7 @@
 
 #ifndef WITHOUT_PMRRR
 
-namespace elemental {
+namespace elem {
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs of the real, skew-symmetric matrix G       //
@@ -471,6 +471,6 @@ SkewHermitianEig
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

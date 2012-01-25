@@ -33,7 +33,7 @@
 #ifndef PMRRR_HPP
 #define PMRRR_HPP 1
 
-namespace elemental {
+namespace elem {
 namespace pmrrr {
 
 struct Estimate {
@@ -85,6 +85,6 @@ Info Eig
   double* Z, int ldz, mpi::Comm comm, int lowerBound, int upperBound );
 
 } // namespace pmrrr
-} // namespace elemental
+} // namespace elem
 
 #endif // PMRRR_HPP

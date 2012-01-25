@@ -35,7 +35,7 @@
 
 #include "elemental/core/complex.hpp"
 
-namespace elemental {
+namespace elem {
 
 typedef unsigned char byte;
  
@@ -299,7 +299,7 @@ inline Side CharToSide( char c )
     return side;
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_TYPES_HPP */
 

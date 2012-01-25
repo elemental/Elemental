@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -178,7 +178,7 @@ DistMatrix<T,STAR,VR,Int>::SetToRandomHermitianHelper<Complex<Z> >::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int height = parent.Height();
     const Int localWidth = parent.LocalWidth();
     const Int p = g.Size();
@@ -217,7 +217,7 @@ DistMatrix<T,STAR,VR,Int>::SetToRandomHPDHelper<Z>::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int height = parent.Height();
     const Int width = parent.Width();
     const Int localWidth = parent.LocalWidth();
@@ -254,7 +254,7 @@ DistMatrix<T,STAR,VR,Int>::SetToRandomHPDHelper<Complex<Z> >::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int height = parent.Height();
     const Int width = parent.Width();
     const Int localWidth = parent.LocalWidth();
@@ -294,7 +294,7 @@ DistMatrix<T,STAR,VR,Int>::GetRealHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     Z u;
@@ -323,7 +323,7 @@ DistMatrix<T,STAR,VR,Int>::GetImagHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     Z u;
@@ -350,7 +350,7 @@ DistMatrix<T,STAR,VR,Int>::SetRealHelper<Complex<Z> >::Func
     PushCallStack("[* ,VR]::SetReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -373,7 +373,7 @@ DistMatrix<T,STAR,VR,Int>::SetImagHelper<Complex<Z> >::Func
     PushCallStack("[* ,VR]::SetImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -396,7 +396,7 @@ DistMatrix<T,STAR,VR,Int>::UpdateRealHelper<Complex<Z> >::Func
     PushCallStack("[* ,VR]::UpdateReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -419,7 +419,7 @@ DistMatrix<T,STAR,VR,Int>::UpdateImagHelper<Complex<Z> >::Func
     PushCallStack("[* ,VR]::UpdateImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRank = (j + parent.RowAlignment()) % g.Size();
 
     if( g.VRRank() == ownerRank )
@@ -432,4 +432,4 @@ DistMatrix<T,STAR,VR,Int>::UpdateImagHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

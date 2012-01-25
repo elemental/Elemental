@@ -67,11 +67,11 @@ void <tt class="descname">Initialize</tt><big>(</big>int&amp; <em>argc</em>, cha
 <span class="kt">int</span>
 <span class="n">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">)</span>
 <span class="p">{</span>
-    <span class="n">elemental</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
+    <span class="n">elem</span><span class="o">::</span><span class="n">Initialize</span><span class="p">(</span> <span class="n">argc</span><span class="p">,</span> <span class="n">argv</span> <span class="p">);</span>
 
     <span class="c1">// ...</span>
 
-    <span class="n">elemental</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
+    <span class="n">elem</span><span class="o">::</span><span class="n">Finalize</span><span class="p">();</span>
     <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
@@ -516,7 +516,7 @@ a singular matrix is unexpectedly encountered.</p>
 specify the error message.</p>
 </dd></dl>
 
-<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">SingularMatrixException</span><span class="p">();</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elem</span><span class="o">::</span><span class="n">SingularMatrixException</span><span class="p">();</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -534,7 +534,7 @@ a non positive-definite Hermitian matrix is unexpectedly encountered
 specify the error message.</p>
 </dd></dl>
 
-<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">NonHPDMatrixException</span><span class="p">();</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elem</span><span class="o">::</span><span class="n">NonHPDMatrixException</span><span class="p">();</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -552,7 +552,7 @@ a non positive semi-definite Hermitian matrix is unexpectedly encountered
 specify the error message.</p>
 </dd></dl>
 
-<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elemental</span><span class="o">::</span><span class="n">NonHPSDMatrixException</span><span class="p">();</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="k">throw</span> <span class="n">elem</span><span class="o">::</span><span class="n">NonHPSDMatrixException</span><span class="p">();</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -596,7 +596,7 @@ typically used as a means of allowing instances of the
 <a class="reference internal" href="dist_matrix.html#DistMatrix:T.MC.MR:" title="DistMatrix&lt;T, MC, MR&gt;"><tt class="xref cpp cpp-class docutils literal"><span class="pre">DistMatrix&lt;T,MC,MR&gt;</span></tt></a> class to be constructed without having to
 manually specify a process grid, e.g.,</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span class="c1">// Build a 10 x 10 distributed matrix over mpi::COMM_WORLD</span>
-<span class="n">elemental</span><span class="o">::</span><span class="n">DistMatrix</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">MC</span><span class="p">,</span><span class="n">MR</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="p">);</span>
+<span class="n">elem</span><span class="o">::</span><span class="n">DistMatrix</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="n">MC</span><span class="p">,</span><span class="n">MR</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span> <span class="p">);</span>
 </pre></div>
 </div>
 </dd></dl>

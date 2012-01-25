@@ -32,7 +32,7 @@
 */
 #include "elemental.hpp"
 using namespace std;
-using namespace elemental;
+using namespace elem;
 
 // Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;

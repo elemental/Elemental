@@ -34,7 +34,7 @@
 #include "./TriangularInverse/TriangularInverseLVar3.hpp"
 #include "./TriangularInverse/TriangularInverseUVar3.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -71,4 +71,4 @@ internal::TriangularInverseVar3
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

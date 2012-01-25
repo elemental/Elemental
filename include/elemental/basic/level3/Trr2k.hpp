@@ -49,7 +49,7 @@
 #include "./Trr2k/Trr2kTTTN.hpp"
 #include "./Trr2k/Trr2kTTTT.hpp"
 
-namespace elemental {
+namespace elem {
 
 // This will be enabled as soon as the underlying routines are written
 /*
@@ -248,4 +248,4 @@ Trr2k
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

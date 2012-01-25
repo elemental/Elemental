@@ -16,11 +16,11 @@ Set up and clean up
       int
       main( int argc, char* argv[] )
       {
-          elemental::Initialize( argc, argv );
+          elem::Initialize( argc, argv );
 
           // ...
 
-          elemental::Finalize();
+          elem::Finalize();
           return 0;
       }
 
@@ -336,7 +336,7 @@ Custom exceptions
 
    .. code-block:: cpp
 
-      throw elemental::SingularMatrixException();
+      throw elem::SingularMatrixException();
 
 .. cpp:class:: NonHPDMatrixException 
 
@@ -351,7 +351,7 @@ Custom exceptions
 
    .. code-block:: cpp
 
-      throw elemental::NonHPDMatrixException();
+      throw elem::NonHPDMatrixException();
 
 .. cpp:class:: NonHPSDMatrixException 
 
@@ -366,7 +366,7 @@ Custom exceptions
 
    .. code-block:: cpp
 
-      throw elemental::NonHPSDMatrixException();
+      throw elem::NonHPSDMatrixException();
 
 Call stack manipulation
 -----------------------
@@ -403,6 +403,6 @@ Default process grid
    .. code-block:: cpp
 
       // Build a 10 x 10 distributed matrix over mpi::COMM_WORLD
-      elemental::DistMatrix<T,MC,MR> A( 10, 10 );
+      elem::DistMatrix<T,MC,MR> A( 10, 10 );
 
 

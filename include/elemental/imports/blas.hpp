@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_IMPORTS_BLAS_HPP
 #define ELEMENTAL_IMPORTS_BLAS_HPP 1
 
-namespace elemental {
+namespace elem {
 namespace blas {
 //----------------------------------------------------------------//
 // Level 1 BLAS                                                   //
@@ -429,8 +429,8 @@ void Trsm
 ( char side,  char uplo, char trans, char unit, int m, int n,
   dcomplex alpha, const dcomplex* A, int lda, dcomplex* B, int ldb );
 
-} // blas
-} // elemental
+} // namespace blas
+} // namespace elem
 
 extern "C" {
 //------------------------------------------------------------------------//
@@ -444,14 +444,14 @@ void BLAS(daxpy)
                                            double* y, const int* incy );
 void BLAS(caxpy)
 ( const int* n, 
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-        elemental::scomplex* y, const int* incy );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+        elem::scomplex* y, const int* incy );
 void BLAS(zaxpy)
 ( const int* n, 
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-        elemental::dcomplex* y, const int* incy );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+        elem::dcomplex* y, const int* incy );
 
 float BLAS(sdot)
 ( const int* n, const float* x, const int* incx,
@@ -466,19 +466,19 @@ float BLAS(snrm2)
 double BLAS(dnrm2)
 ( const int* n, const double* x, const int* incx );
 float BLAS(scnrm2)
-( const int* n, const elemental::scomplex* x, const int* incx );
+( const int* n, const elem::scomplex* x, const int* incx );
 double BLAS(dznrm2)
-( const int* n, const elemental::dcomplex* x, const int* incx );
+( const int* n, const elem::dcomplex* x, const int* incx );
 
 void BLAS(sscal)
 ( const int* n, const float* alpha, float* x, const int* incx );
 void BLAS(dscal)
 ( const int* n, const double* alpha, double* x, const int* incx );
 void BLAS(cscal)
-( const int* n, const elemental::scomplex* alpha, elemental::scomplex* x, 
+( const int* n, const elem::scomplex* alpha, elem::scomplex* x, 
   const int* incx );
 void BLAS(zscal)
-( const int* n, const elemental::dcomplex* alpha, elemental::dcomplex* x, 
+( const int* n, const elem::dcomplex* alpha, elem::dcomplex* x, 
   const int* incx );
 
 //------------------------------------------------------------------------//
@@ -496,18 +496,18 @@ void BLAS(dgemv)
   const double* beta,        double* y, const int* incy );
 void BLAS(cgemv)
 ( const char* trans, const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* y, const int* incy );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* beta,        
+        elem::scomplex* y, const int* incy );
 void BLAS(zgemv)
 ( const char* trans, const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* y, const int* incy );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* y, const int* incy );
 
 void BLAS(sger)
 ( const int* m, const int* n,
@@ -521,68 +521,68 @@ void BLAS(dger)
                              double* A, const int* lda  );
 void BLAS(cgerc)
 ( const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* y, const int* incy,
-        elemental::scomplex* A, const int* lda  );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* y, const int* incy,
+        elem::scomplex* A, const int* lda  );
 void BLAS(zgerc)
 ( const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* y, const int* incy,
-        elemental::dcomplex* A, const int* lda  );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* y, const int* incy,
+        elem::dcomplex* A, const int* lda  );
 
 void BLAS(cgeru)
 ( const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* y, const int* incy,
-        elemental::scomplex* A, const int* lda  );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* y, const int* incy,
+        elem::scomplex* A, const int* lda  );
 void BLAS(zgeru)
 ( const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* y, const int* incy,
-        elemental::dcomplex* A, const int* lda  );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* y, const int* incy,
+        elem::dcomplex* A, const int* lda  );
 
 void BLAS(chemv)
 ( const char* uplo, const int* m,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* y, const int* incy );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* beta,        
+        elem::scomplex* y, const int* incy );
 void BLAS(zhemv)
 ( const char* uplo, const int* m,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* y, const int* incy );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* y, const int* incy );
 
 void BLAS(cher)
 ( const char* uplo, const int* m,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-        elemental::scomplex* A, const int* lda  );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+        elem::scomplex* A, const int* lda  );
 void BLAS(zher)
 ( const char* uplo, const int* m,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-        elemental::dcomplex* A, const int* lda  );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+        elem::dcomplex* A, const int* lda  );
 
 void BLAS(cher2)
 ( const char* uplo, const int* m,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* y, const int* incy,
-        elemental::scomplex* A, const int* lda  );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* y, const int* incy,
+        elem::scomplex* A, const int* lda  );
 void BLAS(zher2)
 ( const char* uplo, const int* m,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* y, const int* incy,
-        elemental::dcomplex* A, const int* lda  );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* y, const int* incy,
+        elem::dcomplex* A, const int* lda  );
 
 void BLAS(ssymv)
 ( const char* uplo, const int* m,
@@ -597,19 +597,19 @@ void BLAS(dsymv)
 // 'csymv' is an auxiliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(csymv)
 ( const char* uplo, const int* m,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* x, const int* incx,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* y, const int* incy );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* x, const int* incx,
+  const elem::scomplex* beta,        
+        elem::scomplex* y, const int* incy );
 // 'zsymv' is an auxiliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(zsymv)
 ( const char* uplo, const int* m,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* x, const int* incx,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* y, const int* incy );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* x, const int* incx,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* y, const int* incy );
 
 void BLAS(ssyr)
 ( const char* uplo, const int* m,
@@ -622,15 +622,15 @@ void BLAS(dsyr)
 // 'csyr' is an auxilliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(csyr)
 ( const char* uplo, const int* m,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* x, const int* incx,
-        elemental::scomplex* A, const int* lda  );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* x, const int* incx,
+        elem::scomplex* A, const int* lda  );
 // 'zsyr' is an auxilliary LAPACK routine, but we will treat it as BLAS
 void LAPACK(zsyr)
 ( const char* uplo, const int* m,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* x, const int* incx,
-        elemental::dcomplex* A, const int* lda  );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* x, const int* incx,
+        elem::dcomplex* A, const int* lda  );
 
 void BLAS(ssyr2)
 ( const char* uplo, const int* m,
@@ -651,12 +651,12 @@ void BLAS(dtrmv)
   const double* A, const int* lda, double* x, const int* incx );
 void BLAS(ctrmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
-  const elemental::scomplex* A, const int* lda, 
-        elemental::scomplex* x, const int* incx );
+  const elem::scomplex* A, const int* lda, 
+        elem::scomplex* x, const int* incx );
 void BLAS(ztrmv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
-  const elemental::dcomplex* A, const int* lda, 
-        elemental::dcomplex* x, const int* incx );
+  const elem::dcomplex* A, const int* lda, 
+        elem::dcomplex* x, const int* incx );
 
 void BLAS(strsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
@@ -666,12 +666,12 @@ void BLAS(dtrsv)
   const double* A, const int* lda, double* x, const int* incx );
 void BLAS(ctrsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
-  const elemental::scomplex* A, const int* lda, 
-        elemental::scomplex* x, const int* incx );
+  const elem::scomplex* A, const int* lda, 
+        elem::scomplex* x, const int* incx );
 void BLAS(ztrsv)
 ( const char* uplo, const char* trans, const char* diag, const int* m,
-  const elemental::dcomplex* A, const int* lda, 
-        elemental::dcomplex* x, const int* incx );
+  const elem::dcomplex* A, const int* lda, 
+        elem::dcomplex* x, const int* incx );
 
 //------------------------------------------------------------------------//
 // Level 3 BLAS                                                           //
@@ -691,75 +691,75 @@ void BLAS(dgemm)
 void BLAS(cgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* B, const int* ldb,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* B, const int* ldb,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zgemm)
 ( const char* transA, const char* transB,
   const int* m, const int* n, const int* k,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(chemm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* B, const int* ldb,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* B, const int* ldb,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zhemm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(cher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* B, const int* ldb,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* B, const int* ldb,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zher2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(cherk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zherk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void LAPACK(slauum)( char* uplo, int* n, float* A, int* lda, int* info );
 void LAPACK(dlauum)( char* uplo, int* n, double* A, int* lda, int* info );
 void LAPACK(clauum)
-( char* uplo, int* n, elemental::scomplex* A, int* lda, int* info );
+( char* uplo, int* n, elem::scomplex* A, int* lda, int* info );
 void LAPACK(zlauum)
-( char* uplo, int* n, elemental::dcomplex* A, int* lda, int* info );
+( char* uplo, int* n, elem::dcomplex* A, int* lda, int* info );
 
 void BLAS(ssymm)
 ( const char* side, const char* uplo,
@@ -776,19 +776,19 @@ void BLAS(dsymm)
 void BLAS(csymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* B, const int* ldb,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* B, const int* ldb,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zsymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(ssyr2k)
 ( const char* uplo, const char* trans,
@@ -805,19 +805,19 @@ void BLAS(dsyr2k)
 void BLAS(csyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* B, const int* ldb,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* B, const int* ldb,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zsyr2k)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* B, const int* ldb,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* B, const int* ldb,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(ssyrk)
 ( const char* uplo, const char* trans,
@@ -832,17 +832,17 @@ void BLAS(dsyrk)
 void BLAS(csyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-  const elemental::scomplex* beta,        
-        elemental::scomplex* C, const int* ldc );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+  const elem::scomplex* beta,        
+        elem::scomplex* C, const int* ldc );
 void BLAS(zsyrk)
 ( const char* uplo, const char* trans,
   const int* n, const int* k,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-  const elemental::dcomplex* beta,        
-        elemental::dcomplex* C, const int* ldc );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+  const elem::dcomplex* beta,        
+        elem::dcomplex* C, const int* ldc );
 
 void BLAS(strmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
@@ -857,15 +857,15 @@ void BLAS(dtrmm)
 void BLAS(ctrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-        elemental::scomplex* B, const int* ldb );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+        elem::scomplex* B, const int* ldb );
 void BLAS(ztrmm)
 ( const char* side, const char* uplo, const char* trans, const char* diag,
   const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-        elemental::dcomplex* B, const int* ldb );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+        elem::dcomplex* B, const int* ldb );
 
 void BLAS(strsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
@@ -880,15 +880,15 @@ void BLAS(dtrsm)
 void BLAS(ctrsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n,
-  const elemental::scomplex* alpha, 
-  const elemental::scomplex* A, const int* lda,
-        elemental::scomplex* B, const int* ldb );
+  const elem::scomplex* alpha, 
+  const elem::scomplex* A, const int* lda,
+        elem::scomplex* B, const int* ldb );
 void BLAS(ztrsm)
 ( const char* side, const char* uplo, const char* transA, const char* diag,
   const int* m, const int* n,
-  const elemental::dcomplex* alpha, 
-  const elemental::dcomplex* A, const int* lda,
-        elemental::dcomplex* B, const int* ldb );
+  const elem::dcomplex* alpha, 
+  const elem::dcomplex* A, const int* lda,
+        elem::dcomplex* B, const int* ldb );
 } // extern "C"
 
 #endif /* ELEMENTAL_IMPORTS_BLAS_HPP */

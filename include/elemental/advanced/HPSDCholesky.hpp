@@ -33,7 +33,7 @@
 
 #ifndef WITHOUT_PMRRR
 
-namespace elemental {
+namespace elem {
 namespace hpsd_cholesky {
 
 template<typename F>
@@ -158,6 +158,6 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif // WITHOUT_PMRRR

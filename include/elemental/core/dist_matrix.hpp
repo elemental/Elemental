@@ -35,7 +35,7 @@
 
 #include "elemental/core/matrix.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int=int>
 class AbstractDistMatrix;
@@ -44,7 +44,7 @@ template<typename T,Distribution ColDist=MC,Distribution RowDist=MR,
          typename Int=int>
 class DistMatrix;
 
-}
+} // namespace elem
 
 #include "elemental/core/dist_matrix/abstract.hpp"
 #include "elemental/core/dist_matrix/mc_mr.hpp"

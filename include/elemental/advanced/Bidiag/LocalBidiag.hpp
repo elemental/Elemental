@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 namespace bidiag {
 
@@ -397,4 +397,4 @@ inline void Bidiag
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

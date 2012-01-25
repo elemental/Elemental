@@ -33,7 +33,7 @@
 #include <ctime>
 #include "elemental.hpp"
 using namespace std;
-using namespace elemental;
+using namespace elem;
 
 void Usage()
 {
@@ -169,7 +169,7 @@ main( int argc, char* argv[] )
         }
         TestHemm<Complex<double> >
         ( printMatrices, side, uplo, m, n, 
-          Complex<double>(3), Complex<double>(l4), g );
+          Complex<double>(3), Complex<double>(4), g );
     }
     catch( exception& e )
     {

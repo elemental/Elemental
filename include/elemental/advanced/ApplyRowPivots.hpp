@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -346,4 +346,4 @@ ApplyRowPivots
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> // representation of a real number
 inline void
@@ -295,4 +295,4 @@ internal::ApplyPackedReflectorsLLVB
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

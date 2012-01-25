@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline void
@@ -188,4 +188,4 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

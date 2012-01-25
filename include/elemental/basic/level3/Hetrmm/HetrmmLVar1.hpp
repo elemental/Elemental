@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -104,4 +104,4 @@ internal::HetrmmLVar1( DistMatrix<T,MC,MR>& L )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

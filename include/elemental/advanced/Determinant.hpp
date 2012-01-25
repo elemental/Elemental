@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline SafeProduct<F> 
@@ -158,4 +158,4 @@ inline F Determinant( Matrix<F>& A )
     return det;
 }
 
-} // namespace elemental
+} // namespace elem

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 template<typename T>
@@ -176,4 +176,4 @@ GemvN
 }
 
 } // namespace internal
-} // namespace elemental
+} // namespace elem

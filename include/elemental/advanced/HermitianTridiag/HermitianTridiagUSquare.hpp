@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline void
@@ -281,4 +281,4 @@ internal::HermitianTridiagUSquare
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

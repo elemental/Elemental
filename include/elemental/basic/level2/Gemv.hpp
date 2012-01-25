@@ -34,7 +34,7 @@
 #include "./Gemv/GemvN.hpp"
 #include "./Gemv/GemvT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -56,5 +56,5 @@ Gemv
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 

@@ -33,7 +33,7 @@
 #include <ctime>
 #include "elemental.hpp"
 using namespace std;
-using namespace elemental;
+using namespace elem;
 
 void Usage()
 {
@@ -98,8 +98,7 @@ void TestCorrectnessDouble
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
-            elemental::blas::Scal
-            ( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
+            blas::Scal( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, (double)-1, AOrig, X, (double)1, Y );
@@ -320,7 +319,7 @@ void TestCorrectnessDoubleComplex
         for( int jLocal=0; jLocal<Y.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
-            elemental::blas::Scal
+            blas::Scal
             ( 2*Y.LocalHeight(), omega, (double*)Y.LocalBuffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX

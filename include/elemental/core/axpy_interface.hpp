@@ -38,7 +38,7 @@
 #ifndef ELEMENTAL_AXPY_INTERFACE_HPP
 #define ELEMENTAL_AXPY_INTERFACE_HPP 1
 
-namespace elemental {
+namespace elem {
 
 namespace axpy_type_wrapper {
 enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
@@ -951,7 +951,7 @@ AxpyInterface<T,Int>::Detach()
 #endif
 }
 
-} // elemental
+} // namespace elem
 
 #endif  /* ELEMENTAL_AXPY_INTERFACE_HPP */
 

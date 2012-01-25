@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Left Upper Normal (Non)Unit Trmm
 //   X := triu(U)  X, or
@@ -347,4 +347,4 @@ internal::LocalTrmmAccumulateLUN
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

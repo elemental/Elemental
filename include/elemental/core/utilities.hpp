@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_UTILITIES_HPP
 #define ELEMENTAL_UTILITIES_HPP 1
 
-namespace elemental {
+namespace elem {
 
 template<typename Int>
 Int DiagonalLength( Int height, Int width, Int offset=0 );
@@ -215,7 +215,7 @@ inline Int RawShift( Int index, Int alignment, Int modulus )
     return (index + modulus - alignment) % modulus;
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_UTILITIES_HPP */
 

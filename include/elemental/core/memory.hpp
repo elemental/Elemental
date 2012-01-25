@@ -33,7 +33,7 @@
 #ifndef ELEMENTAL_MEMORY_HPP
 #define ELEMENTAL_MEMORY_HPP 1
 
-namespace elemental {
+namespace elem {
 
 template<typename G>
 class Memory
@@ -118,7 +118,7 @@ inline void Memory<G>::Empty()
     buffer_ = 0;
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_MEMORY_HPP */
 

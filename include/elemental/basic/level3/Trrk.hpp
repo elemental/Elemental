@@ -37,7 +37,7 @@
 #include "./Trrk/TrrkTN.hpp"
 #include "./Trrk/TrrkTT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -90,4 +90,4 @@ Trrk
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

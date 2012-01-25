@@ -23,7 +23,7 @@ storage.
        This constraint is enforced so that ``std::memset`` can be used to 
        quickly set matrices to zero.
     4. If the ``SetToRandom()`` member function is to be used, then the routine 
-       ``T elemental::SampleUnitBall<T>()`` must exist. This is already 
+       ``T elem::SampleUnitBall<T>()`` must exist. This is already 
        provided for ``int``, ``float``, ``double``, ``Complex<float>``, 
        and ``Complex<double>``, and could be easily extended to new 
        datatypes.
@@ -41,7 +41,7 @@ numbers where the :math:`(i,j)` entry is equal to :math:`i-j` would be:
   .. code-block:: cpp
 
      #include "elemental.hpp"
-     using namespace elemental;
+     using namespace elem;
      ...
      Matrix<double> A( m, n );
      for( int j=0; j<n; ++j )
@@ -59,7 +59,7 @@ of the first code sample as follows:
   .. code-block:: cpp
      
      #include "elemental.hpp"
-     using namespace elemental;
+     using namespace elem;
      ...
      Matrix<double> A( m, n );
      double* buffer = A.Buffer();

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // The operator L1 and Linf norms for Hermitian matrices are identical. The 
 // former is the maximum column L1 norm and the latter is the maximum row L1 
@@ -96,4 +96,4 @@ internal::HermitianInfinityNorm
     return maxRowSum;
 }
 
-} // namespace elemental
+} // namespace elem

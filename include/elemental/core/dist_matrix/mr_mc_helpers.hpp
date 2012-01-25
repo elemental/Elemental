@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline void
@@ -332,7 +332,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHermitianHelper<Complex<Z> >::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
 
     const Int localHeight = parent.LocalHeight();
     const Int localWidth = parent.LocalWidth();
@@ -378,7 +378,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<Z>::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
 
     const Int width = parent.Width();
     const Int localHeight = parent.LocalHeight();
@@ -422,7 +422,7 @@ DistMatrix<T,MR,MC,Int>::SetToRandomHPDHelper<Complex<Z> >::Func
     if( parent.Height() != parent.Width() )
         throw std::logic_error("Positive-definite matrices must be square");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
 
     const Int width = parent.Width();
     const Int localHeight = parent.LocalHeight();
@@ -469,7 +469,7 @@ DistMatrix<T,MR,MC,Int>::GetRealHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -501,7 +501,7 @@ DistMatrix<T,MR,MC,Int>::GetImagHelper<Complex<Z> >::Func
 #endif
     // We will determine the owner of the (i,j) entry and have him Broadcast
     // throughout the entire process grid
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -531,7 +531,7 @@ DistMatrix<T,MR,MC,Int>::SetRealHelper<Complex<Z> >::Func
     PushCallStack("[MR,MC]::SetReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -557,7 +557,7 @@ DistMatrix<T,MR,MC,Int>::SetImagHelper<Complex<Z> >::Func
     PushCallStack("[MR,MC]::SetImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -583,7 +583,7 @@ DistMatrix<T,MR,MC,Int>::UpdateRealHelper<Complex<Z> >::Func
     PushCallStack("[MR,MC]::UpdateReal");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -609,7 +609,7 @@ DistMatrix<T,MR,MC,Int>::UpdateImagHelper<Complex<Z> >::Func
     PushCallStack("[MR,MC]::UpdateImag");
     parent.AssertValidEntry( i, j );
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
     const Int ownerCol = (i + parent.ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol * g.Height();
@@ -645,7 +645,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Complex<Z> >::Func
         !d.AlignedWithDiagonal( parent, offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
         d.SetGrid( g );
@@ -718,7 +718,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Complex<Z> >::Func
         !d.AlignedWithDiagonal( parent, offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
         d.SetGrid( g );
@@ -791,7 +791,7 @@ DistMatrix<T,MR,MC,Int>::GetRealDiagonalHelper<Complex<Z> >::Func
         !d.AlignedWithDiagonal( parent, offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
         d.SetGrid( g );
@@ -866,7 +866,7 @@ DistMatrix<T,MR,MC,Int>::GetImagDiagonalHelper<Complex<Z> >::Func
         !d.AlignedWithDiagonal( parent, offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    const elemental::Grid& g = parent.Grid();
+    const elem::Grid& g = parent.Grid();
     if( !d.Viewing() )
     {
         d.SetGrid( g );
@@ -947,7 +947,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Complex<Z> >::Func
 #endif
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
+        const elem::Grid& g = parent.Grid();
         const Int r = g.Height();
         const Int c = g.Width();
         const Int lcm = g.LCM();
@@ -1018,7 +1018,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Complex<Z> >::Func
 #endif
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
+        const elem::Grid& g = parent.Grid();
         const Int r = g.Height();
         const Int c = g.Width();
         const Int lcm = g.LCM();
@@ -1089,7 +1089,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonalHelper<Complex<Z> >::Func
 #endif
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
+        const elem::Grid& g = parent.Grid();
         const Int r = g.Height();
         const Int c = g.Width();
         const Int lcm = g.LCM();
@@ -1161,7 +1161,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Complex<Z> >::Func
 #endif
     if( d.InDiagonal() )
     {
-        const elemental::Grid& g = parent.Grid();
+        const elem::Grid& g = parent.Grid();
         const Int r = g.Height();
         const Int c = g.Width();
         const Int lcm = g.LCM();
@@ -1207,4 +1207,4 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonalHelper<Complex<Z> >::Func
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

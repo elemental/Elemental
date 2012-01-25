@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Local LU _without_ partial pivoting
 template<typename F> 
@@ -79,4 +79,4 @@ LU( Matrix<F>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

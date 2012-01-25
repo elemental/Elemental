@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -104,4 +104,4 @@ internal::TriangularInverseLVar3( Diagonal diagonal, DistMatrix<F,MC,MR>& L )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

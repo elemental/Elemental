@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline R
@@ -147,4 +147,4 @@ internal::InfinityNorm( const DistMatrix<Complex<R>,MC,MR>& A )
     return maxRowSum;
 }
 
-} // namespace elemental
+} // namespace elem

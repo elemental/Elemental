@@ -23,7 +23,7 @@ An example usage might be:
 .. code-block:: cpp
 
    #include "elemental.hpp"
-   using namespace elemental;
+   using namespace elem;
    ...
    // Create an 8 x 8 distributed matrix over the given grid
    DistMatrix<double,MC,MR> A( 8, 8, grid );

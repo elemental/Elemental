@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 namespace trrk {
 
@@ -1167,4 +1167,4 @@ internal::LocalTrrk
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

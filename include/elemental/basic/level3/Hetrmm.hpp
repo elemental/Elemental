@@ -34,7 +34,7 @@
 #include "./Hetrmm/HetrmmLVar1.hpp"
 #include "./Hetrmm/HetrmmUVar1.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -54,4 +54,4 @@ Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

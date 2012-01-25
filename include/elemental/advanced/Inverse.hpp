@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Start by forming the partially pivoted LU decomposition of A,
 //     P A = L U,
@@ -190,4 +190,4 @@ Inverse( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

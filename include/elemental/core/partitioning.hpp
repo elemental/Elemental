@@ -35,7 +35,7 @@
 
 #include "elemental/core/dist_matrix.hpp"
 
-namespace elemental {
+namespace elem {
 
 // To make our life easier. Undef'd at the bottom of the header
 #define M  Matrix<T,Int>
@@ -2430,7 +2430,7 @@ SlideLockedPartitionDownDiagonal
 #undef DM
 #undef M
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_PARTITIONING_HPP */
 

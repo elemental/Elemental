@@ -33,7 +33,7 @@
 #include <ctime>
 #include "elemental.hpp"
 using namespace std;
-using namespace elemental;
+using namespace elem;
 
 void Usage()
 {

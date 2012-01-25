@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 template<typename T> // represents a real or complex ring
@@ -62,6 +62,6 @@ SetDiagonalToOne( DistMatrix<T,MC,MR>& D )
 #endif
 }
 
-} // internal namespace
-} // elemental namespace
+} // namespace internal
+} // namespace elem
 

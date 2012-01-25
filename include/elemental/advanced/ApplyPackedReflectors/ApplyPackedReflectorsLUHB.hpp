@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename R> 
 inline void
@@ -75,4 +75,4 @@ internal::ApplyPackedReflectorsLUHB
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -37,7 +37,7 @@ namespace {
 bool initializedElemental = false;
 bool elementalInitializedMpi;
 std::stack<int> blocksizeStack;
-elemental::Grid* defaultGrid = 0;
+elem::Grid* defaultGrid = 0;
 
 // Debugging
 #ifndef RELEASE
@@ -66,12 +66,12 @@ int localTrrkComplexFloatBlocksize = 64;
 int localTrrkComplexDoubleBlocksize = 64;
 
 // Tuning parameters for advanced routines
-using namespace elemental;
+using namespace elem;
 HermitianTridiagApproach tridiagApproach = HERMITIAN_TRIDIAG_DEFAULT;
 GridOrder gridOrder = ROW_MAJOR;
 }
 
-namespace elemental {
+namespace elem {
 
 bool Initialized()
 { return ::initializedElemental; }
@@ -359,4 +359,4 @@ void SetHermitianTridiagGridOrder( GridOrder order )
 GridOrder GetHermitianTridiagGridOrder()
 { return ::gridOrder; }
 
-} // namespace elemental
+} // namespace elem

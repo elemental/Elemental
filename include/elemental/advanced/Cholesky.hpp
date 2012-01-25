@@ -38,7 +38,7 @@
 #include "./Cholesky/CholeskyUVar3.hpp"
 #include "./Cholesky/CholeskyUVar3Square.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F> 
 inline void
@@ -69,4 +69,4 @@ Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

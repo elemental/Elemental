@@ -35,7 +35,7 @@
 
 #include "elemental/core/partitioning.hpp"
 
-namespace elemental {
+namespace elem {
 
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //
@@ -855,7 +855,7 @@ void Trsm
   F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
   bool checkIfSingular=false );
 
-} // elemental
+} // namespace elem
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
@@ -866,7 +866,7 @@ void Trsm
 #include "./basic/level2.hpp"
 #include "./basic/level3.hpp"
 
-namespace elemental {
+namespace elem {
 
 //----------------------------------------------------------------------------//
 // Local BLAS-like routines: Level 1                                          //
@@ -2358,7 +2358,7 @@ Gerc
 #endif
 }
 
-} // namespace elemental
+} // namespace elem
 
 #endif /* ELEMENTAL_BASIC_HPP */
 

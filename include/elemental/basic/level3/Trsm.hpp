@@ -40,7 +40,7 @@
 #include "./Trsm/TrsmRUN.hpp"
 #include "./Trsm/TrsmRUT.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -121,4 +121,4 @@ Trsm
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // Right Upper Adjoint/Transpose (Non)Unit Trmm
 //   X := X triu(U)^T, 
@@ -348,4 +348,4 @@ internal::LocalTrmmAccumulateRUT
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

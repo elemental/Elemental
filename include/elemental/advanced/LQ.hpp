@@ -33,7 +33,7 @@
 
 #include "./LQ/PanelLQ.hpp"
 
-namespace elemental {
+namespace elem {
 
 // On exit, the lower triangle of A is overwritten by L, and the Householder
 // transforms that determine Q are stored above the diagonal of A with an 
@@ -176,4 +176,4 @@ LQ( DistMatrix<Complex<R>,MC,MR  >& A,
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

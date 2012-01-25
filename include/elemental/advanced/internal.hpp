@@ -35,7 +35,7 @@
 
 #include "elemental/advanced.hpp"
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 //----------------------------------------------------------------------------//
@@ -771,15 +771,9 @@ double TriangularInverseGFlops( int m, double seconds );
 template<typename F>
 double ApplyPackedReflectorsGFlops( int m, double seconds );
 
-} // internal
-} // elemental
-
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
-
-namespace elemental {
-namespace internal {
 
 //
 // Local LAPACK-like routines
@@ -1103,8 +1097,8 @@ ApplyPackedReflectorsGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*ApplyPackedReflectorsGFlops<float>(m,seconds); }
 
-} // internal
-} // elemental
+} // namespace internal
+} // namespace elem
 
 #endif /* ELEMENTAL_ADVANCED_INTERNAL_HPP */
 

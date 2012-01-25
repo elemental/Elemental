@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // TODO: Switch to non-naive methods which are not as likely to overflow
 
@@ -258,4 +258,4 @@ internal::HermitianFrobeniusNorm
     return norm;
 }
 
-} // namespace elemental
+} // namespace elem

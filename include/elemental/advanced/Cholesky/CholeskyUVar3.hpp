@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 // I do not see any algorithmic optimizations to make for the upper var3 
 // Cholesky, since most memory access is stride one.
@@ -134,4 +134,4 @@ internal::CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

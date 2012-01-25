@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 namespace hermitian_tridiag {
 
@@ -326,4 +326,4 @@ inline void HermitianTridiag
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

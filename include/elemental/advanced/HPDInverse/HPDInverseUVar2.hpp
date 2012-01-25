@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 //
 // This approach is based upon the reordered Variant 2 algorithm from Fig. 9 in 
@@ -148,4 +148,4 @@ internal::HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

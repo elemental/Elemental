@@ -56,7 +56,7 @@ int PMRRR
 
 } // extern "C"
 
-namespace elemental {
+namespace elem {
 namespace pmrrr {
 
 // Return upper bounds on the number of (local) eigenvalues in the given range,
@@ -314,4 +314,4 @@ Info Eig
 }
 
 } // namespace pmrrr
-} // namespace elemental
+} // namespace elem

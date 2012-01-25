@@ -78,7 +78,7 @@ be logically equivalent to setting the instance to <tt class="docutils literal">
 This constraint is enforced so that <tt class="docutils literal"><span class="pre">std::memset</span></tt> can be used to
 quickly set matrices to zero.</li>
 <li>If the <tt class="docutils literal"><span class="pre">SetToRandom()</span></tt> member function is to be used, then the routine
-<tt class="docutils literal"><span class="pre">T</span> <span class="pre">elemental::SampleUnitBall&lt;T&gt;()</span></tt> must exist. This is already
+<tt class="docutils literal"><span class="pre">T</span> <span class="pre">elem::SampleUnitBall&lt;T&gt;()</span></tt> must exist. This is already
 provided for <tt class="docutils literal"><span class="pre">int</span></tt>, <tt class="docutils literal"><span class="pre">float</span></tt>, <tt class="docutils literal"><span class="pre">double</span></tt>, <tt class="docutils literal"><span class="pre">Complex&lt;float&gt;</span></tt>,
 and <tt class="docutils literal"><span class="pre">Complex&lt;double&gt;</span></tt>, and could be easily extended to new
 datatypes.</li>
@@ -95,7 +95,7 @@ considered POD since it has several custom constructors.</p>
 numbers where the <img class="math" src="../_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> entry is equal to <img class="math" src="../_images/math/6e738b4769cbbf393ad5140314a87e41cdc70480.png" alt="i-j"/> would be:</p>
 <blockquote>
 <div><div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">elemental</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">elem</span><span class="p">;</span>
 <span class="p">...</span>
 <span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
 <span class="k">for</span><span class="p">(</span> <span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span> <span class="p">)</span>
@@ -113,7 +113,7 @@ dimension; these two routines could be used to directly perform the equivalent
 of the first code sample as follows:</p>
 <blockquote>
 <div><div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
-<span class="k">using</span> <span class="k">namespace</span> <span class="n">elemental</span><span class="p">;</span>
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">elem</span><span class="p">;</span>
 <span class="p">...</span>
 <span class="n">Matrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
 <span class="kt">double</span><span class="o">*</span> <span class="n">buffer</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">Buffer</span><span class="p">();</span>

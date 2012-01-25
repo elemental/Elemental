@@ -36,7 +36,7 @@
 #include "./Symm/SymmRL.hpp"
 #include "./Symm/SymmRU.hpp"
 
-namespace elemental {
+namespace elem {
 
 template<typename T>
 inline void
@@ -70,4 +70,4 @@ Symm
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

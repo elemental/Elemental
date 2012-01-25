@@ -31,11 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename T,typename Int>
 inline
-DistMatrix<T,STAR,STAR,Int>::DistMatrix( const elemental::Grid& g )
+DistMatrix<T,STAR,STAR,Int>::DistMatrix( const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,false,0,0,0,0,0,0,g)
 { }
@@ -43,7 +43,7 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix( const elemental::Grid& g )
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
-( Int height, Int width, const elemental::Grid& g )
+( Int height, Int width, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,false,0,0,0,0,height,width,g)
 { }
@@ -51,7 +51,7 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
-( Int height, Int width, Int ldim, const elemental::Grid& g )
+( Int height, Int width, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,false,0,0,0,0,height,width,ldim,g)
 { }
@@ -59,7 +59,7 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
-( Int height, Int width, const T* buffer, Int ldim, const elemental::Grid& g )
+( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,0,0,0,height,width,buffer,ldim,g)
 { }
@@ -67,7 +67,7 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix
 template<typename T,typename Int>
 inline
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
-( Int height, Int width, T* buffer, Int ldim, const elemental::Grid& g )
+( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,0,0,0,height,width,buffer,ldim,g)
 { }
@@ -98,7 +98,7 @@ DistMatrix<T,STAR,STAR,Int>::~DistMatrix()
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,STAR,Int>::SetGrid( const elemental::Grid& grid )
+DistMatrix<T,STAR,STAR,Int>::SetGrid( const elem::Grid& grid )
 {
     this->Empty();
     this->grid_ = &grid;
@@ -112,7 +112,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
 #ifndef RELEASE
     PushCallStack("[* ,* ]::PrintBase");
 #endif
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.VCRank() == 0 && msg != "" )
         os << msg << std::endl;
 
@@ -170,7 +170,7 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,STAR,Int>::View
 ( Int height, Int width, 
-  T* buffer, Int ldim, const elemental::Grid& grid )
+  T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View");
@@ -213,7 +213,7 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,STAR,Int>::LockedView
 ( Int height, Int width, 
-  const T* buffer, Int ldim, const elemental::Grid& grid )
+  const T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView");
@@ -678,7 +678,7 @@ DistMatrix<T,STAR,STAR,Int>::SetToRandom()
     this->AssertNotLockedView();
 #endif
     // Create random matrix on process 0 and then broadcast
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     const Int height = this->Height();
     const Int width = this->Width();
     const Int bufSize = height*width;
@@ -729,7 +729,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int r = g.Height();
@@ -822,7 +822,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int r = g.Height();
@@ -902,7 +902,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int c = g.Width();
@@ -984,7 +984,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1077,7 +1077,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1173,7 +1173,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int r = g.Height();
@@ -1266,7 +1266,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int c = g.Width();
@@ -1346,7 +1346,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int r = g.Height();
@@ -1428,7 +1428,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1508,7 +1508,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1590,7 +1590,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1670,7 +1670,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    const elemental::Grid& g = this->Grid();
+    const elem::Grid& g = this->Grid();
     if( g.InGrid() )
     {
         const Int p = g.Size();
@@ -1975,4 +1975,4 @@ DistMatrix<T,STAR,STAR,Int>::SumOverGrid()
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

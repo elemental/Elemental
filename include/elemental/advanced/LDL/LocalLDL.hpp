@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace elemental {
+namespace elem {
 
 template<typename F>
 inline void
@@ -139,4 +139,4 @@ internal::LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 #endif
 }
 
-} // namespace elemental
+} // namespace elem

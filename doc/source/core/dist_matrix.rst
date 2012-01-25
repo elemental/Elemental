@@ -56,7 +56,7 @@ to be available for all matrix distributions.
       Return the number of entries of type ``T`` that we have locally allocated
       space for.
 
-   .. cpp:function:: const elemental::Grid& Grid() const
+   .. cpp:function:: const elem::Grid& Grid() const
 
       Return the grid that this distributed matrix is distributed over.
 
@@ -251,7 +251,7 @@ to be available for all matrix distributions.
 
       Reconfigure the matrix so that it is `height` :math:`\times` `width`.
 
-   .. cpp:function:: void SetGrid( const elemental::Grid& grid )
+   .. cpp:function:: void SetGrid( const elem::Grid& grid )
 
       Clear the distributed matrix's contents and reconfigure for the new 
       process grid.
@@ -330,16 +330,16 @@ It should also be noted that this is the default distribution format for the
 
    .. rubric:: Constructors
 
-   .. cpp:function:: DistMatrix( const elemental::Grid& grid=DefaultGrid() )
+   .. cpp:function:: DistMatrix( const elem::Grid& grid=DefaultGrid() )
       
       Create a :math:`0 \times 0` distributed matrix over the specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, const elemental::Grid& grid=DefaultGrid() )
+   .. cpp:function:: DistMatrix( int height, int width, const elem::Grid& grid=DefaultGrid() )
 
       Create a ``height`` :math:`\times` ``width`` distributed matrix over the
       specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elemental::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elem::Grid& grid )
 
       Create a ``height`` :math:`\times` ``width`` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
@@ -347,17 +347,17 @@ It should also be noted that this is the default distribution format for the
       process column. Each of these alignments may be *constrained* to remain
       constant when redistributing data into this ``DistMatrix``.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elemental::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elem::Grid& grid )
 
       Same as above, but the local leading dimension is also specified.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
 
       View a constant distributed matrix's buffer; the buffer must correspond 
       to the local portion of an elemental distributed matrix with the 
       specified row and column alignments and leading dimension, ``ldim``.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
 
       Same as above, but the contents of the matrix are modifiable.
 
@@ -628,13 +628,13 @@ It should also be noted that this is the default distribution format for the
       Same as above, but this matrix is "locked", meaning that it cannot
       change the data from ``A`` that it points to.
 
-   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elemental::Grid& grid )
+   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
 
       Reconfigure this distributed matrix around an implicit ``[M_C,M_R]`` 
       distributed matrix of the specified dimensions, alignments, local buffer, 
       local leading dimension, and process grid.
 
-   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elemental::Grid& grid )
+   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
 
       Same as above, but the resulting matrix is "locked", meaning that it 
       cannot modify the underlying local data.

@@ -35,7 +35,7 @@
 
 #include "elemental/basic.hpp"
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 //----------------------------------------------------------------------------//
@@ -1574,13 +1574,13 @@ TrsmGFlops
 ( Side side, int m, int n, double seconds );
 
 } // internal
-} // elemental
+} // elem
 
 //----------------------------------------------------------------------------//
 // Implementations begin here                                                 //
 //----------------------------------------------------------------------------//
 
-namespace elemental {
+namespace elem {
 namespace internal {
 
 //
@@ -2007,7 +2007,7 @@ TrsmGFlops<dcomplex>
 { return 4.*TrsmGFlops<float>(side,m,n,seconds); }
             
 } // internal
-} // elemental
+} // elem
 
 #endif /* ELEMENTAL_BASIC_INTERNAL_HPP */
 

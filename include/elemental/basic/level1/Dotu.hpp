@@ -48,7 +48,7 @@
      T internal::Dotu
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
-namespace elemental {
+namespace elem {
 
 template<typename T,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
@@ -848,4 +848,4 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
     return globalDotu;
 }
 
-} // namespace elemental
+} // namespace elem
