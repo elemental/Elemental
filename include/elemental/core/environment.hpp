@@ -90,21 +90,27 @@ void PopBlocksizeStack();
 
 // Euclidean (l_2) magnitudes
 template<typename R>
-R Abs( R alpha );
+R Abs( const R& alpha );
 template<typename R>
-R Abs( Complex<R> alpha );
+R Abs( const Complex<R>& alpha );
 
 // Square-root free (l_1) magnitudes
 template<typename Z>
-Z FastAbs( Z alpha );
+Z FastAbs( const Z& alpha );
 template<typename Z>
-Z FastAbs( Complex<Z> alpha );
+Z FastAbs( const Complex<Z>& alpha );
 
 // Conjugation
 template<typename Z>
-Z Conj( Z alpha );
+Z Conj( const Z& alpha );
 template<typename Z>
-Complex<Z> Conj( Complex<Z> alpha );
+Complex<Z> Conj( const Complex<Z>& alpha );
+
+// Square root
+template<typename Z>
+Z Sqrt( const Z& alpha );
+template<typename Z>
+Complex<Z> Sqrt( const Complex<Z>& alpha );
 
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 
@@ -186,12 +192,12 @@ namespace elem {
 
 template<typename R>
 inline R 
-Abs( R alpha )
+Abs( const R& alpha )
 { return std::abs(alpha); }
 
 template<typename R>
 inline R
-Abs( Complex<R> alpha )
+Abs( const Complex<R>& alpha )
 {
     const R x=alpha.real, y=alpha.imag;
     const R xMag=Abs(x), yMag=Abs(y);
@@ -200,28 +206,65 @@ Abs( Complex<R> alpha )
     if( minMag == (R)0 )
         return maxMag;
     else
-        return maxMag*sqrt(1+(minMag/maxMag)*(minMag/maxMag));
+        return maxMag*Sqrt(1+(minMag/maxMag)*(minMag/maxMag));
 }
 
 template<typename Z>
 inline Z
-FastAbs( Z alpha )
+FastAbs( const Z& alpha )
 { return std::abs(alpha); }
 
 template<typename Z>
 inline Z
-FastAbs( Complex<Z> alpha )
+FastAbs( const Complex<Z>& alpha )
 { return std::abs(alpha.real) + std::abs(alpha.imag); }
 
 template<typename Z>
 inline Z
-Conj( Z alpha )
+Conj( const Z& alpha )
 { return alpha; }
 
 template<typename Z>
 inline Complex<Z>
-Conj( Complex<Z> alpha )
+Conj( const Complex<Z>& alpha )
 { return Complex<Z>(alpha.real,-alpha.imag); }
+
+template<typename Z>
+inline Z
+Sqrt( const Z& alpha )
+{ return sqrt(alpha); }
+
+// Similar to W. Fullerton's April 1977 implementation of csqrt
+template<typename Z>
+inline Complex<Z>
+Sqrt( const Complex<Z>& alpha )
+{ 
+    const Z rho = Abs(alpha);
+    const Z xi=alpha.real;
+    Z eta=alpha.imag;
+
+    if( rho == 0 )
+        return Complex<Z>(0,0);
+
+    const Z delta = Sqrt(0.5*(rho+Abs(xi)));
+    const Z gamma = 0.5*eta/delta;
+
+    if( xi >= 0 )
+    {
+        return Complex<Z>(delta,gamma);
+    }
+    else
+    {
+        if( eta == 0 )
+            eta = 1;
+
+        // TODO: Try to use the copysign function to avoid a branch?
+        if( eta >= 0 )
+            return Complex<Z>(Abs(gamma),delta);
+        else
+            return Complex<Z>(Abs(gamma),-delta);
+    }
+}
 
 } // namespace elem
 

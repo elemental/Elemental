@@ -507,7 +507,7 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 if(BUILD_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
 
-  set(CORE_TESTS AxpyInterface DifferentGrids DistMatrix Matrix)
+  set(CORE_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
   set(BASIC_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
   set(ADVANCED_TESTS ApplyPackedReflectors Cholesky Hegst HermitianTridiag LDL 
                      LU LQ QR TriangularInverse)

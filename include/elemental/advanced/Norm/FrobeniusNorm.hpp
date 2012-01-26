@@ -66,7 +66,7 @@ internal::FrobeniusNorm( const Matrix<F>& A )
             }
         }
     }
-    const R norm = scale*sqrt(scaledSquare);
+    const R norm = scale*Sqrt(scaledSquare);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -122,7 +122,7 @@ internal::FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
         mpi::AllReduce
         ( &localScaledSquare, &scaledSquare, 1, mpi::SUM, A.Grid().VCComm() );
 
-        norm = scale*sqrt(scaledSquare);
+        norm = scale*Sqrt(scaledSquare);
     }
 #ifndef RELEASE
     PopCallStack();

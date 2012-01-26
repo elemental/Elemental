@@ -47,7 +47,7 @@ public:
     R operator()( R alpha ) const
     {
         if( alpha >= 0 )
-            return sqrt(alpha);
+            return Sqrt(alpha);
         else
             return 0;
     }

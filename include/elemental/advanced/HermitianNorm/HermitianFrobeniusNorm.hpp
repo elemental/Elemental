@@ -127,7 +127,7 @@ internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
         }
     }
 
-    const R norm = scale*sqrt(scaledSquare);
+    const R norm = scale*Sqrt(scaledSquare);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -241,7 +241,7 @@ internal::HermitianFrobeniusNorm
         mpi::AllReduce
         ( &localScaledSquare, &scaledSquare, 1, mpi::SUM, A.Grid().VCComm() );
 
-        norm = scale*sqrt(scaledSquare);
+        norm = scale*Sqrt(scaledSquare);
     }
 #ifndef RELEASE
     PopCallStack();
