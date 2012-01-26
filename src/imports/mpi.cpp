@@ -3054,7 +3054,6 @@ void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm )
     std::memcpy( rbuf, &sbuf[commRank*rc], rc );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
     Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
@@ -3217,7 +3216,6 @@ void ReduceScatter( byte* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif
@@ -3243,7 +3241,6 @@ void ReduceScatter( int* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc*sizeof(int) );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif
@@ -3269,7 +3266,6 @@ void ReduceScatter( float* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc*sizeof(float) );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif
@@ -3295,7 +3291,6 @@ void ReduceScatter( double* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc*sizeof(double) );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif
@@ -3329,7 +3324,6 @@ void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc*sizeof(scomplex) );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif
@@ -3363,7 +3357,6 @@ void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm )
         std::memcpy( buf, &buf[commRank*rc], rc*sizeof(dcomplex) );
 #else
     const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
     Scatter( buf, rc, rc, 0, comm );
 #endif

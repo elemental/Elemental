@@ -11,7 +11,7 @@ main( int argc, char* argv[] )
     int n = 100;
     int numRhs = 1;
     int blocksize = 64;
-    int gridHeight, gridWidth;
+    int gridHeight=1, gridWidth=1;
     bool specifiedGrid = false;
     for( int i=1; i<argc; ++i )
     {
