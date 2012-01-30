@@ -1034,7 +1034,6 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         const int k = info.numGlobalEigenvalues;
-        const int kLocal = info.numLocalEigenvalues;
         w.ResizeTo( k, 1 );
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocalEntry(iLocal,0,wVector[iLocal]);

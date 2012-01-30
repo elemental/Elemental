@@ -160,7 +160,8 @@ AxpyInterface<T,Int>::HandleEoms()
         if( !sentEomTo_[i] )
         {
             bool shouldSendEom = true;
-            for( Int j=0; j<sendingData_[i].size(); ++j )
+            const Int numSends = sendingData_[i].size();
+            for( Int j=0; j<numSends; ++j )
             {
                 if( sendingData_[i][j] )
                 {
@@ -168,7 +169,8 @@ AxpyInterface<T,Int>::HandleEoms()
                     break;
                 }
             }
-            for( Int j=0; j<sendingRequest_[i].size(); ++j )
+            const Int numRequests = sendingRequest_[i].size();
+            for( Int j=0; j<numRequests; ++j )
             {
                 if( !shouldSendEom || sendingRequest_[i][j] )
                 {
@@ -176,7 +178,8 @@ AxpyInterface<T,Int>::HandleEoms()
                     break;
                 }
             }
-            for( Int j=0; j<sendingReply_[i].size(); ++j )
+            const Int numReplies = sendingReply_[i].size();
+            for( Int j=0; j<numReplies; ++j )
             {
                 if( !shouldSendEom || sendingReply_[i][j] )
                 {
@@ -832,8 +835,6 @@ AxpyInterface<T,Int>::ReadyForSend
 #ifndef RELEASE
     PushCallStack("AxpyInterface::ReadyForSend");
 #endif
-    const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
-
     const Int numCreated = sendVectors.size();
 #ifndef RELEASE
     if( numCreated != requests.size() || numCreated != requestStatuses.size() )
@@ -884,15 +885,18 @@ AxpyInterface<T,Int>::UpdateRequestStatuses()
 
     for( Int i=0; i<p; ++i )
     {
-        for( Int j=0; j<dataSendRequests_[i].size(); ++j )
+        const Int numDataSendRequests = dataSendRequests_[i].size();
+        for( Int j=0; j<numDataSendRequests; ++j )
             if( sendingData_[i][j] )
                 sendingData_[i][j] = 
                     !mpi::Test( dataSendRequests_[i][j] );
-        for( Int j=0; j<requestSendRequests_[i].size(); ++j )
+        const Int numRequestSendRequests = requestSendRequests_[i].size();
+        for( Int j=0; j<numRequestSendRequests; ++j )
             if( sendingRequest_[i][j] )
                 sendingRequest_[i][j] = 
                     !mpi::Test( requestSendRequests_[i][j] );
-        for( Int j=0; j<replySendRequests_[i].size(); ++j )
+        const Int numReplySendRequests = replySendRequests_[i].size();
+        for( Int j=0; j<numReplySendRequests; ++j )
             if( sendingReply_[i][j] )
                 sendingReply_[i][j] = 
                     !mpi::Test( replySendRequests_[i][j] );
