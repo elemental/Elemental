@@ -121,20 +121,20 @@ void FC_GLOBAL_(set_blocksize,NAME)( int blocksize )
 void FC_GLOBAL(blocksize,NAME)( int* blocksize )
 { *blocksize = elem::Blocksize(); }
 
-void FC_GLOBAL_(set_normal_tridiag_approach)()
+void FC_GLOBAL_(set_normal_tridiag_approach,NAME)()
 { elem::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL ); }
 
-void FC_GLOBAL_(set_square_tridiag_approach)()
+void FC_GLOBAL_(set_square_tridiag_approach,NAME)()
 { elem::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE ); }
 
-void FC_GLOBAL_(set_default_tridiag_approach)()
+void FC_GLOBAL_(set_default_tridiag_approach,NAME)()
 { elem::SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_DEFAULT ); }
 
-void FC_GLOBAL_(set_row_major_tridiag_subgrid)()
+void FC_GLOBAL_(set_row_major_tridiag_subgrid,NAME)()
 { elem::SetHermitianTridiagGridOrder( ROW_MAJOR ); }
 
-void FC_GLOBAL_(set_col_major_tridiag_subgrid)()
-{ elem::SetHermitianTridiagGridOrder( COL_MAJOR ); }
+void FC_GLOBAL_(set_col_major_tridiag_subgrid,NAME)()
+{ elem::SetHermitianTridiagGridOrder( COLUMN_MAJOR ); }
 
 //
 // Process grid management
