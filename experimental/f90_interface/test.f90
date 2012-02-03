@@ -79,6 +79,23 @@ program main
   ! Set the algorithmic blocksize to 'nb'
   call set_blocksize( nb )
 
+  ! For tuning purposes choose one of the following
+  ! (see http://elemental.googlecode.com/hg/doc/build/html/advanced/tuning.html
+  !  for more details)
+  !
+  !call set_normal_tridiag_approach
+  call set_square_tridiag_approach
+  !call set_default_tridiag_approach
+  !
+  ! and then choose one of the following
+  !
+  call set_row_major_tridiag_subgrid
+  !call set_col_major_tridiag_subgrid
+  !
+  ! For sufficiently large numbers of processes, 'set_square_tridiag_approach'
+  ! will be the fastest, but whether a row-major or column-major ordering of 
+  ! the subgrid is best depends upon your network (hence the second choice).
+
   ! Given the pencil (A,B), solve for (w,X) such that AX=BX diag(w)
   call symmetric_axbx( A, B, w, X )
 
