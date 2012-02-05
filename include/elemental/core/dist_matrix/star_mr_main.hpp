@@ -38,7 +38,7 @@ inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix( const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,false,0,0,
-   0,(g.InGrid() ? g.MRRank() : 0 ),
+   0,(g.InGrid() ? g.Col() : 0 ),
    0,0,g)
 { }
 
@@ -48,8 +48,8 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,false,0,0,
-   0,(g.InGrid() ? g.MRRank() : 0),
-   height,(g.InGrid() ? LocalLength(width,g.MRRank(),0,g.Width()) : 0),
+   0,(g.InGrid() ? g.Col() : 0),
+   height,(g.InGrid() ? LocalLength(width,g.Col(),0,g.Width()) : 0),
    g)
 { }
 
@@ -59,7 +59,7 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( bool constrainedRowAlignment, Int rowAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,constrainedRowAlignment,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
+   0,(g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    0,0,g)
 { }
 
@@ -70,9 +70,9 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
   const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,constrainedRowAlignment,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
+   0,(g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    height,
-   (g.InGrid() ? LocalLength(width,g.MRRank(),rowAlignment,g.Width()) : 0),
+   (g.InGrid() ? LocalLength(width,g.Col(),rowAlignment,g.Width()) : 0),
    g)
 { }
 
@@ -83,9 +83,9 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
   Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,false,constrainedRowAlignment,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
+   0,(g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    height,
-   (g.InGrid() ? LocalLength(width,g.MRRank(),rowAlignment,g.Width()) : 0),
+   (g.InGrid() ? LocalLength(width,g.Col(),rowAlignment,g.Width()) : 0),
    ldim,g)
 { }
 
@@ -96,9 +96,9 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
   const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
+   0,(g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    height,
-   (g.InGrid() ? LocalLength(width,g.MRRank(),rowAlignment,g.Width()) : 0),
+   (g.InGrid() ? LocalLength(width,g.Col(),rowAlignment,g.Width()) : 0),
    buffer,ldim,g)
 { }
 
@@ -109,9 +109,9 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
   const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (height,width,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.MRRank(),rowAlignment,g.Width()) : 0),
+   0,(g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    height,
-   (g.InGrid() ? LocalLength(width,g.MRRank(),rowAlignment,g.Width()) : 0),
+   (g.InGrid() ? LocalLength(width,g.Col(),rowAlignment,g.Width()) : 0),
    buffer,ldim,g)
 { }
 
@@ -146,7 +146,7 @@ DistMatrix<T,STAR,MR,Int>::SetGrid( const elem::Grid& grid )
     this->Empty();
     this->grid_ = &grid;
     this->rowAlignment_ = 0;
-    this->rowShift_ = grid.MRRank();
+    this->rowShift_ = grid.Col();
 }
 
 template<typename T,typename Int>
@@ -246,7 +246,7 @@ DistMatrix<T,STAR,MR,Int>::AlignWith( const DistMatrix<S,VR,STAR,N>& A )
     const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.ColAlignment() % g.Width();
     this->rowShift_ =
-        Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        Shift( g.Col(), this->RowAlignment(), g.Width() );
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
@@ -269,7 +269,7 @@ DistMatrix<T,STAR,MR,Int>::AlignWith( const DistMatrix<S,STAR,VR,N>& A )
     const elem::Grid& g = this->Grid();
     this->rowAlignment_ = A.RowAlignment() % g.Width();
     this->rowShift_ =
-        Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+        Shift( g.Col(), this->RowAlignment(), g.Width() );
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
@@ -324,7 +324,7 @@ DistMatrix<T,STAR,MR,Int>::PrintBase
     PushCallStack("[* ,MR]::PrintBase");
 #endif
     const elem::Grid& g = this->Grid();
-    if( g.VCRank() == 0 && msg != "" )
+    if( g.Rank() == 0 && msg != "" )
         os << msg << std::endl;
 
     const Int height     = this->Height();
@@ -342,7 +342,7 @@ DistMatrix<T,STAR,MR,Int>::PrintBase
     }
 
     // Only one process row needs to participate
-    if( g.MCRank() == 0 )
+    if( g.Row() == 0 )
     {
         std::vector<T> sendBuf(height*width,0);
         const T* thisLocalBuffer = this->LockedLocalBuffer();
@@ -357,14 +357,14 @@ DistMatrix<T,STAR,MR,Int>::PrintBase
 
         // If we are the root, allocate the receive buffer
         std::vector<T> recvBuf;
-        if( g.MRRank() == 0 )
+        if( g.Col() == 0 )
             recvBuf.resize( height*width );
 
         // Sum the contributions and send to the root
         mpi::Reduce
-        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.MRComm() );
+        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.RowComm() );
 
-        if( g.MRRank() == 0 )
+        if( g.Col() == 0 )
         {
             // Print the data
             for( Int i=0; i<height; ++i )
@@ -410,7 +410,7 @@ DistMatrix<T,STAR,MR,Int>::AlignRows( Int rowAlignment )
         throw std::runtime_error("Invalid row alignment for [* ,MR]");
 #endif
     this->rowAlignment_ = rowAlignment;
-    this->rowShift_ = Shift( g.MRRank(), rowAlignment, g.Width() );
+    this->rowShift_ = Shift( g.Col(), rowAlignment, g.Width() );
     this->constrainedRowAlignment_ = true;
     this->height_ = 0;
     this->width_ = 0;
@@ -457,7 +457,7 @@ DistMatrix<T,STAR,MR,Int>::View
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->rowShift_ = Shift(grid.MRRank(),rowAlignment,grid.Width());
+    this->rowShift_ = Shift(grid.Col(),rowAlignment,grid.Width());
     const Int localWidth = LocalLength(width,this->rowShift_,grid.Width());
     this->localMatrix_.View( height, localWidth, buffer, ldim );
     this->viewing_ = true;
@@ -504,7 +504,7 @@ DistMatrix<T,STAR,MR,Int>::LockedView
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->rowShift_ = Shift(grid.MRRank(),rowAlignment,grid.Width());
+    this->rowShift_ = Shift(grid.Col(),rowAlignment,grid.Width());
     const Int localWidth = LocalLength(width,this->rowShift_,grid.Width());
     this->localMatrix_.LockedView( height, localWidth, buffer, ldim );
     this->viewing_ = true;
@@ -531,7 +531,7 @@ DistMatrix<T,STAR,MR,Int>::View
     {
         const elem::Grid& g = this->Grid();
         const Int c   = g.Width();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         this->rowAlignment_ = (A.RowAlignment()+j) % c;
         this->rowShift_ = Shift( col, this->RowAlignment(), c );
@@ -566,7 +566,7 @@ DistMatrix<T,STAR,MR,Int>::LockedView
     {
         const elem::Grid& g = this->Grid();
         const Int c = g.Width();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         this->rowAlignment_ = (A.RowAlignment()+j) % c;
         this->rowShift_ = Shift( col, this->RowAlignment(), c );
@@ -784,12 +784,12 @@ DistMatrix<T,STAR,MR,Int>::Get( Int i, Int j ) const
     const Int ownerCol = (j + this->RowAlignment()) % g.Width();
 
     T u;
-    if( g.MRRank() == ownerCol )
+    if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
         u = this->GetLocalEntry(i,jLoc);
     }
-    mpi::Broadcast( &u, 1, ownerCol, g.MRComm() );
+    mpi::Broadcast( &u, 1, ownerCol, g.RowComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -808,7 +808,7 @@ DistMatrix<T,STAR,MR,Int>::Set( Int i, Int j, T u )
     const elem::Grid& g = this->Grid();
     const Int ownerCol = (j + this->RowAlignment()) % g.Width();
 
-    if( g.MRRank() == ownerCol )
+    if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
         this->SetLocalEntry(i,jLoc,u);
@@ -829,7 +829,7 @@ DistMatrix<T,STAR,MR,Int>::Update( Int i, Int j, T u )
     const elem::Grid& g = this->Grid();
     const Int ownerCol = (j + this->RowAlignment()) % g.Width();
 
-    if( g.MRRank() == ownerCol )
+    if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
         this->UpdateLocalEntry(i,jLoc,u);
@@ -1007,13 +1007,13 @@ DistMatrix<T,STAR,MR,Int>::SetToRandom()
 
     // Create random matrix on process row 0, then broadcast
     T* buffer = this->auxMemory_.Buffer();
-    if( g.MCRank() == 0 )
+    if( g.Row() == 0 )
     {
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<height; ++i )
                 buffer[i+j*height] = SampleUnitBall<T>();
     }
-    mpi::Broadcast( buffer, bufSize, 0, g.MCComm() );
+    mpi::Broadcast( buffer, bufSize, 0, g.ColComm() );
 
     // Unpack
     T* thisLocalBuffer = this->LocalBuffer();
@@ -1066,7 +1066,7 @@ DistMatrix<T,STAR,MR,Int>::SumOverCol()
 
     // AllReduce col
     mpi::AllReduce
-    ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().MCComm() );
+    ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().ColComm() );
 
     // Unpack
 #ifdef _OPENMP
@@ -1102,7 +1102,7 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
         {
             this->rowAlignment_ = A.ColAlignment() % g.Width();
             this->rowShift_ = 
-                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+                Shift( g.Col(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
@@ -1112,7 +1112,7 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         const Int width = this->Width();
         const Int height = this->Height();
@@ -1142,7 +1142,7 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MCComm() );
+          gatheredData, portionSize, g.ColComm() );
 
         // Unpack
         const Int rowShift = this->RowShift();
@@ -1175,13 +1175,13 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [* ,MR].AdjointFrom[VR,* ]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
         const Int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
@@ -1225,7 +1225,7 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
         // Use the SendRecv as input to the AllGather
         mpi::AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, g.MCComm() );
+          secondBuffer, portionSize, g.ColComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1277,7 +1277,7 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
         {
             this->rowAlignment_ = A.ColAlignment() % g.Width();
             this->rowShift_ = 
-                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+                Shift( g.Col(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
@@ -1287,7 +1287,7 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         const Int width = this->Width();
         const Int height = this->Height();
@@ -1316,7 +1316,7 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MCComm() );
+          gatheredData, portionSize, g.ColComm() );
 
         // Unpack
         const Int rowShift = this->RowShift();
@@ -1349,13 +1349,13 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [* ,MR].TransposeFrom[VR,* ]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
         const Int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
@@ -1398,7 +1398,7 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
         // Use the SendRecv as input to the AllGather
         mpi::AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, g.MCComm() );
+          secondBuffer, portionSize, g.ColComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1444,7 +1444,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 #endif
     const elem::Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
-    if( A.Height() != 1 && g.VCRank() == 0 )
+    if( A.Height() != 1 && g.Rank() == 0 )
     {
         std::cerr << 
           "The matrix redistribution [* ,MR] <- [MC,MR] potentially causes a "
@@ -1459,7 +1459,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         {
             this->rowAlignment_ = A.RowAlignment();
             this->rowShift_ = 
-                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+                Shift( g.Col(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -1473,7 +1473,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             this->auxMemory_.Require( localWidth );
             T* bcastBuf = this->auxMemory_.Buffer();
 
-            if( g.MCRank() == A.ColAlignment() )
+            if( g.Row() == A.ColAlignment() )
             {
                 this->localMatrix_ = A.LockedLocalMatrix();
 
@@ -1489,7 +1489,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 
             // Communicate
             mpi::Broadcast
-            ( bcastBuf, localWidth, A.ColAlignment(), g.MCComm() );
+            ( bcastBuf, localWidth, A.ColAlignment(), g.ColComm() );
 
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -1535,7 +1535,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             // Communicate
             mpi::AllGather
             ( originalData, portionSize,
-              gatheredData, portionSize, g.MCComm() );
+              gatheredData, portionSize, g.ColComm() );
 
             // Unpack
             const Int colAlignmentOfA = A.ColAlignment();
@@ -1565,12 +1565,12 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [* ,MR] <- [MC,MR]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         const Int rowAlignment = this->RowAlignment();
         const Int rowAlignmentOfA = A.RowAlignment();
@@ -1582,7 +1582,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             const Int localWidth = this->LocalWidth();
             T* bcastBuf;
 
-            if( g.MCRank() == A.ColAlignment() )
+            if( g.Row() == A.ColAlignment() )
             {
                 const Int localWidthOfA = A.LocalWidth();
 
@@ -1604,7 +1604,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
                 mpi::SendRecv
                 ( sendBuf,  localWidthOfA, sendCol, 0,
                   bcastBuf, localWidth,    recvCol, mpi::ANY_TAG,
-                  g.MRComm() );
+                  g.RowComm() );
             }
             else
             {
@@ -1614,7 +1614,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 
             // Communicate
             mpi::Broadcast
-            ( bcastBuf, localWidth, A.ColAlignment(), g.MCComm() );
+            ( bcastBuf, localWidth, A.ColAlignment(), g.ColComm() );
 
             // Unpack
             T* thisLocalBuffer = this->LocalBuffer();
@@ -1659,12 +1659,12 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             // Perform the SendRecv: puts the new data into the first buffer
             mpi::SendRecv
             ( secondBuffer, portionSize, sendCol, 0,
-              firstBuffer,  portionSize, recvCol, mpi::ANY_TAG, g.MRComm() );
+              firstBuffer,  portionSize, recvCol, mpi::ANY_TAG, g.RowComm() );
 
             // Use the output of the SendRecv as input to the AllGather
             mpi::AllGather
             ( firstBuffer,  portionSize,
-              secondBuffer, portionSize, g.MCComm() );
+              secondBuffer, portionSize, g.ColComm() );
 
             // Unpack the contents of each member of the process col
             const Int colAlignmentOfA = A.ColAlignment();
@@ -1747,10 +1747,10 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [* ,MR] <- [* ,MR]." << std::endl;
 #endif
-        const Int rank = g.MRRank();
+        const Int rank = g.Col();
         const Int c = g.Width();
 
         const Int rowAlignment = this->RowAlignment();
@@ -1788,7 +1788,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
         // Communicate
         mpi::SendRecv
         ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.MRComm() );
+          recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.RowComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -2030,7 +2030,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         {
             this->rowAlignment_ = A.RowAlignment() % g.Width();
             this->rowShift_ = 
-                Shift( g.MRRank(), this->RowAlignment(), g.Width() );
+                Shift( g.Col(), this->RowAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -2040,7 +2040,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
 
         const Int width = this->Width();
         const Int height = this->Height();
@@ -2072,7 +2072,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MCComm() );
+          gatheredData, portionSize, g.ColComm() );
 
         // Unpack
         const Int rowShift = this->RowShift();
@@ -2105,13 +2105,13 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [* ,MR] <- [* ,VR]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
         const Int rank = g.VRRank();
 
         // Perform the SendRecv to make A have the same rowAlignment
@@ -2157,7 +2157,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         // Use the SendRecv as input to the AllGather
         mpi::AllGather
         ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, g.MCComm() );
+          secondBuffer, portionSize, g.ColComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();

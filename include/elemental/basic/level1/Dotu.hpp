@@ -91,13 +91,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         { 
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -106,13 +106,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -121,13 +121,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else
     {
@@ -136,13 +136,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -177,7 +177,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -186,12 +186,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -201,7 +201,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
     }
     else
     {
@@ -210,12 +210,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
         xRedist = x;
 
         int ownerRow = y.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -249,12 +249,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         { 
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -264,7 +264,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -273,12 +273,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
         xRedist = x;
 
         int ownerCol = y.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else
     {
@@ -288,7 +288,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -322,13 +322,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         { 
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -337,13 +337,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -352,13 +352,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else
     {
@@ -367,13 +367,13 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             T localDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+            mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -408,7 +408,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -417,12 +417,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -432,7 +432,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MRComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.RowComm() );
     }
     else
     {
@@ -441,12 +441,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
         xRedist = x;
 
         int ownerCol = y.ColAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerCol, g.RowComm() );
     }
 #ifndef RELEASE 
     PopCallStack();
@@ -480,12 +480,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         { 
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else if( x.Width() == 1 )
     {
@@ -495,7 +495,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
     }
     else if( y.Width() == 1 )
     {
@@ -504,12 +504,12 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
         xRedist = x;
 
         int ownerRow = y.RowAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             globalDotu = 
                 Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
         }
-        mpi::Broadcast( &globalDotu, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &globalDotu, 1, ownerRow, g.ColComm() );
     }
     else
     {
@@ -519,7 +519,7 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 
         T localDotu = 
             Dotu( xRedist.LockedLocalMatrix(), y.LockedLocalMatrix() );
-        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.MCComm() );
+        mpi::AllReduce( &localDotu, &globalDotu, 1, mpi::SUM, g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();

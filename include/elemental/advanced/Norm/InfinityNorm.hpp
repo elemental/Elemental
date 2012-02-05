@@ -78,7 +78,7 @@ internal::InfinityNorm( const DistMatrix<F,MC,MR>& A )
     std::vector<R> myRowSums(A.LocalHeight());
     mpi::AllReduce
     ( &myPartialRowSums[0], &myRowSums[0], A.LocalHeight(), mpi::SUM,
-      A.Grid().MRComm() );
+      A.Grid().RowComm() );
 
     // Find the maximum out of the row sums
     R myMaxRowSum = 0;
@@ -87,7 +87,7 @@ internal::InfinityNorm( const DistMatrix<F,MC,MR>& A )
 
     // Find the global maximum row sum by searching over the MC team
     R maxRowSum = 0;
-    mpi::AllReduce( &myMaxRowSum, &maxRowSum, 1, mpi::MAX, A.Grid().MCComm() );
+    mpi::AllReduce( &myMaxRowSum, &maxRowSum, 1, mpi::MAX, A.Grid().ColComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif

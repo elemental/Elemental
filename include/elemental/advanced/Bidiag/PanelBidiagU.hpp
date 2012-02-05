@@ -214,9 +214,9 @@ internal::PanelBidiagU
         s21_MC_STAR.ResizeTo( A22.Height(), 1 );
         sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
 
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
-        const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
-        const bool nextIsMyCol = ( g.MRRank() == a12.RowAlignment() ) ;
+        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
+        const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
         const bool firstIteration = ( ATL.Height() == 0 );
         //--------------------------------------------------------------------//
         // Update the current column of A
@@ -315,7 +315,7 @@ internal::PanelBidiagU
                 alpha12L.SetLocalEntry(0,0,(R)1);
             }
         }
-        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
 
         // Compute x21
         a12_STAR_MR = a12;
@@ -623,9 +623,9 @@ internal::PanelBidiagU
         s21_MC_STAR.ResizeTo( A22.Height(), 1 );
         sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
 
-        const bool thisIsMyRow = ( g.MCRank() == alpha11.ColAlignment() );
-        const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
-        const bool nextIsMyCol = ( g.MRRank() == a12.RowAlignment() ) ;
+        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
+        const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
         const bool firstIteration = ( ATL.Height() == 0 );
         //--------------------------------------------------------------------//
         // Update the current column of A
@@ -732,7 +732,7 @@ internal::PanelBidiagU
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
         }
-        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
 
         // Compute x21
         a12_STAR_MR = a12;

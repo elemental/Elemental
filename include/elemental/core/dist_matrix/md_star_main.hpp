@@ -433,7 +433,7 @@ DistMatrix<T,MD,STAR,Int>::PrintBase
     PushCallStack("[MD,* ]::PrintBase");
 #endif
     const elem::Grid& g = this->Grid();
-    if( g.VCRank() == 0 && msg != "" )
+    if( g.Rank() == 0 && msg != "" )
         os << msg << std::endl;
         
     const Int height      = this->Height();
@@ -469,14 +469,14 @@ DistMatrix<T,MD,STAR,Int>::PrintBase
 
         // If we are the root, allocate a receive buffer
         std::vector<T> recvBuf;
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             recvBuf.resize( height*width );
 
         // Sum the contributions and send to the root
         mpi::Reduce
-        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.VCComm() );
+        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.Comm() );
 
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             // Print the data
             for( Int i=0; i<height; ++i )
@@ -1331,7 +1331,7 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( this->Grid().VCRank() == 0 )
+        if( this->Grid().Rank() == 0 )
             std::cerr << "Unaligned [MD,* ] <- [MD,* ]." << std::endl;
 #endif
         throw std::logic_error

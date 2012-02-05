@@ -50,15 +50,15 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
         throw std::logic_error("chi must be a scalar");
     if( x.Width() != 1 )
         throw std::logic_error("x must be a column vector");
-    if( chi.Grid().MRRank() != chi.RowAlignment() )
+    if( chi.Grid().Col() != chi.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
-    if( x.Grid().MRRank() != x.RowAlignment() )
+    if( x.Grid().Col() != x.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
 #endif
     const Grid& grid = x.Grid();
-    mpi::Comm colComm = grid.MCComm();
+    mpi::Comm colComm = grid.ColComm();
     const int gridHeight = grid.Height();
-    const int gridRow = grid.MCRank();
+    const int gridRow = grid.Row();
     const int colAlignment = chi.ColAlignment();
 
     if( x.Height() == 0 )
@@ -140,16 +140,16 @@ internal::ColReflector
         throw std::logic_error("chi must be a scalar");
     if( x.Width() != 1 )
         throw std::logic_error("x must be a column vector");
-    if( chi.Grid().MRRank() != chi.RowAlignment() )
+    if( chi.Grid().Col() != chi.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
-    if( x.Grid().MRRank() != x.RowAlignment() )
+    if( x.Grid().Col() != x.RowAlignment() )
         throw std::logic_error("Reflecting with incorrect column of processes");
 #endif
     typedef Complex<R> C;
     const Grid& grid = x.Grid();
-    mpi::Comm colComm = grid.MCComm();
+    mpi::Comm colComm = grid.ColComm();
     const int gridHeight = grid.Height();
-    const int gridRow = grid.MCRank();
+    const int gridRow = grid.Row();
     const int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);

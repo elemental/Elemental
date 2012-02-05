@@ -47,30 +47,30 @@ inline R Nrm2( const DistMatrix<R,MC,MR>& x )
     if( x.Width() == 1 )
     {
         const int ownerCol = x.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() ); 
             
             const int r = g.Height();
             std::vector<R> localNorms(r);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.ColComm() );
             norm = blas::Nrm2( r, &localNorms[0], 1 );
         }
-        mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &norm, 1, ownerCol, g.RowComm() );
     }
     else
     {
         const int ownerRow = x.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() );
 
             const int c = g.Width();
             std::vector<R> localNorms(c);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.RowComm() );
             norm = blas::Nrm2( c, &localNorms[0], 1 );
         }
-        mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &norm, 1, ownerRow, g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -92,30 +92,30 @@ inline R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x )
     if( x.Width() == 1 )
     {
         const int ownerCol = x.RowAlignment();
-        if( g.MRRank() == ownerCol )
+        if( g.Col() == ownerCol )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() ); 
             
             const int r = g.Height();
             std::vector<R> localNorms(r);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MCComm() );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.ColComm() );
             norm = blas::Nrm2( r, &localNorms[0], 1 );
         }
-        mpi::Broadcast( &norm, 1, ownerCol, g.MRComm() );
+        mpi::Broadcast( &norm, 1, ownerCol, g.RowComm() );
     }
     else
     {
         const int ownerRow = x.ColAlignment();
-        if( g.MCRank() == ownerRow )
+        if( g.Row() == ownerRow )
         {
             R localNorm = Nrm2( x.LockedLocalMatrix() );
 
             const int c = g.Width();
             std::vector<R> localNorms(c);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.MRComm() );
+            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.RowComm() );
             norm = blas::Nrm2( c, &localNorms[0], 1 );
         }
-        mpi::Broadcast( &norm, 1, ownerRow, g.MCComm() );
+        mpi::Broadcast( &norm, 1, ownerRow, g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();

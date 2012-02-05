@@ -297,12 +297,12 @@ DistMatrix<T,STAR,MC,Int>::GetRealHelper<Complex<Z> >::Func
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
     Z u;
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         u = parent.GetRealLocalEntry(i,jLoc);
     }
-    mpi::Broadcast( &u, 1, ownerRow, g.MCComm() );
+    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -326,12 +326,12 @@ DistMatrix<T,STAR,MC,Int>::GetImagHelper<Complex<Z> >::Func
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
     Z u;
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         u = parent.GetImagLocalEntry(i,jLoc);
     }
-    mpi::Broadcast( &u, 1, ownerRow, g.MCComm() );
+    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
 
 #ifndef RELEASE
     PopCallStack();
@@ -352,7 +352,7 @@ DistMatrix<T,STAR,MC,Int>::SetRealHelper<Complex<Z> >::Func
     const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         parent.SetRealLocalEntry(i,jLoc,u);
@@ -375,7 +375,7 @@ DistMatrix<T,STAR,MC,Int>::SetImagHelper<Complex<Z> >::Func
     const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         parent.SetImagLocalEntry(i,jLoc,u);
@@ -398,7 +398,7 @@ DistMatrix<T,STAR,MC,Int>::UpdateRealHelper<Complex<Z> >::Func
     const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         parent.UpdateRealLocalEntry(i,jLoc,u);
@@ -421,7 +421,7 @@ DistMatrix<T,STAR,MC,Int>::UpdateImagHelper<Complex<Z> >::Func
     const elem::Grid& g = parent.Grid();
     const Int ownerRow = (j + parent.RowAlignment()) % g.Height();
 
-    if( g.MCRank() == ownerRow )
+    if( g.Row() == ownerRow )
     {
         const Int jLoc = (j-parent.RowShift()) / g.Height();
         parent.UpdateImagLocalEntry(i,jLoc,u);

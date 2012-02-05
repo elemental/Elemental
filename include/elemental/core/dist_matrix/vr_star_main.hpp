@@ -1134,7 +1134,7 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
         const Int colShiftOfA = A.ColShift();
         const Int colAlignment = this->ColAlignment();
         const Int rowAlignmentOfA = A.RowAlignment();
@@ -1181,7 +1181,7 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         // Communicate
         mpi::AllToAll
         ( sendBuffer, portionSize,
-          recvBuffer, portionSize, g.MCComm() );
+          recvBuffer, portionSize, g.ColComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1211,13 +1211,13 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [VR,* ] <- [MR,MC]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int col = g.MRRank();
+        const Int col = g.Col();
         const Int colShiftOfA = A.ColShift();
         const Int colAlignment = this->ColAlignment();
         const Int colAlignmentOfA = A.ColAlignment();
@@ -1268,12 +1268,12 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         // AllToAll to gather all of the unaligned [VR,*] data into firstBuffer
         mpi::AllToAll
         ( secondBuffer, portionSize,
-          firstBuffer,  portionSize, g.MCComm() );
+          firstBuffer,  portionSize, g.ColComm() );
 
         // SendRecv: properly align the [VR,*] via a trade in the row
         mpi::SendRecv
         ( firstBuffer,  portionSize, sendCol, 0,
-          secondBuffer, portionSize, recvCol, mpi::ANY_TAG, g.MRComm() );
+          secondBuffer, portionSize, recvCol, mpi::ANY_TAG, g.RowComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1355,14 +1355,14 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     else
     {
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [VR,* ] <- [MR,* ]." << std::endl;
 #endif
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
-        const Int row = g.MCRank();
-        const Int col = g.MRRank();
+        const Int row = g.Row();
+        const Int col = g.Col();
         const Int colShiftOfA = A.ColShift();
         const Int colAlignment = this->ColAlignment();
         const Int colAlignmentOfA = A.ColAlignment();
@@ -1403,7 +1403,7 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         // Communicate
         mpi::SendRecv
         ( sendBuffer, portionSize, sendCol, 0,
-          recvBuffer, portionSize, recvCol, mpi::ANY_TAG, g.MRComm() );
+          recvBuffer, portionSize, recvCol, mpi::ANY_TAG, g.RowComm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1580,7 +1580,7 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     {
         const elem::Grid& g = this->Grid();
 #ifdef UNALIGNED_WARNINGS
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
             std::cerr << "Unaligned [VR,* ] <- [VR,* ]." << std::endl;
 #endif
         const Int rank = g.VRRank();
@@ -1722,7 +1722,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterFrom
 #endif
     const elem::Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
-    if( A.Width() != 1 && g.VCRank() == 0 )
+    if( A.Width() != 1 && g.Rank() == 0 )
     {
         std::cerr <<
           "[VR,* ]::SumScatterFrom([MR,* ]) potentially causes a large amount "
@@ -1746,7 +1746,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterFrom
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = r * c;
-        const Int myCol = g.MRRank();
+        const Int myCol = g.Col();
         const Int colAlignment = this->ColAlignment();
         const Int colShiftOfA = A.ColShift();
 
@@ -1787,7 +1787,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterFrom
         }
 
         // Communicate
-        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MCComm() );
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.ColComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();
@@ -1899,7 +1899,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterUpdate
 #endif
     const elem::Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
-    if( A.Width() != 1 && g.VCRank() == 0 )
+    if( A.Width() != 1 && g.Rank() == 0 )
     {
         std::cerr <<
           "[VR,* ]::SumScatterUpdate([MR,* ]) potentially causes a large amount"
@@ -1912,7 +1912,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterUpdate
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = r * c;
-        const Int myCol = g.MRRank();
+        const Int myCol = g.Col();
         const Int colAlignment = this->ColAlignment();
         const Int colShiftOfA = A.ColShift();
 
@@ -1953,7 +1953,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterUpdate
         }
 
         // Communicate
-        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.MCComm() );
+        mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.ColComm() );
 
         // Unpack our received data
         T* thisLocalBuffer = this->LocalBuffer();

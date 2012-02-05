@@ -113,7 +113,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
     PushCallStack("[* ,* ]::PrintBase");
 #endif
     const elem::Grid& g = this->Grid();
-    if( g.VCRank() == 0 && msg != "" )
+    if( g.Rank() == 0 && msg != "" )
         os << msg << std::endl;
 
     const Int height = this->Height();
@@ -129,7 +129,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
 
     if( g.InGrid() )
     {
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             for( Int i=0; i<height; ++i )
             {
@@ -139,7 +139,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
             }
             os << std::endl;
         }
-        mpi::Barrier( g.VCComm() );
+        mpi::Barrier( g.Comm() );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -688,13 +688,13 @@ DistMatrix<T,STAR,STAR,Int>::SetToRandom()
         this->auxMemory_.Require( bufSize );
 
         T* buffer = this->auxMemory_.Buffer();
-        if( g.VCRank() == 0 )
+        if( g.Rank() == 0 )
         {
             for( Int j=0; j<width; ++j )
                 for( Int i=0; i<height; ++i )
                     buffer[i+j*height] = SampleUnitBall<T>();
         }
-        mpi::Broadcast( buffer, bufSize, 0, g.VCComm() );
+        mpi::Broadcast( buffer, bufSize, 0, g.Comm() );
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
@@ -856,7 +856,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MCComm() );
+          gatheredData, portionSize, g.ColComm() );
 
         // Unpack
         const Int colAlignmentOfA = A.ColAlignment();
@@ -936,7 +936,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MRComm() );
+          gatheredData, portionSize, g.RowComm() );
 
         // Unpack
         const Int rowAlignmentOfA = A.RowAlignment();
@@ -1300,7 +1300,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MRComm() );
+          gatheredData, portionSize, g.RowComm() );
 
         // Unpack
         const Int colAlignmentOfA = A.ColAlignment();
@@ -1380,7 +1380,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
         // Communicate
         mpi::AllGather
         ( originalData, portionSize,
-          gatheredData, portionSize, g.MCComm() );
+          gatheredData, portionSize, g.ColComm() );
 
         // Unpack
         const Int rowAlignmentOfA = A.RowAlignment();
@@ -1852,7 +1852,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverCol()
 
         // Sum
         mpi::AllReduce
-        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().MCComm() );
+        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().ColComm() );
 
         // Unpack
 #ifdef _OPENMP
@@ -1904,7 +1904,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverRow()
 
         // Sum
         mpi::AllReduce
-        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().MRComm() );
+        ( sendBuf, recvBuf, localSize, mpi::SUM, this->Grid().RowComm() );
 
         // Unpack
 #ifdef _OPENMP

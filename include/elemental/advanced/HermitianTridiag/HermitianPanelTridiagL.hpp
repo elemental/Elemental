@@ -182,7 +182,7 @@ internal::HermitianPanelTridiagL
         p21B_MC_STAR.View
         ( p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
             if( !firstIteration )
@@ -227,7 +227,7 @@ internal::HermitianPanelTridiagL
             // Broadcast a21 and tau across the process row
             mpi::Broadcast
             ( &rowBroadcastBuffer[0], 
-              a21LocalHeight+1, a21.RowAlignment(), g.MRComm() );
+              a21LocalHeight+1, a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
             std::memcpy
@@ -276,7 +276,7 @@ internal::HermitianPanelTridiagL
             mpi::Broadcast
             ( &rowBroadcastBuffer[0], 
               a21LocalHeight+w21LastLocalHeight+1, 
-              a21.RowAlignment(), g.MRComm() );
+              a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class 
             std::memcpy
             ( a21_MC_STAR.LocalBuffer(), 
@@ -304,7 +304,7 @@ internal::HermitianPanelTridiagL
             ( W_MC_STAR.LocalBuffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
               (W_MC_STAR.LocalHeight()-W_MC_STAR_Offset)*sizeof(R) );
-            if( g.MRRank() == w21Last.RowAlignment() )
+            if( g.Col() == w21Last.RowAlignment() )
             {
                 std::memcpy
                 ( w21Last.LocalBuffer(),
@@ -376,7 +376,7 @@ internal::HermitianPanelTridiagL
             // [MR,* ] <- [VR,* ]
             mpi::AllGather
             ( recvBuf, portionSize,
-              sendBuf, portionSize, g.MCComm() );
+              sendBuf, portionSize, g.ColComm() );
 
             // Unpack
             w21Last_MR_STAR.AlignWith( alpha11 );
@@ -385,7 +385,7 @@ internal::HermitianPanelTridiagL
             {
                 // Unpack into w21Last[MR,* ]
                 const R* w21Data = &sendBuf[k*portionSize];
-                const int w21Shift = Shift(g.MRRank()+c*k,colAlignDest,p);
+                const int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
                 const int w21Offset = (w21Shift-colShiftDest) / c;
                 const int w21LocalHeight = LocalLength(height,w21Shift,p);
                 R* w21LastBuffer = w21Last_MR_STAR.LocalBuffer(w21Offset,0);
@@ -494,7 +494,7 @@ internal::HermitianPanelTridiagL
             mpi::AllReduce
             ( &colSumSendBuffer[0], 
               &colSumRecvBuffer[0],
-              2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.MCComm() );
+              2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.ColComm() );
             std::memcpy
             ( x01_MR_STAR.LocalBuffer(), 
               &colSumRecvBuffer[0], 
@@ -601,8 +601,8 @@ internal::HermitianPanelTridiagL
             mpi::Reduce
             ( &reduceToOneSendBuffer[0], 
               &reduceToOneRecvBuffer[0],
-              2*localHeight, mpi::SUM, nextProcessCol, g.MRComm() );
-            if( g.MRRank() == nextProcessCol )
+              2*localHeight, mpi::SUM, nextProcessCol, g.RowComm() );
+            if( g.Col() == nextProcessCol )
             {
                 // Combine the second half into the first half        
                 for( int i=0; i<localHeight; ++i )
@@ -619,10 +619,10 @@ internal::HermitianPanelTridiagL
                 R sendBuffer[2];
                 R recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
-                sendBuffer[1] = ( g.MCRank()==nextProcessRow ? 
+                sendBuffer[1] = ( g.Row()==nextProcessRow ? 
                                   reduceToOneRecvBuffer[0] : 0 );
                 mpi::AllReduce
-                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.MCComm() );
+                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.ColComm() );
                 R dotProduct = recvBuffer[0];
 
                 // Set up for the next iteration by filling in the values for:
@@ -715,7 +715,7 @@ internal::HermitianPanelTridiagL
             mpi::AllReduce
             ( &allReduceSendBuffer[0], 
               &allReduceRecvBuffer[0],
-              2*localHeight, mpi::SUM, g.MRComm() );
+              2*localHeight, mpi::SUM, g.RowComm() );
 
             // Combine the second half into the first half        
             for( int i=0; i<localHeight; ++i )
@@ -728,7 +728,7 @@ internal::HermitianPanelTridiagL
                                a21_MC_STAR_LocalBuffer, 1 );
             R dotProduct;
             mpi::AllReduce
-            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.MCComm() );
+            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<R,MC,STAR> w21_MC_STAR(g);
@@ -960,7 +960,7 @@ internal::HermitianPanelTridiagL
         p21B_MC_STAR.View
         ( p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
-        const bool thisIsMyCol = ( g.MRRank() == alpha11.RowAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
             if( !firstIteration )
@@ -980,7 +980,7 @@ internal::HermitianPanelTridiagL
         {
             // Compute the Householder reflector
             tau = internal::ColReflector( alpha21T, a21B );
-            if( g.MCRank() == alpha21T.ColAlignment() )
+            if( g.Row() == alpha21T.ColAlignment() )
                 tau1.SetLocalEntry(0,0,tau);
         }
         // Store the subdiagonal value and turn a21 into a proper scaled 
@@ -1007,7 +1007,7 @@ internal::HermitianPanelTridiagL
             // Broadcast a21 and tau across the process row
             mpi::Broadcast
             ( &rowBroadcastBuffer[0], 
-              a21LocalHeight+1, a21.RowAlignment(), g.MRComm() );
+              a21LocalHeight+1, a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
             std::memcpy
@@ -1056,7 +1056,7 @@ internal::HermitianPanelTridiagL
             mpi::Broadcast
             ( &rowBroadcastBuffer[0], 
               a21LocalHeight+w21LastLocalHeight+1, 
-              a21.RowAlignment(), g.MRComm() );
+              a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class 
             std::memcpy
             ( a21_MC_STAR.LocalBuffer(), 
@@ -1084,7 +1084,7 @@ internal::HermitianPanelTridiagL
             ( W_MC_STAR.LocalBuffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
               (W_MC_STAR.LocalHeight()-W_MC_STAR_Offset)*sizeof(C) );
-            if( g.MRRank() == w21Last.RowAlignment() )
+            if( g.Col() == w21Last.RowAlignment() )
             {
                 std::memcpy
                 ( w21Last.LocalBuffer(),
@@ -1156,7 +1156,7 @@ internal::HermitianPanelTridiagL
             // [MR,* ] <- [VR,* ]
             mpi::AllGather
             ( recvBuf, portionSize,
-              sendBuf, portionSize, g.MCComm() );
+              sendBuf, portionSize, g.ColComm() );
 
             // Unpack
             w21Last_MR_STAR.AlignWith( alpha11 );
@@ -1165,7 +1165,7 @@ internal::HermitianPanelTridiagL
             {
                 // Unpack into w21Last[MR,* ]
                 const C* w21Data = &sendBuf[k*portionSize];
-                const int w21Shift = Shift(g.MRRank()+c*k,colAlignDest,p);
+                const int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
                 const int w21Offset = (w21Shift-colShiftDest) / c;
                 const int w21LocalHeight = LocalLength(height,w21Shift,p);
                 C* w21LastBuffer = w21Last_MR_STAR.LocalBuffer(w21Offset,0);
@@ -1276,7 +1276,7 @@ internal::HermitianPanelTridiagL
             mpi::AllReduce
             ( &colSumSendBuffer[0], 
               &colSumRecvBuffer[0],
-              2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.MCComm() );
+              2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.ColComm() );
             std::memcpy
             ( x01_MR_STAR.LocalBuffer(), 
               &colSumRecvBuffer[0], 
@@ -1383,8 +1383,8 @@ internal::HermitianPanelTridiagL
             mpi::Reduce
             ( &reduceToOneSendBuffer[0], 
               &reduceToOneRecvBuffer[0],
-              2*localHeight, mpi::SUM, nextProcessCol, g.MRComm() );
-            if( g.MRRank() == nextProcessCol )
+              2*localHeight, mpi::SUM, nextProcessCol, g.RowComm() );
+            if( g.Col() == nextProcessCol )
             {
                 // Combine the second half into the first half        
                 for( int i=0; i<localHeight; ++i )
@@ -1401,10 +1401,10 @@ internal::HermitianPanelTridiagL
                 C sendBuffer[2];
                 C recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
-                sendBuffer[1] = ( g.MCRank()==nextProcessRow ? 
+                sendBuffer[1] = ( g.Row()==nextProcessRow ? 
                                   reduceToOneRecvBuffer[0] : 0 );
                 mpi::AllReduce
-                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.MCComm() );
+                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.ColComm() );
                 C dotProduct = recvBuffer[0];
 
                 // Set up for the next iteration by filling in the values for:
@@ -1497,7 +1497,7 @@ internal::HermitianPanelTridiagL
             mpi::AllReduce
             ( &allReduceSendBuffer[0], 
               &allReduceRecvBuffer[0],
-              2*localHeight, mpi::SUM, g.MRComm() );
+              2*localHeight, mpi::SUM, g.RowComm() );
 
             // Combine the second half into the first half        
             for( int i=0; i<localHeight; ++i )
@@ -1510,7 +1510,7 @@ internal::HermitianPanelTridiagL
                                a21_MC_STAR_LocalBuffer, 1 );
             C dotProduct;
             mpi::AllReduce
-            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.MCComm() );
+            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<C,MC,STAR> w21_MC_STAR(g);

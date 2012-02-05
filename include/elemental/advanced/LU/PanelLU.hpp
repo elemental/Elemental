@@ -160,7 +160,7 @@ internal::PanelLU
 
         // Communicate to establish the pivot information
         mpi::AllReduce
-        ( &sendData[0], &recvData[0], numBytes, PivotOp<F>(), g.MCComm() );
+        ( &sendData[0], &recvData[0], numBytes, PivotOp<F>(), g.ColComm() );
 
         // Update the pivot vector
         const int maxIndex = *recvBufInt;
@@ -178,7 +178,7 @@ internal::PanelLU
         else
         {
             const int ownerRank = (colAlignment+(maxIndex-A.Height())) % r;
-            if( g.MCRank() == ownerRank )
+            if( g.Row() == ownerRank )
             {
                 const int localIndex = ((maxIndex-A.Height())-colShift) / r;
 

@@ -180,15 +180,15 @@ Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
     F tau;
     if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
     {
-        if( g.MRRank() == x.RowAlignment() )
+        if( g.Col() == x.RowAlignment() )
             tau = internal::ColReflector( chi, x );
-        mpi::Broadcast( &tau, 1, x.RowAlignment(), g.MRComm() );
+        mpi::Broadcast( &tau, 1, x.RowAlignment(), g.RowComm() );
     }
     else
     {
-        if( g.MCRank() == x.ColAlignment() )
+        if( g.Row() == x.ColAlignment() )
             tau = internal::RowReflector( chi, x );
-        mpi::Broadcast( &tau, 1, x.ColAlignment(), g.MCComm() );
+        mpi::Broadcast( &tau, 1, x.ColAlignment(), g.ColComm() );
     }
 #ifndef RELEASE
     PopCallStack();

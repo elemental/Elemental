@@ -78,7 +78,7 @@ internal::OneNorm( const DistMatrix<F,MC,MR>& A )
     std::vector<R> myColSums(A.LocalWidth());
     mpi::AllReduce
     ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
-      A.Grid().MCComm() );
+      A.Grid().ColComm() );
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
@@ -88,7 +88,7 @@ internal::OneNorm( const DistMatrix<F,MC,MR>& A )
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
     mpi::AllReduce
-    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().MRComm() );
+    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().RowComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif

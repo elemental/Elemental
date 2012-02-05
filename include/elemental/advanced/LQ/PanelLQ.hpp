@@ -73,8 +73,8 @@ internal::PanelLQ( DistMatrix<R,MC,MR>& A )
         //--------------------------------------------------------------------//
         R tau = Reflector( alpha11, a12 );
 
-        const bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
-                                       g.MRRank() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
+                                       g.Col() == alpha11.RowAlignment() );
         R alpha = (R)0;
         if( myDiagonalEntry )
         {
@@ -180,8 +180,8 @@ internal::PanelLQ
         C tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
 
-        const bool myDiagonalEntry = ( g.MCRank() == alpha11.ColAlignment() &&
-                                       g.MRRank() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
+                                       g.Col() == alpha11.RowAlignment() );
         C alpha = (C)0;
         if( myDiagonalEntry )
         {

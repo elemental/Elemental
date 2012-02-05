@@ -220,8 +220,8 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
     const Grid& g = Y.Grid();
     const Int r = g.Height();
     const Int c = g.Width();
-    const Int myRow = g.MCRank();
-    const Int myCol = g.MRRank();
+    const Int myRow = g.Row();
+    const Int myCol = g.Col();
 
     mpi::Status status;
     if( mpi::IProbe( mpi::ANY_SOURCE, DATA_TAG, g.VCComm(), status ) )
@@ -330,8 +330,8 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
     const Grid& g = X.Grid();
     const Int r = g.Height();
     const Int c = g.Width();
-    const Int myRow = g.MCRank();
-    const Int myCol = g.MRRank();
+    const Int myRow = g.Row();
+    const Int myCol = g.Col();
 
     mpi::Status status;
     if( mpi::IProbe( mpi::ANY_SOURCE, DATA_REQUEST_TAG, g.VCComm(), status ) )
@@ -501,7 +501,7 @@ AxpyInterface<T,Int>::~AxpyInterface()
                              localToGlobalMat_->Grid() : 
                              globalToLocalMat_->Grid() );
            std::ostringstream os;
-           os << g.VCRank()
+           os << g.Rank()
               << "Uncaught exception detected during AxpyInterface destructor "
                  "that required a call to Detach. Instead of allowing for the "
                  "possibility of Detach throwing another exception and "
@@ -660,8 +660,8 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
     const Int r = g.Height();
     const Int c = g.Width();
     const Int p = g.Size();
-    const Int myProcessRow = g.MCRank();
-    const Int myProcessCol = g.MRRank();
+    const Int myProcessRow = g.Row();
+    const Int myProcessCol = g.Col();
     const Int colAlignment = (Y.ColAlignment() + i) % r;
     const Int rowAlignment = (Y.RowAlignment() + j) % c;
 

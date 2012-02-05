@@ -198,7 +198,7 @@ ApplyColumnPivots
     const int c = g.Width();
     const int rowAlignment = A.RowAlignment();
     const int rowShift = A.RowShift();
-    const int myCol = g.MRRank();
+    const int myCol = g.Col();
 
     // Extract the send and recv counts from the image and preimage.
     // This process's sends may be logically partitioned into two sets:
@@ -297,7 +297,7 @@ ApplyColumnPivots
     std::vector<F> recvData(std::max(1,totalRecv));
     mpi::AllToAll
     ( &sendData[0], &sendCounts[0], &sendDispls[0],
-      &recvData[0], &recvCounts[0], &recvDispls[0], g.MRComm() );
+      &recvData[0], &recvCounts[0], &recvDispls[0], g.RowComm() );
 
     // Unpack the recv data
     for( int k=0; k<c; ++k )

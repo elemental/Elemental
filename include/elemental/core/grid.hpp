@@ -38,31 +38,39 @@ namespace elem {
 class Grid
 {
 public:
-    // Basic routines
     Grid( mpi::Comm comm=mpi::COMM_WORLD );
     Grid( mpi::Comm comm, int height, int width );
     ~Grid();
     bool InGrid() const;
-    int Size() const;
-    int Height() const;
-    int Width() const;
-    int GCD() const;
-    int LCM() const;
-    int Rank() const; // same as VCRank(), but provided for simplicity
     int MCRank() const;
     int MRRank() const;
     int VCRank() const;
     int VRRank() const;
-    mpi::Comm Comm() const; // same as VCComm(), but provided for simplicity
+    int MCSize() const;
+    int MRSize() const;
+    int VCSize() const;
+    int VRSize() const;
     mpi::Comm MCComm() const;
     mpi::Comm MRComm() const;
     mpi::Comm VCComm() const;
     mpi::Comm VRComm() const;
 
+    // Provided for simplicity, but redundant
+    int Row() const;           // same as MCRank()
+    int Col() const;           // same as MRRank()
+    int Rank() const;          // same as VCRank()
+    int Height() const;        // same as MCSize()
+    int Width() const;         // same as MRSize()
+    int Size() const;          // same as VCSize() and VRSize()
+    mpi::Comm ColComm() const; // same as MCComm()
+    mpi::Comm RowComm() const; // same as MRComm()
+    mpi::Comm Comm() const;    // same as VCComm()
+
     // Advanced routines
-    Grid( mpi::Comm viewingComm, mpi::Group owningGroup );
-    Grid( mpi::Comm viewingComm, mpi::Group owningGroup, 
-          int height, int width );
+    Grid( mpi::Comm viewers, mpi::Group owners );
+    Grid( mpi::Comm viewers, mpi::Group owners, int height, int width ); 
+    int GCD() const; // greatest common denominator of grid height and width
+    int LCM() const; // lowest common multiple of grid height and width
     int OwningRank() const;
     int ViewingRank() const;
     int VCToViewingMap( int VCRank ) const;
@@ -125,110 +133,6 @@ bool operator!= ( const Grid& A, const Grid& B );
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline bool Grid::InGrid() const
-{ return inGrid_; }
-
-inline int Grid::Size() const
-{ return size_; }
-
-inline int Grid::Height() const
-{ return height_; }
-
-inline int Grid::Width() const
-{ return width_; }
-
-inline int Grid::GCD() const
-{ return gcd_; }
-
-inline int Grid::LCM() const
-{ return size_/gcd_; }
-
-inline int Grid::DiagPath() const
-{ 
-    if( inGrid_ )
-        return diagPathsAndRanks_[2*vectorColRank_];
-    else
-        return mpi::UNDEFINED;
-}
-
-inline int Grid::DiagPath( int vectorColRank ) const
-{ 
-    if( vectorColRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vectorColRank]; 
-    else
-        return mpi::UNDEFINED;
-}
-
-inline int Grid::DiagPathRank() const
-{ 
-    if( inGrid_ )
-        return diagPathsAndRanks_[2*vectorColRank_+1];
-    else
-        return mpi::UNDEFINED;
-}
-
-inline int Grid::DiagPathRank( int vectorColRank ) const
-{ 
-    if( vectorColRank != mpi::UNDEFINED )
-        return diagPathsAndRanks_[2*vectorColRank+1]; 
-    else
-        return mpi::UNDEFINED;
-}
-
-inline int Grid::Rank() const
-{ return vectorColRank_; }
-
-inline int Grid::MCRank() const
-{ return matrixColRank_; }
-
-inline int Grid::MRRank() const
-{ return matrixRowRank_; }
-
-inline int Grid::VCRank() const
-{ return vectorColRank_; }
-
-inline int Grid::VRRank() const
-{ return vectorRowRank_; }
-
-inline int Grid::OwningRank() const
-{ return owningRank_; }
-
-inline int Grid::ViewingRank() const
-{ return viewingRank_; }
-
-inline int Grid::VCToViewingMap( int VCRank ) const
-{ return vectorColToViewingMap_[VCRank]; }
-
-inline mpi::Group Grid::OwningGroup() const
-{ return owningGroup_; }
-
-inline mpi::Comm Grid::OwningComm() const
-{ return owningComm_; }
-
-inline mpi::Comm Grid::ViewingComm() const
-{ return viewingComm_; }
-
-inline mpi::Comm Grid::Comm() const
-{ return vectorColComm_; }
-
-inline mpi::Comm Grid::MCComm() const
-{ return matrixColComm_; }
-
-inline mpi::Comm Grid::MRComm() const
-{ return matrixRowComm_; }
-
-inline mpi::Comm Grid::VCComm() const
-{ return vectorColComm_; }
-
-inline mpi::Comm Grid::VRComm() const
-{ return vectorRowComm_; }
-
-inline bool operator== ( const Grid& A, const Grid& B )
-{ return &A == &B; }
-
-inline bool operator!= ( const Grid& A, const Grid& B )
-{ return &A != &B; }
-
 inline Grid::Grid( mpi::Comm comm )
 {
 #ifndef RELEASE
@@ -280,75 +184,6 @@ inline Grid::Grid( mpi::Comm comm, int height, int width )
 
     height_ = height;
     width_ = width;
-    if( height_ < 0 || width_ < 0 )
-        throw std::logic_error
-        ("Process grid dimensions must be non-negative");
-
-    SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-inline Grid::Grid( mpi::Comm viewingComm, mpi::Group owningGroup )
-{
-#ifndef RELEASE
-    PushCallStack("Grid::Grid");
-#endif
-
-    // Extract our rank and the underlying group from the viewing comm
-    mpi::CommDup( viewingComm, viewingComm_ );
-    mpi::CommGroup( viewingComm_, viewingGroup_ );
-    viewingRank_ = mpi::CommRank( viewingComm_ );
-
-    // Extract our rank and the number of processes from the owning group
-    owningGroup_ = owningGroup;
-    size_ = mpi::GroupSize( owningGroup_ );
-    owningRank_ = mpi::GroupRank( owningGroup_ );
-    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
-
-    // Create the complement of the owning group
-    mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
-
-    // Factor the grid size
-    height_ = static_cast<int>(sqrt(static_cast<double>(size_)));
-    while( size_ % height_ != 0 )
-        ++height_;
-    width_ = size_ / height_;
-
-    SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-// Currently forces a columnMajor absolute rank on the grid
-inline Grid::Grid
-( mpi::Comm viewingComm, mpi::Group owningGroup, int height, int width )
-{
-#ifndef RELEASE
-    PushCallStack("Grid::Grid");
-#endif
-
-    // Extract our rank and the underlying group from the viewing comm
-    mpi::CommDup( viewingComm, viewingComm_ );
-    mpi::CommGroup( viewingComm_, viewingGroup_ );
-    viewingRank_ = mpi::CommRank( viewingComm_ );
-
-    // Extract our rank and the number of processes from the owning group
-    owningGroup_ = owningGroup;
-    size_ = mpi::GroupSize( owningGroup_ );
-    owningRank_ = mpi::GroupRank( owningGroup_ );
-    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
-
-    // Create the complement of the owning group
-    mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
-
-    height_ = height;
-    width_ = width;
-
     if( height_ < 0 || width_ < 0 )
         throw std::logic_error
         ("Process grid dimensions must be non-negative");
@@ -493,6 +328,214 @@ inline Grid::~Grid()
         mpi::CommFree( viewingComm_ );
     }
 }
+
+inline bool Grid::InGrid() const
+{ return inGrid_; }
+
+inline int Grid::MCRank() const
+{ return matrixColRank_; }
+
+inline int Grid::MRRank() const
+{ return matrixRowRank_; }
+
+inline int Grid::VCRank() const
+{ return vectorColRank_; }
+
+inline int Grid::VRRank() const
+{ return vectorRowRank_; }
+
+inline int Grid::MCSize() const
+{ return height_; }
+
+inline int Grid::MRSize() const
+{ return width_; }
+
+inline int Grid::VCSize() const
+{ return size_; }
+
+inline int Grid::VRSize() const
+{ return size_; }
+
+inline mpi::Comm Grid::MCComm() const
+{ return matrixColComm_; }
+
+inline mpi::Comm Grid::MRComm() const
+{ return matrixRowComm_; }
+
+inline mpi::Comm Grid::VCComm() const
+{ return vectorColComm_; }
+
+inline mpi::Comm Grid::VRComm() const
+{ return vectorRowComm_; }
+
+//
+// Provided for simplicity, but redundant
+//
+
+inline int Grid::Row() const
+{ return matrixColRank_; }
+
+inline int Grid::Col() const
+{ return matrixRowRank_; }
+
+inline int Grid::Rank() const
+{ return vectorColRank_; }
+
+inline int Grid::Height() const
+{ return height_; }
+
+inline int Grid::Width() const
+{ return width_; }
+
+inline int Grid::Size() const
+{ return size_; }
+
+inline mpi::Comm Grid::ColComm() const
+{ return matrixColComm_; }
+
+inline mpi::Comm Grid::RowComm() const
+{ return matrixRowComm_; }
+
+inline mpi::Comm Grid::Comm() const
+{ return vectorColComm_; }
+
+//
+// Advanced routines
+//
+
+inline Grid::Grid( mpi::Comm viewers, mpi::Group owners )
+{
+#ifndef RELEASE
+    PushCallStack("Grid::Grid");
+#endif
+
+    // Extract our rank and the underlying group from the viewing comm
+    mpi::CommDup( viewers, viewingComm_ );
+    mpi::CommGroup( viewingComm_, viewingGroup_ );
+    viewingRank_ = mpi::CommRank( viewingComm_ );
+
+    // Extract our rank and the number of processes from the owning group
+    owningGroup_ = owners;
+    size_ = mpi::GroupSize( owningGroup_ );
+    owningRank_ = mpi::GroupRank( owningGroup_ );
+    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
+
+    // Create the complement of the owning group
+    mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
+
+    // Factor the grid size
+    height_ = static_cast<int>(sqrt(static_cast<double>(size_)));
+    while( size_ % height_ != 0 )
+        ++height_;
+    width_ = size_ / height_;
+
+    SetUpGrid();
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Currently forces a columnMajor absolute rank on the grid
+inline Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, int width )
+{
+#ifndef RELEASE
+    PushCallStack("Grid::Grid");
+#endif
+
+    // Extract our rank and the underlying group from the viewing comm
+    mpi::CommDup( viewers, viewingComm_ );
+    mpi::CommGroup( viewingComm_, viewingGroup_ );
+    viewingRank_ = mpi::CommRank( viewingComm_ );
+
+    // Extract our rank and the number of processes from the owning group
+    owningGroup_ = owners;
+    size_ = mpi::GroupSize( owningGroup_ );
+    owningRank_ = mpi::GroupRank( owningGroup_ );
+    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
+
+    // Create the complement of the owning group
+    mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
+
+    height_ = height;
+    width_ = width;
+
+    if( height_ < 0 || width_ < 0 )
+        throw std::logic_error
+        ("Process grid dimensions must be non-negative");
+
+    SetUpGrid();
+
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+inline int Grid::GCD() const
+{ return gcd_; }
+
+inline int Grid::LCM() const
+{ return size_/gcd_; }
+
+inline int Grid::DiagPath() const
+{ 
+    if( inGrid_ )
+        return diagPathsAndRanks_[2*vectorColRank_];
+    else
+        return mpi::UNDEFINED;
+}
+
+inline int Grid::DiagPath( int vectorColRank ) const
+{ 
+    if( vectorColRank != mpi::UNDEFINED )
+        return diagPathsAndRanks_[2*vectorColRank]; 
+    else
+        return mpi::UNDEFINED;
+}
+
+inline int Grid::DiagPathRank() const
+{ 
+    if( inGrid_ )
+        return diagPathsAndRanks_[2*vectorColRank_+1];
+    else
+        return mpi::UNDEFINED;
+}
+
+inline int Grid::DiagPathRank( int vectorColRank ) const
+{ 
+    if( vectorColRank != mpi::UNDEFINED )
+        return diagPathsAndRanks_[2*vectorColRank+1]; 
+    else
+        return mpi::UNDEFINED;
+}
+
+inline int Grid::OwningRank() const
+{ return owningRank_; }
+
+inline int Grid::ViewingRank() const
+{ return viewingRank_; }
+
+inline int Grid::VCToViewingMap( int VCRank ) const
+{ return vectorColToViewingMap_[VCRank]; }
+
+inline mpi::Group Grid::OwningGroup() const
+{ return owningGroup_; }
+
+inline mpi::Comm Grid::OwningComm() const
+{ return owningComm_; }
+
+inline mpi::Comm Grid::ViewingComm() const
+{ return viewingComm_; }
+
+//
+// Comparison functions
+//
+
+inline bool operator== ( const Grid& A, const Grid& B )
+{ return &A == &B; }
+
+inline bool operator!= ( const Grid& A, const Grid& B )
+{ return &A != &B; }
 
 } // namespace elem
 
