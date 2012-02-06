@@ -41,7 +41,19 @@ public:
     Grid( mpi::Comm comm=mpi::COMM_WORLD );
     Grid( mpi::Comm comm, int height, int width );
     ~Grid();
-    bool InGrid() const;
+
+    // Simple interface (simpler version of distributed-based interface)
+    int Row() const;           // same as MCRank()
+    int Col() const;           // same as MRRank()
+    int Rank() const;          // same as VCRank()
+    int Height() const;        // same as MCSize()
+    int Width() const;         // same as MRSize()
+    int Size() const;          // same as VCSize() and VRSize()
+    mpi::Comm ColComm() const; // same as MCComm()
+    mpi::Comm RowComm() const; // same as MRComm()
+    mpi::Comm Comm() const;    // same as VCComm()
+
+    // Distribution-based interface
     int MCRank() const;
     int MRRank() const;
     int VCRank() const;
@@ -55,22 +67,12 @@ public:
     mpi::Comm VCComm() const;
     mpi::Comm VRComm() const;
 
-    // Provided for simplicity, but redundant
-    int Row() const;           // same as MCRank()
-    int Col() const;           // same as MRRank()
-    int Rank() const;          // same as VCRank()
-    int Height() const;        // same as MCSize()
-    int Width() const;         // same as MRSize()
-    int Size() const;          // same as VCSize() and VRSize()
-    mpi::Comm ColComm() const; // same as MCComm()
-    mpi::Comm RowComm() const; // same as MRComm()
-    mpi::Comm Comm() const;    // same as VCComm()
-
     // Advanced routines
     Grid( mpi::Comm viewers, mpi::Group owners );
     Grid( mpi::Comm viewers, mpi::Group owners, int height, int width ); 
     int GCD() const; // greatest common denominator of grid height and width
     int LCM() const; // lowest common multiple of grid height and width
+    bool InGrid() const;
     int OwningRank() const;
     int ViewingRank() const;
     int VCToViewingMap( int VCRank ) const;
@@ -329,9 +331,6 @@ inline Grid::~Grid()
     }
 }
 
-inline bool Grid::InGrid() const
-{ return inGrid_; }
-
 inline int Grid::MCRank() const
 { return matrixColRank_; }
 
@@ -477,6 +476,27 @@ inline int Grid::GCD() const
 inline int Grid::LCM() const
 { return size_/gcd_; }
 
+inline bool Grid::InGrid() const
+{ return inGrid_; }
+
+inline int Grid::OwningRank() const
+{ return owningRank_; }
+
+inline int Grid::ViewingRank() const
+{ return viewingRank_; }
+
+inline int Grid::VCToViewingMap( int VCRank ) const
+{ return vectorColToViewingMap_[VCRank]; }
+
+inline mpi::Group Grid::OwningGroup() const
+{ return owningGroup_; }
+
+inline mpi::Comm Grid::OwningComm() const
+{ return owningComm_; }
+
+inline mpi::Comm Grid::ViewingComm() const
+{ return viewingComm_; }
+
 inline int Grid::DiagPath() const
 { 
     if( inGrid_ )
@@ -508,24 +528,6 @@ inline int Grid::DiagPathRank( int vectorColRank ) const
     else
         return mpi::UNDEFINED;
 }
-
-inline int Grid::OwningRank() const
-{ return owningRank_; }
-
-inline int Grid::ViewingRank() const
-{ return viewingRank_; }
-
-inline int Grid::VCToViewingMap( int VCRank ) const
-{ return vectorColToViewingMap_[VCRank]; }
-
-inline mpi::Group Grid::OwningGroup() const
-{ return owningGroup_; }
-
-inline mpi::Comm Grid::OwningComm() const
-{ return owningComm_; }
-
-inline mpi::Comm Grid::ViewingComm() const
-{ return viewingComm_; }
 
 //
 // Comparison functions

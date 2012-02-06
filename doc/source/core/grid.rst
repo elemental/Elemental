@@ -7,8 +7,6 @@ soon-to-be-discussed ``DistMatrix`` class).
 
 .. cpp:class:: Grid
 
-   .. rubric:: Basic constructors
-
    .. cpp:function:: Grid( mpi::Comm comm=mpi::COMM_WORLD )
 
       Construct a process grid over the specified communicator and let Elemental
@@ -21,17 +19,22 @@ soon-to-be-discussed ``DistMatrix`` class).
       given dimensions. Note that the size of the communicator should be 
       `height` :math:`\times` `width`.
 
-   .. rubric:: Basic information
+   .. rubric:: Simple interface (simpler version of distribution-based interface)
 
-   .. cpp:function:: bool InGrid() const
+   .. cpp:function:: int Row() const
 
-      Return whether or not our process is actively participating in the process
-      grid.
+      Return the index of the row of the process grid that this process lies in.
 
-   .. cpp:function:: int Size() const
+   .. cpp:function:: int Col() const
 
-      Return the number of active processes in the process grid. This number 
-      is equal to ``Height()`` :math:`\times` ``Width()``.
+      Return the index of the column of the process grid that this process lies
+      in.
+
+   .. cpp:function:: int Rank() const
+
+      Return our process's rank in the grid. The result is equivalent to the 
+      ``VCRank()`` function described below, but this interface is provided for
+      simplicity.
 
    .. cpp:function:: int Height() const
 
@@ -41,21 +44,24 @@ soon-to-be-discussed ``DistMatrix`` class).
 
       Return the width of the process grid.
 
-   .. cpp:function:: int GCD() const
+   .. cpp:function:: int Size() const
 
-      Return the greatest common denominator of the height and width of the 
-      process grid.
+      Return the number of active processes in the process grid. This number 
+      is equal to ``Height()`` :math:`\times` ``Width()``.
 
-   .. cpp:function:: int LCM() const
+   .. cpp:function:: mpi::Comm ColComm() const
 
-      Return the lowest common multiple of the height and width of the process
-      grid.
+      Return the communicator for this process's column of the process grid.
 
-   .. cpp:function:: int Rank() const
+   .. cpp:function:: mpi::Comm RowComm() const
 
-      Return our process's rank in the grid. The result is equivalent to the 
-      ``VCRank()`` function described below, but this interface is provided for
-      simplicity.
+      Return the communicator for this process's row of the process grid.
+
+   .. cpp:function:: mpi::Comm Comm() const
+
+      Return the communicator for the process grid.
+
+   .. rubric:: Distribution-based interface
 
    .. cpp:function:: int MCRank() const
 
@@ -77,11 +83,25 @@ soon-to-be-discussed ``DistMatrix`` class).
       Return our process's rank in the ``VR`` (Vector Row) communicator. This 
       corresponds to our rank in a row-major ordering of the process grid.
 
-   .. cpp:function:: mpi::Comm Comm() const
+   .. cpp:function:: int MCSize() const
 
-      Return the communicator for the grid. The result is equivalent to the 
-      ``VCComm()`` function described below, but this interface is provided 
-      for simplicity.
+      Return the size of the ``MC`` (Matrix Column) communicator, which is 
+      equivalent to the height of the process grid.
+
+   .. cpp:function:: int MRSize() const
+
+      Return the size of the ``MR`` (Matrix Row) communicator, which is 
+      equivalent to the width of the process grid.
+
+   .. cpp:function:: int VCSize() const
+
+      Return the size of the ``VC`` (Vector Column) communicator, which is
+      equivalent to the size of the process grid.
+
+   .. cpp:function:: int VRSize() const
+
+      Return the size of the ``VR`` (Vector Row) communicator, which is 
+      equivalent to the size of the process grid.
 
    .. cpp:function:: mpi::Comm MCComm() const
 
@@ -121,6 +141,21 @@ soon-to-be-discussed ``DistMatrix`` class).
       are explicitly specified, and it is required that `height` :math:`\times`
       `width` equals the size of `owningGroup`. Most users should not call this
       routine, as it is only supported for a few ``DistMatrix`` types.
+
+   .. cpp:function:: int GCD() const
+
+      Return the greatest common denominator of the height and width of the 
+      process grid.
+
+   .. cpp:function:: int LCM() const
+
+      Return the lowest common multiple of the height and width of the process
+      grid.
+
+   .. cpp:function:: bool InGrid() const
+
+      Return whether or not our process is actively participating in the process
+      grid.
 
    .. cpp:function:: int OwningRank() const
 
@@ -172,3 +207,12 @@ soon-to-be-discussed ``DistMatrix`` class).
       Return the rank of the given process out of the set of processes in its
       diagonal of the tesselation of the process grid.
 
+.. rubric:: Grid comparison functions
+
+.. cpp:function:: bool operator==( const Grid& A, const Grid& B )
+
+   Returns whether or not !A! and !B! are the same process grid.
+
+.. cpp:function:: bool operator!=( const Grid& A, const Grid& B )
+
+   Returns whether or not !A! and !B! are different process grids.
