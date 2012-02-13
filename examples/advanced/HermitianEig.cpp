@@ -76,20 +76,20 @@ main( int argc, char* argv[] )
         // the global matrix is Hermitian. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const int r = g.Height(); // height of 2d process grid
-        const int c = g.Width(); // width of 2d process grid
         const int colShift = H.ColShift(); // first row we own
         const int rowShift = H.RowShift(); // first col we own
+        const int colStride = H.ColStride();
+        const int rowStride = H.RowStride();
         const int localHeight = H.LocalHeight();
         const int localWidth = H.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
             {
-                // Our process owns the rows { n \in N_0 : n mod r = colShift }
-                //              and the cols { n \in N_0 : n mod c = rowShift }
-                const int i = colShift + iLocal*r;
-                const int j = rowShift + jLocal*c;
+                // Our process owns the rows colShift:colStride:n,
+                //           and the columns rowShift:rowStride:n
+                const int i = colShift + iLocal*colStride;
+                const int j = rowShift + jLocal*rowStride;
                 H.SetLocalEntry( iLocal, jLocal, C(i+j,i-j) );
             }
         }
