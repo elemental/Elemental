@@ -105,6 +105,16 @@ DistMatrix<T,STAR,STAR,Int>::SetGrid( const elem::Grid& grid )
 }
 
 template<typename T,typename Int>
+inline Int
+DistMatrix<T,STAR,STAR,Int>::ColStride() const
+{ return 1; }
+
+template<typename T,typename Int>
+inline Int
+DistMatrix<T,STAR,STAR,Int>::RowStride() const
+{ return 1; }
+
+template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,STAR,Int>::PrintBase
 ( std::ostream& os, const std::string msg ) const

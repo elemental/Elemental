@@ -131,7 +131,8 @@ public:
     // Non-collective routines
     //
 
-    // (empty)
+    virtual Int ColStride() const;
+    virtual Int RowStride() const;
 
     //
     // Collective routines

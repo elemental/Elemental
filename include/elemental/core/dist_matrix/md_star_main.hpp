@@ -168,6 +168,16 @@ DistMatrix<T,MD,STAR,Int>::SetGrid( const elem::Grid& g )
 }
 
 template<typename T,typename Int>
+inline Int
+DistMatrix<T,MD,STAR,Int>::ColStride() const
+{ return this->grid_->LCM(); }
+
+template<typename T,typename Int>
+inline Int
+DistMatrix<T,MD,STAR,Int>::RowStride() const
+{ return 1; }
+
+template<typename T,typename Int>
 inline bool
 DistMatrix<T,MD,STAR,Int>::InDiagonal() const
 { return inDiagonal_; }

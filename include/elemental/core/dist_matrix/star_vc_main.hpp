@@ -150,6 +150,16 @@ DistMatrix<T,STAR,VC,Int>::SetGrid( const elem::Grid& grid )
 }
 
 template<typename T,typename Int>
+inline Int
+DistMatrix<T,STAR,VC,Int>::ColStride() const
+{ return 1; }
+
+template<typename T,typename Int>
+inline Int
+DistMatrix<T,STAR,VC,Int>::RowStride() const
+{ return this->grid_->Size(); }
+
+template<typename T,typename Int>
 template<typename S,typename N>
 inline void
 DistMatrix<T,STAR,VC,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )

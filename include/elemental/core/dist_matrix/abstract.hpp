@@ -174,6 +174,12 @@ public:
     //
 
     virtual void SetGrid( const elem::Grid& grid ) = 0;
+    // So that the local row indices are given by
+    //   A.ColShift():A.ColStride():A.Height()
+    virtual Int ColStride() const = 0; 
+    // So that the local column indices are given by
+    //   A.RowShift():A.RowStride():A.Width()
+    virtual Int RowStride() const = 0;
 
     //
     // Entry manipulation
