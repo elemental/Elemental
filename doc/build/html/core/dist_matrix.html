@@ -171,7 +171,7 @@ void <tt class="descname">Write</tt><big>(</big>const std::string <em>filename</
 <dd><p>Print the distributed matrix to the file named <tt class="docutils literal"><span class="pre">filename</span></tt>.</p>
 </dd></dl>
 
-<p class="rubric">Alignments</p>
+<p class="rubric">Distribution details</p>
 <dl class="function">
 <dt id="AbstractDistMatrix:T:::FreeAlignments">
 void <tt class="descname">FreeAlignments</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::FreeAlignments" title="Permalink to this definition">¶</a></dt>
@@ -212,6 +212,18 @@ int <tt class="descname">ColShift</tt><big>(</big><big>)</big><tt class="desccla
 <dt id="AbstractDistMatrix:T:::RowShiftC">
 int <tt class="descname">RowShift</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowShiftC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the first global column that our process owns.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="AbstractDistMatrix:T:::ColStrideC">
+int <tt class="descname">ColStride</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::ColStrideC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of rows between locally owned entries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="AbstractDistMatrix:T:::RowStrideC">
+int <tt class="descname">RowStride</tt><big>(</big><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::RowStrideC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of columns between locally owned entries.</p>
 </dd></dl>
 
 <p class="rubric">Entry manipulation</p>

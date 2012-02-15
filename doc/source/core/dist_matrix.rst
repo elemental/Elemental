@@ -93,7 +93,7 @@ to be available for all matrix distributions.
 
       Print the distributed matrix to the file named ``filename``.
 
-   .. rubric:: Alignments
+   .. rubric:: Distribution details
 
    .. cpp:function:: void FreeAlignments()
 
@@ -122,6 +122,14 @@ to be available for all matrix distributions.
    .. cpp:function:: int RowShift() const
 
       Return the first global column that our process owns.
+
+   .. cpp:function:: int ColStride() const
+
+      Return the number of rows between locally owned entries.
+
+   .. cpp:function:: int RowStride() const
+
+      Return the number of columns between locally owned entries.
 
    .. rubric:: Entry manipulation
 
