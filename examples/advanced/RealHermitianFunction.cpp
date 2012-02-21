@@ -38,7 +38,7 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
-// A functor for returning the imaginary exponential of a real number
+// A functor for returning the exponential of a real number
 class ExpFunctor {
 public:
     R operator()( R alpha ) const { return std::exp(alpha); }
