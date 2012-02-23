@@ -35,8 +35,7 @@
 namespace {
 // Core routines
 int numElemInits = 0;
-int mpiRelInitDepth; // we will finalize MPI if ever 0, 
-                     // set within first elem::Initialize() call
+bool elemInitializedMpi;
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
 
@@ -82,12 +81,10 @@ void Initialize( int& argc, char**& argv )
     if( ::numElemInits > 0 )
     {
         ++::numElemInits;
-        ++::mpiRelInitDepth;
         return;
     }
 
     ::numElemInits = 1;
-    ::mpiRelInitDepth = 1;
     if( !mpi::Initialized() )
     {
         if( mpi::Finalized() )
@@ -107,11 +104,11 @@ void Initialize( int& argc, char**& argv )
 #else
         mpi::Initialize( argc, argv );
 #endif
+        ::elemInitializedMpi = true;
     }
     else
     {
-        // Ensure that elem::Finalize() will never knock this to zero
-        ++::mpiRelInitDepth;
+        ::elemInitializedMpi = false;
     }
 
     // Queue a default algorithmic blocksize
@@ -147,30 +144,29 @@ void Finalize()
     if( ::numElemInits <= 0 )
         throw std::logic_error("Finalized Elemental more than initialized");
     --::numElemInits;
-    --::mpiRelInitDepth;
 
     if( mpi::Finalized() )
     {
         std::cerr << "Warning: MPI was finalized before Elemental." 
                   << std::endl;
     }
-    else if( ::mpiRelInitDepth == 0 )
-    {
-        // Destroy the pivot ops needed by the distributed LU
-        internal::DestroyPivotOp<float>();
-        internal::DestroyPivotOp<double>();
-        internal::DestroyPivotOp<Complex<float> >();
-        internal::DestroyPivotOp<Complex<double> >();
-
-        // Delete the default grid
-        delete ::defaultGrid;
-        ::defaultGrid = 0;
-
-        mpi::Finalize();
-    }
-
     if( ::numElemInits == 0 )
     {
+        if( ::elemInitializedMpi )
+        {
+            // Destroy the pivot ops needed by the distributed LU
+            internal::DestroyPivotOp<float>();
+            internal::DestroyPivotOp<double>();
+            internal::DestroyPivotOp<Complex<float> >();
+            internal::DestroyPivotOp<Complex<double> >();
+
+            // Delete the default grid
+            delete ::defaultGrid;
+            ::defaultGrid = 0;
+
+            mpi::Finalize();
+        }
+
         delete ::defaultGrid;
         ::defaultGrid = 0;
         while( ! ::blocksizeStack.empty() )
