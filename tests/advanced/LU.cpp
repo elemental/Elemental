@@ -55,6 +55,7 @@ void TestCorrectness
   const DistMatrix<int,VC,STAR>& p,
   const DistMatrix<F,MC,MR>& AOrig )
 {
+    typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
@@ -65,9 +66,9 @@ void TestCorrectness
     DistMatrix<F,MC,MR> X(m,100,g);
     DistMatrix<F,MC,MR> Y(g);
     X.SetToRandom();
-    F oneNormOfX = Norm( X, ONE_NORM );
-    F infNormOfX = Norm( X, INFINITY_NORM );
-    F frobNormOfX = Norm( X, FROBENIUS_NORM );
+    R oneNormOfX = Norm( X, ONE_NORM );
+    R infNormOfX = Norm( X, INFINITY_NORM );
+    R frobNormOfX = Norm( X, FROBENIUS_NORM );
     Y = X;
     if( pivoted )
         ApplyRowPivots( Y, p );
@@ -78,24 +79,24 @@ void TestCorrectness
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     Gemm( NORMAL, NORMAL, (F)-1, AOrig, Y, (F)1, X );
-    F oneNormOfError = Norm( X, ONE_NORM );
-    F infNormOfError = Norm( X, INFINITY_NORM );
-    F frobNormOfError = Norm( X, FROBENIUS_NORM );
-    F oneNormOfA = Norm( AOrig, ONE_NORM );
-    F infNormOfA = Norm( AOrig, INFINITY_NORM );
-    F frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    R oneNormOfError = Norm( X, ONE_NORM );
+    R infNormOfError = Norm( X, INFINITY_NORM );
+    R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    R oneNormOfA = Norm( AOrig, ONE_NORM );
+    R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
 
     if( g.Rank() == 0 )
     {
-        cout << "||A||_1                  = " << Abs(oneNormOfA) << "\n"
-             << "||A||_oo                 = " << Abs(infNormOfA) << "\n"
-             << "||A||_F                  = " << Abs(frobNormOfA) << "\n"
-             << "||X||_1                  = " << Abs(oneNormOfX) << "\n"
-             << "||X||_oo                 = " << Abs(infNormOfX) << "\n"
-             << "||X||_F                  = " << Abs(frobNormOfX) << "\n"
-             << "||A U^-1 L^-1 X - X||_1  = " << Abs(oneNormOfError) << "\n"
-             << "||A U^-1 L^-1 X - X||_oo = " << Abs(infNormOfError) << "\n"
-             << "||A U^-1 L^-1 X - X||_F  = " << Abs(frobNormOfError) << endl;
+        cout << "||A||_1                  = " << oneNormOfA << "\n"
+             << "||A||_oo                 = " << infNormOfA << "\n"
+             << "||A||_F                  = " << frobNormOfA << "\n"
+             << "||X||_1                  = " << oneNormOfX << "\n"
+             << "||X||_oo                 = " << infNormOfX << "\n"
+             << "||X||_F                  = " << frobNormOfX << "\n"
+             << "||A U^-1 L^-1 X - X||_1  = " << oneNormOfError << "\n"
+             << "||A U^-1 L^-1 X - X||_oo = " << infNormOfError << "\n"
+             << "||A U^-1 L^-1 X - X||_F  = " << frobNormOfError << endl;
     }
 }
 

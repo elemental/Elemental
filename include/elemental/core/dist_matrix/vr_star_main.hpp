@@ -1090,7 +1090,9 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw std::logic_error("[VR,* ] = [MD,* ] not yet implemented");
+    // TODO: Optimize this later if important
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1108,7 +1110,9 @@ DistMatrix<T,VR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw std::logic_error("[VR,* ] = [* ,MD] not yet implemented");
+    // TODO: Optimize this later if important
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1782,7 +1786,7 @@ DistMatrix<T,VR,STAR,Int>::SumScatterFrom
 
             const Int thisRank = myCol+k*c;
             const Int thisColShift = RawShift( thisRank, colAlignment, p );
-            const Int thisColOffset = (thisColShift-colShiftOfA) / r;
+            const Int thisColOffset = (thisColShift-colShiftOfA) / c;
             const Int thisLocalHeight = 
                 RawLocalLength( height, thisColShift, p );
 

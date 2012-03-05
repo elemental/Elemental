@@ -57,6 +57,7 @@ void TestCorrectness
   const DistMatrix<F,MC,MR>& A,
   const DistMatrix<F,MC,MR>& AOrig )
 {
+    typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
@@ -70,14 +71,26 @@ void TestCorrectness
     Trmm( LEFT, uplo, NORMAL, diagonal, (F)1, AOrig, Y );
     Axpy( (F)-1, X, Y );
 
-    F oneNormOfError = Norm( Y, ONE_NORM );
-    F infNormOfError = Norm( Y, INFINITY_NORM );
-    F frobNormOfError = Norm( Y, FROBENIUS_NORM );
+    R oneNormOrig = Norm( AOrig, ONE_NORM );
+    R infNormOrig = Norm( AOrig, INFINITY_NORM );
+    R frobNormOrig = Norm( AOrig, FROBENIUS_NORM );
+    R oneNormFinal = Norm( A, ONE_NORM );
+    R infNormFinal = Norm( A, INFINITY_NORM );
+    R frobNormFinal = Norm( A, FROBENIUS_NORM );
+    R oneNormOfError = Norm( Y, ONE_NORM );
+    R infNormOfError = Norm( Y, INFINITY_NORM );
+    R frobNormOfError = Norm( Y, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
-        cout << "||A A^-1 - I||_1  = " << Abs(oneNormOfError) << "\n"
-             << "||A A^-1 - I||_oo = " << Abs(infNormOfError) << "\n"
-             << "||A A^-1 - I||_F  = " << Abs(frobNormOfError) << endl;
+        cout << "||A||_1           = " << oneNormOrig << "\n"
+             << "||A||_oo          = " << infNormOrig << "\n"
+             << "||A||_F           = " << frobNormOrig << "\n"
+             << "||A^-1||_1        = " << oneNormFinal << "\n"
+             << "||A^-1||_oo       = " << infNormFinal << "\n"
+             << "||A^-1||_F        = " << frobNormFinal << "\n"
+             << "||A A^-1 - I||_1  = " << oneNormOfError << "\n"
+             << "||A A^-1 - I||_oo = " << infNormOfError << "\n"
+             << "||A A^-1 - I||_F  = " << frobNormOfError << endl;
     }
 }
 

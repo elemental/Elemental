@@ -1764,7 +1764,9 @@ DistMatrix<T,VC,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw std::logic_error("[VC,* ] = [MD,* ] not yet implemented");
+    // TODO: Optimize this later if important
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1782,7 +1784,9 @@ DistMatrix<T,VC,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A );
 #endif
-    throw std::logic_error("[VC,* ] = [* ,MD] not yet implemented");
+    // TODO: Optimize this later if important
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
 #ifndef RELEASE
     PopCallStack();
 #endif

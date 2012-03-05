@@ -56,6 +56,7 @@ void TestCorrectness
   const DistMatrix<F,MC,MR>& A,
   const DistMatrix<F,MC,MR>& AOrig )
 {
+    typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
@@ -71,24 +72,24 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, Y );
         Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, Y );
         Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
-        F oneNormOfError = Norm( Y, ONE_NORM );
-        F infNormOfError = Norm( Y, INFINITY_NORM );
-        F frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        F oneNormOfX = Norm( X, ONE_NORM );
-        F infNormOfX = Norm( X, INFINITY_NORM );
-        F frobNormOfX = Norm( X, FROBENIUS_NORM );
+        R oneNormOfError = Norm( Y, ONE_NORM );
+        R infNormOfError = Norm( Y, INFINITY_NORM );
+        R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        R oneNormOfX = Norm( X, ONE_NORM );
+        R infNormOfX = Norm( X, INFINITY_NORM );
+        R frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
-            cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
-                 << "||A||_F              = " << Abs(frobNormOfA) << "\n"
-                 << "||X||_1              = " << Abs(oneNormOfX) << "\n"
-                 << "||X||_oo             = " << Abs(infNormOfX) << "\n"
-                 << "||X||_F              = " << Abs(frobNormOfX) << "\n"
-                 << "||A X - L L^H X||_1  = " << Abs(oneNormOfError) << "\n"
-                 << "||A X - L L^H X||_oo = " << Abs(infNormOfError) << "\n"
-                 << "||A X - L L^H X||_F  = " << Abs(frobNormOfError) << endl;
+            cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
+                 << "||A||_F              = " << frobNormOfA << "\n"
+                 << "||X||_1              = " << oneNormOfX << "\n"
+                 << "||X||_oo             = " << infNormOfX << "\n"
+                 << "||X||_F              = " << frobNormOfX << "\n"
+                 << "||A X - L L^H X||_1  = " << oneNormOfError << "\n"
+                 << "||A X - L L^H X||_oo = " << infNormOfError << "\n"
+                 << "||A X - L L^H X||_F  = " << frobNormOfError << endl;
         }
     }
     else
@@ -98,24 +99,24 @@ void TestCorrectness
         Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
         Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, Y );
         Hemm( LEFT, UPPER, (F)-1, AOrig, X, (F)1, Y );
-        F oneNormOfError = Norm( Y, ONE_NORM );
-        F infNormOfError = Norm( Y, INFINITY_NORM );
-        F frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        F infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        F frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        F oneNormOfX = Norm( X, ONE_NORM );
-        F infNormOfX = Norm( X, INFINITY_NORM );
-        F frobNormOfX = Norm( X, FROBENIUS_NORM );
+        R oneNormOfError = Norm( Y, ONE_NORM );
+        R infNormOfError = Norm( Y, INFINITY_NORM );
+        R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        R oneNormOfX = Norm( X, ONE_NORM );
+        R infNormOfX = Norm( X, INFINITY_NORM );
+        R frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
-            cout << "||A||_1 = ||A||_oo   = " << Abs(infNormOfA) << "\n"
-                 << "||A||_F              = " << Abs(frobNormOfA) << "\n"
-                 << "||X||_1              = " << Abs(oneNormOfX) << "\n"
-                 << "||X||_oo             = " << Abs(infNormOfX) << "\n"
-                 << "||X||_F              = " << Abs(frobNormOfX) << "\n"
-                 << "||A X - U^H U X||_1  = " << Abs(oneNormOfError) << "\n"
-                 << "||A X - U^H U X||_oo = " << Abs(infNormOfError) << "\n"
-                 << "||A X - U^H U X||_F  = " << Abs(frobNormOfError) << endl;
+            cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
+                 << "||A||_F              = " << frobNormOfA << "\n"
+                 << "||X||_1              = " << oneNormOfX << "\n"
+                 << "||X||_oo             = " << infNormOfX << "\n"
+                 << "||X||_F              = " << frobNormOfX << "\n"
+                 << "||A X - U^H U X||_1  = " << oneNormOfError << "\n"
+                 << "||A X - U^H U X||_oo = " << infNormOfError << "\n"
+                 << "||A X - U^H U X||_F  = " << frobNormOfError << endl;
         }
     }
 }
