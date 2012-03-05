@@ -347,7 +347,7 @@ bool Test( Request& request )
 #ifndef RELEASE
     PushCallStack("mpi::Test");
 #endif
-    MPI_Status status;
+    Status status;
     int flag;
     SafeMpi( MPI_Test( &request, &flag, &status ) );
 #ifndef RELEASE
@@ -362,8 +362,32 @@ void Wait( Request& request )
 #ifndef RELEASE
     PushCallStack("mpi::Wait");
 #endif
-    MPI_Status status;
+    Status status;
     SafeMpi( MPI_Wait( &request, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Ensure that the request finishes before continuing
+void Wait( Request& request, Status& status )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Wait");
+#endif
+    SafeMpi( MPI_Wait( &request, &status ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Ensure that several requests finish before continuing
+void WaitAll( int numRequests, Request* requests, Status* statuses )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::WaitAll");
+#endif
+    SafeMpi( MPI_Waitall( numRequests, requests, statuses ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -785,7 +809,7 @@ void Recv( byte* buf, int count, int from, int tag, Comm comm )
 #ifndef RELEASE
     PushCallStack("mpi::Recv");
 #endif
-    MPI_Status status;
+    Status status;
     SafeMpi( 
         MPI_Recv( buf, count, MPI_UNSIGNED_CHAR, from, tag, comm, &status ) 
     );

@@ -133,6 +133,8 @@ void GroupTranslateRanks
 // Utilities
 void Barrier( Comm comm );
 void Wait( Request& request );
+void Wait( Request& request, Status& status );
+void WaitAll( int numRequests, Request* requests, Status* statuses );
 bool Test( Request& request );
 bool IProbe( int source, int tag, Comm comm, Status& status );
 template<typename T>
