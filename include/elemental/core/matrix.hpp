@@ -1466,7 +1466,7 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
-        std::memcpy( &data_[j*ldim], &data[j*ldimOfA], height*sizeof(T) );
+        MemCopy( &data_[j*ldim], &data[j*ldimOfA], height );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1567,7 +1567,7 @@ Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
             {
                 const Int lastZeroRow = j-offset-1;
                 const Int numZeroRows = std::min( lastZeroRow+1, height );
-                std::memset( &buffer[j*ldim], 0, numZeroRows*sizeof(T) );
+                MemZero( &buffer[j*ldim], numZeroRows );
             }
         }
         else
@@ -1579,7 +1579,7 @@ Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
             {
                 const Int lastZeroRow = j-offset+height-width-1;
                 const Int numZeroRows = std::min( lastZeroRow+1, height );
-                std::memset( &buffer[j*ldim], 0, numZeroRows*sizeof(T) );
+                MemZero( &buffer[j*ldim], numZeroRows );
             }
         }
     }
@@ -1594,9 +1594,8 @@ Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
             {
                 const Int firstZeroRow = std::max(j-offset+1,0);
                 if( firstZeroRow < height )
-                    std::memset
-                    ( &buffer[firstZeroRow+j*ldim], 0, 
-                      (height-firstZeroRow)*sizeof(T) );
+                    MemZero
+                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
             }
         }
         else
@@ -1608,9 +1607,8 @@ Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
             {
                 const Int firstZeroRow = std::max(j-offset+height-width+1,0);
                 if( firstZeroRow < height )
-                    std::memset
-                    ( &buffer[firstZeroRow+j*ldim], 0,
-                      (height-firstZeroRow)*sizeof(T) );
+                    MemZero
+                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
             }
         }
     }
@@ -1747,7 +1745,7 @@ Matrix<T,Int>::SetToZero()
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
-        std::memset( &data_[j*ldim_], 0, height*sizeof(T) );
+        MemZero( &data_[j*ldim_], height );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -383,7 +383,7 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
         {
             T* sendCol = &sendData[t*localHeight];
             const T* XCol = X.LockedLocalBuffer(iLocalOffset,jLocalOffset+t);
-            std::memcpy( sendCol, XCol, localHeight*sizeof(T) );
+            MemCopy( sendCol, XCol, localHeight );
         }
 
         // Fire off non-blocking send

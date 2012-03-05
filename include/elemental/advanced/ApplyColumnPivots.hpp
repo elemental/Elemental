@@ -270,8 +270,7 @@ ApplyColumnPivots
         const int sendCol = preimage[rowShift+jLocal*c];
         const int sendTo = (rowAlignment+sendCol) % c;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        std::memcpy
-        ( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight*sizeof(F) );
+        MemCopy( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight );
         offsets[sendTo] += localHeight;
     }
     for( int j=0; j<b; ++j )
@@ -285,9 +284,8 @@ ApplyColumnPivots
                 const int recvTo = (rowAlignment+j) % c;
                 const int jLocal = (recvCol-rowShift) / c;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                std::memcpy
-                ( &sendData[offset], A.LocalBuffer(0,jLocal), 
-                  localHeight*sizeof(F) );
+                MemCopy
+                ( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight );
                 offsets[recvTo] += localHeight;
             }
         }
@@ -312,9 +310,8 @@ ApplyColumnPivots
             {
                 const int offset = recvDispls[k]+offsets[k];
                 const int jLocal = (sendCol-rowShift) / c;
-                std::memcpy
-                ( A.LocalBuffer(0,jLocal), &recvData[offset], 
-                  localHeight*sizeof(F) );
+                MemCopy
+                ( A.LocalBuffer(0,jLocal), &recvData[offset], localHeight );
                 offsets[k] += localHeight;
             }
         }
@@ -330,9 +327,8 @@ ApplyColumnPivots
                 const int recvFrom = (rowAlignment+recvCol) % c; 
                 const int jLocal = (j-rowShift) / c;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                std::memcpy
-                ( A.LocalBuffer(0,jLocal), &recvData[offset], 
-                  localHeight*sizeof(F) );
+                MemCopy
+                ( A.LocalBuffer(0,jLocal), &recvData[offset], localHeight );
                 offsets[recvFrom] += localHeight;
             }
         }

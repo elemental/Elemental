@@ -100,7 +100,7 @@ internal::LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         dBuffer[j] = alpha11; 
 
         // Make a copy of a21 in s21 before scaling
-        std::memcpy( &s21[0], &ABuffer[(j+1)+j*lda], a21Height*sizeof(F) );
+        MemCopy( &s21[0], &ABuffer[(j+1)+j*lda], a21Height );
 
         // a21 := a21 / alpha11
         const F alpha11Inv = static_cast<F>(1)/alpha11;

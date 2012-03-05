@@ -218,10 +218,8 @@ internal::HermitianPanelTridiagL
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
-                std::memcpy
-                ( &rowBroadcastBuffer[0], 
-                  a21.LocalBuffer(), 
-                  a21LocalHeight*sizeof(R) );
+                MemCopy
+                ( &rowBroadcastBuffer[0], a21.LocalBuffer(), a21LocalHeight );
                 rowBroadcastBuffer[a21LocalHeight] = tau;
             }
             // Broadcast a21 and tau across the process row
@@ -230,17 +228,16 @@ internal::HermitianPanelTridiagL
               a21LocalHeight+1, a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
-            std::memcpy
+            MemCopy
             ( a21_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[0],
-              a21LocalHeight*sizeof(R) );
+              &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
             const int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            std::memcpy
+            MemCopy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,0), 
               &rowBroadcastBuffer[0],
-              (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(R) );
+              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight];
             
@@ -248,10 +245,10 @@ internal::HermitianPanelTridiagL
             // Store a21[MR,* ]
             const int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
-              (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(R) );
+              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
         }
         else
         {
@@ -262,14 +259,12 @@ internal::HermitianPanelTridiagL
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a21, w21Last, and tau
-                std::memcpy
+                MemCopy
                 ( &rowBroadcastBuffer[0], 
-                  a21.LocalBuffer(),
-                  a21LocalHeight*sizeof(R) );
-                std::memcpy
+                  a21.LocalBuffer(), a21LocalHeight );
+                MemCopy
                 ( &rowBroadcastBuffer[a21LocalHeight], 
-                  &w21LastLocalBuffer[0],
-                  w21LastLocalHeight*sizeof(R) );
+                  &w21LastLocalBuffer[0], w21LastLocalHeight );
                 rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight] = tau;
             }
             // Broadcast a21, w21Last, and tau across the process row
@@ -278,38 +273,35 @@ internal::HermitianPanelTridiagL
               a21LocalHeight+w21LastLocalHeight+1, 
               a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class 
-            std::memcpy
+            MemCopy
             ( a21_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[0],
-              a21LocalHeight*sizeof(R) );
+              &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
             const int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            std::memcpy
+            MemCopy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,A00.Width()), 
               &rowBroadcastBuffer[0],
-              (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(R) );
+              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
             // Store w21Last[MC,* ] into its DistMatrix class
             w21Last_MC_STAR.AlignWith( alpha11 );
             w21Last_MC_STAR.ResizeTo( a21.Height()+1, 1 );
-            std::memcpy
+            MemCopy
             ( w21Last_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[a21LocalHeight], 
-              w21LastLocalHeight*sizeof(R) );
+              &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
             const int W_MC_STAR_Offset = 
                 W_MC_STAR.LocalHeight()-w21LastLocalHeight;
-            std::memcpy
+            MemCopy
             ( W_MC_STAR.LocalBuffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
-              (W_MC_STAR.LocalHeight()-W_MC_STAR_Offset)*sizeof(R) );
+              W_MC_STAR.LocalHeight()-W_MC_STAR_Offset );
             if( g.Col() == w21Last.RowAlignment() )
             {
-                std::memcpy
+                MemCopy
                 ( w21Last.LocalBuffer(),
-                  &rowBroadcastBuffer[a21LocalHeight],
-                  w21LastLocalHeight*sizeof(R) );
+                  &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             }
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight];
@@ -404,17 +396,17 @@ internal::HermitianPanelTridiagL
             // Store w21Last[MR,* ]
             const int W_MR_STAR_Offset = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( W_MR_STAR.LocalBuffer(W_MR_STAR_Offset,A00.Width()-1),
               w21Last_MR_STAR.LocalBuffer(),
-              (W_MR_STAR.LocalHeight()-W_MR_STAR_Offset)*sizeof(R) );
+              W_MR_STAR.LocalHeight()-W_MR_STAR_Offset );
             // Store a21[MR,* ]
             const int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
-              (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(R) );
+              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
 
             // Update the portion of A22 that is in our current panel with 
             // w21Last and a21Last using two gers. We do not need their top 
@@ -479,34 +471,27 @@ internal::HermitianPanelTridiagL
             const int q21LocalHeight = q21_MR_STAR.LocalHeight();
             std::vector<R> colSumSendBuffer(2*x01LocalHeight+q21LocalHeight);
             std::vector<R> colSumRecvBuffer(2*x01LocalHeight+q21LocalHeight);
-            std::memcpy
-            ( &colSumSendBuffer[0], 
-              x01_MR_STAR.LocalBuffer(), 
-              x01LocalHeight*sizeof(R) );
-            std::memcpy
+            MemCopy
+            ( &colSumSendBuffer[0], x01_MR_STAR.LocalBuffer(), x01LocalHeight );
+            MemCopy
             ( &colSumSendBuffer[x01LocalHeight],
-              y01_MR_STAR.LocalBuffer(), 
-              x01LocalHeight*sizeof(R) );
-            std::memcpy
+              y01_MR_STAR.LocalBuffer(), x01LocalHeight );
+            MemCopy
             ( &colSumSendBuffer[2*x01LocalHeight],
-              q21_MR_STAR.LocalBuffer(), 
-              q21LocalHeight*sizeof(R) );
+              q21_MR_STAR.LocalBuffer(), q21LocalHeight );
             mpi::AllReduce
             ( &colSumSendBuffer[0], 
               &colSumRecvBuffer[0],
               2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.ColComm() );
-            std::memcpy
+            MemCopy
             ( x01_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[0], 
-              x01LocalHeight*sizeof(R) );
-            std::memcpy
+              &colSumRecvBuffer[0], x01LocalHeight );
+            MemCopy
             ( y01_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[x01LocalHeight], 
-              x01LocalHeight*sizeof(R) );
-            std::memcpy
+              &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
+            MemCopy
             ( q21_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[2*x01LocalHeight], 
-              q21LocalHeight*sizeof(R) );
+              &colSumRecvBuffer[2*x01LocalHeight], q21LocalHeight );
         }
 
         Gemv
@@ -530,10 +515,9 @@ internal::HermitianPanelTridiagL
             std::vector<R> reduceToOneRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
-            std::memcpy
+            MemCopy
             ( &reduceToOneSendBuffer[0], 
-              p21_MC_STAR.LocalBuffer(),
-              localHeight*sizeof(R) );
+              p21_MC_STAR.LocalBuffer(), localHeight );
 
             // Fill in contributions to q21[MC,MR] from q21[MR,* ]
             const bool contributing = 
@@ -543,17 +527,14 @@ internal::HermitianPanelTridiagL
             {
                 if( r == c )
                 {
-                    std::memcpy
+                    MemCopy
                     ( &reduceToOneSendBuffer[localHeight],
-                      q21_MR_STAR.LocalBuffer(), 
-                      localHeight*sizeof(R) );
+                      q21_MR_STAR.LocalBuffer(), localHeight );
                 }
                 else
                 {
                     // Zero the entire buffer first
-                    std::memset
-                    ( &reduceToOneSendBuffer[localHeight], 0,
-                      localHeight*sizeof(R) );
+                    MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
                     // Fill in the entries that we contribute to.
                     // We seek to find the minimum s in N such that
                     //   s*c = a0-b0 (mod r)
@@ -591,9 +572,7 @@ internal::HermitianPanelTridiagL
             }
             else
             {
-                std::memset
-                ( &reduceToOneSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(R) );
+                MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
             }
 
             const int nextProcessRow = (alpha11.ColAlignment()+1) % r;
@@ -646,10 +625,9 @@ internal::HermitianPanelTridiagL
             std::vector<R> allReduceRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
-            std::memcpy
+            MemCopy
             ( &allReduceSendBuffer[0], 
-              p21_MC_STAR.LocalBuffer(),
-              localHeight*sizeof(R) );
+              p21_MC_STAR.LocalBuffer(), localHeight );
 
             // Fill in contributions to q21[MC,* ] from q21[MR,* ]
             const bool contributing = 
@@ -659,17 +637,14 @@ internal::HermitianPanelTridiagL
             {
                 if( r == c )
                 {
-                    std::memcpy
+                    MemCopy
                     ( &allReduceSendBuffer[localHeight],
-                      q21_MR_STAR.LocalBuffer(), 
-                      localHeight*sizeof(R) );
+                      q21_MR_STAR.LocalBuffer(), localHeight );
                 }
                 else
                 {
                     // Zero the entire buffer first
-                    std::memset
-                    ( &allReduceSendBuffer[localHeight], 0, 
-                      localHeight*sizeof(R) );
+                    MemZero( &allReduceSendBuffer[localHeight], localHeight );
                     // Fill in the entries that we contribute to.
                     // We seek to find the minimum s in N such that
                     //   s*c = a0-b0 (mod r)
@@ -707,9 +682,7 @@ internal::HermitianPanelTridiagL
             }
             else
             {
-                std::memset
-                ( &allReduceSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(R) );
+                MemZero( &allReduceSendBuffer[localHeight], localHeight );
             }
 
             mpi::AllReduce
@@ -998,10 +971,9 @@ internal::HermitianPanelTridiagL
             if( thisIsMyCol )
             {
                 // Pack the broadcast buffer with a21 and tau
-                std::memcpy
+                MemCopy
                 ( &rowBroadcastBuffer[0], 
-                  a21.LocalBuffer(), 
-                  a21LocalHeight*sizeof(C) );
+                  a21.LocalBuffer(), a21LocalHeight );
                 rowBroadcastBuffer[a21LocalHeight] = tau;
             }
             // Broadcast a21 and tau across the process row
@@ -1010,17 +982,16 @@ internal::HermitianPanelTridiagL
               a21LocalHeight+1, a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
-            std::memcpy
+            MemCopy
             ( a21_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[0],
-              a21LocalHeight*sizeof(C) );
+              &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
             const int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            std::memcpy
+            MemCopy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,0), 
               &rowBroadcastBuffer[0],
-              (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(C) );
+              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight];
             
@@ -1028,10 +999,10 @@ internal::HermitianPanelTridiagL
             // Store a21[MR,* ]
             const int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
-              (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(C) );
+              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
         }
         else
         {
@@ -1042,14 +1013,11 @@ internal::HermitianPanelTridiagL
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a21, w21Last, and tau
-                std::memcpy
-                ( &rowBroadcastBuffer[0], 
-                  a21.LocalBuffer(),
-                  a21LocalHeight*sizeof(C) );
-                std::memcpy
+                MemCopy
+                ( &rowBroadcastBuffer[0], a21.LocalBuffer(), a21LocalHeight );
+                MemCopy
                 ( &rowBroadcastBuffer[a21LocalHeight], 
-                  &w21LastLocalBuffer[0],
-                  w21LastLocalHeight*sizeof(C) );
+                  &w21LastLocalBuffer[0], w21LastLocalHeight );
                 rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight] = tau;
             }
             // Broadcast a21, w21Last, and tau across the process row
@@ -1058,38 +1026,35 @@ internal::HermitianPanelTridiagL
               a21LocalHeight+w21LastLocalHeight+1, 
               a21.RowAlignment(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class 
-            std::memcpy
+            MemCopy
             ( a21_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[0],
-              a21LocalHeight*sizeof(C) );
+              &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
             const int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
-            std::memcpy
+            MemCopy
             ( APan_MC_STAR.LocalBuffer(APan_MC_STAR_Offset,A00.Width()), 
               &rowBroadcastBuffer[0],
-              (APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset)*sizeof(C) );
+              APan_MC_STAR.LocalHeight()-APan_MC_STAR_Offset );
             // Store w21Last[MC,* ] into its DistMatrix class
             w21Last_MC_STAR.AlignWith( alpha11 );
             w21Last_MC_STAR.ResizeTo( a21.Height()+1, 1 );
-            std::memcpy
+            MemCopy
             ( w21Last_MC_STAR.LocalBuffer(), 
-              &rowBroadcastBuffer[a21LocalHeight], 
-              w21LastLocalHeight*sizeof(C) );
+              &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
             const int W_MC_STAR_Offset = 
                 W_MC_STAR.LocalHeight()-w21LastLocalHeight;
-            std::memcpy
+            MemCopy
             ( W_MC_STAR.LocalBuffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
-              (W_MC_STAR.LocalHeight()-W_MC_STAR_Offset)*sizeof(C) );
+              W_MC_STAR.LocalHeight()-W_MC_STAR_Offset );
             if( g.Col() == w21Last.RowAlignment() )
             {
-                std::memcpy
+                MemCopy
                 ( w21Last.LocalBuffer(),
-                  &rowBroadcastBuffer[a21LocalHeight],
-                  w21LastLocalHeight*sizeof(C) );
+                  &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             }
             // Store tau
             tau = rowBroadcastBuffer[a21LocalHeight+w21LastLocalHeight];
@@ -1184,17 +1149,17 @@ internal::HermitianPanelTridiagL
             // Store w21Last[MR,* ]
             const int W_MR_STAR_Offset = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( W_MR_STAR.LocalBuffer(W_MR_STAR_Offset,A00.Width()-1),
               w21Last_MR_STAR.LocalBuffer(),
-              (W_MR_STAR.LocalHeight()-W_MR_STAR_Offset)*sizeof(C) );
+              W_MR_STAR.LocalHeight()-W_MR_STAR_Offset );
             // Store a21[MR,* ]
             const int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
-            std::memcpy
+            MemCopy
             ( APan_MR_STAR.LocalBuffer(APan_MR_STAR_Offset,A00.Width()),
               a21_MR_STAR.LocalBuffer(),
-              (APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset)*sizeof(C) );
+              APan_MR_STAR.LocalHeight()-APan_MR_STAR_Offset );
 
             // Update the portion of A22 that is in our current panel with 
             // w21Last and a21Last using two gers. We do not need their top 
@@ -1261,34 +1226,28 @@ internal::HermitianPanelTridiagL
             const int q21LocalHeight = q21_MR_STAR.LocalHeight();
             std::vector<C> colSumSendBuffer(2*x01LocalHeight+q21LocalHeight);
             std::vector<C> colSumRecvBuffer(2*x01LocalHeight+q21LocalHeight);
-            std::memcpy
+            MemCopy
             ( &colSumSendBuffer[0], 
-              x01_MR_STAR.LocalBuffer(), 
-              x01LocalHeight*sizeof(C) );
-            std::memcpy
+              x01_MR_STAR.LocalBuffer(), x01LocalHeight );
+            MemCopy
             ( &colSumSendBuffer[x01LocalHeight],
-              y01_MR_STAR.LocalBuffer(), 
-              x01LocalHeight*sizeof(C) );
-            std::memcpy
+              y01_MR_STAR.LocalBuffer(), x01LocalHeight );
+            MemCopy
             ( &colSumSendBuffer[2*x01LocalHeight],
-              q21_MR_STAR.LocalBuffer(), 
-              q21LocalHeight*sizeof(C) );
+              q21_MR_STAR.LocalBuffer(), q21LocalHeight );
             mpi::AllReduce
             ( &colSumSendBuffer[0], 
               &colSumRecvBuffer[0],
               2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.ColComm() );
-            std::memcpy
+            MemCopy
             ( x01_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[0], 
-              x01LocalHeight*sizeof(C) );
-            std::memcpy
+              &colSumRecvBuffer[0], x01LocalHeight );
+            MemCopy
             ( y01_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[x01LocalHeight], 
-              x01LocalHeight*sizeof(C) );
-            std::memcpy
+              &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
+            MemCopy
             ( q21_MR_STAR.LocalBuffer(), 
-              &colSumRecvBuffer[2*x01LocalHeight], 
-              q21LocalHeight*sizeof(C) );
+              &colSumRecvBuffer[2*x01LocalHeight], q21LocalHeight );
         }
 
         Gemv
@@ -1312,10 +1271,9 @@ internal::HermitianPanelTridiagL
             std::vector<C> reduceToOneRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
-            std::memcpy
+            MemCopy
             ( &reduceToOneSendBuffer[0], 
-              p21_MC_STAR.LocalBuffer(),
-              localHeight*sizeof(C) );
+              p21_MC_STAR.LocalBuffer(), localHeight );
 
             // Fill in contributions to q21[MC,MR] from q21[MR,* ]
             const bool contributing = 
@@ -1325,17 +1283,14 @@ internal::HermitianPanelTridiagL
             {
                 if( r == c )
                 {
-                    std::memcpy
+                    MemCopy
                     ( &reduceToOneSendBuffer[localHeight],
-                      q21_MR_STAR.LocalBuffer(), 
-                      localHeight*sizeof(C) );
+                      q21_MR_STAR.LocalBuffer(), localHeight );
                 }
                 else
                 {
                     // Zero the entire buffer first
-                    std::memset
-                    ( &reduceToOneSendBuffer[localHeight], 0,
-                      localHeight*sizeof(C) );
+                    MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
                     // Fill in the entries that we contribute to.
                     // We seek to find the minimum s in N such that
                     //   s*c = a0-b0 (mod r)
@@ -1373,9 +1328,7 @@ internal::HermitianPanelTridiagL
             }
             else
             {
-                std::memset
-                ( &reduceToOneSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(C) );
+                MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
             }
 
             const int nextProcessRow = (alpha11.ColAlignment()+1) % r;
@@ -1428,10 +1381,9 @@ internal::HermitianPanelTridiagL
             std::vector<C> allReduceRecvBuffer(2*localHeight);
 
             // Pack p21[MC,* ]
-            std::memcpy
+            MemCopy
             ( &allReduceSendBuffer[0], 
-              p21_MC_STAR.LocalBuffer(),
-              localHeight*sizeof(C) );
+              p21_MC_STAR.LocalBuffer(), localHeight );
 
             // Fill in contributions to q21[MC,* ] from q21[MR,* ]
             const bool contributing = 
@@ -1441,17 +1393,14 @@ internal::HermitianPanelTridiagL
             {
                 if( r == c )
                 {
-                    std::memcpy
+                    MemCopy
                     ( &allReduceSendBuffer[localHeight],
-                      q21_MR_STAR.LocalBuffer(), 
-                      localHeight*sizeof(C) );
+                      q21_MR_STAR.LocalBuffer(), localHeight );
                 }
                 else
                 {
                     // Zero the entire buffer first
-                    std::memset
-                    ( &allReduceSendBuffer[localHeight], 0, 
-                      localHeight*sizeof(C) );
+                    MemZero( &allReduceSendBuffer[localHeight], localHeight );
                     // Fill in the entries that we contribute to.
                     // We seek to find the minimum s in N such that
                     //   s*c = a0-b0 (mod r)
@@ -1489,9 +1438,7 @@ internal::HermitianPanelTridiagL
             }
             else
             {
-                std::memset
-                ( &allReduceSendBuffer[localHeight], 0, 
-                  localHeight*sizeof(C) );
+                MemZero( &allReduceSendBuffer[localHeight], localHeight );
             }
 
             mpi::AllReduce

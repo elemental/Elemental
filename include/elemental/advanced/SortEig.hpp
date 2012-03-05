@@ -110,9 +110,9 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
     for( int j=0; j<k; ++j )
     {
         const int source = pairs[j].index;
-        std::memcpy
-        ( ZPerm_VC_STAR.LocalBuffer(0,j), Z_VC_STAR.LockedLocalBuffer(0,source),
-          mLocal*sizeof(R) );
+        MemCopy
+        ( ZPerm_VC_STAR.LocalBuffer(0,j), 
+          Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
         w_STAR_STAR.SetLocalEntry(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();
@@ -156,9 +156,9 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
     for( int j=0; j<k; ++j )
     {
         const int source = pairs[j].index;
-        std::memcpy
-        ( ZPerm_VC_STAR.LocalBuffer(0,j), Z_VC_STAR.LockedLocalBuffer(0,source),
-          mLocal*sizeof(Complex<R>) );
+        MemCopy
+        ( ZPerm_VC_STAR.LocalBuffer(0,j), 
+          Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
         w_STAR_STAR.SetLocalEntry(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();

@@ -88,6 +88,16 @@ void SetBlocksize( int blocksize );
 void PushBlocksizeStack( int blocksize );
 void PopBlocksizeStack();
 
+// Replacement for std::memcpy, which is known to often be suboptimal.
+// Notice the sizeof(T) is no longer required.
+template<typename T>
+void MemCopy( T* dest, const T* source, std::size_t numEntries );
+
+// Replacement for std::memset, which is likely suboptimal and hard to extend
+// to non-POD datatypes. Notice that sizeof(T) is no longer required.
+template<typename T>
+void MemZero( T* buffer, std::size_t numEntries );
+
 // Euclidean (l_2) magnitudes
 template<typename R>
 R Abs( const R& alpha );
@@ -189,6 +199,22 @@ struct NullStream : std::ostream
 //
 
 namespace elem {
+
+template<typename T>
+inline void 
+MemCopy( T* dest, const T* source, std::size_t numEntries )
+{
+    // This can be optimized/generalized later
+    std::memcpy( dest, source, numEntries*sizeof(T) );
+}
+
+template<typename T>
+inline void 
+MemZero( T* buffer, std::size_t numEntries )
+{
+    // This can be optimized/generalized later
+    std::memset( buffer, 0, numEntries*sizeof(T) );
+}
 
 template<typename R>
 inline R 

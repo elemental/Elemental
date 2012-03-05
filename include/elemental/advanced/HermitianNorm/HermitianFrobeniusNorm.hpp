@@ -184,6 +184,7 @@ internal::HermitianFrobeniusNorm
                         else
                             localScaledSquare = 
                                 localScaledSquare*relScale*relScale + 1;
+                        localScale = alphaAbs;
                     }
                 }
             }
@@ -219,6 +220,7 @@ internal::HermitianFrobeniusNorm
                         else
                             localScaledSquare =
                                 localScaledSquare*relScale*relScale + 1; 
+                        localScale = alphaAbs;
                     }
                 }
             }

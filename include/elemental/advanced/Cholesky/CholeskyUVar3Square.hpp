@@ -132,9 +132,9 @@ internal::CholeskyUVar3Square( DistMatrix<F,MC,MR>& A )
             if( onDiagonal )
             {
                 const int size = A11.Height()*A22.LocalWidth();
-                std::memcpy
-                ( A12_STAR_MC.LocalBuffer(), A12_STAR_MR.LocalBuffer(),
-                  size*sizeof(F) );
+                MemCopy
+                ( A12_STAR_MC.LocalBuffer(), 
+                  A12_STAR_MR.LocalBuffer(), size );
             }
             else
             {
