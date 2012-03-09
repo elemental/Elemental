@@ -39,13 +39,6 @@ namespace blas {
 // Level 1 BLAS                                                               //
 //----------------------------------------------------------------------------//
 void Axpy
-( int n, int alpha, const int* x, int incx, int* y, int incy )
-{
-    for( int i=0; i<n; ++i )
-        y[i*incy] += alpha*x[i*incx];
-}
-
-void Axpy
 ( int n, float alpha, const float* x, int incx, float* y, int incy )
 { BLAS(saxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
