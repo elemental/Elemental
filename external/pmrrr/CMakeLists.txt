@@ -205,7 +205,7 @@ if(MISSING_LAPACK)
     file(
       GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f"
     )
-    add_library(lapack-addons STATIC ${LAPACK_ADDON_SRC})
+    add_library(lapack-addons ${LIBRARY_TYPE} ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
   else(CMAKE_Fortran_COMPILER_WORKS)
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
@@ -260,13 +260,13 @@ set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
 # Define the main library and its link libraries
 if(MISSING_LAPACK)
-  add_library(pmrrr STATIC ${PMRRR_SRC})
+  add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
   target_link_libraries(
     pmrrr lapack-addons ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
   )
   install(TARGETS pmrrr lapack-addons DESTINATION lib)
 else(MISSING_LAPACK)
-  add_library(pmrrr STATIC ${PMRRR_SRC})
+  add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
   target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   install(TARGETS pmrrr DESTINATION lib)
 endif(MISSING_LAPACK)

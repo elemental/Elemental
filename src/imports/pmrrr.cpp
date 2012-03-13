@@ -32,6 +32,8 @@
 */
 #include "elemental/core/environment.hpp"
 
+#ifndef WITHOUT_PMRRR
+
 extern "C" {
 
 int PMRRR
@@ -315,3 +317,5 @@ Info Eig
 
 } // namespace pmrrr
 } // namespace elem
+
+#endif // WITHOUT_PMRRR

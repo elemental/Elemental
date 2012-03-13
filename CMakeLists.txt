@@ -41,6 +41,13 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
 endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
 
+option(SHARED_LIBRARIES "Build shared libraries instead of static" OFF)
+if(SHARED_LIBRARIES)
+  set(LIBRARY_TYPE SHARED)
+else(SHARED_LIBRARIES)
+  set(LIBRARY_TYPE STATIC)
+endif(SHARED_LIBRARIES)
+
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build a collection of test executables" OFF)
 option(BUILD_EXPERIMENTAL "Build experimental code" OFF)
@@ -464,13 +471,13 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
-add_library(cmake-dummy-lib STATIC cmake/CMakeDummyFunction.cpp)
+add_library(cmake-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
 target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 
 # The main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  add_library(elemental STATIC ${ELEMENTAL_SRC})
-  target_link_libraries(elemental pmrrr plcg)
+  add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
+  target_link_libraries(elemental pmrrr plcg cmake-dummy-lib)
   if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
   elseif(MPI_CXX_LINK_FLAGS)
@@ -479,8 +486,8 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
   endif(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
 else(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  add_library(elemental STATIC ${ELEMENTAL_SRC})
-  target_link_libraries(elemental plcg)
+  add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
+  target_link_libraries(elemental plcg cmake-dummy-lib)
   set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
 endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 install(TARGETS elemental DESTINATION lib)
@@ -523,7 +530,7 @@ if(BUILD_TESTS)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/core")
   foreach(TEST ${CORE_TESTS})
     add_executable(tests-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
-    target_link_libraries(tests-core-${TEST} elemental cmake-dummy-lib)
+    target_link_libraries(tests-core-${TEST} elemental)
     set_target_properties(tests-core-${TEST} PROPERTIES
                           OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -537,7 +544,7 @@ if(BUILD_TESTS)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/basic")
   foreach(TEST ${BASIC_TESTS})
     add_executable(tests-basic-${TEST} ${TEST_DIR}/basic/${TEST}.cpp)
-    target_link_libraries(tests-basic-${TEST} elemental cmake-dummy-lib)
+    target_link_libraries(tests-basic-${TEST} elemental)
     set_target_properties(tests-basic-${TEST} PROPERTIES
                           OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -551,7 +558,7 @@ if(BUILD_TESTS)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/advanced")
   foreach(TEST ${ADVANCED_TESTS})
     add_executable(tests-advanced-${TEST} ${TEST_DIR}/advanced/${TEST}.cpp)
-    target_link_libraries(tests-advanced-${TEST} elemental cmake-dummy-lib)
+    target_link_libraries(tests-advanced-${TEST} elemental)
     set_target_properties(tests-advanced-${TEST} PROPERTIES
                           OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -584,7 +591,7 @@ if(BUILD_EXAMPLES)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/core")
   foreach(EXAMPLE ${CORE_EXAMPLES})
     add_executable(examples-core-${EXAMPLE} ${EXAMPLE_DIR}/core/${EXAMPLE}.cpp)
-    target_link_libraries(examples-core-${EXAMPLE} elemental cmake-dummy-lib)
+    target_link_libraries(examples-core-${EXAMPLE} elemental)
     set_target_properties(examples-core-${EXAMPLE} PROPERTIES 
                           OUTPUT_NAME ${EXAMPLE} 
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -600,8 +607,7 @@ if(BUILD_EXAMPLES)
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})
     add_executable(examples-advanced-${EXAMPLE} 
                    ${EXAMPLE_DIR}/advanced/${EXAMPLE}.cpp)
-    target_link_libraries(examples-advanced-${EXAMPLE} 
-                          elemental cmake-dummy-lib)
+    target_link_libraries(examples-advanced-${EXAMPLE} elemental)
     set_target_properties(examples-advanced-${EXAMPLE} PROPERTIES
                           OUTPUT_NAME ${EXAMPLE}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -630,15 +636,14 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   # Build the experimental C interface
   file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
        "experimental/c_interface/c_interface.cpp")
-  add_library(experimental-c-interface STATIC ${EXPERIMENTAL_C_CPP})
+  add_library(experimental-c-interface ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
 
   add_executable(
       experimental-c-interface-test
       ${EXPERIMENTAL_DIR}/c_interface/test.c
   )
   target_link_libraries(
-      experimental-c-interface-test experimental-c-interface 
-      elemental cmake-dummy-lib
+      experimental-c-interface-test experimental-c-interface elemental
   )
   set_target_properties(
       experimental-c-interface-test PROPERTIES OUTPUT_NAME c_interface_test
@@ -697,15 +702,14 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     # Build the experimental F90 interface
     file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
          "experimental/f90_interface/f90_interface.cpp")
-    add_library(experimental-f90-interface STATIC ${EXPERIMENTAL_F90_CPP})
+    add_library(experimental-f90-interface ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
 
     add_executable(
         experimental-f90-interface-test
         ${EXPERIMENTAL_DIR}/f90_interface/test.f90
     )
     target_link_libraries(
-        experimental-f90-interface-test experimental-f90-interface 
-        elemental cmake-dummy-lib
+        experimental-f90-interface-test experimental-f90-interface elemental
     )
     set_target_properties(
         experimental-f90-interface-test 
