@@ -388,7 +388,7 @@ check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
 # Look for MPI_Reduce_scatter_block (and MPI_Reduce_scatter as sanity check)
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
-set(CMAKE_REQUIRED_INCLUDE ${MPI_C_INCLUDE_PATH})
+set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
 check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
@@ -666,7 +666,21 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
     endif(NOT MPI_Fortran_FOUND)
 
-    check_function_exists(MPI_Comm_f2c HAVE_MPI_COMM_F2C)
+    # We cannot simply use check_function_exists, since MPI_Comm_f2c is 
+    # a macro in some MPI implementations
+    set(MPI_COMM_F2C_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Fint fint;
+         MPI_Comm comm = MPI_Comm_f2c( fint );
+         MPI_Finalize();
+         return 0;
+     }
+    ")
+    include(CheckCSourceCompiles)
+    check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
     if(NOT HAVE_MPI_COMM_F2C)  
       message(WARNING 
         "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
