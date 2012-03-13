@@ -665,6 +665,13 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     if(NOT MPI_Fortran_FOUND)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
     endif(NOT MPI_Fortran_FOUND)
+
+    check_function_exists(MPI_Comm_f2c HAVE_MPI_COMM_F2C)
+    if(NOT HAVE_MPI_COMM_F2C)  
+      message(WARNING 
+        "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
+    endif(NOT HAVE_MPI_COMM_F2C)
+
     include_directories(${MPI_Fortran_INCLUDE_PATH})
     set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
     set(CMAKE_Fortran_FLAGS_HYBRIDRELEASE "${MPI_Fortran_COMPILE_FLAGS}")

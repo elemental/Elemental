@@ -140,10 +140,11 @@ void FC_GLOBAL_(set_col_major_tridiag_subgrid,NAME)()
 // Process grid management
 //
 
-void FC_GLOBAL_(create_grid,NAME)( MPI_Comm* comm, int* gridHandle )
+void FC_GLOBAL_(create_grid,NAME)( MPI_Fint* fComm, int* gridHandle )
 {
+    MPI_Comm comm = MPI_Comm_f2c( *fComm );
     const int index = GetOpenIndex( gridList );
-    gridList[index] = new Grid( *comm );
+    gridList[index] = new Grid( comm );
     *gridHandle = index;
 }
 
