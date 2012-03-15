@@ -1054,7 +1054,53 @@ void Scal( int n, T alpha, T* x, int incx )
 // Level 2 BLAS
 //
 
-// TODO: templated Gemv
+template<typename T>
+void Gemv
+( char trans, int m, int n,
+  T alpha, const T* A, int lda, const T* x, int incx,
+  T beta,        T* y, int incy )
+{
+    if( trans == 'N' )
+    {
+        if( m > 0 && n == 0 && beta == 0 )
+        {
+            for( int i=0; i<m; ++i )
+                y[i*incy] = 0;   
+            return;
+        }
+        Scal( m, beta, y, incy );
+        for( int i=0; i<m; ++i ) 
+            for( int j=0; j<n; ++j )
+                y[i*incy] += alpha*A[i+j*lda]*x[j*incx];
+    }
+    else if( trans == 'T' ) 
+    {
+        if( n > 0 && m == 0 && beta == 0 )
+        {
+            for( int i=0; i<n; ++i )
+                y[i*incy] = 0;   
+            return;
+        }
+        Scal( n, beta, y, incy );
+        for( int i=0; i<n; ++i ) 
+            for( int j=0; j<m; ++j )
+                y[i*incy] += alpha*A[j+i*lda]*x[j*incx];
+    }
+    else
+    {
+        if( n > 0 && m == 0 && beta == 0 )
+        {
+            for( int i=0; i<n; ++i )
+                y[i*incy] = 0;   
+            return;
+        }
+        Scal( n, beta, y, incy );
+        for( int i=0; i<n; ++i ) 
+            for( int j=0; j<m; ++j )
+                y[i*incy] += alpha*Conj(A[j+i*lda])*x[j*incx];
+    }
+}
+
 // TODO: templated Ger
 // TODO: templated Gerc
 // TODO: templated Geru
@@ -1085,149 +1131,91 @@ void Gemm
         return;
     }
 
+    // Scale C
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            C[i+j*ldc] *= beta;
+
     // Naive implementation
     if( transA == 'N' && transB == 'N' )
     {
-        // C := alpha A B + beta C
+        // C := alpha A B + C
         for( int j=0; j<n; ++j )
-        {
             for( int i=0; i<m; ++i )
-            {
-                C[i+j*ldc] *= beta;
                 for( int l=0; l<k; ++l )
-                {
                     C[i+j*ldc] += alpha*A[i+l*lda]*B[l+j*ldb];
-                }
-            }
-        }
     }
     else if( transA == 'N' )
     {
         if( transB == 'T' )
         {
-            // C := alpha A B^T + beta C
+            // C := alpha A B^T + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*A[i+l*lda]*B[j+l*ldb];
-                    }
-                }
-            }
         }
         else
         {
-            // C := alpha A B^H + beta C
+            // C := alpha A B^H + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*A[i+l*lda]*Conj(B[j+l*ldb]);
-                    }
-                }
-            }
         }
     }
     else if( transB == 'N' )
     {
         if( transA == 'T' )
         {
-            // C := alpha A^T B + beta C
+            // C := alpha A^T B + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*A[l+i*lda]*B[l+j*ldb];
-                    }
-                }
-            }
         }
         else
         {
-            // C := alpha A^H B + beta C
+            // C := alpha A^H B + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*Conj(A[l+i*lda])*B[l+j*ldb];
-                    }
-                }
-            }
         }
     }
     else
     {
         if( transA == 'T' && transB == 'T' )
         {
-            // C := alpha A^T B^T + beta C
+            // C := alpha A^T B^T + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*A[l+i*lda]*B[j+l*ldb];
-                    }
-                }
-            }
         }
         else if( transA == 'T' )
         {
-            // C := alpha A^T B^H + beta C
+            // C := alpha A^T B^H + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*A[l+i*lda]*Conj(B[j+l*ldb]);
-                    }
-                }
-            }
         }
         else if( transB == 'T' )
         {
-            // C := alpha A^H B^T + beta C
+            // C := alpha A^H B^T + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*Conj(A[l+i*lda])*B[j+l*ldb];
-                    }
-                }
-            }
         }
         else
         {
-            // C := alpha A^H B^H + beta C
+            // C := alpha A^H B^H + C
             for( int j=0; j<n; ++j )
-            {
                 for( int i=0; i<m; ++i )
-                {
-                    C[i+j*ldc] *= beta;
                     for( int l=0; l<k; ++l )
-                    {
                         C[i+j*ldc] += alpha*Conj(A[l+i*lda])*Conj(B[j+l*ldb]);
-                    }
-                }
-            }
         }
     }
 }
