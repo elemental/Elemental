@@ -579,6 +579,7 @@ if(BUILD_EXAMPLES)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_EXAMPLES HermitianEig 
+                                  HermitianEigFromSequential
                                   ComplexHermitianFunction 
                                   RealHermitianFunction
                                   HermitianPseudoinverse

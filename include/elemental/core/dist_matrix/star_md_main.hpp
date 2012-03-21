@@ -143,7 +143,10 @@ template<typename T,typename Int>
 template<Distribution U,Distribution V>
 inline
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
+  0,(A.Grid.InGrid() && A.Grid().DiagPath()==A.Grid().DiagPath(0) ?
+     A.Grid().DiagPathRank() : 0),
+  0,0,A.Grid())
 {
 #ifndef RELEASE
     PushCallStack("DistMatrix[* ,MD]::DistMatrix");
