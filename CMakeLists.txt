@@ -621,6 +621,30 @@ if(BUILD_EXAMPLES)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
 
+# Build experimental drivers that do not require an eigensolver
+if(BUILD_EXPERIMENTAL)
+  set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
+
+  set(G3D_EXPERS G3DGemm)
+
+  # Build the G3D example(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
+  foreach(EXPER ${G3D_EXPERS})
+    add_executable(experimental-g3d-${EXPER} 
+                   ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
+    target_link_libraries(experimental-g3d-${EXPER} elemental)
+    set_target_properties(experimental-g3d-${EXPER} PROPERTIES 
+                          OUTPUT_NAME ${EXPER} 
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    if(MPI_LINK_FLAGS)
+      set_target_properties(experimental-g3d-${EXPER} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
+    install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
+  endforeach(EXPER)
+endif(BUILD_EXPERIMENTAL)
+
+# Build experimental drivers that DO require an eigensolver
 if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
