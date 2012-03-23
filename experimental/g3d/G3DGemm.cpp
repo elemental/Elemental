@@ -146,9 +146,10 @@ void DistributeCols
   const DistMatrix<double,MC,MR>& A, 
         DistMatrix<double,MC,MR>& B )
 {
-    const int depthSize = mpi::CommSize( depthComm );
     const Grid& meshGrid = A.Grid();
     const int meshSize = meshGrid.Size();
+    const int depthSize = mpi::CommSize( depthComm );
+    const int depthRank = mpi::CommRank( depthComm );
 
     const int sendCount = A.LocalHeight()*A.LocalWidth();
     const int recvCount = sendCount / depthSize;
@@ -163,7 +164,7 @@ void DistributeCols
     B.SetToZero();
 
     // Scatter
-    const int localColOffset = A.LocalWidth() / depthSize;
+    const int localColOffset = (A.LocalWidth()/depthSize)*depthRank;
     mpi::Scatter
     ( A.LockedLocalBuffer(), recvCount, 
       B.LocalBuffer(0,localColOffset), recvCount, 0, depthComm );
