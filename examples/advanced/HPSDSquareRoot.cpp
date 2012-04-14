@@ -61,7 +61,7 @@ main( int argc, char* argv[] )
         A.Print("A");
 
         // Replace A with its matrix square root
-        SquareRoot( LOWER, A );
+        HPSDSquareRoot( LOWER, A );
 
         // Print the pseudoinverse
         A.Print("sqrt(A)");

@@ -62,10 +62,10 @@ public:
 
 template<typename R>
 inline void
-SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HPSDSquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    PushCallStack("HPSDSquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -109,10 +109,10 @@ SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-SquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
+HPSDSquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    PushCallStack("HPSDSquareRoot");
 #endif
     // Get the EVD of A
     const Grid& g = A.Grid();

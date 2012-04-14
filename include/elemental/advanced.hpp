@@ -643,10 +643,10 @@ void HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A );
 
 #ifndef WITHOUT_PMRRR
 template<typename R>
-void SquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
+void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A );
 
 template<typename R>
-void SquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A );
+void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A );
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -1074,6 +1074,7 @@ void TriangularInverse
 #include "./advanced/HouseholderSolve.hpp"
 #include "./advanced/HPDInverse.hpp"
 #include "./advanced/HPSDCholesky.hpp"
+#include "./advanced/HPSDSquareRoot.hpp"
 #include "./advanced/Inverse.hpp"
 #include "./advanced/LDL.hpp"
 #include "./advanced/LQ.hpp"
@@ -1084,7 +1085,6 @@ void TriangularInverse
 #include "./advanced/Reflector.hpp"
 #include "./advanced/SkewHermitianEig.hpp"
 #include "./advanced/SortEig.hpp"
-#include "./advanced/SquareRoot.hpp"
 #include "./advanced/Trace.hpp"
 #include "./advanced/TriangularInverse.hpp"
 

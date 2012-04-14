@@ -72,7 +72,7 @@ All files distributed with Elemental are made available under the
 `New BSD license <http://www.opensource.org/licenses/bsd-license.php>`_.
 The vast majority of source files contain the following copyright notice::
 
-    Copyright (c) 2009-2011, Jack Poulson
+    Copyright (c) 2009-2012, Jack Poulson
     All rights reserved.
 
     This file is part of Elemental.

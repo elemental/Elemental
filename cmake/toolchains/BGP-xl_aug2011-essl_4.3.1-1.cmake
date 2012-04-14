@@ -10,9 +10,9 @@ set(MPI_C_COMPILER   /bgsys/drivers/ppcfloor/comm/bin/mpixlc_r)
 set(MPI_CXX_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlcxx_r)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
-set(CXX_PURE_RELEASE_FLAGS "-g -O4")
+set(CXX_PURE_RELEASE_FLAGS "-g -O3")
 set(CXX_HYBRID_DEBUG_FLAGS "-g")
-set(CXX_HYBRID_RELEASE_FLAGS "-g -O4")
+set(CXX_HYBRID_RELEASE_FLAGS "-g -O3")
 
 set(CMAKE_THREAD_LIBS_INIT "-qthreaded")
 set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")

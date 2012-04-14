@@ -112,7 +112,7 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 #ifndef RELEASE
     PushCallStack("HPSDCholesky");
 #endif
-    SquareRoot( uplo, A );
+    HPSDSquareRoot( uplo, A );
     hpsd_cholesky::MakeExplicitlyHermitian( uplo, A );
 
     if( uplo == LOWER )
@@ -137,7 +137,7 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
 #ifndef RELEASE
     PushCallStack("HPSDCholesky");
 #endif
-    SquareRoot( uplo, A );
+    HPSDSquareRoot( uplo, A );
     hpsd_cholesky::MakeExplicitlyHermitian( uplo, A );
 
     const Grid& g = A.Grid();
