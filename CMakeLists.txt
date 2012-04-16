@@ -36,40 +36,56 @@ project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
 set(Elemental_VERSION_MINOR 74)
 
-# Complain if an in-source build was attempted
-if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
-  message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
-endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+################################################################################
+# Common build options                                                         #
+################################################################################
 
-option(SHARED_LIBRARIES "Build shared libraries instead of static" OFF)
-if(SHARED_LIBRARIES)
-  set(LIBRARY_TYPE SHARED)
-else(SHARED_LIBRARIES)
-  set(LIBRARY_TYPE STATIC)
-endif(SHARED_LIBRARIES)
+# By default, Elemental builds static libraries, but shared libraries are 
+# also supported through this option.
+option(SHARED_LIBRARIES "Switch to shared libraries" OFF)
 
-option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_TESTS "Build a collection of test executables" OFF)
+# Whether or not to build a collection of simple example drivers.
+option(BUILD_EXAMPLES "A collection of simple examples" ON)
+
+# Whether or not to build a collection of performance and correctness tests
+option(BUILD_TESTS "A collection of performance and correctness tests" OFF)
+
+# Whether or not to build current 'experimental' code, such as:
+# 1) prototype C and F90 interfaces
+# 2) Martin's 3D Gemm code
 option(BUILD_EXPERIMENTAL "Build experimental code" OFF)
 
-# Do not attempt to build PMRRR if on a Windows platform (it requires pthreads)
+# Petschow and Bientinesi's Parallel Multiple Relatively Robust 
+# Representations (PMRRR) is used at the heart of all of Elemental's current 
+# eigensolvers. Since it makes use of pthreads, Windows builds cannot use 
+# PMRRR.
 if(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
 else(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
 endif(WIN32)
 
-# Bugs in the complex version of MPI routines are quite common
-option(AVOID_COMPLEX_MPI "Avoid complex MPI routines for robustness" ON)
+################################################################################
+# Advanced build options                                                       #
+################################################################################
 
-# Bug fix for IBM's compiler miscompiling OpenMP a[i] += alpha b[i] statements
-# for complex datatypes
+# Since MPI libraries frequently mishandle complex data, Elemental defaults
+# to using routines designed for real datatypes whenever it does not result
+# in a significant performance loss.
+option(AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" ON)
+mark_as_advanced(AVOID_COMPLEX_MPI)
+
+# At one point, a bug was found in IBM's C++ compiler for Blue Gene/P, 
+# where OpenMP statements of the form a[i] += alpha b[i], with complex data,
+# would segfault and/or return incorrect results
 option(AVOID_OMP_FMA "Avoid a bug in the IBM compilers." ON)
 mark_as_advanced(AVOID_OMP_FMA)
 
-# Treat the data for MPI_Allgather as unsigned char's in order to avoid known 
-# performance bugs
-option(USE_BYTE_ALLGATHERS "Avoid BG/P Allgather performance bug." ON)
+# Due to a subtle flaw in the Blue Gene/P extensions for MPICH2, treating 
+# floating-point data as a collection of byte-sized objects results in a 
+# better algorithm being chosen for MPI_Allgather. This should not effect
+# performance on most machines.
+option(USE_BYTE_ALLGATHERS "Avoid BG/P allgather performance bug." ON)
 mark_as_advanced(USE_BYTE_ALLGATHERS)
 
 # If MPI_Reduce_scatter_block doesn't exist, perform it by composing 
@@ -82,13 +98,70 @@ mark_as_advanced(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE)
 option(POOL_MEMORY "Make Memory class accumulate memory until destruction" OFF)
 mark_as_advanced(POOL_MEMORY)
 
-# These are mainly useful for library developers
+################################################################################
+# Elemental-development build options                                          #
+################################################################################
+
+# Print a warning any time a redistribution is performed which unpacks a 
+# large amount of data with a non-unit stride
 option(CACHE_WARNINGS "Warns when using cache-unfriendly routines" OFF)
-option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions" OFF)
-option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
 mark_as_advanced(CACHE_WARNINGS)
+
+# Print a warning when an improperly aligned redistribution is performed, 
+# i.e., if an unnecessary permutation communication stage must take place
+option(UNALIGNED_WARNINGS "Warn when performing unaligned redistributions" OFF)
 mark_as_advanced(UNALIGNED_WARNINGS)
-mark_as_advanced(VECTOR_WARNINGS)
+
+# Print a warning if an opportunity was missed to implement a redistribution
+# approach specifically for vectors (instead of matrices)
+option(VECTOR_WARNINGS "Warn when vector redistribution chances are missed" OFF)
+mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
+
+################################################################################
+# Significant command-line variable definitions                                #
+################################################################################
+
+# "CMAKE_BUILD_TYPE"
+#   Elemental requires it to be one of the following choices:
+#     1. "PureDebug": Vanilla MPI build meant for development and debugging
+#     2. "PureRelease": Vanilla MPI build meant for production runs
+#     3. "HybridDebug": MPI+OpenMP build meant for development and debugging
+#     4. "HybridRelease": MPI+OpenMP build meant for production runs
+#   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
+
+# "CXX_PURE_DEBUG_FLAGS"/"CXX_PURE_RELEASE_FLAGS"/
+# "CXX_HYBRID_DEBUG_FLAGS"/"CXX_HYBRID_RELEASE_FLAGS"
+#   Override the default optimization (and debugging/symbol) flags
+
+# "OpenMP_CXX_FLAGS"
+#   Overrides the default compile flags for adding OpenMP support to CXX code
+
+# TODO: Add list of MPI variables here, such as "MPI_CXX_COMPILE_FLAGS"
+
+# TODO: Add list of MKL-specific optional variables, "INTEL_ROOT" and "MKL_ROOT"
+
+# TODO: Add discussion of "MATH_LIBS"
+
+# TODO: Add discussion of "REFERENCE_ROOT"
+
+# TODO: Check to see if there are any others...
+
+################################################################################
+# The build logic starts here                                                  #
+################################################################################
+
+# Elemental must be built "out-of-source", so we start by ensuring that the
+# source and build directories are different.
+if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+  message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
+endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+
+# Set the library type from the 'SHARED_LIBRARIES' option
+if(SHARED_LIBRARIES)
+  set(LIBRARY_TYPE SHARED)
+else(SHARED_LIBRARIES)
+  set(LIBRARY_TYPE STATIC)
+endif(SHARED_LIBRARIES)
 
 # Ensure that we have a valid build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -749,7 +822,9 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   endif(HAVE_F90_INTERFACE)
 endif(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
-# Simplify the inclusion of Elemental as a subproject in another build system
+################################################################################
+# Uncomment if including Elemental as a subproject in another build system     #
+################################################################################
 #set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
 #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
 #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)

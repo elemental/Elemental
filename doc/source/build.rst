@@ -255,7 +255,10 @@ straightforward: simply put an entire copy of the Elemental source tree in a
 subdirectory of your main project folder, say ``external/elemental``, and uncomment
 out the bottom section of Elemental's ``CMakeLists.txt``, i.e., change ::
 
-    # Simplify the inclusion of Elemental as a subproject in another build system
+    ################################################################################
+    # Uncomment if including Elemental as a subproject in another build system     #
+    ################################################################################
+    #set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
     #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
     #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
     #set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
@@ -280,7 +283,9 @@ out the bottom section of Elemental's ``CMakeLists.txt``, i.e., change ::
 
 to ::
 
-    # Simplify the inclusion of Elemental as a subproject in another build system
+    ################################################################################
+    # Uncomment if including Elemental as a subproject in another build system     #
+    ################################################################################
     set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
     set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
     set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
