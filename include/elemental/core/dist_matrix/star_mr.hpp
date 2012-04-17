@@ -142,27 +142,20 @@ public:
     virtual void Set( Int i, Int j, T alpha );
     virtual void Update( Int i, Int j, T alpha );
 
-    virtual void MakeTrapezoidal
-    ( LeftOrRight side, UpperOrLower uplo, Int offset=0 );
-
-    virtual void ScaleTrapezoid
-    ( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset=0 );
-
     virtual void ResizeTo( Int height, Int width );
-    virtual void SetToIdentity();
-    virtual void SetToRandom();
-    virtual void SetToRandomHermitian();
-    virtual void SetToRandomHPD();
 
     //
-    // Routines that are only valid for complex datatypes
+    // Though the following routines are meant for complex data, all but two
+    // logically applies to real data.
     //
 
     virtual typename Base<T>::type GetReal( Int i, Int j ) const;
     virtual typename Base<T>::type GetImag( Int i, Int j ) const;
     virtual void SetReal( Int i, Int j, typename Base<T>::type u );
+    // Only valid for complex data
     virtual void SetImag( Int i, Int j, typename Base<T>::type u );
     virtual void UpdateReal( Int i, Int j, typename Base<T>::type u );
+    // Only valid for complex data
     virtual void UpdateImag( Int i, Int j, typename Base<T>::type u );
 
     //------------------------------------------------------------------------//
@@ -311,121 +304,10 @@ public:
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
-
-    // The remainder of this class definition makes use of an idiom that allows
-    // for implementing certain routines for (potentially) only complex 
-    // datatypes.
-
-    template<typename Z>
-    struct SetToRandomHermitianHelper
-    {
-        static void Func( DistMatrix<Z,STAR,MR,Int>& parent );
-    };
-    template<typename Z>
-    struct SetToRandomHermitianHelper<Complex<Z> >
-    {
-        static void Func( DistMatrix<Complex<Z>,STAR,MR,Int>& parent );
-    };
-    template<typename Z> friend struct SetToRandomHermitianHelper;
-
-    template<typename Z>
-    struct SetToRandomHPDHelper
-    {
-        static void Func( DistMatrix<Z,STAR,MR,Int>& parent );
-    };
-    template<typename Z>
-    struct SetToRandomHPDHelper<Complex<Z> >
-    {
-        static void Func( DistMatrix<Complex<Z>,STAR,MR,Int>& parent );
-    };
-    template<typename Z> friend struct SetToRandomHPDHelper;
-
-    template<typename Z>
-    struct GetRealHelper
-    {
-        static Z Func( const DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j );
-    };
-    template<typename Z>
-    struct GetRealHelper<Complex<Z> >
-    {
-        static Z Func
-        ( const DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
-    };
-    template<typename Z> friend struct GetRealHelper;
-
-    template<typename Z>
-    struct GetImagHelper
-    {
-        static Z Func( const DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j );
-    };
-    template<typename Z>
-    struct GetImagHelper<Complex<Z> >
-    {
-        static Z Func
-        ( const DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j );
-    };
-    template<typename Z> friend struct GetImagHelper;
-
-    template<typename Z>
-    struct SetRealHelper
-    {
-        static void Func
-        ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct SetRealHelper<Complex<Z> >
-    {
-        static void Func
-        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct SetRealHelper;
-
-    template<typename Z>
-    struct SetImagHelper
-    {
-        static void Func
-        ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct SetImagHelper<Complex<Z> >
-    {
-        static void Func
-        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct SetImagHelper;
-
-    template<typename Z>
-    struct UpdateRealHelper
-    {
-        static void Func
-        ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct UpdateRealHelper<Complex<Z> >
-    {
-        static void Func
-        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct UpdateRealHelper;
-
-    template<typename Z>
-    struct UpdateImagHelper
-    {
-        static void Func
-        ( DistMatrix<Z,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct UpdateImagHelper<Complex<Z> >
-    {
-        static void Func
-        ( DistMatrix<Complex<Z>,STAR,MR,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct UpdateImagHelper;
 };
 
 } // namespace elem
 
 #include "./star_mr_main.hpp"
-#include "./star_mr_helpers.hpp"
 
 #endif /* ELEMENTAL_DIST_MATRIX_STAR_MR_HPP */

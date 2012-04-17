@@ -79,7 +79,7 @@ internal::Syr2kUT
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, UPPER );
+    ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );

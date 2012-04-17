@@ -314,7 +314,7 @@ SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z );
@@ -346,7 +346,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
@@ -376,7 +376,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
@@ -402,7 +402,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag );
@@ -433,7 +433,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
@@ -462,7 +462,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<double> negativeImagOne(0,-1.);
-    G.ScaleTrapezoid( negativeImagOne, LEFT, uplo );
+    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );

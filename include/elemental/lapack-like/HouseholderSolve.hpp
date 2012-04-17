@@ -81,7 +81,7 @@ HouseholderSolve
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, BT, true );
             // Apply Q' to B (explicitly zero the bottom of B first)
-            BB.SetToZero();
+            Zero( BB );
             ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, B );
         }
     }
@@ -104,7 +104,7 @@ HouseholderSolve
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, BT, true );
             // Apply Q to B (explicitly zero the bottom of B first)
-            BB.SetToZero();
+            Zero( BB );
             ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, B );
         }
         else
@@ -181,7 +181,7 @@ HouseholderSolve
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, BT, true );
             // Apply Q' to B (explicitly zero the bottom of B first)
-            BB.SetToZero();
+            Zero( BB );
             ApplyPackedReflectors
             ( LEFT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, B );
         }
@@ -205,7 +205,7 @@ HouseholderSolve
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, BT, true );
             // Apply Q to B (explicitly zero the bottom of B first)
-            BB.SetToZero();
+            Zero( BB );
             ApplyPackedReflectors
             ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, B );
         }

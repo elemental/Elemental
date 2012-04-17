@@ -91,10 +91,10 @@ internal::ApplyPackedReflectorsRLVB
         Z_VC_STAR.AlignWith( ARight );
         Z_MC_STAR.ResizeTo( ARight.Height(), HPanWidth );
         SInv_STAR_STAR.ResizeTo( HPanWidth, HPanWidth );
-        SInv_STAR_STAR.SetToZero();
+        Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( LEFT, LOWER, offset );
+        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonalToOne( LEFT, offset, HPanCopy );
 
         HPan_VC_STAR = HPanCopy;
@@ -214,10 +214,10 @@ internal::ApplyPackedReflectorsRLVB
         Z_VC_STAR.AlignWith( ARight );
         Z_MC_STAR.ResizeTo( ARight.Height(), HPan.Width() );
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
-        SInv_STAR_STAR.SetToZero();
+        Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( LEFT, LOWER, offset );
+        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonalToOne( LEFT, offset, HPanCopy );
 
         HPan_VC_STAR = HPanCopy;

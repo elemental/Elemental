@@ -891,7 +891,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -923,13 +923,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -963,7 +963,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -997,13 +997,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1037,7 +1037,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1067,13 +1067,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1108,7 +1108,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1143,14 +1143,14 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1184,7 +1184,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1218,13 +1218,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1258,7 +1258,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1294,13 +1294,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1335,7 +1335,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1367,13 +1367,13 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1411,7 +1411,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -1448,14 +1448,14 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1489,7 +1489,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionDown
@@ -1519,13 +1519,13 @@ LocalTrr2kKernel
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1560,7 +1560,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionDown
@@ -1592,13 +1592,13 @@ LocalTrr2kKernel
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1632,7 +1632,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
@@ -1660,13 +1660,13 @@ LocalTrr2kKernel
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1702,7 +1702,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     LockedPartitionRight( C, CL, CR, half );
@@ -1735,14 +1735,14 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1777,7 +1777,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -1812,14 +1812,14 @@ LocalTrr2kKernel
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1857,7 +1857,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -1894,14 +1894,14 @@ LocalTrr2kKernel
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -1937,7 +1937,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -1970,14 +1970,14 @@ LocalTrr2kKernel
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -2013,7 +2013,7 @@ LocalTrr2kKernel
     DistMatrix<T,MC,MR> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
-    E.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, E );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT,
@@ -2051,7 +2051,7 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
 
-    FTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FTL );
     Axpy( (T)1, FTL, ETL );
 
     internal::LocalGemm
@@ -2059,7 +2059,7 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
 
-    FBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, FBR );
     Axpy( (T)1, FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE

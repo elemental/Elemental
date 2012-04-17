@@ -63,8 +63,8 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
-    DistMatrix<R,MC,MR> Z(m,n,g);
-    Z.SetToIdentity();
+    DistMatrix<R,MC,MR> Z(g);
+    Identity( m, n, Z );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Z );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, Z );
 
@@ -72,8 +72,8 @@ void TestCorrectness
     ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<R,MC,MR> X(minDim,minDim,g);
-    X.SetToIdentity();
+    DistMatrix<R,MC,MR> X(g);
+    Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
     Axpy( (R)-1, ZUpper, X );
@@ -95,7 +95,7 @@ void TestCorrectness
 
     // Form Q R
     DistMatrix<R,MC,MR> U( A );
-    U.MakeTrapezoidal( LEFT, UPPER );
+    MakeTrapezoidal( LEFT, UPPER, 0, U );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, U );
 
     // Form Q R - A
@@ -136,8 +136,8 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
-    DistMatrix<C,MC,MR> Z(m,n,g);
-    Z.SetToIdentity();
+    DistMatrix<C,MC,MR> Z(g);
+    Identity( m, n, Z );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
@@ -147,8 +147,8 @@ void TestCorrectness
     ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<C,MC,MR> X(minDim,minDim,g);
-    X.SetToIdentity();
+    DistMatrix<C,MC,MR> X(g);
+    Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
     Axpy( (C)-1, ZUpper, X );
@@ -168,7 +168,7 @@ void TestCorrectness
 
     // Form Q R
     DistMatrix<C,MC,MR> U( A );
-    U.MakeTrapezoidal( LEFT, UPPER );
+    MakeTrapezoidal( LEFT, UPPER, 0, U );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, U );
 
@@ -205,12 +205,9 @@ void TestQR<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(g);
-    DistMatrix<R,MC,MR> AOrig(g);
+    DistMatrix<R,MC,MR> A(g), AOrig(g);
 
-    A.ResizeTo( m, n );
-
-    A.SetToRandom();
+    UniformRandom( m, n, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -257,13 +254,10 @@ void TestQR<Complex<double> >
     typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > A(g);
+    DistMatrix<C,MC,MR  > A(g), AOrig(g);
     DistMatrix<C,MD,STAR> t(g);
-    DistMatrix<C,MC,MR  > AOrig(g);
 
-    A.ResizeTo( m, n );
-
-    A.SetToRandom();
+    UniformRandom( m, n, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

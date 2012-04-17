@@ -119,8 +119,8 @@ internal::HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
         Y01_MR_STAR.ResizeTo( A01.Height(), A01.Width() ); 
         F01_MC_STAR.ResizeTo( A01.Height(), A01.Width() );
-        Y01_MR_STAR.SetToZero();
-        F01_MC_STAR.SetToZero();
+        Zero( Y01_MR_STAR );
+        Zero( F01_MC_STAR );
         internal::LocalSymmetricAccumulateLU
         ( ADJOINT, 
           (F)1, A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
@@ -143,7 +143,7 @@ internal::HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         ( ADJOINT, NORMAL,
           (F)1, A01_MC_STAR, U01, (F)1, X11_STAR_MR );
         X11.SumScatterFrom( X11_STAR_MR );
-        X11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, X11 );
         Axpy( (F)-1, X11, A11 );
 
         // A01 := A01 inv(U11)

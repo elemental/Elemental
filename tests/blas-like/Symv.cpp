@@ -30,7 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
@@ -56,26 +55,19 @@ void TestSymv
   const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> x(g);
-    DistMatrix<T,MC,MR> y(g);
+    DistMatrix<T,MC,MR> A(g), x(g), y(g);
 
-    A.ResizeTo( m, m );
-    x.ResizeTo( m, 1 );
-    y.ResizeTo( m, 1 );
-
-    // Test Symm
-    if( g.Rank() == 0 )
-        cout << "Symm:" << endl;
-    A.SetToRandom();
-    x.SetToRandom();
-    y.SetToRandom();
+    UniformRandom( m, m, A );
+    UniformRandom( m, 1, x );
+    UniformRandom( m, 1, y ); 
     if( printMatrices )
     {
         A.Print("A");
         x.Print("x");
         y.Print("y");
     }
+
+    // Test Symm
     if( g.Rank() == 0 )
     {
         cout << "  Starting Parallel Symv...";

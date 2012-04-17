@@ -117,8 +117,8 @@ internal::HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         L10_STAR_MC.AdjointFrom( L10Adj_VC_STAR );
         Y10Adj_MC_STAR.ResizeTo( A10.Width(), A10.Height() );
         F10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
-        Y10Adj_MC_STAR.SetToZero();
-        F10Adj_MR_STAR.SetToZero();
+        Zero( Y10Adj_MC_STAR );
+        Zero( F10Adj_MR_STAR );
         internal::LocalSymmetricAccumulateRL
         ( ADJOINT,
           (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 
@@ -142,7 +142,7 @@ internal::HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         ( NORMAL, NORMAL,
           (F)1, L10, A10Adj_MR_STAR, (F)1, X11_MC_STAR );
         X11.SumScatterFrom( X11_MC_STAR );
-        X11.MakeTrapezoidal( LEFT, LOWER );
+        MakeTrapezoidal( LEFT, LOWER, 0, X11 );
         Axpy( (F)-1, X11, A11 );
 
         // A10 := inv(L11) A10

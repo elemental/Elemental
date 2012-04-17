@@ -52,8 +52,8 @@ main( int argc, char* argv[] )
             else
                 std::cout << " process.\n" << std::endl;
         }
-        DistMatrix<double> I( n, n );
-        I.SetToIdentity();
+        DistMatrix<double> I;
+        Identity( n, n, I );
         I.Print("Identity");
 
         const double trace = Trace( I );

@@ -103,7 +103,7 @@ internal::TrmmRUTA
             X1AdjOrTrans_MR_STAR.AdjointFrom( X1 );
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
-        Z1AdjOrTrans_MC_STAR.SetToZero();
+        Zero( Z1AdjOrTrans_MC_STAR );
         internal::LocalTrmmAccumulateRUT
         ( orientation, diag, alpha,
           U, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
@@ -310,7 +310,7 @@ internal::LocalTrmmAccumulateRUT
         D11.AlignWith( U11 );
         //--------------------------------------------------------------------//
         D11 = U11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
 

@@ -111,8 +111,8 @@ internal::SymmLUA
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
-        Z1_MC_STAR.SetToZero();
-        Z1_MR_STAR.SetToZero();
+        Zero( Z1_MC_STAR );
+        Zero( Z1_MR_STAR );
         internal::LocalSymmetricAccumulateLU
         ( TRANSPOSE,
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -227,8 +227,8 @@ internal::SymmLUC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
-        AColPan_MC_STAR.MakeTrapezoidal( RIGHT, UPPER );
-        ARowPan_STAR_MC.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( RIGHT, UPPER, 0, AColPan_MC_STAR );
+        MakeTrapezoidal( LEFT,  UPPER, 1, ARowPan_STAR_MC );
 
         B1Trans_MR_STAR.TransposeFrom( B1 );
 

@@ -115,7 +115,7 @@ internal::TrmmLUTA
         Z1_MR_STAR.ResizeTo( X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
-        Z1_MR_STAR.SetToZero();
+        Zero( Z1_MR_STAR );
         internal::LocalTrmmAccumulateLUT
         ( orientation, diag, alpha, U, X1_MC_STAR, Z1_MR_STAR );
 
@@ -333,7 +333,7 @@ internal::LocalTrmmAccumulateLUT
         D11.AlignWith( U11 );
         //--------------------------------------------------------------------//
         D11 = U11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
         internal::LocalGemm

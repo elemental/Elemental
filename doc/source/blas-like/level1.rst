@@ -156,6 +156,28 @@ Returns :math:`x^T y`, which is **not** an inner product.
    The distributed implementation (templated over the datatype and the 
    individual distributions of :math:`x` and :math:`y`).
 
+MakeTrapezoidal
+---------------
+.. note::
+
+   This is not a standard BLAS routine, but it is BLAS-like.
+
+Sets all entries outside of the specified trapezoidal submatrix to zero.
+The diagonal of the trapezoidal matrix is defined relative to either the 
+upper-left or bottom-right corner of the matrix, depending on the 
+value of ``side``; whether or not the trapezoid is upper or lower
+(analogous to an upper or lower-triangular matrix) is determined by the 
+ ``uplo`` parameter, and the last diagonal is defined with the ``offset`` 
+integer.
+
+.. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
+
+   The serial implementation.
+
+.. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A )
+
+   The distributed implementation.
+
 Nrm2
 ----
 Returns :math:`||x||_2 = \sqrt{(x,x)} = \sqrt{x^H x}`. As with most other 
@@ -191,6 +213,23 @@ Scal
    The distributed implementation (templated over the datatype and the 
    distribution of :math:`X`).
 
+ScaleTrapezoid
+--------------
+.. note::
+
+   This is not a standard BLAS routine, but it is BLAS-like.
+
+Scales the entries within the specified trapezoid of a general matrix.
+The parameter conventions follow those of ``MakeTrapezoidal`` described above.
+
+.. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
+
+   The serial implementation.
+
+.. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A )
+
+   The distributed implementation.
+
 Transpose
 ---------
 .. note:: 
@@ -207,4 +246,21 @@ Transpose
 
    The distributed version (templated over the datatype and the individual 
    distributions of :math:`A` and :math:`B`).
+
+Zero
+----
+.. note::
+   
+   This is not a standard BLAS routine, but it is BLAS-like.
+
+Sets all of the entries of the input matrix to zero.
+
+.. cpp:function:: void Zero( Matrix<T>& A )
+
+   The serial implementation.
+
+.. cpp:function:: void Zero( DistMatrix<T,U,V>& A )
+
+   The distributed implementation.
+
 

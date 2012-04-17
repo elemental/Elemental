@@ -110,6 +110,18 @@ Z FastAbs( const Z& alpha );
 template<typename Z>
 Z FastAbs( const Complex<Z>& alpha );
 
+// Return the real part of a real or complex number
+template<typename Z>
+Z Real( const Z& alpha );
+template<typename Z>
+Z Real( const Complex<Z>& alpha );
+
+// Return the imaginary part of a real or complex number
+template<typename Z>
+Z Imag( const Z& alpha );
+template<typename Z>
+Z Imag( const Complex<Z>& alpha );
+
 // Conjugation
 template<typename Z>
 Z Conj( const Z& alpha );
@@ -244,6 +256,26 @@ template<typename Z>
 inline Z
 FastAbs( const Complex<Z>& alpha )
 { return std::abs(alpha.real) + std::abs(alpha.imag); }
+
+template<typename Z>
+inline Z
+Real( const Z& alpha )
+{ return alpha; }
+
+template<typename Z>
+inline Z
+Real( const Complex<Z>& alpha )
+{ return alpha.real; }
+
+template<typename Z>
+inline Z
+Imag( const Z& alpha )
+{ return 0; }
+
+template<typename Z>
+inline Z
+Imag( const Complex<Z>& alpha )
+{ return alpha.imag; }
 
 template<typename Z>
 inline Z

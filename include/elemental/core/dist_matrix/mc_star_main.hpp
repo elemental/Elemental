@@ -1308,203 +1308,8 @@ DistMatrix<T,MC,STAR,Int>::SetDiagonal
 }
 
 //
-// Utility functions, e.g., SetToIdentity and MakeTrapezoidal
+// Utility functions, e.g., SumOverRow
 //
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MC,STAR,Int>::MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, Int offset )
-{
-#ifndef RELEASE
-    PushCallStack("[MC,* ]::MakeTrapezoidal");
-    this->AssertNotLockedView();
-#endif
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int r = this->Grid().Height();
-    const Int colShift = this->ColShift();
-
-    if( this->Grid().InGrid() )
-    {
-        if( uplo == LOWER )
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int lastZeroRow = ( side==LEFT ? j-offset-1
-                                               : j-offset+height-width-1 );
-                if( lastZeroRow >= 0 )
-                {
-                    Int boundary = std::min( lastZeroRow+1, height );
-                    Int numZeroRows = RawLocalLength( boundary, colShift, r );
-                    T* thisCol = &thisLocalBuffer[j*thisLDim];
-                    MemZero( thisCol, numZeroRows );
-                }
-            }
-        }
-        else
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int firstZeroRow = 
-                    ( side==LEFT ? std::max(j-offset+1,0)
-                      : std::max(j-offset+height-width+1,0) );
-                Int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,r);
-                if( numNonzeroRows < localHeight )
-                {
-                    T* thisCol = &thisLocalBuffer[numNonzeroRows+j*thisLDim];
-                    MemZero( thisCol, localHeight-numNonzeroRows );
-                }
-            }
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MC,STAR,Int>::ScaleTrapezoid
-( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset )
-{
-#ifndef RELEASE
-    PushCallStack("[MC,* ]::ScaleTrapezoid");
-    this->AssertNotLockedView();
-#endif
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int r = this->Grid().Height();
-    const Int colShift = this->ColShift();
-
-    if( uplo == UPPER )
-    {
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int j=0; j<width; ++j )
-        {
-            Int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
-            Int boundary = std::min( lastRow+1, height );
-            Int numRows = RawLocalLength( boundary, colShift, r );
-            T* thisCol = &thisLocalBuffer[j*thisLDim];
-            for( Int iLocal=0; iLocal<numRows; ++iLocal )
-                thisCol[iLocal] *= alpha;
-        }
-    }
-    else
-    {
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int j=0; j<width; ++j )
-        {
-            Int firstRow = ( side==LEFT ? std::max(j-offset,0)
-                                        : std::max(j+height-width-offset,0) );
-            Int numZeroRows = RawLocalLength( firstRow, colShift, r );
-            T* thisCol = &thisLocalBuffer[numZeroRows+j*thisLDim];
-            for( Int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
-                thisCol[iLocal] *= alpha;
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void DistMatrix<T,MC,STAR,Int>::SetToIdentity()
-{
-#ifndef RELEASE
-    PushCallStack("[MC,* ]::SetToIdentity");
-    this->AssertNotLockedView();
-#endif
-
-    const Int width = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int r = this->Grid().Height();
-    const Int colShift = this->ColShift();
-
-    this->localMatrix_.SetToZero();
-
-    T* thisLocalBuffer = this->LocalBuffer();
-    const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-    #pragma omp parallel for
-#endif
-    for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-    {
-        const Int i = colShift + iLocal*r;
-        if( i < width )
-            thisLocalBuffer[iLocal+i*thisLDim] = 1;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void DistMatrix<T,MC,STAR,Int>::SetToRandom()
-{
-#ifndef RELEASE
-    PushCallStack("[MC,* ]::SetToRandom");
-    this->AssertNotLockedView();
-#endif
-
-    if( this->Grid().InGrid() )
-    {
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int bufSize = localHeight*width;
-
-        this->auxMemory_.Require( bufSize );
-
-        // Create random matrix on process column 0, then broadcast
-        T* buffer = this->auxMemory_.Buffer();
-        if( this->grid_->Col() == 0 )
-        {
-            for( Int j=0; j<width; ++j )
-                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                    buffer[iLocal+j*localHeight] = SampleUnitBall<T>();
-        }
-        mpi::Broadcast( buffer, bufSize, 0, this->Grid().RowComm() );
-
-        // Unpack
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int j=0; j<width; ++j )
-        {
-            const T* bufferCol = &buffer[j*localHeight];
-            T* thisCol = &thisLocalBuffer[j*thisLDim];
-            MemCopy( thisCol, bufferCol, localHeight );
-        }
-        this->auxMemory_.Release();
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
 
 template<typename T,typename Int>
 inline void DistMatrix<T,MC,STAR,Int>::SumOverRow()
@@ -2329,6 +2134,700 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     PopCallStack();
 #endif
     return *this;
+}
+
+//
+// Routines which explicitly work in the complex plane
+//
+
+template<typename T,typename Int>
+inline typename Base<T>::type
+DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetReal");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    // We will determine the owner row of entry (i,j) and broadcast from that
+    // row within each process column
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+
+    R u;
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        u = this->GetRealLocalEntry( iLocal, j );
+    }
+    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+template<typename T,typename Int>
+inline typename Base<T>::type
+DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImag");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    // We will determine the owner row of entry (i,j) and broadcast from that
+    // row within each process column
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+
+    R u;
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        u = this->GetImagLocalEntry( iLocal, j );
+    }
+    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetReal");
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        this->SetRealLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImag");
+#endif
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        this->SetImagLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::UpdateReal");
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        this->UpdateRealLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::UpdateImag");
+#endif
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+
+    const elem::Grid& g = this->Grid();
+    const Int ownerRow = (i+this->ColAlignment()) % g.Height();
+    if( g.Row() == ownerRow )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.Height();
+        this->UpdateImagLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealDiagonal");
+    if( d.Viewing() )
+        AssertSameGrid( d );
+#endif
+    const Int length = this->DiagonalLength( offset );
+#ifndef RELEASE
+    if( d.Viewing() && (length != d.Height() || d.Width() != 1) )
+    {
+        std::ostringstream msg;
+        msg << "d is not a column vec of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiagonal( *this, offset );
+        d.ResizeTo( length, 1 );
+    }
+
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int localDiagLength = d.LocalHeight();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const Int thisLDim = this->LocalLDim();
+        R* dLocalBuffer = d.LocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            dLocalBuffer[k] = Real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+    if( d.Viewing() )
+        AssertSameGrid( d );
+#endif
+    const Int length = this->DiagonalLength( offset );
+#ifndef RELEASE
+    if( d.Viewing() && (length != d.Height() || d.Width() != 1) )
+    {
+        std::ostringstream msg;
+        msg << "d is not a column vec of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedColAlignment() )
+            d.AlignWithDiagonal( *this, offset );
+        d.ResizeTo( length, 1 );
+    }
+
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int localDiagLength = d.LocalHeight();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const Int thisLDim = this->LocalLDim();
+        R* dLocalBuffer = d.LocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            dLocalBuffer[k] = Imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetRealDiagonal");
+    if( d.Viewing() )
+        AssertSameGrid( d );
+#endif
+    const Int length = this->DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedRowAlignment() )
+            d.AlignWithDiagonal( *this, offset );
+        d.ResizeTo( 1, length );
+    }
+
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.RowShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int localDiagLength = d.LocalWidth();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const Int thisLDim = this->LocalLDim();
+        R* dLocalBuffer = d.LocalBuffer();
+        const Int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            dLocalBuffer[k*dLDim] =
+                Real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::GetImagDiagonal");
+    if( d.Viewing() )
+        AssertSameGrid( d );
+#endif
+    const Int length = this->DiagonalLength(offset);
+#ifndef RELEASE
+    if( d.Viewing() && length != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
+        !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the offset diag");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( !d.Viewing() )
+    {
+        d.SetGrid( g );
+        if( !d.ConstrainedRowAlignment() )
+            d.AlignWithDiagonal( *this, offset );
+        d.ResizeTo( 1, length );
+    }
+
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.RowShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+        const Int iLocalStart = (iStart-colShift) / r;
+        const Int localDiagLength = d.LocalWidth();
+        const T* thisLocalBuffer = this->LockedLocalBuffer();
+        const Int thisLDim = this->LocalLDim();
+        R* dLocalBuffer = d.LocalBuffer();
+        const Int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            dLocalBuffer[k*dLDim] =
+                Imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetRealDiagonal");
+    AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const Int length = this->DiagonalLength(offset);
+    if( length != d.Height() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift)/r;
+        const Int localDiagLength = d.LocalHeight();
+        const R* dLocalBuffer = d.LockedLocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            this->SetRealLocalEntry( iLocal, jLocal, dLocalBuffer[k] );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+    AssertSameGrid( d );
+    if( d.Width() != 1 )
+        throw std::logic_error("d must be a column vector");
+    const Int length = this->DiagonalLength(offset);
+    if( length != d.Height() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.ColShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift)/r;
+        const Int localDiagLength = d.LocalHeight();
+        const R* dLocalBuffer = d.LockedLocalBuffer();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            this->SetImagLocalEntry( iLocal, jLocal, dLocalBuffer[k] );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetRealDiagonal");
+    AssertSameGrid( d );
+    if( d.Height() != 1 )
+        throw std::logic_error("d must be a row vector");
+    const Int length = this->DiagonalLength(offset);
+    if( length != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    typedef typename Base<T>::type R;
+
+    const elem::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.RowShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift)/r;
+        const Int localDiagLength = d.LocalWidth();
+
+        const R* dLocalBuffer = d.LockedLocalBuffer();
+        const Int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            this->SetRealLocalEntry( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,* ]::SetImagDiagonal");
+    AssertSameGrid( d );
+    if( d.Height() != 1 )
+        throw std::logic_error("d must be a row vector");
+    const Int length = this->DiagonalLength(offset);
+    if( length != d.Width() )
+    {
+        std::ostringstream msg;
+        msg << "d is not of the same length as the diagonal:\n"
+            << "  A ~ " << this->Height() << " x " << this->Width() << "\n"
+            << "  d ~ " << d.Height() << " x " << d.Width() << "\n"
+            << "  A diag length: " << length << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( !d.AlignedWithDiagonal( *this, offset ) )
+        throw std::logic_error("d must be aligned with the 'offset' diagonal");
+#endif
+    typedef typename Base<T>::type R;
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+
+    const elem::Grid& g = this->Grid();
+    if( g.InGrid() )
+    {
+        const Int r = g.Height();
+        const Int colShift = this->ColShift();
+        const Int diagShift = d.RowShift();
+
+        Int iStart, jStart;
+        if( offset >= 0 )
+        {
+            iStart = diagShift;
+            jStart = diagShift+offset;
+        }
+        else
+        {
+            iStart = diagShift-offset;
+            jStart = diagShift;
+        }
+
+        const Int iLocalStart = (iStart-colShift)/r;
+        const Int localDiagLength = d.LocalWidth();
+
+        const R* dLocalBuffer = d.LockedLocalBuffer();
+        const Int dLDim = d.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( Int k=0; k<localDiagLength; ++k )
+        {
+            const Int iLocal = iLocalStart+k;
+            const Int jLocal = jStart+k*r;
+            this->SetImagLocalEntry( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 } // namespace elem

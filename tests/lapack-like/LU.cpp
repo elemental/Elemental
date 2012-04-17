@@ -63,12 +63,8 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Generate random right-hand sides
-    DistMatrix<F,MC,MR> X(m,100,g);
-    DistMatrix<F,MC,MR> Y(g);
-    X.SetToRandom();
-    R oneNormOfX = Norm( X, ONE_NORM );
-    R infNormOfX = Norm( X, INFINITY_NORM );
-    R frobNormOfX = Norm( X, FROBENIUS_NORM );
+    DistMatrix<F,MC,MR> X(g), Y(g);
+    UniformRandom( m, 100, X );
     Y = X;
     if( pivoted )
         ApplyRowPivots( Y, p );
@@ -78,6 +74,9 @@ void TestCorrectness
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
+    R oneNormOfX = Norm( X, ONE_NORM );
+    R infNormOfX = Norm( X, INFINITY_NORM );
+    R frobNormOfX = Norm( X, FROBENIUS_NORM );
     Gemm( NORMAL, NORMAL, (F)-1, AOrig, Y, (F)1, X );
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
@@ -106,14 +105,10 @@ void TestLU
   int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,MR> ARef(g);
+    DistMatrix<F,MC,MR> A(g), ARef(g);
     DistMatrix<int,VC,STAR> p(g);
 
-    A.ResizeTo( m, m );
-    p.ResizeTo( m, 1 );
-
-    A.SetToRandom();
+    UniformRandom( m, m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

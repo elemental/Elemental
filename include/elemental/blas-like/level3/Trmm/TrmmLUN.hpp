@@ -102,7 +102,7 @@ internal::TrmmLUNA
         //--------------------------------------------------------------------//
         X1_VR_STAR = X1;
         X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
-        Z1_MC_STAR.SetToZero();
+        Zero( Z1_MC_STAR );
         internal::LocalTrmmAccumulateLUN
         ( TRANSPOSE, diag, alpha, U, X1Trans_STAR_MR, Z1_MC_STAR );
 
@@ -311,7 +311,7 @@ internal::LocalTrmmAccumulateLUN
         D11.AlignWith( U11 );
         //--------------------------------------------------------------------//
         D11 = U11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
         internal::LocalGemm

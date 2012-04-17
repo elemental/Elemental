@@ -82,8 +82,8 @@ Inverse( Matrix<F>& A )
         L21 = A21;
 
         // Zero the strictly lower triangular portion of A1
-        A11.MakeTrapezoidal( LEFT, UPPER );
-        A21.SetToZero();
+        MakeTrapezoidal( LEFT, UPPER, 0, A11 );
+        Zero( A21 );
 
         // Perform the lazy update of A1
         Gemm( NORMAL, NORMAL, (F)-1, A2, L21, (F)1, A1 );
@@ -157,8 +157,8 @@ Inverse( DistMatrix<F,MC,MR>& A )
         L21Trans_STAR_MR.TransposeFrom( L21_VR_STAR );
 
         // Zero the strictly lower triangular portion of A1
-        A11.MakeTrapezoidal( LEFT, UPPER );
-        A21.SetToZero();
+        MakeTrapezoidal( LEFT, UPPER, 0, A11 );
+        Zero( A21 );
 
         // Perform the lazy update of A1
         internal::LocalGemm

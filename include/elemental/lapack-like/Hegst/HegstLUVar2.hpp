@@ -128,8 +128,8 @@ internal::HegstLUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         U12_STAR_MC.AdjointFrom( U12Adj_VC_STAR );
         Z12Adj_MC_STAR.ResizeTo( A12.Width(), A12.Height() );
         Z12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
-        Z12Adj_MC_STAR.SetToZero();
-        Z12Adj_MR_STAR.SetToZero();
+        Zero( Z12Adj_MC_STAR );
+        Zero( Z12Adj_MR_STAR );
         internal::LocalSymmetricAccumulateRU
         ( ADJOINT, 
           (F)1, A22, U12_STAR_MC, U12Adj_MR_STAR, 

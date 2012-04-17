@@ -83,8 +83,7 @@ void TestCorrectness
     // Zero B and then fill its tridiagonal
     DistMatrix<R,MC,MR> B(g);
     B.AlignWith( A );
-    B.ResizeTo( m, m );
-    B.SetToZero();
+    Zeros( m, m, B );
     B.SetDiagonal( d );
     B.SetDiagonal( e, subdiagonal );
     B.SetDiagonal( eOpposite, -subdiagonal );
@@ -106,8 +105,8 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( LEFT, uplo );
-    B.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, AOrig );
+    MakeTrapezoidal( LEFT, uplo, 0, B );
     Axpy( (R)-1, AOrig, B );
 
     R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
@@ -156,8 +155,7 @@ void TestCorrectness
     // Zero B and then fill its tridiagonal
     DistMatrix<C,MC,MR> B(g);
     B.AlignWith( A );
-    B.ResizeTo( m, m );
-    B.SetToZero();
+    Zeros( m, m, B );
     B.SetRealDiagonal( d );
     B.SetRealDiagonal( e, subdiagonal );
     B.SetRealDiagonal( eOpposite, -subdiagonal );
@@ -183,8 +181,8 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    AOrig.MakeTrapezoidal( LEFT, uplo );
-    B.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, AOrig );
+    MakeTrapezoidal( LEFT, uplo, 0, B );
     Axpy( (C)-1, AOrig, B );
 
     R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
@@ -213,12 +211,9 @@ void TestHermitianTridiag<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(g);
-    DistMatrix<R,MC,MR> AOrig(g);
+    DistMatrix<R,MC,MR> A(g), AOrig(g);
 
-    A.ResizeTo( m, m );
-
-    A.SetToRandomHermitian();
+    HermitianUniformRandom( m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -266,13 +261,10 @@ void TestHermitianTridiag<Complex<double> >
     typedef Complex<R> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,  MR  > A(g);
+    DistMatrix<C,MC,  MR  > A(g), AOrig(g);
     DistMatrix<C,STAR,STAR> t(g);
-    DistMatrix<C,MC,  MR  > AOrig(g);
 
-    A.ResizeTo( m, m );
-
-    A.SetToRandomHermitian();
+    HermitianUniformRandom( m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

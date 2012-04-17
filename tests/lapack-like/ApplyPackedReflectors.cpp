@@ -70,12 +70,12 @@ void TestCorrectness
 
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Y(m,m,g);
-    Y.SetToIdentity();
+    MakeIdentity( Y );
     ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, Y );
     if( printMatrices )
     {
         DistMatrix<R,MC,MR> W(m,m,g);
-        W.SetToIdentity();
+        MakeIdentity( W );
         if( order == FORWARD )
         {
             ApplyPackedReflectors
@@ -92,12 +92,12 @@ void TestCorrectness
         }
     }
     DistMatrix<R,MC,MR> Z(m,m,g);
-    Z.SetToZero();
+    Zero( Z );
     Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R,MC,MR> X(m,m,g);
-    X.SetToIdentity();
+    MakeIdentity( X );
     Axpy( (R)-1, Z, X );
     if( printMatrices )
     {
@@ -148,13 +148,13 @@ void TestCorrectness
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
     DistMatrix<C,MC,MR> Y(m,m,g);
-    Y.SetToIdentity();
+    MakeIdentity( Y );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
         DistMatrix<C,MC,MR> W(m,m,g);
-        W.SetToIdentity();
+        MakeIdentity( W );
         if( order == FORWARD )
         {
             ApplyPackedReflectors
@@ -171,12 +171,12 @@ void TestCorrectness
         }
     }
     DistMatrix<C,MC,MR> Z(m,m,g);
-    Z.SetToZero();
+    MakeZeros( Z );
     Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C,MC,MR> X(m,m,g);
-    X.SetToIdentity();
+    MakeIdentity( X );
     Axpy( (C)-1, Z, X );
     if( printMatrices )
     {
@@ -224,14 +224,9 @@ void TestUT<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> H(g);
-    DistMatrix<R,MC,MR> A(g);
-
-    H.ResizeTo( m, m );
-    A.ResizeTo( m, m );
-
-    H.SetToRandom();
-    A.SetToRandom();
+    DistMatrix<R,MC,MR> H(g), A(g);
+    UniformRandom( m, m, H );
+    UniformRandom( m, m, A );
     if( printMatrices )
     {
         H.Print("H");
@@ -273,19 +268,15 @@ void TestUT<Complex<double> >
     typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > H(g);
-    DistMatrix<C,MD,STAR> t(g);
-    DistMatrix<C,MC,MR  > A(g);
-
-    H.ResizeTo( m, m );
-    A.ResizeTo( m, m );
+    DistMatrix<C,MC,MR  > H(g), A(g);
+    UniformRandom( m, m, H );
+    UniformRandom( m, m, A );
 
     const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
+    DistMatrix<C,MD,STAR> t(g);
     t.AlignWithDiagonal( H, offset );
     t.ResizeTo( diagLength, 1 );
 
-    H.SetToRandom();
-    A.SetToRandom();
     DistMatrix<C,MC,MR> HCol(g);
     if( uplo == LOWER )
     {

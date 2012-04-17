@@ -77,7 +77,7 @@ internal::Her2kUN
     DistMatrix<T,STAR,MR  > B1Adj_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, UPPER );
+    ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )

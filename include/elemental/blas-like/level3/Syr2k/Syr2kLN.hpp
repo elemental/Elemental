@@ -75,7 +75,7 @@ internal::Syr2kLN
     DistMatrix<T,STAR,MR  > B1Trans_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, LOWER );
+    ScaleTrapezoid( beta, LEFT, LOWER, 0, C );
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionRight( B, BL, BR, 0 );
     while( AR.Width() > 0 )

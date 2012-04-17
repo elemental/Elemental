@@ -323,11 +323,11 @@ TrrkNNKernel
         Gemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
 
     Gemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     Gemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -358,7 +358,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -379,12 +379,12 @@ LocalTrrkKernel
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -414,7 +414,7 @@ TrrkNTKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -435,12 +435,12 @@ TrrkNTKernel
 
     Gemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
     // TODO: AxpyTrapezoidal?
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     Gemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
     // TODO: AxpyTrapezoidal?
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -473,7 +473,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -497,13 +497,13 @@ LocalTrrkKernel
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
 
     // TODO: AxpyTrapezoidal?
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
 
     // TODO: AxpyTrapezoidal?
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -531,7 +531,7 @@ TrrkTNKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -547,11 +547,11 @@ TrrkTNKernel
         Gemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
 
     Gemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     Gemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -582,7 +582,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -601,12 +601,12 @@ LocalTrrkKernel
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -636,7 +636,7 @@ TrrkTTKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT, 
@@ -654,11 +654,11 @@ TrrkTTKernel
         Gemm( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, CTR );
 
     Gemm( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     Gemm( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -691,7 +691,7 @@ LocalTrrkKernel
     DistMatrix<T,MC,MR> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    C.ScaleTrapezoid( beta, LEFT, uplo );
+    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT, 
@@ -715,13 +715,13 @@ LocalTrrkKernel
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
 
-    DTL.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DTL );
     Axpy( (T)1, DTL, CTL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
 
-    DBR.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, DBR );
     Axpy( (T)1, DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE

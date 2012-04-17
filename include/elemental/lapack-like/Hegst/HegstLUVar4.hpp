@@ -109,7 +109,7 @@ internal::HegstLUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         A11_STAR_STAR = A11;
         U01_VC_STAR = U01;
         Y01_VC_STAR.ResizeTo( A01.Height(), A01.Width() );
-        Y01_VC_STAR.SetToZero();
+        Zero( Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER, 
           (F)0.5, A11_STAR_STAR.LockedLocalMatrix(), 

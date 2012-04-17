@@ -62,10 +62,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(m,100,g);
-    DistMatrix<F,MC,MR> Y(m,100,g);
-    DistMatrix<F,MC,MR> Z(m,100,g);
-    X.SetToRandom();
+    DistMatrix<F,MC,MR> X(m,100,g), Y(m,100,g), Z(m,100,g);
+    MakeUniformRandom( X );
     Y = X;
 
     if( side == RIGHT )
@@ -227,19 +225,19 @@ void TestHegst
 
     if( testCorrectness )
     {
-        DistMatrix<F,MC,MR> C( m, m, g );
-        C.SetToRandom();
+        DistMatrix<F,MC,MR> C(m,m,g);
+        MakeUniformRandom( C );
         Herk( uplo, NORMAL, (F)1, C, (F)0, A );
-        C.SetToRandom();
+        MakeUniformRandom( C );
         Herk( uplo, NORMAL, (F)1, C, (F)0, B );
         Cholesky( uplo, B );
     }
     else
     {
-        A.SetToRandomHPD();
-        B.SetToRandomHPD();
+        MakeHPDUniformRandom( A );
+        MakeHPDUniformRandom( B );
     }
-    B.MakeTrapezoidal( LEFT, uplo );
+    MakeTrapezoidal( LEFT, uplo, 0, B );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

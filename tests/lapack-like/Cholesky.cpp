@@ -60,9 +60,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(m,100,g);
-    DistMatrix<F,MC,MR> Y(m,100,g);
-    X.SetToRandom();
+    DistMatrix<F,MC,MR> X(g), Y(g);
+    UniformRandom( m, 100, X );
     Y = X;
 
     if( uplo == LOWER )
@@ -127,12 +126,9 @@ void TestCholesky
   UpperOrLower uplo, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,MR> AOrig(g);
+    DistMatrix<F,MC,MR> A(g), AOrig(g);
 
-    A.ResizeTo( m, m );
-
-    A.SetToRandomHPD();
+    HPDUniformRandom( m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

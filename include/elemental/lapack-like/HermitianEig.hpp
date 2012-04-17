@@ -283,13 +283,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -463,13 +463,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -637,13 +637,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -809,13 +809,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -906,13 +906,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -999,13 +999,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1053,9 +1053,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
+  DistMatrix<Complex<double>,MC,MR  >& A,
   DistMatrix<        double, VR,STAR>& w,
-  DistMatrix<Complex<double>,MC,  MR>& paddedZ )
+  DistMatrix<Complex<double>,MC,MR  >& paddedZ )
 {
 #ifndef RELEASE
     PushCallStack("HermitianEig");
@@ -1114,13 +1114,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1296,13 +1296,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1472,13 +1472,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1646,13 +1646,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1743,13 +1743,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A
@@ -1836,13 +1836,13 @@ HermitianEig
     {
         neededScaling = true;
         scale = underflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
     else if( maxNormOfA > overflowThreshold )
     {
         neededScaling = true;
         scale = overflowThreshold / maxNormOfA;
-        A.ScaleTrapezoid( scale, LEFT, uplo, 0 );
+        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
     }
 
     // Tridiagonalize A

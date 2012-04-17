@@ -65,7 +65,7 @@ internal::HerkLN
     DistMatrix<T,STAR,MR  > A1Adj_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, LOWER );
+    ScaleTrapezoid( beta, LEFT, LOWER, 0, C );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {

@@ -61,9 +61,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(m,100,g);
-    DistMatrix<F,MC,MR> Y(g);
-    X.SetToRandom();
+    DistMatrix<F,MC,MR> X(g), Y(g);
+    UniformRandom( m, 100, X );
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
@@ -100,13 +99,9 @@ void TestTriangularInverse
   UpperOrLower uplo, UnitOrNonUnit diag, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,MR> AOrig(g);
-
-    A.ResizeTo( m, m );
-
-    A.SetToRandomHPD();
-    A.MakeTrapezoidal( LEFT, uplo );
+    DistMatrix<F,MC,MR> A(g), AOrig(g);
+    HPDUniformRandom( m, A );
+    MakeTrapezoidal( LEFT, uplo, 0, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

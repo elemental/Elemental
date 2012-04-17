@@ -99,7 +99,7 @@ internal::TrmmRUNA
         //--------------------------------------------------------------------//
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
-        Z1Trans_MR_STAR.SetToZero();
+        Zero( Z1Trans_MR_STAR );
         internal::LocalTrmmAccumulateRUN
         ( TRANSPOSE, diag, alpha, U, X1_STAR_MC, Z1Trans_MR_STAR );
 
@@ -292,7 +292,7 @@ internal::LocalTrmmAccumulateRUN
         D11.AlignWith( U11 );
         //--------------------------------------------------------------------//
         D11 = U11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
         internal::LocalGemm

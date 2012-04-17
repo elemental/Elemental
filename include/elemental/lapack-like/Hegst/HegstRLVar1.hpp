@@ -111,8 +111,8 @@ internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         L10_STAR_MC.AdjointFrom( L10Adj_VC_STAR );
         Z10Adj_MC_STAR.ResizeTo( A10.Width(), A10.Height() );
         Z10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
-        Z10Adj_MC_STAR.SetToZero();
-        Z10Adj_MR_STAR.SetToZero();
+        Zero( Z10Adj_MC_STAR );
+        Zero( Z10Adj_MR_STAR );
         internal::LocalSymmetricAccumulateRL
         ( ADJOINT,
           (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 

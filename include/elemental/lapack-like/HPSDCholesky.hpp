@@ -70,7 +70,7 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
         if( uplo == LOWER )
         {
-            A11Adj.MakeTrapezoidal( LEFT, UPPER, 1 );
+            MakeTrapezoidal( LEFT, UPPER, 1, A11Adj );
             Axpy( (F)1, A11Adj, A11 );
 
             A21_MR_MC = A21;
@@ -78,7 +78,7 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
         }
         else
         {
-            A11Adj.MakeTrapezoidal( LEFT, LOWER, -1 );
+            MakeTrapezoidal( LEFT, LOWER, -1, A11Adj );
             Axpy( (F)1, A11Adj, A11 );
 
             A12_MR_MC = A12;
@@ -118,12 +118,12 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
     if( uplo == LOWER )
     {
         LQ( A );
-        A.MakeTrapezoidal( LEFT, LOWER );
+        MakeTrapezoidal( LEFT, LOWER, 0, A );
     }
     else
     {
         QR( A );
-        A.MakeTrapezoidal( RIGHT, UPPER );
+        MakeTrapezoidal( RIGHT, UPPER, 0, A );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -145,13 +145,13 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
     {
         DistMatrix<Complex<R>,MD,STAR> t(g);
         LQ( A, t );
-        A.MakeTrapezoidal( LEFT, LOWER );
+        MakeTrapezoidal( LEFT, LOWER, 0, A );
     }
     else
     {
         DistMatrix<Complex<R>,MD,STAR> t(g);
         QR( A, t );
-        A.MakeTrapezoidal( RIGHT, UPPER );
+        MakeTrapezoidal( RIGHT, UPPER, 0, A );
     }
 #ifndef RELEASE
     PopCallStack();

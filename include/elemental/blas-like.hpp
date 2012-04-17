@@ -277,6 +277,23 @@ void Scal( T alpha, DistMatrix<T,U,V>& X );
 //----------------------------------------------------------------------------//
 
 //
+// Adjoint:
+//
+// B := A^H
+//
+
+// Serial version
+template<typename T>
+void Adjoint( const Matrix<T>& A, Matrix<T>& B );
+
+// Parallel version
+template<typename T, 
+         Distribution U, Distribution V,
+         Distribution W, Distribution Z>
+void Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+
+
+//
 // Conjugate: 
 //
 // Conjugates a matrix. The in-place version performs A := Conjugate(A), 
@@ -307,20 +324,36 @@ template<typename T,
 void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
-// Adjoint:
+// MakeTrapezoidal:
 //
-// B := A^H
+// Force the matrix to be lower or upper trapezoidal, with the diagonal
+// defined relative to either the top-left or bottom-right corner of the matrix
+// (based on the 'side' parameter). The 'offset' parameter determines where the
+// last nonzero diagonal is, with '0' meaning the main diagonal, '1' meaning 
+// the superdiagonal, '-1' meaning the subdiagonal, and likewise for all other
+// integer values.
 //
-
-// Serial version
 template<typename T>
-void Adjoint( const Matrix<T>& A, Matrix<T>& B );
+void MakeTrapezoidal
+( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeTrapezoidal
+( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A );
 
-// Parallel version
-template<typename T, 
-         Distribution U, Distribution V,
-         Distribution W, Distribution Z>
-void Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+//
+// ScaleTrapezoid:
+//
+// Scale only a trapezoidal portion of a matrix, using the parameter convention
+// described above.
+//
+template<typename T>
+void ScaleTrapezoid
+( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, 
+  Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void ScaleTrapezoid
+( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, 
+  DistMatrix<T,U,V>& A );
 
 //
 // Transpose:
@@ -337,6 +370,14 @@ template<typename T,
          Distribution U, Distribution V,
          Distribution W, Distribution Z>
 void Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+
+//
+// Zero the contents of a matrix
+//
+template<typename T>
+void Zero( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void Zero( DistMatrix<T,U,V>& A );
 
 //----------------------------------------------------------------------------//
 // Level 2 BLAS-like routines                                                 //
@@ -1254,6 +1295,28 @@ Scal( T alpha, Matrix<T>& X )
 // Local BLAS-like routines: Level 1 (extensions)                             //
 //----------------------------------------------------------------------------//
 
+template<typename T>
+inline void
+Adjoint( const Matrix<T>& A, Matrix<T>& B )
+{
+#ifndef RELEASE
+    PushCallStack("Adjoint");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    if( !B.Viewing() )
+        B.ResizeTo( n, m );
+    else if( B.Height() != n || B.Width() != m )
+        throw std::logic_error
+        ("If Adjoint'ing into a view, it must be the right size");
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            B.Set(j,i,Conj(A.Get(i,j)));
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 // Default case is for real datatypes
 template<typename Z>
 inline void
@@ -1298,21 +1361,145 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename T>
 inline void
-Adjoint( const Matrix<T>& A, Matrix<T>& B )
+MakeTrapezoidal
+( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Adjoint");
+    PushCallStack("MakeTrapezoidal");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    if( !B.Viewing() )
-        B.ResizeTo( n, m );
-    else if( B.Height() != n || B.Width() != m )
-        throw std::logic_error
-        ("If Adjoint'ing into a view, it must be the right size");
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
-            B.Set(j,i,Conj(A.Get(i,j)));
+    const int height = A.Height();
+    const int width = A.Width();
+    const int ldim = A.LDim();
+    T* buffer = A.Buffer();
+
+    if( uplo == LOWER )
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=std::max(0,offset+1); j<width; ++j )
+            {
+                const int lastZeroRow = j-offset-1;
+                const int numZeroRows = std::min( lastZeroRow+1, height );
+                MemZero( &buffer[j*ldim], numZeroRows );
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=std::max(0,offset-height+width+1); j<width; ++j )
+            {
+                const int lastZeroRow = j-offset+height-width-1;
+                const int numZeroRows = std::min( lastZeroRow+1, height );
+                MemZero( &buffer[j*ldim], numZeroRows );
+            }
+        }
+    }
+    else
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=0; j<width; ++j )
+            {
+                const int firstZeroRow = std::max(j-offset+1,0);
+                if( firstZeroRow < height )
+                    MemZero
+                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=0; j<width; ++j )
+            {
+                const int firstZeroRow = std::max(j-offset+height-width+1,0);
+                if( firstZeroRow < height )
+                    MemZero
+                    ( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+ScaleTrapezoid
+( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("ScaleTrapezoid");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    const int ldim = A.LDim();
+    T* buffer = A.Buffer();
+
+    if( uplo == UPPER )
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=std::max(0,offset-1); j<width; ++j )
+            {
+                const int numRows = j-offset+1;
+                for( int i=0; i<numRows; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=std::max(0,offset-height+width-1); j<width; ++j )
+            {
+                const int numRows = j-offset+height-width+1;
+                for( int i=0; i<numRows; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+    }
+    else
+    {
+        if( side == LEFT )
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=0; j<width; ++j )
+            {
+                const int numZeroRows = std::max(j-offset,0);
+                for( int i=numZeroRows; i<height; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+        else
+        {
+#ifdef _OPENMP
+            #pragma omp parallel for
+#endif
+            for( int j=0; j<width; ++j )
+            {
+                const int numZeroRows = std::max(j-offset+height-width,0);
+                for( int i=numZeroRows; i<height; ++i )
+                    buffer[i+j*ldim] *= alpha;
+            }
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1335,6 +1522,25 @@ Transpose( const Matrix<T>& A, Matrix<T>& B )
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(j,i,A.Get(i,j));
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Zero( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Zero");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+#ifdef _OPENMP
+    #pragma omp parallel for
+#endif
+    for( int j=0; j<width; ++j )
+        MemZero( A.Buffer(0,j), height );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2228,34 +2434,6 @@ Scal( T alpha, DistMatrix<T,U,V>& A )
 // Distributed BLAS-like routines: Level 1 (extensions)                       //
 //----------------------------------------------------------------------------//
 
-template<typename T,Distribution U,Distribution V>
-inline void
-Conjugate( DistMatrix<T,U,V>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Conjugate (in-place)");
-#endif
-    Conjugate( A.LocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline void
-Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
-{
-#ifndef RELEASE
-    PushCallStack("Conjugate");
-#endif
-    B = A;
-    Conjugate( B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 template<typename T,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
 inline void
@@ -2293,6 +2471,161 @@ Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
             ("If Adjoint'ing into a view, it must be the right size");
         }
         Adjoint( C.LockedLocalMatrix(), B.LocalMatrix() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Conjugate( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate (in-place)");
+#endif
+    Conjugate( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline void
+Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate");
+#endif
+    B = A;
+    Conjugate( B ); 
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeTrapezoidal
+( LeftOrRight side, UpperOrLower uplo, int offset, 
+  DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeTrapezoidal");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
+
+    T* localBuffer = A.LocalBuffer();
+    const int ldim = A.LocalLDim();
+
+    if( uplo == LOWER )
+    {
+
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            const int j = rowShift + jLocal*rowStride;
+            const int lastZeroRow =
+                ( side==LEFT ? j-offset-1
+                             : j-offset+height-width-1 );
+            if( lastZeroRow >= 0 )
+            {
+                const int boundary = std::min( lastZeroRow+1, height );
+                const int numZeroRows =
+                    RawLocalLength( boundary, colShift, colStride );
+                MemZero( &localBuffer[jLocal*ldim], numZeroRows );
+            }
+        }
+    }
+    else
+    {
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            const int j = rowShift + jLocal*rowStride;
+            const int firstZeroRow =
+                ( side==LEFT ? std::max(j-offset+1,0)
+                             : std::max(j-offset+height-width+1,0) );
+            const int numNonzeroRows =
+                RawLocalLength(firstZeroRow,colShift,colStride);
+            if( numNonzeroRows < localHeight )
+            {
+                T* col = &localBuffer[numNonzeroRows+jLocal*ldim];
+                MemZero( col, localHeight-numNonzeroRows );
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+ScaleTrapezoid
+( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, 
+  DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("ScaleTrapezoid");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
+
+    if( uplo == UPPER )
+    {
+        T* localBuffer = A.LocalBuffer();
+        const int ldim = A.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            int j = rowShift + jLocal*rowStride;
+            int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
+            int boundary = std::min( lastRow+1, height );
+            int numRows = RawLocalLength( boundary, colShift, colStride );
+            T* col = &localBuffer[jLocal*ldim];
+            for( int iLocal=0; iLocal<numRows; ++iLocal )
+                col[iLocal] *= alpha;
+        }
+    }
+    else
+    {
+        T* localBuffer = A.LocalBuffer();
+        const int ldim = A.LocalLDim();
+#ifdef _OPENMP
+        #pragma omp parallel for
+#endif
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            int j = rowShift + jLocal*rowStride;
+            int firstRow =
+                ( side==LEFT ? std::max(j-offset,0)
+                             : std::max(j-offset+height-width,0) );
+            int numZeroRows = RawLocalLength( firstRow, colShift, colStride );
+            T* col = &localBuffer[numZeroRows+jLocal*ldim];
+            for( int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
+                col[iLocal] *= alpha;
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2337,6 +2670,19 @@ Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
         }
         Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Zero( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Zero");
+#endif
+    Zero( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

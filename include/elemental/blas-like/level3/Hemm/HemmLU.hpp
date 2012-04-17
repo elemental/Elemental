@@ -111,8 +111,8 @@ internal::HemmLUA
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
-        Z1_MC_STAR.SetToZero();
-        Z1_MR_STAR.SetToZero();
+        Zero( Z1_MC_STAR );
+        Zero( Z1_MR_STAR );
         internal::LocalSymmetricAccumulateLU
         ( ADJOINT,
           alpha, A, B1_MC_STAR, B1Adj_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -227,8 +227,8 @@ internal::HemmLUC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
-        AColPan_MC_STAR.MakeTrapezoidal( RIGHT, UPPER );
-        ARowPan_STAR_MC.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( RIGHT, UPPER, 0, AColPan_MC_STAR );
+        MakeTrapezoidal( LEFT,  UPPER, 1, ARowPan_STAR_MC );
 
         B1Adj_MR_STAR.AdjointFrom( B1 );
 
@@ -393,11 +393,11 @@ internal::LocalSymmetricAccumulateLU
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         internal::LocalGemm
         ( NORMAL, orientation, alpha, D11, B1AdjOrTrans_STAR_MR, 
           (T)1, Z1_MC_STAR );
-        D11.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( LEFT, UPPER, 1, D11 );
 
         internal::LocalGemm
         ( orientation, NORMAL,

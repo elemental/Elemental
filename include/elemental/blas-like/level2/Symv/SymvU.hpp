@@ -164,13 +164,13 @@ internal::LocalSymvColAccumulateU
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_MR_STAR.LockedLocalMatrix(),
           (T)1,  z1_MC_STAR.LocalMatrix() );
-        D11.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( LEFT, UPPER, 1, D11 );
 
         Gemv
         ( TRANSPOSE,
@@ -341,13 +341,13 @@ internal::LocalSymvRowAccumulateU
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
         D11 = A11;
-        D11.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_STAR_MR.LockedLocalMatrix(),
           (T)1,  z1_STAR_MC.LocalMatrix() );
-        D11.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( LEFT, UPPER, 1, D11 );
 
         Gemv
         ( TRANSPOSE,

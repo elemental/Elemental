@@ -51,10 +51,10 @@ main( int argc, char* argv[] )
         Grid g( comm );
     
         const int n = 6; // choose a small problem size since we will print
-        DistMatrix<C,MC,MR> L( n, n, g );
-        L.SetToRandom();
-        L.MakeTrapezoidal( LEFT, LOWER, -1 );
-        DistMatrix<C,MC,MR> A( n, n, g );
+        DistMatrix<C,MC,MR> L(g), A(g);
+        UniformRandom( n, n, L );
+        MakeTrapezoidal( LEFT, LOWER, -1, L );
+        Zeros( n, n, A );
         Herk( LOWER, NORMAL, (C)1, L, (C)0, A );
 
         // Print our matrix.

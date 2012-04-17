@@ -121,8 +121,8 @@ internal::SymmRLA
         B1Trans_MR_STAR.TransposeFrom( B1 );
         B1Trans_VC_STAR = B1Trans_MR_STAR;
         B1_STAR_MC.TransposeFrom( B1Trans_VC_STAR );
-        Z1Trans_MC_STAR.SetToZero();
-        Z1Trans_MR_STAR.SetToZero();
+        Zero( Z1Trans_MC_STAR );
+        Zero( Z1Trans_MR_STAR );
         internal::LocalSymmetricAccumulateRL
         ( TRANSPOSE, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
@@ -234,8 +234,8 @@ internal::SymmRLC
         ARowPanTrans_MR_STAR.TransposeFrom( ARowPan );
         AColPan_VR_STAR = AColPan;
         AColPanTrans_STAR_MR.TransposeFrom( AColPan_VR_STAR );
-        ARowPanTrans_MR_STAR.MakeTrapezoidal( RIGHT, UPPER );
-        AColPanTrans_STAR_MR.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( RIGHT, UPPER, 0, ARowPanTrans_MR_STAR );
+        MakeTrapezoidal( LEFT,  UPPER, 1, AColPanTrans_STAR_MR );
 
         internal::LocalGemm
         ( NORMAL, TRANSPOSE, 

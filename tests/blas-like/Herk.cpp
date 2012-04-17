@@ -30,7 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
@@ -57,23 +56,19 @@ void TestHerk
   int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> C(g);
+    DistMatrix<T,MC,MR> A(g), C(g);
 
     if( orientation == NORMAL )
-        A.ResizeTo( m, k );
+        UniformRandom( m, k, A );
     else
-        A.ResizeTo( k, m );
-
-    C.ResizeTo( m, m );
-
-    A.SetToRandom();
-    C.SetToRandomHPD();
+        UniformRandom( k, m, A );
+    HPDUniformRandom( m, C );
     if( printMatrices )
     {
         A.Print("A");
         C.Print("C");
     }
+
     if( g.Rank() == 0 )
     {
         cout << "  Starting Herk...";

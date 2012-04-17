@@ -81,7 +81,7 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
     DistMatrix<F,MC,MR> Y(g);
     Y.AlignWith( A );
     Y.ResizeTo( A.Height(), A.Width() );
-    Y.SetToZero();
+    Zero( Y );
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -133,7 +133,7 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         ( UPPER, ADJOINT, 
           (F)1, A01_VC_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
           (F)0, X11_STAR_STAR.LocalMatrix() );
-        X11_STAR_STAR.MakeTrapezoidal( LEFT, UPPER );
+        MakeTrapezoidal( LEFT, UPPER, 0, X11_STAR_STAR );
         A11.SumScatterUpdate( (F)-1, X11_STAR_STAR );
 
         // A11 := inv(U11)' A11 inv(U11)

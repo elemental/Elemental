@@ -105,10 +105,10 @@ internal::ApplyPackedReflectorsLUVF
         Z_STAR_VR.AlignWith( ATop );
         Z_STAR_MR.ResizeTo( HPan.Width(), ATop.Width() );
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
-        SInv_STAR_STAR.SetToZero();
+        Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( RIGHT, UPPER, offset );
+        MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );
         SetDiagonalToOne( RIGHT, offset, HPanCopy );
         HPan_VC_STAR = HPanCopy;
         Syrk
@@ -247,10 +247,10 @@ internal::ApplyPackedReflectorsLUVF
         Z_STAR_VR.AlignWith( ATop );
         Z_STAR_MR.ResizeTo( HPan.Width(), ATop.Width() );
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
-        SInv_STAR_STAR.SetToZero();
+        Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        HPanCopy.MakeTrapezoidal( RIGHT, UPPER, offset );
+        MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );
         SetDiagonalToOne( RIGHT, offset, HPanCopy );
         HPan_VC_STAR = HPanCopy;
         Herk

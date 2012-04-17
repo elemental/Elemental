@@ -126,43 +126,69 @@ void <tt class="descname">PopBlocksizeStack</tt><big>(</big><big>)</big><a class
 <div class="section" id="scalar-manipulation">
 <h2>Scalar manipulation<a class="headerlink" href="#scalar-manipulation" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="Abs__Z">
-Z <tt class="descname">Abs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__Z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the absolute value of non-complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+<dt id="Abs__ZCR">
+Z <tt class="descname">Abs</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__ZCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the absolute value of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Abs__Complex:Z:">
-Z <tt class="descname">Abs</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__Complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dt id="Abs__Complex:Z:CR">
+Z <tt class="descname">Abs</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Abs__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the absolute value of complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
 <p><img src="../_images/math/6116edc70d651f8bb7a736be40b41286cac67728.png" alt="|\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}"/></p>
 </div></dd></dl>
 
 <dl class="function">
-<dt id="FastAbs__Z">
-Z <tt class="descname">FastAbs</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__Z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as :cpp:function::Abs: for non-complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+<dt id="FastAbs__ZCR">
+Z <tt class="descname">FastAbs</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__ZCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as :cpp:function::Abs: for real <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="FastAbs__Complex:Z:">
-Z <tt class="descname">FastAbs</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__Complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dt id="FastAbs__Complex:Z:CR">
+Z <tt class="descname">FastAbs</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#FastAbs__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a cheaper norm of the complex <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>:</p>
 <div class="math">
 <p><img src="../_images/math/e162513b2f86191ee0cb9bef2f46e5581ec6ae54.png" alt="|\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|"/></p>
 </div></dd></dl>
 
 <dl class="function">
-<dt id="Conj__Z">
-Z <tt class="descname">Conj</tt><big>(</big>Z <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__Z" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the complex conjugate of the non-complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,
+<dt id="Real__ZCR">
+Z <tt class="descname">Real</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Real__ZCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the real part of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>, which is
+<img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> itself.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Real__Complex:Z:CR">
+Z <tt class="descname">Real</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Real__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the real part of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Imag__ZCR">
+Z <tt class="descname">Imag</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Imag__ZCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the imaginary part of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>, which is
+trivially zero.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Imag__Complex:Z:CR">
+Z <tt class="descname">Imag</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Imag__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the imaginary part of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Conj__ZCR">
+Z <tt class="descname">Conj</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__ZCR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the complex conjugate of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,
 which is simply <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Conj__Complex:Z:">
-Complex&lt;Z&gt; <tt class="descname">Conj</tt><big>(</big>Complex&lt;Z&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__Complex:Z:" title="Permalink to this definition">¶</a></dt>
+<dt id="Conj__Complex:Z:CR">
+Complex&lt;Z&gt; <tt class="descname">Conj</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Conj__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the complex conjugate of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>,</p>
 <div class="math">
 <p><img src="../_images/math/0222e01aafe874b9c99cfa1c9cc8f3fa2c1b3796.png" alt="\bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i"/></p>
@@ -420,8 +446,8 @@ bool <tt class="descname">operator!=</tt><big>(</big>const R&amp; <em>alpha</em>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">std::ostream&amp; operator&lt;&lt;( std::ostream&amp; os, Complex&lt;R&gt; alpha )</tt></dt>
+<dt id="lshift-operator__osR.Complex:R:">
+std::ostream&amp; <tt class="descname">operator&lt;&lt;</tt><big>(</big>std::ostream&amp; <em>os</em>, Complex&lt;R&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#lshift-operator__osR.Complex:R:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty prints <cite>alpha</cite> in the form <tt class="docutils literal"><span class="pre">a+bi</span></tt>.</p>
 </dd></dl>
 
@@ -674,7 +700,7 @@ manually specify a process grid, e.g.,</p>
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

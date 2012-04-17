@@ -52,8 +52,8 @@ main( int argc, char* argv[] )
             else
                 std::cout << " process.\n" << std::endl;
         }
-        DistMatrix<double> X( n, n );
-        X.SetToRandom();
+        DistMatrix<double> X;
+        UniformRandom( n, n, X );
 
         const double trace = Trace( X );
         const double det = Determinant( X );

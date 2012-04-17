@@ -30,7 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
@@ -57,33 +56,27 @@ void TestSyr2k
   int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> B(g);
-    DistMatrix<T,MC,MR> C(g);
+    DistMatrix<T,MC,MR> A(g), B(g), C(g);
 
     if( orientation == NORMAL )
     {
-        A.ResizeTo( m, k );
-        B.ResizeTo( m, k );
+        UniformRandom( m, k, A );
+        UniformRandom( m, k, B );
     }
     else
     {
-        A.ResizeTo( k, m );
-        B.ResizeTo( k, m );
+        UniformRandom( k, m, A );
+        UniformRandom( k, m, B );
     }
-
-    C.ResizeTo( m, m );
-
-    A.SetToRandom();
-    B.SetToRandom();
-    C.SetToRandom();
-    C.MakeTrapezoidal( LEFT, uplo );
+    UniformRandom( m, m, C );
+    MakeTrapezoidal( LEFT, uplo, 0, C );
     if( printMatrices )
     {
         A.Print("A");
         B.Print("B");
         C.Print("C");
     }
+
     if( g.Rank() == 0 )
     {
         cout << "  Starting Syr2k...";

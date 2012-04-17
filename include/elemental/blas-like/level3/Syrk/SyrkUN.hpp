@@ -65,7 +65,7 @@ internal::SyrkUN
     DistMatrix<T,STAR,MR  > A1Trans_STAR_MR(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, UPPER );
+    ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {

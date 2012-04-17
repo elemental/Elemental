@@ -105,7 +105,7 @@ internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         A11_STAR_STAR = A11;
         L10_STAR_VR = L10;
         Y10_STAR_VR.ResizeTo( A10.Height(), A10.Width() );
-        Y10_STAR_VR.SetToZero();
+        Zero( Y10_STAR_VR );
         Hemm
         ( LEFT, LOWER,
           (F)0.5, A11_STAR_STAR.LockedLocalMatrix(),

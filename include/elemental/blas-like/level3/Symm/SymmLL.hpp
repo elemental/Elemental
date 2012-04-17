@@ -111,8 +111,8 @@ internal::SymmLLA
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
-        Z1_MC_STAR.SetToZero();
-        Z1_MR_STAR.SetToZero();
+        Zero( Z1_MC_STAR );
+        Zero( Z1_MR_STAR );
         internal::LocalSymmetricAccumulateLL
         ( TRANSPOSE, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -229,8 +229,8 @@ internal::SymmLLC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
-        AColPan_MC_STAR.MakeTrapezoidal( LEFT, LOWER );
-        ARowPan_STAR_MC.MakeTrapezoidal( RIGHT, LOWER, -1 );
+        MakeTrapezoidal( LEFT,  LOWER,  0, AColPan_MC_STAR );
+        MakeTrapezoidal( RIGHT, LOWER, -1, ARowPan_STAR_MC );
 
         B1Trans_MR_STAR.TransposeFrom( B1 );
 

@@ -66,7 +66,7 @@ internal::SyrkUT
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
 
     // Start the algorithm
-    C.ScaleTrapezoid( beta, LEFT, UPPER );
+    ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionUp
     ( A, AT, 
          AB, 0 );

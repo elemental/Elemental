@@ -136,7 +136,10 @@ public:
     void SetLocalEntry( Int iLocal, Int jLocal, T alpha );
     void UpdateLocalEntry( Int iLocal, Int jLocal, T alpha );
 
-    // Only valid for complex datatypes
+    //
+    // Though the following routines are meant for complex data, all but two
+    // logically applies to real data.
+    //
 
     typename Base<T>::type 
     GetRealLocalEntry( Int iLocal, Int jLocal ) const;
@@ -144,10 +147,12 @@ public:
     GetImagLocalEntry( Int iLocal, Int jLocal ) const;
     void SetRealLocalEntry
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    // Only valid for complex data
     void SetImagLocalEntry
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     void UpdateRealLocalEntry
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    // Only valid for complex data
     void UpdateImagLocalEntry
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
 
@@ -163,7 +168,6 @@ public:
     //
 
     void Empty();
-    void SetToZero();
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
@@ -189,98 +193,72 @@ public:
     virtual void Set( Int i, Int j, T alpha ) = 0;
     virtual void Update( Int i, Int j, T alpha ) = 0;
 
-    // Only valid for complex datatypes
+    //
+    // Though the following routines are meant for complex data, all but two
+    // logically applies to real data.
+    //
 
     virtual typename Base<T>::type GetReal( Int i, Int j ) const = 0;
     virtual typename Base<T>::type GetImag( Int i, Int j ) const = 0;
     virtual void SetReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    // Only valid for complex data
     virtual void SetImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
     virtual void UpdateReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    // Only valid for complex data
     virtual void UpdateImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
 
     //
     // Utilities
     //
     
-    virtual void MakeTrapezoidal
-    ( LeftOrRight side, UpperOrLower uplo, Int offset=0 ) = 0;
-    virtual void ScaleTrapezoid
-    ( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset=0 ) = 0;
     virtual void ResizeTo( Int height, Int width ) = 0;
-    virtual void SetToIdentity() = 0;
-    virtual void SetToRandom() = 0;
-    virtual void SetToRandomHermitian() = 0;
-    virtual void SetToRandomHPD() = 0;
 
 protected:
-    bool viewing_;
-    bool lockedView_;
-    Int height_;
-    Int width_;
+    bool viewing_, lockedView_;
+    Int height_, width_;
     Memory<T> auxMemory_;
     Matrix<T,Int> localMatrix_;
     
-    bool constrainedColAlignment_;
-    bool constrainedRowAlignment_;
-    Int colAlignment_;
-    Int rowAlignment_;
-    Int colShift_;
-    Int rowShift_;
+    bool constrainedColAlignment_, constrainedRowAlignment_;
+    Int colAlignment_, rowAlignment_;
+    Int colShift_, rowShift_;
     const elem::Grid* grid_;
 
     // Initialize with particular local dimensions
     AbstractDistMatrix
-    ( Int height,
-      Int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      Int colAlignment,
-      Int rowAlignment,
-      Int colShift,
-      Int rowShift,
-      Int localHeight,
-      Int localWidth,
+    ( Int height, Int width,
+      bool constrainedColAlignment, bool constrainedRowAlignment,
+      Int colAlignment, Int rowAlignment,
+      Int colShift, Int rowShift,
+      Int localHeight, Int localWidth,
       const elem::Grid& g );
 
     // Initialize with particular local dimensions and local leading dimensions
     AbstractDistMatrix
-    ( Int height,
-      Int width,
-      bool constrainedColAlignment,
-      bool constrainedRowAlignment,
-      Int colAlignment,
-      Int rowAlignment,
-      Int colShift,
-      Int rowShift,
-      Int localHeight,
-      Int localWidth,
+    ( Int height, Int width,
+      bool constrainedColAlignment, bool constrainedRowAlignment,
+      Int colAlignment, Int rowAlignment,
+      Int colShift, Int rowShift,
+      Int localHeight, Int localWidth,
       Int ldim,
       const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     AbstractDistMatrix
-    ( Int height,
-      Int width,
-      Int colAlignment,
-      Int rowAlignment,
-      Int colShift,
-      Int rowShift,
-      Int localHeight,
-      Int localWidth,
+    ( Int height, Int width,
+      Int colAlignment, Int rowAlignment,
+      Int colShift, Int rowShift,
+      Int localHeight, Int localWidth,
       const T* buffer,
       Int ldim,
       const elem::Grid& g );
 
     // View a mutable distributed matrix's buffer
     AbstractDistMatrix
-    ( Int height,
-      Int width,
-      Int colAlignment,
-      Int rowAlignment,
-      Int colShift,
-      Int rowShift,
-      Int localHeight,
-      Int localWidth,
+    ( Int height, Int width,
+      Int colAlignment, Int rowAlignment,
+      Int colShift, Int rowShift,
+      Int localHeight, Int localWidth,
       T* buffer,
       Int ldim,
       const elem::Grid& g );
@@ -295,117 +273,81 @@ protected:
 template<typename T,typename Int>
 inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, 
-  Int width, 
-  bool constrainedColAlignment, 
-  bool constrainedRowAlignment,
-  Int colAlignment, 
-  Int rowAlignment,
-  Int colShift, 
-  Int rowShift, 
-  Int localHeight,
-  Int localWidth,
+( Int height, Int width, 
+  bool constrainedColAlignment, bool constrainedRowAlignment,
+  Int colAlignment, Int rowAlignment,
+  Int colShift, Int rowShift, 
+  Int localHeight, Int localWidth,
   const elem::Grid& grid )
-: viewing_(false), 
-  lockedView_(false), 
-  height_(height), 
-  width_(width), 
+: viewing_(false), lockedView_(false), 
+  height_(height), width_(width), 
   auxMemory_(), 
   localMatrix_(localHeight,localWidth), 
   constrainedColAlignment_(constrainedColAlignment), 
   constrainedRowAlignment_(constrainedRowAlignment),
-  colAlignment_(colAlignment), 
-  rowAlignment_(rowAlignment),
-  colShift_(colShift),
-  rowShift_(rowShift),
+  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
+  colShift_(colShift), rowShift_(rowShift),
   grid_(&grid)
 { } 
 
 template<typename T,typename Int>
 inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, 
-  Int width, 
-  bool constrainedColAlignment, 
-  bool constrainedRowAlignment,
-  Int colAlignment, 
-  Int rowAlignment,
-  Int colShift, 
-  Int rowShift, 
-  Int localHeight,
-  Int localWidth,
+( Int height, Int width, 
+  bool constrainedColAlignment, bool constrainedRowAlignment,
+  Int colAlignment, Int rowAlignment,
+  Int colShift, Int rowShift, 
+  Int localHeight, Int localWidth,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(false), 
-  lockedView_(false), 
-  height_(height), 
-  width_(width), 
+: viewing_(false), lockedView_(false), 
+  height_(height), width_(width), 
   auxMemory_(), 
   localMatrix_(localHeight,localWidth,ldim), 
   constrainedColAlignment_(constrainedColAlignment), 
   constrainedRowAlignment_(constrainedRowAlignment),
-  colAlignment_(colAlignment), 
-  rowAlignment_(rowAlignment),
-  colShift_(colShift),
-  rowShift_(rowShift),
+  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
+  colShift_(colShift), rowShift_(rowShift),
   grid_(&grid)
 { } 
 
 template<typename T,typename Int>
 inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, 
-  Int width, 
-  Int colAlignment, 
-  Int rowAlignment,
-  Int colShift, 
-  Int rowShift, 
-  Int localHeight,
-  Int localWidth,
+( Int height, Int width, 
+  Int colAlignment, Int rowAlignment,
+  Int colShift, Int rowShift, 
+  Int localHeight, Int localWidth,
   const T* buffer,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(true), 
-  lockedView_(true), 
-  height_(height), 
-  width_(width), 
+: viewing_(true), lockedView_(true), 
+  height_(height), width_(width), 
   auxMemory_(), 
   localMatrix_(localHeight,localWidth,buffer,ldim), 
-  constrainedColAlignment_(true), 
-  constrainedRowAlignment_(true),
-  colAlignment_(colAlignment), 
-  rowAlignment_(rowAlignment),
-  colShift_(colShift),
-  rowShift_(rowShift),
+  constrainedColAlignment_(true), constrainedRowAlignment_(true),
+  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
+  colShift_(colShift), rowShift_(rowShift),
   grid_(&grid)
 { } 
 
 template<typename T,typename Int>
 inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, 
-  Int width, 
-  Int colAlignment, 
-  Int rowAlignment,
-  Int colShift, 
-  Int rowShift, 
-  Int localHeight,
-  Int localWidth,
+( Int height, Int width, 
+  Int colAlignment, Int rowAlignment,
+  Int colShift, Int rowShift, 
+  Int localHeight, Int localWidth,
   T* buffer,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(true), 
-  lockedView_(false), 
-  height_(height), 
-  width_(width), 
+: viewing_(true), lockedView_(false), 
+  height_(height), width_(width), 
   auxMemory_(), 
   localMatrix_(localHeight,localWidth,buffer,ldim), 
-  constrainedColAlignment_(true), 
-  constrainedRowAlignment_(true),
-  colAlignment_(colAlignment), 
-  rowAlignment_(rowAlignment),
-  colShift_(colShift),
-  rowShift_(rowShift),
+  constrainedColAlignment_(true), constrainedRowAlignment_(true),
+  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
+  colShift_(colShift), rowShift_(rowShift),
   grid_(&grid)
 { } 
 
@@ -711,11 +653,6 @@ template<typename T,typename Int>
 inline const Matrix<T,Int>&
 AbstractDistMatrix<T,Int>::LockedLocalMatrix() const
 { return localMatrix_; }
-
-template<typename T,typename Int>
-inline void
-AbstractDistMatrix<T,Int>::SetToZero()
-{ localMatrix_.SetToZero(); }
 
 template<typename T,typename Int>
 inline void

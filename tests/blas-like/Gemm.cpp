@@ -30,7 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
@@ -57,28 +56,24 @@ void TestGemm
   int m, int n, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g);
-    DistMatrix<T,MC,MR> B(g);
-    DistMatrix<T,MC,MR> C(g);
+    DistMatrix<T,MC,MR> A(g), B(g), C(g);
 
     if( orientationOfA == NORMAL )
         A.ResizeTo( m, k );
     else
         A.ResizeTo( k, m );
-
     if( orientationOfB == NORMAL )
         B.ResizeTo( k, n );
     else
         B.ResizeTo( n, k );
-
     C.ResizeTo( m, n );
 
     // Test the variant of Gemm that keeps A stationary
     if( g.Rank() == 0 )
         cout << "Stationary A Algorithm:" << endl;
-    A.SetToRandom();
-    B.SetToRandom();
-    C.SetToRandom();
+    MakeUniformRandom( A );
+    MakeUniformRandom( B );
+    MakeUniformRandom( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -114,9 +109,9 @@ void TestGemm
     // Test the variant of Gemm that keeps B stationary
     if( g.Rank() == 0 )
         cout << endl << "Stationary B Algorithm:" << endl;
-    A.SetToRandom();
-    B.SetToRandom();
-    C.SetToRandom();
+    MakeUniformRandom( A );
+    MakeUniformRandom( B );
+    MakeUniformRandom( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -152,9 +147,9 @@ void TestGemm
     // Test the variant of Gemm that keeps C stationary
     if( g.Rank() == 0 )
         cout << endl << "Stationary C Algorithm:" << endl;
-    A.SetToRandom();
-    B.SetToRandom();
-    C.SetToRandom();
+    MakeUniformRandom( A );
+    MakeUniformRandom( B );
+    MakeUniformRandom( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -192,9 +187,9 @@ void TestGemm
         // Test the variant of Gemm for panel-panel dot products
         if( g.Rank() == 0 )
             cout << endl << "Dot Product Algorithm:" << endl;
-        A.SetToRandom();
-        B.SetToRandom();
-        C.SetToRandom();
+        MakeUniformRandom( A );
+        MakeUniformRandom( B );
+        MakeUniformRandom( C );
         if( printMatrices )
         {
             A.Print("A");

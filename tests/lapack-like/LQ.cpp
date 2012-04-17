@@ -64,7 +64,7 @@ void TestCorrectness
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
-    Z.SetToIdentity();
+    MakeIdentity( Z );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Z );
     ApplyPackedReflectors
@@ -75,7 +75,7 @@ void TestCorrectness
 
     // Form Identity
     DistMatrix<R,MC,MR> X(minDim,minDim,g);
-    X.SetToIdentity();
+    MakeIdentity( X );
 
     // Form X := I - Q^H Q
     Axpy( (R)-1, ZUpper, X );
@@ -97,7 +97,7 @@ void TestCorrectness
 
     // Form L Q
     DistMatrix<R,MC,MR> L( A );
-    L.MakeTrapezoidal( LEFT, LOWER );
+    MakeTrapezoidal( LEFT, LOWER, 0, L );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, L );
 
@@ -140,7 +140,7 @@ void TestCorrectness
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<C,MC,MR> Z(m,n,g);
-    Z.SetToIdentity();
+    MakeIdentity( Z );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
@@ -151,7 +151,7 @@ void TestCorrectness
 
     // Form Identity
     DistMatrix<C,MC,MR> X(minDim,minDim,g);
-    X.SetToIdentity();
+    MakeIdentity( X );
 
     // Form X := I - Q^H Q
     Axpy( (C)-1, ZUpper, X );
@@ -171,7 +171,7 @@ void TestCorrectness
 
     // Form L Q
     DistMatrix<C,MC,MR> L( A );
-    L.MakeTrapezoidal( LEFT, LOWER );
+    MakeTrapezoidal( LEFT, LOWER, 0, L );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, L );
 
@@ -208,12 +208,9 @@ void TestLQ<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(g);
-    DistMatrix<R,MC,MR> AOrig(g);
+    DistMatrix<R,MC,MR> A(g), AOrig(g);
+    UniformRandom( m, n, A );
 
-    A.ResizeTo( m, n );
-
-    A.SetToRandom();
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -260,13 +257,9 @@ void TestLQ<Complex<double> >
     typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > A(g);
-    DistMatrix<C,MD,STAR> t(g);
-    DistMatrix<C,MC,MR  > AOrig(g);
+    DistMatrix<C,MC,MR  > A(g), AOrig(g);
+    UniformRandom( m, n, A );
 
-    A.ResizeTo( m, n );
-
-    A.SetToRandom();
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -280,6 +273,7 @@ void TestLQ<Complex<double> >
     }
     if( printMatrices )
         A.Print("A");
+    DistMatrix<C,MD,STAR> t(g);
 
     if( g.Rank() == 0 )
     {

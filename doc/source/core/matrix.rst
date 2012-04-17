@@ -6,35 +6,6 @@ such as setting and querying individual matrix entries, without giving up
 compatibility with interfaces such as BLAS and LAPACK, which assume column-major
 storage.
 
-.. note:: 
-
-   There are essentially four constraints on the underlying datatype, say 
-   ``T``:
-
-    1. The datatype must be self-contained in the sense that all of 
-       the relevant data of an instance of the datatype is contained within a 
-       contiguous buffer of size less than or equal to ``sizeof(T)``.
-    2. It must be sensical to cast the decimal literals ``0`` and ``1`` into 
-       type ``T``, e.g., ``static_cast<T>(0)`` and ``static_cast<T>(1)``. 
-       This requirement exists so that a routine can be provided to initialize
-       a matrix to the identity operator.
-    3. Setting all ``sizeof(T)`` bytes of an instance of type ``T`` to zero must
-       be logically equivalent to setting the instance to ``static_cast<T>(0)``.
-       This constraint is enforced so that ``std::memset`` can be used to 
-       quickly set matrices to zero.
-    4. If the ``SetToRandom()`` member function is to be used, then the routine 
-       ``T elem::SampleUnitBall<T>()`` must exist. This is already 
-       provided for ``int``, ``float``, ``double``, ``Complex<float>``, 
-       and ``Complex<double>``, and could be easily extended to new 
-       datatypes.
-
-    It is important to note that these requirements are not strictly weaker or 
-    strictly stronger than requiring ``T`` to be POD (Plain Old Data), as 
-    requirements (2) and (3) are not necessary for a type to be POD, whereas 
-    POD types are not allowed to have user-defined constructors. Any complex
-    variable (defined using ``Complex``) fits our requirements, but is not
-    considered POD since it has several custom constructors.
-
 An example of generating an :math:`m \times n` matrix of real double-precision 
 numbers where the :math:`(i,j)` entry is equal to :math:`i-j` would be:
 
@@ -228,56 +199,56 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
       The remainder of this group is only valid for complex datatypes.
 
-   .. cpp:function:: typename RealBase<T>::type GetReal( int i, int j ) const
+   .. cpp:function:: typename Base<T>::type GetReal( int i, int j ) const
 
       Return the real part of entry :math:`(i,j)`.
 
-   .. cpp:function:: typename RealBase<T>::type GetImag( int i, int j ) const
+   .. cpp:function:: typename Base<T>::type GetImag( int i, int j ) const
 
       Return the imaginary part of entry :math:`(i,j)`.
 
-   .. cpp:function:: void SetReal( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetReal( int i, int j, typename Base<T>::type alpha )
 
       Set the real part of entry :math:`(i,j)` to :math:`\alpha`.
 
-   .. cpp:function:: void SetImag( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetImag( int i, int j, typename Base<T>::type alpha )
 
       Set the imaginary part of entry :math:`(i,j)` to :math:`\alpha`.
 
-   .. cpp:function:: void UpdateReal( int i, int j, typename RealBase<T>::type alpha )
+   .. cpp:function:: void UpdateReal( int i, int j, typename Base<T>::type alpha )
 
       Add :math:`\alpha` to the real part of entry :math:`(i,j)`.
 
-   .. cpp:function:: void UpdateImag( int i, int j, typename RealBase<T>::type alpha ) 
+   .. cpp:function:: void UpdateImag( int i, int j, typename Base<T>::type alpha ) 
 
       Add :math:`\alpha` to the imaginary part of entry :math:`(i,j)`.
 
-   .. cpp:function:: void GetRealDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
+   .. cpp:function:: void GetRealDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the real parts of the
       entries in the ``offset`` diagonal.
 
-   .. cpp:function:: void GetImagDiagonal( Matrix<typename RealBase<T>::type>& d, int offset=0 ) const
+   .. cpp:function:: void GetImagDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the imaginary parts of 
       the entries in the ``offset`` diagonal.
 
-   .. cpp:function:: void SetRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void SetRealDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Set the real parts of the entries in the ``offset`` diagonal from the 
       contents of the column-vector :math:`d`.
 
-   .. cpp:function:: void SetImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void SetImagDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Set the imaginary parts of the entries in the ``offset`` diagonal from 
       the column-vector :math:`d`.
 
-   .. cpp:function:: void UpdateRealDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void UpdateRealDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Add the contents of the column-vector :math:`d` onto the real parts of the
       entries in the ``offset`` diagonal.
 
-   .. cpp:function:: void UpdateImagDiagonal( const Matrix<typename RealBase<T>::type>& d, int offset=0 )
+   .. cpp:function:: void UpdateImagDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Add the contents of the column-vector :math:`d` onto the imaginary parts 
       of the entries in the ``offset`` diagonal.
@@ -370,34 +341,3 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
       Reconfigures the matrix to be `height` :math:`\times` `width`, but with 
       leading dimension equal to `ldim` (which must be greater than or equal to 
       ``std::min(height,1)``).
-
-   .. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset=0 )
-
-      Explicitly introduce zeroes into the distributed matrix such that it is
-      trapezoidal with respect to the left or right diagonal (as chosen by the
-      ``side`` parameter). Whether or not the matrix is lower or upper
-      trapezoidal is determined by the ``shape`` parameter, and the diagonal
-      offset is chosen by the ``offset`` parameter (:math:`0` denotes the main
-      diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the
-      superdiagonal).
-
-   .. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset=0 )
-
-      Scale the portion of the matrix determined by the above discussion by the
-      scalar :math:`\alpha`.
-
-   .. cpp:function:: void SetToIdentity()
-
-      Sets the entire matrix to zero, with the exception of the main diagonal 
-      being set to one. For square matrices, this corresponds to the identity 
-      operator.
-
-   .. cpp:function:: void SetToRandom()
-
-      Sets each entry in the matrix to a uniform sample from the most natural 
-      interpretation of the unit ball specified by the datatype.
-
-   .. cpp:function:: void SetToZero()
-
-      Sets every entry of the matrix to zero.
-

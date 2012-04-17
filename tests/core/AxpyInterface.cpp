@@ -59,8 +59,8 @@ main( int argc, char* argv[] )
             if( commRank == 0 )
                 std::cout << "Iteration " << k << std::endl;
 
-            DistMatrix<double> A( m, n, g );
-            A.SetToZero();
+            DistMatrix<double> A(g);
+            Zeros( m, n, A );
 
             AxpyInterface<double> interface;
             interface.Attach( LOCAL_TO_GLOBAL, A );
@@ -81,8 +81,7 @@ main( int argc, char* argv[] )
             Matrix<double> Y;
             if( commRank == 0 )
             {
-                Y.ResizeTo( m, n );
-                Y.SetToZero();
+                Zeros( m, n, Y );
                 interface.Axpy( 1.0, Y, 0, 0 );
             }
             interface.Detach();

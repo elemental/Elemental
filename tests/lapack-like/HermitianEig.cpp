@@ -84,8 +84,8 @@ void TestCorrectnessDouble
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<double,MC,MR> X(k,k,g);
-    X.SetToIdentity();
+    DistMatrix<double,MC,MR> X(g);
+    Identity( k, k, X );
     Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
     double oneNormOfError = Norm( X, ONE_NORM );
     double infNormOfError = Norm( X, INFINITY_NORM );
@@ -158,8 +158,8 @@ void TestCorrectnessDoubleComplex
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<Complex<double>,MC,MR> X( k, k, g );
-    X.SetToIdentity();
+    DistMatrix<Complex<double>,MC,MR> X( g );
+    Identity( k, k, X );
     Herk
     ( uplo, ADJOINT, 
       Complex<double>(-1), Z, 
@@ -220,12 +220,10 @@ void TestHermitianEigDouble
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<double,MC,MR> A(m,m,g);
-    DistMatrix<double,MC,MR> AOrig(g);
+    DistMatrix<double,MC,MR  > A(g), AOrig(g), Z(g);
     DistMatrix<double,VR,STAR> w(g);
-    DistMatrix<double,MC,MR> Z(g);
 
-    A.SetToRandomHermitian();
+    HermitianUniformRandom( m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -291,12 +289,10 @@ void TestHermitianEigDoubleComplex
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<Complex<double>,MC,  MR> A(m,m,g);
-    DistMatrix<Complex<double>,MC,  MR> AOrig(g);
+    DistMatrix<Complex<double>,MC,  MR> A(g), AOrig(g), Z(g);
     DistMatrix<        double, VR,STAR> w(g);
-    DistMatrix<Complex<double>,MC,  MR> Z(g);
 
-    A.SetToRandomHermitian();
+    HermitianUniformRandom( m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -309,9 +305,7 @@ void TestHermitianEigDoubleComplex
             cout << "DONE" << endl;
     }
     if( printMatrices )
-    {
         A.Print("A");
-    }
 
     if( g.Rank() == 0 )
     {

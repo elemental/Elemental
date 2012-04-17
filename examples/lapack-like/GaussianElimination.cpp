@@ -61,11 +61,11 @@ main( int argc, char* argv[] )
         Grid grid( mpi::COMM_WORLD, gridHeight, gridWidth );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
-        DistMatrix<double> A(n,n,grid), B(n,numRhs,grid), ACopy(grid), X(grid);
+        DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
         for( int test=0; test<3; ++test )
         {
-            A.SetToRandom();
-            B.SetToRandom();
+            UniformRandom( n, n,      A );
+            UniformRandom( n, numRhs, B );
             ACopy = A;
             X = B;
 

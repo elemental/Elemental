@@ -448,8 +448,8 @@ internal::HermitianPanelTridiagL
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
         //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
         PopBlocksizeStack();
-        p21_MC_STAR.SetToZero();
-        q21_MR_STAR.SetToZero();
+        Zero( p21_MC_STAR );
+        Zero( q21_MR_STAR );
         internal::LocalSymvColAccumulateL
         ( (R)1, A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
         PushBlocksizeStack( 1 );
@@ -1203,8 +1203,8 @@ internal::HermitianPanelTridiagL
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
         //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
         PopBlocksizeStack();
-        p21_MC_STAR.SetToZero();
-        q21_MR_STAR.SetToZero();
+        Zero( p21_MC_STAR );
+        Zero( q21_MR_STAR );
         internal::LocalHemvColAccumulateL
         ( (C)1, A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
         PushBlocksizeStack( 1 );

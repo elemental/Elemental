@@ -62,9 +62,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(m,100,g);
-    DistMatrix<F,MC,MR> Y(m,100,g);
-    X.SetToRandom();
+    DistMatrix<F,MC,MR> X(g), Y(g);
+    UniformRandom( m, 100, X );
     Y = X;
 
     // Test correctness by comparing the application of AOrig against a 
@@ -106,13 +105,9 @@ void TestLDL
   int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,STAR> d(g);
-    DistMatrix<F,MC,MR> AOrig(g);
 
-    A.ResizeTo( m, m );
-
-    A.SetToRandomHPD();
+    DistMatrix<F,MC,MR  > A(g), AOrig(g);
+    UniformRandom( m, m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -126,6 +121,7 @@ void TestLDL
     }
     if( printMatrices )
         A.Print("A");
+    DistMatrix<F,MC,STAR> d(g);
 
     if( g.Rank() == 0 )
     {

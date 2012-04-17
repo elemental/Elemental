@@ -103,7 +103,7 @@ internal::TrmmRLTA
             X1AdjOrTrans_MR_STAR.AdjointFrom( X1 );
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
-        Z1AdjOrTrans_MC_STAR.SetToZero();
+        Zero( Z1AdjOrTrans_MC_STAR );
         internal::LocalTrmmAccumulateRLT
         ( orientation, diag, 
           alpha, L, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
@@ -310,7 +310,7 @@ internal::LocalTrmmAccumulateRLT
         D11.AlignWith( L11 );
         //--------------------------------------------------------------------//
         D11 = L11;
-        D11.MakeTrapezoidal( LEFT, LOWER );
+        MakeTrapezoidal( LEFT, LOWER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
 

@@ -91,10 +91,9 @@ main( int argc, char* argv[] )
         const Grid grid( comm );
         const Grid sqrtGrid( comm, sqrtGroup );
 
-        DistMatrix<double> A( m, n, grid );
-        DistMatrix<double> ASqrt( m, n, sqrtGrid );
+        DistMatrix<double> A(grid), ASqrt(sqrtGrid);
 
-        A.SetToIdentity();
+        Identity( m, n, A );
         A.Print("A");
 
         ASqrt = A;

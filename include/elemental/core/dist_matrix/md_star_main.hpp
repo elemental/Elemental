@@ -1080,184 +1080,8 @@ DistMatrix<T,MD,STAR,Int>::Update( Int i, Int j, T u )
 }
 
 //
-// Utility functions, e.g., SetToIdentity and MakeTrapezoidal
+// Utility functions, e.g., operator=
 //
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MD,STAR,Int>::MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, Int offset )
-{
-#ifndef RELEASE
-    PushCallStack("[MD,* ]::MakeTrapezoidal");
-    this->AssertNotLockedView();
-#endif
-    if( this->InDiagonal() )
-    {
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int lcm = this->Grid().LCM();
-        const Int colShift = this->ColShift();
-
-        if( uplo == LOWER )
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int lastZeroRow = ( side==LEFT ? j-offset-1
-                                               : j-offset+height-width-1 );
-                if( lastZeroRow >= 0 )
-                {
-                    Int boundary = std::min( lastZeroRow+1, height );
-                    Int numZeroRows = RawLocalLength( boundary, colShift, lcm );
-                    T* thisCol = &thisLocalBuffer[j*thisLDim];
-                    MemZero( thisCol, numZeroRows );
-                }
-            }
-        }
-        else
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int firstZeroRow = 
-                    ( side==LEFT ? std::max(j-offset+1,0)
-                                 : std::max(j-offset+height-width+1,0) );
-                Int numNonzeroRows = RawLocalLength(firstZeroRow,colShift,lcm);
-                if( numNonzeroRows < localHeight )
-                {
-                    T* thisCol = &thisLocalBuffer[numNonzeroRows+j*thisLDim];
-                    MemZero( thisCol, localHeight-numNonzeroRows );
-                }
-            }
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MD,STAR,Int>::ScaleTrapezoid
-( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset )
-{
-#ifndef RELEASE
-    PushCallStack("[MD,* ]::ScaleTrapezoid");
-    this->AssertNotLockedView();
-#endif
-    if( this->InDiagonal() )
-    {
-        const Int height = this->Height();
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int lcm = this->Grid().LCM();
-        const Int colShift = this->ColShift();
-
-        if( uplo == UPPER )
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
-                Int boundary = std::min( lastRow+1, height );
-                Int numRows = RawLocalLength( boundary, colShift, lcm );
-                T* thisCol = &thisLocalBuffer[j*thisLDim];
-                for( Int iLocal=0; iLocal<numRows; ++iLocal )
-                    thisCol[iLocal] *= alpha;
-            }
-        }
-        else
-        {
-            T* thisLocalBuffer = this->LocalBuffer();
-            const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-            #pragma omp parallel for
-#endif
-            for( Int j=0; j<width; ++j )
-            {
-                Int firstRow = 
-                    ( side==LEFT ? std::max(j-offset,0)
-                                 : std::max(j+height-width-offset,0) );
-                Int numZeroRows = RawLocalLength( firstRow, colShift, lcm );
-                T* thisCol = &thisLocalBuffer[numZeroRows+j*thisLDim];
-                for( Int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
-                    thisCol[iLocal] *= alpha;
-            }
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MD,STAR,Int>::SetToIdentity()
-{
-#ifndef RELEASE
-    PushCallStack("[MD,* ]::SetToIdentity");
-    this->AssertNotLockedView();
-#endif
-    if( this->InDiagonal() )
-    {
-        const Int lcm = this->Grid().LCM();
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        const Int colShift = this->ColShift();
-
-        this->localMatrix_.SetToZero();
-
-        T* thisLocalBuffer = this->LocalBuffer();
-        const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const Int i = colShift + iLocal*lcm;
-            if( i < width )
-                thisLocalBuffer[iLocal+i*thisLDim] = 1;
-        }
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MD,STAR,Int>::SetToRandom()
-{
-#ifndef RELEASE
-    PushCallStack("[MD,* ]::SetToRandom");
-    this->AssertNotLockedView();
-#endif
-    if( this->InDiagonal() )
-    {
-        const Int width = this->Width();
-        const Int localHeight = this->LocalHeight();
-        for( Int j=0; j<width; ++j )
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                this->SetLocalEntry(iLocal,j,SampleUnitBall<T>());
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
 
 template<typename T,typename Int>
 inline const DistMatrix<T,MD,STAR,Int>&
@@ -1537,6 +1361,220 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     PopCallStack();
 #endif
     return *this;
+}
+
+//
+// Routines which explicitly work in the complex plane
+//
+
+template<typename T,typename Int>
+inline typename Base<T>::type
+DistMatrix<T,MD,STAR,Int>::GetReal( Int i, Int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::GetReal");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    // We will determine the owner of entry (i,j) and broadcast from it
+    const elem::Grid& g = this->Grid();
+    Int ownerRank;
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    R u;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        u = this->GetRealLocalEntry( iLocal, j );
+    }
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+template<typename T,typename Int>
+inline typename Base<T>::type
+DistMatrix<T,MD,STAR,Int>::GetImag( Int i, Int j ) const
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::GetImag");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    // We will determine the owner of entry (i,j) and broadcast from it
+    const elem::Grid& g = this->Grid();
+    Int ownerRank;
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    R u;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        u = this->GetImagLocalEntry( iLocal, j );
+    }
+    mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return u;
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MD,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::SetReal");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    Int ownerRank;
+    const elem::Grid& g = this->Grid();
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        this->SetRealLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MD,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::SetImag");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+
+    Int ownerRank;
+    const elem::Grid& g = this->Grid();
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        this->SetImagLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MD,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::UpdateReal");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+
+    Int ownerRank;
+    const elem::Grid& g = this->Grid();
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        this->UpdateRealLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MD,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
+{
+#ifndef RELEASE
+    PushCallStack("[MD,* ]::UpdateImag");
+    AssertValidEntry( i, j );
+#endif
+    typedef typename Base<T>::type R;
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+
+    Int ownerRank;
+    const elem::Grid& g = this->Grid();
+    {
+        const Int r = g.Height();
+        const Int c = g.Width();
+        const Int alignmentRank = this->ColAlignment();
+        const Int alignmentRow = alignmentRank % r;
+        const Int alignmentCol = alignmentRank / r;
+        const Int ownerRow = (alignmentRow + i) % r;
+        const Int ownerCol = (alignmentCol + i) % c;
+        ownerRank = ownerRow + r*ownerCol;
+    }
+
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLocal = (i-this->ColShift()) / g.LCM();
+        this->UpdateImagLocalEntry( iLocal, j, u );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
 }
 
 } // namespace elem

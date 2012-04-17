@@ -64,9 +64,9 @@ ReformHermitianMatrix
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
     if( uplo == LOWER )
-        A.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( LEFT, UPPER, 1, A );
     else
-        A.MakeTrapezoidal( LEFT, LOWER, -1 );
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -150,9 +150,9 @@ ReformHermitianMatrix
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
     if( uplo == LOWER )
-        A.MakeTrapezoidal( LEFT, UPPER, 1 );
+        MakeTrapezoidal( LEFT, UPPER, 1, A );
     else
-        A.MakeTrapezoidal( LEFT, LOWER, -1 );
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -234,7 +234,7 @@ ReformNormalMatrix
     DistMatrix<C,STAR,MR  > Z1Adj_STAR_MR(g);
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
-    A.SetToZero();
+    Zero( A );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,

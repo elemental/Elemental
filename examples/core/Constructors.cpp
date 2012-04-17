@@ -59,8 +59,8 @@ main( int argc, char* argv[] )
 
         // Automatic
         {
-            DistMatrix<double> X( n, n, grid );
-            X.SetToIdentity();
+            DistMatrix<double> X(grid);
+            Identity( n, n, X );
             X.Print("Automatic identity");
         }
 

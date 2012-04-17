@@ -35,7 +35,9 @@
 
 namespace elem {
 
-// TODO: Add support for random matrices
+//----------------------------------------------------------------------------//
+// Deterministic                                                              //
+//----------------------------------------------------------------------------//
 
 // Generate an m x n Cauchy matrix, i.e., 
 //
@@ -117,19 +119,11 @@ template<typename T>
 void Identity( int m, int n, Matrix<T>& I );
 template<typename T,Distribution U,Distribution V>
 void Identity( int m, int n, DistMatrix<T,U,V>& I );
-
-// Force the matrix to be lower or upper trapezoidal, with the diagonal
-// defined relative to either the top-left or bottom-right corner of the matrix
-// (based on the 'side' parameter). The 'offset' parameter determines where the
-// last nonzero diagonal is, with '0' meaning the main diagonal, '1' meaning 
-// the superdiagonal, '-1' meaning the subdiagonal, and likewise for all other
-// integer values.
+// Turn the existing matrix into an identity-like matrix
 template<typename T>
-void MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A );
+void MakeIdentity( Matrix<T>& I );
 template<typename T,Distribution U,Distribution V>
-void MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A );
+void MakeIdentity( DistMatrix<T,U,V>& I );
 
 // Generate an m x n matrix of all ones.
 template<typename T>
@@ -178,19 +172,73 @@ void Wilkinson( int k, Matrix<T>& W );
 template<typename T,Distribution U,Distribution V>
 void Wilkinson( int k, DistMatrix<T,U,V>& W );
 
-// Zero the contents of a matrix
-template<typename T>
-void Zero( Matrix<T>& A );
-template<typename T,Distribution U,Distribution V>
-void Zero( DistMatrix<T,U,V>& A );
-
 // Generate an m x n matrix of all zeros
 template<typename T>
 void Zeros( int m, int n, Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void Zeros( int m, int n, DistMatrix<T,U,V>& A );
 
+//----------------------------------------------------------------------------//
+// Random                                                                     //
+//----------------------------------------------------------------------------//
+
+// Generate an m x n matrix of samples from the uniform PDF over the 
+// closed unit ball.
+template<typename T>
+void UniformRandom( int m, int n, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void UniformRandom( int m, int n, DistMatrix<T,U,V>& A );
+// Turn the existing matrix into a uniform random matrix
+template<typename T>
+void MakeUniformRandom( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeUniformRandom( DistMatrix<T,U,V>& A );
+
+// Same as UniformRandom, but the diagonal is forced to be real-valued
+template<typename T>
+void HermitianUniformRandom( int n, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void HermitianUniformRandom( int n, DistMatrix<T,U,V>& A );
+// Turn the existing matrix into an (implicitly) Hermitian uniform random matrix
+template<typename T>
+void MakeHermitianUniformRandom( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeHermitianUniformRandom( DistMatrix<T,U,V>& A );
+
+// Same as UniformRandom, but the diagonal is forced to be real-valued and 
+// the diagonal is shifted up by n in order to ensure that the matrix is HPD.
+template<typename T>
+void HPDUniformRandom( int n, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void HPDUniformRandom( int n, DistMatrix<T,U,V>& A );
+// Turn the existing matrix into an (implicitly) HPD uniform random matrix
+template<typename T>
+void MakeHPDUniformRandom( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
+
 } // namespace elem
 
-#endif /* ELEMENTAL_SPECIAL_HPP */
+//----------------------------------------------------------------------------//
+// Implementation begins here                                                 //
+//----------------------------------------------------------------------------//
 
+// Deterministic
+
+#include "./special_matrices/Identity.hpp"
+#include "./special_matrices/Zeros.hpp"
+
+#include "./special_matrices/MakeIdentity.hpp"
+#include "./special_matrices/MakeZeros.hpp"
+
+// Random
+
+#include "./special_matrices/UniformRandom.hpp"
+#include "./special_matrices/HermitianUniformRandom.hpp"
+#include "./special_matrices/HPDUniformRandom.hpp"
+
+#include "./special_matrices/MakeUniformRandom.hpp"
+#include "./special_matrices/MakeHermitianUniformRandom.hpp"
+#include "./special_matrices/MakeHPDUniformRandom.hpp"
+
+#endif /* ELEMENTAL_SPECIAL_MATRICES_HPP */

@@ -134,8 +134,7 @@ void TestCorrectnessDouble
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
@@ -201,8 +200,7 @@ void TestCorrectnessDouble
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
@@ -266,8 +264,7 @@ void TestCorrectnessDouble
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (double)1, B, Z );
         else
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (double)1, B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
         oneNormOfError = Norm( Y, ONE_NORM );
         infNormOfError = Norm( Y, INFINITY_NORM );
@@ -359,8 +356,7 @@ void TestCorrectnessDoubleComplex
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -434,8 +430,7 @@ void TestCorrectnessDoubleComplex
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -508,8 +503,7 @@ void TestCorrectnessDoubleComplex
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
-        Y.ResizeTo( k, k );
-        Y.SetToIdentity();
+        Identity( k, k, Y );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -531,24 +525,23 @@ void TestHermitianGenDefiniteEigDouble
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<double,MC,MR  > A(m,m,g);
-    DistMatrix<double,MC,MR  > B(m,m,g);
-    DistMatrix<double,MC,MR  > AOrig(g);
-    DistMatrix<double,MC,MR  > BOrig(g);
+    DistMatrix<double,MC,MR  > A(g), AOrig(g);
+    DistMatrix<double,MC,MR  > B(g), BOrig(g);
     DistMatrix<double,VR,STAR> w(g);
     DistMatrix<double,MC,MR  > X(g);
 
-    A.SetToRandomHPD();
+    HPDUniformRandom( m, A );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        DistMatrix<double,MC,MR> C(m,m,g);
-        C.SetToRandom();
+        Zeros( m, m, B );
+        DistMatrix<double,MC,MR> C(g);
+        UniformRandom( m, m, C );
         Herk( uplo, ADJOINT, (double)1, C, (double)0, B );
     }
     else
-        B.SetToRandomHPD();
+        HPDUniformRandom( m, B );
 
     if( testCorrectness )
     {
@@ -621,29 +614,26 @@ void TestHermitianGenDefiniteEigDoubleComplex
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<Complex<double>,MC,MR  > A(m,m,g);
-    DistMatrix<Complex<double>,MC,MR  > B(m,m,g);
-    DistMatrix<Complex<double>,MC,MR  > AOrig(g);
-    DistMatrix<Complex<double>,MC,MR  > BOrig(g);
+    DistMatrix<Complex<double>,MC,MR  > A(g), AOrig(g);
+    DistMatrix<Complex<double>,MC,MR  > B(g), BOrig(g);
     DistMatrix<        double, VR,STAR> w(g);
     DistMatrix<Complex<double>,MC,MR  > X(g);
 
-    A.SetToRandomHPD();
+    HPDUniformRandom( m, A );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        DistMatrix<Complex<double>,MC,MR> C(m,m,g);
-        C.SetToRandom();
+        Zeros( m, m, B );
+        DistMatrix<Complex<double>,MC,MR> C(g);
+        UniformRandom( m, m, C );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(1), C, 
           Complex<double>(0), B );
     }
     else
-    {
-        B.SetToRandomHPD();
-    }
+        HPDUniformRandom( m, B );
 
     if( testCorrectness )
     {

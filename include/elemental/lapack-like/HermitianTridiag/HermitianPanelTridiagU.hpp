@@ -423,8 +423,8 @@ internal::HermitianPanelTridiagU
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
         PopBlocksizeStack();
-        p01_MC_STAR.SetToZero();
-        q01_MR_STAR.SetToZero();
+        Zero( p01_MC_STAR );
+        Zero( q01_MR_STAR );
         internal::LocalSymvColAccumulateU
         ( (R)1, A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR );
         PushBlocksizeStack( 1 );
@@ -1154,8 +1154,8 @@ internal::HermitianPanelTridiagU
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
         PopBlocksizeStack();
-        p01_MC_STAR.SetToZero();
-        q01_MR_STAR.SetToZero();
+        Zero( p01_MC_STAR );
+        Zero( q01_MR_STAR );
         internal::LocalHemvColAccumulateU
         ( (C)1, A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR );
         PushBlocksizeStack( 1 );

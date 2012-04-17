@@ -125,8 +125,8 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
         Z21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         Z21_MR_STAR.ResizeTo( A21.Height(), A21.Width() );
-        Z21_MC_STAR.SetToZero();
-        Z21_MR_STAR.SetToZero();
+        Zero( Z21_MC_STAR );
+        Zero( Z21_MR_STAR );
         internal::LocalSymmetricAccumulateLL
         ( ADJOINT, 
           (F)1, A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );

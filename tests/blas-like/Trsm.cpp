@@ -30,7 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
@@ -60,17 +59,14 @@ void TestTrsm
   int m, int n, F alpha, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,MR> X(g);
+    DistMatrix<F,MC,MR> A(g), X(g);
 
     if( side == LEFT )
-        A.ResizeTo( m, m );
+        HPDUniformRandom( m, A );
     else
-        A.ResizeTo( n, n );
-    X.ResizeTo( m, n );
+        HPDUniformRandom( n, A );
+    UniformRandom( m, n, X );
 
-    A.SetToRandomHPD();
-    X.SetToRandom();
     if( printMatrices )
     {
         A.Print("A");

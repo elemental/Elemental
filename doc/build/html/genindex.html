@@ -68,13 +68,14 @@
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="core/environment.html#Abs__Z">Abs (C++ function)</a>, <a href="core/environment.html#Abs__Complex:Z:">[1]</a>
+  <dt><a href="core/environment.html#Abs__ZCR">Abs (C++ function)</a>, <a href="core/environment.html#Abs__Complex:Z:CR">[1]</a>
   </dt>
 
       
@@ -524,7 +525,7 @@
   </dt>
 
       
-  <dt><a href="core/environment.html#Conj__Z">Conj (C++ function)</a>, <a href="core/environment.html#Conj__Complex:Z:">[1]</a>
+  <dt><a href="core/environment.html#Conj__ZCR">Conj (C++ function)</a>, <a href="core/environment.html#Conj__Complex:Z:CR">[1]</a>
   </dt>
 
       
@@ -698,7 +699,7 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="core/environment.html#FastAbs__Z">FastAbs (C++ function)</a>, <a href="core/environment.html#FastAbs__Complex:Z:">[1]</a>
+  <dt><a href="core/environment.html#FastAbs__ZCR">FastAbs (C++ function)</a>, <a href="core/environment.html#FastAbs__Complex:Z:CR">[1]</a>
   </dt>
 
       
@@ -974,15 +975,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="core/environment.html#Initialize__iR.cPPR">Initialize (C++ function)</a>
+  <dt><a href="core/environment.html#Imag__ZCR">Imag (C++ function)</a>, <a href="core/environment.html#Imag__Complex:Z:CR">[1]</a>
   </dt>
 
       
-  <dt><a href="core/environment.html#Initialized">Initialized (C++ function)</a>
+  <dt><a href="core/environment.html#Initialize__iR.cPPR">Initialize (C++ function)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="core/environment.html#Initialized">Initialized (C++ function)</a>
+  </dt>
+
       
   <dt><a href="lapack-like/inversion.html#Inverse__Matrix:F:R">Inverse (C++ function)</a>, <a href="lapack-like/inversion.html#Inverse__DistMatrix:F.MC.MR:R">[1]</a>
   </dt>
@@ -1090,6 +1095,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="blas-like/level1.html#MakeTrapezoidal__LeftOrRight.UpperOrLower.i.Matrix:T:R">MakeTrapezoidal (C++ function)</a>, <a href="blas-like/level1.html#MakeTrapezoidal__LeftOrRight.UpperOrLower.i.DistMatrix:T.U.V:R">[1]</a>
+  </dt>
+
+      
   <dt><a href="core/matrix.html#Matrix:T:">Matrix&lt;T&gt; (C++ class)</a>
   </dt>
 
@@ -1118,7 +1127,7 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::GetImagDiagonal__Matrix:typename-RealBase:T:::type:R.iC">Matrix&lt;T&gt;::GetImagDiagonal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::GetImagDiagonal__Matrix:typename-Base:T:::type:R.iC">Matrix&lt;T&gt;::GetImagDiagonal (C++ function)</a>
   </dt>
 
       
@@ -1126,7 +1135,7 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::GetRealDiagonal__Matrix:typename-RealBase:T:::type:R.iC">Matrix&lt;T&gt;::GetRealDiagonal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::GetRealDiagonal__Matrix:typename-Base:T:::type:R.iC">Matrix&lt;T&gt;::GetRealDiagonal (C++ function)</a>
   </dt>
 
       
@@ -1158,10 +1167,6 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::MakeTrapezoidal__LeftOrRight.UpperOrLower.i">Matrix&lt;T&gt;::MakeTrapezoidal (C++ function)</a>
-  </dt>
-
-      
   <dt><a href="core/matrix.html#Matrix:T:::Matrix">Matrix&lt;T&gt;::Matrix (C++ function)</a>, <a href="core/matrix.html#Matrix:T:::Matrix__i.i">[1]</a>, <a href="core/matrix.html#Matrix:T:::Matrix__i.i.i">[2]</a>, <a href="core/matrix.html#Matrix:T:::Matrix__i.i.TCP.i">[3]</a>, <a href="core/matrix.html#Matrix:T:::Matrix__i.i.TP.i">[4]</a>, <a href="core/matrix.html#Matrix:T:::Matrix__Matrix:T:CR">[5]</a>
   </dt>
 
@@ -1182,10 +1187,6 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::ScaleTrapezoid__T.LeftOrRight.UpperOrLower.i">Matrix&lt;T&gt;::ScaleTrapezoid (C++ function)</a>
-  </dt>
-
-      
   <dt><a href="core/matrix.html#Matrix:T:::Set__i.i.T">Matrix&lt;T&gt;::Set (C++ function)</a>
   </dt>
 
@@ -1194,31 +1195,19 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::SetImag__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::SetImag (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::SetImag__i.i.typename-Base:T:::type">Matrix&lt;T&gt;::SetImag (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::SetImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">Matrix&lt;T&gt;::SetImagDiagonal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::SetImagDiagonal__Matrix:typename-Base:T:::type:CR.i">Matrix&lt;T&gt;::SetImagDiagonal (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::SetReal__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::SetReal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::SetReal__i.i.typename-Base:T:::type">Matrix&lt;T&gt;::SetReal (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::SetRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">Matrix&lt;T&gt;::SetRealDiagonal (C++ function)</a>
-  </dt>
-
-      
-  <dt><a href="core/matrix.html#Matrix:T:::SetToIdentity">Matrix&lt;T&gt;::SetToIdentity (C++ function)</a>
-  </dt>
-
-      
-  <dt><a href="core/matrix.html#Matrix:T:::SetToRandom">Matrix&lt;T&gt;::SetToRandom (C++ function)</a>
-  </dt>
-
-      
-  <dt><a href="core/matrix.html#Matrix:T:::SetToZero">Matrix&lt;T&gt;::SetToZero (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::SetRealDiagonal__Matrix:typename-Base:T:::type:CR.i">Matrix&lt;T&gt;::SetRealDiagonal (C++ function)</a>
   </dt>
 
       
@@ -1230,19 +1219,19 @@
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::UpdateImag__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::UpdateImag (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::UpdateImag__i.i.typename-Base:T:::type">Matrix&lt;T&gt;::UpdateImag (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::UpdateImagDiagonal__Matrix:typename-RealBase:T:::type:CR.i">Matrix&lt;T&gt;::UpdateImagDiagonal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::UpdateImagDiagonal__Matrix:typename-Base:T:::type:CR.i">Matrix&lt;T&gt;::UpdateImagDiagonal (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::UpdateReal__i.i.typename-RealBase:T:::type">Matrix&lt;T&gt;::UpdateReal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::UpdateReal__i.i.typename-Base:T:::type">Matrix&lt;T&gt;::UpdateReal (C++ function)</a>
   </dt>
 
       
-  <dt><a href="core/matrix.html#Matrix:T:::UpdateRealDiagonal__Matrix:typename-RealBase:T:::type:CR.i">Matrix&lt;T&gt;::UpdateRealDiagonal (C++ function)</a>
+  <dt><a href="core/matrix.html#Matrix:T:::UpdateRealDiagonal__Matrix:typename-Base:T:::type:CR.i">Matrix&lt;T&gt;::UpdateRealDiagonal (C++ function)</a>
   </dt>
 
       
@@ -1329,8 +1318,6 @@
   <dt><a href="imports/mpi.html#mpi::CommCreate__mpi::Comm.mpi::Group.mpi::CommR">mpi::CommCreate (C++ function)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="imports/mpi.html#mpi::CommDup__mpi::Comm.mpi::CommR">mpi::CommDup (C++ function)</a>
   </dt>
@@ -1339,6 +1326,8 @@
   <dt><a href="imports/mpi.html#mpi::CommFree__mpi::CommR">mpi::CommFree (C++ function)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="imports/mpi.html#mpi::CommGroup__mpi::Comm.mpi::GroupR">mpi::CommGroup (C++ function)</a>
   </dt>
@@ -1636,6 +1625,10 @@
   </dt>
 
       
+  <dt><a href="core/environment.html#lshift-operator__osR.Complex:R:">operator&lt;&lt; (C++ function)</a>
+  </dt>
+
+      
   <dt><a href="core/environment.html#eq-operator__Complex:R:CR.Complex:R:CR">operator== (C++ function)</a>, <a href="core/environment.html#eq-operator__Complex:R:CR.RCR">[1]</a>, <a href="core/environment.html#eq-operator__RCR.Complex:R:CR">[2]</a>, <a href="core/grid.html#eq-operator__GridCR.GridCR">[3]</a>
   </dt>
 
@@ -1812,6 +1805,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="core/environment.html#Real__ZCR">Real (C++ function)</a>, <a href="core/environment.html#Real__Complex:Z:CR">[1]</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="lapack-like/eigen_svd.html#RealHermitianFunction__UpperOrLower.DistMatrix:R.MC.MR:R.RealFunctorCR">RealHermitianFunction (C++ function)</a>, <a href="lapack-like/eigen_svd.html#RealHermitianFunction__UpperOrLower.DistMatrix:Complex:R:.MC.MR:R.RealFunctorCR">[1]</a>
   </dt>
 
@@ -1843,6 +1842,10 @@
 
       
   <dt><a href="blas-like/level1.html#Scal__T.Matrix:T:R">Scal (C++ function)</a>, <a href="blas-like/level1.html#Scal__T.DistMatrix:T.U.V:R">[1]</a>
+  </dt>
+
+      
+  <dt><a href="blas-like/level1.html#ScaleTrapezoid__T.LeftOrRight.UpperOrLower.i.Matrix:T:R">ScaleTrapezoid (C++ function)</a>, <a href="blas-like/level1.html#ScaleTrapezoid__T.LeftOrRight.UpperOrLower.i.DistMatrix:T.U.V:R">[1]</a>
   </dt>
 
       
@@ -1988,6 +1991,16 @@
   </dl></td>
 </tr></table>
 
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="blas-like/level1.html#Zero__Matrix:T:R">Zero (C++ function)</a>, <a href="blas-like/level1.html#Zero__DistMatrix:T.U.V:R">[1]</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
 
 
           </div>
@@ -2029,7 +2042,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
