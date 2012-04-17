@@ -164,14 +164,14 @@ Triangular matrix-matrix multiplication: performs
 :math:`C := \alpha B \mbox{op}(A)`, depending upon whether `side` was chosen
 to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated as 
 lower or upper triangular is determined by `uplo`, and :math:`\mbox{op}(A)` 
-can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
-whether :math:`A` is treated as unit diagonal or not).
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diag` determines
+whether :math:`A` is treated as unit-diagonal or not).
 
-.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const Matrix<T>& A, Matrix<T>& B )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
 
    The distributed implementation (templated over the datatype).
 
@@ -226,13 +226,13 @@ Triangular solve with multiple right-hand sides: performs
 :math:`C := \alpha B \mbox{op}(A)^{-1}`, depending upon whether `side` was 
 chosen to be ``LEFT`` or ``RIGHT``, respectively. Whether :math:`A` is treated 
 as lower or upper triangular is determined by `uplo`, and :math:`\mbox{op}(A)` 
-can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diagonal` determines
-whether :math:`A` is treated as unit diagonal or not).
+can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diag` determines
+whether :math:`A` is treated as unit-diagonal or not).
 
-.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const Matrix<T>& A, Matrix<T>& B )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, Diagonal diagonal, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
 
    The distributed implementation (templated over the datatype).

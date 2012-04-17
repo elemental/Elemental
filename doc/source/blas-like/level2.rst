@@ -161,13 +161,13 @@ Triangular solve with a vector: computes
 :math:`x := \mbox{op}(A)^{-1} x`, where :math:`\mbox{op}(A)` is either 
 :math:`A`, :math:`A^T`, or :math:`A^H`, and :math:`A` is treated an either a 
 lower or upper triangular matrix, depending upon `uplo`. :math:`A` can also be 
-treated as implicitly having a unit diagonal if `diagonal` is set to ``UNIT``.
+treated as implicitly having a unit-diagonal if `diag` is set to ``UNIT``.
 
-.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, Diagonal diagonal, const Matrix<F>& A, Matrix<F>& x )
+.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, const Matrix<F>& A, Matrix<F>& x )
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, Diagonal diagonal, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
+.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
 
    The distributed implementation (templated over the datatype).
 

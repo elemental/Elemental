@@ -91,11 +91,11 @@ Triangular inversion
 --------------------
 Inverts a (possibly unit-diagonal) triangular matrix in-place.
 
-.. cpp:function:: void TriangularInverse( UpperOrLower uplo, Diagonal diagonal, Matrix<F>& A )
+.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 
    Inverts the triangle of `A` specified by the parameter `uplo`; 
-   if `diagonal` is set to `UNIT`, then `A` is treated as unit-diagonal.
+   if `diag` is set to `UNIT`, then `A` is treated as unit-diagonal.
 
-.. cpp:function:: void TriangularInverse( UpperOrLower uplo, Diagonal diagonal, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,MC,MR>& A )
 
    Same as above, but for a distributed matrix.
