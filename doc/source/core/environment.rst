@@ -274,10 +274,11 @@ Custom datatypes
 
    ``typedef Complex<double> dcomplex;``
 
-.. cpp:type:: Diagonal
+.. cpp:type:: UnitOrNonUnit
 
-   An enum specifying whether a triangular matrix's diagonal is explicitly stored 
-   (``NON_UNIT``) or is implicitly unit diaognal (``UNIT``).
+   An enum for specifying either ``UNIT`` or ``NON_UNIT``; typically used for 
+   stating whether or not a triangular matrix's diagonal is explicitly stored
+   (``NON_UNIT``) or is implicitly unit-diagonal (``UNIT``).
 
 .. cpp:type:: Orientation
 
@@ -285,7 +286,7 @@ Custom datatypes
    treated as :math:`A` (``NORMAL``), :math:`A^H` (``ADJOINT``), or :math:`A^T`
    (``TRANSPOSE``).
 
-.. cpp:type:: Side
+.. cpp:type:: LeftOrRight
 
    An enum for specifying ``LEFT`` or ``RIGHT``.
 
@@ -297,7 +298,7 @@ Custom datatypes
 
    An enum for specifying ``LOWER`` or ``UPPER`` (triangular).
 
-.. cpp:type:: VectorDirection
+.. cpp:type:: VerticalOrHorizontal
 
    An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
 

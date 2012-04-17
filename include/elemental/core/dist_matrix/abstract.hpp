@@ -203,9 +203,9 @@ public:
     //
     
     virtual void MakeTrapezoidal
-    ( Side side, UpperOrLower uplo, Int offset=0 ) = 0;
+    ( LeftOrRight side, UpperOrLower uplo, Int offset=0 ) = 0;
     virtual void ScaleTrapezoid
-    ( T alpha, Side side, UpperOrLower uplo, Int offset=0 ) = 0;
+    ( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset=0 ) = 0;
     virtual void ResizeTo( Int height, Int width ) = 0;
     virtual void SetToIdentity() = 0;
     virtual void SetToRandom() = 0;

@@ -853,7 +853,7 @@ DistMatrix<T,STAR,VR,Int>::Update( Int i, Int j, T u )
 template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,VR,Int>::MakeTrapezoidal
-( Side side, UpperOrLower uplo, Int offset )
+( LeftOrRight side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::MakeTrapezoidal");
@@ -914,7 +914,7 @@ DistMatrix<T,STAR,VR,Int>::MakeTrapezoidal
 template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,VR,Int>::ScaleTrapezoid
-( T alpha, Side side, UpperOrLower uplo, Int offset )
+( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::ScaleTrapezoid");

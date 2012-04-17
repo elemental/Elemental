@@ -240,7 +240,7 @@ to be available for all matrix distributions.
       Resize the distributed matrix so that it is :math:`0 \times 0` and free 
       all allocated storage.
 
-   .. cpp:function:: void MakeTrapezoidal( Side side, Shape shape, int offset=0 )
+   .. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset=0 )
 
       Explicitly introduce zeroes into the distributed matrix such that it is 
       trapezoidal with respect to the left or right diagonal (as chosen by the 
@@ -250,7 +250,7 @@ to be available for all matrix distributions.
       diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
       superdiagonal).
 
-   .. cpp:function:: void ScaleTrapezoid( T alpha, Side side, Shape shape, int offset=0 )
+   .. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset=0 )
 
       Scale the portion of the matrix determined by the above discussion by the 
       scalar :math:`\alpha`.

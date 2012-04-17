@@ -610,33 +610,33 @@ if(BUILD_TESTS)
     endif(MPI_LINK_FLAGS)
     install(TARGETS tests-core-${TEST} DESTINATION bin/tests/core)
   endforeach(TEST)
-  # Build the basic tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/basic")
+  # Build the BLAS-like tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/blas-like")
   foreach(TEST ${BASIC_TESTS})
-    add_executable(tests-basic-${TEST} ${TEST_DIR}/basic/${TEST}.cpp)
-    target_link_libraries(tests-basic-${TEST} elemental)
-    set_target_properties(tests-basic-${TEST} PROPERTIES
+    add_executable(tests-blas-${TEST} ${TEST_DIR}/blas-like/${TEST}.cpp)
+    target_link_libraries(tests-blas-${TEST} elemental)
+    set_target_properties(tests-blas-${TEST} PROPERTIES
                           OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-basic-${TEST} PROPERTIES
+      set_target_properties(tests-blas-${TEST} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
-    install(TARGETS tests-basic-${TEST} DESTINATION bin/tests/basic)
+    install(TARGETS tests-blas-${TEST} DESTINATION bin/tests/blas-like)
   endforeach(TEST)
-  # Build the advanced tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/advanced")
+  # Build the LAPACK-like tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/lapack-like")
   foreach(TEST ${ADVANCED_TESTS})
-    add_executable(tests-advanced-${TEST} ${TEST_DIR}/advanced/${TEST}.cpp)
-    target_link_libraries(tests-advanced-${TEST} elemental)
-    set_target_properties(tests-advanced-${TEST} PROPERTIES
+    add_executable(tests-lapack-${TEST} ${TEST_DIR}/lapack-like/${TEST}.cpp)
+    target_link_libraries(tests-lapack-${TEST} elemental)
+    set_target_properties(tests-lapack-${TEST} PROPERTIES
                           OUTPUT_NAME ${TEST}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(tests-advanced-${TEST} PROPERTIES
+      set_target_properties(tests-lapack-${TEST} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
-    install(TARGETS tests-advanced-${TEST} DESTINATION bin/tests/advanced)
+    install(TARGETS tests-lapack-${TEST} DESTINATION bin/tests/lapack-like)
   endforeach(TEST)
 endif(BUILD_TESTS)
 
@@ -673,21 +673,21 @@ if(BUILD_EXAMPLES)
     install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
   endforeach(EXAMPLE)
 
-  # Build the advanced test(s)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/advanced")
+  # Build the LAPACK-like test(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/lapack-like")
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})
-    add_executable(examples-advanced-${EXAMPLE} 
-                   ${EXAMPLE_DIR}/advanced/${EXAMPLE}.cpp)
-    target_link_libraries(examples-advanced-${EXAMPLE} elemental)
-    set_target_properties(examples-advanced-${EXAMPLE} PROPERTIES
+    add_executable(examples-lapack-${EXAMPLE} 
+                   ${EXAMPLE_DIR}/lapack-like/${EXAMPLE}.cpp)
+    target_link_libraries(examples-lapack-${EXAMPLE} elemental)
+    set_target_properties(examples-lapack-${EXAMPLE} PROPERTIES
                           OUTPUT_NAME ${EXAMPLE}
                           RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(examples-advanced-${EXAMPLE} PROPERTIES
+      set_target_properties(examples-lapack-${EXAMPLE} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
-    install(TARGETS examples-advanced-${EXAMPLE} 
-            DESTINATION bin/examples/advanced)
+    install(TARGETS examples-lapack-${EXAMPLE} 
+            DESTINATION bin/examples/lapack-like)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
 

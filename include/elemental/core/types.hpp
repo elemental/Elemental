@@ -55,17 +55,17 @@ struct SafeProduct
     SafeProduct( Int numEntries ) : rho(1), kappa(0), n(numEntries) { }
 };
 
-namespace diagonal_wrapper {
-enum Diagonal
+namespace unit_or_non_unit_wrapper {
+enum UnitOrNonUnit
 {
     NON_UNIT,
     UNIT
 };
 }
-using namespace diagonal_wrapper;
+using namespace unit_or_non_unit_wrapper;
 
-char DiagonalToChar( Diagonal diagonal );
-Diagonal CharToDiagonal( char c );
+char UnitOrNonUnitToChar( UnitOrNonUnit diag );
+UnitOrNonUnit CharToUnitOrNonUnit( char c );
 
 namespace orientation_wrapper {
 enum Orientation
@@ -92,26 +92,26 @@ using namespace upper_or_lower_wrapper;
 char UpperOrLowerToChar( UpperOrLower uplo );
 UpperOrLower CharToUpperOrLower( char c );
 
-namespace side_wrapper {
-enum Side
+namespace left_or_right_wrapper {
+enum LeftOrRight
 {
     LEFT,
     RIGHT
 };
 }
-using namespace side_wrapper;
+using namespace left_or_right_wrapper;
 
-char SideToChar( Side side );
-Side CharToSide( char c );
+char LeftOrRightToChar( LeftOrRight side );
+LeftOrRight CharToLeftOrRight( char c );
 
-namespace vector_direction_wrapper {
-enum VectorDirection
+namespace vertical_or_horizontal_wrapper {
+enum VerticalOrHorizontal
 {
     VERTICAL,
     HORIZONTAL
 };
 }
-using namespace vector_direction_wrapper;
+using namespace vertical_or_horizontal_wrapper;
 
 namespace forward_or_backward_wrapper {
 enum ForwardOrBackward
@@ -160,28 +160,28 @@ using namespace grid_order_wrapper;
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
-inline char DiagonalToChar( Diagonal diagonal )
+inline char UnitOrNonUnitToChar( UnitOrNonUnit diag )
 {
-    char diagonalChar;
-    switch( diagonal )
+    char diagChar;
+    switch( diag )
     {
-        case NON_UNIT: diagonalChar = 'N'; break;
-        default:       diagonalChar = 'U'; break;
+        case NON_UNIT: diagChar = 'N'; break;
+        default:       diagChar = 'U'; break;
     }
-    return diagonalChar;
+    return diagChar;
 }
 
-inline Diagonal CharToDiagonal( char c )
+inline UnitOrNonUnit CharToUnitOrNonUnit( char c )
 {
-    Diagonal diagonal;
+    UnitOrNonUnit diag;
     switch( c )
     {
-        case 'N': diagonal = NON_UNIT; break;
-        case 'U': diagonal = UNIT;     break;
+        case 'N': diag = NON_UNIT; break;
+        case 'U': diag = UNIT;     break;
         default:
-            throw std::logic_error("CharToDiagonal expects char in {N,U}");
+            throw std::logic_error("CharToUnitOrNonUnit expects char in {N,U}");
     }
-    return diagonal;
+    return diag;
 }
 
 inline std::string DistToString
@@ -275,7 +275,7 @@ inline UpperOrLower CharToUpperOrLower( char c )
     return uplo;
 }
 
-inline char SideToChar( Side side )
+inline char LeftOrRightToChar( LeftOrRight side )
 {
     char sideChar;
     switch( side )
@@ -286,15 +286,15 @@ inline char SideToChar( Side side )
     return sideChar;
 }
     
-inline Side CharToSide( char c )
+inline LeftOrRight CharToLeftOrRight( char c )
 {
-    Side side;
+    LeftOrRight side;
     switch( c )
     {
         case 'L': side = LEFT;  break;
         case 'R': side = RIGHT; break;
         default:
-            throw std::logic_error("CharToSide expects char in {L,R}");
+            throw std::logic_error("CharToLeftOrRight expects char in {L,R}");
     }
     return side;
 }

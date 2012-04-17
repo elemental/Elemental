@@ -13,6 +13,6 @@ Welcome to Elemental's documentation!
    build
    imports
    core
-   basic
-   advanced 
+   blas-like
+   lapack-like
    indices

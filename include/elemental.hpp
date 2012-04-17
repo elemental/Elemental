@@ -36,7 +36,10 @@
 #include "elemental/core/matrix.hpp"
 #include "elemental/core/dist_matrix.hpp"
 #include "elemental/core/axpy_interface.hpp"
-#include "elemental/basic.hpp"
-#include "elemental/advanced.hpp"
+
+#include "elemental/special_matrices.hpp"
+
+#include "elemental/blas-like.hpp"
+#include "elemental/lapack-like.hpp"
 
 #endif // ELEMENTAL_H

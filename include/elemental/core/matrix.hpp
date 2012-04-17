@@ -158,8 +158,9 @@ public:
     void ResizeTo( Int height, Int width );
     void ResizeTo( Int height, Int width, Int ldim );
 
-    void MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset=0 );
-    void ScaleTrapezoid( T alpha, Side side, UpperOrLower uplo, Int offset=0 );
+    void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, Int offset=0 );
+    void ScaleTrapezoid
+    ( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset=0 );
 
     void SetToIdentity();
     void SetToRandom();
@@ -1544,7 +1545,8 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
+Matrix<T,Int>::MakeTrapezoidal
+( LeftOrRight side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::MakeTrapezoidal");
@@ -1620,7 +1622,7 @@ Matrix<T,Int>::MakeTrapezoidal( Side side, UpperOrLower uplo, Int offset )
 template<typename T,typename Int>
 inline void
 Matrix<T,Int>::ScaleTrapezoid
-( T alpha, Side side, UpperOrLower uplo, Int offset )
+( T alpha, LeftOrRight side, UpperOrLower uplo, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::ScaleTrapezoid");
