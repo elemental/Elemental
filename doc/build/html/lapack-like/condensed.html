@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Reduction to condensed form &mdash; Elemental 0.74-pre documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.74-pre',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
+    <link rel="up" title="LAPACK-like linear algebra" href="../lapack-like.html" />
+    <link rel="next" title="Eigensolvers and SVD" href="eigen_svd.html" />
+    <link rel="prev" title="In-place inversion" href="inversion.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="eigen_svd.html" title="Eigensolvers and SVD"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="inversion.html" title="In-place inversion"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../lapack-like.html" accesskey="U">LAPACK-like linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="reduction-to-condensed-form">
+<h1>Reduction to condensed form<a class="headerlink" href="#reduction-to-condensed-form" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hermitian-to-tridiagonal">
+<h2>Hermitian to tridiagonal<a class="headerlink" href="#hermitian-to-tridiagonal" title="Permalink to this headline">¶</a></h2>
+<p>The currently best-known algorithms for computing eigenpairs of dense Hermitian
+matrices begin by performing a unitary similarity transformation which reduces
+the matrix to real symmetric tridiagonal form (usually through Householder
+transformations). This routine performs said reduction on a Hermitian matrix
+and stores the scaled Householder vectors in place of the introduced zeroes.</p>
+<dl class="function">
+<dt id="HermitianTridiag__UpperOrLower.Matrix:R:R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.Matrix:R:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the main and sub (super) diagonal of the real matrix
+<cite>A</cite> with its similar symmetric tridiagonal matrix and stores the scaled
+Householder vectors below (above) its tridiagonal entries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="HermitianTridiag__UpperOrLower.Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to above, but the complex Hermitian matrix is reduced to
+real symmetric tridiagonal form, with the added complication of needing to
+also store the phase information for the Householder vectors (the scaling can
+be inferred since the Householder vectors must be unit length); the scales
+with proper phases are returned in the column vector <cite>t</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="HermitianTridiag__UpperOrLower.DistMatrix:R.MC.MR:R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the main and sub (super) diagonal of the real distributed matrix
+<cite>A</cite> with its similar symmetric tridiagonal matrix and stores the scaled
+Householder vectors below (above) its tridiagonal entries.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="HermitianTridiag__UpperOrLower.DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R">
+void <tt class="descname">HermitianTridiag</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#HermitianTridiag__UpperOrLower.DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Similar to above, but the complex Hermitian matrix is reduced to
+real symmetric tridiagonal form, with the added complication of needing to
+also store the phase information for the Householder vectors (the scaling can
+be inferred since the Householder vectors must be unit length); the scales
+with proper phases are returned in the column vector <cite>t</cite>.</p>
+</dd></dl>
+
+<p>Please see the <em>Tuning parameters</em> section for extensive information on
+maximizing the performance of Householder tridiagonalization.</p>
+</div>
+<div class="section" id="general-to-hessenberg">
+<h2>General to Hessenberg<a class="headerlink" href="#general-to-hessenberg" title="Permalink to this headline">¶</a></h2>
+<p>Not yet written, but it is planned and relatively straightforward after
+writing the reductions to tridiagonal and bidiagonal form.</p>
+</div>
+<div class="section" id="general-to-bidiagonal">
+<h2>General to bidiagonal<a class="headerlink" href="#general-to-bidiagonal" title="Permalink to this headline">¶</a></h2>
+<p>Reduces a general fully-populated <img class="math" src="../_images/math/dc5c773a00becebf2fe78e775d5953e138efea9e.png" alt="m \times n"/> matrix to bidiagonal form
+through two-sided Householder transformations; when the <img class="math" src="../_images/math/8da67e35e9c517fa132e6b7d8b548f3940e80d2f.png" alt="m \ge n"/>, the
+result is upper bidiagonal, otherwise it is lower bidiagonal. This routine is
+most commonly used as a preprocessing step in computing the SVD of a general
+matrix.</p>
+<dl class="function">
+<dt id="Bidiag__Matrix:R:R">
+void <tt class="descname">Bidiag</tt><big>(</big>Matrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Bidiag__Matrix:R:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the main and sub (or super) diagonal of the real matrix <cite>A</cite> with
+the resulting bidiagonal matrix and stores the scaled Householder vectors in
+the remainder of the matrix.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Bidiag__Matrix:Complex:R::R.Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">Bidiag</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>tP</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__Matrix:Complex:R::R.Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but the complex scalings for the Householder reflectors are
+returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Bidiag__DistMatrix:R.MC.MR:R">
+void <tt class="descname">Bidiag</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Bidiag__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the main and sub (or super) diagonal of the real distributed
+matrix <cite>A</cite> with the resulting bidiagonal matrix and stores the scaled
+Householder vectors in the remainder of the matrix.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <img class="math" src="../_images/math/9b2142770fa24b44536073e58e97ca948a989965.png" alt="m &lt; n"/> case is not yet supported.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="Bidiag__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R.DistMatrix:Complex:R:.STAR.STAR:R">
+void <tt class="descname">Bidiag</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tP</em>, DistMatrix&lt;Complex&lt;R&gt;, STAR, STAR&gt;&amp; <em>tQ</em><big>)</big><a class="headerlink" href="#Bidiag__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.STAR.STAR:R.DistMatrix:Complex:R:.STAR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but the complex scalings for the Householder reflectors are
+returned in the vectors <cite>tP</cite> and <cite>tQ</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <img class="math" src="../_images/math/9b2142770fa24b44536073e58e97ca948a989965.png" alt="m &lt; n"/> case is not yet supported.</p>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Reduction to condensed form</a><ul>
+<li><a class="reference internal" href="#hermitian-to-tridiagonal">Hermitian to tridiagonal</a></li>
+<li><a class="reference internal" href="#general-to-hessenberg">General to Hessenberg</a></li>
+<li><a class="reference internal" href="#general-to-bidiagonal">General to bidiagonal</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="inversion.html"
+                        title="previous chapter">In-place inversion</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="eigen_svd.html"
+                        title="next chapter">Eigensolvers and SVD</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lapack-like/condensed.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="eigen_svd.html" title="Eigensolvers and SVD"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="inversion.html" title="In-place inversion"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../lapack-like.html" >LAPACK-like linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

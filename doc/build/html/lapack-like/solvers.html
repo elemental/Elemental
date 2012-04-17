@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Linear solvers &mdash; Elemental 0.74-pre documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.74-pre',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
+    <link rel="up" title="LAPACK-like linear algebra" href="../lapack-like.html" />
+    <link rel="next" title="In-place inversion" href="inversion.html" />
+    <link rel="prev" title="Factorizations" href="factorizations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="inversion.html" title="In-place inversion"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="factorizations.html" title="Factorizations"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../lapack-like.html" accesskey="U">LAPACK-like linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="linear-solvers">
+<h1>Linear solvers<a class="headerlink" href="#linear-solvers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="cholesky-solve">
+<h2>Cholesky solve<a class="headerlink" href="#cholesky-solve" title="Permalink to this headline">¶</a></h2>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> given Hermitian positive-definite (HPD)
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and right-hand side matrix <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>. The solution is computed by
+first finding the Cholesky factorization of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and then performing two
+successive triangular solves against <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>:</p>
+<div class="math">
+<p><img src="../_images/math/06eb928e2b49f225204f45b7afd827573f3a12d4.png" alt="B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B"/></p>
+</div><dl class="function">
+<dt id="CholeskySolve__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descname">CholeskySolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#CholeskySolve__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite <cite>B</cite> with the solution to <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, where <cite>A</cite> is Hermitian
+positive-definite and only the triangle of <cite>A</cite> specified by <cite>uplo</cite> is
+accessed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="gaussian-elimination">
+<h2>Gaussian elimination<a class="headerlink" href="#gaussian-elimination" title="Permalink to this headline">¶</a></h2>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> given a general square nonsingular matrix
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and right-hand side matrix <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>. The solution is computed through
+(partially pivoted) Gaussian elimination.</p>
+<dl class="function">
+<dt id="GaussianElimination__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descname">GaussianElimination</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#GaussianElimination__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> will have been overwritten with Gaussian elimination
+and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> will be overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="householder-solve">
+<h2>Householder solve<a class="headerlink" href="#householder-solve" title="Permalink to this headline">¶</a></h2>
+<p>Solves <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/> or <img class="math" src="../_images/math/1087e6a02d88b1442170232a20cdbd4d3eb84a95.png" alt="A^H X = B"/> for <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/> in a least-squares sense
+given a general full-rank matrix <img class="math" src="../_images/math/1c2fab72748873ecfc7df7bdce77d384a402b85e.png" alt="A \in \mathbb{F}^{m \times n}"/>.
+If <img class="math" src="../_images/math/8da67e35e9c517fa132e6b7d8b548f3940e80d2f.png" alt="m \ge n"/>, then the first step is to form the QR factorization of
+<img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, otherwise the LQ factorization is computed.</p>
+<ul class="simple">
+<li>If solving <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, then either <img class="math" src="../_images/math/68e2df9d76523f1964eff9f4bf77d1de02afd1b1.png" alt="X=R^{-1} Q^H B"/> or
+<img class="math" src="../_images/math/4522bbdaeac782cdf61ff4bef33981b9f9ffbc43.png" alt="X=Q^H L^{-1} B"/>.</li>
+<li>If solving <img class="math" src="../_images/math/584fa1222622b11d609820d2acf93680aeb80598.png" alt="A^H X=B"/>, then either <img class="math" src="../_images/math/94395c624045e61ea8f5470554605ae9438fa00f.png" alt="X=Q R^{-H} B"/> or
+<img class="math" src="../_images/math/ec7d23ff5de8a2760bc4f057671e8756652e375b.png" alt="X=L^{-H} Q B"/>.</li>
+</ul>
+<dl class="function">
+<dt id="HouseholderSolve__Orientation.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descname">HouseholderSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#HouseholderSolve__Orientation.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <cite>orientation</cite> is set to <tt class="docutils literal"><span class="pre">NORMAL</span></tt>, then solve <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, otherwise
+<cite>orientation</cite> must be equal to <tt class="docutils literal"><span class="pre">ADJOINT</span></tt> and <img class="math" src="../_images/math/584fa1222622b11d609820d2acf93680aeb80598.png" alt="A^H X=B"/> will
+be solved. Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is overwritten with its QR or LQ
+factorization, and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> is overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Linear solvers</a><ul>
+<li><a class="reference internal" href="#cholesky-solve">Cholesky solve</a></li>
+<li><a class="reference internal" href="#gaussian-elimination">Gaussian elimination</a></li>
+<li><a class="reference internal" href="#householder-solve">Householder solve</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="factorizations.html"
+                        title="previous chapter">Factorizations</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="inversion.html"
+                        title="next chapter">In-place inversion</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/lapack-like/solvers.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="inversion.html" title="In-place inversion"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="factorizations.html" title="Factorizations"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../lapack-like.html" >LAPACK-like linear algebra</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

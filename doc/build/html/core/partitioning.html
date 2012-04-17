@@ -1,0 +1,128 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Partitioning &mdash; Elemental 0.74-pre documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.74-pre',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
+    <link rel="up" title="Core functionality" href="../core.html" />
+    <link rel="next" title="The Axpy interface" href="axpy_interface.html" />
+    <link rel="prev" title="The DistMatrix class" href="dist_matrix.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="axpy_interface.html" title="The Axpy interface"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dist_matrix.html" title="The DistMatrix class"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../core.html" accesskey="U">Core functionality</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="partitioning">
+<h1>Partitioning<a class="headerlink" href="#partitioning" title="Permalink to this headline">¶</a></h1>
+<p>The following routines are slight tweaks of the FLAME project&#8217;s
+(as well as PLAPACK&#8217;s) approach to submatrix tracking; the difference is that
+they have &#8220;locked&#8221; versions, which are meant for creating partitionings where
+the submatrices cannot be modified.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void PartitionUp( Matrix&lt;T&gt;&amp; A, Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; AB, int heightAB=Blocksize() )</tt></dt>
+<dd><p><strong>Left off here</strong></p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="dist_matrix.html"
+                        title="previous chapter">The DistMatrix class</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="axpy_interface.html"
+                        title="next chapter">The Axpy interface</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/core/partitioning.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="axpy_interface.html" title="The Axpy interface"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="dist_matrix.html" title="The DistMatrix class"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../core.html" >Core functionality</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

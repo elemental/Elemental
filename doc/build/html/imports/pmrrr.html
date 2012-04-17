@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PMRRR &mdash; Elemental 0.74-pre documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.74-pre',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
+    <link rel="up" title="Imported library routines" href="../imports.html" />
+    <link rel="next" title="Core functionality" href="../core.html" />
+    <link rel="prev" title="Parallel LCG" href="plcg.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../core.html" title="Core functionality"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="plcg.html" title="Parallel LCG"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../imports.html" accesskey="U">Imported library routines</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pmrrr">
+<h1>PMRRR<a class="headerlink" href="#pmrrr" title="Permalink to this headline">¶</a></h1>
+<p>Rather than directly using Petschow and Bientinesi&#8217;s parallel implementation of
+the Multiple Relatively Robust Representations (MRRR) algorithm, several
+simplified interfaces have been exposed.</p>
+<p>The prototypes can be found in
+<a class="reference external" href="../../../../include/elemental/imports/pmrrr.hpp">include/elemental/imports/pmrrr.hpp</a>,
+while the implementations are in the folder
+<a class="reference external" href="../../../../external/pmrrr/">external/pmrrr/</a>.</p>
+<div class="section" id="data-structures">
+<h2>Data structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h2>
+<dl class="type">
+<dt id="pmrrr::Estimate__struct">
+<em class="property">type </em>struct <tt class="descclassname">pmrrr::</tt><tt class="descname">Estimate</tt><a class="headerlink" href="#pmrrr::Estimate__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>For returning upper bounds on the number of local and global eigenvalues
+with eigenvalues lying in the specified interval, <img class="math" src="../_images/math/cdf3085063293f29962808ba253dec1faa9866fb.png" alt="(a,b]"/>.</p>
+<dl class="member">
+<dt id="pmrrr::Estimate::numLocalEigenvalues__i">
+int <tt class="descname">numLocalEigenvalues</tt><a class="headerlink" href="#pmrrr::Estimate::numLocalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The upper bound on the number of eigenvalues in the specified interval
+that our process stores locally.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Estimate::numGlobalEigenvalues__i">
+int <tt class="descname">numGlobalEigenvalues</tt><a class="headerlink" href="#pmrrr::Estimate::numGlobalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The upper bound on the number of eigenvalues in the specified interval.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="pmrrr::Info__struct">
+<em class="property">type </em>struct <tt class="descclassname">pmrrr::</tt><tt class="descname">Info</tt><a class="headerlink" href="#pmrrr::Info__struct" title="Permalink to this definition">¶</a></dt>
+<dd><p>For returning information about the computed eigenvalues.</p>
+<dl class="member">
+<dt id="pmrrr::Info::numLocalEigenvalues__i">
+int <tt class="descname">numLocalEigenvalues</tt><a class="headerlink" href="#pmrrr::Info::numLocalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of computed eigenvalues that our process locally stores.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Info::numGlobalEigenvalues__i">
+int <tt class="descname">numGlobalEigenvalues</tt><a class="headerlink" href="#pmrrr::Info::numGlobalEigenvalues__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of computed eigenvalues.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="pmrrr::Info::firstLocalEigenvalue__i">
+int <tt class="descname">firstLocalEigenvalue</tt><a class="headerlink" href="#pmrrr::Info::firstLocalEigenvalue__i" title="Permalink to this definition">¶</a></dt>
+<dd><p>The index of the first eigenvalue stored locally on our process.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="compute-all-eigenvalues">
+<h2>Compute all eigenvalues<a class="headerlink" href="#compute-all-eigenvalues" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute all of the eigenvalues of the real symmetric tridiagonal matrix with
+diagonal <cite>d</cite> and subdiagonal <cite>e</cite>: the eigenvalues will be stored in
+<cite>w</cite> and the work will be divided among the processors in <cite>comm</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="compute-eigenvalues-within-interval">
+<h2>Compute eigenvalues within interval<a class="headerlink" href="#compute-eigenvalues-within-interval" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only compute the eigenvalues lying within the interval <img class="math" src="../_images/math/cdf3085063293f29962808ba253dec1faa9866fb.png" alt="(a,b]"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::EigEstimate__i.doubleCP.doubleCP.mpi::Comm.double.double">
+<a class="reference internal" href="#pmrrr::Estimate__struct" title="pmrrr::Estimate">pmrrr::Estimate</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">EigEstimate</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, double <em>a</em>, double <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::EigEstimate__i.doubleCP.doubleCP.mpi::Comm.double.double" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return upper bounds on the number of local and global eigenvalues lying
+within the specified interval.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="compute-eigenvalues-in-index-range">
+<h2>Compute eigenvalues in index range<a class="headerlink" href="#compute-eigenvalues-in-index-range" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>a</em>, int <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only compute the eigenvalues with indices ranging from <tt class="docutils literal"><span class="pre">a</span></tt> to <tt class="docutils literal"><span class="pre">b</span></tt>, where
+<img class="math" src="../_images/math/7981a36d5e79f5ce44bc0ca8bccd33fa5167000b.png" alt="0 \le a \le b &lt; n"/>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.i.i">
+<a class="reference internal" href="#pmrrr::Info__struct" title="pmrrr::Info">pmrrr::Info</a> <tt class="descclassname">pmrrr::</tt><tt class="descname">Eig</tt><big>(</big>int <em>n</em>, const double* <em>d</em>, const double* <em>e</em>, double* <em>w</em>, double* <em>Z</em>, int <em>ldz</em>, <a class="reference internal" href="mpi.html#mpi::Comm" title="mpi::Comm">mpi::Comm</a> <em>comm</em>, int <em>a</em>, int <em>b</em><big>)</big><a class="headerlink" href="#pmrrr::Eig__i.doubleCP.doubleCP.doubleP.doubleP.i.mpi::Comm.i.i" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also compute the corresponding eigenvectors.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PMRRR</a><ul>
+<li><a class="reference internal" href="#data-structures">Data structures</a></li>
+<li><a class="reference internal" href="#compute-all-eigenvalues">Compute all eigenvalues</a></li>
+<li><a class="reference internal" href="#compute-eigenvalues-within-interval">Compute eigenvalues within interval</a></li>
+<li><a class="reference internal" href="#compute-eigenvalues-in-index-range">Compute eigenvalues in index range</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="plcg.html"
+                        title="previous chapter">Parallel LCG</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../core.html"
+                        title="next chapter">Core functionality</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/imports/pmrrr.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../core.html" title="Core functionality"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="plcg.html" title="Parallel LCG"
+             >previous</a> |</li>
+        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
+          <li><a href="../imports.html" >Imported library routines</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
