@@ -171,10 +171,13 @@ void Toeplitz( int m, int n, const std::vector<T>& a, DistMatrix<T,U,V>& A );
 //    W_k = | W(k-1)  W(k-1) |, for k >= 2.
 //          | W(k-1) -W(k-1) |
 //
+// A binary Walsh matrix is the same as above, but with all -1 entries replaced
+// with zeros.
+//
 template<typename T>
-void Walsh( int k, Matrix<T>& W );
+void Walsh( int k, Matrix<T>& W, bool binary=false );
 template<typename T,Distribution U,Distribution V>
-void Walsh( int k, DistMatrix<T,U,V>& W );
+void Walsh( int k, DistMatrix<T,U,V>& W, bool binary=false );
 
 // Generate a Wilkinson matrix of order k (and dimension 2k+1), 
 // which is tridiagonal with
@@ -251,10 +254,11 @@ void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 #include "./special_matrices/Identity.hpp"
 #include "./special_matrices/Ones.hpp"
 #include "./special_matrices/OneTwoOne.hpp"
+#include "./special_matrices/Walsh.hpp"
 #include "./special_matrices/Wilkinson.hpp"
 #include "./special_matrices/Zeros.hpp"
 
-// TODO: Circulant, Diagonal, Hankel, Toeplitz, and Walsh
+// TODO: Circulant, Diagonal, Hankel, and Toeplitz
 
 #include "./special_matrices/MakeHilbert.hpp"
 #include "./special_matrices/MakeIdentity.hpp"

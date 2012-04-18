@@ -646,6 +646,7 @@ if(BUILD_EXAMPLES)
 
   set(CORE_EXAMPLES Constructors Identity Random)
   set(ADVANCED_EXAMPLES GaussianElimination)
+  set(SPECIAL_EXAMPLES Walsh)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_EXAMPLES HermitianEig 
@@ -658,7 +659,7 @@ if(BUILD_EXAMPLES)
     list(APPEND ADVANCED_EXAMPLES SymmetricEig RealSymmetricFunction)
   endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
 
-  # Build the core test(s)
+  # Build the core tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/core")
   foreach(EXAMPLE ${CORE_EXAMPLES})
     add_executable(examples-core-${EXAMPLE} ${EXAMPLE_DIR}/core/${EXAMPLE}.cpp)
@@ -673,7 +674,7 @@ if(BUILD_EXAMPLES)
     install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
   endforeach(EXAMPLE)
 
-  # Build the LAPACK-like test(s)
+  # Build the LAPACK-like tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/lapack-like")
   foreach(EXAMPLE ${ADVANCED_EXAMPLES})
     add_executable(examples-lapack-${EXAMPLE} 
@@ -688,6 +689,23 @@ if(BUILD_EXAMPLES)
     endif(MPI_LINK_FLAGS)
     install(TARGETS examples-lapack-${EXAMPLE} 
             DESTINATION bin/examples/lapack-like)
+  endforeach(EXAMPLE)
+
+  # Build the special matrix test(s)
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/special_matrices")
+  foreach(EXAMPLE ${SPECIAL_EXAMPLES})
+    add_executable(examples-special-${EXAMPLE}
+                   ${EXAMPLE_DIR}/special_matrices/${EXAMPLE}.cpp)
+    target_link_libraries(examples-special-${EXAMPLE} elemental)
+    set_target_properties(examples-special-${EXAMPLE} PROPERTIES
+                          OUTPUT_NAME ${EXAMPLE}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    if(MPI_LINK_FLAGS)
+      set_target_properties(examples-special-${EXAMPLE} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
+    install(TARGETS examples-special-${EXAMPLE}
+            DESTINATION bin/examples/special_matrices)
   endforeach(EXAMPLE)
 endif(BUILD_EXAMPLES)
 
