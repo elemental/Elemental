@@ -35,12 +35,27 @@ namespace elem {
 
 template<typename T> 
 inline void
-MakeZeros( Matrix<T>& A )
+Wilkinson( int k, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("Wilkinson");
 #endif
-    Zero( A );
+    const int n = 2*k+1;
+    A.ResizeTo( n, n );
+    MakeZeros( A );
+
+    for( int j=0; j<n; ++j )
+    {
+        if( j <= k )
+            A.Set( j, j, (T)k-j );
+        else
+            A.Set( j, j, (T)j-k );
+
+        if( j > 0 )
+            A.Set( j-1, j, (T)1 );
+        if( j < n )
+            A.Set( j+1, j, (T)1 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,12 +63,38 @@ MakeZeros( Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+Wilkinson( int k, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("Wilkinson");
 #endif
-    Zero( A.LocalMatrix() );
+    const int n = 2*k+1;
+    A.ResizeTo( n, n );
+    MakeZeros( A );
+
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const int j = rowShift + jLocal*rowStride;
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const int i = colShift + iLocal*colStride;
+            if( i == j )
+            {
+                if( j <= k )
+                    A.SetLocalEntry( iLocal, jLocal, (T)k-j );
+                else
+                    A.SetLocalEntry( iLocal, jLocal, (T)j-k );
+            }
+            else if( i == j-1 || i == j+1 )
+                A.SetLocalEntry( iLocal, jLocal, (T)1 );
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

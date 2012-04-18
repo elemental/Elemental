@@ -35,12 +35,16 @@ namespace elem {
 
 template<typename T> 
 inline void
-MakeZeros( Matrix<T>& A )
+MakeOnes( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("MakeOnes");
 #endif
-    Zero( A );
+    const int m = A.Height();
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            A.Set( i, j, (T)1 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,12 +52,16 @@ MakeZeros( Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+MakeOnes( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("MakeOnes");
 #endif
-    Zero( A.LocalMatrix() );
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            A.SetLocalEntry( iLocal, jLocal, (T)1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

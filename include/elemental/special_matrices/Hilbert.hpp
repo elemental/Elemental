@@ -33,27 +33,29 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename F> 
 inline void
-MakeZeros( Matrix<T>& A )
+Hilbert( int n, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("Hilbert");
 #endif
-    Zero( A );
+    A.ResizeTo( n, n );
+    MakeHilbert( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+Hilbert( int n, DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("Hilbert");
 #endif
-    Zero( A.LocalMatrix() );
+    A.ResizeTo( n, n );
+    MakeHilbert( A );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -35,12 +35,24 @@ namespace elem {
 
 template<typename T> 
 inline void
-MakeZeros( Matrix<T>& A )
+MakeOneTwoOne( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("MakeOneTwoOne");
 #endif
-    Zero( A );
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+    MakeZeros( A );
+
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+    {
+        A.Set( j, j, (T)2 );
+        if( j > 0 )
+            A.Set( j-1, j, (T)1 );
+        if( j < n )
+            A.Set( j+1, j, (T)1 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,12 +60,33 @@ MakeZeros( Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("MakeOnes");
 #endif
-    Zero( A.LocalMatrix() );
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+    MakeZeros( A );
+
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const int j = rowShift + jLocal*rowStride;
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const int i = colShift + iLocal*colStride;
+            if( i == j )
+                A.SetLocalEntry( iLocal, jLocal, (T)2 );
+            else if( i == j-1 || i == j+1 )
+                A.SetLocalEntry( iLocal, jLocal, (T)1 );
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -110,6 +110,11 @@ template<typename F>
 void Hilbert( int n, Matrix<F>& H );
 template<typename F,Distribution U,Distribution V>
 void Hilbert( int n, DistMatrix<F,U,V>& H );
+// Turn the existing square matrix into a Hilbert matrix
+template<typename F>
+void MakeHilbert( int n, Matrix<F>& H );
+template<typename F,Distribution U,Distribution V>
+void MakeHilbert( int n, DistMatrix<F,U,V>& H );
 
 // Generate an m x n identity-like matrix, i.e., 
 //
@@ -130,6 +135,11 @@ template<typename T>
 void Ones( int m, int n, Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void Ones( int m, int n, DistMatrix<T,U,V>& A ); 
+// Turn the existing matrix into a matrix of all ones.
+template<typename T>
+void MakeOnes( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeOnes( DistMatrix<T,U,V>& A );
 
 // Generate a so-called "1-2-1" matrix of order k (and dimension k), 
 // which is tridiagonal with a diagonal of all twos and sub- and super-diagonals
@@ -138,6 +148,11 @@ template<typename T>
 void OneTwoOne( int k, Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void OneTwoOne( int k, DistMatrix<T,U,V>& A );
+// Turn the existing matrix into a 1-2-1 matrix.
+template<typename T>
+void MakeOneTwoOne( int k, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeOneTwoOne( int k, DistMatrix<T,U,V>& A );
 
 // Generate an m x n Toeplitz matrix, i.e.,
 //
@@ -177,6 +192,11 @@ template<typename T>
 void Zeros( int m, int n, Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void Zeros( int m, int n, DistMatrix<T,U,V>& A );
+// Turn the existing matrix into a matrix of all zeros
+template<typename T>
+void MakeZeros( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeZeros( DistMatrix<T,U,V>& A );
 
 //----------------------------------------------------------------------------//
 // Random                                                                     //
@@ -225,10 +245,21 @@ void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 
 // Deterministic
 
+#include "./special_matrices/Cauchy.hpp"
+#include "./special_matrices/CauchyLike.hpp"
+#include "./special_matrices/Hilbert.hpp"
 #include "./special_matrices/Identity.hpp"
+#include "./special_matrices/Ones.hpp"
+#include "./special_matrices/OneTwoOne.hpp"
+#include "./special_matrices/Wilkinson.hpp"
 #include "./special_matrices/Zeros.hpp"
 
+// TODO: Circulant, Diagonal, Hankel, Toeplitz, and Walsh
+
+#include "./special_matrices/MakeHilbert.hpp"
 #include "./special_matrices/MakeIdentity.hpp"
+#include "./special_matrices/MakeOnes.hpp"
+#include "./special_matrices/MakeOneTwoOne.hpp"
 #include "./special_matrices/MakeZeros.hpp"
 
 // Random

@@ -35,12 +35,13 @@ namespace elem {
 
 template<typename T> 
 inline void
-MakeZeros( Matrix<T>& A )
+OneTwoOne( int n, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("OneTwoOne");
 #endif
-    Zero( A );
+    A.ResizeTo( n, n );
+    MakeOneTwoOne( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,12 +49,13 @@ MakeZeros( Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeZeros( DistMatrix<T,U,V>& A )
+OneTwoOne( int n, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    PushCallStack("OneTwoOne");
 #endif
-    Zero( A.LocalMatrix() );
+    A.ResizeTo( n, n );
+    MakeOneTwoOne( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
