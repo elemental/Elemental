@@ -42,7 +42,7 @@ void InitA( DistMatrix<double,MC,MR>& A )
 
     if( depthRank == 0 )
     {
-        A.SetToIdentity();
+        MakeIdentity( A );
         Scal( 10.0, A );
         A.Print("A");
     }
@@ -79,7 +79,7 @@ void InitC( DistMatrix<double,MC,MR>& C )
     const int depthRank = rank / meshSize;
 
     if( depthRank == 0 )
-        C.SetToZero();
+        MakeZeros( C );
 }
 
 // Create a new set of distributed matrices, so that, 
@@ -100,8 +100,7 @@ void CopyOrReset
     else
     {
         B.AlignWith( A );
-        B.ResizeTo( A.Height(), A.Width() );
-        B.SetToZero();
+        Zeros( A.Height(), A.Width(), B );
     }
 }
 
@@ -160,8 +159,7 @@ void DistributeCols
         throw std::logic_error("Local height did not match local ldim");
     B.Empty();
     B.AlignWith( A );
-    B.ResizeTo( A.Height(), A.Width() );
-    B.SetToZero();
+    Zeros( A.Height(), A.Width(), B );
 
     // Scatter
     const int localColOffset = (A.LocalWidth()/depthSize)*depthRank;
