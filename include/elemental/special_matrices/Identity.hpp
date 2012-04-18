@@ -33,7 +33,7 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename T>
 inline void
 Identity( int m, int n, Matrix<T>& I )
 {
@@ -41,9 +41,7 @@ Identity( int m, int n, Matrix<T>& I )
     PushCallStack("Identity");
 #endif
     I.ResizeTo( m, n );
-    Zero( I );
-    for( int j=0; j<std::min(m,n); ++j )
-        I.Set( j, j, (T)1 );
+    MakeIdentity( I );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -57,8 +55,40 @@ Identity( int m, int n, DistMatrix<T,U,V>& I )
     PushCallStack("Identity");
 #endif
     I.ResizeTo( m, n );
+    MakeIdentity( I );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T> 
+inline void
+MakeIdentity( Matrix<T>& I )
+{
+#ifndef RELEASE
+    PushCallStack("MakeIdentity");
+#endif
+    Zero( I );
+    const int m = I.Height();
+    const int n = I.Width();
+    for( int j=0; j<std::min(m,n); ++j )
+        I.Set( j, j, (T)1 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeIdentity( DistMatrix<T,U,V>& I )
+{
+#ifndef RELEASE
+    PushCallStack("MakeIdentity");
+#endif
     Zero( I.LocalMatrix() );
 
+    const int m = I.Height();
+    const int n = I.Width();
     const int localHeight = I.LocalHeight();
     const int localWidth = I.LocalWidth();
     const int colShift = I.ColShift();

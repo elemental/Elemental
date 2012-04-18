@@ -33,7 +33,7 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename T>
 inline void
 Zeros( int m, int n, Matrix<T>& A )
 {
@@ -41,7 +41,7 @@ Zeros( int m, int n, Matrix<T>& A )
     PushCallStack("Zeros");
 #endif
     A.ResizeTo( m, n );
-    Zero( A );
+    MakeZeros( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,6 +55,32 @@ Zeros( int m, int n, DistMatrix<T,U,V>& A )
     PushCallStack("Zeros");
 #endif
     A.ResizeTo( m, n );
+    MakeZeros( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T> 
+inline void
+MakeZeros( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeZeros");
+#endif
+    Zero( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeZeros( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeZeros");
+#endif
     Zero( A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();

@@ -64,4 +64,69 @@ HermitianUniformRandom( int n, DistMatrix<T,U,V>& A )
 #endif
 }
 
+template<typename T>
+inline void
+MakeHermitianUniformRandom( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeHermitianUniformRandom");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Cannot make a non-square matrix (implicitly) Hermitian");
+    typedef typename Base<T>::type R;
+    const bool isComplex = IsComplex<T>::val;
+
+    MakeUniformRandom( A );
+    if( isComplex )
+    {
+        const int n = A.Height();
+        for( int j=0; j<n; ++j )
+            A.SetImag( j, j, (R)0 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeHermitianUniformRandom( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeHermitianUniformRandom");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Cannot make a non-square matrix (implicitly) Hermitian");
+    typedef typename Base<T>::type R;
+    const bool isComplex = IsComplex<T>::val;
+
+    MakeUniformRandom( A );
+
+    if( isComplex )
+    {
+        const int n = A.Height();
+        const int localHeight = A.LocalHeight();
+        const int localWidth = A.LocalWidth();
+        const int colShift = A.ColShift();
+        const int rowShift = A.RowShift();
+        const int colStride = A.ColStride();
+        const int rowStride = A.RowStride();
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            const int j = rowShift + jLocal*rowStride;
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            {
+                const int i = colShift + iLocal*colStride;
+                if( i == j )
+                    A.SetImagLocalEntry( iLocal, jLocal, (R)0 );
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 } // namespace elem

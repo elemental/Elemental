@@ -33,7 +33,7 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename T>
 inline void
 Ones( int m, int n, Matrix<T>& A )
 {
@@ -56,6 +56,40 @@ Ones( int m, int n, DistMatrix<T,U,V>& A )
 #endif
     A.ResizeTo( m, n );
     MakeOnes( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T> 
+inline void
+MakeOnes( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeOnes");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            A.Set( i, j, (T)1 );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeOnes( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeOnes");
+#endif
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            A.SetLocalEntry( iLocal, jLocal, (T)1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

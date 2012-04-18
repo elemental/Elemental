@@ -240,13 +240,17 @@ void MakeHPDUniformRandom( Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 
+// TODO: Gaussian
+
 } // namespace elem
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
 //----------------------------------------------------------------------------//
 
+//
 // Deterministic
+//
 
 #include "./special_matrices/Cauchy.hpp"
 #include "./special_matrices/CauchyLike.hpp"
@@ -260,20 +264,14 @@ void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 
 // TODO: Circulant, Diagonal, Hankel, and Toeplitz
 
-#include "./special_matrices/MakeHilbert.hpp"
-#include "./special_matrices/MakeIdentity.hpp"
-#include "./special_matrices/MakeOnes.hpp"
-#include "./special_matrices/MakeOneTwoOne.hpp"
-#include "./special_matrices/MakeZeros.hpp"
-
+//
 // Random
+//
 
 #include "./special_matrices/UniformRandom.hpp"
 #include "./special_matrices/HermitianUniformRandom.hpp"
 #include "./special_matrices/HPDUniformRandom.hpp"
 
-#include "./special_matrices/MakeUniformRandom.hpp"
-#include "./special_matrices/MakeHermitianUniformRandom.hpp"
-#include "./special_matrices/MakeHPDUniformRandom.hpp"
+// TODO: Gaussian
 
 #endif /* ELEMENTAL_SPECIAL_MATRICES_HPP */

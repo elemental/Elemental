@@ -47,7 +47,7 @@ OneTwoOne( int n, Matrix<T>& A )
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename T,Distribution U,Distribution V> 
 inline void
 OneTwoOne( int n, DistMatrix<T,U,V>& A )
 {
@@ -56,6 +56,65 @@ OneTwoOne( int n, DistMatrix<T,U,V>& A )
 #endif
     A.ResizeTo( n, n );
     MakeOneTwoOne( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T> 
+inline void
+MakeOneTwoOne( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeOneTwoOne");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+    MakeZeros( A );
+
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+    {
+        A.Set( j, j, (T)2 );
+        if( j > 0 )
+            A.Set( j-1, j, (T)1 );
+        if( j < n )
+            A.Set( j+1, j, (T)1 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeOneTwoOne( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeOnes");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+    MakeZeros( A );
+
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const int j = rowShift + jLocal*rowStride;
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const int i = colShift + iLocal*colStride;
+            if( i == j )
+                A.SetLocalEntry( iLocal, jLocal, (T)2 );
+            else if( i == j-1 || i == j+1 )
+                A.SetLocalEntry( iLocal, jLocal, (T)1 );
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
