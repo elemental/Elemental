@@ -46,12 +46,10 @@ namespace elem {
 //
 template<typename F>
 void Cauchy
-( int m, int n, const std::vector<F>& x, const std::vector<F>& y,
-  Matrix<F>& A );
+( const std::vector<F>& x, const std::vector<F>& y, Matrix<F>& A );
 template<typename F,Distribution U,Distribution V>
 void Cauchy
-( int m, int n, const std::vector<F>& x, const std::vector<F>& y,
-  DistMatrix<F,U,V>& A );
+( const std::vector<F>& x, const std::vector<F>& y, DistMatrix<F,U,V>& A );
 
 // Generate an m x n Cauchy-like matrix, i.e., 
 //
@@ -61,14 +59,12 @@ void Cauchy
 //
 template<typename F>
 void CauchyLike
-( int m, int n, 
-  const std::vector<F>& r, const std::vector<F>& s,
+( const std::vector<F>& r, const std::vector<F>& s,
   const std::vector<F>& x, const std::vector<F>& y,
   Matrix<F>& A );
 template<typename F,Distribution U,Distribution V>
 void CauchyLike
-( int m, int n, 
-  const std::vector<F>& r, const std::vector<F>& s,
+( const std::vector<F>& r, const std::vector<F>& s,
   const std::vector<F>& x, const std::vector<F>& y,
   DistMatrix<F,U,V>& A );
 
@@ -80,22 +76,22 @@ void CauchyLike
 // that our indexing scheme for 'a' is different.
 //
 template<typename T>
-void Circulant( int n, const std::vector<T>& a, Matrix<T>& A );
+void Circulant( const std::vector<T>& a, Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
-void Circulant( int n, const std::vector<T>& a, DistMatrix<T,U,V>& A );
+void Circulant( const std::vector<T>& a, DistMatrix<T,U,V>& A );
 
 // Generate an n x n diagonal matrix, i.e., 
 //
 //   D(i,j) = d(j), if i = j, and zero otherwise.
 //
 template<typename T>
-void Diagonal( int n, const std::vector<T>& d, Matrix<T>& D );
+void Diagonal( const std::vector<T>& d, Matrix<T>& D );
 template<typename T,Distribution U,Distribution V>
-void Diagonal( int n, const std::vector<T>& d, DistMatrix<T,U,V>& D );
+void Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D );
 
 // Generate an m x n Hankel matrix, i.e.,
 //
-//    A(i,j) = a(i+j+1), for all (i,j) such that 0 <= i < m, 0 <= j < n.
+//    A(i,j) = a(i+j), for all (i,j) such that 0 <= i < m, 0 <= j < n.
 //
 template<typename T>
 void Hankel( int m, int n, const std::vector<T>& a, Matrix<T>& A );
@@ -254,15 +250,17 @@ void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 
 #include "./special_matrices/Cauchy.hpp"
 #include "./special_matrices/CauchyLike.hpp"
+#include "./special_matrices/Circulant.hpp"
+#include "./special_matrices/Diagonal.hpp"
+#include "./special_matrices/Hankel.hpp"
 #include "./special_matrices/Hilbert.hpp"
 #include "./special_matrices/Identity.hpp"
 #include "./special_matrices/Ones.hpp"
 #include "./special_matrices/OneTwoOne.hpp"
+#include "./special_matrices/Toeplitz.hpp"
 #include "./special_matrices/Walsh.hpp"
 #include "./special_matrices/Wilkinson.hpp"
 #include "./special_matrices/Zeros.hpp"
-
-// TODO: Circulant, Diagonal, Hankel, and Toeplitz
 
 //
 // Random

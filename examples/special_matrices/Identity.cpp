@@ -35,8 +35,8 @@ using namespace elem;
 
 void Usage()
 {
-    std::cout << "Constructors <n>\n"
-              << "  n: the height and width of the matrices to build\n"
+    std::cout << "Identity <n>:\n"
+              << "  n: size of identity matrix to build\n"
               << std::endl;
 }
 
@@ -59,61 +59,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        const Grid grid( comm );
-        const int gridHeight = grid.Height();
-        const int gridWidth = grid.Width();
-        const int gridRow = grid.Row();
-        const int gridCol = grid.Col();
-
-        if( commRank == 0 )
-        {
-            std::cout << "Will create matrices distributed over " 
-                      << commSize << " process(es) in various ways" 
-                      << std::endl;
-        }
-
-        // Built-in
-        {
-            DistMatrix<double> X(grid);
-            Identity( n, n, X );
-            X.Print("Built-in identity");
-        }
-
-        // Local buffers
-        {
-            // Allocate local data
-            const int localHeight = LocalLength( n, gridRow, gridHeight );
-            const int localWidth = LocalLength( n, gridCol, gridWidth );
-            std::vector<double> localData( localHeight*localWidth );
-
-            // Fill local data for identity
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            {
-                // Form global column index from local column index
-                const int j = gridCol + jLocal*gridWidth;
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                {
-                    // Form global row index from local row index
-                    const int i = gridRow + iLocal*gridHeight;     
-
-                    // If diagonal entry, set to one, otherwise zero
-                    if( i == j )
-                        localData[iLocal+jLocal*localHeight] = 1.;
-                    else
-                        localData[iLocal+jLocal*localHeight] = 0.;
-                }
-            }
-
-            DistMatrix<double> 
-                X( n, n, 0, 0, &localData[0], localHeight, grid );
-            X.Print("Identity constructed from local buffers");
-
-            // Build another set of local buffers and attach it to X.
-            // This time, make it all two's.
-            std::vector<double> localTwos( localHeight*localWidth, 2 ); 
-            X.View( n, n, 0, 0, &localTwos[0], localHeight, grid );
-            X.Print("After viewing local buffers of all two's");
-        }
+        DistMatrix<double> I;
+        Identity( n, n, I );
+        I.Print("Identity");
     }
     catch( std::exception& e )
     {

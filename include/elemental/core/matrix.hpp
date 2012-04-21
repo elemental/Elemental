@@ -71,11 +71,9 @@ public:
 
     T* Buffer();
     T* Buffer( Int i, Int j );
-    T* Buffer( Int i, Int j, Int height, Int width );
 
     const T* LockedBuffer() const;
     const T* LockedBuffer( Int i, Int j ) const;
-    const T* LockedBuffer( Int i, Int j, Int height, Int width ) const;
 
     //
     // I/O
@@ -442,45 +440,6 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
     PushCallStack("Matrix::LockedBuffer");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    PopCallStack();
-#endif
-    if( lockedView_ )
-        return &lockedData_[i+j*ldim_];
-    else
-        return &data_[i+j*ldim_];
-}
-
-template<typename T,typename Int>
-inline T*
-Matrix<T,Int>::Buffer( Int i, Int j, Int height, Int width )
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
-    if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
-    if( lockedView_ )
-        throw std::logic_error
-        ("Cannot return non-const buffer of locked Matrix");
-    if( (height>0 && (i+height)>height_) || (width>0 && (j+width)>width_) )
-        throw std::logic_error("Requested out-of-bounds buffer of Matrix");
-    PopCallStack();
-#endif
-    return &data_[i+j*ldim_];
-}
-
-template<typename T,typename Int>
-inline const T*
-Matrix<T,Int>::LockedBuffer
-( Int i, Int j, Int height, Int width ) const
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::LockedBuffer");
-    if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-    if( (height>0 && (i+height)>height_) || (width>0 && (j+width)>width_) )
-        throw std::logic_error("Requested out-of-bounds buffer of Matrix");
     PopCallStack();
 #endif
     if( lockedView_ )
@@ -989,9 +948,9 @@ Matrix<T,Int>::View
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(buffer)");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
 #endif
+    Empty();
+
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -1009,9 +968,9 @@ Matrix<T,Int>::View( Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View(A)");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
 #endif
+    Empty();
+
     height_ = A.Height();
     width_  = A.Width();
     ldim_   = A.LDim();
@@ -1030,9 +989,9 @@ Matrix<T,Int>::LockedView
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(buffer)");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
 #endif
+    Empty();
+
     height_ = height;
     width_ = width;
     ldim_ = ldim;
@@ -1050,9 +1009,9 @@ Matrix<T,Int>::LockedView( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView(A)");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
 #endif
+    Empty();
+
     height_     = A.Height();
     width_      = A.Width();
     ldim_       = A.LDim();
@@ -1075,8 +1034,6 @@ Matrix<T,Int>::View
         throw std::logic_error("Indices must be non-negative");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
     if( (i+height) > A.Height() || (j+width) > A.Width() )
     {
         std::ostringstream msg;
@@ -1086,10 +1043,12 @@ Matrix<T,Int>::View
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    Empty();
+
     height_     = height;
     width_      = width;
     ldim_       = A.LDim();
-    data_       = A.Buffer(i,j,height,width);
+    data_       = A.Buffer(i,j);
     viewing_    = true;
     lockedView_ = false;
 #ifndef RELEASE
@@ -1108,8 +1067,6 @@ Matrix<T,Int>::LockedView
         throw std::logic_error("Indices must be non-negative");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
     if( (i+height) > A.Height() || (j+width) > A.Width() )
     {
         std::ostringstream msg;
@@ -1119,10 +1076,12 @@ Matrix<T,Int>::LockedView
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    Empty();
+
     height_     = height;
     width_      = width;
     ldim_       = A.LDim();
-    lockedData_ = A.LockedBuffer(i,j,height,width);
+    lockedData_ = A.LockedBuffer(i,j);
     viewing_    = true;
     lockedView_ = true;
 #ifndef RELEASE
@@ -1136,8 +1095,6 @@ Matrix<T,Int>::View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View1x2");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
     if( AL.Height() != AR.Height() )
         throw std::logic_error("1x2 must have consistent height to combine");
     if( AL.LDim() != AR.LDim() )
@@ -1145,6 +1102,8 @@ Matrix<T,Int>::View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR )
     if( AR.Buffer() != (AL.Buffer()+AL.LDim()*AL.Width()) )
         throw std::logic_error("1x2 must have contiguous memory");
 #endif
+    Empty();
+
     height_ = AL.Height();
     width_  = AL.Width() + AR.Width();
     ldim_   = AL.LDim();
@@ -1162,8 +1121,6 @@ Matrix<T,Int>::LockedView1x2( const Matrix<T,Int>& AL, const Matrix<T,Int>& AR )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView1x2");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with Matrix after allocating memory");
     if( AL.Height() != AR.Height() )
         throw std::logic_error("1x2 must have consistent height to combine");
     if( AL.LDim() != AR.LDim() )
@@ -1171,6 +1128,8 @@ Matrix<T,Int>::LockedView1x2( const Matrix<T,Int>& AL, const Matrix<T,Int>& AR )
     if( AR.LockedBuffer() != (AL.LockedBuffer()+AL.LDim()*AL.Width()) )
         throw std::logic_error("1x2 must have contiguous memory");
 #endif
+    Empty();
+
     height_     = AL.Height();
     width_      = AL.Width() + AR.Width();
     ldim_       = AL.LDim();
@@ -1190,8 +1149,6 @@ Matrix<T,Int>::View2x1
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View2x1");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with matrix after allocating memory");
     if( AT.Width() != AB.Width() )
         throw std::logic_error("2x1 must have consistent width to combine");
     if( AT.LDim() != AB.LDim() )
@@ -1199,6 +1156,8 @@ Matrix<T,Int>::View2x1
     if( AB.Buffer() != (AT.Buffer() + AT.Height()) )
         throw std::logic_error("2x1 must have contiguous memory");
 #endif
+    Empty();
+
     height_ = AT.Height() + AB.Height();
     width_  = AT.Width();
     ldim_   = AT.LDim();
@@ -1218,8 +1177,6 @@ Matrix<T,Int>::LockedView2x1
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x1");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing with matrix after allocating memory");
     if( AT.Width() != AB.Width() )
         throw std::logic_error("2x1 must have consistent width to combine");
     if( AT.LDim() != AB.LDim() )
@@ -1227,6 +1184,8 @@ Matrix<T,Int>::LockedView2x1
     if( AB.LockedBuffer() != (AT.LockedBuffer()+AT.Height()) )
         throw std::logic_error("2x1 must have contiguous memory");
 #endif
+    Empty();
+
     height_     = AT.Height() + AB.Height();
     width_      = AT.Width();
     ldim_       = AT.LDim();
@@ -1246,8 +1205,6 @@ Matrix<T,Int>::View2x2
 {
 #ifndef RELEASE
     PushCallStack("Matrix::View2x2");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing a matrix after allocating memory");
     if( ATL.Width() != ABL.Width()   ||
         ATR.Width() != ABR.Width()   ||
         ATL.Height() != ATR.Height() ||
@@ -1262,6 +1219,8 @@ Matrix<T,Int>::View2x2
         ATR.Buffer() != (ATL.Buffer() + ATL.LDim()*ATL.Width()) )
         throw std::logic_error("2x2 must have contiguous memory");
 #endif
+    Empty();
+
     height_ = ATL.Height() + ABL.Height();
     width_  = ATL.Width() + ATR.Width();
     ldim_   = ATL.LDim();
@@ -1281,8 +1240,6 @@ Matrix<T,Int>::LockedView2x2
 {
 #ifndef RELEASE
     PushCallStack("Matrix::LockedView2x2");
-    if( memory_.Size() > 0 )
-        throw std::logic_error("Viewing a matrix after allocating memory");
     if( ATL.Width() != ABL.Width()   ||
         ATR.Width() != ABR.Width()   ||
         ATL.Height() != ATR.Height() ||
@@ -1297,6 +1254,8 @@ Matrix<T,Int>::LockedView2x2
         ATR.LockedBuffer() != (ATL.LockedBuffer() + ATL.LDim()*ATL.Width()) )
         throw std::logic_error("2x2 must have contiguous memory");
 #endif
+    Empty();
+
     height_ = ATL.Height() + ABL.Height();
     width_  = ATL.Width() + ATR.Width();
     ldim_   = ATL.LDim();

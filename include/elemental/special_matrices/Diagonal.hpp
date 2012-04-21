@@ -33,77 +33,48 @@
 
 namespace elem {
 
-template<typename F> 
+template<typename T> 
 inline void
-Cauchy
-( const std::vector<F>& x, const std::vector<F>& y, Matrix<F>& A )
+Diagonal( const std::vector<T>& d, Matrix<T>& D )
 {
 #ifndef RELEASE
-    PushCallStack("Cauchy");
+    PushCallStack("Diagonal");
 #endif
-    const int m = x.size();
-    const int n = y.size();
-    A.ResizeTo( m, n );
+    const int n = d.size();
+    D.ResizeTo( n, n );
+    MakeZeros( D );
 
-    const F one = static_cast<F>(1);
     for( int j=0; j<n; ++j )
-    {
-        for( int i=0; i<m; ++i )
-        {
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy matrices";
-                throw std::logic_error( msg.str().c_str() );
-            }
-#endif
-            A.Set( i, j, one/(x[i]-y[j]) );
-        }
-    }
+        D.Set( j, j, d[j] );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline void
-Cauchy
-( const std::vector<F>& x, const std::vector<F>& y, DistMatrix<F,U,V>& A )
+Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
 {
 #ifndef RELEASE
-    PushCallStack("Cauchy");
+    PushCallStack("Diagonal");
 #endif
-    const int m = x.size();
-    const int n = y.size();
-    A.ResizeTo( m, n );
+    const int n = d.size();
+    D.ResizeTo( n, n );
+    MakeZeros( D );
 
-    const F one = static_cast<F>(1);
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
+    const int localHeight = D.LocalHeight();
+    const int localWidth = D.LocalWidth();
+    const int colShift = D.ColShift();
+    const int rowShift = D.RowShift();
+    const int colStride = D.ColStride();
+    const int rowStride = D.RowStride();
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
         const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        if( (j-colShift+colStride) % colStride == 0 )
         {
-            const int i = colShift + iLocal*colStride;
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy matrices";
-                throw std::logic_error( msg.str().c_str() );
-            }
-#endif
-            A.SetLocalEntry( iLocal, jLocal, one/(x[i]-y[j]) );
+            const int iLocal = (j-colShift) / colStride;
+            D.SetLocalEntry( iLocal, jLocal, d[j] );
         }
     }
 #ifndef RELEASE

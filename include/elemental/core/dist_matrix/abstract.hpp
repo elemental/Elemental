@@ -659,7 +659,6 @@ inline void
 AbstractDistMatrix<T,Int>::Empty()
 {
     localMatrix_.Empty();
-    auxMemory_.Empty();
     lockedView_ = false;
     viewing_ = false;
     height_ = 0;

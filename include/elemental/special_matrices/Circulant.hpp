@@ -33,63 +33,32 @@
 
 namespace elem {
 
-template<typename F> 
+template<typename T> 
 inline void
-CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s,
-  const std::vector<F>& x, const std::vector<F>& y, 
-  Matrix<F>& A )
+Circulant( const std::vector<T>& a, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("CauchyLike");
+    PushCallStack("Circulant");
 #endif
-    const int m = r.size();
-    const int n = s.size();
-    if( x.size() != (unsigned)m )
-        throw std::logic_error("x vector was the wrong length");
-    if( y.size() != (unsigned)n )
-        throw std::logic_error("y vector was the wrong length");
-    A.ResizeTo( m, n );
-
+    const int n = a.size();
+    A.ResizeTo( n, n );
     for( int j=0; j<n; ++j )
-    {
-        for( int i=0; i<m; ++i )
-        {
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy-like matrices";
-                throw std::logic_error( msg.str().c_str() );
-            }
-#endif
-            A.Set( i, j, r[i]*s[j]/(x[i]-y[j]) );
-        }
-    }
+        for( int i=0; i<n; ++i )
+            A.Set( i, j, a[(i-j+n)%n] );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename T,Distribution U,Distribution V>
 inline void
-CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s, 
-  const std::vector<F>& x, const std::vector<F>& y, 
-  DistMatrix<F,U,V>& A )
+Circulant( const std::vector<T>& a, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("CauchyLike");
+    PushCallStack("Circulant");
 #endif
-    const int m = r.size();
-    const int n = s.size();
-    if( x.size() != (unsigned)m )
-        throw std::logic_error("x vector was the wrong length");
-    if( y.size() != (unsigned)n )
-        throw std::logic_error("y vector was the wrong length");
-    A.ResizeTo( m, n );
+    const int n = a.size();
+    A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
@@ -103,17 +72,7 @@ CauchyLike
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-#ifndef RELEASE
-            // TODO: Use tolerance instead?
-            if( x[i] == y[j] )
-            {
-                std::ostringstream msg;
-                msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
-                    << ") is not allowed for Cauchy-like matrices";
-                throw std::logic_error( msg.str().c_str() );
-            }
-#endif
-            A.SetLocalEntry( iLocal, jLocal, r[i]*s[j]/(x[i]-y[j]) );
+            A.SetLocalEntry( iLocal, jLocal, a[(i-j+n)%n] );
         }
     }
 #ifndef RELEASE

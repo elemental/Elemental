@@ -143,16 +143,6 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
       Return a pointer to the portion of the buffer that holds entry
       :math:`(i,j)` that does not allow for modifying the data.
 
-   .. cpp:function:: T* Buffer( int i, int j, int height, int width )
-
-      Same as the version without `height` and `width`, but in **Debug** modes 
-      it will ensure that the `height` :math:`\times` `width` submatrix starting
-      at entry :math:`(i,j)` does not go out of bounds.
-
-   .. cpp:function:: const T* LockedBuffer( int i, int j, int height, int width ) const
-
-      Same as above, but the data cannot be modified using the returned pointer.
-
    .. rubric:: I/O
 
    .. cpp:function:: void Print( const std::string msg="" ) const

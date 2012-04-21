@@ -162,8 +162,9 @@ DistMatrix<T,STAR,STAR,Int>::View( DistMatrix<T,STAR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View");
-    this->AssertNotStoringData();
 #endif
+    this->Empty();
+
     this->grid_ = A.grid_;
     this->height_ = A.Height();
     this->width_ = A.Width();
@@ -184,8 +185,9 @@ DistMatrix<T,STAR,STAR,Int>::View
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View");
-    this->AssertNotStoringData();
 #endif
+    this->Empty();
+
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
@@ -205,8 +207,9 @@ DistMatrix<T,STAR,STAR,Int>::LockedView
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView");
-    this->AssertNotStoringData();
 #endif
+    this->Empty();
+
     this->grid_ = A.grid_;
     this->height_ = A.Height();
     this->width_ = A.Width();
@@ -227,8 +230,9 @@ DistMatrix<T,STAR,STAR,Int>::LockedView
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView");
-    this->AssertNotStoringData();
 #endif
+    this->Empty();
+
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
@@ -248,9 +252,10 @@ DistMatrix<T,STAR,STAR,Int>::View
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View");
-    this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
+    this->Empty();
+
     this->grid_ = A.grid_;
     this->height_ = height;
     this->width_ = width;
@@ -270,9 +275,10 @@ DistMatrix<T,STAR,STAR,Int>::LockedView
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView");
-    this->AssertNotStoringData();
     this->AssertValidSubmatrix( A, i, j, height, width );
 #endif
+    this->Empty();
+
     this->grid_ = A.grid_;
     this->height_ = height;
     this->width_ = width;
@@ -295,10 +301,11 @@ DistMatrix<T,STAR,STAR,Int>::View1x2
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View1x2");
-    this->AssertNotStoringData();
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
+    this->Empty();
+
     this->grid_ = AL.grid_;
     this->height_ = AL.Height();
     this->width_ = AL.Width() + AR.Width();
@@ -318,10 +325,11 @@ DistMatrix<T,STAR,STAR,Int>::LockedView1x2
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView1x2");
-    this->AssertNotStoringData();
     this->AssertConforming1x2( AL, AR );
     AL.AssertSameGrid( AR );
 #endif
+    this->Empty();
+
     this->grid_ = AL.grid_;
     this->height_ = AL.Height();
     this->width_ = AL.Width() + AR.Width();
@@ -345,10 +353,11 @@ DistMatrix<T,STAR,STAR,Int>::View2x1
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View2x1");
-    this->AssertNotStoringData();
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
+    this->Empty();
+
     this->grid_ = AT.grid_;
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
@@ -373,10 +382,11 @@ DistMatrix<T,STAR,STAR,Int>::LockedView2x1
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView2x1");
-    this->AssertNotStoringData();
     this->AssertConforming2x1( AT, AB );
     AT.AssertSameGrid( AB );
 #endif
+    this->Empty();
+
     this->grid_ = AT.grid_;
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
@@ -401,12 +411,13 @@ DistMatrix<T,STAR,STAR,Int>::View2x2
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::View2x2");
-    this->AssertNotStoringData();
     this->AssertConforming2x2( ATL, ATR, ABL, ABR );
     ATL.AssertSameGrid( ATR );
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
+    this->Empty();
+
     this->grid_ = ATL.grid_;
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();
@@ -426,17 +437,20 @@ DistMatrix<T,STAR,STAR,Int>::View2x2
 template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,STAR,Int>::LockedView2x2
-( const DistMatrix<T,STAR,STAR,Int>& ATL, const DistMatrix<T,STAR,STAR,Int>& ATR,
-  const DistMatrix<T,STAR,STAR,Int>& ABL, const DistMatrix<T,STAR,STAR,Int>& ABR )
+( const DistMatrix<T,STAR,STAR,Int>& ATL, 
+  const DistMatrix<T,STAR,STAR,Int>& ATR,
+  const DistMatrix<T,STAR,STAR,Int>& ABL, 
+  const DistMatrix<T,STAR,STAR,Int>& ABR )
 {
 #ifndef RELEASE
     PushCallStack("[* ,* ]::LockedView2x2");
-    this->AssertNotStoringData();
     this->AssertConforming2x2( ATL, ATR, ABL, ABR );
     ATL.AssertSameGrid( ATR );
     ATL.AssertSameGrid( ABL );
     ATL.AssertSameGrid( ABR );
 #endif
+    this->Empty();
+
     this->grid_ = ATL.grid_;
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();

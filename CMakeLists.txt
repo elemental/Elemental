@@ -644,9 +644,9 @@ endif(BUILD_TESTS)
 if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
-  set(CORE_EXAMPLES Constructors Identity Random)
+  set(CORE_EXAMPLES Constructors)
   set(ADVANCED_EXAMPLES GaussianElimination)
-  set(SPECIAL_EXAMPLES Walsh)
+  set(SPECIAL_EXAMPLES Diagonal Hankel Identity UniformRandom Walsh)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_EXAMPLES HermitianEig 

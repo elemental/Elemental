@@ -221,6 +221,13 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
 <div><div class="highlight-cpp"><div class="highlight"><pre><span class="cp">#include &quot;elemental.hpp&quot;</span>
 <span class="k">using</span> <span class="k">namespace</span> <span class="n">elem</span><span class="p">;</span>
 
+<span class="kt">void</span> <span class="n">Usage</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Identity &lt;n&gt;</span><span class="se">\n</span><span class="s">&quot;</span>
+              <span class="o">&lt;&lt;</span> <span class="s">&quot;  n: size of identity matrix to build</span><span class="se">\n</span><span class="s">&quot;</span>
+              <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
 <span class="kt">int</span>
 <span class="n">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[]</span> <span class="p">)</span>
 <span class="p">{</span>
@@ -228,16 +235,16 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
     <span class="n">mpi</span><span class="o">::</span><span class="n">Comm</span> <span class="n">comm</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">COMM_WORLD</span><span class="p">;</span>
     <span class="k">const</span> <span class="kt">int</span> <span class="n">commRank</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommRank</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
     <span class="k">const</span> <span class="kt">int</span> <span class="n">commSize</span> <span class="o">=</span> <span class="n">mpi</span><span class="o">::</span><span class="n">CommSize</span><span class="p">(</span> <span class="n">comm</span> <span class="p">);</span>
-    <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
 
-    <span class="k">if</span><span class="p">(</span> <span class="n">commRank</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span> <span class="n">argc</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="p">)</span>
     <span class="p">{</span>
-        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Creating a matrix distributed over &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">commSize</span><span class="p">;</span>
-        <span class="k">if</span><span class="p">(</span> <span class="n">commSize</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">)</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; processes.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-        <span class="k">else</span>
-            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; process.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span> <span class="n">commRank</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">)</span>
+            <span class="n">Usage</span><span class="p">();</span>
+        <span class="n">Finalize</span><span class="p">();</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
     <span class="p">}</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">);</span>
+
     <span class="n">DistMatrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">I</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
     <span class="n">I</span><span class="p">.</span><span class="n">SetToIdentity</span><span class="p">();</span>
     <span class="n">I</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;Identity&quot;</span><span class="p">);</span>
@@ -261,9 +268,9 @@ the file <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt>
 prefix and <tt class="docutils literal"><span class="pre">-llapack</span> <span class="pre">-lblas</span> <span class="pre">-lm</span></tt> should be replaced with the <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt>
 set during configuration (it is written into the file
 <tt class="docutils literal"><span class="pre">include/elemental/config.h</span></tt> in the build directory). A slightly modified
-version of the above driver is available in <tt class="docutils literal"><span class="pre">tests/core/Identity.cpp</span></tt>.</p>
+version of the above driver is available in <tt class="docutils literal"><span class="pre">examples/special_matrices/Identity.cpp</span></tt>.</p>
 <p>The executable can then typically be run with a single process using</p>
-<div class="highlight-python"><pre>./Identity</pre>
+<div class="highlight-python"><pre>./Identity 8</pre>
 </div>
 <p>and the output should be</p>
 <div class="highlight-python"><pre>Creating a matrix distributed over 1 process.
@@ -281,7 +288,7 @@ Identity
 <p>The driver can be run with several processes using the MPI launcher provided
 by your MPI implementation; a typical way to run the <tt class="docutils literal"><span class="pre">Identity</span></tt> driver on
 eight processes would be:</p>
-<div class="highlight-python"><pre>mpirun -np 8 ./Identity</pre>
+<div class="highlight-python"><pre>mpirun -np 8 ./Identity 8</pre>
 </div>
 <p>Only the first line of the output should change with respect to when run on
 a single process.</p>
@@ -442,7 +449,7 @@ your build directory. Please only direct general usage questions to
     </div>
     <div class="footer">
         &copy; Copyright 2011, Jack Poulson.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

@@ -33,6 +33,13 @@
 #include "elemental.hpp"
 using namespace elem;
 
+void Usage()
+{
+    std::cout << "Diagonal <n>\n"
+              << "  n: Generate a diagonal matrix of size n x n, n >= 1"
+              << std::endl;
+}
+
 int 
 main( int argc, char* argv[] )
 {
@@ -40,27 +47,25 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-    const int n = 8;
+
+    if( argc < 2 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int n = atoi( argv[1] );
 
     try
     {
-        if( commRank == 0 )
-        {
-            std::cout << "Creating a matrix distributed over " << commSize;
-            if( commSize != 1 )
-                std::cout << " processes.\n" << std::endl;
-            else
-                std::cout << " process.\n" << std::endl;
-        }
-        DistMatrix<double> I;
-        Identity( n, n, I );
-        I.Print("Identity");
+        std::vector<double> d( n );
+        for( int j=0; j<n; ++j )
+            d[j] = j;
 
-        const double trace = Trace( I );
-        const double det = Determinant( I );
-        if( commRank == 0 )
-            std::cout << "Tr(I) = " << trace << "\n"
-                      << "Det(I) = " << det << std::endl;
+        DistMatrix<double> D;
+        Diagonal( d, D );
+        D.Print("D:");
     }
     catch( std::exception& e )
     {

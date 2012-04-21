@@ -180,6 +180,13 @@ distributed matrix, sets it to the identity matrix, then prints it:
       #include "elemental.hpp"
       using namespace elem;
 
+      void Usage()
+      {
+          std::cout << "Identity <n>\n"
+                    << "  n: size of identity matrix to build\n"
+                    << std::endl;
+      }
+
       int
       main( int argc, char* argv[] )
       {
@@ -187,16 +194,16 @@ distributed matrix, sets it to the identity matrix, then prints it:
           mpi::Comm comm = mpi::COMM_WORLD;
           const int commRank = mpi::CommRank( comm );
           const int commSize = mpi::CommSize( comm );
-          const int n = 8;
 
-          if( commRank == 0 )
+          if( argc < 2 )
           {
-              std::cout << "Creating a matrix distributed over " << commSize;
-              if( commSize != 1 )
-                  std::cout << " processes.\n" << std::endl;
-              else
-                  std::cout << " process.\n" << std::endl;
+              if( commRank == 0 )
+                  Usage();
+              Finalize();
+              return 0;
           }
+          const int n = atoi( argv[1] );
+
           DistMatrix<double> I( n, n );
           I.SetToIdentity();
           I.Print("Identity");
@@ -219,11 +226,11 @@ Of course, ``/usr/local/elemental`` should be replaced with your installation
 prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
 set during configuration (it is written into the file 
 ``include/elemental/config.h`` in the build directory). A slightly modified 
-version of the above driver is available in ``tests/core/Identity.cpp``.
+version of the above driver is available in ``examples/special_matrices/Identity.cpp``.
 
 The executable can then typically be run with a single process using ::
 
-    ./Identity
+    ./Identity 8
 
 and the output should be ::
 
@@ -243,7 +250,7 @@ The driver can be run with several processes using the MPI launcher provided
 by your MPI implementation; a typical way to run the ``Identity`` driver on 
 eight processes would be::
 
-    mpirun -np 8 ./Identity
+    mpirun -np 8 ./Identity 8
 
 Only the first line of the output should change with respect to when run on 
 a single process.

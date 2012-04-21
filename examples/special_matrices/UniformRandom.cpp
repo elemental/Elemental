@@ -33,6 +33,14 @@
 #include "elemental.hpp"
 using namespace elem;
 
+void Usage()
+{
+    std::cout << "UniformRandom <m> <n>\n"
+              << "  m: height of random matrix\n"
+              << "  n: width of random matrix\n"
+              << std::endl;
+}
+
 int 
 main( int argc, char* argv[] )
 {
@@ -40,26 +48,22 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
-    const int n = 14;
+
+    if( argc < 3 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int m = atoi( argv[1] );
+    const int n = atoi( argv[2] );
 
     try
     {
-        if( commRank == 0 )
-        {
-            std::cout << "Creating a matrix distributed over " << commSize;
-            if( commSize != 1 )
-                std::cout << " processes.\n" << std::endl;
-            else
-                std::cout << " process.\n" << std::endl;
-        }
         DistMatrix<double> X;
-        UniformRandom( n, n, X );
-
-        const double trace = Trace( X );
-        const double det = Determinant( X );
-        if( commRank == 0 )
-            std::cout << "Tr(X) = " << trace << "\n"
-                      << "Det(X) = " << det << std::endl;
+        UniformRandom( m, n, X );
+        X.Print("X");
     }
     catch( std::exception& e )
     {

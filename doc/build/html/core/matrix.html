@@ -224,20 +224,6 @@ const T* <tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <
 <img class="math" src="../_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> that does not allow for modifying the data.</p>
 </dd></dl>
 
-<dl class="function">
-<dt id="Matrix:T:::Buffer__i.i.i.i">
-T* <tt class="descname">Buffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#Matrix:T:::Buffer__i.i.i.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as the version without <cite>height</cite> and <cite>width</cite>, but in <strong>Debug</strong> modes
-it will ensure that the <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite> submatrix starting
-at entry <img class="math" src="../_images/math/887919dfbc86eebc29e0373f98f97dbf23a0ae23.png" alt="(i,j)"/> does not go out of bounds.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Matrix:T:::LockedBuffer__i.i.i.iC">
-const T* <tt class="descname">LockedBuffer</tt><big>(</big>int <em>i</em>, int <em>j</em>, int <em>height</em>, int <em>width</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#Matrix:T:::LockedBuffer__i.i.i.iC" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but the data cannot be modified using the returned pointer.</p>
-</dd></dl>
-
 <p class="rubric">I/O</p>
 <dl class="function">
 <dt id="Matrix:T:::Print__ssCC">
