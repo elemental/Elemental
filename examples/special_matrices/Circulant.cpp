@@ -59,13 +59,44 @@ main( int argc, char* argv[] )
 
     try
     {
-        std::vector<double> a( n );
+        // Create a circulant matrix
+        DistMatrix<Complex<double> > A;
+        std::vector<Complex<double> > a( n );
         for( int j=0; j<n; ++j )
             a[j] = j;
-
-        DistMatrix<double> A;
         Circulant( a, A );
         A.Print("Circulant matrix:");
+
+        // Create a discrete Fourier matrix, which can be used to diagonalize
+        // circulant matrices
+        DistMatrix<Complex<double> > F;
+        DiscreteFourier( n, F );
+        F.Print("DFT matrix (F):");
+        
+        // Form B := A F
+        DistMatrix<Complex<double> > B;
+        Zeros( n, n, B );
+        Gemm( NORMAL, NORMAL, 
+              Complex<double>(1), A, F, Complex<double>(0), B );
+
+        // Form A := F^H B = F^H \hat A F
+        Gemm( ADJOINT, NORMAL,
+              Complex<double>(1), F, B, Complex<double>(0), A );
+        A.Print("A := F^H A F");
+
+        // Form the thresholded result
+        const int localHeight = A.LocalHeight();
+        const int localWidth = A.LocalWidth();
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            {
+                const double absValue = Abs(A.GetLocalEntry(iLocal,jLocal));
+                if( absValue < 1e-13 )
+                    A.SetLocalEntry(iLocal,jLocal,0);
+            }
+        }
+        A.Print("A with values below 1e-13 removed");
     }
     catch( std::exception& e )
     {
