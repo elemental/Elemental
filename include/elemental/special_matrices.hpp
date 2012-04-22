@@ -89,6 +89,20 @@ void Diagonal( const std::vector<T>& d, Matrix<T>& D );
 template<typename T,Distribution U,Distribution V>
 void Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D );
 
+// Generate an n x n Discrete Fourier Transform matrix, i.e., 
+//
+//   A(k,l) = exp(-2*pi*i*k*l/n) / sqrt(n).
+//
+template<typename Z>
+void DiscreteFourier( int n, Matrix<Complex<Z> >& A );
+template<typename Z,Distribution U,Distribution V>
+void DiscreteFourier( int n, DistMatrix<Complex<Z>,U,V>& A );
+// Turn the existing square matrix into a DFT matrix
+template<typename Z>
+void MakeDiscreteFourier( int n, Matrix<Complex<Z> >& A );
+template<typename Z,Distribution U,Distribution V>
+void MakeDiscreteFourier( int n, DistMatrix<Complex<Z>,U,V>& A );
+
 // Generate an m x n Hankel matrix, i.e.,
 //
 //    A(i,j) = a(i+j), for all (i,j) such that 0 <= i < m, 0 <= j < n.
@@ -236,7 +250,7 @@ void MakeHPDUniformRandom( Matrix<T>& A );
 template<typename T,Distribution U,Distribution V>
 void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 
-// TODO: Gaussian
+// TODO: Gaussian random matrices
 
 } // namespace elem
 
@@ -252,6 +266,7 @@ void MakeHPDUniformRandom( DistMatrix<T,U,V>& A );
 #include "./special_matrices/CauchyLike.hpp"
 #include "./special_matrices/Circulant.hpp"
 #include "./special_matrices/Diagonal.hpp"
+#include "./special_matrices/DiscreteFourier.hpp"
 #include "./special_matrices/Hankel.hpp"
 #include "./special_matrices/Hilbert.hpp"
 #include "./special_matrices/Identity.hpp"

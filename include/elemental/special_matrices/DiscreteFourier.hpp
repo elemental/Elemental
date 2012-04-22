@@ -33,68 +33,79 @@
 
 namespace elem {
 
-template<typename F>
+template<typename R>
 inline void
-Hilbert( int n, Matrix<F>& A )
+DiscreteFourier( int n, Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    PushCallStack("DiscreteFourier");
 #endif
     A.ResizeTo( n, n );
-    MakeHilbert( A );
+    MakeDiscreteFourier( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename R,Distribution U,Distribution V>
 inline void
-Hilbert( int n, DistMatrix<F,U,V>& A )
+DiscreteFourier( int n, DistMatrix<Complex<R>,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    PushCallStack("DiscreteFourier");
 #endif
     A.ResizeTo( n, n );
-    MakeHilbert( A );
+    MakeDiscreteFourier( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F> 
+template<typename R> 
 inline void
-MakeHilbert( Matrix<F>& A )
+MakeDiscreteFourier( Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    PushCallStack("MakeDiscreteFourier");
 #endif
+    typedef Complex<R> F;
+
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        throw std::logic_error("Cannot make a non-square DFT matrix");
 
-    const F one = static_cast<F>(1);
+    const R pi = 4*Atan( (R)1 );
+    const F nSqrt = Sqrt( (R)n );
     for( int j=0; j<n; ++j )
+    {
         for( int i=0; i<m; ++i )
-            A.Set( i, j, one/(i+j+1) );
+        {
+            const R theta = -2*pi*i*j/n;
+            A.Set( i, j, Complex<R>(Cos(theta),Sin(theta))/nSqrt );
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename R,Distribution U,Distribution V>
 inline void
-MakeHilbert( DistMatrix<F,U,V>& A )
+MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    PushCallStack("MakeDiscreteFourier");
 #endif
+    typedef Complex<R> F;
+
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        throw std::logic_error("Cannot make a non-square DFT matrix");
 
-    const F one = static_cast<F>(1);
+    const R pi = 4*Atan( (R)1 );
+    const F nSqrt = Sqrt( (R)n );
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();
@@ -107,7 +118,11 @@ MakeHilbert( DistMatrix<F,U,V>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-            A.SetLocalEntry( iLocal, jLocal, one/(i+j+1) );
+            A.SetLocalEntry( iLocal, jLocal, Exp(-2*pi*i*j/n)/nSqrt );
+
+            const R theta = -2*pi*i*j/n;
+            const Complex<R> alpha( Cos(theta), Sin(theta) );
+            A.SetLocalEntry( iLocal, jLocal, alpha/nSqrt );
         }
     }
 #ifndef RELEASE

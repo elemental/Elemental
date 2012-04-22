@@ -70,7 +70,7 @@ namespace elem {
 
 // Forward declarations
 class Grid;
-template<typename Z> struct Complex;
+template<typename R> struct Complex;
 
 // For initializing and finalizing Elemental
 void Initialize( int& argc, char**& argv );
@@ -105,34 +105,144 @@ template<typename R>
 R Abs( const Complex<R>& alpha );
 
 // Square-root free (l_1) magnitudes
-template<typename Z>
-Z FastAbs( const Z& alpha );
-template<typename Z>
-Z FastAbs( const Complex<Z>& alpha );
+template<typename R>
+R FastAbs( const R& alpha );
+template<typename R>
+R FastAbs( const Complex<R>& alpha );
 
 // Return the real part of a real or complex number
-template<typename Z>
-Z Real( const Z& alpha );
-template<typename Z>
-Z Real( const Complex<Z>& alpha );
+template<typename R>
+R Real( const R& alpha );
+template<typename R>
+R Real( const Complex<R>& alpha );
 
 // Return the imaginary part of a real or complex number
-template<typename Z>
-Z Imag( const Z& alpha );
-template<typename Z>
-Z Imag( const Complex<Z>& alpha );
+template<typename R>
+R Imag( const R& alpha );
+template<typename R>
+R Imag( const Complex<R>& alpha );
 
 // Conjugation
-template<typename Z>
-Z Conj( const Z& alpha );
-template<typename Z>
-Complex<Z> Conj( const Complex<Z>& alpha );
+template<typename R>
+R Conj( const R& alpha );
+template<typename R>
+Complex<R> Conj( const Complex<R>& alpha );
 
 // Square root
-template<typename Z>
-Z Sqrt( const Z& alpha );
-template<typename Z>
-Complex<Z> Sqrt( const Complex<Z>& alpha );
+template<typename R>
+R Sqrt( const R& alpha );
+template<typename R>
+Complex<R> Sqrt( const Complex<R>& alpha );
+
+// Cosine
+template<typename R>
+R Cos( const R& alpha );
+template<typename R>
+Complex<R> Cos( const Complex<R>& alpha );
+
+// Sine
+template<typename R>
+R Sin( const R& alpha );
+template<typename R>
+Complex<R> Sin( const Complex<R>& alpha );
+
+// Tangent
+template<typename R>
+R Tan( const R& alpha );
+template<typename R>
+Complex<R> Tan( const Complex<R>& alpha );
+
+// Hyperbolic cosine
+template<typename R>
+R Cosh( const R& alpha );
+template<typename R>
+Complex<R> Cosh( const Complex<R>& alpha );
+
+// Hyperbolic sine
+template<typename R>
+R Sinh( const R& alpha );
+template<typename R>
+Complex<R> Sinh( const Complex<R>& alpha );
+
+// Inverse cosine
+template<typename R>
+R Acos( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Acos( const Complex<R>& alpha );
+*/
+
+// Inverse sine
+template<typename R>
+R Asin( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Asin( const Complex<R>& alpha );
+*/
+
+// Inverse tangent
+template<typename R>
+R Atan( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Atan( const Complex<R>& alpha );
+*/
+
+// Coordinate-based inverse tangent
+template<typename R>
+R Atan2( const R& y, const R& x );
+
+// Inverse hyperbolic cosine
+template<typename R>
+R Acosh( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Acosh( const Complex<R>& alpha );
+*/
+
+// Inverse hyperbolic sine
+template<typename R>
+R Asinh( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Asinh( const Complex<R>& alpha );
+*/
+
+// Inverse hyperbolic tangent
+template<typename R>
+R Atanh( const R& alpha );
+// TODO
+/*
+template<typename R>
+Complex<R> Atanh( const Complex<R>& alpha );
+*/
+
+// Complex argument
+template<typename R>
+R Arg( const R& alpha );
+template<typename R>
+R Arg( const Complex<R>& alpha );
+
+// Convert polar coordinates to the complex number
+template<typename R>
+Complex<R> Polar( const R& r, const R& theta=0 ); 
+
+// Exponential
+template<typename R>
+R Exp( const R& alpha );
+template<typename R>
+Complex<R> Exp( const Complex<R>& alpha );
+
+// Logarithm
+template<typename R>
+R Log( const R& alpha );
+template<typename R>
+Complex<R> Log( const Complex<R>& alpha );
 
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 
@@ -166,17 +276,17 @@ void DumpCallStack();
 
 // For extracting the underlying real datatype, 
 // e.g., typename Base<Scalar>::type a = 3.0;
-template<typename Z>
-struct Base { typedef Z type; };
-template<typename Z>
-struct Base<Complex<Z> > { typedef Z type; };
+template<typename R>
+struct Base { typedef R type; };
+template<typename R>
+struct Base<Complex<R> > { typedef R type; };
 
 // For querying whether or not a scalar is complex,
 // e.g., IsComplex<Scalar>::val
-template<typename Z>
+template<typename R>
 struct IsComplex { enum { val=0 }; };
-template<typename Z>
-struct IsComplex<Complex<Z> > { enum { val=1 }; };
+template<typename R>
+struct IsComplex<Complex<R> > { enum { val=1 }; };
 
 // We define an output stream that does nothing. This is done so that the 
 // root process can be used to print data to a file's ostream while all other 
@@ -247,69 +357,69 @@ Abs( const Complex<R>& alpha )
         return maxMag*Sqrt(1+(minMag/maxMag)*(minMag/maxMag));
 }
 
-template<typename Z>
-inline Z
-FastAbs( const Z& alpha )
+template<typename R>
+inline R
+FastAbs( const R& alpha )
 { return std::abs(alpha); }
 
-template<typename Z>
-inline Z
-FastAbs( const Complex<Z>& alpha )
+template<typename R>
+inline R
+FastAbs( const Complex<R>& alpha )
 { return std::abs(alpha.real) + std::abs(alpha.imag); }
 
-template<typename Z>
-inline Z
-Real( const Z& alpha )
+template<typename R>
+inline R
+Real( const R& alpha )
 { return alpha; }
 
-template<typename Z>
-inline Z
-Real( const Complex<Z>& alpha )
+template<typename R>
+inline R
+Real( const Complex<R>& alpha )
 { return alpha.real; }
 
-template<typename Z>
-inline Z
-Imag( const Z& alpha )
+template<typename R>
+inline R
+Imag( const R& alpha )
 { return 0; }
 
-template<typename Z>
-inline Z
-Imag( const Complex<Z>& alpha )
+template<typename R>
+inline R
+Imag( const Complex<R>& alpha )
 { return alpha.imag; }
 
-template<typename Z>
-inline Z
-Conj( const Z& alpha )
+template<typename R>
+inline R 
+Conj( const R& alpha )
 { return alpha; }
 
-template<typename Z>
-inline Complex<Z>
-Conj( const Complex<Z>& alpha )
-{ return Complex<Z>(alpha.real,-alpha.imag); }
+template<typename R>
+inline Complex<R>
+Conj( const Complex<R>& alpha )
+{ return Complex<R>(alpha.real,-alpha.imag); }
 
-template<typename Z>
-inline Z
-Sqrt( const Z& alpha )
+template<typename R>
+inline R 
+Sqrt( const R& alpha )
 { return sqrt(alpha); }
 
 // Similar to W. Fullerton's April 1977 implementation of csqrt
-template<typename Z>
-inline Complex<Z>
-Sqrt( const Complex<Z>& alpha )
+template<typename R>
+inline Complex<R>
+Sqrt( const Complex<R>& alpha )
 { 
-    const Z rho = Abs(alpha);
-    const Z xi=alpha.real;
-    Z eta=alpha.imag;
+    const R rho = Abs(alpha);
+    const R xi=alpha.real;
+    R eta=alpha.imag;
 
     if( rho == 0 )
-        return Complex<Z>(0,0);
+        return Complex<R>(0,0);
 
-    const Z delta = Sqrt(0.5*(rho+Abs(xi)));
-    const Z gamma = 0.5*eta/delta;
+    const R delta = Sqrt(0.5*(rho+Abs(xi)));
+    const R gamma = 0.5*eta/delta;
 
     if( xi >= 0 )
     {
-        return Complex<Z>(delta,gamma);
+        return Complex<R>(delta,gamma);
     }
     else
     {
@@ -318,11 +428,193 @@ Sqrt( const Complex<Z>& alpha )
 
         // TODO: Try to use the copysign function to avoid a branch?
         if( eta >= 0 )
-            return Complex<Z>(Abs(gamma),delta);
+            return Complex<R>(Abs(gamma),delta);
         else
-            return Complex<Z>(Abs(gamma),-delta);
+            return Complex<R>(Abs(gamma),-delta);
     }
 }
+
+template<typename R>
+inline R 
+Cos( const R& alpha )
+{ return cos(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Cos( const Complex<R>& alpha )
+{ return Complex<R>(  Cos(alpha.real)*Cosh(alpha.imag), 
+                     -Sin(alpha.real)*Sinh(alpha.imag) ); }
+
+template<typename R>
+inline R 
+Sin( const R& alpha )
+{ return sin(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Sin( const Complex<R>& alpha )
+{ return Complex<R>( Sin(alpha.real)*Cosh(alpha.imag),
+                     Cos(alpha.real)*Sinh(alpha.imag) ); }
+
+template<typename R>
+inline R 
+Tan( const R& alpha )
+{ return tan(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Tan( const Complex<R>& alpha )
+{ return Sin(alpha)/Cos(alpha); }
+
+template<typename R>
+inline R 
+Cosh( const R& alpha )
+{ return cosh(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Cosh( const Complex<R>& alpha )
+{ return Complex<R>( Cosh(alpha.real)*Cos(alpha.imag), 
+                     Sinh(alpha.real)*Sin(alpha.imag) ); }
+
+template<typename R>
+inline R 
+Sinh( const R& alpha )
+{ return sinh(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Sinh( const Complex<R>& alpha )
+{ return Complex<R>( Sinh(alpha.real)*Cos(alpha.imag),
+                     Cosh(alpha.real)*Sin(alpha.imag) ); }
+
+template<typename R>
+inline R 
+Tanh( const R& alpha )
+{ return tanh(alpha); }
+
+template<typename R>
+inline Complex<R> 
+Tanh( const Complex<R>& alpha )
+{ return Sinh(alpha)/Cosh(alpha); }
+
+template<typename R>
+inline R 
+Acos( const R& alpha )
+{ return acos(alpha); }
+
+// TODO: 
+/*
+template<typename R>
+inline Complex<R>
+Acos( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Asin( const R& alpha )
+{ return asin(alpha); }
+
+// TODO:
+/*
+template<typename R>
+inline Complex<R>
+Asin( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Atan( const R& alpha )
+{ return atan(alpha); }
+
+// TODO
+/*
+template<typename R>
+inline Complex<R>
+Atan( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Atan2( const R& y, const R& x )
+{ return atan2( y, x ); }
+
+template<typename R>
+inline R 
+Acosh( const R& alpha )
+{ return acosh(alpha); }
+
+// TODO
+/*
+template<typename R>
+inline Complex<R>
+Acosh( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Asinh( const R& alpha )
+{ return asinh(alpha); }
+
+// TODO
+/*
+template<typename R>
+inline Complex<R>
+Asinh( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Atanh( const R& alpha )
+{ return atanh(alpha); }
+
+// TODO
+/*
+template<typename R>
+inline Complex<R>
+Atanh( const Complex<R>& alpha )
+{ }
+*/
+
+template<typename R>
+inline R 
+Arg( const R& alpha )
+{ return Atan2( 0, alpha ); } // preserve conventions of complex arg
+
+template<typename R>
+inline R 
+Arg( const Complex<R>& alpha )
+{ return Atan2( alpha.imag, alpha.real ); }
+
+template<typename R>
+inline Complex<R> 
+Polar( const R& r, const R& theta )
+{ return Complex<R>( r*Cos(theta), r*Sin(theta) ); }
+
+template<typename R>
+inline R 
+Exp( const R& alpha )
+{ return exp(alpha); }
+
+template<typename R>
+inline Complex<R>
+Exp( const Complex<R>& alpha )
+{ return Polar( Exp(alpha.real), alpha.imag ); }
+
+template<typename R>
+inline R 
+Log( const R& alpha )
+{ return log(alpha); }
+
+template<typename R>
+inline Complex<R>
+Log( const Complex<R>& alpha )
+{ return Complex<R>( Log(Abs(alpha)), Arg(alpha) ); }
 
 } // namespace elem
 
