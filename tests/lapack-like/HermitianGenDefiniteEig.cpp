@@ -530,7 +530,7 @@ void TestHermitianGenDefiniteEigDouble
     DistMatrix<double,VR,STAR> w(g);
     DistMatrix<double,MC,MR  > X(g);
 
-    HPDUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, 1, 10 );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
@@ -541,7 +541,7 @@ void TestHermitianGenDefiniteEigDouble
         Herk( uplo, ADJOINT, (double)1, C, (double)0, B );
     }
     else
-        HPDUniformRandom( m, B );
+        HermitianUniformRandomSpectrum( m, B, 1, 10 );
 
     if( testCorrectness )
     {
@@ -619,7 +619,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
     DistMatrix<        double, VR,STAR> w(g);
     DistMatrix<Complex<double>,MC,MR  > X(g);
 
-    HPDUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, 1, 10 );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
@@ -633,7 +633,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
           Complex<double>(0), B );
     }
     else
-        HPDUniformRandom( m, B );
+        HermitianUniformRandomSpectrum( m, B, 1, 10 );
 
     if( testCorrectness )
     {

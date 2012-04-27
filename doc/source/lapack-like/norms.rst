@@ -3,7 +3,7 @@ Norms
 
 Several matrix norm routines are provided for general, Hermitian, and symmetric 
 (distributed) matrices; each of the following routines can return either
-:math:`||A||_1`, :math:`||A||_\infty`, :math:`||A||_F` (the Frobenius norm), or 
+:math:`\|A\|_1`, :math:`\|A\|_\infty`, :math:`\|A\|_F` (the Frobenius norm), or 
 the maximum entrywise norm. The matrix two-norm is quite expensive to directly 
 compute, so a probabilistic algorithm (based upon Dixon's approach) will be 
 added in the near future.
@@ -16,7 +16,7 @@ added in the near future.
 
      .. math::
 
-        ||A||_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}
+        \|A\|_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}
 
    * ``INFINITY_NORM``: 
 
@@ -24,7 +24,7 @@ added in the near future.
         :nowrap:
 
         \[
-        ||A||_{\infty} = \max_{||x||_{\infty}=1} ||Ax||_{\infty} 
+        \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
                        = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
         \]
 
@@ -34,7 +34,7 @@ added in the near future.
         :nowrap:
 
         \[
-        ||A||_1 = \max_{||x||_1=1} ||Ax||_1 
+        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
                 = \max_j \sum_{i=0}^{n-1} |\alpha_{i,j}|
         \]
 
@@ -42,7 +42,7 @@ added in the near future.
      
      .. math::
      
-        ||A||_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
+        \|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
 
 Norm
 ----

@@ -58,9 +58,9 @@ void TestHemm
     DistMatrix<T,MC,MR> A(g), B(g), C(g);
 
     if( side == LEFT )
-        HermitianUniformRandom( m, A );
+        HermitianUniformRandomSpectrum( m, A, -10, 10 );
     else
-        HermitianUniformRandom( n, A );
+        HermitianUniformRandomSpectrum( n, A, -10, 10 );
     UniformRandom( m, n, B );
     UniformRandom( m, n, C );
     if( printMatrices )

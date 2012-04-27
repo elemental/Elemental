@@ -213,7 +213,7 @@ void TestHermitianTridiag<double>
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> A(g), AOrig(g);
 
-    HermitianUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -264,7 +264,7 @@ void TestHermitianTridiag<Complex<double> >
     DistMatrix<C,MC,  MR  > A(g), AOrig(g);
     DistMatrix<C,STAR,STAR> t(g);
 
-    HermitianUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

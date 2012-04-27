@@ -128,7 +128,7 @@ void TestCholesky
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g), AOrig(g);
 
-    HPDUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, 1, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

@@ -234,8 +234,8 @@ void TestHegst
     }
     else
     {
-        MakeHPDUniformRandom( A );
-        MakeHPDUniformRandom( B );
+        MakeHermitianUniformRandomSpectrum( A, 1, 10 );
+        MakeHermitianUniformRandomSpectrum( B, 1, 10 );
     }
     MakeTrapezoidal( LEFT, uplo, 0, B );
     if( testCorrectness )

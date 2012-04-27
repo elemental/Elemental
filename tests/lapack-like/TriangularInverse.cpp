@@ -100,7 +100,7 @@ void TestTriangularInverse
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g), AOrig(g);
-    HPDUniformRandom( m, A );
+    HermitianUniformRandomSpectrum( m, A, 1, 10 );
     MakeTrapezoidal( LEFT, uplo, 0, A );
     if( testCorrectness )
     {

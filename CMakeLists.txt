@@ -647,8 +647,10 @@ if(BUILD_EXAMPLES)
   set(CORE_EXAMPLES Constructors)
   set(ADVANCED_EXAMPLES GaussianElimination)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
-                       Hankel Hilbert Identity Ones OneTwoOne Toeplitz 
-                       UniformRandom Walsh Wilkinson Zeros)
+                       Hankel HermitianUniformRandomSpectrum Hilbert Identity 
+                       NormalUniformRandomSpectrum
+                       Ones OneTwoOne Toeplitz UniformRandom Walsh Wilkinson 
+                       Zeros)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND ADVANCED_EXAMPLES HermitianEig 

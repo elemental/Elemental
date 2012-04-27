@@ -35,13 +35,14 @@ namespace elem {
 
 template<typename T>
 inline void
-UniformRandom( int m, int n, Matrix<T>& A )
+UniformRandom
+( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
     PushCallStack("UniformRandom");
 #endif
     A.ResizeTo( m, n );
-    MakeUniformRandom( A );
+    MakeUniformRandom( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -49,13 +50,14 @@ UniformRandom( int m, int n, Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-UniformRandom( int m, int n, DistMatrix<T,U,V>& A )
+UniformRandom
+( int m, int n, DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
     PushCallStack("UniformRandom");
 #endif
     A.ResizeTo( m, n );
-    MakeUniformRandom( A );
+    MakeUniformRandom( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -64,7 +66,7 @@ UniformRandom( int m, int n, DistMatrix<T,U,V>& A )
 // Draw each entry from a uniform PDF over the closed unit ball.
 template<typename T>
 inline void
-MakeUniformRandom( Matrix<T>& A )
+MakeUniformRandom( Matrix<T>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
     PushCallStack("MakeUniformRandom");
@@ -73,7 +75,7 @@ MakeUniformRandom( Matrix<T>& A )
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            A.Set( i, j, SampleUnitBall<T>() );
+            A.Set( i, j, center+radius*SampleUnitBall<T>() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -84,26 +86,30 @@ namespace internal {
 template<typename T,Distribution U,Distribution V>
 struct MakeUniformRandomHelper
 {
-    static void Func( DistMatrix<T,U,V>& A );  
+    static void Func
+    ( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius );  
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,MC,MR>
 {
-    static void Func( DistMatrix<T,MC,MR>& A )
+    static void Func
+    ( DistMatrix<T,MC,MR>& A, T center, typename Base<T>::type radius )
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, jLocal, SampleUnitBall<T>() );
+                A.SetLocalEntry
+                ( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,MC,STAR>
 {
-    static void Func( DistMatrix<T,MC,STAR>& A )
+    static void Func
+    ( DistMatrix<T,MC,STAR>& A, T center, typename Base<T>::type radius )
     {
         const Grid& grid = A.Grid();
         if( grid.InGrid() )
@@ -118,7 +124,8 @@ struct MakeUniformRandomHelper<T,MC,STAR>
             {
                 for( int j=0; j<n; ++j )
                     for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                        buffer[iLocal+j*localHeight] = SampleUnitBall<T>();
+                        buffer[iLocal+j*localHeight] = 
+                            center + radius*SampleUnitBall<T>();
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
@@ -141,7 +148,8 @@ struct MakeUniformRandomHelper<T,MC,STAR>
 template<typename T>
 struct MakeUniformRandomHelper<T,MD,STAR>
 {
-    static void Func( DistMatrix<T,MD,STAR>& A )
+    static void Func
+    ( DistMatrix<T,MD,STAR>& A, T center, typename Base<T>::type radius )
     {
         if( A.InDiagonal() )
         {
@@ -149,7 +157,8 @@ struct MakeUniformRandomHelper<T,MD,STAR>
             const int localHeight = A.LocalHeight();
             for( int j=0; j<n; ++j )
                 for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                    A.SetLocalEntry( iLocal, j, SampleUnitBall<T>() );
+                    A.SetLocalEntry
+                    ( iLocal, j, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -157,20 +166,23 @@ struct MakeUniformRandomHelper<T,MD,STAR>
 template<typename T>
 struct MakeUniformRandomHelper<T,MR,MC>
 {
-    static void Func( DistMatrix<T,MR,MC>& A )
+    static void Func
+    ( DistMatrix<T,MR,MC>& A, T center, typename Base<T>::type radius )
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, jLocal, SampleUnitBall<T>() );
+                A.SetLocalEntry
+                ( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,MR,STAR>
 {
-    static void Func( DistMatrix<T,MR,STAR>& A )
+    static void Func
+    ( DistMatrix<T,MR,STAR>& A, T center, typename Base<T>::type radius )
     {
         const Grid& grid = A.Grid();
         const int n = A.Width();
@@ -183,7 +195,7 @@ struct MakeUniformRandomHelper<T,MR,STAR>
         {
             for( int j=0; j<n; ++j )
                 for( int i=0; i<localHeight; ++i )
-                    buffer[i+j*localHeight] = SampleUnitBall<T>();
+                    buffer[i+j*localHeight] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
@@ -202,7 +214,8 @@ struct MakeUniformRandomHelper<T,MR,STAR>
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,MC>
 {
-    static void Func( DistMatrix<T,STAR,MC>& A )
+    static void Func
+    ( DistMatrix<T,STAR,MC>& A, T center, typename Base<T>::type radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -215,7 +228,7 @@ struct MakeUniformRandomHelper<T,STAR,MC>
         {
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 for( int i=0; i<m; ++i )
-                    buffer[i+jLocal*m] = SampleUnitBall<T>();
+                    buffer[i+jLocal*m] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
@@ -237,7 +250,8 @@ struct MakeUniformRandomHelper<T,STAR,MC>
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,MD>
 {
-    static void Func( DistMatrix<T,STAR,MD>& A )
+    static void Func
+    ( DistMatrix<T,STAR,MD>& A, T center, typename Base<T>::type radius )
     {
         if( A.InDiagonal() )
         {
@@ -245,7 +259,8 @@ struct MakeUniformRandomHelper<T,STAR,MD>
             const int localWidth = A.LocalWidth();
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 for( int i=0; i<m; ++i )
-                    A.SetLocalEntry( i, jLocal, SampleUnitBall<T>() );
+                    A.SetLocalEntry
+                    ( i, jLocal, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -253,7 +268,8 @@ struct MakeUniformRandomHelper<T,STAR,MD>
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,MR>
 {
-    static void Func( DistMatrix<T,STAR,MR>& A )
+    static void Func
+    ( DistMatrix<T,STAR,MR>& A, T center, typename Base<T>::type radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -266,7 +282,7 @@ struct MakeUniformRandomHelper<T,STAR,MR>
         {
             for( int j=0; j<localWidth; ++j )
                 for( int i=0; i<m; ++i )
-                    buffer[i+j*m] = SampleUnitBall<T>();
+                    buffer[i+j*m] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
@@ -288,7 +304,8 @@ struct MakeUniformRandomHelper<T,STAR,MR>
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,STAR>
 {
-    static void Func( DistMatrix<T,STAR,STAR>& A )
+    static void Func
+    ( DistMatrix<T,STAR,STAR>& A, T center, typename Base<T>::type radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -303,7 +320,7 @@ struct MakeUniformRandomHelper<T,STAR,STAR>
             {
                 for( int j=0; j<n; ++j )
                     for( int i=0; i<m; ++i )
-                        buffer[i+j*m] = SampleUnitBall<T>();
+                        buffer[i+j*m] = center+radius*SampleUnitBall<T>();
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
 
@@ -326,52 +343,56 @@ struct MakeUniformRandomHelper<T,STAR,STAR>
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,VC>
 {
-    static void Func( DistMatrix<T,STAR,VC>& A )
+    static void Func
+    ( DistMatrix<T,STAR,VC>& A, T center, typename Base<T>::type radius )
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int i=0; i<m; ++i )
-                A.SetLocalEntry( i, jLocal, SampleUnitBall<T>() );
+                A.SetLocalEntry( i, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,STAR,VR>
 {
-    static void Func( DistMatrix<T,STAR,VR>& A )
+    static void Func
+    ( DistMatrix<T,STAR,VR>& A, T center, typename Base<T>::type radius )
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int i=0; i<m; ++i )
-                A.SetLocalEntry( i, jLocal, SampleUnitBall<T>() );
+                A.SetLocalEntry( i, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,VC,STAR>
 {
-    static void Func( DistMatrix<T,VC,STAR>& A )
+    static void Func
+    ( DistMatrix<T,VC,STAR>& A, T center, typename Base<T>::type radius )
     {
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, j, SampleUnitBall<T>() );
+                A.SetLocalEntry( iLocal, j, center+radius*SampleUnitBall<T>() );
     }
 };
 
 template<typename T>
 struct MakeUniformRandomHelper<T,VR,STAR>
 {
-    static void Func( DistMatrix<T,VR,STAR>& A )
+    static void Func
+    ( DistMatrix<T,VR,STAR>& A, T center, typename Base<T>::type radius )
     {
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, j, SampleUnitBall<T>() );
+                A.SetLocalEntry( iLocal, j, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -379,12 +400,13 @@ struct MakeUniformRandomHelper<T,VR,STAR>
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeUniformRandom( DistMatrix<T,U,V>& A )
+MakeUniformRandom
+( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
     PushCallStack("UniformRandom");
 #endif
-    internal::MakeUniformRandomHelper<T,U,V>::Func( A );
+    internal::MakeUniformRandomHelper<T,U,V>::Func( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -68,7 +68,7 @@ void TestHer2k
         UniformRandom( k, m, A );
         UniformRandom( k, m, B );
     }
-    HPDUniformRandom( m, C );
+    HermitianUniformRandomSpectrum( m, C, 1, 10 );
     if( printMatrices )
     {
         A.Print("A");
