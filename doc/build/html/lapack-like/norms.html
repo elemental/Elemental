@@ -10,8 +10,9 @@
     
     <title>Norms &mdash; Elemental 0.74-pre documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -25,39 +26,36 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
     <link rel="up" title="High-level linear algebra" href="../lapack-like.html" />
     <link rel="next" title="Invariants" href="invariants.html" />
     <link rel="prev" title="High-level linear algebra" href="../lapack-like.html" /> 
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="invariants.html" title="Invariants"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="../lapack-like.html" title="High-level linear algebra"
-             accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
-          <li><a href="../lapack-like.html" accesskey="U">High-level linear algebra</a> &raquo;</li> 
-      </ul>
-    </div>  
+      <div class="header"><img class="rightlogo" src="../_static/elemental_90.png" alt="Logo"/><h1 class="heading"><a href="../index.html">
+          <span>Elemental 0.74-pre documentation</span></a></h1>
+        <h2 class="heading"><span>Norms</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="../lapack-like.html">High-level linear algebra</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="invariants.html">Invariants</a>&#160;&#160;»
+        </p>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      </div>
+      <div class="content">
+        
+        
   <div class="section" id="norms">
 <h1>Norms<a class="headerlink" href="#norms" title="Permalink to this headline">¶</a></h1>
 <p>Several matrix norm routines are provided for general, Hermitian, and symmetric
 (distributed) matrices; each of the following routines can return either
-<span class="math">\|A\|_1</span>, <span class="math">\|A\|_\infty</span>, <span class="math">\|A\|_F</span> (the Frobenius norm), or
+<img class="math" src="../_images/math/11481efc04dbf729412494f3ce835e9782f3a566.png" alt="\|A\|_1"/>, <img class="math" src="../_images/math/00c8c707038bf9960143c2887235c01f5e9d035b.png" alt="\|A\|_\infty"/>, <img class="math" src="../_images/math/6f67f2eaf3c66b87c22edfa0bdd59cfb2663f974.png" alt="\|A\|_F"/> (the Frobenius norm), or
 the maximum entrywise norm. The matrix two-norm is quite expensive to directly
 compute, so a probabilistic algorithm (based upon Dixon&#8217;s approach) will be
 added in the near future.</p>
@@ -68,25 +66,25 @@ added in the near future.</p>
 <ul>
 <li><p class="first"><tt class="docutils literal"><span class="pre">FROBENIUS_NORM</span></tt>:</p>
 <div class="math">
-<p><span class="math">\|A\|_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}</span></p>
+<p><img src="../_images/math/271d02942fa8192dc28bf103afef5b697c876592.png" alt="\|A\|_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}"/></p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">INFINITY_NORM</span></tt>:</p>
 <div class="math">
-<p><span class="math">\[
+<p><img src="../_images/math/1fba394944840cbc7221f3b0d613b1302ae36f2a.png" alt="\[
 \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty}
                = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
-\]</span></p>
+\]"/></p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">ONE_NORM</span></tt>:</p>
 <div class="math">
-<p><span class="math">\[
+<p><img src="../_images/math/062c935e7b7300154c5446cbbc26670ceb206012.png" alt="\[
 \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1
         = \max_j \sum_{i=0}^{n-1} |\alpha_{i,j}|
-\]</span></p>
+\]"/></p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">MAX_NORM</span></tt>:</p>
 <div class="math">
-<p><span class="math">\|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|</span></p>
+<p><img src="../_images/math/649cab1f7a084c5e02562fb4a7b8b70d12103f0f.png" alt="\|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|"/></p>
 </div></li>
 </ul>
 </dd></dl>
@@ -132,68 +130,19 @@ with the data stored in the triangle specified by <tt class="docutils literal"><
 </div>
 
 
-          </div>
-        </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/elemental_120x120.png" alt="Logo"/>
-            </a></p>
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Norms</a><ul>
-<li><a class="reference internal" href="#norm">Norm</a></li>
-<li><a class="reference internal" href="#hermitiannorm">HermitianNorm</a></li>
-<li><a class="reference internal" href="#symmetricnorm">SymmetricNorm</a></li>
-</ul>
-</li>
-</ul>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="../lapack-like.html">High-level linear algebra</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="invariants.html">Invariants</a>&#160;&#160;»
+        </p>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../lapack-like.html"
-                        title="previous chapter">High-level linear algebra</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="invariants.html"
-                        title="next chapter">Invariants</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/lapack-like/norms.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="invariants.html" title="Invariants"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../lapack-like.html" title="High-level linear algebra"
-             >previous</a> |</li>
-        <li><a href="../index.html">Elemental 0.74-pre documentation</a> &raquo;</li>
-          <li><a href="../lapack-like.html" >High-level linear algebra</a> &raquo;</li> 
-      </ul>
-    </div>
+
     <div class="footer">
         &copy; Copyright 2012, Jack Poulson.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
