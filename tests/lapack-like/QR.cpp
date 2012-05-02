@@ -207,7 +207,7 @@ void TestQR<double>
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> A(g), AOrig(g);
 
-    UniformRandom( m, n, A );
+    Uniform( m, n, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -257,7 +257,7 @@ void TestQR<Complex<double> >
     DistMatrix<C,MC,MR  > A(g), AOrig(g);
     DistMatrix<C,MD,STAR> t(g);
 
-    UniformRandom( m, n, A );
+    Uniform( m, n, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

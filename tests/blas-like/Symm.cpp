@@ -58,11 +58,11 @@ void TestSymm
     DistMatrix<T,MC,MR> A(g), B(g), C(g);
 
     if( side == LEFT )
-        UniformRandom( m, m, A );
+        Uniform( m, m, A );
     else
-        UniformRandom( n, n, A );
-    UniformRandom( m, n, B );
-    UniformRandom( m, n, C );
+        Uniform( n, n, A );
+    Uniform( m, n, B );
+    Uniform( m, n, C );
     if( printMatrices )
     {
         A.Print("A");

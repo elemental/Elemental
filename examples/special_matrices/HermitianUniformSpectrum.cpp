@@ -35,7 +35,7 @@ using namespace elem;
 
 void Usage()
 {
-    std::cout << "HermitianUniformRandomSpectrum <n> <lower> <upper>\n"
+    std::cout << "HermitianUniformSpectrum <n> <lower> <upper>\n"
               << "  n: height of random Hermitian matrix\n"
               << "  lower: (non-inclusive) lower bound on spectrum\n"
               << "  upper: (inclusive) upper bound on spectrum\n"
@@ -64,7 +64,7 @@ main( int argc, char* argv[] )
     try
     {
         DistMatrix<double> X;
-        HermitianUniformRandomSpectrum( n, X, lower, upper );
+        HermitianUniformSpectrum( n, X, lower, upper );
         X.Print("X");
     }
     catch( std::exception& e )

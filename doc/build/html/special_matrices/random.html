@@ -55,17 +55,95 @@
             
   <div class="section" id="random">
 <h1>Random<a class="headerlink" href="#random" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="uniformrandom">
-<h2>UniformRandom<a class="headerlink" href="#uniformrandom" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO: Add description</strong></p>
+<div class="section" id="uniform">
+<h2>Uniform<a class="headerlink" href="#uniform" title="Permalink to this headline">¶</a></h2>
+<p>We call an <img class="math" src="../_images/math/dc5c773a00becebf2fe78e775d5953e138efea9e.png" alt="m \times n"/> matrix uniformly random if each entry is drawn
+from a uniform distribution over some ball <img class="math" src="../_images/math/a95e6a35da8aa0dd30424141017c4c025358dfe9.png" alt="B_r(x)"/>, which is centered
+around some point <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> and of radius <img class="math" src="../_images/math/b55ca7a0aa88ab7d58f4fc035317fdac39b17861.png" alt="r"/>.</p>
+<dl class="function">
+<dt id="Uniform__i.i.Matrix:T:R.T.typename-Base:T:::type">
+void <tt class="descname">Uniform</tt><big>(</big>int <em>m</em>, int <em>n</em>, Matrix&lt;T&gt;&amp; <em>A</em>, T <em>center</em><em>=0</em>, typename Base&lt;T&gt;::type <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#Uniform__i.i.Matrix:T:R.T.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the serial matrix <tt class="docutils literal"><span class="pre">A</span></tt> to an <img class="math" src="../_images/math/dc5c773a00becebf2fe78e775d5953e138efea9e.png" alt="m \times n"/> matrix with each entry sampled from the uniform distribution centered at <cite>center</cite> with radius <cite>radius</cite> (templated over datatype, <cite>T</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Uniform__i.i.DistMatrix:T.U.V:R.T.typename-Base:T:::type">
+void <tt class="descname">Uniform</tt><big>(</big>int <em>m</em>, int <em>n</em>, DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, T <em>center</em><em>=0</em>, typename Base&lt;T&gt;::type <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#Uniform__i.i.DistMatrix:T.U.V:R.T.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> to an <img class="math" src="../_images/math/dc5c773a00becebf2fe78e775d5953e138efea9e.png" alt="m \times n"/> matrix with each entry sampled from the uniform distribution centered at <cite>center</cite> with radius <cite>radius</cite> (templated over datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeUniform__Matrix:T:R.T.typename-Base:T:::type">
+void <tt class="descname">MakeUniform</tt><big>(</big>Matrix&lt;T&gt;&amp; <em>A</em>, T <em>center</em><em>=0</em>, typename Base&lt;T&gt;::type <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeUniform__Matrix:T:R.T.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample each entry of <tt class="docutils literal"><span class="pre">A</span></tt> from <img class="math" src="../_images/math/6106e94a9c026fd50a822b741f4b16dfb07ebeec.png" alt="U(B_r(x))"/>, where <img class="math" src="../_images/math/b55ca7a0aa88ab7d58f4fc035317fdac39b17861.png" alt="r"/> is given by <tt class="docutils literal"><span class="pre">radius</span></tt> and <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is given by <tt class="docutils literal"><span class="pre">center</span></tt> (templated over the datatype, <cite>T</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeUniform__DistMatrix:T.U.V:R.T.typename-Base:T:::type">
+void <tt class="descname">MakeUniform</tt><big>(</big>DistMatrix&lt;T, U, V&gt;&amp; <em>A</em>, T <em>center</em><em>=0</em>, typename Base&lt;T&gt;::type <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeUniform__DistMatrix:T.U.V:R.T.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample each entry of <tt class="docutils literal"><span class="pre">A</span></tt> from <img class="math" src="../_images/math/6106e94a9c026fd50a822b741f4b16dfb07ebeec.png" alt="U(B_r(x))"/>, where <img class="math" src="../_images/math/b55ca7a0aa88ab7d58f4fc035317fdac39b17861.png" alt="r"/> is given by <tt class="docutils literal"><span class="pre">radius</span></tt> and <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is given by <tt class="docutils literal"><span class="pre">center</span></tt> (templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
 </div>
-<div class="section" id="hermitianuniformrandomspectrum">
-<h2>HermitianUniformRandomSpectrum<a class="headerlink" href="#hermitianuniformrandomspectrum" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO: Add description</strong></p>
+<div class="section" id="hermitianuniformspectrum">
+<h2>HermitianUniformSpectrum<a class="headerlink" href="#hermitianuniformspectrum" title="Permalink to this headline">¶</a></h2>
+<p>These routines sample a diagonal matrix from the specified interval of the
+real line and then perform a similarity transformation using a random
+Householder transform.</p>
+<dl class="function">
+<dt id="HermitianUniformSpectrum__i.Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">HermitianUniformSpectrum</tt><big>(</big>int <em>n</em>, Matrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lower</em><em>=0</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upper</em><em>=1 </em><big>)</big><a class="headerlink" href="#HermitianUniformSpectrum__i.Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the <img class="math" src="../_images/math/c3d38f82f48ef9e81c04d49354293305b0067afc.png" alt="n \times n"/> serial matrix <tt class="docutils literal"><span class="pre">A</span></tt> with a spectrum sampled uniformly from the interval <img class="math" src="../_images/math/fc97bb11009199fdbdd95303f42e207908468a13.png" alt="(lower,upper]"/> (templated over the datatype, <cite>F</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="HermitianUniformSpectrum__i.DistMatrix:F.U.V:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">HermitianUniformSpectrum</tt><big>(</big>int <em>n</em>, DistMatrix&lt;F, U, V&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lower</em><em>=0</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upper</em><em>=1 </em><big>)</big><a class="headerlink" href="#HermitianUniformSpectrum__i.DistMatrix:F.U.V:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the <img class="math" src="../_images/math/c3d38f82f48ef9e81c04d49354293305b0067afc.png" alt="n \times n"/> distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> with a spectrum sampled uniformly from the interval <img class="math" src="../_images/math/fc97bb11009199fdbdd95303f42e207908468a13.png" alt="(lower,upper]"/> (templated over the datatype, <cite>F</cite>, which must be a field, and the distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeHermitianUniformSpectrum__Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">MakeHermitianUniformSpectrum</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lower</em><em>=0</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upper</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeHermitianUniformSpectrum__Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the entries of the square serial matrix <tt class="docutils literal"><span class="pre">A</span></tt> from the interval <img class="math" src="../_images/math/fc97bb11009199fdbdd95303f42e207908468a13.png" alt="(lower,upper]"/> (templated over the datatype, <cite>F</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeHermitianUniformSpectrum__DistMatrix:F.U.V:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">MakeHermitianUniformSpectrum</tt><big>(</big>DistMatrix&lt;F, U, V&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lower</em><em>=0</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upper</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeHermitianUniformSpectrum__DistMatrix:F.U.V:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the entries of the square distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> from the interval <img class="math" src="../_images/math/fc97bb11009199fdbdd95303f42e207908468a13.png" alt="(lower,upper]"/> (templated over the datatype, <cite>F</cite>, and the distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
 </div>
-<div class="section" id="normaluniformrandomspectrum">
-<h2>NormalUniformRandomSpectrum<a class="headerlink" href="#normaluniformrandomspectrum" title="Permalink to this headline">¶</a></h2>
-<p><strong>TODO: Add description</strong></p>
+<div class="section" id="normaluniformspectrum">
+<h2>NormalUniformSpectrum<a class="headerlink" href="#normaluniformspectrum" title="Permalink to this headline">¶</a></h2>
+<p>These routines sample a diagonal matrix from the specified ball in the
+complex plane and then perform a similarity transformation using a random
+Householder transform.</p>
+<dl class="function">
+<dt id="NormalUniformSpectrum__i.Matrix:Complex:R::R.Complex:R:.R">
+void <tt class="descname">NormalUniformSpectrum</tt><big>(</big>int <em>n</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Complex&lt;R&gt; <em>center</em><em>=0</em>, R <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#NormalUniformSpectrum__i.Matrix:Complex:R::R.Complex:R:.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the <img class="math" src="../_images/math/c3d38f82f48ef9e81c04d49354293305b0067afc.png" alt="n \times n"/> serial matrix <tt class="docutils literal"><span class="pre">A</span></tt> with a spectrum sampled uniformly from the ball <img class="math" src="../_images/math/037f7f1b0d2e30e60dd71e02b1aa05b38aeeacb8.png" alt="B_{\mathrm{radius}}(\mathrm{center})"/> (templated over the real datatype, <cite>R</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="NormalUniformSpectrum__i.DistMatrix:Complex:R:.U.V:R.Complex:R:.R">
+void <tt class="descname">NormalUniformSpectrum</tt><big>(</big>int <em>n</em>, DistMatrix&lt;Complex&lt;R&gt;, U, V&gt;&amp; <em>A</em>, Complex&lt;R&gt; <em>center</em><em>=0</em>, R <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#NormalUniformSpectrum__i.DistMatrix:Complex:R:.U.V:R.Complex:R:.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the <img class="math" src="../_images/math/c3d38f82f48ef9e81c04d49354293305b0067afc.png" alt="n \times n"/> distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> with a spectrum sampled uniformly from the ball <img class="math" src="../_images/math/037f7f1b0d2e30e60dd71e02b1aa05b38aeeacb8.png" alt="B_{\mathrm{radius}}(\mathrm{center})"/> (templated over the real datatype, <cite>R</cite>, and the distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeNormalUniformSpectrum__Matrix:Complex:R::R.Complex:R:.R">
+void <tt class="descname">MakeNormalUniformSpectrum</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Complex&lt;R&gt; <em>center</em><em>=0</em>, R <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeNormalUniformSpectrum__Matrix:Complex:R::R.Complex:R:.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the entries of the square serial matrix <tt class="docutils literal"><span class="pre">A</span></tt> from the ball in the complex plane centered at <tt class="docutils literal"><span class="pre">center</span></tt> with radius <tt class="docutils literal"><span class="pre">radius</span></tt> (templated over the real datatype, <cite>R</cite>).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="MakeNormalUniformSpectrum__DistMatrix:Complex:R:.U.V:R.Complex:R:.R">
+void <tt class="descname">MakeNormalUniformSpectrum</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, U, V&gt;&amp; <em>A</em>, Complex&lt;R&gt; <em>center</em><em>=0</em>, R <em>radius</em><em>=1 </em><big>)</big><a class="headerlink" href="#MakeNormalUniformSpectrum__DistMatrix:Complex:R:.U.V:R.Complex:R:.R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample the entries of the square distributed matrix <tt class="docutils literal"><span class="pre">A</span></tt> from the ball in the complex plane centered at <tt class="docutils literal"><span class="pre">center</span></tt> with radius <tt class="docutils literal"><span class="pre">radius</span></tt> (templated over the real datatype, <cite>R</cite>, and the distribution scheme, <cite>(U,V)</cite>).</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -81,9 +159,9 @@
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Random</a><ul>
-<li><a class="reference internal" href="#uniformrandom">UniformRandom</a></li>
-<li><a class="reference internal" href="#hermitianuniformrandomspectrum">HermitianUniformRandomSpectrum</a></li>
-<li><a class="reference internal" href="#normaluniformrandomspectrum">NormalUniformRandomSpectrum</a></li>
+<li><a class="reference internal" href="#uniform">Uniform</a></li>
+<li><a class="reference internal" href="#hermitianuniformspectrum">HermitianUniformSpectrum</a></li>
+<li><a class="reference internal" href="#normaluniformspectrum">NormalUniformSpectrum</a></li>
 </ul>
 </li>
 </ul>

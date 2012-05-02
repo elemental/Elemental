@@ -63,7 +63,7 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     DistMatrix<F,MC,MR> X(m,100,g), Y(m,100,g), Z(m,100,g);
-    MakeUniformRandom( X );
+    MakeUniform( X );
     Y = X;
 
     if( side == RIGHT )
@@ -226,16 +226,16 @@ void TestHegst
     if( testCorrectness )
     {
         DistMatrix<F,MC,MR> C(m,m,g);
-        MakeUniformRandom( C );
+        MakeUniform( C );
         Herk( uplo, NORMAL, (F)1, C, (F)0, A );
-        MakeUniformRandom( C );
+        MakeUniform( C );
         Herk( uplo, NORMAL, (F)1, C, (F)0, B );
         Cholesky( uplo, B );
     }
     else
     {
-        MakeHermitianUniformRandomSpectrum( A, 1, 10 );
-        MakeHermitianUniformRandomSpectrum( B, 1, 10 );
+        MakeHermitianUniformSpectrum( A, 1, 10 );
+        MakeHermitianUniformSpectrum( B, 1, 10 );
     }
     MakeTrapezoidal( LEFT, uplo, 0, B );
     if( testCorrectness )

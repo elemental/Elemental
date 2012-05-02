@@ -64,8 +64,8 @@ main( int argc, char* argv[] )
         DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
         for( int test=0; test<3; ++test )
         {
-            UniformRandom( n, n,      A );
-            UniformRandom( n, numRhs, B );
+            Uniform( n, n,      A );
+            Uniform( n, numRhs, B );
             ACopy = A;
             X = B;
 

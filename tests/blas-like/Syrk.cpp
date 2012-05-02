@@ -59,10 +59,10 @@ void TestSyrk
     DistMatrix<T,MC,MR> A(g), C(g);
 
     if( orientation == NORMAL )
-        UniformRandom( m, k, A );
+        Uniform( m, k, A );
     else
-        UniformRandom( k, m, A );
-    UniformRandom( m, m, C );
+        Uniform( k, m, A );
+    Uniform( m, m, C );
     MakeTrapezoidal( LEFT, uplo, 0, C );
     if( printMatrices )
     {

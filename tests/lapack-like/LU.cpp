@@ -64,7 +64,7 @@ void TestCorrectness
 
     // Generate random right-hand sides
     DistMatrix<F,MC,MR> X(g), Y(g);
-    UniformRandom( m, 100, X );
+    Uniform( m, 100, X );
     Y = X;
     if( pivoted )
         ApplyRowPivots( Y, p );
@@ -108,7 +108,7 @@ void TestLU
     DistMatrix<F,MC,MR> A(g), ARef(g);
     DistMatrix<int,VC,STAR> p(g);
 
-    UniformRandom( m, m, A );
+    Uniform( m, m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

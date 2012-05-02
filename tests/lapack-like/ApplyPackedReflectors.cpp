@@ -225,8 +225,8 @@ void TestUT<double>
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> H(g), A(g);
-    UniformRandom( m, m, H );
-    UniformRandom( m, m, A );
+    Uniform( m, m, H );
+    Uniform( m, m, A );
     if( printMatrices )
     {
         H.Print("H");
@@ -269,8 +269,8 @@ void TestUT<Complex<double> >
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > H(g), A(g);
-    UniformRandom( m, m, H );
-    UniformRandom( m, m, A );
+    Uniform( m, m, H );
+    Uniform( m, m, A );
 
     const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<C,MD,STAR> t(g);

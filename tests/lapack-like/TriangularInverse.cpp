@@ -62,7 +62,7 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     DistMatrix<F,MC,MR> X(g), Y(g);
-    UniformRandom( m, 100, X );
+    Uniform( m, 100, X );
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
@@ -100,7 +100,7 @@ void TestTriangularInverse
 {
     double startTime, endTime, runTime, gFlops;
     DistMatrix<F,MC,MR> A(g), AOrig(g);
-    HermitianUniformRandomSpectrum( m, A, 1, 10 );
+    HermitianUniformSpectrum( m, A, 1, 10 );
     MakeTrapezoidal( LEFT, uplo, 0, A );
     if( testCorrectness )
     {

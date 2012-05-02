@@ -71,9 +71,9 @@ void TestGemm
     // Test the variant of Gemm that keeps A stationary
     if( g.Rank() == 0 )
         cout << "Stationary A Algorithm:" << endl;
-    MakeUniformRandom( A );
-    MakeUniformRandom( B );
-    MakeUniformRandom( C );
+    MakeUniform( A );
+    MakeUniform( B );
+    MakeUniform( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -109,9 +109,9 @@ void TestGemm
     // Test the variant of Gemm that keeps B stationary
     if( g.Rank() == 0 )
         cout << endl << "Stationary B Algorithm:" << endl;
-    MakeUniformRandom( A );
-    MakeUniformRandom( B );
-    MakeUniformRandom( C );
+    MakeUniform( A );
+    MakeUniform( B );
+    MakeUniform( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -147,9 +147,9 @@ void TestGemm
     // Test the variant of Gemm that keeps C stationary
     if( g.Rank() == 0 )
         cout << endl << "Stationary C Algorithm:" << endl;
-    MakeUniformRandom( A );
-    MakeUniformRandom( B );
-    MakeUniformRandom( C );
+    MakeUniform( A );
+    MakeUniform( B );
+    MakeUniform( C );
     if( printMatrices )
     {
         A.Print("A");
@@ -187,9 +187,9 @@ void TestGemm
         // Test the variant of Gemm for panel-panel dot products
         if( g.Rank() == 0 )
             cout << endl << "Dot Product Algorithm:" << endl;
-        MakeUniformRandom( A );
-        MakeUniformRandom( B );
-        MakeUniformRandom( C );
+        MakeUniform( A );
+        MakeUniform( B );
+        MakeUniform( C );
         if( printMatrices )
         {
             A.Print("A");

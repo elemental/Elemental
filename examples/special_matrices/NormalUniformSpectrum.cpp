@@ -35,7 +35,7 @@ using namespace elem;
 
 void Usage()
 {
-    std::cout << "NormalUniformRandomSpectrum <n> <real center> <imag center>"
+    std::cout << "NormalUniformSpectrum <n> <real center> <imag center>"
                  " <radius>\n"
               << "  n: height of random Hermitian matrix\n"
               << "  real center: real coordinate of center of spectrum dist\n"
@@ -68,7 +68,7 @@ main( int argc, char* argv[] )
     {
         const Complex<double> center( realCenter, imagCenter );
         DistMatrix<Complex<double> > X;
-        NormalUniformRandomSpectrum( n, X, center, radius );
+        NormalUniformSpectrum( n, X, center, radius );
         X.Print("X");
     }
     catch( std::exception& e )

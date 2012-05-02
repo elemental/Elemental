@@ -223,7 +223,7 @@ void TestHermitianEigDouble
     DistMatrix<double,MC,MR  > A(g), AOrig(g), Z(g);
     DistMatrix<double,VR,STAR> w(g);
 
-    HermitianUniformRandomSpectrum( m, A, -10, 10 );
+    HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -292,7 +292,7 @@ void TestHermitianEigDoubleComplex
     DistMatrix<Complex<double>,MC,  MR> A(g), AOrig(g), Z(g);
     DistMatrix<        double, VR,STAR> w(g);
 
-    HermitianUniformRandomSpectrum( m, A, -10, 10 );
+    HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

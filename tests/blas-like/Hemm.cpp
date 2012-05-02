@@ -58,11 +58,11 @@ void TestHemm
     DistMatrix<T,MC,MR> A(g), B(g), C(g);
 
     if( side == LEFT )
-        HermitianUniformRandomSpectrum( m, A, -10, 10 );
+        HermitianUniformSpectrum( m, A, -10, 10 );
     else
-        HermitianUniformRandomSpectrum( n, A, -10, 10 );
-    UniformRandom( m, n, B );
-    UniformRandom( m, n, C );
+        HermitianUniformSpectrum( n, A, -10, 10 );
+    Uniform( m, n, B );
+    Uniform( m, n, C );
     if( printMatrices )
     {
         A.Print("A");

@@ -36,50 +36,50 @@ namespace elem {
 // Draw the spectrum from the specified half-open interval on the real line,
 // then rotate it with a random Householder similarity transformation
 
-template<typename T>
+template<typename F>
 inline void
-HermitianUniformRandomSpectrum
-( int n, Matrix<T>& A, 
-  typename Base<T>::type lower, typename Base<T>::type upper )
+HermitianUniformSpectrum
+( int n, Matrix<F>& A, 
+  typename Base<F>::type lower, typename Base<F>::type upper )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianUniformRandomSpectrum");
+    PushCallStack("HermitianUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
-    MakeHermitianUniformRandomSpectrum( A, lower, upper );
+    MakeHermitianUniformSpectrum( A, lower, upper );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V>
 inline void
-HermitianUniformRandomSpectrum
-( int n, DistMatrix<T,U,V>& A, 
-  typename Base<T>::type lower, typename Base<T>::type upper )
+HermitianUniformSpectrum
+( int n, DistMatrix<F,U,V>& A, 
+  typename Base<F>::type lower, typename Base<F>::type upper )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianUniformRandomSpectrum");
+    PushCallStack("HermitianUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
-    MakeHermitianUniformRandomSpectrum( A, lower, upper );
+    MakeHermitianUniformSpectrum( A, lower, upper );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
-MakeHermitianUniformRandomSpectrum
-( Matrix<T>& A, typename Base<T>::type lower, typename Base<T>::type upper )
+MakeHermitianUniformSpectrum
+( Matrix<F>& A, typename Base<F>::type lower, typename Base<F>::type upper )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitianUniformRandomSpectrum");
+    PushCallStack("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
-    typedef typename Base<T>::type R;
-    const bool isComplex = IsComplex<T>::val;
+    typedef typename Base<F>::type R;
+    const bool isComplex = IsComplex<F>::val;
 
     // Sample the diagonal matrix D from the half-open interval (lower,upper]
     // and then rotate it with a random Householder similarity transformation:
@@ -90,28 +90,28 @@ MakeHermitianUniformRandomSpectrum
 
     // Form d and D
     const int n = A.Height();
-    std::vector<R> d( n );
+    std::vector<F> d( n );
     for( int j=0; j<n; ++j )
         d[j] = lower + (upper-lower)*plcg::SerialUniform<R>();
     Diagonal( d, A );
 
     // Form u 
-    Matrix<T> u( n, 1 );
-    MakeUniformRandom( u );
+    Matrix<F> u( n, 1 );
+    MakeUniform( u );
     const R origNorm = Nrm2( u );
-    Scal( 1/origNorm, u );
+    Scal( (F)1/origNorm, u );
 
     // Form v := D u
-    Matrix<T> v( n, 1 );
+    Matrix<F> v( n, 1 );
     for( int i=0; i<n; ++i )
         v.Set( i, 0, d[i]*u.Get(i,0) );
 
     // Update A := A - 2(u v^H + v u^H)
-    Ger( (T)-2, u, v, A );
-    Ger( (T)-2, v, u, A );
+    Ger( (F)-2, u, v, A );
+    Ger( (F)-2, v, u, A );
 
     // Form \gamma := 4 u^H (D u) = 4 (u,Du)
-    const T gamma = 4*Dot(u,v);
+    const F gamma = 4*Dot(u,v);
 
     // Update A := A + gamma u u^H
     Ger( gamma, u, u, A );
@@ -128,20 +128,20 @@ MakeHermitianUniformRandomSpectrum
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V>
 inline void
-MakeHermitianUniformRandomSpectrum
-( DistMatrix<T,U,V>& A, 
-  typename Base<T>::type lower, typename Base<T>::type upper )
+MakeHermitianUniformSpectrum
+( DistMatrix<F,U,V>& A, 
+  typename Base<F>::type lower, typename Base<F>::type upper )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitianUniformRandomSpectrum");
+    PushCallStack("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
-    typedef typename Base<T>::type R;
-    const bool isComplex = IsComplex<T>::val;
+    typedef typename Base<F>::type R;
+    const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 
     // Sample the diagonal matrix D from the half-open interval (lower,upper]
@@ -153,10 +153,10 @@ MakeHermitianUniformRandomSpectrum
 
     // Form d and D
     const int n = A.Height();
-    std::vector<R> d( n );
+    std::vector<F> d( n );
     for( int j=0; j<n; ++j )
         d[j] = lower + (upper-lower)*plcg::SerialUniform<R>();
-    DistMatrix<T,MC,MR> ABackup( grid );
+    DistMatrix<F,MC,MR> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );
     else
@@ -166,17 +166,17 @@ MakeHermitianUniformRandomSpectrum
     }
 
     // Form u 
-    DistMatrix<T,MC,MR> u( grid );
+    DistMatrix<F,MC,MR> u( grid );
     if( standardDist )
         u.AlignWith( A );
     else
         u.AlignWith( ABackup );
-    UniformRandom( n, 1, u );
+    Uniform( n, 1, u );
     const R origNorm = Nrm2( u );
-    Scal( 1/origNorm, u );
+    Scal( (F)1/origNorm, u );
 
     // Form v := D u
-    DistMatrix<T,MC,MR> v( grid );
+    DistMatrix<F,MC,MR> v( grid );
     if( standardDist )
         v.AlignWith( A );
     else
@@ -197,17 +197,17 @@ MakeHermitianUniformRandomSpectrum
     // Update A := A - 2(u v^H + v u^H)
     if( standardDist )
     {
-        Ger( (T)-2, u, v, A );
-        Ger( (T)-2, v, u, A );
+        Ger( (F)-2, u, v, A );
+        Ger( (F)-2, v, u, A );
     }
     else
     {
-        Ger( (T)-2, u, v, ABackup );
-        Ger( (T)-2, v, u, ABackup );
+        Ger( (F)-2, u, v, ABackup );
+        Ger( (F)-2, v, u, ABackup );
     }
 
     // Form \gamma := 4 u^H (D u) = 4 (u,Du)
-    const T gamma = 4*Dot(u,v);
+    const F gamma = 4*Dot(u,v);
 
     // Update A := A + gamma u u^H
     if( standardDist )

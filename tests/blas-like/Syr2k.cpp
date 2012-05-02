@@ -60,15 +60,15 @@ void TestSyr2k
 
     if( orientation == NORMAL )
     {
-        UniformRandom( m, k, A );
-        UniformRandom( m, k, B );
+        Uniform( m, k, A );
+        Uniform( m, k, B );
     }
     else
     {
-        UniformRandom( k, m, A );
-        UniformRandom( k, m, B );
+        Uniform( k, m, A );
+        Uniform( k, m, B );
     }
-    UniformRandom( m, m, C );
+    Uniform( m, m, C );
     MakeTrapezoidal( LEFT, uplo, 0, C );
     if( printMatrices )
     {

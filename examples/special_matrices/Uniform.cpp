@@ -35,7 +35,7 @@ using namespace elem;
 
 void Usage()
 {
-    std::cout << "UniformRandom <m> <n>\n"
+    std::cout << "Uniform <m> <n>\n"
               << "  m: height of random matrix\n"
               << "  n: width of random matrix\n"
               << std::endl;
@@ -62,7 +62,7 @@ main( int argc, char* argv[] )
     try
     {
         DistMatrix<double> X;
-        UniformRandom( m, n, X );
+        Uniform( m, n, X );
         X.Print("X");
     }
     catch( std::exception& e )

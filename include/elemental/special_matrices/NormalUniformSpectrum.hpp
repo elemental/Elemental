@@ -38,14 +38,14 @@ namespace elem {
 
 template<typename R>
 inline void
-NormalUniformRandomSpectrum
+NormalUniformSpectrum
 ( int n, Matrix<Complex<R> >& A, Complex<R> center, R radius )
 {
 #ifndef RELEASE
-    PushCallStack("NormalUniformRandomSpectrum");
+    PushCallStack("NormalUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
-    MakeNormalUniformRandomSpectrum( A, center, radius );
+    MakeNormalUniformSpectrum( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,14 +53,14 @@ NormalUniformRandomSpectrum
 
 template<typename R,Distribution U,Distribution V>
 inline void
-NormalUniformRandomSpectrum
+NormalUniformSpectrum
 ( int n, DistMatrix<Complex<R>,U,V>& A, Complex<R> center, R radius )
 {
 #ifndef RELEASE
-    PushCallStack("NormalUniformRandomSpectrum");
+    PushCallStack("NormalUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
-    MakeNormalUniformRandomSpectrum( A, center, radius );
+    MakeNormalUniformSpectrum( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -68,11 +68,11 @@ NormalUniformRandomSpectrum
 
 template<typename R>
 inline void
-MakeNormalUniformRandomSpectrum
+MakeNormalUniformSpectrum
 ( Matrix<Complex<R> >& A, Complex<R> center, R radius )
 {
 #ifndef RELEASE
-    PushCallStack("MakeNormalUniformRandomSpectrum");
+    PushCallStack("MakeNormalUniformSpectrum");
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
@@ -94,7 +94,7 @@ MakeNormalUniformRandomSpectrum
 
     // Form u 
     Matrix<C> u( n, 1 );
-    MakeUniformRandom( u );
+    MakeUniform( u );
     const R origNorm = Nrm2( u );
     Scal( (C)1/origNorm, u );
 
@@ -124,11 +124,11 @@ MakeNormalUniformRandomSpectrum
 
 template<typename R,Distribution U,Distribution V>
 inline void
-MakeNormalUniformRandomSpectrum
+MakeNormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Complex<R> center, R radius )
 {
 #ifndef RELEASE
-    PushCallStack("MakeNormalUniformRandomSpectrum");
+    PushCallStack("MakeNormalUniformSpectrum");
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
@@ -163,7 +163,7 @@ MakeNormalUniformRandomSpectrum
         u.AlignWith( A );
     else
         u.AlignWith( ABackup );
-    UniformRandom( n, 1, u );
+    Uniform( n, 1, u );
     const R origNorm = Nrm2( u );
     Scal( (C)1/origNorm, u );
 

@@ -57,9 +57,9 @@ void TestSymv
     double startTime, endTime, runTime, gFlops;
     DistMatrix<T,MC,MR> A(g), x(g), y(g);
 
-    UniformRandom( m, m, A );
-    UniformRandom( m, 1, x );
-    UniformRandom( m, 1, y ); 
+    Uniform( m, m, A );
+    Uniform( m, 1, x );
+    Uniform( m, 1, y ); 
     if( printMatrices )
     {
         A.Print("A");

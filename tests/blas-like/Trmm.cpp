@@ -62,10 +62,10 @@ void TestTrmm
     DistMatrix<T,MC,MR> A(g), X(g);
 
     if( side == LEFT )
-        UniformRandom( m, m, A );
+        Uniform( m, m, A );
     else
-        UniformRandom( n, n, A );
-    UniformRandom( m, n, X );
+        Uniform( n, n, A );
+    Uniform( m, n, X );
 
     if( printMatrices )
     {

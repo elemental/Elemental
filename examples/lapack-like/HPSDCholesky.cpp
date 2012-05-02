@@ -52,7 +52,7 @@ main( int argc, char* argv[] )
     
         const int n = 6; // choose a small problem size since we will print
         DistMatrix<C,MC,MR> L(g), A(g);
-        UniformRandom( n, n, L );
+        Uniform( n, n, L );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
         Zeros( n, n, A );
         Herk( LOWER, NORMAL, (C)1, L, (C)0, A );

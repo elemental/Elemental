@@ -35,14 +35,13 @@ namespace elem {
 
 template<typename T>
 inline void
-UniformRandom
-( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
+Uniform( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
-    PushCallStack("UniformRandom");
+    PushCallStack("Uniform");
 #endif
     A.ResizeTo( m, n );
-    MakeUniformRandom( A, center, radius );
+    MakeUniform( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -50,14 +49,14 @@ UniformRandom
 
 template<typename T,Distribution U,Distribution V>
 inline void
-UniformRandom
+Uniform
 ( int m, int n, DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
-    PushCallStack("UniformRandom");
+    PushCallStack("Uniform");
 #endif
     A.ResizeTo( m, n );
-    MakeUniformRandom( A, center, radius );
+    MakeUniform( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -66,10 +65,10 @@ UniformRandom
 // Draw each entry from a uniform PDF over the closed unit ball.
 template<typename T>
 inline void
-MakeUniformRandom( Matrix<T>& A, T center, typename Base<T>::type radius )
+MakeUniform( Matrix<T>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
-    PushCallStack("MakeUniformRandom");
+    PushCallStack("MakeUniform");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -84,14 +83,14 @@ MakeUniformRandom( Matrix<T>& A, T center, typename Base<T>::type radius )
 namespace internal {
 
 template<typename T,Distribution U,Distribution V>
-struct MakeUniformRandomHelper
+struct MakeUniformHelper
 {
     static void Func
     ( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius );  
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,MC,MR>
+struct MakeUniformHelper<T,MC,MR>
 {
     static void Func
     ( DistMatrix<T,MC,MR>& A, T center, typename Base<T>::type radius )
@@ -106,7 +105,7 @@ struct MakeUniformRandomHelper<T,MC,MR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,MC,STAR>
+struct MakeUniformHelper<T,MC,STAR>
 {
     static void Func
     ( DistMatrix<T,MC,STAR>& A, T center, typename Base<T>::type radius )
@@ -146,7 +145,7 @@ struct MakeUniformRandomHelper<T,MC,STAR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,MD,STAR>
+struct MakeUniformHelper<T,MD,STAR>
 {
     static void Func
     ( DistMatrix<T,MD,STAR>& A, T center, typename Base<T>::type radius )
@@ -164,7 +163,7 @@ struct MakeUniformRandomHelper<T,MD,STAR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,MR,MC>
+struct MakeUniformHelper<T,MR,MC>
 {
     static void Func
     ( DistMatrix<T,MR,MC>& A, T center, typename Base<T>::type radius )
@@ -179,7 +178,7 @@ struct MakeUniformRandomHelper<T,MR,MC>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,MR,STAR>
+struct MakeUniformHelper<T,MR,STAR>
 {
     static void Func
     ( DistMatrix<T,MR,STAR>& A, T center, typename Base<T>::type radius )
@@ -212,7 +211,7 @@ struct MakeUniformRandomHelper<T,MR,STAR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,MC>
+struct MakeUniformHelper<T,STAR,MC>
 {
     static void Func
     ( DistMatrix<T,STAR,MC>& A, T center, typename Base<T>::type radius )
@@ -248,7 +247,7 @@ struct MakeUniformRandomHelper<T,STAR,MC>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,MD>
+struct MakeUniformHelper<T,STAR,MD>
 {
     static void Func
     ( DistMatrix<T,STAR,MD>& A, T center, typename Base<T>::type radius )
@@ -266,7 +265,7 @@ struct MakeUniformRandomHelper<T,STAR,MD>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,MR>
+struct MakeUniformHelper<T,STAR,MR>
 {
     static void Func
     ( DistMatrix<T,STAR,MR>& A, T center, typename Base<T>::type radius )
@@ -302,7 +301,7 @@ struct MakeUniformRandomHelper<T,STAR,MR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,STAR>
+struct MakeUniformHelper<T,STAR,STAR>
 {
     static void Func
     ( DistMatrix<T,STAR,STAR>& A, T center, typename Base<T>::type radius )
@@ -341,7 +340,7 @@ struct MakeUniformRandomHelper<T,STAR,STAR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,VC>
+struct MakeUniformHelper<T,STAR,VC>
 {
     static void Func
     ( DistMatrix<T,STAR,VC>& A, T center, typename Base<T>::type radius )
@@ -355,7 +354,7 @@ struct MakeUniformRandomHelper<T,STAR,VC>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,STAR,VR>
+struct MakeUniformHelper<T,STAR,VR>
 {
     static void Func
     ( DistMatrix<T,STAR,VR>& A, T center, typename Base<T>::type radius )
@@ -369,7 +368,7 @@ struct MakeUniformRandomHelper<T,STAR,VR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,VC,STAR>
+struct MakeUniformHelper<T,VC,STAR>
 {
     static void Func
     ( DistMatrix<T,VC,STAR>& A, T center, typename Base<T>::type radius )
@@ -383,7 +382,7 @@ struct MakeUniformRandomHelper<T,VC,STAR>
 };
 
 template<typename T>
-struct MakeUniformRandomHelper<T,VR,STAR>
+struct MakeUniformHelper<T,VR,STAR>
 {
     static void Func
     ( DistMatrix<T,VR,STAR>& A, T center, typename Base<T>::type radius )
@@ -400,13 +399,13 @@ struct MakeUniformRandomHelper<T,VR,STAR>
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeUniformRandom
+MakeUniform
 ( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
 {
 #ifndef RELEASE
-    PushCallStack("UniformRandom");
+    PushCallStack("Uniform");
 #endif
-    internal::MakeUniformRandomHelper<T,U,V>::Func( A, center, radius );
+    internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif

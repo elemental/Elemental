@@ -209,7 +209,7 @@ void TestLQ<double>
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<R,MC,MR> A(g), AOrig(g);
-    UniformRandom( m, n, A );
+    Uniform( m, n, A );
 
     if( testCorrectness )
     {
@@ -258,7 +258,7 @@ void TestLQ<Complex<double> >
 
     double startTime, endTime, runTime, gFlops;
     DistMatrix<C,MC,MR  > A(g), AOrig(g);
-    UniformRandom( m, n, A );
+    Uniform( m, n, A );
 
     if( testCorrectness )
     {
