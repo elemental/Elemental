@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Repartitioning &mdash; Elemental 0.74-pre documentation</title>
+    
+    <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/print.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.74-pre',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/theme_extras.js"></script>
+    <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
+    <link rel="up" title="Core functionality" href="../core.html" />
+    <link rel="next" title="The Axpy interface" href="axpy_interface.html" />
+    <link rel="prev" title="Partitioning" href="partitioning.html" /> 
+  </head>
+  <body>
+      <div class="header"><img class="rightlogo" src="../_static/elemental_90.png" alt="Logo"/><h1 class="heading"><a href="../index.html">
+          <span>Elemental 0.74-pre documentation</span></a></h1>
+        <h2 class="heading"><span>Repartitioning</span></h2>
+      </div>
+      <div class="topnav">
+      
+        <p>
+        «&#160;&#160;<a href="partitioning.html">Partitioning</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="axpy_interface.html">The Axpy interface</a>&#160;&#160;»
+        </p>
+
+      </div>
+      <div class="content">
+        
+        
+  <div class="section" id="repartitioning">
+<h1>Repartitioning<a class="headerlink" href="#repartitioning" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="repartitionup">
+<h2>RepartitionUp<a class="headerlink" href="#repartitionup" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/7f5dd138c3a93f55aead0957c080b5266344a89a.png" alt="A = \left(\begin{array}{c} A_T \\ \hline A_B \end{array}\right),"/></p>
+</div><p>and a blocksize, <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/>, turn the two-way partition into the three-way
+partition</p>
+<div class="math">
+<p><img src="../_images/math/36e0603adbfb6ad74037d9c2c870578c49d407de.png" alt="\left(\begin{array}{c} A_T \\ \hline A_B \end{array}\right) =
+\left(\begin{array}{c} A_0 \\ A_1 \\ \hline A_2 \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/> is of height <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/> and <img class="math" src="../_images/math/13aefdaef180c313001d3e16c24c6b057eecea91.png" alt="A_2 = A_B"/>.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionUp( Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionUp( const Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, const Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionUp( DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionUp( const DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, const DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionUp</span><span class="p">(</span> <span class="n">AT</span><span class="p">,</span>  <span class="n">A0</span><span class="p">,</span>
+                    <span class="n">A1</span><span class="p">,</span>
+              <span class="cm">/**/</span> <span class="cm">/**/</span>
+               <span class="n">AB</span><span class="p">,</span>  <span class="n">A2</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repartitiondown">
+<h2>RepartitionDown<a class="headerlink" href="#repartitiondown" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/7f5dd138c3a93f55aead0957c080b5266344a89a.png" alt="A = \left(\begin{array}{c} A_T \\ \hline A_B \end{array}\right),"/></p>
+</div><p>and a blocksize, <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/>, turn the two-way partition into the three-way
+partition</p>
+<div class="math">
+<p><img src="../_images/math/0b529934ad76bc91c2b9af14fc9adbf61e5d440a.png" alt="\left(\begin{array}{c} A_T \\ \hline A_B \end{array}\right) =
+\left(\begin{array}{c} A_0 \\ \hline A_1 \\ A_2 \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/> is of height <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/> and <img class="math" src="../_images/math/ffbea899845a378c94351147866e814d4926cec3.png" alt="A_0 = A_T"/>.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionDown( Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionDown( const Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, const Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionDown( DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionDown( const DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, const DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionDown</span><span class="p">(</span> <span class="n">AT</span><span class="p">,</span>  <span class="n">A0</span><span class="p">,</span>
+                <span class="cm">/**/</span> <span class="cm">/**/</span>
+                      <span class="n">A1</span><span class="p">,</span>
+                 <span class="n">AB</span><span class="p">,</span>  <span class="n">A2</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repartitionleft">
+<h2>RepartitionLeft<a class="headerlink" href="#repartitionleft" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/0ce507353c1db08c0ca8f8f21a43b1d82b076f70.png" alt="A = \left(\begin{array}{c|c} A_L &amp; A_R \end{array}\right),"/></p>
+</div><p>and a blocksize, <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/>, turn the two-way partition into the three-way
+partition</p>
+<div class="math">
+<p><img src="../_images/math/1d970be5044bf88760adfcf248d2941fc9181d93.png" alt="\left(\begin{array}{c|c} A_L &amp; A_R \end{array}\right) =
+\left(\begin{array}{cc|c} A_0 &amp; A_1 &amp; A_2 \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/> is of width <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/> and <img class="math" src="../_images/math/334981337b7ae435e7ab6854f1719ee93a5c3839.png" alt="A_2=A_R"/>.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionLeft( Matrix&lt;T&gt;&amp; AL, Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionLeft( const Matrix&lt;T&gt;&amp; AL, const Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionLeft( DistMatrix&lt;T,U,V&gt;&amp; AL, DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionLeft( const DistMatrix&lt;T,U,V&gt;&amp; AL, const DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionLeft</span><span class="p">(</span> <span class="n">AL</span><span class="p">,</span>     <span class="cm">/**/</span> <span class="n">AR</span><span class="p">,</span>
+                 <span class="n">A0</span><span class="p">,</span> <span class="n">A1</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A2</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repartitionright">
+<h2>RepartitionRight<a class="headerlink" href="#repartitionright" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/0ce507353c1db08c0ca8f8f21a43b1d82b076f70.png" alt="A = \left(\begin{array}{c|c} A_L &amp; A_R \end{array}\right),"/></p>
+</div><p>and a blocksize, <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/>, turn the two-way partition into the three-way
+partition</p>
+<div class="math">
+<p><img src="../_images/math/e3f85e97758fc7c4eb10988b9a35ee82fb2cae20.png" alt="\left(\begin{array}{c|c} A_L &amp; A_R \end{array}\right) =
+\left(\begin{array}{c|cc} A_0 &amp; A_1 &amp; A_2 \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/36c7f3f828cf12ab9cafeffad282468a95219600.png" alt="A_1"/> is of width <img class="math" src="../_images/math/470e31942b5204d0b59d83c3266c5fcb5e230fb7.png" alt="n_b"/> and <img class="math" src="../_images/math/249ea0a73b8e557b666ea6a01037d1e473798b0f.png" alt="A_0=A_L"/>.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionRight( Matrix&lt;T&gt;&amp; AL, Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionRight( const Matrix&lt;T&gt;&amp; AL, const Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionRight( DistMatrix&lt;T,U,V&gt;&amp; AL, DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionRight( const DistMatrix&lt;T,U,V&gt;&amp; AL, const DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionRight</span><span class="p">(</span> <span class="n">AL</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">AR</span><span class="p">,</span>
+                  <span class="n">A0</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A1</span><span class="p">,</span> <span class="n">A2</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repartitionupdiagonal">
+<h2>RepartitionUpDiagonal<a class="headerlink" href="#repartitionupdiagonal" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/5dbd7d987d50346f52fbd3daf03aa187f7f80c39.png" alt="A = \left(\begin{array}{c|c} A_{TL} &amp; A_{TR} \\ \hline A_{BL} &amp; A_{BR}
+          \end{array}\right),"/></p>
+</div><p>turn the two-by-two partition into the three-by-three partition</p>
+<div class="math">
+<p><img src="../_images/math/c0cc4356a24f264484ad4d08ff3f28838eac9349.png" alt="\left(\begin{array}{c|c} A_{TL} &amp; A_{TR} \\
+                         \hline
+                         A_{BL} &amp; A_{BR} \end{array}\right) =
+\left(\begin{array}{cc|c} A_{00} &amp; A_{01} &amp; A_{02} \\
+                          A_{10} &amp; A_{11} &amp; A_{12} \\
+                          \hline
+                          A_{20} &amp; A_{21} &amp; A_{22} \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/e26b63cf52b85e36ddb448caf62ff9fc413bce8a.png" alt="A_{11}"/> is <img class="math" src="../_images/math/775c2a50795b396909d158f7bc970ef531344aac.png" alt="n_b \times n_b"/> and the corresponding quadrants are equivalent.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionUpDiagonal( Matrix&lt;T&gt;&amp; ATL, Matrix&lt;T&gt;&amp; ATR, Matrix&lt;T&gt;&amp; A00, Matrix&lt;T&gt;&amp; A01, Matrix&lt;T&gt;&amp; A02, Matrix&lt;T&gt;&amp; A10, Matrix&lt;T&gt;&amp; A11, Matrix&lt;T&gt;&amp; A12, Matrix&lt;T&gt;&amp; ABL, Matrix&lt;T&gt;&amp; ABR, Matrix&lt;T&gt;&amp; A20, Matrix&lt;T&gt;&amp; A21, Matrix&lt;T&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionUpDiagonal( const Matrix&lt;T&gt;&amp; ATL, const Matrix&lt;T&gt;&amp; ATR, Matrix&lt;T&gt;&amp; A00, Matrix&lt;T&gt;&amp; A01, Matrix&lt;T&gt;&amp; A02, Matrix&lt;T&gt;&amp; A10, Matrix&lt;T&gt;&amp; A11, Matrix&lt;T&gt;&amp; A12, const Matrix&lt;T&gt;&amp; ABL, const Matrix&lt;T&gt;&amp; ABR, Matrix&lt;T&gt;&amp; A20, Matrix&lt;T&gt;&amp; A21, Matrix&lt;T&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionUpDiagonal( DistMatrix&lt;T,U,V&gt;&amp; ATL, DistMatrix&lt;T,U,V&gt;&amp; ATR, DistMatrix&lt;T,U,V&gt;&amp; A00, DistMatrix&lt;T,U,V&gt;&amp; A01, DistMatrix&lt;T,U,V&gt;&amp; A02, DistMatrix&lt;T,U,V&gt;&amp; A10, DistMatrix&lt;T,U,V&gt;&amp; A11, DistMatrix&lt;T,U,V&gt;&amp; A12, DistMatrix&lt;T,U,V&gt;&amp; ABL, DistMatrix&lt;T,U,V&gt;&amp; ABR, DistMatrix&lt;T,U,V&gt;&amp; A20, DistMatrix&lt;T,U,V&gt;&amp; A21, DistMatrix&lt;T,U,V&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionUpDiagonal( const DistMatrix&lt;T,U,V&gt;&amp; ATL, const DistMatrix&lt;T,U,V&gt;&amp; ATR, DistMatrix&lt;T,U,V&gt;&amp; A00, DistMatrix&lt;T,U,V&gt;&amp; A01, DistMatrix&lt;T,U,V&gt;&amp; A02, DistMatrix&lt;T,U,V&gt;&amp; A10, DistMatrix&lt;T,U,V&gt;&amp; A11, DistMatrix&lt;T,U,V&gt;&amp; A12, const DistMatrix&lt;T,U,V&gt;&amp; ABL, const DistMatrix&lt;T,U,V&gt;&amp; ABR, DistMatrix&lt;T,U,V&gt;&amp; A20, DistMatrix&lt;T,U,V&gt;&amp; A21, DistMatrix&lt;T,U,V&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionUpDiagonal</span><span class="p">(</span> <span class="n">ATL</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">ATR</span><span class="p">,</span>  <span class="n">A00</span><span class="p">,</span> <span class="n">A01</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A02</span><span class="p">,</span>
+                            <span class="cm">/**/</span>       <span class="n">A10</span><span class="p">,</span> <span class="n">A11</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A12</span><span class="p">,</span>
+                      <span class="cm">/*************/</span> <span class="cm">/******************/</span>
+                       <span class="n">ABL</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">ABR</span><span class="p">,</span>  <span class="n">A20</span><span class="p">,</span> <span class="n">A21</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A22</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="repartitiondowndiagonal">
+<h2>RepartitionDownDiagonal<a class="headerlink" href="#repartitiondowndiagonal" title="Permalink to this headline">¶</a></h2>
+<p>Given the partition</p>
+<div class="math">
+<p><img src="../_images/math/5dbd7d987d50346f52fbd3daf03aa187f7f80c39.png" alt="A = \left(\begin{array}{c|c} A_{TL} &amp; A_{TR} \\ \hline A_{BL} &amp; A_{BR}
+          \end{array}\right),"/></p>
+</div><p>turn the two-by-two partition into the three-by-three partition</p>
+<div class="math">
+<p><img src="../_images/math/3285a67220873be64397ba19cabb3b2fea755b78.png" alt="\left(\begin{array}{c|c} A_{TL} &amp; A_{TR} \\
+                         \hline
+                         A_{BL} &amp; A_{BR} \end{array}\right) =
+\left(\begin{array}{c|cc} A_{00} &amp; A_{01} &amp; A_{02} \\
+                          \hline
+                          A_{10} &amp; A_{11} &amp; A_{12} \\
+                          A_{20} &amp; A_{21} &amp; A_{22} \end{array}\right),"/></p>
+</div><p>where <img class="math" src="../_images/math/e26b63cf52b85e36ddb448caf62ff9fc413bce8a.png" alt="A_{11}"/> is <img class="math" src="../_images/math/775c2a50795b396909d158f7bc970ef531344aac.png" alt="n_b \times n_b"/> and the corresponding quadrants are equivalent.</p>
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionDownDiagonal( Matrix&lt;T&gt;&amp; ATL, Matrix&lt;T&gt;&amp; ATR, Matrix&lt;T&gt;&amp; A00, Matrix&lt;T&gt;&amp; A01, Matrix&lt;T&gt;&amp; A02, Matrix&lt;T&gt;&amp; A10, Matrix&lt;T&gt;&amp; A11, Matrix&lt;T&gt;&amp; A12, Matrix&lt;T&gt;&amp; ABL, Matrix&lt;T&gt;&amp; ABR, Matrix&lt;T&gt;&amp; A20, Matrix&lt;T&gt;&amp; A21, Matrix&lt;T&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionDownDiagonal( const Matrix&lt;T&gt;&amp; ATL, const Matrix&lt;T&gt;&amp; ATR, Matrix&lt;T&gt;&amp; A00, Matrix&lt;T&gt;&amp; A01, Matrix&lt;T&gt;&amp; A02, Matrix&lt;T&gt;&amp; A10, Matrix&lt;T&gt;&amp; A11, Matrix&lt;T&gt;&amp; A12, const Matrix&lt;T&gt;&amp; ABL, const Matrix&lt;T&gt;&amp; ABR, Matrix&lt;T&gt;&amp; A20, Matrix&lt;T&gt;&amp; A21, Matrix&lt;T&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void RepartitionDownDiagonal( DistMatrix&lt;T,U,V&gt;&amp; ATL, DistMatrix&lt;T,U,V&gt;&amp; ATR, DistMatrix&lt;T,U,V&gt;&amp; A00, DistMatrix&lt;T,U,V&gt;&amp; A01, DistMatrix&lt;T,U,V&gt;&amp; A02, DistMatrix&lt;T,U,V&gt;&amp; A10, DistMatrix&lt;T,U,V&gt;&amp; A11, DistMatrix&lt;T,U,V&gt;&amp; A12, DistMatrix&lt;T,U,V&gt;&amp; ABL, DistMatrix&lt;T,U,V&gt;&amp; ABR, DistMatrix&lt;T,U,V&gt;&amp; A20, DistMatrix&lt;T,U,V&gt;&amp; A21, DistMatrix&lt;T,U,V&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">void LockedRepartitionDownDiagonal( const DistMatrix&lt;T,U,V&gt;&amp; ATL, const DistMatrix&lt;T,U,V&gt;&amp; ATR, DistMatrix&lt;T,U,V&gt;&amp; A00, DistMatrix&lt;T,U,V&gt;&amp; A01, DistMatrix&lt;T,U,V&gt;&amp; A02, DistMatrix&lt;T,U,V&gt;&amp; A10, DistMatrix&lt;T,U,V&gt;&amp; A11, DistMatrix&lt;T,U,V&gt;&amp; A12, const DistMatrix&lt;T,U,V&gt;&amp; ABL, const DistMatrix&lt;T,U,V&gt;&amp; ABR, DistMatrix&lt;T,U,V&gt;&amp; A20, DistMatrix&lt;T,U,V&gt;&amp; A21, DistMatrix&lt;T,U,V&gt;&amp; A22, int bsize=Blocksize() )</tt></dt>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
+</dd></dl>
+
+<p>Note that each of the above routines is meant to be used in a manner similar
+to the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span class="n">RepartitionDownDiagonal</span><span class="p">(</span> <span class="n">ATL</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">ATR</span><span class="p">,</span>  <span class="n">A00</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A01</span><span class="p">,</span> <span class="n">A02</span><span class="p">,</span>
+                        <span class="cm">/*************/</span> <span class="cm">/******************/</span>
+                              <span class="cm">/**/</span>       <span class="n">A10</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A11</span><span class="p">,</span> <span class="n">A12</span><span class="p">,</span>
+                         <span class="n">ABL</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">ABR</span><span class="p">,</span>  <span class="n">A20</span><span class="p">,</span> <span class="cm">/**/</span> <span class="n">A21</span><span class="p">,</span> <span class="n">A22</span><span class="p">,</span> <span class="n">blocksize</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+      </div>
+      <div class="bottomnav">
+      
+        <p>
+        «&#160;&#160;<a href="partitioning.html">Partitioning</a>
+        &#160;&#160;::&#160;&#160;
+        <a class="uplink" href="../index.html">Contents</a>
+        &#160;&#160;::&#160;&#160;
+        <a href="axpy_interface.html">The Axpy interface</a>&#160;&#160;»
+        </p>
+
+      </div>
+
+    <div class="footer">
+        &copy; Copyright 2012, Jack Poulson.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
