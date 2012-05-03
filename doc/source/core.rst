@@ -9,4 +9,5 @@ Core functionality
    core/grid
    core/dist_matrix
    core/partitioning
+   core/repartitioning
    core/axpy_interface

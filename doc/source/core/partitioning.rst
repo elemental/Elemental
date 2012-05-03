@@ -7,7 +7,7 @@ the submatrices cannot be modified.
 
 PartitionUp
 -----------
-Given an :math:`m \times n` matrix `A`, configure `AT` and `AB` to partition `A` as 
+Given an :math:`m \times n` matrix `A`, configure `AT` and `AB` to view the local data of `A` corresponding to the partition
 
 .. math::
 
@@ -31,7 +31,7 @@ where :math:`A_B` is of a specified height.
 
 PartitionDown
 -------------
-Given an :math:`m \times n` matrix `A`, configure `AT` and `AB` to partition `A` as
+Given an :math:`m \times n` matrix `A`, configure `AT` and `AB` to view the local data of `A` corresponding to the partition
 
 .. math::
 
@@ -54,7 +54,7 @@ where :math:`A_T` is of a specified height.
 
 PartitionLeft
 -------------
-Given an :math:`m \times n` matrix `A`, configure `AL` and `AR` to partition `A` as
+Given an :math:`m \times n` matrix `A`, configure `AL` and `AR` to view the local data of `A` corresponding to the partition
 
 .. math::
 
@@ -77,7 +77,7 @@ where :math:`A_R` is of a specified width.
 
 PartitionRight
 --------------
-Given an :math:`m \times n` matrix `A`, configure `AL` and `AR` to partition `A` as
+Given an :math:`m \times n` matrix `A`, configure `AL` and `AR` to view the local data of `A` corresponding to the partition
 
 .. math::
 
@@ -100,13 +100,14 @@ where :math:`A_L` is of a specified width.
 
 PartitionUpDiagonal
 -------------------
-Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` as
+Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` to view the local data of `A` corresponding to the partitioning
 
 .. math::
 
    A = \left(\begin{array}{cc} A_{TL} & A_{TR} \\ A_{BL} & A_{BR} \end{array}\right),
 
-where :math:`A_{BR}` is of the specified height/width.
+where the diagonal of :math:`A_{BR}` lies on the main diagonal 
+(aka, the *left* diagonal) of :math:`A` and is of the specified height/width.
 
 .. cpp:function:: void PartitionUpDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagABR=Blocksize() )
 
@@ -121,15 +122,59 @@ where :math:`A_{BR}` is of the specified height/width.
    Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
    of the distributed matrix `A`.
 
-PartitionDownDiagonal
----------------------
-Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` as
+PartitionUpLeftDiagonal
+-----------------------
+Same as ``PartitionUpDiagonal``.
+
+.. cpp:function:: void PartitionUpLeftDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagABR=Blocksize() )
+
+.. cpp:function:: void LockedPartitionUpLeftDiagonal( const Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagABR=Blocksize() )
+
+   Templated over the datatype, `T`, of the serial matrix `A`.
+
+.. cpp:function:: void PartitionUpLeftDiagonal( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagABR=Blocksize() )
+  
+.. cpp:function:: void LockedPartitionUpLeftDiagonal( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagABR=Blocksize() )
+
+   Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
+   of the distributed matrix `A`.
+
+PartitionUpRightDiagonal
+------------------------
+Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` to view the local data of `A` corresponding to the partitioning
 
 .. math::
 
    A = \left(\begin{array}{cc} A_{TL} & A_{TR} \\ A_{BL} & A_{BR} \end{array}\right),
 
-where :math:`A_{TL}` is of the specified height/width.
+where the diagonal of :math:`A_{BR}` lies on the *right* diagonal of :math:`A`,
+which is defined to include the bottom-right entry of :math:`A`; the length 
+of the diagonal of :math:`A_{BR}` is specified as a parameter in all of the 
+following routines.
+
+.. cpp:function:: void PartitionUpRightDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagABR=Blocksize() )
+
+.. cpp:function:: void LockedPartitionUpRightDiagonal( const Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagABR=Blocksize() )
+
+   Templated over the datatype, `T`, of the serial matrix `A`.
+
+.. cpp:function:: void PartitionUpRightDiagonal( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagABR=Blocksize() )
+  
+.. cpp:function:: void LockedPartitionUpRightDiagonal( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagABR=Blocksize() )
+
+   Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
+   of the distributed matrix `A`.
+
+PartitionDownDiagonal
+---------------------
+Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` to view the local data of :math:`A` corresponding to the partitioning
+
+.. math::
+
+   A = \left(\begin{array}{cc} A_{TL} & A_{TR} \\ A_{BL} & A_{BR} \end{array}\right),
+
+where the diagonal of :math:`A_{TL}` is of the specified length and lies on 
+the main diagonal (aka, the *left* diagonal) of :math:`A`. 
 
 .. cpp:function:: void PartitionDownDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagATL=Blocksize() )
 
@@ -144,4 +189,44 @@ where :math:`A_{TL}` is of the specified height/width.
    Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
    of the distributed matrix `A`.
  
-**Left off here**
+PartitionDownLeftDiagonal
+-------------------------
+Same as ``PartitionDownDiagonal``.
+
+.. cpp:function:: void PartitionDownLeftDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagATL=Blocksize() )
+
+.. cpp:function:: void LockedPartitionDownLeftDiagonal( const Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagATL=Blocksize() )
+
+   Templated over the datatype, `T`, of the serial matrix `A`.
+
+.. cpp:function:: void PartitionDownLeftDiagonal( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ATL, int diagABR=Blocksize() )
+  
+.. cpp:function:: void LockedPartitionDownLeftDiagonal( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagATL=Blocksize() )
+
+   Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
+   of the distributed matrix `A`.
+ 
+PartitionDownRightDiagonal
+--------------------------
+Given an :math:`m \times n` matrix `A`, configure `ATL`, `ATR`, `ABL`, and `ABR` to view the local data corresponding to the partitioning
+
+.. math::
+
+   A = \left(\begin{array}{cc} A_{TL} & A_{TR} \\ A_{BL} & A_{BR} \end{array}\right),
+
+where the diagonal of :math:`A_{TL}` is of the specified length and lies on 
+the *right* diagonal of :math:`A`, which includes the bottom-right entry of 
+:math:`A`. 
+
+.. cpp:function:: void PartitionDownLeftDiagonal( Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagATL=Blocksize() )
+
+.. cpp:function:: void LockedPartitionDownLeftDiagonal( const Matrix<T>& A, Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR, int diagATL=Blocksize() )
+
+   Templated over the datatype, `T`, of the serial matrix `A`.
+
+.. cpp:function:: void PartitionDownLeftDiagonal( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ATL, int diagABR=Blocksize() )
+  
+.. cpp:function:: void LockedPartitionDownLeftDiagonal( const DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& ATL, DistMatrix<T,U,V>& ATR, DistMatrix<T,U,V>& ABL, DistMatrix<T,U,V>& ABR, int diagATL=Blocksize() )
+
+   Templated over the datatype, `T`, and the distribution scheme, `(U,V)`,
+   of the distributed matrix `A`.
