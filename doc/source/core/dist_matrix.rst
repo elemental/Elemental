@@ -301,7 +301,7 @@ column and row alignments are both 0):
    :nowrap:
 
    \[
-   \left(\begin{array}{cccccccccc}
+   \left(\begin{array}{ccccccc}
      0 & 2 & 4 & 0 & 2 & 4 & 0 \\
      1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
      0 & 2 & 4 & 0 & 2 & 4 & 0 \\
@@ -320,7 +320,7 @@ matrix), the individual entries would be owned as follows:
    :nowrap:
 
    \[
-   \left(\begin{array}{cccccccccc}
+   \left(\begin{array}{ccccccc}
      4 & 0 & 2 & 4 & 0 & 2 & 4 \\
      5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
      4 & 0 & 2 & 4 & 0 & 2 & 4 \\
@@ -743,33 +743,136 @@ It should also be noted that this is the default distribution format for the
 
 ``[MC,* ]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[M_C,\star]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+
+This distribution is often used as part of matrix-matrix multiplication. For a
+:math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process grid,
+individual entries would be owned by the following processes (assuming the 
+column alignment is 0):
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
+     \{0,2,4\} & \{0,2,4\} \\
+     \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & 
+     \{1,3,5\} & \{1,3,5\} \\ 
+     \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
+     \{0,2,4\} & \{0,2,4\} \\
+     \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & 
+     \{1,3,5\} & \{1,3,5\} \\ 
+     \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
+     \{0,2,4\} & \{0,2,4\} \\
+     \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & \{1,3,5\} & 
+     \{1,3,5\} & \{1,3,5\} \\ 
+     \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
+     \{0,2,4\} & \{0,2,4\} 
+   \end{array}\right)
+   \]
+
+**TODO:** Add the member functions. 
 
 ``[* ,MR]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[\star,M_R]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This distribution is also frequently used for matrix-matrix multiplication. 
+For a :math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process 
+grid, individual entries would be owned by the following processes (assuming 
+the row alignment is 0):
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
+     \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} 
+   \end{array}\right)
+   \]
+
+**TODO:** Add the member functions. 
 
 ``[MR,MC]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[M_R,M_C]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This is essentially the transpose of the standard matrix distribution, 
+``[MC,MR]``. For a
+:math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process grid,
+individual entries would be owned by the following processes (assuming the 
+column and row alignments are both 0):
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+     2 & 3 & 2 & 3 & 2 & 3 & 2 \\
+     4 & 5 & 4 & 5 & 4 & 5 & 4 \\
+     0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+     2 & 3 & 2 & 3 & 2 & 3 & 2 \\
+     4 & 5 & 4 & 5 & 4 & 5 & 4 \\
+     0 & 1 & 0 & 1 & 0 & 1 & 0 
+   \end{array}\right)
+   \]
+
 
 ``[MR,* ]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[M_R,\star]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This is the transpose of the ``[* ,MR]`` distribution and is, like many of 
+the previous distributions, useful for matrix-matrix multiplication.
+For a :math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process 
+grid, individual entries would be owned by the following processes (assuming 
+the column alignment is 0):
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} \\
+     \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} \\
+     \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} \\
+     \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} \\
+     \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} \\
+     \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} \\
+     \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} 
+   \end{array}\right)
+   \]
 
 ``[* ,MC]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[\star,M_C]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This is the transpose of the ``[MC,*]`` distribution and is, like many of 
+the previous distributions, useful for matrix-matrix multiplication.
+For a :math:`7 \times 7` matrix distributed over a :math:`2 \times 3` process 
+grid, individual entries would be owned by the following processes (assuming 
+the column alignment is 0):
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} \\
+     \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
+     \{0,2,4\} 
+   \end{array}\right)
+   \]
 
 ``[MD,* ]``
 -----------
@@ -785,31 +888,129 @@ not yet been documented.
 
 ``[VC,* ]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[V_C,\star]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This distribution makes use of a 1d distribution which uses a column-major 
+ordering of the entire process grid. Since 1d distributions are useful for 
+distributing *vectors*, and a *column-major* ordering is used, the distribution 
+symbol is ``VC``. Again using the simple :math:`2 \times 3` process grid, 
+with a zero column alignment, each entry of a :math:`7 \times 7` matrix 
+would be owned by the following sets of processes:
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+     2 & 2 & 2 & 2 & 2 & 2 & 2 \\
+     3 & 3 & 3 & 3 & 3 & 3 & 3 \\
+     4 & 4 & 4 & 4 & 4 & 4 & 4 \\
+     5 & 5 & 5 & 5 & 5 & 5 & 5 \\
+     0 & 0 & 0 & 0 & 0 & 0 & 0
+   \end{array}\right)
+   \]
+
+**TODO:** describe the member functions.
 
 ``[* ,VC]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[\star,V_C]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This is the transpose of the above ``[VC,* ]`` distribution. On the standard
+:math:`2 \times 3` process grid with a row alignment of zero, a 
+:math:`7 \times 7` matrix would be distributed as:
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 \\
+   0 & 1 & 2 & 3 & 4 & 5 & 0 
+   \end{array}\right)
+   \]
+
+**TODO:** describe the member functions.
 
 ``[VR,* ]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[V_R,\star]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This distribution makes use of a 1d distribution which uses a row-major 
+ordering of the entire process grid. Since 1d distributions are useful for 
+distributing *vectors*, and a *row-major* ordering is used, the distribution 
+symbol is ``VR``. Again using the simple :math:`2 \times 3` process grid, 
+with a zero column alignment, each entry of a :math:`7 \times 7` matrix 
+would be owned by the following sets of processes:
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     2 & 2 & 2 & 2 & 2 & 2 & 2 \\
+     4 & 4 & 4 & 4 & 4 & 4 & 4 \\
+     1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+     3 & 3 & 3 & 3 & 3 & 3 & 3 \\
+     5 & 5 & 5 & 5 & 5 & 5 & 5 \\
+     0 & 0 & 0 & 0 & 0 & 0 & 0
+   \end{array}\right)
+   \]
+
+**TODO:** describe the member functions.
 
 ``[* ,VR]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[\star,V_R]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This is the transpose of the above ``[VR,* ]`` distribution. On the standard
+:math:`2 \times 3` process grid with a row alignment of zero, a 
+:math:`7 \times 7` matrix would be distributed as:
+
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 \\
+   0 & 2 & 4 & 1 & 3 & 5 & 0 
+   \end{array}\right)
+   \]
+
+**TODO:** describe the member functions.
 
 ``[* ,* ]``
 -----------
-**TODO**, but not as high of a priority since the :math:`[\star,\star]` 
-distribution is not as crucial for end users as many other details that have 
-not yet been documented.
+This "distribution" actually redundantly stores every entry of the associated
+matrix on every process. Again using a :math:`2 \times 3` process grid, 
+the entries of a :math:`7 \times 7` matrix would be owned by the following
+sets of processes:
 
+.. math::
+   :nowrap:
+
+   \[
+   \left(\begin{array}{ccccccc}
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
+   \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} 
+   \end{array}\right)
+   \]
+
+**TODO:** describe the member functions.
