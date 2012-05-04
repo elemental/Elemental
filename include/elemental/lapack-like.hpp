@@ -583,6 +583,18 @@ void HermitianPseudoinverse
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
+// HermitianSVD                                                               //
+//----------------------------------------------------------------------------//
+
+#ifndef WITHOUT_PMRRR
+template<typename F>
+void HermitianSVD
+( UpperOrLower uplo, 
+  DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
+  DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& V );
+#endif // WITHOUT_PMRRR
+
+//----------------------------------------------------------------------------//
 // HouseholderSolve:                                                          //
 //                                                                            //
 // Overwrite B with the solution of inv(A) B or inv(A)^H B, where A need not  //
@@ -1068,6 +1080,7 @@ void TriangularInverse
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"
 #include "./lapack-like/HermitianNorm.hpp"
 #include "./lapack-like/HermitianPseudoinverse.hpp"
+#include "./lapack-like/HermitianSVD.hpp"
 #include "./lapack-like/HermitianTridiag.hpp"
 #include "./lapack-like/HouseholderSolve.hpp"
 #include "./lapack-like/HPDInverse.hpp"

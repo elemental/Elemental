@@ -398,8 +398,24 @@ Robert Granat et al.'s approaches.
 
 Hermitian SVD
 -------------
-Not yet written, but relatively trivial, as the SVD of a Hermitian matrix can 
-easily be computed from its eigenvalue decomposition.
+Given an eigenvalue decomposition of a Hermitian matrix :math:`A`, say
+
+.. math::
+
+   A = V \Lambda V^H,
+
+where :math:`V` is unitary and :math:`\Lambda` is diagonal and real. 
+Then an SVD of :math:`A` can easily be computed as
+
+.. math::
+
+   A = U |\Lambda| V^H,
+
+where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips introduced by negative eigenvalues.
+
+.. cpp:function:: void HermitianSVD( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& V )
+
+   Return a vector of singular values, :math:`s`, and the left and right singular vector matrices, :math:`U` and :math:`V`, such that :math:`A=U \mathrm{diag}(s) V^H`.
 
 General SVD
 -----------

@@ -517,8 +517,20 @@ Robert Granat et al.&#8217;s approaches.</p>
 </div>
 <div class="section" id="hermitian-svd">
 <h2>Hermitian SVD<a class="headerlink" href="#hermitian-svd" title="Permalink to this headline">¶</a></h2>
-<p>Not yet written, but relatively trivial, as the SVD of a Hermitian matrix can
-easily be computed from its eigenvalue decomposition.</p>
+<p>Given an eigenvalue decomposition of a Hermitian matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, say</p>
+<div class="math">
+<p><img src="../_images/math/fa6296ef7fab79feee4e32b238643579e04702e9.png" alt="A = V \Lambda V^H,"/></p>
+</div><p>where <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/> is unitary and <img class="math" src="../_images/math/2d295c3b71504a216422e5fffdfbad742c7add64.png" alt="\Lambda"/> is diagonal and real.
+Then an SVD of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can easily be computed as</p>
+<div class="math">
+<p><img src="../_images/math/17c4a3214d0f18b17a0cd51d09e86402bb61ee90.png" alt="A = U |\Lambda| V^H,"/></p>
+</div><p>where the columns of <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> equal the columns of <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, modulo sign flips introduced by negative eigenvalues.</p>
+<dl class="function">
+<dt id="HermitianSVD__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descname">HermitianSVD</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;typename Base&lt;F&gt;::type, VR, STAR&gt;&amp; <em>s</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>U</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>V</em><big>)</big><a class="headerlink" href="#HermitianSVD__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R.DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a vector of singular values, <img class="math" src="../_images/math/f37bba504894945c07a32f5496d74299a37aa51c.png" alt="s"/>, and the left and right singular vector matrices, <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> and <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, such that <img class="math" src="../_images/math/7ae88fb587f3630b827ee331e0c72767173c11e7.png" alt="A=U \mathrm{diag}(s) V^H"/>.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="general-svd">
 <h2>General SVD<a class="headerlink" href="#general-svd" title="Permalink to this headline">¶</a></h2>
