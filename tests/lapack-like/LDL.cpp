@@ -106,8 +106,11 @@ void TestLDL
 {
     double startTime, endTime, runTime, gFlops;
 
-    DistMatrix<F,MC,MR  > A(g), AOrig(g);
-    Uniform( m, m, A );
+    DistMatrix<F,MC,MR> A(g), AOrig(g);
+    if( conjugated )
+        HermitianUniformSpectrum( m, A, -100, 100 );
+    else
+        Uniform( m, m, A );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

@@ -33,7 +33,9 @@
 #ifndef ELEMENTAL_BLASLIKE_HPP
 #define ELEMENTAL_BLASLIKE_HPP 1
 
-#include "elemental/core/partitioning.hpp"
+#include "elemental/core/partition.hpp"
+#include "elemental/core/repartition.hpp"
+#include "elemental/core/slide_partition.hpp"
 
 namespace elem {
 

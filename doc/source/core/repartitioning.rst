@@ -23,13 +23,13 @@ where :math:`A_1` is of height :math:`n_b` and :math:`A_2 = A_B`.
 
 .. cpp:function:: void LockedRepartitionUp( const Matrix<T>& AT, Matrix<T>& A0, Matrix<T>& A1, const Matrix<T>& AB, Matrix<T>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, of the serial matrix `A`.
+   Templated over the datatype, `T`.
 
 .. cpp:function:: void RepartitionUp( DistMatrix<T,U,V>& AT, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& AB, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
 .. cpp:function:: void LockedRepartitionUp( const DistMatrix<T,U,V>& AT, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, const DistMatrix<T,U,V>& AB, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, and distribution scheme, `(U,V)`, of the distributed matrix `A`.
+   Templated over the datatype, `T`, and distribution scheme, `(U,V)`.
 
 Note that each of the above routines is meant to be used in a manner similar 
 to the following:
@@ -63,13 +63,13 @@ where :math:`A_1` is of height :math:`n_b` and :math:`A_0 = A_T`.
 
 .. cpp:function:: void LockedRepartitionDown( const Matrix<T>& AT, Matrix<T>& A0, Matrix<T>& A1, const Matrix<T>& AB, Matrix<T>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, of the serial matrix `A`.
+   Templated over the datatype, `T`.
 
 .. cpp:function:: void RepartitionDown( DistMatrix<T,U,V>& AT, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& AB, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
 .. cpp:function:: void LockedRepartitionDown( const DistMatrix<T,U,V>& AT, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, const DistMatrix<T,U,V>& AB, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, and distribution scheme, `(U,V)`, of the distributed matrix `A`.
+   Templated over the datatype, `T`, and distribution scheme, `(U,V)`.
 
 Note that each of the above routines is meant to be used in a manner similar 
 to the following:
@@ -103,13 +103,13 @@ where :math:`A_1` is of width :math:`n_b` and :math:`A_2=A_R`.
 
 .. cpp:function:: void LockedRepartitionLeft( const Matrix<T>& AL, const Matrix<T>& AR, Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, of the serial matrix `A`.
+   Templated over the datatype, `T`.
 
 .. cpp:function:: void RepartitionLeft( DistMatrix<T,U,V>& AL, DistMatrix<T,U,V>& AR, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
 .. cpp:function:: void LockedRepartitionLeft( const DistMatrix<T,U,V>& AL, const DistMatrix<T,U,V>& AR, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, and distribution scheme, `(U,V)`, of the distributed matrix `A`.
+   Templated over the datatype, `T`, and distribution scheme, `(U,V)`.
 
 Note that each of the above routines is meant to be used in a manner similar 
 to the following:
@@ -141,13 +141,13 @@ where :math:`A_1` is of width :math:`n_b` and :math:`A_0=A_L`.
 
 .. cpp:function:: void LockedRepartitionRight( const Matrix<T>& AL, const Matrix<T>& AR, Matrix<T>& A0, Matrix<T>& A1, Matrix<T>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, of the serial matrix `A`.
+   Templated over the datatype, `T`.
 
 .. cpp:function:: void RepartitionRight( DistMatrix<T,U,V>& AL, DistMatrix<T,U,V>& AR, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
 .. cpp:function:: void LockedRepartitionRight( const DistMatrix<T,U,V>& AL, const DistMatrix<T,U,V>& AR, DistMatrix<T,U,V>& A0, DistMatrix<T,U,V>& A1, DistMatrix<T,U,V>& A2, int bsize=Blocksize() )
 
-   Templated over the datatype, `T`, and distribution scheme, `(U,V)`, of the distributed matrix `A`.
+   Templated over the datatype, `T`, and distribution scheme, `(U,V)`.
 
 Note that each of the above routines is meant to be used in a manner similar 
 to the following:

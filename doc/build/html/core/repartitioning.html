@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="Elemental 0.74-pre documentation" href="../index.html" />
     <link rel="up" title="Core functionality" href="../core.html" />
-    <link rel="next" title="The Axpy interface" href="axpy_interface.html" />
+    <link rel="next" title="Sliding partitions" href="slide_partition.html" />
     <link rel="prev" title="Partitioning" href="partitioning.html" /> 
   </head>
   <body>
@@ -44,7 +44,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="axpy_interface.html">The Axpy interface</a>&#160;&#160;»
+        <a href="slide_partition.html">Sliding partitions</a>&#160;&#160;»
         </p>
 
       </div>
@@ -72,7 +72,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionUp( const Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, const Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -83,7 +83,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionUp( const DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, const DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
 </dd></dl>
 
 <p>Note that each of the above routines is meant to be used in a manner similar
@@ -114,7 +114,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionDown( const Matrix&lt;T&gt;&amp; AT, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, const Matrix&lt;T&gt;&amp; AB, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -125,7 +125,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionDown( const DistMatrix&lt;T,U,V&gt;&amp; AT, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, const DistMatrix&lt;T,U,V&gt;&amp; AB, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
 </dd></dl>
 
 <p>Note that each of the above routines is meant to be used in a manner similar
@@ -156,7 +156,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionLeft( const Matrix&lt;T&gt;&amp; AL, const Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -167,7 +167,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionLeft( const DistMatrix&lt;T,U,V&gt;&amp; AL, const DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
 </dd></dl>
 
 <p>Note that each of the above routines is meant to be used in a manner similar
@@ -196,7 +196,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionRight( const Matrix&lt;T&gt;&amp; AL, const Matrix&lt;T&gt;&amp; AR, Matrix&lt;T&gt;&amp; A0, Matrix&lt;T&gt;&amp; A1, Matrix&lt;T&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, of the serial matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -207,7 +207,7 @@ partition</p>
 <dl class="function">
 <dt>
 <tt class="descname">void LockedRepartitionRight( const DistMatrix&lt;T,U,V&gt;&amp; AL, const DistMatrix&lt;T,U,V&gt;&amp; AR, DistMatrix&lt;T,U,V&gt;&amp; A0, DistMatrix&lt;T,U,V&gt;&amp; A1, DistMatrix&lt;T,U,V&gt;&amp; A2, int bsize=Blocksize() )</tt></dt>
-<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>, of the distributed matrix <cite>A</cite>.</p>
+<dd><p>Templated over the datatype, <cite>T</cite>, and distribution scheme, <cite>(U,V)</cite>.</p>
 </dd></dl>
 
 <p>Note that each of the above routines is meant to be used in a manner similar
@@ -322,7 +322,7 @@ to the following:</p>
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="axpy_interface.html">The Axpy interface</a>&#160;&#160;»
+        <a href="slide_partition.html">Sliding partitions</a>&#160;&#160;»
         </p>
 
       </div>

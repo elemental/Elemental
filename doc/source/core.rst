@@ -10,4 +10,5 @@ Core functionality
    core/dist_matrix
    core/partitioning
    core/repartitioning
+   core/slide_partition
    core/axpy_interface
