@@ -1,18 +1,21 @@
 set(CMAKE_SYSTEM_NAME BlueGeneP-static)
 
 # The serial XL compilers
-set(CMAKE_C_COMPILER       /soft/apps/ibmcmp-aug2011/vacpp/bg/9.0/bin/bgxlc_r)
-set(CMAKE_CXX_COMPILER     /soft/apps/ibmcmp-aug2011/vacpp/bg/9.0/bin/bgxlC_r)
-set(CMAKE_Fortran_COMPILER /soft/apps/ibmcmp-aug2011/xlf/bg/11.1/bin/bgxlf_r) 
+set(BGXLC_BASE /soft/apps/ibmcmp-aug2011/vacpp/bg/9.0)
+set(BGXLF_BASE /soft/apps/ibmcmp-aug2011/xlf/bg/11.1)
+set(CMAKE_C_COMPILER       ${BGXLC_BASE}/bin/bgxlc_r)
+set(CMAKE_CXX_COMPILER     ${BGXLC_BASE}/bin/bgxlC_r)
+set(CMAKE_Fortran_COMPILER ${BGXLF_BASE}/bin/bgxlf_r)
 
 # The MPI wrappers for the XL C and C++ compilers
-set(MPI_C_COMPILER   /bgsys/drivers/ppcfloor/comm/bin/mpixlc_r)
-set(MPI_CXX_COMPILER /bgsys/drivers/ppcfloor/comm/bin/mpixlcxx_r)
+set(BGMPI_BASE /bgsys/drivers/ppcfloor/comm)
+set(MPI_C_COMPILER   ${BGMPI_BASE}/bin/mpixlc_r)
+set(MPI_CXX_COMPILER ${BGMPI_BASE}/bin/mpixlcxx_r)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
-set(CXX_PURE_RELEASE_FLAGS "-g -O3")
+set(CXX_PURE_RELEASE_FLAGS "-g -O2")
 set(CXX_HYBRID_DEBUG_FLAGS "-g")
-set(CXX_HYBRID_RELEASE_FLAGS "-g -O3")
+set(CXX_HYBRID_RELEASE_FLAGS "-g -O2")
 
 set(CMAKE_THREAD_LIBS_INIT "-qthreaded")
 set(OpenMP_CXX_FLAGS "-qsmp=omp:noauto -qthreaded")
