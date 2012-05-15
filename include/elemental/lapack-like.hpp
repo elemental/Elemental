@@ -1031,6 +1031,18 @@ void SetHermitianTridiagGridOrder( GridOrder order );
 GridOrder GetHermitianTridiagGridOrder();
 
 //----------------------------------------------------------------------------//
+// SVD                                                                        //
+//----------------------------------------------------------------------------//
+
+// TODO
+/*
+template<typename F>
+void SVD
+( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
+  DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& VAdj );
+*/
+
+//----------------------------------------------------------------------------//
 // Trace                                                                      //
 //                                                                            //
 // Returns the sum of the diagonal entries of a square matrix.                //

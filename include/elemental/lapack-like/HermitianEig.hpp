@@ -46,13 +46,15 @@ namespace elem {
 #define TARGET_CHUNKS 20
 
 namespace hermitian_eig {
+
+template<typename R>
 inline void
-RealToRealInPlaceRedist
-( DistMatrix<double,MC,MR>& paddedZ,
+InPlaceRedist
+( DistMatrix<R,MC,MR>& paddedZ,
   int height,
   int width,
   int rowAlignmentOfInput,
-  const double* readBuffer )
+  const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
 
@@ -73,9 +75,9 @@ RealToRealInPlaceRedist
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
     // Allocate our send/recv buffers
-    std::vector<double> buffer(2*r*portionSize);
-    double* sendBuffer = &buffer[0];
-    double* recvBuffer = &buffer[r*portionSize];
+    std::vector<R> buffer(2*r*portionSize);
+    R* sendBuffer = &buffer[0];
+    R* recvBuffer = &buffer[r*portionSize];
 
     // Pack
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -83,7 +85,7 @@ RealToRealInPlaceRedist
 #endif
     for( int k=0; k<r; ++k )
     {
-        double* data = &sendBuffer[k*portionSize];
+        R* data = &sendBuffer[k*portionSize];
 
         const int thisColShift = Shift(k,colAlignment,r);
         const int thisLocalHeight = LocalLength(height,thisColShift,r);
@@ -109,7 +111,7 @@ RealToRealInPlaceRedist
 #endif
     for( int k=0; k<r; ++k )
     {
-        const double* data = &recvBuffer[k*portionSize];
+        const R* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
         const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
@@ -121,20 +123,21 @@ RealToRealInPlaceRedist
 #endif
         for( int j=0; j<thisLocalWidth; ++j )
         {
-            const double* dataCol = &(data[j*localHeight]);
-            double* thisCol = paddedZ.LocalBuffer(0,thisRowOffset+j*r);
+            const R* dataCol = &(data[j*localHeight]);
+            R* thisCol = paddedZ.LocalBuffer(0,thisRowOffset+j*r);
             MemCopy( thisCol, dataCol, localHeight );
         }
     }
 }
 
+template<typename R>
 inline void
-RealToComplexInPlaceRedist
-( DistMatrix<Complex<double>,MC,MR>& paddedZ,
+InPlaceRedist
+( DistMatrix<Complex<R>,MC,MR>& paddedZ,
   int height,
   int width,
   int rowAlignmentOfInput,
-  const double* readBuffer )
+  const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
 
@@ -155,9 +158,9 @@ RealToComplexInPlaceRedist
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
     // Allocate our send/recv buffers
-    std::vector<double> buffer(2*r*portionSize);
-    double* sendBuffer = &buffer[0];
-    double* recvBuffer = &buffer[r*portionSize];
+    std::vector<R> buffer(2*r*portionSize);
+    R* sendBuffer = &buffer[0];
+    R* recvBuffer = &buffer[r*portionSize];
 
     // Pack
 #if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
@@ -165,7 +168,7 @@ RealToComplexInPlaceRedist
 #endif
     for( int k=0; k<r; ++k )
     {
-        double* data = &sendBuffer[k*portionSize];
+        R* data = &sendBuffer[k*portionSize];
 
         const int thisColShift = Shift(k,colAlignment,r);
         const int thisLocalHeight = LocalLength(height,thisColShift,r);
@@ -191,7 +194,7 @@ RealToComplexInPlaceRedist
 #endif
     for( int k=0; k<r; ++k )
     {
-        const double* data = &recvBuffer[k*portionSize];
+        const R* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
         const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
@@ -203,14 +206,39 @@ RealToComplexInPlaceRedist
 #endif
         for( int j=0; j<thisLocalWidth; ++j )
         {
-            const double* dataCol = &(data[j*localHeight]);
-            double* thisCol = (double*)paddedZ.LocalBuffer(0,thisRowOffset+j*r);
+            const R* dataCol = &(data[j*localHeight]);
+            R* thisCol = (R*)paddedZ.LocalBuffer(0,thisRowOffset+j*r);
             for( int i=0; i<localHeight; ++i )
             {
                 thisCol[2*i] = dataCol[i];
                 thisCol[2*i+1] = 0;
             }
         }
+    }
+}
+
+template<typename F>
+inline void
+CheckScale
+( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, 
+  bool& needRescaling, typename Base<F>::type& scale )
+{
+    typedef typename Base<F>::type R;
+
+    scale = 1;
+    needRescaling = false;
+    const R maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
+    const R underflowThreshold = lapack::MachineUnderflowThreshold<R>();
+    const R overflowThreshold = lapack::MachineOverflowThreshold<R>();
+    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
+    {
+        needRescaling = true;
+        scale = underflowThreshold / maxNormOfA;
+    }
+    else if( maxNormOfA > overflowThreshold )
+    {
+        needRescaling = true;
+        scale = overflowThreshold / maxNormOfA;
     }
 }
 
@@ -229,6 +257,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -271,41 +301,27 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
@@ -313,7 +329,7 @@ HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix
-        double* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
@@ -321,10 +337,10 @@ HermitianEig
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
@@ -341,14 +357,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<double,MC,MR> 
+        DistMatrix<R,MC,MR> 
             paddedZL(g), paddedZR(g),  
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored 
         // at the end of the paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -359,7 +375,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::RealToRealInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -384,7 +400,7 @@ HermitianEig
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -409,6 +425,7 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -451,41 +468,27 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
@@ -493,7 +496,7 @@ HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix 
-        double* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
@@ -501,10 +504,10 @@ HermitianEig
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(), 
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
@@ -522,14 +525,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<double,MC,MR> 
+        DistMatrix<R,MC,MR> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffer
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -540,7 +543,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::RealToRealInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -565,7 +568,7 @@ HermitianEig
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -588,6 +591,7 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -625,41 +629,27 @@ HermitianEig
         w.Align( 0 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
@@ -667,7 +657,7 @@ HermitianEig
     // then redistribute into Z[MC,MR]
     {
         // Get an estimate of the amount of memory to allocate
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Estimate estimate = pmrrr::EigEstimate
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -682,7 +672,7 @@ HermitianEig
         }
 
         // Grab a pointer into the paddedZ local matrix
-        double* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
@@ -690,7 +680,7 @@ HermitianEig
             paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
@@ -713,14 +703,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<double,MC,MR> 
+        DistMatrix<R,MC,MR> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -731,7 +721,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
-            hermitian_eig::RealToRealInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -756,7 +746,7 @@ HermitianEig
         ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -775,6 +765,7 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -797,47 +788,33 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm() );
@@ -848,7 +825,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -872,6 +849,7 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -894,47 +872,33 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -945,7 +909,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -967,6 +931,7 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -987,47 +952,33 @@ HermitianEig
         w.Align( 0 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
         ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
-    }
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -1040,7 +991,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling ) 
+    if( needRescaling ) 
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -1060,6 +1011,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1102,42 +1055,28 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
@@ -1145,7 +1084,7 @@ HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix
-        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
@@ -1153,10 +1092,10 @@ HermitianEig
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
@@ -1173,14 +1112,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<Complex<double>,MC,MR> 
+        DistMatrix<C,MC,MR> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g); 
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1191,7 +1130,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            hermitian_eig::RealToComplexInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -1218,7 +1157,7 @@ HermitianEig
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -1242,6 +1181,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1284,42 +1225,28 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
@@ -1327,7 +1254,7 @@ HermitianEig
     // then redistribute into Z[MC,MR]
     {
         // Grab a pointer into the paddedZ local matrix
-        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
@@ -1335,10 +1262,10 @@ HermitianEig
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
@@ -1356,14 +1283,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<Complex<double>,MC,MR> 
+        DistMatrix<C,MC,MR> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the padded Z[MC,MR] buffer
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1374,7 +1301,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            hermitian_eig::RealToComplexInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -1401,7 +1328,7 @@ HermitianEig
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -1423,6 +1350,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1460,49 +1389,35 @@ HermitianEig
         w.Align( 0 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Estimate estimate = pmrrr::EigEstimate
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -1517,7 +1432,7 @@ HermitianEig
         }
 
         // Grab a pointer into the paddedZ local matrix
-        double* paddedZBuffer = (double*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
@@ -1525,7 +1440,7 @@ HermitianEig
             2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
         const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
-        double* Z_STAR_VR_Buffer = 
+        R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
@@ -1548,14 +1463,14 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<Complex<double>,MC,MR> 
+        DistMatrix<C,MC,MR> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
         int alignment = 0;
-        const double* readBuffer = Z_STAR_VR_Buffer;
+        const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
             RepartitionRight
@@ -1566,7 +1481,7 @@ HermitianEig
             const int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
-            hermitian_eig::RealToComplexInPlaceRedist
+            hermitian_eig::InPlaceRedist
             ( paddedZ1, n, width, alignment, readBuffer );
 
             SlidePartitionRight
@@ -1593,7 +1508,7 @@ HermitianEig
           subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -1612,6 +1527,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1634,48 +1551,34 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm() );
@@ -1686,7 +1589,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
@@ -1709,6 +1612,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1731,48 +1636,34 @@ HermitianEig
         w.ResizeTo( k, 1 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -1783,7 +1674,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
@@ -1804,6 +1695,8 @@ HermitianEig
 #ifndef RELEASE
     PushCallStack("HermitianEig");
 #endif
+    typedef double R;
+    typedef Complex<double> C;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
 
@@ -1824,48 +1717,34 @@ HermitianEig
         w.Align( 0 );
     }
 
-    // Check if we need to scale the matrix, and do so if necessary
-    double scale = 1;
-    bool neededScaling = false;
-    const double maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
-    const double underflowThreshold = 
-        lapack::MachineUnderflowThreshold<double>();
-    const double overflowThreshold = 
-        lapack::MachineOverflowThreshold<double>();
-    if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
-    {
-        neededScaling = true;
-        scale = underflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
-    else if( maxNormOfA > overflowThreshold )
-    {
-        neededScaling = true;
-        scale = overflowThreshold / maxNormOfA;
-        ScaleTrapezoid( Complex<double>(scale), LEFT, uplo, 0, A );
-    }
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    if( needRescaling )
+        ScaleTrapezoid( (C)scale, LEFT, uplo, 0, A );
 
     // Tridiagonalize A
-    DistMatrix<Complex<double>,STAR,STAR> t(g);
+    DistMatrix<C,STAR,STAR> t(g);
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<double,MD,STAR> d_MD_STAR( n, 1, g );
-    DistMatrix<double,MD,STAR> e_MD_STAR( n-1, 1 , g );
+    DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
+                          e_MD_STAR( n-1, 1, g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<double,STAR,STAR> d_STAR_STAR( n, 1, g );
-    DistMatrix<double,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+                            e_STAR_STAR( n-1, 1, n, g );
     d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR
     {
-        std::vector<double> wVector(n);
+        std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
         ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
@@ -1878,7 +1757,7 @@ HermitianEig
     }
 
     // Rescale the eigenvalues if necessary
-    if( neededScaling )
+    if( needRescaling )
         Scal( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
