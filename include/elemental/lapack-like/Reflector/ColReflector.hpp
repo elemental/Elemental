@@ -37,6 +37,24 @@
 
 namespace elem {
 
+//
+// Follows the LAPACK convention of defining tau such that
+//
+//   H = I - tau [1; v] [1, v'],
+//
+// but adjoint(H) [chi; x] = [beta; 0]. 
+//
+// Note that the adjoint of H is applied. In this case, where the data is real,
+// H' = H, so there is no complication.
+//
+// On exit, chi is overwritten with beta, and x is overwritten with v.
+//
+// The major difference from LAPACK is in the treatment of the special case 
+// of x=0, where LAPACK would put H := I, which is not a valid Householder 
+// reflector. We instead follow the FLAME convention of defining H such that 
+//    adjoint(H) [chi; 0] = [-chi; 0],
+// which is accomplished by setting tau=2, and v=0.
+//
 template<typename R>
 inline R
 internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
@@ -61,7 +79,12 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
     const int gridRow = grid.Row();
     const int colAlignment = chi.ColAlignment();
 
-    if( x.Height() == 0 )
+    std::vector<R> localNorms(gridHeight);
+    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
+    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
+    R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
+
+    if( norm == 0 )
     {
         if( gridRow == colAlignment )
             chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
@@ -70,11 +93,6 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 #endif
         return (R)2;
     }
-
-    std::vector<R> localNorms(gridHeight);
-    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
-    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
-    R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
     R alpha;
     if( gridRow == colAlignment )
@@ -126,6 +144,23 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
     return tau;
 }
 
+//
+// Follows the LAPACK convention of defining tau such that
+//
+//   H = I - tau [1; v] [1, v'],
+//
+// but adjoint(H) [chi; x] = [beta; 0]. 
+//
+// Note that the adjoint of H is applied.
+//
+// On exit, chi is overwritten with beta, and x is overwritten with v.
+//
+// The major difference from LAPACK is in the treatment of the special case 
+// of x=0, where LAPACK would put H := I, which is not a valid Householder 
+// reflector. We instead follow the FLAME convention of defining H such that 
+//    adjoint(H) [chi; 0] = [-chi; 0],
+// which is accomplished by setting tau=2, and v=0.
+//
 template<typename R> 
 inline Complex<R>
 internal::ColReflector

@@ -40,6 +40,24 @@
 
 namespace elem {
 
+//
+// Follows the LAPACK convention of defining tau such that
+//
+//   H = I - tau [1; v] [1, v'],
+//
+// but adjoint(H) [chi; x] = [beta; 0]. 
+//
+// Note that the adjoint of H is applied. In this case, where the data is real,
+// H' = H, so there is no complication.
+//
+// On exit, chi is overwritten with beta, and x is overwritten with v.
+//
+// The major difference from LAPACK is in the treatment of the special case 
+// of x=0, where LAPACK would put H := I, which is not a valid Householder 
+// reflector. We instead follow the FLAME convention of defining H such that 
+//    adjoint(H) [chi; 0] = [-chi; 0],
+// which is accomplished by setting tau=2, and v=0.
+//
 template<typename R>
 inline R
 Reflector( Matrix<R>& chi, Matrix<R>& x )
@@ -47,7 +65,10 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 #ifndef RELEASE
     PushCallStack("Reflector");
 #endif
-    if( x.Height() == 0 )
+    R norm = Nrm2( x );
+    R alpha = chi.Get(0,0);
+
+    if( norm == 0 )
     {
         chi.Set(0,0,-chi.Get(0,0));
 #ifndef RELEASE
@@ -55,9 +76,6 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 #endif
         return (R)2;
     }
-
-    R norm = Nrm2( x );
-    R alpha = chi.Get(0,0);
 
     R beta;
     if( alpha <= 0 )
@@ -100,6 +118,23 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     return tau;
 }
 
+//
+// Follows the LAPACK convention of defining tau such that
+//
+//   H = I - tau [1; v] [1, v'],
+//
+// but adjoint(H) [chi; x] = [beta; 0]. 
+//
+// Note that the adjoint of H is applied. 
+//
+// On exit, chi is overwritten with beta, and x is overwritten with v.
+//
+// The major difference from LAPACK is in the treatment of the special case 
+// of x=0, where LAPACK would put H := I, which is not a valid Householder 
+// reflector. We instead follow the FLAME convention of defining H such that 
+//    adjoint(H) [chi; 0] = [-chi; 0],
+// which is accomplished by setting tau=2, and v=0.
+//
 template<typename R>
 inline Complex<R>
 Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
