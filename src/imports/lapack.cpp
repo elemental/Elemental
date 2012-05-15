@@ -530,5 +530,137 @@ void TriangularInverse
 #endif
 }
 
+//
+// Bidiagonal QR
+//
+
+void BidiagonalQR
+( char uplo, int n, int numColsVTrans, int numRowsU, int numColsC,
+  float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU,
+  float* C, int ldC )
+{
+#ifndef RELEASE
+    PushCallStack("BidiagonalQR");
+#endif
+    std::vector<float> work( 4*n );
+
+    int info;
+    LAPACK(sbdsqr)
+    ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
+      U, &ldU, C, &ldC, &work[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        std::ostringstream msg;
+        msg << "sbdsqr had " << info << " elements of e not converge";
+        throw std::runtime_error( msg.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void BidiagonalQR
+( char uplo, int n, int numColsVTrans, int numRowsU, int numColsC,
+  double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU,
+  double* C, int ldC )
+{
+#ifndef RELEASE
+    PushCallStack("BidiagonalQR");
+#endif
+    std::vector<double> work( 4*n );
+
+    int info;
+    LAPACK(dbdsqr)
+    ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
+      U, &ldU, C, &ldC, &work[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        std::ostringstream msg;
+        msg << "sbdsqr had " << info << " elements of e not converge";
+        throw std::runtime_error( msg.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void BidiagonalQR
+( char uplo, int n, int numColsVAdj, int numRowsU, int numColsC,
+  float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU,
+  scomplex* C, int ldC )
+{
+#ifndef RELEASE
+    PushCallStack("BidiagonalQR");
+#endif
+    const bool computeVectors = ( numColsVAdj || numRowsU || numColsC );
+    const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
+    std::vector<float> work( workSize );
+
+    int info;
+    LAPACK(cbdsqr)
+    ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
+      U, &ldU, C, &ldC, &work[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        std::ostringstream msg;
+        msg << "sbdsqr had " << info << " elements of e not converge";
+        throw std::runtime_error( msg.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void BidiagonalQR
+( char uplo, int n, int numColsVAdj, int numRowsU, int numColsC,
+  double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU,
+  dcomplex* C, int ldC )
+{
+#ifndef RELEASE
+    PushCallStack("BidiagonalQR");
+#endif
+    const bool computeVectors = ( numColsVAdj || numRowsU || numColsC );
+    const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
+    std::vector<double> work( workSize );
+
+    int info;
+    LAPACK(zbdsqr)
+    ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
+      U, &ldU, C, &ldC, &work[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        std::ostringstream msg;
+        msg << "sbdsqr had " << info << " elements of e not converge";
+        throw std::runtime_error( msg.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 } // namespace lapack
 } // namespace elem
