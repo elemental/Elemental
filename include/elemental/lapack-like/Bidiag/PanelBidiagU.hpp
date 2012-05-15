@@ -470,10 +470,10 @@ internal::PanelBidiagU
         YTL(g), YTR(g),  Y00(g), y01(g),   Y02(g),
         YBL(g), YBR(g),  y10(g), psi11(g), y12(g),
                          Y20(g), y21(g),   Y22(g),  Y2L(g);
-    DistMatrix<C,MD,STAR> d(g), dT(g), d0(g),
+    DistMatrix<R,MD,STAR> d(g), dT(g), d0(g),
                                 dB(g), delta1(g),
                                        d2(g);
-    DistMatrix<C,MD,STAR> e(g), eT(g), e0(g),
+    DistMatrix<R,MD,STAR> e(g), eT(g), e0(g),
                                 eB(g), epsilon1(g),
                                        e2(g);
     DistMatrix<C,MD,STAR> tPT(g), tP0(g),
@@ -652,7 +652,7 @@ internal::PanelBidiagU
             tauQ = internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
-                delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
+                delta1.SetLocalEntry(0,0,alpha11.GetRealLocalEntry(0,0));
                 tauQ1.SetLocalEntry(0,0,tauQ);
                 alpha11.SetLocalEntry(0,0,(C)1);
             }
@@ -727,7 +727,7 @@ internal::PanelBidiagU
             tauP = internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
-                epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
+                epsilon1.SetLocalEntry(0,0,alpha12L.GetRealLocalEntry(0,0));
                 tauP1.SetLocalEntry(0,0,tauP);
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
