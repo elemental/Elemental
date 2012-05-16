@@ -832,10 +832,10 @@ internal::PanelBidiagU
     PopBlocksizeStack();
 
     // Put back d and e
-    ATL.SetDiagonal( d, 0 );
+    ATL.SetRealDiagonal( d, 0 );
     DistMatrix<Complex<R>,MC,MR> ATLExpanded(g);
     ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
-    ATLExpanded.SetDiagonal( e, 1 );
+    ATLExpanded.SetRealDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

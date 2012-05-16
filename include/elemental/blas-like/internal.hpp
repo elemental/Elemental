@@ -1610,6 +1610,17 @@ inline void LocalGemm
             throw std::logic_error("A's rows must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
             throw std::logic_error("B's rows must align with C's rows");
+        if( A.Height() != C.Height() || 
+            A.Width() != B.Height() || 
+            B.Width() != C.Width() )
+        {
+            std::ostringstream msg;
+            msg << "Nonconformal LocalGemmNN:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                << "  C ~ " << C.Height() << " x " << C.Width();
+            throw std::logic_error( msg.str().c_str() );
+        }
     }
     else if( orientationOfA == NORMAL )
     {
@@ -1623,6 +1634,17 @@ inline void LocalGemm
             throw std::logic_error("A's rows must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
             throw std::logic_error("B's cols must align with C's rows");
+        if( A.Height() != C.Height() || 
+            A.Width() != B.Width() || 
+            B.Height() != C.Width() )
+        {
+            std::ostringstream msg;
+            msg << "Nonconformal LocalGemmNT:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                << "  C ~ " << C.Height() << " x " << C.Width();
+            throw std::logic_error( msg.str().c_str() );
+        }
     }
     else if( orientationOfB == NORMAL )
     {
@@ -1636,6 +1658,17 @@ inline void LocalGemm
             throw std::logic_error("A's cols must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
             throw std::logic_error("B's rows must align with C's rows");
+        if( A.Width() != C.Height() || 
+            A.Height() != B.Height() || 
+            B.Width() != C.Width() )
+        {
+            std::ostringstream msg;
+            msg << "Nonconformal LocalGemmTN:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                << "  C ~ " << C.Height() << " x " << C.Width();
+            throw std::logic_error( msg.str().c_str() );
+        }
     }
     else
     {
@@ -1649,6 +1682,17 @@ inline void LocalGemm
             throw std::logic_error("A's cols must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
             throw std::logic_error("B's cols must align with C's rows");
+        if( A.Width() != C.Height() || 
+            A.Height() != B.Width() || 
+            B.Height() != C.Width() )
+        {
+            std::ostringstream msg;
+            msg << "Nonconformal LocalGemmTT:\n"
+                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+                << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+                << "  C ~ " << C.Height() << " x " << C.Width();
+            throw std::logic_error( msg.str().c_str() );
+        }
     }
 #endif
     Gemm

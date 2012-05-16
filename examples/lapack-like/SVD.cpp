@@ -30,48 +30,70 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+#include "elemental.hpp"
+using namespace std;
+using namespace elem;
 
-#include "./Bidiag/LocalBidiag.hpp"
-#include "./Bidiag/PanelBidiagL.hpp"
-#include "./Bidiag/PanelBidiagU.hpp"
-#include "./Bidiag/BidiagL.hpp"
-#include "./Bidiag/BidiagU.hpp"
+// Typedef our real and complex types to 'R' and 'C' for convenience
+typedef double R;
+typedef Complex<R> C;
 
-namespace elem {
-
-template<typename R> 
-inline void Bidiag( DistMatrix<R,MC,MR>& A )
+void Usage()
 {
-#ifndef RELEASE
-    PushCallStack("Bidiag");
-#endif
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-    if( A.Height() >= A.Width() )
-        internal::BidiagU( A );
-    else
-        internal::BidiagL( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    cout << "SVD <m> <n>\n"
+         << "  <m>: height of random matrix to test SVD on\n"
+         << "  <n>: width of random matrix to test SVD on\n"
+         << endl;
 }
 
-template<typename R> 
-inline void Bidiag
-( DistMatrix<Complex<R>,MC,  MR  >& A,
-  DistMatrix<Complex<R>,STAR,STAR>& tP,
-  DistMatrix<Complex<R>,STAR,STAR>& tQ )
+int
+main( int argc, char* argv[] )
 {
+    Initialize( argc, argv );
+
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
+
+    if( argc < 3 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int m = atoi( argv[1] );
+    const int n = atoi( argv[2] );
+
+    try 
+    {
+        Grid g( comm );
+        DistMatrix<C,MC,MR> A( g );
+        Uniform( m, n, A );
+
+        // Print our random matrix.
+        A.Print("A");
+
+        // Compute the SVD of A
+        DistMatrix<C,MC,MR> VAdj( g );
+        DistMatrix<R,VR,STAR> s( g );
+        SetBlocksize( 4 );
+        SVD( A, s, VAdj );
+
+        // Print the results
+        A.Print("U");
+        s.Print("s");
+        VAdj.Print("V^H");
+    }
+    catch( exception& e )
+    {
+        cerr << "Process " << commRank << " caught exception with message: "
+             << e.what() << endl;
 #ifndef RELEASE
-    PushCallStack("Bidiag");
+        DumpCallStack();
 #endif
-    if( A.Height() >= A.Width() )
-        internal::BidiagU( A, tP, tQ );
-    else
-        internal::BidiagL( A, tP, tQ );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    }
+
+    Finalize();
+    return 0;
 }
 
-} // namespace elem

@@ -72,7 +72,7 @@ internal::ApplyPackedReflectorsRUHB
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
          HBL, HBR, 0 );
-    PartitionLeft( A, AL, AR, std::max(0,A.Width()-A.Height()) );
+    PartitionLeft( A, AL, AR, std::max(0,H.Width()-H.Height()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -88,7 +88,7 @@ internal::ApplyPackedReflectorsRUHB
 
         RepartitionLeft
         ( AL,     /**/ AR,
-          A0, A1, /**/ A2, HPanHeight );
+          A0, A1, /**/ A2 );
 
         ARight.View1x2( A1, A2 );
 
@@ -200,7 +200,7 @@ internal::ApplyPackedReflectorsRUHB
     ( t, tT,
          tB, 0 );
     PartitionLeft
-    ( A, AL, AR, std::max(0,A.Width()-A.Height()) );
+    ( A, AL, AR, std::max(0,H.Width()-H.Height()) );
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -222,7 +222,7 @@ internal::ApplyPackedReflectorsRUHB
 
         RepartitionLeft
         ( AL,     /**/ AR,
-          A0, A1, /**/ A2, HPanHeight );
+          A0, A1, /**/ A2 );
 
         ARight.View1x2( A1, A2 );
 

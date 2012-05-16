@@ -40,12 +40,21 @@ namespace elem {
 //
 // Follows the LAPACK convention of defining tau such that
 //
-//   H = I - tau [1; v] [1, v'],
+//   H = I - tau [1; w] [1, w'],
 //
-// but adjoint(H) [chi; x] = [beta; 0]. 
+// but adjoint(H) [chi; y] = [beta; 0]. 
 //
-// Note that the adjoint of H is applied. In this case, where the data is real,
-// H' = H, so there is no complication.
+// In our case, y=x^T, and w=v^T, so that 
+//
+//   (I - conj(tau) [1; v^T] [1, conj(v)]) [chi; x^T] = [beta; 0],
+//
+// and thus
+//
+//   [chi, x] (I - conj(tau) [1; v^H] [1, v]) = [beta, 0].
+//
+// In the case of real data, everything simplifies to
+//
+//   [chi, x] (I - tau [1; v^T] [1, v]) = [beta, 0].
 //
 // On exit, chi is overwritten with beta, and x is overwritten with v.
 //
@@ -53,8 +62,9 @@ namespace elem {
 // of x=0, where LAPACK would put H := I, which is not a valid Householder 
 // reflector. We instead follow the FLAME convention of defining H such that 
 //    adjoint(H) [chi; 0] = [-chi; 0],
-// which is accomplished by setting tau=2, and v=0.
+// which is accomplished by setting tau=2, and v^T=0.
 //
+
 template<typename R> 
 inline R
 internal::RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
@@ -144,23 +154,6 @@ internal::RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
     return tau;
 }
 
-//
-// Follows the LAPACK convention of defining tau such that
-//
-//   H = I - tau [1; v] [1, v'],
-//
-// but adjoint(H) [chi; x] = [beta; 0]. 
-//
-// Note that the adjoint of H is applied. 
-//
-// On exit, chi is overwritten with beta, and x is overwritten with v.
-//
-// The major difference from LAPACK is in the treatment of the special case 
-// of x=0, where LAPACK would put H := I, which is not a valid Householder 
-// reflector. We instead follow the FLAME convention of defining H such that 
-//    adjoint(H) [chi; 0] = [-chi; 0],
-// which is accomplished by setting tau=2, and v=0.
-//
 template<typename R>
 inline Complex<R>
 internal::RowReflector

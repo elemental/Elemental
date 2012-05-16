@@ -1034,13 +1034,11 @@ GridOrder GetHermitianTridiagGridOrder();
 // SVD                                                                        //
 //----------------------------------------------------------------------------//
 
-// TODO
-/*
 template<typename F>
 void SVD
-( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
-  DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& VAdj );
-*/
+( DistMatrix<F,                     MC,MR  >& A, 
+  DistMatrix<typename Base<F>::type,VR,STAR>& s, 
+  DistMatrix<F,                     MC,MR  >& VAdj );
 
 //----------------------------------------------------------------------------//
 // Trace                                                                      //
@@ -1108,6 +1106,7 @@ void TriangularInverse
 #include "./lapack-like/Reflector.hpp"
 #include "./lapack-like/SkewHermitianEig.hpp"
 #include "./lapack-like/SortEig.hpp"
+#include "./lapack-like/SVD.hpp"
 #include "./lapack-like/Trace.hpp"
 #include "./lapack-like/TriangularInverse.hpp"
 

@@ -51,7 +51,7 @@ internal::BidiagU( DistMatrix<R,MC,MR>& A )
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<R,STAR,STAR> ABR_STAR_STAR(g);
     DistMatrix<R,MC,  MR  > X(g), X11(g),
                                   X21(g);
     DistMatrix<R,MC,  MR  > Y(g), Y11(g),
@@ -119,9 +119,9 @@ internal::BidiagU( DistMatrix<R,MC,MR>& A )
         }
         else
         {
-            A11_STAR_STAR = A11;
-            Bidiag( A11_STAR_STAR.LocalMatrix() );
-            A11 = A11_STAR_STAR;
+            ABR_STAR_STAR = ABR;
+            Bidiag( ABR_STAR_STAR.LocalMatrix() );
+            ABR = ABR_STAR_STAR;
         }
 
         SlidePartitionDownDiagonal
@@ -176,7 +176,7 @@ internal::BidiagU
                                    tQ2(g);
 
     // Temporary distributions
-    DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<C,STAR,STAR> ABR_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tP1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tQ1_STAR_STAR(g);
     DistMatrix<C,MC,  MR  > X(g), X11(g),
@@ -264,16 +264,16 @@ internal::BidiagU
         }
         else
         {
-            A11_STAR_STAR = A11;
+            ABR_STAR_STAR = ABR;
             tP1_STAR_STAR.ResizeTo( tP1.Height(), 1 );
             tQ1_STAR_STAR.ResizeTo( tQ1.Height(), 1 );
 
             Bidiag
-            ( A11_STAR_STAR.LocalMatrix(), 
+            ( ABR_STAR_STAR.LocalMatrix(), 
               tP1_STAR_STAR.LocalMatrix(), 
               tQ1_STAR_STAR.LocalMatrix() );
 
-            A11 = A11_STAR_STAR;
+            ABR = ABR_STAR_STAR;
             tP1 = tP1_STAR_STAR;
             tQ1 = tQ1_STAR_STAR;
         }

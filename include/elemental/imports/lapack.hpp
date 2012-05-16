@@ -168,22 +168,18 @@ void TriangularInverse
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
 //
 
-void BidiagonalQR
-( char uplo, int n, int numColsVTrans, int numRowsU, int numColsC,
-  float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU,
-  float* C, int ldC );
-void BidiagonalQR
-( char uplo, int n, int numColsVTrans, int numRowsU, int numColsC,
-  double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU,
-  double* C, int ldC );
-void BidiagonalQR
-( char uplo, int n, int numColsVAdj, int numRowsU, int numColsC,
-  float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU,
-  scomplex* C, int ldC );
-void BidiagonalQR
-( char uplo, int n, int numColsVAdj, int numRowsU, int numColsC,
-  double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU,
-  dcomplex* C, int ldC );
+void BidiagQRAlg
+( char uplo, int n, int numColsVTrans, int numRowsU,
+  float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU );
+void BidiagQRAlg
+( char uplo, int n, int numColsVTrans, int numRowsU, 
+  double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU );
+void BidiagQRAlg
+( char uplo, int n, int numColsVAdj, int numRowsU,
+  float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU );
+void BidiagQRAlg
+( char uplo, int n, int numColsVAdj, int numRowsU, 
+  double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU );
 
 } // namespace lapack
 } // namespace elem

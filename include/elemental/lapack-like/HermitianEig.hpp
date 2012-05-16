@@ -35,9 +35,6 @@
 
 #include "elemental/imports/pmrrr.hpp"
 
-// We create specialized redistribution routines for redistributing the 
-// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
-// eigensolver in order to minimize the temporary memory usage.
 namespace elem {
 
 // The targeted number of pieces to break the eigenvectors into during the
@@ -47,6 +44,9 @@ namespace elem {
 
 namespace hermitian_eig {
 
+// We create specialized redistribution routines for redistributing the 
+// real eigenvectors of the symmetric tridiagonal matrix at the core of our 
+// eigensolver in order to minimize the temporary memory usage.
 template<typename R>
 inline void
 InPlaceRedist
