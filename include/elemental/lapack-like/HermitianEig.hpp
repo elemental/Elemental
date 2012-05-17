@@ -1149,7 +1149,7 @@ HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() ); 
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors
@@ -1320,7 +1320,7 @@ HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors
@@ -1500,7 +1500,7 @@ HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
           subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors

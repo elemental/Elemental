@@ -165,7 +165,7 @@ void TestCorrectness
     {
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 
-          CONJUGATED, subdiagonal, A, t, B );
+          UNCONJUGATED, subdiagonal, A, t, B );
         ApplyPackedReflectors
         ( RIGHT, LOWER, VERTICAL, BACKWARD, 
           CONJUGATED, subdiagonal, A, t, B );
@@ -177,7 +177,7 @@ void TestCorrectness
           UNCONJUGATED, subdiagonal, A, t, B );
         ApplyPackedReflectors
         ( RIGHT, UPPER, VERTICAL, FORWARD, 
-          UNCONJUGATED, subdiagonal, A, t, B );
+          CONJUGATED, subdiagonal, A, t, B );
     }
 
     // Compare the appropriate triangle of AOrig and B

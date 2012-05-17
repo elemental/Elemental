@@ -33,6 +33,23 @@
 
 namespace elem {
 
+//
+// Since applying Householder transforms from vectors stored left-to-right
+// implies that we will be forming a generalization of
+//
+//   (I - tau_1 u_1 u_1^H) (I - tau_0 u_0 u_0^H) = 
+//   I - tau_0 u_0 u_0^H - tau_1 u_1 u_1^H + (tau_0 tau_1 u_1^H u_0) u_1 u_0^H =
+//   I - [ u_0, u_1 ] [  tau_0,                 0     ] [ u_0^H ]
+//                    [ -tau_0 tau_1 u_1^H u_0, tau_1 ] [ u_1^H ],
+//
+// which has a lower-triangular center matrix, say S, we will form S as 
+// the inverse of a matrix T, which can easily be formed as
+// 
+//   tril(T) = tril( U^H U ),  diag(T) = 1/t or 1/conj(t),
+//
+// where U is the matrix of Householder vectors and t is the vector of scalars.
+//
+
 template<typename R> 
 inline void
 internal::ApplyPackedReflectorsLLVF
@@ -107,7 +124,7 @@ internal::ApplyPackedReflectorsLLVF
 
         HPan_VC_STAR = HPanCopy;
         Syrk
-        ( UPPER, TRANSPOSE, 
+        ( LOWER, TRANSPOSE, 
           (R)1, HPan_VC_STAR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );     
         SInv_STAR_STAR.SumOverGrid();
@@ -120,7 +137,7 @@ internal::ApplyPackedReflectorsLLVF
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         internal::LocalTrsm
-        ( LEFT, UPPER, TRANSPOSE, NON_UNIT, 
+        ( LEFT, LOWER, NORMAL, NON_UNIT, 
           (R)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
@@ -148,7 +165,7 @@ internal::ApplyPackedReflectorsLLVF
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 internal::ApplyPackedReflectorsLLVF
 ( Conjugation conjugation, int offset, 
@@ -243,7 +260,7 @@ internal::ApplyPackedReflectorsLLVF
 
         HPan_VC_STAR = HPanCopy;
         Herk
-        ( UPPER, ADJOINT, 
+        ( LOWER, ADJOINT, 
           (C)1, HPan_VC_STAR.LockedLocalMatrix(),
           (C)0, SInv_STAR_STAR.LocalMatrix() );     
         SInv_STAR_STAR.SumOverGrid();
@@ -256,7 +273,7 @@ internal::ApplyPackedReflectorsLLVF
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         internal::LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
         internal::LocalGemm

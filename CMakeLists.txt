@@ -34,7 +34,7 @@ cmake_minimum_required(VERSION 2.8.5)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 74)
+set(Elemental_VERSION_MINOR 75-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -645,7 +645,7 @@ if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
   set(CORE_EXAMPLES Constructors)
-  set(LAPACK_EXAMPLES GaussianElimination SVD)
+  set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
                        Hankel HermitianUniformSpectrum Hilbert Identity 
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform

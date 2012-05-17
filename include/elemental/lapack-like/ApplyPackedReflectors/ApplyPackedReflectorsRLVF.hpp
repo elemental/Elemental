@@ -33,6 +33,23 @@
 
 namespace elem {
 
+//
+// Since applying Householder transforms from vectors stored left-to-right
+// implies that we will be forming a generalization of
+//
+//   (I - tau_0 u_0 u_0^H) (I - tau_1 u_1 u_1^H) = 
+//   I - tau_0 u_0 u_0^H - tau_1 u_1 u_1^H + (tau_0 tau_1 u_0^H u_1) u_0 u_1^H =
+//   I - [ u_0, u_1 ] [ tau_0, -tau_0 tau_1 u_0^H u_1 ] [ u_0^H ]
+//                    [ 0,      tau_1                 ] [ u_1^H ],
+//
+// which has an upper-triangular center matrix, say S, we will form S as 
+// the inverse of a matrix T, which can easily be formed as
+// 
+//   triu(T) = triu( U^H U ),  diag(T) = 1/t or 1/conj(t),
+//
+// where U is the matrix of Householder vectors and t is the vector of scalars.
+//
+
 template<typename R> 
 inline void
 internal::ApplyPackedReflectorsRLVF
@@ -66,8 +83,8 @@ internal::ApplyPackedReflectorsRLVF
     DistMatrix<R,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<R,MR,  STAR> HPan_MR_STAR(g);
     DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<R,STAR,MC  > Z_STAR_MC(g);
-    DistMatrix<R,STAR,VC  > Z_STAR_VC(g);
+    DistMatrix<R,STAR,MC  > ZTrans_STAR_MC(g);
+    DistMatrix<R,STAR,VC  > ZTrans_STAR_VC(g);
 
     LockedPartitionDownDiagonal
     ( H, HTL, HTR,
@@ -92,9 +109,9 @@ internal::ApplyPackedReflectorsRLVF
         HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         HPan_MR_STAR.AlignWith( AR );
-        Z_STAR_MC.AlignWith( AR );
-        Z_STAR_VC.AlignWith( AR );
-        Z_STAR_MC.ResizeTo( HPanWidth, AR.Height() );
+        ZTrans_STAR_MC.AlignWith( AR );
+        ZTrans_STAR_VC.AlignWith( AR );
+        ZTrans_STAR_MC.ResizeTo( HPanWidth, AR.Height() );
         SInv_STAR_STAR.ResizeTo( HPanWidth, HPanWidth );
         Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
@@ -112,19 +129,20 @@ internal::ApplyPackedReflectorsRLVF
 
         HPan_MR_STAR = HPan_VC_STAR;
         internal::LocalGemm
-        ( ADJOINT, ADJOINT, (R)1, HPan_MR_STAR, AR, (R)0, Z_STAR_MC );
-        Z_STAR_VC.SumScatterFrom( Z_STAR_MC );
+        ( TRANSPOSE, TRANSPOSE, (R)1, HPan_MR_STAR, AR, (R)0, ZTrans_STAR_MC );
+        ZTrans_STAR_VC.SumScatterFrom( ZTrans_STAR_MC );
         
         internal::LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, SInv_STAR_STAR, Z_STAR_VC );
+        ( LEFT, UPPER, TRANSPOSE, NON_UNIT, 
+          (R)1, SInv_STAR_STAR, ZTrans_STAR_VC );
 
-        Z_STAR_MC = Z_STAR_VC;
+        ZTrans_STAR_MC = ZTrans_STAR_VC;
         internal::LocalGemm
-        ( ADJOINT, TRANSPOSE, (R)-1, Z_STAR_MC, HPan_MR_STAR, (R)1, AR );
+        ( TRANSPOSE, TRANSPOSE, (R)-1, ZTrans_STAR_MC, HPan_MR_STAR, (R)1, AR );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();
-        Z_STAR_MC.FreeAlignments();
-        Z_STAR_VC.FreeAlignments();
+        ZTrans_STAR_MC.FreeAlignments();
+        ZTrans_STAR_VC.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,
@@ -186,8 +204,8 @@ internal::ApplyPackedReflectorsRLVF
     DistMatrix<C,MR,  STAR> HPan_MR_STAR(g);
     DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<C,STAR,MC  > Z_STAR_MC(g);
-    DistMatrix<C,STAR,VC  > Z_STAR_VC(g);
+    DistMatrix<C,STAR,MC  > ZAdj_STAR_MC(g);
+    DistMatrix<C,STAR,VC  > ZAdj_STAR_VC(g);
 
     LockedPartitionDownDiagonal
     ( H, HTL, HTR,
@@ -221,9 +239,9 @@ internal::ApplyPackedReflectorsRLVF
           A0, /**/ A1, A2 );
 
         HPan_MR_STAR.AlignWith( AR );
-        Z_STAR_MC.AlignWith( AR );
-        Z_STAR_VC.AlignWith( AR );
-        Z_STAR_MC.ResizeTo( HPanWidth, AR.Height() );
+        ZAdj_STAR_MC.AlignWith( AR );
+        ZAdj_STAR_VC.AlignWith( AR );
+        ZAdj_STAR_MC.ResizeTo( HPanWidth, AR.Height() );
         SInv_STAR_STAR.ResizeTo( HPanWidth, HPanWidth );
         Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
@@ -242,19 +260,19 @@ internal::ApplyPackedReflectorsRLVF
 
         HPan_MR_STAR = HPan_VC_STAR;
         internal::LocalGemm
-        ( ADJOINT, ADJOINT, (C)1, HPan_MR_STAR, AR, (C)0, Z_STAR_MC );
-        Z_STAR_VC.SumScatterFrom( Z_STAR_MC );
+        ( ADJOINT, ADJOINT, (C)1, HPan_MR_STAR, AR, (C)0, ZAdj_STAR_MC );
+        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
         
         internal::LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VC );
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, SInv_STAR_STAR, ZAdj_STAR_VC );
 
-        Z_STAR_MC = Z_STAR_VC;
+        ZAdj_STAR_MC = ZAdj_STAR_VC;
         internal::LocalGemm
-        ( ADJOINT, ADJOINT, (C)-1, Z_STAR_MC, HPan_MR_STAR, (C)1, AR );
+        ( ADJOINT, ADJOINT, (C)-1, ZAdj_STAR_MC, HPan_MR_STAR, (C)1, AR );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();
-        Z_STAR_MC.FreeAlignments();
-        Z_STAR_VC.FreeAlignments();
+        ZAdj_STAR_MC.FreeAlignments();
+        ZAdj_STAR_VC.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,

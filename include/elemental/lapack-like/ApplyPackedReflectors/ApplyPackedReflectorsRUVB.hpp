@@ -33,6 +33,23 @@
 
 namespace elem {
 
+//
+// Since applying Householder transforms from vectors stored right-to-left
+// implies that we will be forming a generalization of
+//
+//   (I - tau_1 u_1 u_1^H) (I - tau_0 u_0 u_0^H) = 
+//   I - tau_0 u_0 u_0^H - tau_1 u_1 u_1^H + (tau_0 tau_1 u_1^H u_0) u_1 u_0^H =
+//   I - [ u_0, u_1 ] [  tau_0,                 0     ] [ u_0^H ]
+//                    [ -tau_0 tau_1 u_1^H u_0, tau_1 ] [ u_1^H ],
+//
+// which has a lower-triangular center matrix, say S, we will form S as 
+// the inverse of a matrix T, which can easily be formed as
+// 
+//   tril(T) = tril( U^H U ),  diag(T) = 1/t or 1/conj(t),
+//
+// where U is the matrix of Householder vectors and t is the vector of scalars.
+//
+
 template<typename R>
 inline void
 internal::ApplyPackedReflectorsRUVB
@@ -48,9 +65,9 @@ internal::ApplyPackedReflectorsRUVB
         throw std::logic_error("Transforms cannot extend above matrix");
     if( offset < 0 )
         throw std::logic_error("Transforms cannot extend below matrix");
-    if( H.Width() != A.Height() )
+    if( H.Height() != A.Width() )
         throw std::logic_error
-        ("Width of transforms must equal width of target matrix");
+        ("Height of transforms must equal width of target matrix");
 #endif
     const Grid& g = H.Grid();
 
@@ -64,8 +81,8 @@ internal::ApplyPackedReflectorsRUVB
     DistMatrix<R,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<R,MR,  STAR> HPan_MR_STAR(g);
     DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<R,MC,  STAR> Z_MC_STAR(g);
-    DistMatrix<R,VC,  STAR> Z_VC_STAR(g);
+    DistMatrix<R,STAR,MC  > ZTrans_STAR_MC(g);
+    DistMatrix<R,STAR,VC  > ZTrans_STAR_VC(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -87,9 +104,9 @@ internal::ApplyPackedReflectorsRUVB
         ALeft.View( A, 0, 0, A.Height(), HPanHeight );
 
         HPan_MR_STAR.AlignWith( ALeft );
-        Z_MC_STAR.AlignWith( ALeft );
-        Z_VC_STAR.AlignWith( ALeft );
-        Z_MC_STAR.ResizeTo( ALeft.Height(), HPan.Width() );
+        ZTrans_STAR_MC.AlignWith( ALeft );
+        ZTrans_STAR_VC.AlignWith( ALeft );
+        ZTrans_STAR_MC.ResizeTo( HPan.Width(), ALeft.Height() );
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
         Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
@@ -99,7 +116,7 @@ internal::ApplyPackedReflectorsRUVB
 
         HPan_VC_STAR = HPanCopy;
         Syrk
-        ( UPPER, TRANSPOSE, 
+        ( LOWER, TRANSPOSE, 
           (R)1, HPan_VC_STAR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );     
         SInv_STAR_STAR.SumOverGrid();
@@ -107,22 +124,22 @@ internal::ApplyPackedReflectorsRUVB
 
         HPan_MR_STAR = HPan_VC_STAR;
         internal::LocalGemm
-        ( NORMAL, NORMAL,
-          (R)1, ALeft, HPan_MR_STAR, (R)0, Z_MC_STAR );
-        Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
+        ( TRANSPOSE, TRANSPOSE,
+          (R)1, HPan_MR_STAR, ALeft, (R)0, ZTrans_STAR_MC );
+        ZTrans_STAR_VC.SumScatterFrom( ZTrans_STAR_MC );
         
         internal::LocalTrsm
-        ( RIGHT, UPPER, TRANSPOSE, NON_UNIT, 
-          (R)1, SInv_STAR_STAR, Z_VC_STAR );
+        ( LEFT, LOWER, TRANSPOSE, NON_UNIT, 
+          (R)1, SInv_STAR_STAR, ZTrans_STAR_VC );
 
-        Z_MC_STAR = Z_VC_STAR;
+        ZTrans_STAR_MC = ZTrans_STAR_VC;
         internal::LocalGemm
-        ( NORMAL, TRANSPOSE, 
-          (R)-1, Z_MC_STAR, HPan_MR_STAR, (R)1, ALeft );
+        ( TRANSPOSE, TRANSPOSE, 
+          (R)-1, ZTrans_STAR_MC, HPan_MR_STAR, (R)1, ALeft );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();
-        Z_MC_STAR.FreeAlignments();
-        Z_VC_STAR.FreeAlignments();
+        ZTrans_STAR_MC.FreeAlignments();
+        ZTrans_STAR_VC.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,
@@ -152,9 +169,9 @@ internal::ApplyPackedReflectorsRUVB
         throw std::logic_error("Transforms cannot extend above matrix");
     if( offset < 0 )
         throw std::logic_error("Transforms cannot extend below matrix");
-    if( H.Width() != A.Width() )
+    if( H.Height() != A.Width() )
         throw std::logic_error
-        ("Width of transforms must equal width of target matrix");
+        ("Height of transforms must equal width of target matrix");
     if( t.Height() != H.DiagonalLength( offset ) )
         throw std::logic_error("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiagonal( H, offset ) )
@@ -178,8 +195,8 @@ internal::ApplyPackedReflectorsRUVB
     DistMatrix<C,MR,  STAR> HPan_MR_STAR(g);
     DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> SInv_STAR_STAR(g);
-    DistMatrix<C,MC,  STAR> Z_MC_STAR(g);
-    DistMatrix<C,VC,  STAR> Z_VC_STAR(g);
+    DistMatrix<C,STAR,MC  > ZAdj_STAR_MC(g);
+    DistMatrix<C,STAR,VC  > ZAdj_STAR_VC(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -210,9 +227,9 @@ internal::ApplyPackedReflectorsRUVB
         ALeft.View( A, 0, 0, A.Height(), HPanHeight );
 
         HPan_MR_STAR.AlignWith( ALeft );
-        Z_MC_STAR.AlignWith( ALeft );
-        Z_VC_STAR.AlignWith( ALeft );
-        Z_MC_STAR.ResizeTo( ALeft.Height(), HPan.Width() );
+        ZAdj_STAR_MC.AlignWith( ALeft );
+        ZAdj_STAR_VC.AlignWith( ALeft );
+        ZAdj_STAR_MC.ResizeTo( HPan.Width(), ALeft.Height() );
         SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
         Zero( SInv_STAR_STAR );
         //--------------------------------------------------------------------//
@@ -222,7 +239,7 @@ internal::ApplyPackedReflectorsRUVB
 
         HPan_VC_STAR = HPanCopy;
         Herk
-        ( UPPER, ADJOINT, 
+        ( LOWER, ADJOINT, 
           (C)1, HPan_VC_STAR.LockedLocalMatrix(),
           (C)0, SInv_STAR_STAR.LocalMatrix() );     
         SInv_STAR_STAR.SumOverGrid();
@@ -231,20 +248,20 @@ internal::ApplyPackedReflectorsRUVB
 
         HPan_MR_STAR = HPan_VC_STAR;
         internal::LocalGemm
-        ( NORMAL, NORMAL,
-          (C)1, ALeft, HPan_MR_STAR, (C)0, Z_MC_STAR );
-        Z_VC_STAR.SumScatterFrom( Z_MC_STAR );
+        ( ADJOINT, ADJOINT,
+          (C)1, HPan_MR_STAR, ALeft, (C)0, ZAdj_STAR_MC );
+        ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
         
         internal::LocalTrsm
-        ( RIGHT, UPPER, ADJOINT, NON_UNIT, (C)1, SInv_STAR_STAR, Z_VC_STAR );
+        ( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, SInv_STAR_STAR, ZAdj_STAR_VC );
 
-        Z_MC_STAR = Z_VC_STAR;
+        ZAdj_STAR_MC = ZAdj_STAR_VC;
         internal::LocalGemm
-        ( NORMAL, ADJOINT, (C)-1, Z_MC_STAR, HPan_MR_STAR, (C)1, ALeft );
+        ( ADJOINT, ADJOINT, (C)-1, ZAdj_STAR_MC, HPan_MR_STAR, (C)1, ALeft );
         //--------------------------------------------------------------------//
         HPan_MR_STAR.FreeAlignments();
-        Z_MC_STAR.FreeAlignments();
-        Z_VC_STAR.FreeAlignments();
+        ZAdj_STAR_MC.FreeAlignments();
+        ZAdj_STAR_VC.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,

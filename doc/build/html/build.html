@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Build system &mdash; Elemental 0.74 documentation</title>
+    <title>Build system &mdash; Elemental 0.75-dev documentation</title>
     
     <link rel="stylesheet" href="_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.74',
+        VERSION:     '0.75-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,13 +27,13 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/theme_extras.js"></script>
-    <link rel="top" title="Elemental 0.74 documentation" href="index.html" />
+    <link rel="top" title="Elemental 0.75-dev documentation" href="index.html" />
     <link rel="next" title="Imported library routines" href="imports.html" />
     <link rel="prev" title="Introduction" href="intro.html" /> 
   </head>
   <body>
       <div class="header"><img class="rightlogo" src="_static/elemental_90.png" alt="Logo"/><h1 class="heading"><a href="index.html">
-          <span>Elemental 0.74 documentation</span></a></h1>
+          <span>Elemental 0.75-dev documentation</span></a></h1>
         <h2 class="heading"><span>Build system</span></h2>
       </div>
       <div class="topnav">
@@ -245,7 +245,7 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
     <span class="k">const</span> <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">);</span>
 
     <span class="n">DistMatrix</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">I</span><span class="p">(</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span> <span class="p">);</span>
-    <span class="n">I</span><span class="p">.</span><span class="n">SetToIdentity</span><span class="p">();</span>
+    <span class="n">MakeIdentity</span><span class="p">(</span> <span class="n">I</span> <span class="p">);</span>
     <span class="n">I</span><span class="p">.</span><span class="n">Print</span><span class="p">(</span><span class="s">&quot;Identity&quot;</span><span class="p">);</span>
 
     <span class="n">Finalize</span><span class="p">();</span>
@@ -261,7 +261,7 @@ If Elemental was installed in <tt class="docutils literal"><span class="pre">/us
 the file <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt> is in the current folder, a typical build would be</p>
 <div class="highlight-python"><pre>mpicxx Identity.cpp -o Identity \
     -I/usr/local/elemental/include \
-    -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm</pre>
+    -L/usr/local/elemental/lib -lelemental -lplcg -llapack -lblas -lm</pre>
 </div>
 <p>Of course, <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt> should be replaced with your installation
 prefix and <tt class="docutils literal"><span class="pre">-llapack</span> <span class="pre">-lblas</span> <span class="pre">-lm</span></tt> should be replaced with the <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt>

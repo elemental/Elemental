@@ -215,18 +215,16 @@ SimpleSVD
     if( m >= n )
     {
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, B, tQ, A );
-        // There is conjugation weirdness...
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, B, tQ, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 1, B, tP, VAdj );
+        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 1, B, tP, VAdj );
     }
     else
     {
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, -1, B, tQ, A );
-        // There is conjugation weirdness...
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, -1, B, tQ, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, B, tP, VAdj );
+        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, B, tP, VAdj );
     }
 
     // Copy out the appropriate subset of the singular values

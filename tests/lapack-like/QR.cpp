@@ -139,7 +139,7 @@ void TestCorrectness
     DistMatrix<C,MC,MR> Z(g);
     Identity( m, n, Z );
     ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, Z );
+    ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, Z );
     
@@ -170,7 +170,7 @@ void TestCorrectness
     DistMatrix<C,MC,MR> U( A );
     MakeTrapezoidal( LEFT, UPPER, 0, U );
     ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, U );
+    ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, U );
 
     // Form Q R - A
     Axpy( (C)-1, AOrig, U );

@@ -36,90 +36,113 @@ namespace elem {
 template<typename R>
 inline void
 HouseholderSolve
-( Orientation orientation, DistMatrix<R,MC,MR>& A, DistMatrix<R,MC,MR>& B )
+( Orientation orientation, 
+  DistMatrix<R,MC,MR>& A, const DistMatrix<R,MC,MR>& B,
+                                DistMatrix<R,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("HouseholderSolve");
-    if( A.Grid() != B.Grid() )
+    if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
 #endif
+    const Grid& g = A.Grid();
+
     // TODO: Add scaling
     const int m = A.Height();
     const int n = A.Width();
     if( orientation == NORMAL )
     {
+        if( m != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
         if( m >= n )
         {
-            if( m != B.Height() )
-                throw std::logic_error("A and B do not conform");
-
+            // Overwrite A with its packed QR factorization
             QR( A );
-            // Apply Q' to B
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q' to X
             ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, B );
-            // Shrink B to its new height
-            B.ResizeTo( n, B.Width() );
+            ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( n, X.Width() );
+
             // Solve against R (checking for singularities)
-            DistMatrix<R,MC,MR> AT;
+            DistMatrix<R,MC,MR> AT( g );
             AT.LockedView( A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, B, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, X, true );
         }
         else
         {
-            if( n != B.Height() )
-                throw std::logic_error
-                ("B should be passed in with padding for the solution");
-
-            DistMatrix<R,MC,MR> BT,
-                                BB;
-            PartitionDown( B, BT,
-                              BB, m );
-
+            // Overwrite A with its packed LQ factorization
             LQ( A );
+
+            // Copy B into X
+            X.ResizeTo( n, B.Width() );
+            DistMatrix<R,MC,MR> XT( g ),
+                                XB( g );
+            PartitionDown( X, XT,
+                              XB, m );
+            XT = B;
+            Zero( XB );
+
             // Solve against L (checking for singularities)
-            DistMatrix<R,MC,MR> AL;
+            DistMatrix<R,MC,MR> AL( g );
             AL.LockedView( A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, BT, true );
-            // Apply Q' to B (explicitly zero the bottom of B first)
-            Zero( BB );
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, B );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, XT, true );
+
+            // Apply Q' to X 
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, X );
         }
     }
     else // orientation == ADJOINT
     {
+        if( n != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
         if( m >= n )
         {
-            if( m != B.Height() )
-                throw std::logic_error
-                ("B should be passed in with padding for the solution");
-
-            DistMatrix<R,MC,MR> BT,
-                                BB;
-            PartitionDown( B, BT,
-                              BB, n );
-
+            // Overwrite A with its packed QR factorization
             QR( A );
+
+            // Copy B into X
+            X.ResizeTo( m, B.Width() );
+            DistMatrix<R,MC,MR> XT( g ),
+                                XB( g );
+            PartitionDown( X, XT,
+                              XB, n );
+            XT = B; 
+            Zero( XB );
+
             // Solve against R' (checking for singularities)
-            DistMatrix<R,MC,MR> AT;
+            DistMatrix<R,MC,MR> AT( g );
             AT.LockedView( A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, BT, true );
-            // Apply Q to B (explicitly zero the bottom of B first)
-            Zero( BB );
-            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, B );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, XT, true );
+
+            // Apply Q to X
+            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, X );
         }
         else
         {
-            if( n != B.Height() )
-                throw std::logic_error("A and B do not conform");
-
+            // Overwrite A with its packed LQ factorization
             LQ( A );
-            // Apply Q to B
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, B );
-            B.ResizeTo( m, B.Width() );
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q to X
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, X );
+
+            // Shrink X to its new size
+            X.ResizeTo( m, X.Width() );
+
             // Solve against L' (check for singularities)
-            DistMatrix<R,MC,MR> AL;
+            DistMatrix<R,MC,MR> AL( g );
             AL.LockedView( A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, B, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, X, true );
         }
     }
 #ifndef RELEASE
@@ -132,97 +155,123 @@ inline void
 HouseholderSolve
 ( Orientation orientation, 
   DistMatrix<Complex<R>,MC,MR>& A, 
-  DistMatrix<Complex<R>,MC,MR>& B )
+  const DistMatrix<Complex<R>,MC,MR>& B,
+        DistMatrix<Complex<R>,MC,MR>& X )
 {
 #ifndef RELEASE
     PushCallStack("HouseholderSolve");
-    if( A.Grid() != B.Grid() )
+    if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
 #endif
-    // TODO: Add scaling
     typedef Complex<R> C;
+    const Grid& g = A.Grid();
+
+    // TODO: Add scaling
     const int m = A.Height();
     const int n = A.Width();
-    DistMatrix<C,MD,STAR> t;
+    DistMatrix<C,MD,STAR> t( g );
     if( orientation == NORMAL )
     {
+        if( m != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
         if( m >= n )
         {
-            if( m != B.Height() )
-                throw std::logic_error("A and B do not conform");
-
+            // Overwrite A with its packed QR factorization (and store the 
+            // corresponding Householder scalars in t)
             QR( A, t );
-            // Apply Q' to B
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q' to X
             ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, B );
-            // Shrink B to its new height
-            B.ResizeTo( n, B.Width() );
+            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( n, X.Width() );
+
             // Solve against R (checking for singularities)
-            DistMatrix<C,MC,MR> AT;
+            DistMatrix<C,MC,MR> AT( g );
             AT.LockedView( A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, B, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, X, true );
         }
         else
         {
-            if( n != B.Height() )
-                throw std::logic_error
-                ("B should be passed in with padding for the solution");
-
-            DistMatrix<C,MC,MR> BT,
-                                BB;
-            PartitionDown( B, BT,
-                              BB, m );
-
+            // Overwrite A with its packed LQ factorization (and store the
+            // corresponding Householder scalars in it)
             LQ( A, t );
+
+            // Copy B into X
+            X.ResizeTo( n, B.Width() );
+            DistMatrix<C,MC,MR> XT( g ),
+                                XB( g );
+            PartitionDown( X, XT,
+                              XB, m );
+            XT = B;
+            Zero( XB );
+
             // Solve against L (checking for singularities)
-            DistMatrix<C,MC,MR> AL;
+            DistMatrix<C,MC,MR> AL( g );
             AL.LockedView( A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, BT, true );
-            // Apply Q' to B (explicitly zero the bottom of B first)
-            Zero( BB );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, XT, true );
+
+            // Apply Q' to X 
             ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, B );
+            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, X );
         }
     }
     else // orientation == ADJOINT
     {
+        if( n != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
         if( m >= n )
         {
-            if( m != B.Height() )
-                throw std::logic_error
-                ("B should be passed in with padding for the solution");
-
-            DistMatrix<C,MC,MR> BT,
-                                BB;
-            PartitionDown( B, BT,
-                              BB, n );
-
+            // Overwrite A with its packed QR factorization (and store the 
+            // corresponding Householder scalars in t)
             QR( A, t );
+
+            // Copy B into X
+            X.ResizeTo( m, B.Width() );
+            DistMatrix<C,MC,MR> XT( g ),
+                                XB( g );
+            PartitionDown( X, XT,
+                              XB, n );
+            XT = B;
+            Zero( XB );
+
             // Solve against R' (checking for singularities)
-            DistMatrix<C,MC,MR> AT;
+            DistMatrix<C,MC,MR> AT( g );
             AT.LockedView( A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, BT, true );
-            // Apply Q to B (explicitly zero the bottom of B first)
-            Zero( BB );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, XT, true );
+
+            // Apply Q to X
             ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 0, A, t, B );
+            ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, X );
         }
         else
         {
-            if( n != B.Height() )
-                throw std::logic_error("A and B do not conform");
-
+            // Overwrite A with its packed LQ factorization (and store the
+            // corresponding Householder scalars in t)
             LQ( A, t );
-            // Apply Q to B
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q to X
             ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, B );
-            B.ResizeTo( m, B.Width() );
+            ( LEFT, UPPER, HORIZONTAL, FORWARD, UNCONJUGATED, 0, A, t, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( m, X.Width() );
+
             // Solve against L' (check for singularities)
-            DistMatrix<C,MC,MR> AL;
+            DistMatrix<C,MC,MR> AL( g );
             AL.LockedView( A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, B, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, X, true );
         }
     }
 #ifndef RELEASE

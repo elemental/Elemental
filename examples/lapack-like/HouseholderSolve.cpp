@@ -8,6 +8,8 @@ main( int argc, char* argv[] )
     const int commRank = mpi::CommRank( mpi::COMM_WORLD );
     const int commSize = mpi::CommSize( mpi::COMM_WORLD );
 
+    Orientation orientation = NORMAL;
+    int m = 100;
     int n = 100;
     int numRhs = 1;
     int blocksize = 64;
@@ -15,6 +17,15 @@ main( int argc, char* argv[] )
     bool specifiedGrid = false;
     for( int i=1; i<argc; ++i )
     {
+        if( strcmp( argv[i], "-adjoint" ) == 0 )
+        {
+            orientation = ADJOINT; 
+        }
+        if( strcmp( argv[i], "-m" ) == 0 )
+        {
+            m = atoi(argv[i+1]);
+            ++i;
+        }
         if( strcmp( argv[i], "-n" ) == 0 ) 
         {
             n = atoi(argv[i+1]);
@@ -61,31 +72,37 @@ main( int argc, char* argv[] )
         Grid grid( mpi::COMM_WORLD, gridHeight, gridWidth );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
-        DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
+        typedef Complex<double> F;
+        DistMatrix<F> A(grid), B(grid), ACopy(grid), X(grid), Z(grid);
         for( int test=0; test<3; ++test )
         {
-            Uniform( n, n,      A );
-            Uniform( n, numRhs, B );
+            const int k = ( orientation==NORMAL ? m : n );
+            const int N = ( orientation==NORMAL ? n : m );
+            Uniform( m, n,      A );
+            Zeros( k, numRhs, B );
             ACopy = A;
-            X = B;
 
-            // Perform the LU factorization and simultaneous solve
+            // Form B in the range of op(A)
+            Uniform( N, numRhs, Z );
+            Gemm( orientation, NORMAL, (F)1, A, Z, (F)0, B );
+
+            // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
             {
-                std::cout << "Starting GaussianElimination...";
+                std::cout << "Starting HouseholderSolve...";
                 std::cout.flush();
             }
             mpi::Barrier( mpi::COMM_WORLD );
             double startTime = mpi::Time();
-            GaussianElimination( A, X );
+            HouseholderSolve( orientation, A, B, X );
             mpi::Barrier( mpi::COMM_WORLD );
             double stopTime = mpi::Time();
             if( commRank == 0 )
                 std::cout << stopTime-startTime << " seconds." << std::endl;
 
-            // Form R := A X - B
-            DistMatrix<double> R( B );
-            Gemm( NORMAL, NORMAL, (double)1, ACopy, X, (double)-1, R );
+            // Form R := op(A) X - B
+            DistMatrix<F> R( B );
+            Gemm( orientation, NORMAL, (F)1, ACopy, X, (F)-1, R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();

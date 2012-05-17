@@ -419,5 +419,23 @@ where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips
 
 General SVD
 -----------
-Not yet written; will likely be based on the Ming Gu's approach to 
-Divide and Conquer algorithm for the bidiagonal SVD.
+Given a general matrix :math:`A`, the *Singular Value Decomposition* is the 
+triplet :math:`(U,\Sigma,V)` such that
+
+.. math::
+
+   A = U \Sigma V^H,
+
+where :math:`U` and :math:`V` are unitary, and :math:`\Sigma` is diagonal with 
+non-negative entries.
+
+.. cpp:function:: void SVD( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& VAdj )
+
+   Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `VAdj` with :math:`V^H`. 
+
+   .. note:: 
+
+      This routine currently only works in the case where the matrix is at least
+      as tall as it is wide, and it has not yet been optimized for cases where 
+      the height is significantly larger than the width.
+

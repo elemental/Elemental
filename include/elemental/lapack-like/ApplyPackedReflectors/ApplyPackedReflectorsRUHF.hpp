@@ -33,6 +33,24 @@
 
 namespace elem {
 
+//
+// Since applying Householder transforms from vectors stored left-to-right
+// implies that we will be forming a generalization of 
+//
+//   (I - tau_0 v_0^H v_0) (I - tau_1 v_1^H v_1) = 
+//   I - tau_0 v_0^H v_0 - tau_1 v_1^H v_1 + (tau_0 tau_1 v_0 v_1^H) v_0^H v_1 =
+//   I - [ v_0^H, v_1^H ] [ tau_0, -tau_0 tau_1 v_0 v_1^H ] [ v_0 ]
+//                        [ 0,      tau_1                 ] [ v_1 ],
+//
+// which has an upper-triangular center matrix, say S, we will form S as 
+// the inverse of a matrix T, which can easily be formed as
+// 
+//   triu(T) = triu( V V^H ),  diag(T) = 1/t or 1/conj(t),
+//
+// where V is the matrix of Householder vectors and t is the vector of scalars.
+// V is stored row-wise in the matrix.
+//
+
 template<typename R>
 inline void
 internal::ApplyPackedReflectorsRUHF
@@ -47,7 +65,7 @@ internal::ApplyPackedReflectorsRUHF
     if( offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( offset < 0 )
-        throw std::logic_error("Transforms cannot extend below matrix");
+        throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
         throw std::logic_error
         ("Length of transforms must equal width of target matrix");
@@ -103,7 +121,7 @@ internal::ApplyPackedReflectorsRUHF
 
         HPan_STAR_VR = HPanCopy;
         Syrk
-        ( LOWER, NORMAL,
+        ( UPPER, NORMAL,
           (R)1, HPan_STAR_VR.LockedLocalMatrix(),
           (R)0, SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
@@ -116,7 +134,7 @@ internal::ApplyPackedReflectorsRUHF
         ZTrans_STAR_VC.SumScatterFrom( ZTrans_STAR_MC );
 
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, NON_UNIT,
+        ( LEFT, UPPER, TRANSPOSE, NON_UNIT,
           (R)1, SInv_STAR_STAR, ZTrans_STAR_VC );
 
         ZTrans_STAR_MC = ZTrans_STAR_VC;
@@ -157,9 +175,9 @@ internal::ApplyPackedReflectorsRUHF
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
     if( offset < 0 )
-        throw std::logic_error("Transforms cannot extend below matrix");
+        throw std::logic_error("Transforms out of bounds");
     if( offset > H.Width() )
-        throw std::logic_error("Transform offset is out of bounds");
+        throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
         throw std::logic_error
         ("Length of transforms must equal width of target matrix");
@@ -235,7 +253,7 @@ internal::ApplyPackedReflectorsRUHF
 
         HPan_STAR_VR = HPanCopy;
         Herk
-        ( LOWER, NORMAL,
+        ( UPPER, NORMAL,
           (C)1, HPan_STAR_VR.LockedLocalMatrix(),
           (C)0, SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
@@ -248,7 +266,7 @@ internal::ApplyPackedReflectorsRUHF
         ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
 
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, NON_UNIT,
+        ( LEFT, UPPER, ADJOINT, NON_UNIT,
           (C)1, SInv_STAR_STAR, ZAdj_STAR_VC );
 
         ZAdj_STAR_MC = ZAdj_STAR_VC;

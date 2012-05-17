@@ -205,7 +205,7 @@ distributed matrix, sets it to the identity matrix, then prints it:
           const int n = atoi( argv[1] );
 
           DistMatrix<double> I( n, n );
-          I.SetToIdentity();
+          MakeIdentity( I );
           I.Print("Identity");
 
           Finalize();
@@ -220,7 +220,7 @@ the file ``Identity.cpp`` is in the current folder, a typical build would be ::
 
     mpicxx Identity.cpp -o Identity \
         -I/usr/local/elemental/include \
-        -L/usr/local/elemental/lib -lelemental -llapack -lblas -lm
+        -L/usr/local/elemental/lib -lelemental -lplcg -llapack -lblas -lm
 
 Of course, ``/usr/local/elemental`` should be replaced with your installation
 prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 

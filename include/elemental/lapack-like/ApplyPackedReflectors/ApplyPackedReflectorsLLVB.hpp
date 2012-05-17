@@ -33,7 +33,24 @@
 
 namespace elem {
 
-template<typename R> // representation of a real number
+//
+// Since applying Householder transforms from vectors stored right-to-left
+// implies that we will be forming a generalization of
+//
+//   (I - tau_0 u_0 u_0^H) (I - tau_1 u_1 u_1^H) = 
+//   I - tau_0 u_0 u_0^H - tau_1 u_1 u_1^H + (tau_0 tau_1 u_0^H u_1) u_0 u_1^H =
+//   I - [ u_0, u_1 ] [ tau_0, -tau_0 tau_1 u_0^H u_1 ] [ u_0^H ]
+//                    [ 0,      tau_1                 ] [ u_1^H ],
+//
+// which has an upper-triangular center matrix, say S, we will form S as 
+// the inverse of a matrix T, which can easily be formed as
+// 
+//   triu(T) = triu( U^H U ),  diag(T) = 1/t or 1/conj(t),
+//
+// where U is the matrix of Householder vectors and t is the vector of scalars.
+//
+
+template<typename R> 
 inline void
 internal::ApplyPackedReflectorsLLVB
 ( int offset, 
@@ -152,7 +169,7 @@ internal::ApplyPackedReflectorsLLVB
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset, 
