@@ -142,6 +142,10 @@ template<typename T>
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<T>& d, Matrix<T>& X );
+template<typename T>
+void DiagonalScale
+( LeftOrRight side, Orientation orientation,
+  const Matrix<typename Base<T>::type>& d, Matrix<T>& X );
 
 // Parallel version
 template<typename T,
@@ -150,6 +154,12 @@ template<typename T,
 void DiagonalScale
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X );
+template<typename T,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
+void DiagonalScale
+( LeftOrRight side, Orientation orientation, 
+  const DistMatrix<typename Base<T>::type,U,V>& d, DistMatrix<T,W,Z>& X );
 
 //
 // DiagonalSolve
@@ -162,6 +172,11 @@ template<typename F>
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation, 
   const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular=false );
+template<typename F>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation, 
+  const Matrix<typename Base<F>::type>& d, Matrix<F>& X, 
+  bool checkIfSingular=false );
 
 // Parallel version
 template<typename F,
@@ -170,6 +185,13 @@ template<typename F,
 void DiagonalSolve
 ( LeftOrRight side, Orientation orientation, 
   const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X, 
+  bool checkIfSingular=false );
+template<typename F,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
+void DiagonalSolve
+( LeftOrRight side, Orientation orientation, 
+  const DistMatrix<typename Base<F>::type,U,V>& d, DistMatrix<F,W,Z>& X, 
   bool checkIfSingular=false );
 
 //
@@ -1045,6 +1067,45 @@ DiagonalScale
 #endif
 }
 
+template<typename T>
+inline void 
+DiagonalScale
+( LeftOrRight side, Orientation orientation, 
+  const Matrix<typename Base<T>::type>& d, Matrix<T>& X )
+{
+#ifndef RELEASE
+    PushCallStack("DiagonalScale");
+#endif
+    typedef typename Base<T>::type R;
+
+    const int m = X.Height();
+    const int n = X.Width();
+    const int ldim = X.LDim();
+    if( side == LEFT )
+    {
+        for( int i=0; i<m; ++i )
+        {
+            const R delta = d.Get(i,0);
+            T* XBuffer = X.Buffer(i,0);
+            for( int j=0; j<n; ++j )
+                XBuffer[j*ldim] *= delta;
+        }
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+        {
+            const R delta = d.Get(j,0);
+            T* XBuffer = X.Buffer(0,j);
+            for( int i=0; i<m; ++i )
+                XBuffer[i] *= delta;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F>
 inline void 
 DiagonalSolve
@@ -1089,6 +1150,52 @@ DiagonalSolve
             else
                 for( int i=0; i<m; ++i )
                     XBuffer[i] *= deltaInv;
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void 
+DiagonalSolve
+( LeftOrRight side, Orientation orientation, 
+  const Matrix<typename Base<F>::type>& d, Matrix<F>& X, 
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("DiagonalSolve");
+#endif
+    typedef typename Base<F>::type R;
+
+    const int m = X.Height();
+    const int n = X.Width();
+    const int ldim = X.LDim();
+    if( side == LEFT )
+    {
+        for( int i=0; i<m; ++i )
+        {
+            const R delta = d.Get(i,0);
+            if( checkIfSingular && delta == (R)0 )
+                throw SingularMatrixException();
+            const R deltaInv = static_cast<R>(1)/delta;
+            F* XBuffer = X.Buffer(i,0);
+            for( int j=0; j<n; ++j )
+                XBuffer[j*ldim] *= deltaInv;
+        }
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+        {
+            const R delta = d.Get(j,0);
+            if( checkIfSingular && delta == (R)0 )
+                throw SingularMatrixException();
+            const R deltaInv = static_cast<R>(1)/delta;
+            F* XBuffer = X.Buffer(0,j);
+            for( int i=0; i<m; ++i )
+                XBuffer[i] *= deltaInv;
         }
     }
 #ifndef RELEASE
@@ -2352,6 +2459,55 @@ DiagonalScale
 #endif
 }
 
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline void
+DiagonalScale
+( LeftOrRight side, Orientation orientation, 
+  const DistMatrix<typename Base<T>::type,U,V>& d, DistMatrix<T,W,Z>& X )
+{
+#ifndef RELEASE
+    PushCallStack("DiagonalScale");
+#endif
+    typedef typename Base<T>::type R;
+
+    if( side == LEFT )
+    {
+        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        {
+            DiagonalScale
+            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<R,W,STAR> d_W_STAR( X.Grid() );
+            d_W_STAR = d;
+            DiagonalScale
+            ( LEFT, orientation, 
+              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+    else
+    {
+        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        {
+            DiagonalScale
+            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+        else
+        {
+            DistMatrix<R,Z,STAR> d_Z_STAR( X.Grid() );
+            d_Z_STAR = d;
+            DiagonalScale
+            ( RIGHT, orientation, 
+              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
 inline void
@@ -2391,6 +2547,58 @@ DiagonalSolve
         else
         {
             DistMatrix<F,Z,STAR> d_Z_STAR( X.Grid() );
+            d_Z_STAR = d;
+            DiagonalSolve
+            ( RIGHT, orientation, 
+              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline void
+DiagonalSolve
+( LeftOrRight side, Orientation orientation, 
+  const DistMatrix<typename Base<F>::type,U,V>& d, DistMatrix<F,W,Z>& X,
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("DiagonalSolve");
+#endif
+    typedef typename Base<F>::type R;
+
+    if( side == LEFT )
+    {
+        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        {
+            DiagonalSolve
+            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+              checkIfSingular );
+        }
+        else
+        {
+            DistMatrix<R,W,STAR> d_W_STAR( X.Grid() );
+            d_W_STAR = d;
+            DiagonalSolve
+            ( LEFT, orientation, 
+              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+        }
+    }
+    else
+    {
+        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        {
+            DiagonalSolve
+            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+              checkIfSingular );
+        }
+        else
+        {
+            DistMatrix<R,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
             DiagonalSolve
             ( RIGHT, orientation, 

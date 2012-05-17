@@ -70,19 +70,38 @@ main( int argc, char* argv[] )
         DistMatrix<C,MC,MR> A( g );
         Uniform( m, n, A );
 
-        // Print our random matrix.
-        A.Print("A");
-
-        // Compute the SVD of A
+        // Compute the SVD of A (but do not overwrite A)
+        DistMatrix<C,MC,MR> U( g );
         DistMatrix<C,MC,MR> VAdj( g );
         DistMatrix<R,VR,STAR> s( g );
         SetBlocksize( 4 );
-        SVD( A, s, VAdj );
+        U = A;
+        SVD( U, s, VAdj );
 
-        // Print the results
-        A.Print("U");
-        s.Print("s");
-        VAdj.Print("V^H");
+        // This is a bit of a hack since norms are not supported for anything
+        // but [MC,MR] distributions (as of yet)
+        DistMatrix<R,MC,MR> s_MC_MR( s );
+        const R twoNormOfA = Norm( s_MC_MR, MAX_NORM );
+
+        const R oneNormOfA = Norm( A, ONE_NORM );
+        const R frobNormOfA = Norm( A, FROBENIUS_NORM );
+        DiagonalScale( RIGHT, NORMAL, s, U );
+        Gemm( NORMAL, NORMAL, (C)-1, U, VAdj, (C)1, A );
+        const R oneNormOfE = Norm( A, ONE_NORM );
+        const R frobNormOfE = Norm( A, FROBENIUS_NORM );
+        const R epsilon = lapack::MachineEpsilon<R>();
+        const R scaledResidual = frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
+
+        if( commRank == 0 )
+        {
+            cout << "||A||_1 = " << oneNormOfA << "\n"
+                 << "||A||_2 = " << twoNormOfA << "\n"
+                 << "||A||_F = " << frobNormOfA << "\n"
+                 << "||A - U Sigma V^H||_1 = " << oneNormOfE << "\n"
+                 << "||A - U Sigma V^H||_F = " << frobNormOfE << "\n"
+                 << "||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = " 
+                 << scaledResidual << "\n" << endl;
+        }
     }
     catch( exception& e )
     {
