@@ -23,9 +23,8 @@ Though Elemental already contains high-quality implementations of a large
 portion of BLAS and LAPACK-like routines, there are a few important reasons 
 why ScaLAPACK or PLAPACK might be more appropriate:
 
-* Elemental does not yet support SVD's or non-Hermitian eigenvalue problems: 
-  both PLAPACK and ScaLAPACK have SVD implementations, but only ScaLAPACK
-  supports non-Hermitian eigenvalue problems.
+* Elemental does not yet support non-Hermitian eigenvalue problems, but 
+  ScaLAPACK does.
 * Elemental does not yet provide routines for narrowly banded linear systems,
   though ScaLAPACK does.
 * Some applications exploit the block distribution format used by PLAPACK 

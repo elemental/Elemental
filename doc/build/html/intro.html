@@ -73,9 +73,8 @@ environments.</p>
 portion of BLAS and LAPACK-like routines, there are a few important reasons
 why ScaLAPACK or PLAPACK might be more appropriate:</p>
 <ul class="simple">
-<li>Elemental does not yet support SVD&#8217;s or non-Hermitian eigenvalue problems:
-both PLAPACK and ScaLAPACK have SVD implementations, but only ScaLAPACK
-supports non-Hermitian eigenvalue problems.</li>
+<li>Elemental does not yet support non-Hermitian eigenvalue problems, but
+ScaLAPACK does.</li>
 <li>Elemental does not yet provide routines for narrowly banded linear systems,
 though ScaLAPACK does.</li>
 <li>Some applications exploit the block distribution format used by PLAPACK
