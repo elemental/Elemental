@@ -162,7 +162,7 @@ to be available for all matrix distributions.
 
    .. note::
 
-      The remainder of this group is only valid for complex datatypes.
+      Many of the following routines are only valid for complex datatypes.
 
    .. cpp:function:: typename RealBase<T>::type GetReal( int i, int j ) const
 
@@ -478,8 +478,9 @@ It should also be noted that this is the default distribution format for the
 
    .. note:: 
 
-      The following are only valid for complex datatypes and are analogous to
-      their general counterparts from above in the obvious manner.
+      Many of the following routines are only valid for complex datatypes and
+      are analogous to their general counterparts from above in the obvious 
+      manner.
 
    .. cpp:function:: void GetRealDiagonal( DistMatrix<typename RealBase<T>::type,MD,STAR>& d, int offset=0 ) const
 

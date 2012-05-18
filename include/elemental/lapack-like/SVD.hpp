@@ -40,7 +40,7 @@ inline void
 SimpleSVD
 ( DistMatrix<R,MC,  MR>& A,
   DistMatrix<R,VR,STAR>& s,
-  DistMatrix<R,MC,  MR>& VTrans )
+  DistMatrix<R,MC,  MR>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -70,7 +70,7 @@ SimpleSVD
     DistMatrix<R,VC,STAR> U_VC_STAR( grid );
     DistMatrix<R,STAR,VR> VTrans_STAR_VR( grid );
     U_VC_STAR.AlignWith( A );
-    VTrans_STAR_VR.AlignWith( VTrans );
+    VTrans_STAR_VR.AlignWith( V );
     Identity( m, k, U_VC_STAR );
     Identity( k, n, VTrans_STAR_VR );
 
@@ -99,32 +99,34 @@ SimpleSVD
                                   UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
-        VTrans = VTrans_STAR_VR;
+        Transpose( VTrans_STAR_VR, V );
     }
     else
     {
-        DistMatrix<R,MC,MR> VTransL( grid ), VTransR( grid );
+        DistMatrix<R,MC,MR> VT( grid ), 
+                            VB( grid );
         DistMatrix<R,STAR,VR> VTransL_STAR_VR( grid ), VTransR_STAR_VR( grid );
-        PartitionRight( VTrans, VTransL, VTransR, m );
+        PartitionDown( V, VT, 
+                          VB, m );
         PartitionRight( VTrans_STAR_VR, VTransL_STAR_VR, VTransR_STAR_VR, m );
-        VTransL = VTransL_STAR_VR;
-        MakeZeros( VTransR );
+        Transpose( VTransL_STAR_VR, VT );
+        MakeZeros( VB );
     }
 
-    // Backtransform U and VTrans
+    // Backtransform U and V
     if( m >= n )
     {
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 1, B, VTrans );
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
     }
     else
     {
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, B, VTrans );
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
     }
 
     // Copy out the appropriate subset of the singular values
@@ -139,7 +141,7 @@ inline void
 SimpleSVD
 ( DistMatrix<Complex<R>,MC,  MR>& A,
   DistMatrix<R,         VR,STAR>& s,
-  DistMatrix<Complex<R>,MC,  MR>& VAdj )
+  DistMatrix<Complex<R>,MC,  MR>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -170,12 +172,12 @@ SimpleSVD
     DistMatrix<C,VC,STAR> U_VC_STAR( grid );
     DistMatrix<C,STAR,VR> VAdj_STAR_VR( grid );
     U_VC_STAR.AlignWith( A );
-    VAdj_STAR_VR.AlignWith( VAdj );
+    VAdj_STAR_VR.AlignWith( V );
     Identity( m, k, U_VC_STAR );
     Identity( k, n, VAdj_STAR_VR );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
-    // rotations into our local portion of U and VTrans
+    // rotations into our local portion of U and VAdj
     Matrix<C>& ULocal = U_VC_STAR.LocalMatrix();
     Matrix<C>& VAdjLocal = VAdj_STAR_VR.LocalMatrix();
     lapack::BidiagQRAlg
@@ -199,16 +201,18 @@ SimpleSVD
                                   UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
-        VAdj = VAdj_STAR_VR;
+        Adjoint( VAdj_STAR_VR, V );
     }
     else
     {
-        DistMatrix<C,MC,MR> VAdjL( grid ), VAdjR( grid );
+        DistMatrix<C,MC,MR> VT( grid ), 
+                            VB( grid );
         DistMatrix<C,STAR,VR> VAdjL_STAR_VR( grid ), VAdjR_STAR_VR( grid );
-        PartitionRight( VAdj, VAdjL, VAdjR, m );
+        PartitionDown( V, VT, 
+                          VB, m );
         PartitionRight( VAdj_STAR_VR, VAdjL_STAR_VR, VAdjR_STAR_VR, m );
-        VAdjL = VAdjL_STAR_VR;
-        MakeZeros( VAdjR );
+        Adjoint( VAdjL_STAR_VR, VT );
+        MakeZeros( VB );
     }
 
     // Backtransform U and VAdj
@@ -217,14 +221,14 @@ SimpleSVD
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, B, tQ, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 1, B, tP, VAdj );
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 1, B, tP, V );
     }
     else
     {
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, -1, B, tQ, A );
         ApplyPackedReflectors
-        ( RIGHT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, B, tP, VAdj );
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, B, tP, V );
     }
 
     // Copy out the appropriate subset of the singular values
@@ -266,7 +270,7 @@ CheckScale
 } // namespace svd
 
 //----------------------------------------------------------------------------//
-// Grab the full SVD of the general matrix A, A = U diag(s) VAdj.             //
+// Grab the full SVD of the general matrix A, A = U diag(s) V^H.              //
 // On exit, A is overwritten with U.                                          //
 //----------------------------------------------------------------------------//
 template<typename F>
@@ -274,7 +278,7 @@ inline void
 SVD
 ( DistMatrix<F,                     MC,  MR>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F,                     MC,  MR>& VAdj )
+  DistMatrix<F,                     MC,  MR>& V )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -290,7 +294,17 @@ SVD
 
     // TODO: Switch between different algorithms. For instance, starting 
     //       with a QR decomposition of tall-skinny matrices.
-    svd::SimpleSVD( A, s, VAdj );
+    if( A.Height() >= A.Width() )
+    {
+        svd::SimpleSVD( A, s, V );
+    }
+    else
+    {
+        // Lower bidiagonalization is not yet supported, so we instead play a 
+        // trick to get the SVD of A.
+        Adjoint( A, V );
+        svd::SimpleSVD( V, s, A );
+    }
 
     // Rescale the singular values if necessary
     if( needRescaling )

@@ -72,11 +72,11 @@ main( int argc, char* argv[] )
 
         // Compute the SVD of A (but do not overwrite A)
         DistMatrix<C,MC,MR> U( g );
-        DistMatrix<C,MC,MR> VAdj( g );
+        DistMatrix<C,MC,MR> V( g );
         DistMatrix<R,VR,STAR> s( g );
         SetBlocksize( 4 );
         U = A;
-        SVD( U, s, VAdj );
+        SVD( U, s, V );
 
         // This is a bit of a hack since norms are not supported for anything
         // but [MC,MR] distributions (as of yet)
@@ -86,7 +86,7 @@ main( int argc, char* argv[] )
         const R oneNormOfA = Norm( A, ONE_NORM );
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
         DiagonalScale( RIGHT, NORMAL, s, U );
-        Gemm( NORMAL, NORMAL, (C)-1, U, VAdj, (C)1, A );
+        Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
         const R oneNormOfE = Norm( A, ONE_NORM );
         const R frobNormOfE = Norm( A, FROBENIUS_NORM );
         const R epsilon = lapack::MachineEpsilon<R>();

@@ -1041,7 +1041,7 @@ template<typename F>
 void SVD
 ( DistMatrix<F,                     MC,MR  >& A, 
   DistMatrix<typename Base<F>::type,VR,STAR>& s, 
-  DistMatrix<F,                     MC,MR  >& VAdj );
+  DistMatrix<F,                     MC,MR  >& V );
 
 //----------------------------------------------------------------------------//
 // Trace                                                                      //

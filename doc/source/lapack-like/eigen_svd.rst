@@ -429,13 +429,11 @@ triplet :math:`(U,\Sigma,V)` such that
 where :math:`U` and :math:`V` are unitary, and :math:`\Sigma` is diagonal with 
 non-negative entries.
 
-.. cpp:function:: void SVD( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& VAdj )
+.. cpp:function:: void SVD( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& V )
 
-   Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `VAdj` with :math:`V^H`. 
+   Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `V` with :math:`V`. 
 
    .. note:: 
 
-      This routine currently only works in the case where the matrix is at least
-      as tall as it is wide, and it has not yet been optimized for cases where 
-      the height is significantly larger than the width.
-
+      This routine has not yet been designed to efficiently handle cases where 
+      the matrix is not close to square.

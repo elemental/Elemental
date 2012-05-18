@@ -187,7 +187,7 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. note::
 
-      The remainder of this group is only valid for complex datatypes.
+      Many of the following routines are only valid for complex datatypes.
 
    .. cpp:function:: typename Base<T>::type GetReal( int i, int j ) const
 
