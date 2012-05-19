@@ -31,8 +31,6 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WITHOUT_PMRRR
-
 namespace elem {
 
 namespace hermitian_function {
@@ -206,6 +204,8 @@ ReformNormalMatrix
 
 } // namespace hermitian_eig
 
+#ifndef WITHOUT_PMRRR
+
 //
 // Modify the eigenvalues of A with the real-valued function f, which will 
 // therefore result in a Hermitian matrix, which we store in-place.
@@ -287,6 +287,6 @@ ComplexHermitianFunction
 #endif
 }
 
-} // namespace elem
-
 #endif // WITHOUT_PMRRR
+
+} // namespace elem
