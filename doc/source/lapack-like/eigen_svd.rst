@@ -148,22 +148,13 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    Since Elemental currently depends on PMRRR for its tridiagonal 
    eigensolver, only double-precision results are supported as of now.
 
-.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<R,MC,MR>& A, const RealFunctor& f )
+.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, const RealFunctor& f )
 
-   Modifies the eigenvalues of the passed-in real symmetric matrix by replacing 
+   Modifies the eigenvalues of the passed-in Hermitian matrix by replacing 
    each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
    ``RealFunctor`` is any 
    class which has the member function ``R operator()( R omega ) const``.
-   See `examples/lapack-like/RealSymmetricFunction.cpp <../../../../examples/lapack-like/RealSymmetricFunction.cpp>`_ for an example usage.
-
-.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const RealFunctor& f )
-
-   Modifies the eigenvalues of the passed-in complex Hermitian matrix by 
-   replacing each eigenvalue :math:`\omega_i` with 
-   :math:`f(\omega_i) \in \mathbb{R}`. 
-   ``RealFunctor`` can be any class which has the member function 
-   ``R operator()( R omega ) const``.
-   See `examples/lapack-like/RealHermitianFunction.cpp <../../../../examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
+   See `examples/lapack-like/RealSymmetricFunction.cpp <../../../../examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
 
 .. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const ComplexFunctor& f )
 

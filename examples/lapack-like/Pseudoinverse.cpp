@@ -30,63 +30,73 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+#include "elemental.hpp"
+using namespace std;
+using namespace elem;
 
-#ifndef WITHOUT_PMRRR
+// Typedef our real and complex types to 'R' and 'C' for convenience
+typedef double R;
+typedef Complex<R> C;
 
-namespace elem {
-
-//
-// Invert the sufficiently large eigenvalues of A.
-//
-
-template<typename F>
-inline void
-HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+void Usage()
 {
-#ifndef RELEASE
-    PushCallStack("HermitianPseudoinverse");
-#endif
-    typedef typename Base<F>::type R;
-
-    // Get the EVD of A
-    const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<F,MC,MR> Z(g);
-    HermitianEig( uplo, A, w, Z );
-
-    // Compute the two-norm of A as the maximum absolute value of its
-    // eigenvalues
-    R maxLocalAbsEig = 0;
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
-    {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
-    }
-    R twoNorm;
-    mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
-
-    // Set the tolerance equal to n ||A||_2 eps, and invert values above it
-    const int n = A.Height();
-    const R eps = lapack::MachineEpsilon<R>();
-    const R tolerance = n*twoNorm*eps;
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
-    {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        if( Abs(omega) < tolerance )
-            w.SetLocalEntry(iLocal,0,0);
-        else
-            w.SetLocalEntry(iLocal,0,1/omega);
-    }
-
-    // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    cout << "Pseudoinverse <m> <n>\n"
+         << "  <m>: height of random matrix to test pseudoinverse\n"
+         << "  <n>: width of random matrix to test pseudoinverse\n"
+         << endl;
 }
 
-} // namespace elem
+int
+main( int argc, char* argv[] )
+{
+    Initialize( argc, argv );
 
-#endif // WITHOUT_PMRRR
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
+
+    if( argc < 3 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int m = atoi( argv[1] );
+    const int n = atoi( argv[2] );
+
+    try 
+    {
+        Grid g( comm );
+        DistMatrix<C,MC,MR> A( g );
+        Uniform( m, n, A );
+
+        // Compute the pseudoinverseof A (but do not overwrite A)
+        DistMatrix<C,MC,MR> pinvA( A );
+        Pseudoinverse( pinvA );
+
+        A.Print("A");
+        pinvA.Print("pinv(A)");
+
+        const R frobOfA = Norm( A, FROBENIUS_NORM );
+        const R frobOfPinvA = Norm( pinvA, FROBENIUS_NORM );
+
+        if( commRank == 0 )
+        {
+            cout << "||   A   ||_F =  " << frobOfA << "\n"
+                 << "||pinv(A)||_F =  " << frobOfPinvA << "\n"
+                 << endl;
+        }
+    }
+    catch( exception& e )
+    {
+        cerr << "Process " << commRank << " caught exception with message: "
+             << e.what() << endl;
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+    }
+
+    Finalize();
+    return 0;
+}
+

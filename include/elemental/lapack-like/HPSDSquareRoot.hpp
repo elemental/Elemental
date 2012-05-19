@@ -35,58 +35,45 @@
 
 namespace elem {
 
-namespace square_root {
-
-template<typename R>
-class Functor
-{
-    const R tolerance_;
-public:
-    Functor( R tolerance ) : tolerance_(tolerance) { }
-
-    R operator()( R alpha ) const
-    {
-        if( alpha >= 0 )
-            return Sqrt(alpha);
-        else
-            return 0;
-    }
-};
-
-} // namespace square_root
-
 //
 // Square root the eigenvalues of A (and treat the sufficiently small negative
 // ones as zero).
 //
 
-template<typename R>
+template<typename F>
 inline void
-HPSDSquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("HPSDSquareRoot");
 #endif
+    typedef typename Base<F>::type R;
+
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<R,MC,MR> Z(g);
+    DistMatrix<F,MC,MR> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Compute the two-norm of A as the maximum absolute value 
     // of its eigenvalues
     R maxLocalAbsEig = 0;
-    const int localHeight = w.LocalHeight();
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        maxLocalAbsEig = 
-            std::max(maxLocalAbsEig,Abs(w.GetLocalEntry(iLocal,0)));
+    const int numLocalEigs = w.LocalHeight();
+    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    {
+        const R omega = w.GetLocalEntry(iLocal,0);
+        maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
+    }
     R twoNorm;
     mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
 
     // Compute the smallest eigenvalue of A
     R minLocalEig = twoNorm;
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        minLocalEig = std::min(minLocalEig,w.GetLocalEntry(iLocal,0));
+    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    {
+        const R omega = w.GetLocalEntry(iLocal,0);
+        minLocalEig = std::min(minLocalEig,omega);
+    }
     R minEig;
     mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
 
@@ -99,56 +86,18 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
     if( minEig < -tolerance )
         throw NonHPSDMatrixException();
 
-    // Form the pseudoinverse
-    square_root::Functor<R> f( tolerance );
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-inline void
-HPSDSquareRoot( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("HPSDSquareRoot");
-#endif
-    // Get the EVD of A
-    const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<Complex<R>,MC,MR> Z(g);
-    HermitianEig( uplo, A, w, Z );
-
-    // Compute the two-norm of A as the maximum absolute value 
-    // of its eigenvalues
-    R maxLocalAbsEig = 0;
-    const int localHeight = w.LocalHeight();
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        maxLocalAbsEig = 
-            std::max(maxLocalAbsEig,Abs(w.GetLocalEntry(iLocal,0)));
-    R twoNorm;
-    mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
-
-    // Compute the smallest eigenvalue of A
-    R minLocalEig = twoNorm;
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        minLocalEig = std::min(minLocalEig,w.GetLocalEntry(iLocal,0));
-    R minEig;
-    mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
-
-    // Set the tolerance equal to n ||A||_2 eps
-    const int n = A.Height();
-    const R eps = lapack::MachineEpsilon<R>();
-    const R tolerance = n*twoNorm*eps;
-
-    // Ensure that the minimum eigenvalue is not less than - n ||A||_2 eps
-    if( minEig < -tolerance )
-        throw NonHPSDMatrixException();
+    // Overwrite the eigenvalues with f(w)
+    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    {
+        const R omega = w.GetLocalEntry(iLocal,0);
+        if( omega > (R)0 )
+            w.SetLocalEntry(iLocal,0,Sqrt(omega));
+        else
+            w.SetLocalEntry(iLocal,0,0);
+    }
 
     // Form the pseudoinverse
-    square_root::Functor<R> f( tolerance );
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z, f );
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 #ifndef RELEASE
     PopCallStack();
 #endif

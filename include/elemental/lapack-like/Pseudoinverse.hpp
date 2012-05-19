@@ -31,62 +31,64 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef WITHOUT_PMRRR
-
 namespace elem {
 
 //
-// Invert the sufficiently large eigenvalues of A.
+// Replace A with its pseudoinverse
 //
 
 template<typename F>
 inline void
-HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+Pseudoinverse( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianPseudoinverse");
+    PushCallStack("Pseudoinverse");
 #endif
     typedef typename Base<F>::type R;
 
-    // Get the EVD of A
     const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<F,MC,MR> Z(g);
-    HermitianEig( uplo, A, w, Z );
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::max(m,n);
 
-    // Compute the two-norm of A as the maximum absolute value of its
-    // eigenvalues
-    R maxLocalAbsEig = 0;
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    // Get the SVD of A
+    DistMatrix<R,VR,STAR> s(g);
+    DistMatrix<F,MC,MR  > U(g), V(g);
+    U = A;
+    SVD( U, s, V );
+
+    // Compute the two-norm of A as the maximum singular value
+    R maxLocalVal= 0;
+    const int numLocalVals = s.LocalHeight();
+    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
+        const R sigma = s.GetLocalEntry(iLocal,0);
+        maxLocalVal = std::max(maxLocalVal,sigma);
     }
     R twoNorm;
-    mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
+    mpi::AllReduce( &maxLocalVal, &twoNorm, 1, mpi::MAX, g.VCComm() );
 
-    // Set the tolerance equal to n ||A||_2 eps, and invert values above it
-    const int n = A.Height();
+    // Set the tolerance equal to k ||A||_2 eps and invert above tolerance
     const R eps = lapack::MachineEpsilon<R>();
-    const R tolerance = n*twoNorm*eps;
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    const R tolerance = k*twoNorm*eps;
+    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        if( Abs(omega) < tolerance )
-            w.SetLocalEntry(iLocal,0,0);
+        const R sigma = s.GetLocalEntry(iLocal,0);
+        if( sigma < tolerance )
+            s.SetLocalEntry(iLocal,0,0);
         else
-            w.SetLocalEntry(iLocal,0,1/omega);
+            s.SetLocalEntry(iLocal,0,1/sigma);
     }
 
-    // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    // Scale U with the singular values, U := U Sigma
+    DiagonalScale( RIGHT, NORMAL, s, U );
+
+    // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
+    Zeros( n, m, A );
+    Gemm( NORMAL, ADJOINT, (F)1, V, U, (F)0, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 } // namespace elem
-
-#endif // WITHOUT_PMRRR

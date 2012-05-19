@@ -74,7 +74,6 @@ main( int argc, char* argv[] )
         DistMatrix<C,MC,MR> U( g );
         DistMatrix<C,MC,MR> V( g );
         DistMatrix<R,VR,STAR> s( g );
-        SetBlocksize( 4 );
         U = A;
         SVD( U, s, V );
 
