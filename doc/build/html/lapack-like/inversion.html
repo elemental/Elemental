@@ -83,9 +83,9 @@ void <tt class="descname">Inverse</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&am
 <p>Computes the pseudoinverse of a Hermitian matrix through a customized version of
 <tt class="docutils literal"><span class="pre">RealHermitianFunction</span></tt> which used the eigenvalue mapping function</p>
 <div class="math">
-<p><img src="../_images/math/d1a898238083da90233e8848705c6a513277300f.png" alt="\[
-f(\omega_i) = \left\{\begin{array}{cc}
-  1/\omega_i, &amp; |\omega_i| \ge \epsilon \, n \, ||A||_2 \\
+<p><img src="../_images/math/d52d560bd4b3bbbd5f7e6147cca9fe870f6dc984.png" alt="\[
+f(\omega) = \left\{\begin{array}{cc}
+  1/\omega, &amp; |\omega| \ge \epsilon \, n \, ||A||_2 \\
       0,      &amp; \mbox{otherwise}
 \end{array}\right.,
 \]"/></p>
@@ -127,6 +127,27 @@ triangle of the inverse of <cite>A</cite>.</p>
 <dt id="HPDInverse__UpperOrLower.DistMatrix:F.MC.MR:R">
 void <tt class="descname">HPDInverse</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPDInverse__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Same as above, but for a distributed matrix.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="pseudoinverse">
+<h2>Pseudoinverse<a class="headerlink" href="#pseudoinverse" title="Permalink to this headline">¶</a></h2>
+<p>Computes the pseudoinverse of a general matrix through computing its SVD,
+modifying the singular values with the function</p>
+<div class="math">
+<p><img src="../_images/math/c47e46f47bd8d958023292841d1ca8c6f8bd0cf7.png" alt="\[
+f(\sigma) = \left\{\begin{array}{cc}
+  1/\sigma, &amp; \sigma \ge \epsilon \, n \, ||A||_2 \\
+      0,      &amp; \mbox{otherwise}
+\end{array}\right.,
+\]"/></p>
+</div><p>where <img class="math" src="../_images/math/eaf4418fbe935c15a606516d8f55dc380cd8e822.png" alt="\epsilon"/> is the relative machine precision,
+<img class="math" src="../_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> is the height of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, and <img class="math" src="../_images/math/91bcc9c03ff7fa6ae822b009a2c3f69c5e355c5a.png" alt="||A||_2"/> is the maximum
+singular value.</p>
+<dl class="function">
+<dt id="Pseudoinverse__DistMatrix:F.MC.MR:R">
+ <tt class="descname">Pseudoinverse</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Pseudoinverse__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces <cite>A</cite> with its pseudoinverse.</p>
 </dd></dl>
 
 </div>
