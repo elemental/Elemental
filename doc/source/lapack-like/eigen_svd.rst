@@ -408,6 +408,10 @@ where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips
 
    Return a vector of singular values, :math:`s`, and the left and right singular vector matrices, :math:`U` and :math:`V`, such that :math:`A=U \mathrm{diag}(s) V^H`.
 
+.. cpp:function:: void HermitianSingularValues( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+
+   Return the singular values of :math:`A` in `s`. Note that the appropriate triangle of `A` is overwritten during computation.
+
 General SVD
 -----------
 Given a general matrix :math:`A`, the *Singular Value Decomposition* is the 
@@ -427,4 +431,19 @@ non-negative entries.
    .. note:: 
 
       This routine has not yet been designed to efficiently handle cases where 
-      the matrix is not close to square.
+      the matrix is not close to square. It is also far from the most efficient 
+      possible algorithm, as it currently uses the QR algorithm for the
+      bidiagonal SVD (as opposed to a Divide and Conquer algorithm) and 
+      does not apply Householder reflectors in the most efficient manner 
+      possible.
+
+.. cpp:function:: void SingularValues( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+
+   Forms the singular values of :math:`A` in `s`. Note that `A` is overwritten in order to compute the singular values.
+
+   .. note::
+
+      This routine has not yet been designed to efficiently handle cases where
+      the matrix is not close to square. It is also far from the most efficient
+      possible algorithm, as it currently uses the QR algorithm for the 
+      bidiagonal SVD (as opposed to bisection).

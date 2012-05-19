@@ -520,6 +520,12 @@ void <tt class="descname">HermitianSVD</tt><big>(</big><a class="reference inter
 <dd><p>Return a vector of singular values, <img class="math" src="../_images/math/f37bba504894945c07a32f5496d74299a37aa51c.png" alt="s"/>, and the left and right singular vector matrices, <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> and <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, such that <img class="math" src="../_images/math/7ae88fb587f3630b827ee331e0c72767173c11e7.png" alt="A=U \mathrm{diag}(s) V^H"/>.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="HermitianSingularValues__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R">
+void <tt class="descname">HermitianSingularValues</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;typename Base&lt;F&gt;::type, VR, STAR&gt;&amp; <em>s</em><big>)</big><a class="headerlink" href="#HermitianSingularValues__UpperOrLower.DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the singular values of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> in <cite>s</cite>. Note that the appropriate triangle of <cite>A</cite> is overwritten during computation.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="general-svd">
 <h2>General SVD<a class="headerlink" href="#general-svd" title="Permalink to this headline">¶</a></h2>
@@ -536,7 +542,24 @@ void <tt class="descname">SVD</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This routine has not yet been designed to efficiently handle cases where
-the matrix is not close to square.</p>
+the matrix is not close to square. It is also far from the most efficient
+possible algorithm, as it currently uses the QR algorithm for the
+bidiagonal SVD (as opposed to a Divide and Conquer algorithm) and
+does not apply Householder reflectors in the most efficient manner
+possible.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="SingularValues__DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R">
+void <tt class="descname">SingularValues</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;typename Base&lt;F&gt;::type, VR, STAR&gt;&amp; <em>s</em><big>)</big><a class="headerlink" href="#SingularValues__DistMatrix:F.MC.MR:R.DistMatrix:typename-Base:F:::type.VR.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forms the singular values of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> in <cite>s</cite>. Note that <cite>A</cite> is overwritten in order to compute the singular values.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This routine has not yet been designed to efficiently handle cases where
+the matrix is not close to square. It is also far from the most efficient
+possible algorithm, as it currently uses the QR algorithm for the
+bidiagonal SVD (as opposed to bisection).</p>
 </div>
 </dd></dl>
 

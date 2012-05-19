@@ -138,6 +138,49 @@ SimpleSVD
 
 template<typename R>
 inline void
+SimpleSingularValues
+( DistMatrix<R,MC,  MR>& A,
+  DistMatrix<R,VR,STAR>& s )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSingularValues");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& grid = A.Grid();
+
+    // Bidiagonalize A
+    Bidiag( A );
+
+    // Grab copies of the diagonal and superdiagonal of A
+    DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
+                          e_MD_STAR( grid );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
+
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // on each process
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                            e_STAR_STAR( e_MD_STAR );
+
+    // Compute the singular values of the bidiagonal matrix
+    lapack::BidiagQRAlg
+    ( uplo, k, 0, 0,
+      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      0, 1, 0, 1 );
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
 SimpleSVD
 ( DistMatrix<Complex<R>,MC,  MR>& A,
   DistMatrix<R,         VR,STAR>& s,
@@ -304,6 +347,50 @@ SVD
         // trick to get the SVD of A.
         Adjoint( A, V );
         svd::SimpleSVD( V, s, A );
+    }
+
+    // Rescale the singular values if necessary
+    if( needRescaling )
+        Scal( 1/scale, s );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//----------------------------------------------------------------------------//
+// Grab the singular values of the general matrix A.                          //
+//----------------------------------------------------------------------------//
+template<typename F>
+inline void
+SVD
+( DistMatrix<F,                     MC,  MR>& A,
+  DistMatrix<typename Base<F>::type,VR,STAR>& s )
+{
+#ifndef RELEASE
+    PushCallStack("SingularValues");
+#endif
+    typedef typename Base<F>::type R;
+
+    // Check if we need to rescale the matrix, and do so if necessary
+    bool needRescaling;
+    R scale;
+    svd::CheckScale( A, needRescaling, scale );
+    if( needRescaling )
+        Scal( (F)scale, A );
+
+    // TODO: Switch between different algorithms. For instance, starting 
+    //       with a QR decomposition of tall-skinny matrices.
+    if( A.Height() >= A.Width() )
+    {
+        svd::SimpleSingularValues( A, s );
+    }
+    else
+    {
+        // Lower bidiagonalization is not yet supported, so we instead play a 
+        // trick to get the SVD of A.
+        DistMatrix<F,MC,MR> AAdj( A.Grid() );
+        Adjoint( A, AAdj );
+        svd::SimpleSingularValues( AAdj, s );
     }
 
     // Rescale the singular values if necessary

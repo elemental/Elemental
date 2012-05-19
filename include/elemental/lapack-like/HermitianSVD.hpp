@@ -60,8 +60,12 @@ inline void HermitianSVD
     s_MR_STAR = s;
 
     // Set the singular values to the absolute value of the eigenvalues
-    for( int iLocal=0; iLocal<s.LocalHeight(); ++iLocal )
-        s.SetLocalEntry( iLocal, 0, Abs(s.GetLocalEntry(iLocal,0)) );
+    const int numLocalVals = s.LocalHeight();
+    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
+    {
+        const R sigma = s.GetLocalEntry(iLocal,0);
+        s.SetLocalEntry(iLocal,0,Abs(sigma));
+    }
 
     // Copy V into U (flipping the sign as necessary)
     U.AlignWith( V );
@@ -74,15 +78,36 @@ inline void HermitianSVD
         F* UCol = U.LocalBuffer( 0, jLocal );
         const F* VCol = V.LockedLocalBuffer( 0, jLocal );
         if( sigma >= 0 )
-        {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 UCol[iLocal] = VCol[iLocal];
-        }
         else
-        {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 UCol[iLocal] = -VCol[iLocal];
-        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void HermitianSingularValues
+( UpperOrLower uplo, 
+  DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianSingularValues");
+#endif
+    typedef typename Base<F>::type R;
+
+    // Grab an eigenvalue decomposition of A
+    HermitianEig( uplo, A, s ); 
+    
+    // Replace the eigenvalues with their absolute values
+    const int numLocalVals = s.LocalHeight();
+    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
+    {
+        const R sigma = s.GetLocalEntry(iLocal,0);
+        s.SetLocalEntry(iLocal,0,Abs(sigma));
     }
 #ifndef RELEASE
     PopCallStack();

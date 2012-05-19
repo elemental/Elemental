@@ -582,6 +582,11 @@ void HermitianSVD
 ( UpperOrLower uplo, 
   DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
   DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& V );
+
+template<typename F>
+void HermitianSingularValues
+( UpperOrLower uplo, 
+  DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s );
 #endif // WITHOUT_PMRRR
 
 //----------------------------------------------------------------------------//
@@ -1038,6 +1043,11 @@ void SVD
 ( DistMatrix<F,                     MC,MR  >& A, 
   DistMatrix<typename Base<F>::type,VR,STAR>& s, 
   DistMatrix<F,                     MC,MR  >& V );
+
+template<typename F>
+void SingularValues
+( DistMatrix<F,                     MC,MR  >& A,
+  DistMatrix<typename Base<F>::type,VR,STAR>& s );
 
 //----------------------------------------------------------------------------//
 // Trace                                                                      //
