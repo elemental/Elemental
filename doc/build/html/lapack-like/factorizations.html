@@ -95,21 +95,6 @@ Cholesky factor.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="square-root">
-<h2>Square root<a class="headerlink" href="#square-root" title="Permalink to this headline">¶</a></h2>
-<p>As described above, Hermitian matrices with non-negative eigenvalues have a
-natural matrix square root through their eigenvalue decomposition. This routine
-attempts to compute said matrix square root and throws a
-<tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> if any sufficiently negative eigenvalues are
-computed.</p>
-<dl class="function">
-<dt id="HPSDSquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R">
-void <tt class="descname">HPSDSquareRoot</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPSDSquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrites the Hermitian positive semi-definite distributed matrix <cite>A</cite> with
-its matrix square root.</p>
-</dd></dl>
-
-</div>
 <div class="section" id="factorization">
 <h2><img class="math" src="../_images/math/f9a9d97ab57bd3e6f7118795d745c60c8bad5c66.png" alt="LDL^H"/> factorization<a class="headerlink" href="#factorization" title="Permalink to this headline">¶</a></h2>
 <p>Though the Cholesky factorization is ideal for most HPD matrices, there exist

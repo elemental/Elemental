@@ -382,7 +382,7 @@ Not yet written, will likely be based on Angelika Bunse-Gerstner et al.'s
 Jacobi-like method for simultaneous diagonalization of the commuting Hermitian 
 and skew-Hermitian portions of the matrix.
 
-General eigensolver
+Schur decomposition
 -------------------
 Not yet written, will likely eventually include Greg Henry et al.'s and 
 Robert Granat et al.'s approaches.
@@ -412,8 +412,21 @@ where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips
 
    Return the singular values of :math:`A` in `s`. Note that the appropriate triangle of `A` is overwritten during computation.
 
-General SVD
+Square root
 -----------
+Hermitian matrices with non-negative eigenvalues have a
+natural matrix square root through their eigenvalue decomposition. This routine
+attempts to compute said matrix square root and throws a
+``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are
+computed.
+
+.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+
+   Overwrites the Hermitian positive semi-definite distributed matrix `A` with
+   its matrix square root.
+
+SVD
+---
 Given a general matrix :math:`A`, the *Singular Value Decomposition* is the 
 triplet :math:`(U,\Sigma,V)` such that
 
@@ -447,3 +460,12 @@ non-negative entries.
       the matrix is not close to square. It is also far from the most efficient
       possible algorithm, as it currently uses the QR algorithm for the 
       bidiagonal SVD (as opposed to bisection).
+
+Polar decomposition
+-------------------
+Every matrix :math:`A` can be written as :math:`A=QP`, where :math:`Q` is unitary and :math:`P` is Hermitian and positive semi-definite. This is known as the *polar decomposition* of :math:`A` and can be constructed as :math:`Q := U V^H` and :math:`P := V \Sigma V^H`, where :math:`A = U \Sigma V^H` is the SVD of :math:`A`.
+
+.. cpp:function:: void Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P )
+
+   Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 
+   :math:`Q` within `A` and :math:`P` within `P`.

@@ -499,8 +499,8 @@ algorithm for unitary Hessenberg matrices.</p>
 Jacobi-like method for simultaneous diagonalization of the commuting Hermitian
 and skew-Hermitian portions of the matrix.</p>
 </div>
-<div class="section" id="general-eigensolver">
-<h2>General eigensolver<a class="headerlink" href="#general-eigensolver" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="schur-decomposition">
+<h2>Schur decomposition<a class="headerlink" href="#schur-decomposition" title="Permalink to this headline">¶</a></h2>
 <p>Not yet written, will likely eventually include Greg Henry et al.&#8217;s and
 Robert Granat et al.&#8217;s approaches.</p>
 </div>
@@ -527,8 +527,23 @@ void <tt class="descname">HermitianSingularValues</tt><big>(</big><a class="refe
 </dd></dl>
 
 </div>
-<div class="section" id="general-svd">
-<h2>General SVD<a class="headerlink" href="#general-svd" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="square-root">
+<h2>Square root<a class="headerlink" href="#square-root" title="Permalink to this headline">¶</a></h2>
+<p>Hermitian matrices with non-negative eigenvalues have a
+natural matrix square root through their eigenvalue decomposition. This routine
+attempts to compute said matrix square root and throws a
+<tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> if any sufficiently negative eigenvalues are
+computed.</p>
+<dl class="function">
+<dt id="HPSDSquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descname">HPSDSquareRoot</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPSDSquareRoot__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites the Hermitian positive semi-definite distributed matrix <cite>A</cite> with
+its matrix square root.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="svd">
+<h2>SVD<a class="headerlink" href="#svd" title="Permalink to this headline">¶</a></h2>
 <p>Given a general matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, the <em>Singular Value Decomposition</em> is the
 triplet <img class="math" src="../_images/math/0ebbf677a4868315ba97b334c8c408fbc2e61aab.png" alt="(U,\Sigma,V)"/> such that</p>
 <div class="math">
@@ -561,6 +576,17 @@ the matrix is not close to square. It is also far from the most efficient
 possible algorithm, as it currently uses the QR algorithm for the
 bidiagonal SVD (as opposed to bisection).</p>
 </div>
+</dd></dl>
+
+</div>
+<div class="section" id="polar-decomposition">
+<h2>Polar decomposition<a class="headerlink" href="#polar-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>Every matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be written as <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, where <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> is unitary and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is Hermitian and positive semi-definite. This is known as the <em>polar decomposition</em> of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and can be constructed as <img class="math" src="../_images/math/10e19d6b19dc729b5eabd4f7e2479680b36e07cd.png" alt="Q := U V^H"/> and <img class="math" src="../_images/math/f4df1da82d32b0eb23940ba586912b246cc54193.png" alt="P := V \Sigma V^H"/>, where <img class="math" src="../_images/math/a114f3216c8958345e738846285eae646c3b8e73.png" alt="A = U \Sigma V^H"/> is the SVD of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
+<dl class="function">
+<dt id="Polar__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R">
+void <tt class="descname">Polar</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>P</em><big>)</big><a class="headerlink" href="#Polar__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the polar decomposition of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, returning
+<img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> within <cite>A</cite> and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> within <cite>P</cite>.</p>
 </dd></dl>
 
 </div>

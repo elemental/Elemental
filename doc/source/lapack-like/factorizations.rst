@@ -42,19 +42,6 @@ then a ``NonHPSDMatrixException`` will be thrown.
    Overwrite the `uplo` triangle of the distributed HPSD matrix `A` with its
    Cholesky factor.
 
-Square root
------------
-As described above, Hermitian matrices with non-negative eigenvalues have a 
-natural matrix square root through their eigenvalue decomposition. This routine 
-attempts to compute said matrix square root and throws a 
-``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are 
-computed.
-
-.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
-
-   Overwrites the Hermitian positive semi-definite distributed matrix `A` with 
-   its matrix square root.
-
 :math:`LDL^H` factorization
 ---------------------------
 Though the Cholesky factorization is ideal for most HPD matrices, there exist 

@@ -1035,6 +1035,13 @@ void SetHermitianTridiagGridOrder( GridOrder order );
 GridOrder GetHermitianTridiagGridOrder();
 
 //----------------------------------------------------------------------------//
+// Polar decomposition                                                        //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+void Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P );
+
+//----------------------------------------------------------------------------//
 // SVD                                                                        //
 //----------------------------------------------------------------------------//
 
@@ -1111,6 +1118,7 @@ void TriangularInverse
 #include "./lapack-like/LU.hpp"
 #include "./lapack-like/Norm.hpp"
 #include "./lapack-like/PivotParity.hpp"
+#include "./lapack-like/Polar.hpp"
 #include "./lapack-like/Pseudoinverse.hpp"
 #include "./lapack-like/QR.hpp"
 #include "./lapack-like/Reflector.hpp"

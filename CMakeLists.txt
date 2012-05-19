@@ -645,7 +645,8 @@ if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
   set(CORE_EXAMPLES Constructors)
-  set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve Pseudoinverse SVD)
+  set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve Polar Pseudoinverse 
+                      SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
                        Hankel HermitianUniformSpectrum Hilbert Identity 
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform
