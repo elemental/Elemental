@@ -68,16 +68,16 @@ SimpleSVD
 
     // Initialize U and VTrans to the appropriate identity matrices.
     DistMatrix<R,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<R,STAR,VR> VTrans_STAR_VR( grid );
+    DistMatrix<R,STAR,VC> VTrans_STAR_VC( grid );
     U_VC_STAR.AlignWith( A );
-    VTrans_STAR_VR.AlignWith( V );
+    VTrans_STAR_VC.AlignWith( V );
     Identity( m, k, U_VC_STAR );
-    Identity( k, n, VTrans_STAR_VR );
+    Identity( k, n, VTrans_STAR_VC );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VTrans
     Matrix<R>& ULocal = U_VC_STAR.LocalMatrix();
-    Matrix<R>& VTransLocal = VTrans_STAR_VR.LocalMatrix();
+    Matrix<R>& VTransLocal = VTrans_STAR_VC.LocalMatrix();
     lapack::BidiagQRAlg
     ( uplo, k, VTransLocal.Width(), ULocal.Height(),
       d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
@@ -99,17 +99,17 @@ SimpleSVD
                                   UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
-        Transpose( VTrans_STAR_VR, V );
+        Transpose( VTrans_STAR_VC, V );
     }
     else
     {
         DistMatrix<R,MC,MR> VT( grid ), 
                             VB( grid );
-        DistMatrix<R,STAR,VR> VTransL_STAR_VR( grid ), VTransR_STAR_VR( grid );
+        DistMatrix<R,STAR,VC> VTransL_STAR_VC( grid ), VTransR_STAR_VC( grid );
         PartitionDown( V, VT, 
                           VB, m );
-        PartitionRight( VTrans_STAR_VR, VTransL_STAR_VR, VTransR_STAR_VR, m );
-        Transpose( VTransL_STAR_VR, VT );
+        PartitionRight( VTrans_STAR_VC, VTransL_STAR_VC, VTransR_STAR_VC, m );
+        Transpose( VTransL_STAR_VC, VT );
         MakeZeros( VB );
     }
 
@@ -213,16 +213,16 @@ SimpleSVD
 
     // Initialize U and VAdj to the appropriate identity matrices
     DistMatrix<C,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<C,STAR,VR> VAdj_STAR_VR( grid );
+    DistMatrix<C,STAR,VC> VAdj_STAR_VC( grid );
     U_VC_STAR.AlignWith( A );
-    VAdj_STAR_VR.AlignWith( V );
+    VAdj_STAR_VC.AlignWith( V );
     Identity( m, k, U_VC_STAR );
-    Identity( k, n, VAdj_STAR_VR );
+    Identity( k, n, VAdj_STAR_VC );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VAdj
     Matrix<C>& ULocal = U_VC_STAR.LocalMatrix();
-    Matrix<C>& VAdjLocal = VAdj_STAR_VR.LocalMatrix();
+    Matrix<C>& VAdjLocal = VAdj_STAR_VC.LocalMatrix();
     lapack::BidiagQRAlg
     ( uplo, k, VAdjLocal.Width(), ULocal.Height(),
       d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
@@ -244,17 +244,17 @@ SimpleSVD
                                   UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
-        Adjoint( VAdj_STAR_VR, V );
+        Adjoint( VAdj_STAR_VC, V );
     }
     else
     {
         DistMatrix<C,MC,MR> VT( grid ), 
                             VB( grid );
-        DistMatrix<C,STAR,VR> VAdjL_STAR_VR( grid ), VAdjR_STAR_VR( grid );
+        DistMatrix<C,STAR,VC> VAdjL_STAR_VC( grid ), VAdjR_STAR_VC( grid );
         PartitionDown( V, VT, 
                           VB, m );
-        PartitionRight( VAdj_STAR_VR, VAdjL_STAR_VR, VAdjR_STAR_VR, m );
-        Adjoint( VAdjL_STAR_VR, VT );
+        PartitionRight( VAdj_STAR_VC, VAdjL_STAR_VC, VAdjR_STAR_VC, m );
+        Adjoint( VAdjL_STAR_VC, VT );
         MakeZeros( VB );
     }
 
