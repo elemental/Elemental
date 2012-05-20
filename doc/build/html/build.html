@@ -57,8 +57,19 @@ in order to manage a large number of configuration options in a
 platform-independent manner; it can be easily configured to build on Linux and
 Unix environments (including Darwin) as well as various versions of
 Microsoft Windows.</p>
-<div class="section" id="installing-cmake">
-<h2>Installing CMake<a class="headerlink" href="#installing-cmake" title="Permalink to this headline">¶</a></h2>
+<p>Elemental&#8217;s main dependencies are</p>
+<ol class="arabic simple">
+<li><a class="reference external" href="http://www.cmake.org/">CMake</a> (required)</li>
+<li><a class="reference external" href="http://en.wikipedia.org/wiki/Message_Passing_Interface">MPI</a> (required)</li>
+<li><a class="reference external" href="http://netlib.org/blas">BLAS</a> and <a class="reference external" href="http://netlib.org/lapack">LAPACK</a> (required)</li>
+<li><a class="reference external" href="http://code.google.com/p/pmrrr">PMRRR</a> (required for eigensolvers)</li>
+<li><a class="reference external" href="http://www.cs.utexas.edu/users/flame/">libFLAME</a> (recommended for faster SVD&#8217;s)</li>
+</ol>
+<p>Each of these dependencies is discussed in detail below.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cmake">
+<h3>CMake<a class="headerlink" href="#cmake" title="Permalink to this headline">¶</a></h3>
 <p>Elemental uses several new CMake modules, so it is important to ensure that
 version 2.8.5 or later is installed. Thankfully the
 <a class="reference external" href="http://www.cmake.org/cmake/help/install.html">installation process</a>
@@ -71,7 +82,11 @@ following commands:</p>
 make
 make install</pre>
 </div>
-<p>There are two important issues to consider:</p>
+<p>Note that recent versions of <a class="reference external" href="http://www.ubuntu.com/">Ubuntu</a> (e.g., version 12.04) have sufficiently up-to-date
+versions of CMake, and so the following command is sufficient for installation:</p>
+<div class="highlight-python"><pre>sudo apt-get install cmake</pre>
+</div>
+<p>If you do install from source, there are two important issues to consider</p>
 <ol class="arabic">
 <li><p class="first">By default, <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> attempts a system-wide installation
 (e.g., into <tt class="docutils literal"><span class="pre">/usr/bin</span></tt>) and will likely require administrative privileges.
@@ -91,9 +106,8 @@ setting the environment variables <tt class="docutils literal"><span class="pre"
 your preferred C and C++ compilers before running the <tt class="docutils literal"><span class="pre">bootstrap</span></tt> script.</p>
 </li>
 </ol>
-</div>
-<div class="section" id="working-with-cmake">
-<h2>Working with CMake<a class="headerlink" href="#working-with-cmake" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-usage">
+<h4>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h4>
 <p>Though many configuration utilities, like
 <a class="reference external" href="http://www.gnu.org/software/autoconf/">autoconf</a>, are designed such that
 the user need only invoke <tt class="docutils literal"><span class="pre">./configure</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">&amp;&amp;</span> <span class="pre">make</span> <span class="pre">install</span></tt> from the
@@ -124,6 +138,85 @@ rm -rf build</pre>
 </div>
 <p>This is a better habit than simply running <tt class="docutils literal"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">*</span></tt> since,
 if accidentally run from the wrong directory, the former will most likely fail.</p>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>MPI<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>An implementation of the Message Passing Interface (MPI) is required for
+building Elemental. The two most commonly used implementations are</p>
+<ol class="arabic simple">
+<li><a class="reference external" href="http://www.mcs.anl.gov/research/projects/mpich2/">MPICH2</a></li>
+<li><a class="reference external" href="http://www.open-mpi.org/">OpenMPI</a></li>
+</ol>
+<p>If your cluster uses <a class="reference external" href="http://en.wikipedia.org/wiki/InfiniBand">InfiniBand</a> as its interconnect, you may want to look into
+<a class="reference external" href="http://mvapich.cse.ohio-state.edu/overview/mvapich2/">MVAPICH2</a>.</p>
+<p>Each of the respective websites contains installation instructions, but, on recent versions of <a class="reference external" href="http://www.ubuntu.com/">Ubuntu</a> (such as version 12.04),
+MPICH2 can be installed with</p>
+<div class="highlight-python"><pre>sudo apt-get install libmpich2-dev</pre>
+</div>
+<p>and OpenMPI can be installed with</p>
+<div class="highlight-python"><pre>sudo apt-get install libopenmpi-dev</pre>
+</div>
+</div>
+<div class="section" id="blas-and-lapack">
+<h3>BLAS and LAPACK<a class="headerlink" href="#blas-and-lapack" title="Permalink to this headline">¶</a></h3>
+<p>The Basic Linear Algebra Subprograms (BLAS) and Linear Algebra PACKage (LAPACK)
+are both used heavily within Elemental. On most installations of <a class="reference external" href="http://www.ubuntu.com">Ubuntu</a>, the following command should suffice for their installation:</p>
+<div class="highlight-python"><pre>sudo apt-get install libatlas-dev liblapack-dev</pre>
+</div>
+<p>The reference implementation of LAPACK can be found at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.netlib.org/lapack/">http://www.netlib.org/lapack/</a></div></blockquote>
+<p>and the reference implementation of BLAS can be found at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.netlib.org/blas/">http://www.netlib.org/blas/</a></div></blockquote>
+<p>However, it is better to install an optimized version of these libraries,
+especialy for the BLAS. The most commonly used open source versions are
+<a class="reference external" href="http://math-atlas.sourceforge.net/">ATLAS</a> and <a class="reference external" href="https://github.com/xianyi/OpenBLAS">OpenBLAS</a>.</p>
+</div>
+<div class="section" id="id2">
+<h3>PMRRR<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>PMRRR is a parallel implementation of the MRRR algorithm introduced by
+<a class="reference external" href="http://www.cs.utexas.edu/~inderjit/">Inderjit Dhillon</a> and
+<a class="reference external" href="http://math.berkeley.edu/~parlett/">Beresford Parlett</a> for computing
+<img class="math" src="_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> eigenvectors of a tridiagonal matrix of size <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> in
+<img class="math" src="_images/math/862e7f76aee7c28f6a9fd5e25b353c3023ec4c41.png" alt="\mathcal{O}(nk)"/> time. PMRRR was written by
+<a class="reference external" href="http://www.aices.rwth-aachen.de/people/petschow">Matthias Petschow</a> and
+<a class="reference external" href="http://www.aices.rwth-aachen.de/people/bientinesi">Paolo Bientinesi</a> and is
+available at:</p>
+<blockquote>
+<div><a class="reference external" href="http://code.google.com/p/pmrrr">http://code.google.com/p/pmrrr</a></div></blockquote>
+<p>Elemental builds a copy of PMRRR by default whenever possible: if an up-to-date
+non-MKL version of LAPACK is used, then PMRRR only requires a working MPI C
+compiler, otherwise, a Fortran 90 compiler is needed in order to build several
+recent LAPACK functions. If these LAPACK routines cannot be made available,
+then PMRRR is not built and Elemental&#8217;s eigensolvers are automatically disabled.</p>
+</div>
+<div class="section" id="id3">
+<h3>libFLAME<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p><cite>libFLAME</cite> is an open source library made available as part of the FLAME
+project. Its stated objective is to</p>
+<blockquote class="epigraph">
+<div>...transform the development of dense linear algebra libraries from an art
+reserved for experts to a science that can be understood by novice and
+expert alike.</div></blockquote>
+<p>Elemental&#8217;s current implementation of parallel SVD is dependent upon a serial
+kernel for the bidiagonal SVD. A high-performance implementation of this
+kernel was recently introduced in
+&#8220;Restructuring the QR Algorithm for Performance&#8221;, by Field G. van Zee, Robert
+A. van de Geijn, and Gregorio Quintana-Orti. It can be found at</p>
+<blockquote>
+<div><a class="reference external" href="http://www.cs.utexas.edu/users/flame/pubs/RestructuredQRTOMS.pdf">http://www.cs.utexas.edu/users/flame/pubs/RestructuredQRTOMS.pdf</a></div></blockquote>
+<p>Installation of <cite>libFLAME</cite> is fairly straightforward. It is recommended that
+you download the latest nightly snapshot from</p>
+<blockquote>
+<div><a class="reference external" href="http://www.cs.utexas.edu/users/flame/snapshots/">http://www.cs.utexas.edu/users/flame/snapshots/</a></div></blockquote>
+<p>and then installation should simply be a matter of running:</p>
+<div class="highlight-python"><pre>./configure
+make
+make install</pre>
+</div>
+</div>
 </div>
 <div class="section" id="getting-elemental-s-source">
 <h2>Getting Elemental&#8217;s source<a class="headerlink" href="#getting-elemental-s-source" title="Permalink to this headline">¶</a></h2>
@@ -170,13 +263,21 @@ variables, e.g.,</p>
       -D CMAKE_Fortran_COMPILER=/usr/bin/gfortran ..</pre>
 </div>
 <p>It is also common to need to specify which libraries need to be linked in order
-to provide serial BLAS and LAPACK routines. The <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt> variable was
-introduced for this purpose and an example usage would be</p>
+to provide serial BLAS and LAPACK routines (and, if SVD is important, libFLAME).
+The <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt> variable was introduced for this purpose and an example
+usage for configuring with BLAS and LAPACK libraries in <tt class="docutils literal"><span class="pre">/usr/lib</span></tt> would be</p>
 <div class="highlight-python"><pre>cmake -D MATH_LIBS="-L/usr/lib -llapack -lblas -lm" ..</pre>
 </div>
 <p>It is important to ensure that if library A depends upon library B, A should
 be specified to the left of B; in this case, LAPACK depends upon BLAS, so
 <tt class="docutils literal"><span class="pre">-llapack</span></tt> is specified to the left of <tt class="docutils literal"><span class="pre">-lblas</span></tt>.</p>
+<p>If <a class="reference external" href="http://www.cs.utexas.edu/users/flame/">libFLAME</a> is
+available at <tt class="docutils literal"><span class="pre">/path/to/libflame.a</span></tt>, then the above link line should be changed
+to</p>
+<div class="highlight-python"><pre>cmake -D MATH_LIBS="/path/to/libflame.a;-L/usr/lib -llapack -lblas -lm" ..</pre>
+</div>
+<p>Elemental&#8217;s performance in Singular Value Decompositions (SVD&#8217;s) is
+greatly improved on many architectures when libFLAME is linked.</p>
 <div class="section" id="build-modes">
 <h3>Build Modes<a class="headerlink" href="#build-modes" title="Permalink to this headline">¶</a></h3>
 <p>Elemental currently has four different build modes:</p>
@@ -191,24 +292,6 @@ more error checking.</li>
 <p>The build mode can be specified with the <tt class="docutils literal"><span class="pre">CMAKE_BUILD_TYPE</span></tt> option, e.g.,
 <tt class="docutils literal"><span class="pre">-D</span> <span class="pre">CMAKE_BUILD_TYPE=PureDebug</span></tt>. If this option is not specified, Elemental
 defaults to the <strong>PureRelease</strong> build mode.</p>
-</div>
-<div class="section" id="building-pmrrr">
-<h3>Building PMRRR<a class="headerlink" href="#building-pmrrr" title="Permalink to this headline">¶</a></h3>
-<p>PMRRR is a parallel implementation of the MRRR algorithm introduced by
-<a class="reference external" href="http://www.cs.utexas.edu/~inderjit/">Inderjit Dhillon</a> and
-<a class="reference external" href="http://math.berkeley.edu/~parlett/">Beresford Parlett</a> for computing
-<img class="math" src="_images/math/8c325612684d41304b9751c175df7bcc0f61f64f.png" alt="k"/> eigenvectors of a tridiagonal matrix of size <img class="math" src="_images/math/174fadd07fd54c9afe288e96558c92e0c1da733a.png" alt="n"/> in
-<img class="math" src="_images/math/862e7f76aee7c28f6a9fd5e25b353c3023ec4c41.png" alt="\mathcal{O}(nk)"/> time. PMRRR was written by
-<a class="reference external" href="http://www.aices.rwth-aachen.de/people/petschow">Matthias Petschow</a> and
-<a class="reference external" href="http://www.aices.rwth-aachen.de/people/bientinesi">Paolo Bientinesi</a> and is
-available here:</p>
-<blockquote>
-<div><a class="reference external" href="http://code.google.com/p/pmrrr">http://code.google.com/p/pmrrr</a></div></blockquote>
-<p>Elemental builds a copy of PMRRR by default whenever possible: if an up-to-date
-non-MKL version of LAPACK is used, then PMRRR only requires a working MPI C
-compiler, otherwise, a Fortran 90 compiler is needed in order to build several
-recent LAPACK functions. If these LAPACK routines cannot be made available,
-then PMRRR is not built and Elemental&#8217;s eigensolvers are automatically disabled.</p>
 </div>
 </div>
 <div class="section" id="testing-the-installation">
