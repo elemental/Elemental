@@ -31,6 +31,37 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef HAVE_FLA_BSVD
+// TODO: Move this into a file at include/elemental/imports/flame.hpp
+extern "C" {
+typedef int FLA_Error;
+FLA_Error FLA_Bsvd_v_opd_var1( int       min_m_n,
+                               int       m_U,
+                               int       m_V,
+                               int       n_GH,
+                               int       n_iter_max,
+                               double*   buff_d, int inc_d,
+                               double*   buff_e, int inc_e,
+                               elem::dcomplex* buff_G, int rs_G, int cs_G,
+                               elem::dcomplex* buff_H, int rs_H, int cs_H,
+                               double*   buff_U, int rs_U, int cs_U,
+                               double*   buff_V, int rs_V, int cs_V,
+                               int       b_alg );
+FLA_Error FLA_Bsvd_v_opz_var1( int       min_m_n,
+                               int       m_U,
+                               int       m_V,
+                               int       n_GH,
+                               int       n_iter_max,
+                               double*   buff_d, int inc_d,
+                               double*   buff_e, int inc_e,
+                               elem::dcomplex* buff_G, int rs_G, int cs_G,
+                               elem::dcomplex* buff_H, int rs_H, int cs_H,
+                               elem::dcomplex* buff_U, int rs_U, int cs_U,
+                               elem::dcomplex* buff_V, int rs_V, int cs_V,
+                               int       b_alg );
+}
+#endif // HAVE_FLA_BSVD
+
 namespace elem {
 
 namespace svd {
@@ -135,6 +166,124 @@ SimpleSVD
     PopCallStack();
 #endif
 }
+
+#ifdef HAVE_FLA_BSVD
+template<>
+inline void
+SimpleSVD
+( DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double,VR,STAR>& s,
+  DistMatrix<double,MC,  MR>& V )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSVD");
+#endif
+    typedef double R;
+    typedef Complex<R> C;
+
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& grid = A.Grid();
+
+    // Bidiagonalize A
+    Bidiag( A );
+
+    // Grab copies of the diagonal and superdiagonal of A
+    DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
+                          e_MD_STAR( grid );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, subdiagonal );
+
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // on each process
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                            e_STAR_STAR( e_MD_STAR );
+
+    // Initialize U and V to the appropriate identity matrices.
+    DistMatrix<R,VC,STAR> U_VC_STAR( grid );
+    DistMatrix<R,VC,STAR> V_VC_STAR( grid );
+    U_VC_STAR.AlignWith( A );
+    V_VC_STAR.AlignWith( V );
+    Identity( m, k, U_VC_STAR );
+    Identity( n, k, V_VC_STAR );
+
+    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
+    // rotations into our local portion of U and V
+    // NOTE: This _only_ works in the case where m >= n
+    const int numAccum = 32;
+    const int maxNumIts = 30;
+    const int bAlg = 512;
+    std::vector<C> GBuffer( (k-1)*numAccum ),
+                   HBuffer( (k-1)*numAccum );
+    FLA_Bsvd_v_opd_var1
+    ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
+      numAccum, maxNumIts,
+      d_STAR_STAR.LocalBuffer(), 1,
+      e_STAR_STAR.LocalBuffer(), 1,
+      &GBuffer[0], 1, k-1,
+      &HBuffer[0], 1, k-1,
+      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
+      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
+      bAlg );
+
+    // Make a copy of A (for the Householder vectors) and pull the necessary 
+    // portions of U and V into a standard matrix dist.
+    DistMatrix<R,MC,MR> B( A );
+    if( m >= n )
+    {
+        DistMatrix<R,MC,MR> AT( grid ),
+                            AB( grid );
+        DistMatrix<R,VC,STAR> UT_VC_STAR( grid ), 
+                              UB_VC_STAR( grid );
+        PartitionDown( A, AT,
+                          AB, n );
+        PartitionDown( U_VC_STAR, UT_VC_STAR,
+                                  UB_VC_STAR, n );
+        AT = UT_VC_STAR;
+        MakeZeros( AB );
+        V = V_VC_STAR;
+    }
+    else
+    {
+        DistMatrix<R,MC,MR> VT( grid ), 
+                            VB( grid );
+        DistMatrix<R,VC,STAR> VT_VC_STAR( grid ), 
+                              VB_VC_STAR( grid );
+        PartitionDown( V, VT, 
+                          VB, m );
+        PartitionDown
+        ( V_VC_STAR, VT_VC_STAR, 
+                     VB_VC_STAR, m );
+        VT = VT_VC_STAR;
+        MakeZeros( VB );
+    }
+
+    // Backtransform U and V
+    if( m >= n )
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
+    }
+    else
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
+    }
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // HAVE_FLA_BSVD
 
 template<typename R>
 inline void
@@ -258,7 +407,7 @@ SimpleSVD
         MakeZeros( VB );
     }
 
-    // Backtransform U and VAdj
+    // Backtransform U and V
     if( m >= n )
     {
         ApplyPackedReflectors
@@ -280,6 +429,124 @@ SimpleSVD
     PopCallStack();
 #endif
 }
+
+#ifdef HAVE_FLA_BSVD
+template<>
+inline void
+SimpleSVD
+( DistMatrix<Complex<double>,MC,  MR>& A,
+  DistMatrix<double,         VR,STAR>& s,
+  DistMatrix<Complex<double>,MC,  MR>& V )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSVD");
+#endif
+    typedef double R;
+    typedef Complex<R> C;
+
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& grid = A.Grid();
+
+    // Bidiagonalize A
+    DistMatrix<C,STAR,STAR> tP( grid ), tQ( grid );
+    Bidiag( A, tP, tQ );
+
+    // Grab copies of the diagonal and superdiagonal of A
+    DistMatrix<R,MD,STAR> d_MD_STAR( grid ),
+                          e_MD_STAR( grid );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+
+    // on each process
+    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                            e_STAR_STAR( e_MD_STAR );
+
+    // Initialize U and VAdj to the appropriate identity matrices
+    DistMatrix<C,VC,STAR> U_VC_STAR( grid );
+    DistMatrix<C,VC,STAR> V_VC_STAR( grid );
+    U_VC_STAR.AlignWith( A );
+    V_VC_STAR.AlignWith( V );
+    Identity( m, k, U_VC_STAR );
+    Identity( n, k, V_VC_STAR );
+
+    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
+    // rotations into our local portion of U and V
+    // NOTE: This _only_ works in the case where m >= n
+    const int numAccum = 32;
+    const int maxNumIts = 30;
+    const int bAlg = 512;
+    std::vector<C> GBuffer( (k-1)*numAccum ),
+                   HBuffer( (k-1)*numAccum );
+    FLA_Bsvd_v_opz_var1
+    ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
+      numAccum, maxNumIts,
+      d_STAR_STAR.LocalBuffer(), 1,
+      e_STAR_STAR.LocalBuffer(), 1,
+      &GBuffer[0], 1, k-1,
+      &HBuffer[0], 1, k-1,
+      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
+      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
+      bAlg );
+
+    // Make a copy of A (for the Householder vectors) and pull the necessary 
+    // portions of U and V into a standard matrix dist.
+    DistMatrix<C,MC,MR> B( A );
+    if( m >= n )
+    {
+        DistMatrix<C,MC,MR> AT( grid ),
+                            AB( grid );
+        DistMatrix<C,VC,STAR> UT_VC_STAR( grid ), 
+                              UB_VC_STAR( grid );
+        PartitionDown( A, AT,
+                          AB, n );
+        PartitionDown( U_VC_STAR, UT_VC_STAR,
+                                  UB_VC_STAR, n );
+        AT = UT_VC_STAR;
+        MakeZeros( AB );
+        V = V_VC_STAR;
+    }
+    else
+    {
+        DistMatrix<C,MC,MR> VT( grid ), 
+                            VB( grid );
+        DistMatrix<C,VC,STAR> VT_VC_STAR( grid ), 
+                              VB_VC_STAR( grid );
+        PartitionDown( V, VT, 
+                          VB, m );
+        PartitionDown
+        ( V_VC_STAR, VT_VC_STAR, 
+                     VB_VC_STAR, m );
+        VT = VT_VC_STAR;
+        MakeZeros( VB );
+    }
+
+    // Backtransform U and V
+    if( m >= n )
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, B, tQ, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 1, B, tP, V );
+    }
+    else
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, -1, B, tQ, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, B, tP, V );
+    }
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+#endif // HAVE_FLA_BSVD
 
 template<typename F>
 inline void
