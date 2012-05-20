@@ -79,18 +79,18 @@ SimpleSVD
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
-    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& grid = A.Grid();
 
     // Bidiagonalize A
     Bidiag( A );
 
-    // Grab copies of the diagonal and superdiagonal of A
+    // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
                           e_MD_STAR( grid );
     A.GetDiagonal( d_MD_STAR );
-    A.GetDiagonal( e_MD_STAR, subdiagonal );
+    A.GetDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
@@ -184,18 +184,18 @@ SimpleSVD
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
-    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& grid = A.Grid();
 
     // Bidiagonalize A
     Bidiag( A );
 
-    // Grab copies of the diagonal and superdiagonal of A
+    // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
                           e_MD_STAR( grid );
     A.GetDiagonal( d_MD_STAR );
-    A.GetDiagonal( e_MD_STAR, subdiagonal );
+    A.GetDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
@@ -297,18 +297,18 @@ SimpleSingularValues
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
-    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& grid = A.Grid();
 
     // Bidiagonalize A
     Bidiag( A );
 
-    // Grab copies of the diagonal and superdiagonal of A
+    // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
                           e_MD_STAR( grid );
     A.GetDiagonal( d_MD_STAR );
-    A.GetDiagonal( e_MD_STAR, subdiagonal );
+    A.GetDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
@@ -342,7 +342,7 @@ SimpleSVD
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
-    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& grid = A.Grid();
 
@@ -350,11 +350,11 @@ SimpleSVD
     DistMatrix<C,STAR,STAR> tP( grid ), tQ( grid );
     Bidiag( A, tP, tQ );
 
-    // Grab copies of the diagonal and superdiagonal of A
+    // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( grid ),
                           e_MD_STAR( grid );
     A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
     DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
@@ -447,7 +447,7 @@ SimpleSVD
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
-    const int subdiagonal = ( m>=n ? 1 : -1 );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& grid = A.Grid();
 
@@ -455,11 +455,11 @@ SimpleSVD
     DistMatrix<C,STAR,STAR> tP( grid ), tQ( grid );
     Bidiag( A, tP, tQ );
 
-    // Grab copies of the diagonal and superdiagonal of A
+    // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( grid ),
                           e_MD_STAR( grid );
     A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
     DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
