@@ -50,7 +50,7 @@ inline void BidiagL( Matrix<R>& A )
                    A20, a21,     A22;
 
     // Temporary matrices
-    Matrix<R> w12, w21;
+    Matrix<R> x12Trans, w21;
 
     PushBlocksizeStack( 1 );
     PartitionDownDiagonal
@@ -67,27 +67,53 @@ inline void BidiagL( Matrix<R>& A )
         a1R.View1x2( alpha11, a12 );
         A2R.View1x2( a21, A22 );
 
-        w12.ResizeTo( 1, a12.Width() );
+        x12Trans.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
+
+        // Find tauP, v, and epsilonP such that
+        //     I - tauP | 1 | | 1, v^T | | alpha11 | = | epsilonP |
+        //              | v |            |  a12^T  | = |    0     |
         const R tauP = Reflector( alpha11, a12 );
         const R epsilonP = alpha11.Get(0,0);
+
+        // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
+        //             | v |                                 | v |
         alpha11.Set(0,0,(R)1);
-        Gemv( NORMAL, tauP, A2R, a1R, (R)0, w21 );
-        Ger( (R)-1, w21, a1R, A2R );
+        Gemv( NORMAL, (R)1, A2R, a1R, (R)0, w21 );
+
+        // A2R := A2R - tauP w21 a1R
+        //      = A2R - tauP A2R a1R^T a1R
+        //      = A2R (I - tauP a1R^T a1R)
+        Ger( -tauP, w21, a1R, A2R );
+
+        // Put epsilonP back instead of the temporary value, 1
         alpha11.Set(0,0,epsilonP);
 
         if( A22.Height() != 0 )
         {
+            // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
                    a21B );
 
+            // Find tauQ, u, and epsilonQ such that
+            //     I - tauQ | 1 | | 1, u^T | | alpha21T | = | epsilonQ |
+            //              | u |            |   a21B   | = |    0     |
             const R tauQ = Reflector( alpha21T, a21B );
             const R epsilonQ = alpha21T.Get(0,0);
+
+            // Set a21 = | 1 | and form x12^T = (a21^T A22)^T = A22^T a21
+            //           | u |
             alpha21T.Set(0,0,(R)1);
-            Gemv( TRANSPOSE, tauQ, A22, a21, (R)0, w12 );
-            Ger( (R)-1, a21, w12, A22 );
+            Gemv( TRANSPOSE, (R)1, A22, a21, (R)0, x12Trans );
+
+            // A22 := A22 - tauQ a21 x12
+            //      = A22 - tauQ a21 a21^T A22
+            //      = (I - tauQ a21 a21^T) A22
+            Ger( -tauQ, a21, x12Trans, A22 );
+
+            // Put epsilonQ back instead of the temporary value, 1
             alpha21T.Set(0,0,epsilonQ);
         }
         //--------------------------------------------------------------------//
@@ -119,7 +145,7 @@ inline void BidiagU( Matrix<R>& A )
                    A20, a21,     A22;
 
     // Temporary matrices
-    Matrix<R> w12, w21;
+    Matrix<R> x12Trans, w21;
 
     PushBlocksizeStack( 1 );
     PartitionDownDiagonal
@@ -140,25 +166,51 @@ inline void BidiagU( Matrix<R>& A )
         ( a12,
           A22 );
 
-        w12.ResizeTo( 1, a12.Width() );
+        x12Trans.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
+
+        // Find tauQ, u, and epsilonQ such that
+        //     I - tauQ | 1 | | 1, u^T | | alpha11 | = | epsilonQ |
+        //              | u |            |   a21   | = |    0     |
         const R tauQ = Reflector( alpha11, a21 );
         const R epsilonQ = alpha11.Get(0,0);
+
+        // Set aB1 = | 1 | and form x12^T := (aB1^T AB2)^T = AB2^T aB1
+        //           | u |
         alpha11.Set(0,0,(R)1);
-        Gemv( TRANSPOSE, tauQ, AB2, aB1, (R)0, w12 );
-        Ger( (R)-1, aB1, w12, AB2 );
+        Gemv( TRANSPOSE, (R)1, AB2, aB1, (R)0, x12Trans );
+
+        // Update AB2 := AB2 - tauQ aB1 x12
+        //             = AB2 - tauQ aB1 aB1^T AB2
+        //             = (I - tauQ aB1 aB1^T) AB2
+        Ger( -tauQ, aB1, x12Trans, AB2 );
+
+        // Put epsilonQ back instead of the temporary value, 1
         alpha11.Set(0,0,epsilonQ);
 
         if( A22.Width() != 0 )
         {
+            // Expose the subvector we seek to zero, a12R
             PartitionRight( a12, alpha12L, a12R );
 
+            // Find tauP, v, and epsilonP such that
+            //     I - tauP | 1 | | 1, v^T | | alpha12L | = | epsilonP |
+            //              | v |            |  a12R^T  | = |    0     |
             const R tauP = Reflector( alpha12L, a12R );
             const R epsilonP = alpha12L.Get(0,0);
+
+            // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
+            //             | v |                                 | v |
             alpha12L.Set(0,0,(R)1);
-            Gemv( NORMAL, tauP, A22, a12, (R)0, w21 );
-            Ger( (R)-1, w21, a12, A22 );
+            Gemv( NORMAL, (R)1, A22, a12, (R)0, w21 );
+
+            // A22 := A22 - tauP w21 a12
+            //      = A22 - tauP A22 a12^T a12
+            //      = A22 (I - tauP a12^T a12)
+            Ger( -tauP, w21, a12, A22 );
+
+            // Put epsilonP back instead of the temporary value, 1
             alpha12L.Set(0,0,epsilonP);
         }
         //--------------------------------------------------------------------//
@@ -208,7 +260,7 @@ inline void BidiagL
                    A20, a21,     A22;
 
     // Temporary matrices
-    Matrix<C> w12, w21;
+    Matrix<C> x12Adj, w21;
 
     PushBlocksizeStack( 1 );
     PartitionDownDiagonal
@@ -225,32 +277,66 @@ inline void BidiagL
         a1R.View1x2( alpha11, a12 );
         A2R.View1x2( a21, A22 );
 
-        w12.ResizeTo( 1, a12.Width() );
+        x12Adj.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
+
+        // Due to deficiencies in the BLAS ?gemv routines, this section is 
+        // easier if we temporarily conjugate a1R = | alpha11, a12 |
         Conjugate( a1R );
+
+        // Find tauP, v, and epsilonP such that
+        //     I - conj(tauP) | 1 | | 1, v^H | | alpha11 | = | epsilonP | 
+        //                    | v |            |   a12^T |   |    0     |
         const C tauP = Reflector( alpha11, a12 );
         const C epsilonP = alpha11.Get(0,0);
-        alpha11.Set(0,0,(C)1);
-        Gemv( NORMAL, tauP, A2R, a1R, (C)0, w21 );
-        Ger( (C)-1, w21, a1R, A2R );
-        alpha11.Set(0,0,epsilonP);
         tP.Set(A00.Height(),0,tauP);
+
+        // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
+        //             | v |                                 | v |
+        alpha11.Set(0,0,(C)1);
+        Gemv( NORMAL, (C)1, A2R, a1R, (C)0, w21 );
+
+        // A2R := A2R - tauP w21 conj(a1R)
+        //      = A2R - tauP A2R a1R^T conj(a1R)
+        //      = A22 (I - tauP a1R^T conj(a1R))
+        //      = A22 conj(I - conj(tauP) a1R^H a1R)
+        // which compensates for the fact that the reflector was generated
+        // on the conjugated a1R.
+        Ger( -tauP, w21, a1R, A2R );
+
+        // Put epsilonP back instead of the temporary value, 1
+        alpha11.Set(0,0,epsilonP);
+
+        // Undue the temporary conjugation
         Conjugate( a1R );
 
         if( A22.Height() != 0 )
         {
+            // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
                    a21B );
 
+            // Find tauQ, u, and epsilonQ such that
+            //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
+            //                    | u |            |   a21B   | = |    0     |
             const C tauQ = Reflector( alpha21T, a21B );
             const C epsilonQ = alpha21T.Get(0,0);
-            alpha21T.Set(0,0,(C)1);
-            Gemv( ADJOINT, tauQ, A22, a21, (C)0, w12 );
-            Ger( (C)-1, a21, w12, A22 );
-            alpha21T.Set(0,0,epsilonQ);
             tQ.Set(A00.Height(),0,tauQ);
+
+            // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
+            //           | u |
+            alpha21T.Set(0,0,(C)1);
+            Gemv( ADJOINT, (C)1, A22, a21, (C)0, x12Adj );
+
+            // A22 := A22 - conj(tauQ) a21 x12 
+            //      = A22 - conj(tauQ) a21 a21^H A22
+            //      = (I - conj(tauQ) a21 a21^H) A22
+            Ger( -Conj(tauQ), a21, x12Adj, A22 );
+
+            // Put epsilonQ back instead of the temporary value, 1
+            alpha21T.Set(0,0,epsilonQ);
         }
         //--------------------------------------------------------------------//
 
@@ -299,7 +385,7 @@ inline void BidiagU
                    A20, a21,     A22;
 
     // Temporary matrices
-    Matrix<C> w12, w21;
+    Matrix<C> x12Adj, w21;
 
     PushBlocksizeStack( 1 );
     PartitionDownDiagonal
@@ -320,30 +406,64 @@ inline void BidiagU
         ( a12,
           A22 );
 
-        w12.ResizeTo( 1, a12.Width() );
+        x12Adj.ResizeTo( a12.Width(),  1 );
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
+
+        // Find tauQ, u, and epsilonQ such that
+        //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | epsilonQ |
+        //                    | u |            |    a21  |   |    0     |
         const C tauQ = Reflector( alpha11, a21 );
         const C epsilonQ = alpha11.Get(0,0);
-        alpha11.Set(0,0,(C)1);
-        Gemv( ADJOINT, tauQ, AB2, aB1, (C)0, w12 );
-        Ger( (C)-1, aB1, w12, AB2 );
-        alpha11.Set(0,0,epsilonQ);
         tQ.Set(A00.Height(),0,tauQ );
+
+        // Set aB1 = | 1 | and form x12^H := (aB1^H AB2)^H = AB2^H aB1
+        //           | u |
+        alpha11.Set(0,0,(C)1);
+        Gemv( ADJOINT, (C)1, AB2, aB1, (C)0, x12Adj );
+
+        // Update AB2 := AB2 - conj(tauQ) aB1 x12
+        //             = AB2 - conj(tauQ) aB1 aB1^H AB2 
+        //             = (I - conj(tauQ) aB1 aB1^H) AB2
+        Ger( -Conj(tauQ), aB1, x12Adj, AB2 );
+
+        // Put epsilonQ back instead of the temporary value, 1
+        alpha11.Set(0,0,epsilonQ);
 
         if( A22.Width() != 0 )
         {
+            // Due to the deficiencies in the BLAS ?gemv routines, this section
+            // is easier if we temporarily conjugate a12
+            Conjugate( a12 ); 
+
+            // Expose the subvector we seek to zero, a12R
             PartitionRight( a12, alpha12L, a12R );
 
-            Conjugate( a12 ); 
+            // Find tauP, v, and epsilonP such that
+            //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilonP |
+            //                    | v |            |  a12R^T  |   |    0     |
             const C tauP = Reflector( alpha12L, a12R );
             const C epsilonP = alpha12L.Get(0,0);
-            alpha12L.Set(0,0,(C)1);
-            Gemv( NORMAL, tauP, A22, a12, (C)0, w21 );
-            Ger( (C)-1, w21, a12, A22 );
-            alpha12L.Set(0,0,epsilonP);
-            Conjugate( a12 );
             tP.Set(A00.Height(),0,tauP);
+
+            // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
+            //             | v |                                 | v |
+            alpha12L.Set(0,0,(C)1);
+            Gemv( NORMAL, (C)1, A22, a12, (C)0, w21 );
+
+            // A22 := A22 - tauP w21 conj(a12)
+            //      = A22 - tauP A22 a12^T conj(a12)
+            //      = A22 (I - tauP a12^T conj(a12))
+            //      = A22 conj(I - conj(tauP) a12^H a12)
+            // which compensates for the fact that the reflector was generated
+            // on the conjugated a12.
+            Ger( -tauP, w21, a12, A22 );
+
+            // Put epsilonP back instead of the temporary value, 1
+            alpha12L.Set(0,0,epsilonP);
+
+            // Undue the temporary conjugation
+            Conjugate( a12 );
         }
         //--------------------------------------------------------------------//
 

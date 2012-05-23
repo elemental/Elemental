@@ -219,81 +219,117 @@ internal::PanelBidiagU
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
         const bool firstIteration = ( ATL.Height() == 0 );
         //--------------------------------------------------------------------//
-        // Update the current column of A
+
+        // Update the current column of A:
+        //   aB1 := aB1 - ABL y10^T - XBL a01
         if( !firstIteration )
         {
             y10_STAR_MR = y10;
             a01_MR_STAR = a01;
+            // uB1[MC,* ] := ABL[MC,MR] y10^T[MR,* ]
             Gemv
             ( NORMAL, 
               (R)1, ABL.LocalMatrix(), y10_STAR_MR.LocalMatrix(), 
               (R)0, uB1_MC_STAR.LocalMatrix() );
+            // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
+            //             = ABL[MC,MR] y10^T[MR,* ] + XBL[MC,MR] a01[MR,* ]
             Gemv
             ( NORMAL,
               (R)1, XBL.LocalMatrix(), a01_MR_STAR.LocalMatrix(),
               (R)1, uB1_MC_STAR.LocalMatrix() );
+            // Sum the partial contributions and subtract from aB1
             aB1.SumScatterUpdate( (R)-1, uB1_MC_STAR );
         }
 
-        // Annihilate a21
+        // Find tauQ, u, and delta such that
+        //     I - tauQ | 1 | | 1, u^T | | alpha11 | = | delta |
+        //              | u |            |   a21   |   |   0   |
         R tauQ = 0;
         if( thisIsMyCol )
         {
             tauQ = internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
+                // Store delta and force | alpha11 | = | 1 |
+                //                       |   a21   |   | u |
                 delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
                 alpha11.SetLocalEntry(0,0,(R)1);
             }
         }
 
-        // Compute y21
+        //
+        // y21 := tauQ ( AB2^T aB1 - A02^T XBL^T aB1 - Y20 ABL^T aB1 )
+        //
         aB1_MC_STAR = aB1;
+        // z01[MR,* ] := ABL^T[MR,MC] aB1[MC,* ]
         Gemv
         ( TRANSPOSE, 
           (R)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
           (R)0, z01_MR_STAR.LocalMatrix() );
+        // z21[MR,* ] := AB2^T[MR,MC] aB1[MC,* ]
         Gemv
         ( TRANSPOSE, 
           (R)1, AB2.LocalMatrix(), aB1_MC_STAR.LocalMatrix(), 
           (R)0, z21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions to z01[MR,* ]
         z01_MR_STAR.SumOverCol();
+        // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^T aB1)[MR,* ]
         Gemv 
         ( NORMAL, 
           (R)1, Y20.LocalMatrix(), z01_MR_STAR.LocalMatrix(),
           (R)0, z21_MC_STAR.LocalMatrix() );
+        // z01[MR,* ] := XBL^T[MR,MC] aB1[MC,* ]
         Gemv
         ( TRANSPOSE,
           (R)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (R)0, z01_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions to z01[MR,* ] and scatter the result
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
+        // Redistribute the scattered summation 
         z01_MC_STAR = z01_MR_MC;
+        // z21[MR,* ] := z21[MR,* ] - A02^T[MR,MC] z01[MC,* ] 
+        //             = AB2^T[MR,MC] aB1[MC,* ] - 
+        //               A02^T[MR,MC] (XBL^T aB1)[MC,* ]
         Gemv
         ( TRANSPOSE,
           (R)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
           (R)1, z21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions to z21[MR,* ] and scatter the result
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
+        // Redistribute (and rename) the scattered summation
         y21 = z21_MR_MC;
+        // Substract z21 = Y20 ABL^T aB1 from y21
         y21.SumScatterUpdate( (R)-1, z21_MC_STAR );
         if( thisIsMyCol )
             Scal( tauQ, y21 );
 
-        // Update a12
+        // 
+        // y21 := y21 + Y20 a10^T
+        //
         a10_STAR_MR = a10;
         x10_STAR_MC = x10;
+        // q21[MC,* ] := Y20[MC,MR] a10^T[MR,* ]
         Gemv
         ( NORMAL, 
           (R)1, Y20.LocalMatrix(), a10_STAR_MR.LocalMatrix(),
           (R)0, q21_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
             Axpy( (R)1, y21, q21 );
+
+        //
+        // a12 := a12 - a10 Y20^T - x10 A02
+        //
         q21_MR_MC = q21;
+        // q21[MR,* ] := A02^T[MR,MC] x10^T[MC,* ]
         Gemv
         ( TRANSPOSE,
           (R)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (R)0, q21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^T)[MR,MC]
         q21_MR_MC.SumScatterUpdate( (R)1, q21_MR_STAR );
+        // a12 := a12 - q21^T
         if( thisIsMyRow )
         {
             const int localWidth = a12.LocalWidth();
@@ -304,45 +340,63 @@ internal::PanelBidiagU
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
 
-        // Annihilate a12R
+        // Find tauP, v, and epsilon such that
+        //     I - tauP | 1 | | 1, v^T | | alpha12L | = | epsilon |
+        //              | v |            |  a12R^T  |   |    0    |
         R tauP = 0;
         if( thisIsMyRow )
         {
             tauP = internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
+                // Store epsilon and force | alpha12L | = | 1 |
+                //                         |  a21R^T  |   | v |
                 epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
                 alpha12L.SetLocalEntry(0,0,(R)1);
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
 
-        // Compute x21
+        //
+        // x21 := tauP ( A22 a12^T - A2L Y2L^T a12^T - X20 A02 a12^T )
+        //
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
+        // s21[MC,* ] := A22[MC,MR] a12^T[MR,* ]
         Gemv
         ( NORMAL,
           (R)1, A22.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (R)0, s21_MC_STAR.LocalMatrix() );
+        // sB1[MR,* ] := Y2L^T[MR,MC] a12^T[MC,* ]
         Gemv
         ( TRANSPOSE,
           (R)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (R)0, sB1_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
+        // s21[MC,* ] := s21[MC,* ] - A2L[MC,MR] sB1[MR,* ]
+        //             = A22[MC,MR] a12^T[MR,* ] - A2L[MC,MR] sB1[MR,* ]
+        // (still needs to be summed within each process row)
         Gemv
         ( NORMAL, 
           (R)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (R)1,  s21_MC_STAR.LocalMatrix() );
+        // s01[MC,* ] := A02[MC,MR] a12^T[MR,* ]
         Gemv
         ( NORMAL,
           (R)1, A02.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (R)0, s01_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
+        // s21[MC,* ] := s21[MC,* ] - X20[MC,MR] s01[MR,* ]
+        //             = A22[MC,MR] a12^T[MR,* ] - A2L[MC,MR] sB1[MR,* ]
+        //                                       - X20[MC,MR] s01[MR,* ]
         Gemv
         ( NORMAL,
           (R)-1, X20.LocalMatrix(), s01_MR_STAR.LocalMatrix(),
           (R)1,  s21_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
         Scal( tauP, x21.LocalMatrix() );
         //--------------------------------------------------------------------//
@@ -628,87 +682,123 @@ internal::PanelBidiagU
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
         const bool firstIteration = ( ATL.Height() == 0 );
         //--------------------------------------------------------------------//
-        // Update the current column of A
+
+        // Update the current column of A:
+        //   aB1 := aB1 - ABL y10^H - XBL a01
         if( !firstIteration )
         {
             Conjugate( y10 );
             y10_STAR_MR = y10;
+            // uB1[MC,* ] := ABL[MC,MR] y10^H[MR,* ]
             a01_MR_STAR = a01;
             Gemv
             ( NORMAL, 
               (C)1, ABL.LocalMatrix(), y10_STAR_MR.LocalMatrix(), 
               (C)0, uB1_MC_STAR.LocalMatrix() );
+            // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
+            //             = ABL[MC,MR] y10^H[MR,* ] + XBL[MC,MR] a01[MR,* ]
             Gemv
             ( NORMAL,
               (C)1, XBL.LocalMatrix(), a01_MR_STAR.LocalMatrix(),
               (C)1, uB1_MC_STAR.LocalMatrix() );
+            // Sum the partial contributions and subtract from aB1
             aB1.SumScatterUpdate( (C)-1, uB1_MC_STAR );
         }
 
-        // Annihilate a21
+        // Find tauQ, u, and delta such that
+        //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | delta |
+        //                    | u |            |   a21   | = |   0   |
         C tauQ = 0;
         if( thisIsMyCol )
         {
             tauQ = internal::ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
-                delta1.SetLocalEntry(0,0,alpha11.GetRealLocalEntry(0,0));
                 tauQ1.SetLocalEntry(0,0,tauQ);
+                // Store delta and force | alpha11 | = | 1 |
+                //                       |   a21   |   | u |
+                delta1.SetLocalEntry(0,0,alpha11.GetRealLocalEntry(0,0));
                 alpha11.SetLocalEntry(0,0,(C)1);
             }
         }
 
-        // Compute y21
+        //
+        // y21 := tauQ ( AB2^H aB1 - A02^H XBL^H aB1 - Y20 ABL^H aB1 )
+        //
         aB1_MC_STAR = aB1;
+        // z01[MR,* ] := ABL^H[MR,MC] aB1[MC,* ]
         Gemv
         ( ADJOINT,
           (C)1, ABL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
+        // z21[MR,* ] := AB2^H[MR,MC] aB1[MC,* ]
         Gemv
         ( ADJOINT,
           (C)1, AB2.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions
         z01_MR_STAR.SumOverCol();
+        // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^H aB1)[MR,* ]
         Gemv
         ( NORMAL,
           (C)1, Y20.LocalMatrix(), z01_MR_STAR.LocalMatrix(),
           (C)0, z21_MC_STAR.LocalMatrix() );
+        // z01[MR,* ] := XBL^H[MR,MC] aB1[MC,* ]
         Gemv
         ( ADJOINT,
           (C)1, XBL.LocalMatrix(), aB1_MC_STAR.LocalMatrix(),
           (C)0, z01_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions to z01[MR,* ] and scatter the result
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
+        // Redistribute the scattered summation
         z01_MC_STAR = z01_MR_MC;
+        // z21[MR,* ] := z21[MR,* ] - A02^H[MR,MC] z01[MC,* ]
+        //             = AB2^H[MR,MC] aB1[MC,* ] - 
+        //               A02^H[MR,MC] (XBL^H aB1)[MC,* ]
         Gemv
         ( ADJOINT,
           (C)-1, A02.LocalMatrix(), z01_MC_STAR.LocalMatrix(),
           (C)1, z21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions to z21[MR,* ] and scatter the result
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
+        // Redistribute (and rename) the scattered summation
         y21 = z21_MR_MC;
+        // Subtract z21 = Y20 ABL^H aB1 from y21
         y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
         if( thisIsMyCol )
             Scal( tauQ, y21 );
 
-        // Update a12
+        //
+        // y21 := y21 + Y20 a10^H
+        //
         Conjugate( a10 );
-        Conjugate( x10 );
         a10_STAR_MR = a10;
-        x10_STAR_MC = x10;
         Conjugate( a10 );
-        Conjugate( x10 );
+        // q21[MC,* ] := Y20[MC,MR] a10^H[MR,* ]
         Gemv
         ( NORMAL, 
           (C)1, Y20.LocalMatrix(), a10_STAR_MR.LocalMatrix(),
           (C)0, q21_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
             Axpy( (C)1, y21, q21 );
+
+        //
+        // a12 := conj(a12 - a10 Y20^H - x10 A02)
+        //
+        Conjugate( x10 );
+        x10_STAR_MC = x10;
+        Conjugate( x10 );
         q21_MR_MC = q21;
+        // q21[MR,* ] := A02^H[MR,MC] x10^H[MC,* ]
         Gemv
         ( ADJOINT,
           (C)1, A02.LocalMatrix(), x10_STAR_MC.LocalMatrix(),
           (C)0, q21_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^H)[MR,MC]
         q21_MR_MC.SumScatterUpdate( (C)1, q21_MR_STAR );
+        // a12 := conj(a12) - q21^T = conj(a12 - a10 Y20^H - x10 A02)
         Conjugate( a12 );
         if( thisIsMyRow )
         {
@@ -720,48 +810,71 @@ internal::PanelBidiagU
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
 
-        // Annihilate a12R
+        // Find tauP, v, and epsilon such that
+        //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilon |
+        //                    | v |            |  a12R^T  |   |    0    |
         C tauP = 0;
         if( thisIsMyRow )
         {
             tauP = internal::RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
-                epsilon1.SetLocalEntry(0,0,alpha12L.GetRealLocalEntry(0,0));
                 tauP1.SetLocalEntry(0,0,tauP);
+                // Store epsilon and force | alpha12L | = | 1 |
+                //                         |  a12R^T  |   | v |
+                epsilon1.SetLocalEntry(0,0,alpha12L.GetRealLocalEntry(0,0));
                 alpha12L.SetLocalEntry(0,0,(C)1);
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
 
-        // Compute x21
+        //
+        // (Keep in mind that a12 is currently overwritten with its conjugate.
+        //  We will use the 'true' value in the following comments.)
+        //
+        // x21 := conj(tauP) ( ? )
+        //
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
+        // s21[MC,* ] := A22[MC,MR] a12^H[MR,* ]
         Gemv
         ( NORMAL,
           (C)1, A22.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (C)0, s21_MC_STAR.LocalMatrix() );
+        // sB1[MR,* ] := Y2L^H[MR,MC] a12^H[MC,* ]
         Gemv
         ( ADJOINT,
           (C)1, Y2L.LocalMatrix(), a12_STAR_MC.LocalMatrix(),
           (C)0, sB1_MR_STAR.LocalMatrix() );
+        // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
+        // s21[MC,* ] := s21[MC,* ] - A2L[MC,MR] sB1[MR,* ]
+        //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
+        // (still needs to be summed within each process row)
         Gemv
         ( NORMAL, 
           (C)-1, A2L.LocalMatrix(), sB1_MR_STAR.LocalMatrix(),
           (C)1,  s21_MC_STAR.LocalMatrix() );
+        // s01[MC,* ] := A02[MC,MR] a12^H[MR,* ]
         Gemv
         ( NORMAL,
           (C)1, A02.LocalMatrix(), a12_STAR_MR.LocalMatrix(),
           (C)0, s01_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
+        // s21[MC,* ] := s21[MC,* ] - X20[MC,MR] s01[MR,* ]
+        //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
+        //                                       - X20[MC,MR] s01[MR,* ]
         Gemv
         ( NORMAL,
           (C)-1, X20.LocalMatrix(), s01_MR_STAR.LocalMatrix(),
           (C)1,  s21_MC_STAR.LocalMatrix() );
+        // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
         Scal( tauP, x21.LocalMatrix() );
+
+        // Undo the in-place conjugation of a12
         Conjugate( a12 );
         Conjugate( a12_STAR_MR );
         //--------------------------------------------------------------------//
