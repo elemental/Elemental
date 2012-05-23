@@ -832,7 +832,7 @@ internal::PanelBidiagU
         // (Keep in mind that a12 is currently overwritten with its conjugate.
         //  We will use the 'true' value in the following comments.)
         //
-        // x21 := conj(tauP) ( ? )
+        // x21 := conj(tauP) ( A22 a12^H - A2L Y2L^H a12^H - X20 A02 a12^H )
         //
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
