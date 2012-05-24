@@ -443,8 +443,8 @@ non-negative entries.
 
    .. note:: 
 
-      This routine has not yet been designed to efficiently handle cases where 
-      the matrix is not close to square. It is also far from the most efficient 
+      This routine has not yet been optimized for cases where the matrix is 
+      highly rectangular. It is also far from the most efficient 
       possible algorithm, as it currently uses the QR algorithm for the
       bidiagonal SVD (as opposed to a Divide and Conquer algorithm) and 
       does not apply Householder reflectors in the most efficient manner 
@@ -456,10 +456,11 @@ non-negative entries.
 
    .. note::
 
-      This routine has not yet been designed to efficiently handle cases where
-      the matrix is not close to square. It is also far from the most efficient
-      possible algorithm, as it currently uses the QR algorithm for the 
-      bidiagonal SVD (as opposed to bisection).
+      This routine has not yet been optimized for cases where the matrix is 
+      highly rectangular. It is also far from the most efficient
+      possible algorithm, as it currently uses the QR algorithm to redundantly
+      compute the singular values of the bidiagonal matrix (as opposed to 
+      bisection).
 
 Polar decomposition
 -------------------
