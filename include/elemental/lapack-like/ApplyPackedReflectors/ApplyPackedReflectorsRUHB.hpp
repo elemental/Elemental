@@ -62,9 +62,7 @@ internal::ApplyPackedReflectorsRUHB
     PushCallStack("internal::ApplyPackedReflectorsRUHB");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
-    if( offset > H.Width() )
-        throw std::logic_error("Transforms out of bounds");
-    if( offset < 0 )
+    if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
         throw std::logic_error
@@ -113,9 +111,8 @@ internal::ApplyPackedReflectorsRUHB
         HPan_STAR_MR.AlignWith( ARight );
         ZTrans_STAR_MC.AlignWith( ARight );
         ZTrans_STAR_VC.AlignWith( ARight );
-        ZTrans_STAR_MC.ResizeTo( HPanHeight, ARight.Height() );
-        SInv_STAR_STAR.ResizeTo( HPanHeight, HPanHeight );
-        Zero( SInv_STAR_STAR );
+        Zeros( HPanHeight, ARight.Height(), ZTrans_STAR_MC );
+        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
@@ -176,9 +173,7 @@ internal::ApplyPackedReflectorsRUHB
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
-    if( offset < 0 )
-        throw std::logic_error("Transforms out of bounds");
-    if( offset > H.Width() )
+    if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
         throw std::logic_error
@@ -247,9 +242,8 @@ internal::ApplyPackedReflectorsRUHB
         HPan_STAR_MR.AlignWith( ARight );
         ZAdj_STAR_MC.AlignWith( ARight );
         ZAdj_STAR_VC.AlignWith( ARight );
-        ZAdj_STAR_MC.ResizeTo( HPanHeight, ARight.Height() );
-        SInv_STAR_STAR.ResizeTo( HPanHeight, HPanHeight );
-        Zero( SInv_STAR_STAR );
+        Zeros( HPanHeight, ARight.Height(), ZAdj_STAR_MC );
+        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );

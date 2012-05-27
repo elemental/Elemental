@@ -44,8 +44,8 @@ internal::ApplyPackedReflectorsRLHF
     PushCallStack("internal::ApplyPackedReflectorsRLHF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
-    if( offset > 0 )
-        throw std::logic_error("Transforms cannot extend above matrix");
+    if( offset > 0 || offset < -H.Width() )
+        throw std::logic_error("Transforms out of bounds");
 #endif
     throw std::logic_error("This routine is not yet implemented");
 #ifndef RELEASE
@@ -66,8 +66,8 @@ internal::ApplyPackedReflectorsRLHF
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
-    if( offset > 0 )
-        throw std::logic_error("Transforms cannot extend above matrix");
+    if( offset > 0 || offset < -H.Width() )
+        throw std::logic_error("Transforms out of bounds");
 #endif
     throw std::logic_error("This routine is not yet implemented");
 #ifndef RELEASE

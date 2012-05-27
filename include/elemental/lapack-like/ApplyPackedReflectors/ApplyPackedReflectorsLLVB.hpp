@@ -61,10 +61,8 @@ internal::ApplyPackedReflectorsLLVB
     PushCallStack("internal::ApplyPackedReflectorsLLVB");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
-    if( offset > 0 )
-        throw std::logic_error("Transforms cannot extend above matrix");
-    if( offset < -H.Height() )
-        throw std::logic_error("Transforms cannot extend below matrix");
+    if( offset > 0 || offset < -H.Height() )
+        throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
         throw std::logic_error
         ("Height of transforms must equal height of target matrix");
@@ -118,9 +116,8 @@ internal::ApplyPackedReflectorsLLVB
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Z_STAR_MR.ResizeTo( HPanWidth, ABottom.Width() );
-        SInv_STAR_STAR.ResizeTo( HPanWidth, HPanWidth );
-        Zero( SInv_STAR_STAR );
+        Zeros( HPanWidth, ABottom.Width(), Z_STAR_MR );
+        Zeros( HPanWidth, HPanWidth, SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
@@ -181,10 +178,8 @@ internal::ApplyPackedReflectorsLLVB
     PushCallStack("internal::ApplyPackedReflectorsLLVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error("{H,t,A} must be distributed over same grid");
-    if( offset > 0 )
-        throw std::logic_error("Transforms cannot extend above matrix");
-    if( offset < -H.Height() )
-        throw std::logic_error("Transforms cannot extend below matrix");
+    if( offset > 0 || offset < -H.Height() )
+        throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
         throw std::logic_error
         ("Height of transforms must equal height of target matrix");
@@ -257,9 +252,8 @@ internal::ApplyPackedReflectorsLLVB
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Z_STAR_MR.ResizeTo( HPan.Width(), ABottom.Width() );
-        SInv_STAR_STAR.ResizeTo( HPan.Width(), HPan.Width() );
-        Zero( SInv_STAR_STAR );
+        Zeros( HPan.Width(), ABottom.Width(), Z_STAR_MR );
+        Zeros( HPan.Width(), HPan.Width(), SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
