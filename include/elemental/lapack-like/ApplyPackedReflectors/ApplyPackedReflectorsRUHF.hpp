@@ -34,7 +34,7 @@
 namespace elem {
 
 //
-// Since applying Householder transforms from vectors stored left-to-right
+// Since applying Householder transforms from vectors stored top-to-bottom
 // implies that we will be forming a generalization of 
 //
 //   (I - tau_0 v_0^H v_0) (I - tau_1 v_1^H v_1) = 
