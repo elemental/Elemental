@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Symv/SymvL.hpp"
-#include "./Symv/SymvU.hpp"
+#include "./Symv/L.hpp"
+#include "./Symv/U.hpp"
 
 namespace elem {
 

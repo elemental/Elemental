@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Norm/FrobeniusNorm.hpp"
-#include "./Norm/InfinityNorm.hpp"
-#include "./Norm/MaxNorm.hpp"
-#include "./Norm/OneNorm.hpp"
+#include "./Norm/Frobenius.hpp"
+#include "./Norm/Infinity.hpp"
+#include "./Norm/Max.hpp"
+#include "./Norm/One.hpp"
 
 namespace elem {
 

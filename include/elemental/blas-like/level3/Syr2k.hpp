@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Syr2k/Syr2kLN.hpp"
-#include "./Syr2k/Syr2kLT.hpp"
-#include "./Syr2k/Syr2kUN.hpp"
-#include "./Syr2k/Syr2kUT.hpp"
+#include "./Syr2k/LN.hpp"
+#include "./Syr2k/LT.hpp"
+#include "./Syr2k/UN.hpp"
+#include "./Syr2k/UT.hpp"
 
 namespace elem {
 

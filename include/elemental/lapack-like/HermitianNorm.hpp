@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./HermitianNorm/HermitianFrobeniusNorm.hpp"
-#include "./HermitianNorm/HermitianInfinityNorm.hpp"
-#include "./HermitianNorm/HermitianMaxNorm.hpp"
-#include "./HermitianNorm/HermitianOneNorm.hpp"
+#include "./HermitianNorm/Frobenius.hpp"
+#include "./HermitianNorm/Infinity.hpp"
+#include "./HermitianNorm/Max.hpp"
+#include "./HermitianNorm/One.hpp"
 
 namespace elem {
 

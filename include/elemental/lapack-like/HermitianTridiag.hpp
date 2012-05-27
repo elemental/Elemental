@@ -31,15 +31,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./HermitianTridiag/HermitianPanelTridiagL.hpp"
-#include "./HermitianTridiag/HermitianPanelTridiagLSquare.hpp"
-#include "./HermitianTridiag/HermitianPanelTridiagU.hpp"
-#include "./HermitianTridiag/HermitianPanelTridiagUSquare.hpp"
-#include "./HermitianTridiag/HermitianTridiagL.hpp"
-#include "./HermitianTridiag/HermitianTridiagLSquare.hpp"
-#include "./HermitianTridiag/HermitianTridiagU.hpp"
-#include "./HermitianTridiag/HermitianTridiagUSquare.hpp"
-#include "./HermitianTridiag/LocalHermitianTridiag.hpp"
+#include "./HermitianTridiag/PanelL.hpp"
+#include "./HermitianTridiag/PanelLSquare.hpp"
+#include "./HermitianTridiag/PanelU.hpp"
+#include "./HermitianTridiag/PanelUSquare.hpp"
+#include "./HermitianTridiag/L.hpp"
+#include "./HermitianTridiag/LSquare.hpp"
+#include "./HermitianTridiag/U.hpp"
+#include "./HermitianTridiag/USquare.hpp"
+#include "./HermitianTridiag/Local.hpp"
 
 namespace elem {
 

@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Gemv/GemvN.hpp"
-#include "./Gemv/GemvT.hpp"
+#include "./Gemv/N.hpp"
+#include "./Gemv/T.hpp"
 
 namespace elem {
 

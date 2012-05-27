@@ -31,12 +31,12 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Cholesky/CholeskyLVar2.hpp"
-#include "./Cholesky/CholeskyLVar3.hpp"
-#include "./Cholesky/CholeskyLVar3Square.hpp"
-#include "./Cholesky/CholeskyUVar2.hpp"
-#include "./Cholesky/CholeskyUVar3.hpp"
-#include "./Cholesky/CholeskyUVar3Square.hpp"
+#include "./Cholesky/LVar2.hpp"
+#include "./Cholesky/LVar3.hpp"
+#include "./Cholesky/LVar3Square.hpp"
+#include "./Cholesky/UVar2.hpp"
+#include "./Cholesky/UVar3.hpp"
+#include "./Cholesky/UVar3Square.hpp"
 
 namespace elem {
 

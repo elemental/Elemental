@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./HPDInverse/HPDInverseLVar2.hpp"
-#include "./HPDInverse/HPDInverseUVar2.hpp"
+#include "./HPDInverse/LVar2.hpp"
+#include "./HPDInverse/UVar2.hpp"
 
 namespace elem {
 

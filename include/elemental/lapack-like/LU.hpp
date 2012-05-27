@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./LU/LocalLU.hpp"
-#include "./LU/PanelLU.hpp"
+#include "./LU/Local.hpp"
+#include "./LU/Panel.hpp"
 
 namespace elem {
 

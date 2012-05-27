@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Symm/SymmLL.hpp"
-#include "./Symm/SymmLU.hpp"
-#include "./Symm/SymmRL.hpp"
-#include "./Symm/SymmRU.hpp"
+#include "./Symm/LL.hpp"
+#include "./Symm/LU.hpp"
+#include "./Symm/RL.hpp"
+#include "./Symm/RU.hpp"
 
 namespace elem {
 

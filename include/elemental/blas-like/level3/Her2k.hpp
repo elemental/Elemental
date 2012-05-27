@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Her2k/Her2kLC.hpp"
-#include "./Her2k/Her2kLN.hpp"
-#include "./Her2k/Her2kUC.hpp"
-#include "./Her2k/Her2kUN.hpp"
+#include "./Her2k/LC.hpp"
+#include "./Her2k/LN.hpp"
+#include "./Her2k/UC.hpp"
+#include "./Her2k/UN.hpp"
 
 namespace elem {
 

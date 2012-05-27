@@ -35,8 +35,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Reflector/ColReflector.hpp"
-#include "./Reflector/RowReflector.hpp"
+#include "./Reflector/Col.hpp"
+#include "./Reflector/Row.hpp"
 
 namespace elem {
 

@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Hemv/HemvL.hpp"
-#include "./Hemv/HemvU.hpp"
+#include "./Hemv/L.hpp"
+#include "./Hemv/U.hpp"
 
 namespace elem {
 

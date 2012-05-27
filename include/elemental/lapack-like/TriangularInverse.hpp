@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./TriangularInverse/TriangularInverseLVar3.hpp"
-#include "./TriangularInverse/TriangularInverseUVar3.hpp"
+#include "./TriangularInverse/LVar3.hpp"
+#include "./TriangularInverse/UVar3.hpp"
 
 namespace elem {
 

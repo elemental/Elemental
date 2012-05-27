@@ -31,15 +31,15 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Trmm/TrmmUtil.hpp"
-#include "./Trmm/TrmmLLN.hpp"
-#include "./Trmm/TrmmLLT.hpp"
-#include "./Trmm/TrmmLUN.hpp"
-#include "./Trmm/TrmmLUT.hpp"
-#include "./Trmm/TrmmRLN.hpp"
-#include "./Trmm/TrmmRLT.hpp"
-#include "./Trmm/TrmmRUN.hpp"
-#include "./Trmm/TrmmRUT.hpp"
+#include "./Trmm/Util.hpp"
+#include "./Trmm/LLN.hpp"
+#include "./Trmm/LLT.hpp"
+#include "./Trmm/LUN.hpp"
+#include "./Trmm/LUT.hpp"
+#include "./Trmm/RLN.hpp"
+#include "./Trmm/RLT.hpp"
+#include "./Trmm/RUN.hpp"
+#include "./Trmm/RUT.hpp"
 
 namespace elem {
 

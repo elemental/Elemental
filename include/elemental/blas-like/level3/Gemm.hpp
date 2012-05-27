@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Gemm/GemmNN.hpp"
-#include "./Gemm/GemmNT.hpp"
-#include "./Gemm/GemmTN.hpp"
-#include "./Gemm/GemmTT.hpp"
+#include "./Gemm/NN.hpp"
+#include "./Gemm/NT.hpp"
+#include "./Gemm/TN.hpp"
+#include "./Gemm/TT.hpp"
 
 namespace elem {
 

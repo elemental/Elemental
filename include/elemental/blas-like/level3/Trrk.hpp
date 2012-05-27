@@ -31,11 +31,11 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Trrk/LocalTrrk.hpp"
-#include "./Trrk/TrrkNN.hpp"
-#include "./Trrk/TrrkNT.hpp"
-#include "./Trrk/TrrkTN.hpp"
-#include "./Trrk/TrrkTT.hpp"
+#include "./Trrk/Local.hpp"
+#include "./Trrk/NN.hpp"
+#include "./Trrk/NT.hpp"
+#include "./Trrk/TN.hpp"
+#include "./Trrk/TT.hpp"
 
 namespace elem {
 

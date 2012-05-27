@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./QR/PanelQR.hpp"
+#include "./QR/Panel.hpp"
 
 namespace elem {
 

@@ -31,10 +31,10 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Trsv/TrsvLN.hpp"
-#include "./Trsv/TrsvLT.hpp"
-#include "./Trsv/TrsvUN.hpp"
-#include "./Trsv/TrsvUT.hpp"
+#include "./Trsv/LN.hpp"
+#include "./Trsv/LT.hpp"
+#include "./Trsv/UN.hpp"
+#include "./Trsv/UT.hpp"
 
 namespace elem {
 

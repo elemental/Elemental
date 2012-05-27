@@ -31,8 +31,8 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Hetrmm/HetrmmLVar1.hpp"
-#include "./Hetrmm/HetrmmUVar1.hpp"
+#include "./Hetrmm/LVar1.hpp"
+#include "./Hetrmm/UVar1.hpp"
 
 namespace elem {
 

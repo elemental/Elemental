@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./LQ/PanelLQ.hpp"
+#include "./LQ/Panel.hpp"
 
 namespace elem {
 

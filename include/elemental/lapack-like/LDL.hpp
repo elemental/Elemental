@@ -31,7 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./LDL/LocalLDL.hpp"
+#include "./LDL/Local.hpp"
 
 namespace elem {
 
