@@ -54,6 +54,87 @@ namespace elem {
 template<typename R>
 inline void
 internal::ApplyPackedReflectorsLUHF
+( int offset, const Matrix<R>& H, Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::ApplyPackedReflectorsLUHF");
+    if( offset < 0 || offset > H.Width() )
+        throw std::logic_error("Transforms out of bounds");
+    if( H.Width() != A.Height() )
+        throw std::logic_error
+        ("Width of transforms must equal height of target matrix");
+#endif
+    Matrix<R>
+        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy,
+        HBL, HBR,  H10, H11, H12,
+                   H20, H21, H22;
+    Matrix<R> 
+        AT,  A0,
+        AB,  A1,
+             A2;
+
+    Matrix<R> SInv, Z;
+
+    LockedPartitionDownDiagonal
+    ( H, HTL, HTR,
+         HBL, HBR, 0 );
+    PartitionDown
+    ( A, AT,
+         AB, 0 );
+    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
+    {
+        LockedRepartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+         /*************/ /******************/
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+
+        const int HPanWidth = H11.Width() + H12.Width();
+        const int HPanHeight =
+            std::min( H11.Height(), std::max(HPanWidth-offset,0) );
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+
+        RepartitionDown
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
+
+        Zeros( HPanHeight, AB.Width(), Z );
+        Zeros( HPanHeight, HPanHeight, SInv );
+        //--------------------------------------------------------------------//
+        HPanCopy = HPan;
+        MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
+
+        Syrk( LOWER, NORMAL, (R)1, HPanCopy, (R)0, SInv );
+        HalveMainDiagonal( SInv );
+
+        Gemm( NORMAL, NORMAL, (R)1, HPanCopy, AB, (R)0, Z );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, SInv, Z );
+        Gemm( TRANSPOSE, NORMAL, (R)-1, HPanCopy, Z, (R)1, AB );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
+         /*************/ /******************/
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+
+        SlidePartitionDown
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
+internal::ApplyPackedReflectorsLUHF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
@@ -149,6 +230,113 @@ internal::ApplyPackedReflectorsLUHF
                /**/       H10, H11, /**/ H12,
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
+
+        SlidePartitionDown
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
+internal::ApplyPackedReflectorsLUHF
+( Conjugation conjugation, int offset, 
+  const Matrix<Complex<R> >& H,
+  const Matrix<Complex<R> >& t,
+        Matrix<Complex<R> >& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::ApplyPackedReflectorsLUHF");
+    if( offset < 0 || offset > H.Width() )
+        throw std::logic_error("Transforms out of bounds");
+    if( H.Width() != A.Height() )
+        throw std::logic_error
+        ("Width of transforms must equal height of target matrix");
+    if( t.Height() != H.DiagonalLength( offset ) )
+        throw std::logic_error("t must be the same length as H's offset diag");
+#endif
+    typedef Complex<R> C;
+
+    Matrix<C>
+        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy,
+        HBL, HBR,  H10, H11, H12,
+                   H20, H21, H22;
+    Matrix<C> 
+        AT,  A0,
+        AB,  A1,
+             A2;
+    Matrix<C>
+        tT,  t0,
+        tB,  t1,
+             t2;
+
+    Matrix<C> SInv, Z;
+
+    LockedPartitionDownDiagonal
+    ( H, HTL, HTR,
+         HBL, HBR, 0 );
+    LockedPartitionDown
+    ( t, tT,
+         tB, 0 );
+    PartitionDown
+    ( A, AT,
+         AB, 0 );
+    while( HTL.Height() < H.Height() && HTL.Width() < H.Width() )
+    {
+        LockedRepartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+         /*************/ /******************/
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+
+        const int HPanWidth = H11.Width() + H12.Width();
+        const int HPanHeight =
+            std::min( H11.Height(), std::max(HPanWidth-offset,0) );
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+
+        LockedRepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2, HPanHeight );
+
+        RepartitionDown
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
+
+        Zeros( HPanHeight, AB.Width(), Z );
+        Zeros( HPanHeight, HPanHeight, SInv );
+        //--------------------------------------------------------------------//
+        HPanCopy = HPan;
+        MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
+
+        Herk( LOWER, NORMAL, (C)1, HPanCopy, (C)0, SInv );
+        FixDiagonal( conjugation, t1, SInv );
+
+        Gemm( NORMAL, NORMAL, (C)1, HPanCopy, AB, (C)0, Z );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, SInv, Z );
+        Gemm( ADJOINT, NORMAL, (C)-1, HPanCopy, Z, (C)1, AB );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionDownDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
+         /*************/ /******************/
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+
+        SlideLockedPartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
 
         SlidePartitionDown
         ( AT,  A0,

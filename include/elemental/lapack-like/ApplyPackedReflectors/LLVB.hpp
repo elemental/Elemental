@@ -53,6 +53,90 @@ namespace elem {
 template<typename R> 
 inline void
 internal::ApplyPackedReflectorsLLVB
+( int offset, const Matrix<R>& H, Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::ApplyPackedReflectorsLLVB");
+    if( offset > 0 || offset < -H.Height() )
+        throw std::logic_error("Transforms out of bounds");
+    if( H.Height() != A.Height() )
+        throw std::logic_error
+        ("Height of transforms must equal height of target matrix");
+#endif
+    Matrix<R>
+        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy,
+        HBL, HBR,  H10, H11, H12,
+                   H20, H21, H22;
+    Matrix<R>
+        AT,  A0,  ABottom,
+        AB,  A1,
+             A2;
+
+    Matrix<R> SInv, Z;
+
+    LockedPartitionUpDiagonal
+    ( H, HTL, HTR,
+         HBL, HBR, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, std::max(0,H.Height()-H.Width()) );
+    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    {
+        LockedRepartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
+         /*************/ /******************/
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
+
+        const int HPanHeight = H11.Height() + H21.Height();
+        const int HPanWidth = 
+            std::min( H11.Width(), std::max(HPanHeight+offset,0) );
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+
+        ABottom.View2x1( A1,
+                         A2 );
+
+        Zeros( HPanWidth, ABottom.Width(), Z );
+        Zeros( HPanWidth, HPanWidth, SInv );
+        //--------------------------------------------------------------------//
+        HPanCopy = HPan;
+        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
+
+        Syrk( UPPER, TRANSPOSE, (R)1, HPanCopy, (R)0, SInv );
+        HalveMainDiagonal( SInv );
+
+        Gemm( TRANSPOSE, NORMAL, (R)1, HPanCopy, ABottom, (R)0, Z );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, SInv, Z );
+        Gemm( NORMAL, NORMAL, (R)-1, HPanCopy, Z, (R)1, ABottom );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+         /*************/ /******************/
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+internal::ApplyPackedReflectorsLLVB
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
@@ -69,7 +153,6 @@ internal::ApplyPackedReflectorsLLVB
 #endif
     const Grid& g = H.Grid();
 
-    // Matrix views    
     DistMatrix<R,MC,MR>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
@@ -170,6 +253,116 @@ template<typename R>
 inline void
 internal::ApplyPackedReflectorsLLVB
 ( Conjugation conjugation, int offset, 
+  const Matrix<Complex<R> >& H,
+  const Matrix<Complex<R> >& t,
+        Matrix<Complex<R> >& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::ApplyPackedReflectorsLLVB");
+    if( offset > 0 || offset < -H.Height() )
+        throw std::logic_error("Transforms out of bounds");
+    if( H.Height() != A.Height() )
+        throw std::logic_error
+        ("Height of transforms must equal height of target matrix");
+    if( t.Height() != H.DiagonalLength( offset ) )
+        throw std::logic_error("t must be the same length as H's offset diag");
+#endif
+    typedef Complex<R> C;
+
+    Matrix<C>
+        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy,
+        HBL, HBR,  H10, H11, H12,
+                   H20, H21, H22;
+    Matrix<C>
+        AT,  A0,  ABottom,
+        AB,  A1,
+             A2;
+    Matrix<C>
+        tT,  t0,
+        tB,  t1,
+             t2;
+
+    Matrix<C> SInv, Z;
+
+    LockedPartitionUpDiagonal
+    ( H, HTL, HTR,
+         HBL, HBR, 0 );
+    LockedPartitionUp
+    ( t, tT,
+         tB, 0 );
+    PartitionUp
+    ( A, AT,
+         AB, std::max(0,H.Height()-H.Width()) );
+    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    {
+        LockedRepartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
+               /**/       H10, H11, /**/ H12,
+         /*************/ /******************/
+          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+
+        const int HPanHeight = H11.Height() + H21.Height();
+        const int HPanWidth = 
+            std::min( H11.Width(), std::max(HPanHeight+offset,0) );
+        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+
+        LockedRepartitionUp
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2, HPanWidth );
+
+        RepartitionUp
+        ( AT,  A0,
+               A1,
+         /**/ /**/
+          AB,  A2 );
+
+        ABottom.View2x1( A1,
+                         A2 );
+
+        Zeros( HPan.Width(), ABottom.Width(), Z );
+        Zeros( HPan.Width(), HPan.Width(), SInv );
+        //--------------------------------------------------------------------//
+        HPanCopy = HPan;
+        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
+        SetDiagonalToOne( LEFT, offset, HPanCopy );
+
+        Herk( UPPER, ADJOINT, (C)1, HPanCopy, (C)0, SInv );
+        FixDiagonal( conjugation, t1, SInv );
+
+        Gemm( ADJOINT, NORMAL, (C)1, HPanCopy, ABottom, (C)0, Z );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, SInv, Z );
+        Gemm( NORMAL, NORMAL, (C)-1, HPanCopy, Z, (C)1, ABottom );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionUpDiagonal
+        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
+         /*************/ /******************/
+               /**/       H10, /**/ H11, H12,
+          HBL, /**/ HBR,  H20, /**/ H21, H22 );
+
+        SlideLockedPartitionUp
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        SlidePartitionUp
+        ( AT,  A0,
+         /**/ /**/
+               A1,
+          AB,  A2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+internal::ApplyPackedReflectorsLLVB
+( Conjugation conjugation, int offset, 
   const DistMatrix<Complex<R>,MC,MR  >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t,
         DistMatrix<Complex<R>,MC,MR  >& A )
@@ -191,7 +384,6 @@ internal::ApplyPackedReflectorsLLVB
     typedef Complex<R> C;
     const Grid& g = H.Grid();
 
-    // Matrix views    
     DistMatrix<C,MC,MR>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),

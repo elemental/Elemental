@@ -102,8 +102,22 @@ using namespace hermitian_tridiag_approach_wrapper;
 // Householder early-exit conditions.                                         //
 //----------------------------------------------------------------------------//
 
-// TODO: Serial versions
+// Serial versions
+template<typename R>
+void ApplyPackedReflectors
+( LeftOrRight side, UpperOrLower uplo, 
+  VerticalOrHorizontal dir, ForwardOrBackward order,
+  int offset, const Matrix<R>& H, Matrix<R>& A );
+template<typename R>
+void ApplyPackedReflectors
+( LeftOrRight side, UpperOrLower uplo,
+  VerticalOrHorizontal dir, ForwardOrBackward order, Conjugation conjugation,
+  int offset,
+  const Matrix<Complex<R> >& H,
+  const Matrix<Complex<R> >& t,
+        Matrix<Complex<R> >& A );
 
+// Parallel versions
 template<typename R>
 void ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 

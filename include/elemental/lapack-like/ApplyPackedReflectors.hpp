@@ -56,6 +56,78 @@ inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order,
+  int offset, const Matrix<R>& H, Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("ApplyPackedReflectors");
+#endif
+    // Since the complex version does not have the same argument list, there is
+    // currently no good way to ensure that this version is not called with 
+    // complex datatypes. Until C++11 compilers are commonplace, we cannot
+    // use static_assert either.
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
+
+    if( side == LEFT )
+    {
+        if( uplo == LOWER )
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsLLVF( offset, H, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsLLVB( offset, H, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsLLHF( offset, H, A );
+            else
+                internal::ApplyPackedReflectorsLLHB( offset, H, A );
+        }
+        else
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsLUVF( offset, H, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsLUVB( offset, H, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsLUHF( offset, H, A );
+            else
+                internal::ApplyPackedReflectorsLUHB( offset, H, A );
+        }
+    }
+    else
+    {
+        if( uplo == LOWER )
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsRLVF( offset, H, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsRLVB( offset, H, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsRLHF( offset, H, A );
+            else
+                internal::ApplyPackedReflectorsRLHB( offset, H, A );
+        }
+        else
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsRUVF( offset, H, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsRUVB( offset, H, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsRUHF( offset, H, A );
+            else
+                internal::ApplyPackedReflectorsRUHB( offset, H, A );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+ApplyPackedReflectors
+( LeftOrRight side, UpperOrLower uplo, 
+  VerticalOrHorizontal dir, ForwardOrBackward order,
   int offset,
   const DistMatrix<R,MC,MR>& H, 
         DistMatrix<R,MC,MR>& A )
@@ -125,7 +197,92 @@ ApplyPackedReflectors
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
+inline void
+ApplyPackedReflectors
+( LeftOrRight side, UpperOrLower uplo, 
+  VerticalOrHorizontal dir, ForwardOrBackward order, 
+  Conjugation conjugation,
+  int offset,
+  const Matrix<Complex<R> >& H, 
+  const Matrix<Complex<R> >& t,
+        Matrix<Complex<R> >& A )
+{
+#ifndef RELEASE
+    PushCallStack("ApplyPackedReflectors");
+#endif
+    if( side == LEFT )
+    {
+        if( uplo == LOWER )
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsLLVF
+                ( conjugation, offset, H, t, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsLLVB
+                ( conjugation, offset, H, t, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsLLHF
+                ( conjugation, offset, H, t, A );
+            else
+                internal::ApplyPackedReflectorsLLHB
+                ( conjugation, offset, H, t, A );
+        }
+        else
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsLUVF
+                ( conjugation, offset, H, t, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsLUVB
+                ( conjugation, offset, H, t, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsLUHF
+                ( conjugation, offset, H, t, A );
+            else
+                internal::ApplyPackedReflectorsLUHB
+                ( conjugation, offset, H, t, A );
+        }
+    }
+    else
+    {
+        if( uplo == LOWER )
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsRLVF
+                ( conjugation, offset, H, t, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsRLVB
+                ( conjugation, offset, H, t, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsRLHF
+                ( conjugation, offset, H, t, A );
+            else
+                internal::ApplyPackedReflectorsRLHB
+                ( conjugation, offset, H, t, A );
+        }
+        else
+        {
+            if( dir == VERTICAL && order == FORWARD )
+                internal::ApplyPackedReflectorsRUVF
+                ( conjugation, offset, H, t, A );
+            else if( dir == VERTICAL )
+                internal::ApplyPackedReflectorsRUVB
+                ( conjugation, offset, H, t, A );
+            else if( order == FORWARD )
+                internal::ApplyPackedReflectorsRUHF
+                ( conjugation, offset, H, t, A );
+            else
+                internal::ApplyPackedReflectorsRUHB
+                ( conjugation, offset, H, t, A );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
 inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
@@ -210,7 +367,7 @@ ApplyPackedReflectors
 #endif
 }
 
-template<typename R> // representation of a real number
+template<typename R> 
 inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 

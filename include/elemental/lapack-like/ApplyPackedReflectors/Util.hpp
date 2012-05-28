@@ -36,6 +36,39 @@ namespace internal {
 
 template<typename T> 
 void
+SetDiagonalToOne( LeftOrRight side, int offset, Matrix<T>& H )
+{
+#ifndef RELEASE
+    PushCallStack("SetDiagonalToOne");
+#endif
+    const int height = H.Height();
+    const int width = H.Width();
+
+    if( side == LEFT )
+    {
+        for( int j=0; j<width; ++j )
+        {
+            const int i = j-offset;     
+            if( i >= 0 && i < height )
+                H.Set(i,j,1);
+        }
+    }
+    else
+    {
+        for( int j=0; j<width; ++j )
+        {
+            const int i = j-offset+height-width;
+            if( i >= 0 && i < height )
+                H.Set(i,j,1);
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T> 
+void
 SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T,MC,MR>& H )
 {
 #ifndef RELEASE
@@ -82,6 +115,23 @@ SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T,MC,MR>& H )
 
 template<typename R> 
 void 
+HalveMainDiagonal( Matrix<R>& SInv )
+{
+#ifndef RELEASE
+    PushCallStack("HalveMainDiagonal");
+#endif
+    for( int j=0; j<SInv.Height(); ++j )
+    {
+        const R value = SInv.Get(j,j);
+        SInv.Set(j,j,value/2);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+void 
 HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
@@ -91,6 +141,37 @@ HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
     {
         const R value = SInv.GetLocalEntry(j,j);
         SInv.SetLocalEntry(j,j,value/2);
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+void
+FixDiagonal
+( Conjugation conjugation,
+  const Matrix<Complex<R> >& t,
+        Matrix<Complex<R> >& SInv )
+{
+#ifndef RELEASE
+    PushCallStack("FixDiagonal");
+#endif
+    if( conjugation == CONJUGATED )
+    {
+        for( int j=0; j<SInv.Height(); ++j )
+        {
+            const Complex<R> value = Complex<R>(1)/Conj(t.Get(j,0));
+            SInv.Set(j,j,value);
+        }
+    }
+    else
+    {
+        for( int j=0; j<SInv.Height(); ++j )
+        {
+            const Complex<R> value = Complex<R>(1)/t.Get(j,0);
+            SInv.Set(j,j,value);
+        }
     }
 #ifndef RELEASE
     PopCallStack();
