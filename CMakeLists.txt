@@ -650,7 +650,7 @@ if(BUILD_EXAMPLES)
 
   set(CORE_EXAMPLES Constructors)
   set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve Polar Pseudoinverse 
-                      SVD)
+                      SequentialSVD SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
                        Hankel HermitianUniformSpectrum Hilbert Identity 
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform

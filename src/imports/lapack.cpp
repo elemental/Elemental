@@ -198,7 +198,7 @@ void ComputeGivens
 void Cholesky( char uplo, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
@@ -218,7 +218,7 @@ void Cholesky( char uplo, int n, const float* A, int lda )
 void Cholesky( char uplo, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
@@ -238,7 +238,7 @@ void Cholesky( char uplo, int n, const double* A, int lda )
 void Cholesky( char uplo, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
@@ -258,7 +258,7 @@ void Cholesky( char uplo, int n, const scomplex* A, int lda )
 void Cholesky( char uplo, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("lapack::Cholesky");
 #endif
     int info;
     LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
@@ -282,7 +282,7 @@ void Cholesky( char uplo, int n, const dcomplex* A, int lda )
 void LU( int m, int n, float* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(sgetrf)( &m, &n, A, &lda, p, &info );
@@ -302,7 +302,7 @@ void LU( int m, int n, float* A, int lda, int* p )
 void LU( int m, int n, double* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(dgetrf)( &m, &n, A, &lda, p, &info );
@@ -322,7 +322,7 @@ void LU( int m, int n, double* A, int lda, int* p )
 void LU( int m, int n, scomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(cgetrf)( &m, &n, A, &lda, p, &info );
@@ -342,7 +342,7 @@ void LU( int m, int n, scomplex* A, int lda, int* p )
 void LU( int m, int n, dcomplex* A, int lda, int* p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    PushCallStack("lapack::LU");
 #endif
     int info;
     LAPACK(zgetrf)( &m, &n, A, &lda, p, &info );
@@ -369,7 +369,7 @@ void Hegst
   float* A, int lda, const float* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -389,7 +389,7 @@ void Hegst
   double* A, int lda, const double* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -409,7 +409,7 @@ void Hegst
   scomplex* A, int lda, const scomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -429,7 +429,7 @@ void Hegst
   dcomplex* A, int lda, const dcomplex* B, int ldb )
 {
 #ifndef RELEASE
-    PushCallStack("Hegst");
+    PushCallStack("lapack::Hegst");
 #endif
     int info;
     LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
@@ -451,7 +451,7 @@ void Hegst
 void TriangularInverse( char uplo, char diag, int n, const float* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(strtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -471,7 +471,7 @@ void TriangularInverse( char uplo, char diag, int n, const float* A, int lda )
 void TriangularInverse( char uplo, char diag, int n, const double* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(dtrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -492,7 +492,7 @@ void TriangularInverse
 ( char uplo, char diag, int n, const scomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ctrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -513,7 +513,7 @@ void TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda )
 {
 #ifndef RELEASE
-    PushCallStack("TriangularInverse");
+    PushCallStack("lapack::TriangularInverse");
 #endif
     int info;
     LAPACK(ztrtri)( &uplo, &diag, &n, A, &lda, &info );
@@ -531,7 +531,7 @@ void TriangularInverse
 }
 
 //
-// Bidiagonal QR
+// Bidiagonal QR algorithm for SVD
 //
 
 void BidiagQRAlg
@@ -539,7 +539,7 @@ void BidiagQRAlg
   float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("BidiagQRAlg");
+    PushCallStack("lapack::BidiagQRAlg");
 #endif
     std::vector<float> work( 4*n );
 
@@ -571,7 +571,7 @@ void BidiagQRAlg
   double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("BidiagQRAlg");
+    PushCallStack("lapack::BidiagQRAlg");
 #endif
     std::vector<double> work( 4*n );
 
@@ -603,7 +603,7 @@ void BidiagQRAlg
   float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("BidiagQRAlg");
+    PushCallStack("lapack::BidiagQRAlg");
 #endif
     const bool computeVectors = ( numColsVAdj || numRowsU );
     const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
@@ -637,7 +637,7 @@ void BidiagQRAlg
   double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("BidiagQRAlg");
+    PushCallStack("lapack::BidiagQRAlg");
 #endif
     const bool computeVectors = ( numColsVAdj || numRowsU );
     const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
@@ -660,6 +660,310 @@ void BidiagQRAlg
         std::ostringstream msg;
         msg << "zbdsqr had " << info << " elements of e not converge";
         throw std::runtime_error( msg.str().c_str() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
+// Divide and Conquer SVD
+//
+
+void DivideAndConquerSVD
+( int m, int n, float* A, int lda, 
+  float* s, float* U, int ldu, float* VTrans, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSVD");
+#endif
+    const char jobz='S';
+    int lwork=-1, info;
+    float dummyWork;
+    const int k = std::min(m,n);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(sgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &dummyWork, &lwork,
+      0, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work(lwork);
+    LAPACK(sgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &work[0], &lwork,
+      &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("sgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSVD
+( int m, int n, double* A, int lda, 
+  double* s, double* U, int ldu, double* VTrans, int ldvt )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSVD");
+#endif
+    const char jobz='S';
+    int lwork=-1, info;
+    double dummyWork;
+    const int k = std::min(m,n);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(dgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &dummyWork, &lwork,
+      &iwork[0], &info );
+
+    lwork = dummyWork;
+    std::vector<double> work(lwork);
+    LAPACK(dgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &work[0], &lwork,
+      &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("dgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSVD
+( int m, int n, scomplex* A, int lda, 
+  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSVD");
+#endif
+    const char jobz='S';
+    int lwork=-1, info;
+    const int k = std::min(m,n);
+    std::vector<float> rwork(5*k*k+5*k);
+    std::vector<int> iwork(8*k);
+
+    scomplex dummyWork;
+    LAPACK(cgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
+      &rwork[0], &iwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<scomplex> work(lwork);
+    LAPACK(cgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &work[0], &lwork,
+      &rwork[0], &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("cgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSVD
+( int m, int n, dcomplex* A, int lda, 
+  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSVD");
+#endif
+    const char jobz='S';
+    int lwork=-1, info;
+    dcomplex dummyWork;
+    const int k = std::min(m,n);
+    std::vector<double> rwork(5*k*k+5*k);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(zgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
+      &rwork[0], &iwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<dcomplex> work(lwork);
+    LAPACK(zgesdd)
+    ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &work[0], &lwork,
+      &rwork[0], &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("zgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
+// Divide and Conquer Singular Values
+//
+
+void DivideAndConquerSingularValues
+( int m, int n, float* A, int lda, float* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSingularValues");
+#endif
+    const char jobz='N';
+    int fakeLDim=1, lwork=-1, info;
+    float dummyWork;
+    const int k = std::min(m,n);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(sgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
+      &iwork[0], &info );
+
+    lwork = dummyWork;
+    std::vector<float> work(lwork);
+    LAPACK(sgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
+      &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("sgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSingularValues
+( int m, int n, double* A, int lda, double* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSingularValues");
+#endif
+    const char jobz='N';
+    int fakeLDim=1, lwork=-1, info;
+    double dummyWork;
+    const int k = std::min(m,n);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(dgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
+      &iwork[0], &info );
+
+    lwork = dummyWork;
+    std::vector<double> work(lwork);
+    LAPACK(dgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
+      &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("dgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSingularValues
+( int m, int n, scomplex* A, int lda, float* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSingularValues");
+#endif
+    const char jobz='N';
+    int fakeLDim=1, lwork=-1, info;
+    scomplex dummyWork;
+    const int k = std::min(m,n);
+    std::vector<float> rwork(7*k);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(cgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
+      &rwork[0], &iwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<scomplex> work(lwork);
+    LAPACK(cgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
+      &rwork[0], &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("cgesdd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void DivideAndConquerSingularValues
+( int m, int n, dcomplex* A, int lda, double* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::DivideAndConquerSingularValues");
+#endif
+    const char jobz='N';
+    int fakeLDim=1, lwork=-1, info;
+    dcomplex dummyWork;
+    const int k = std::min(m,n);
+    std::vector<double> rwork(7*k);
+    std::vector<int> iwork(8*k);
+
+    LAPACK(zgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
+      &rwork[0], &iwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<dcomplex> work(lwork);
+    LAPACK(zgesdd)
+    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
+      &rwork[0], &iwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("zgesdd's updating process failed");
     }
 #ifndef RELEASE
     PopCallStack();

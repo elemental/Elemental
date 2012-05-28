@@ -583,6 +583,33 @@ CheckScale
 // Grab the full SVD of the general matrix A, A = U diag(s) V^H.              //
 // On exit, A is overwritten with U.                                          //
 //----------------------------------------------------------------------------//
+
+template<typename F>
+inline void
+SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
+{
+#ifndef RELEASE
+    PushCallStack("SVD");
+#endif
+    typedef typename Base<F>::type R;
+
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min(m,n);
+    s.ResizeTo( k, 1 );
+    Matrix<F> U( m, k );
+    Matrix<F> VAdj( k, n );
+    lapack::DivideAndConquerSVD
+    ( m, n, A.Buffer(), A.LDim(), s.Buffer(), U.Buffer(), U.LDim(),
+      VAdj.Buffer(), VAdj.LDim() );
+
+    A = U;
+    Adjoint( VAdj, V );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F>
 inline void
 SVD
@@ -629,7 +656,27 @@ SVD
 //----------------------------------------------------------------------------//
 template<typename F>
 inline void
-SVD
+SingularValues( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
+{
+#ifndef RELEASE
+    PushCallStack("SingularValues");
+#endif
+    typedef typename Base<F>::type R;
+
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min(m,n);
+    s.ResizeTo( k, 1 );
+    lapack::DivideAndConquerSingularValues
+    ( m, n, A.Buffer(), A.LDim(), s.Buffer() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+SingularValues
 ( DistMatrix<F,                     MC,  MR>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s )
 {

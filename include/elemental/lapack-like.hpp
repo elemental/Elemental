@@ -761,15 +761,16 @@ void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 // matrix.                                                                    //
 //----------------------------------------------------------------------------//
 
-// TODO: Serial versions
+template<typename R>
+void LQ( Matrix<R>& A );
+template<typename R>
+void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
 void LQ( DistMatrix<R,MC,MR>& A );
-
 template<typename R>
 void LQ
-( DistMatrix<Complex<R>,MC,MR  >& A, 
-  DistMatrix<Complex<R>,MD,STAR>& t );
+( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // Norm                                                                       //
@@ -843,15 +844,16 @@ SymmetricNorm
 // transform / UT transform to be computed mainly with Level 3 BLAS.          //
 //----------------------------------------------------------------------------//
 
-// TODO: Serial versions
+template<typename R>
+void QR( Matrix<R>& A );
+template<typename R>
+void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
 void QR( DistMatrix<R,MC,MR>& A );
-
 template<typename R>
 void QR
-( DistMatrix<Complex<R>,MC,MR  >& A, 
-  DistMatrix<Complex<R>,MD,STAR>& t );
+( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // Reflector (Householder reflector):                                         //
@@ -1061,10 +1063,16 @@ void Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P );
 
 template<typename F>
 void SVD
+( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V );
+template<typename F>
+void SVD
 ( DistMatrix<F,                     MC,MR  >& A, 
   DistMatrix<typename Base<F>::type,VR,STAR>& s, 
   DistMatrix<F,                     MC,MR  >& V );
 
+template<typename F>
+void SingularValues
+( Matrix<F>& A, Matrix<typename Base<F>::type>& s );
 template<typename F>
 void SingularValues
 ( DistMatrix<F,                     MC,MR  >& A,

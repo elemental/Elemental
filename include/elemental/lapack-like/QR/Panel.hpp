@@ -35,6 +35,62 @@ namespace elem {
 
 template<typename R>
 inline void
+internal::PanelQR( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::PanelQR");
+#endif
+    Matrix<R>
+        ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
+        ABL, ABR,  a10, alpha11, a12,
+                   A20, a21,     A22;
+
+    Matrix<R> z;
+
+    PushBlocksizeStack( 1 );
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        aLeftCol.View2x1( alpha11,
+                          a21 );
+
+        ARightPan.View2x1( a12,
+                           A22 );
+
+        Zeros( ARightPan.Width(), 1, z );
+        //--------------------------------------------------------------------//
+        const R tau = Reflector( alpha11, a21 );
+        const R alpha = alpha11.Get(0,0);
+        alpha11.Set(0,0,1);
+
+        Gemv( TRANSPOSE, (R)1, ARightPan, aLeftCol, (R)0, z );
+        Ger( -tau, aLeftCol, z, ARightPan );
+
+        alpha11.Set(0,0,alpha);
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+    }
+    PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
 internal::PanelQR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -50,7 +106,7 @@ internal::PanelQR( DistMatrix<R,MC,MR>& A )
 
     // Temporary distributions
     DistMatrix<R,MC,STAR> aLeftCol_MC_STAR(g);
-    DistMatrix<R,MR,STAR> Z_MR_STAR(g);
+    DistMatrix<R,MR,STAR> z_MR_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -71,10 +127,10 @@ internal::PanelQR( DistMatrix<R,MC,MR>& A )
                            A22 );
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
-        Z_MR_STAR.AlignWith( ARightPan );
-        Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
+        z_MR_STAR.AlignWith( ARightPan );
+        Zeros( ARightPan.Width(), 1, z_MR_STAR );
         //--------------------------------------------------------------------//
-        R tau = Reflector( alpha11, a21 );
+        const R tau = Reflector( alpha11, a21 );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
@@ -91,20 +147,103 @@ internal::PanelQR( DistMatrix<R,MC,MR>& A )
         ( TRANSPOSE, 
           (R)1, ARightPan.LockedLocalMatrix(), 
                 aLeftCol_MC_STAR.LockedLocalMatrix(),
-          (R)0, Z_MR_STAR.LocalMatrix() );
-        Z_MR_STAR.SumOverCol(); 
+          (R)0, z_MR_STAR.LocalMatrix() );
+        z_MR_STAR.SumOverCol(); 
 
         Ger
         ( -tau, 
           aLeftCol_MC_STAR.LockedLocalMatrix(), 
-          Z_MR_STAR.LockedLocalMatrix(),
+          z_MR_STAR.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
         aLeftCol_MC_STAR.FreeAlignments();
-        Z_MR_STAR.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+    }
+    PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+internal::PanelQR
+( Matrix<Complex<R> >& A,
+  Matrix<Complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("internal::PanelQR");
+    if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
+        throw std::logic_error
+        ("t must be a vector of height equal to the minimum dimension of A");
+#endif
+    typedef Complex<R> C;
+
+    Matrix<C>
+        ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
+        ABL, ABR,  a10, alpha11, a12,
+                   A20, a21,     A22;
+    DistMatrix<C,MD,STAR>
+        tT,  t0,
+        tB,  tau1,
+             t2;
+
+    Matrix<C> z;
+
+    PushBlocksizeStack( 1 );
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( t, tT,
+         tB, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /****/
+               tau1, 
+          tB,  t2 );
+
+        aLeftCol.View2x1( alpha11,
+                          a21 );
+
+        ARightPan.View2x1( a12,
+                           A22 );
+
+        Zeros( ARightPan.Width(), 1, z );
+        //--------------------------------------------------------------------//
+        const C tau = Reflector( alpha11, a21 );
+        tau1.Set( 0, 0, tau );
+        const C alpha = alpha11.Get(0,0);
+        alpha11.Set(0,0,1);
+
+        Gemv( ADJOINT, (C)1, ARightPan, aLeftCol, (C)0, z );
+        Ger( -Conj(tau), aLeftCol, z, ARightPan );
+
+        alpha11.Set(0,0,alpha);
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDown
+        ( tT,  t0,
+               tau1,
+         /**/ /****/
+          tB,  t2 );
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
@@ -149,7 +288,7 @@ internal::PanelQR
 
     // Temporary distributions
     DistMatrix<C,MC,STAR> aLeftCol_MC_STAR(g);
-    DistMatrix<C,MR,STAR> Z_MR_STAR(g);
+    DistMatrix<C,MR,STAR> z_MR_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -179,10 +318,10 @@ internal::PanelQR
                            A22 );
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
-        Z_MR_STAR.AlignWith( ARightPan );
-        Z_MR_STAR.ResizeTo( ARightPan.Width(), 1 );
+        z_MR_STAR.AlignWith( ARightPan );
+        Zeros( ARightPan.Width(), 1, z_MR_STAR );
         //--------------------------------------------------------------------//
-        C tau = Reflector( alpha11, a21 );
+        const C tau = Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
@@ -200,20 +339,20 @@ internal::PanelQR
         ( ADJOINT, 
           (C)1, ARightPan.LockedLocalMatrix(), 
                 aLeftCol_MC_STAR.LockedLocalMatrix(),
-          (C)0, Z_MR_STAR.LocalMatrix() );
-        Z_MR_STAR.SumOverCol(); 
+          (C)0, z_MR_STAR.LocalMatrix() );
+        z_MR_STAR.SumOverCol(); 
 
         Ger
         ( -Conj(tau), 
           aLeftCol_MC_STAR.LockedLocalMatrix(), 
-          Z_MR_STAR.LockedLocalMatrix(),
+          z_MR_STAR.LockedLocalMatrix(),
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocalEntry(0,0,alpha);
         //--------------------------------------------------------------------//
         aLeftCol_MC_STAR.FreeAlignments();
-        Z_MR_STAR.FreeAlignments();
+        z_MR_STAR.FreeAlignments();
 
         SlidePartitionDown
         ( tT,  t0,

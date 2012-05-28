@@ -48,6 +48,53 @@ namespace elem {
 
 template<typename R> 
 inline void
+LQ( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LQ");
+#endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
+
+    // Matrix views
+    Matrix<R>
+        ATL, ATR,  A00, A01, A02,  ATopPan, ABottomPan,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        ATopPan.View1x2( A11, A12 );
+        ABottomPan.View1x2( A21, A22 );
+
+        //--------------------------------------------------------------------//
+        internal::PanelLQ( ATopPan );
+        ApplyPackedReflectors
+        ( RIGHT, UPPER, HORIZONTAL, FORWARD, 0, ATopPan, ABottomPan );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
 LQ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -82,6 +129,74 @@ LQ( DistMatrix<R,MC,MR>& A )
         ApplyPackedReflectors
         ( RIGHT, UPPER, HORIZONTAL, FORWARD, 0, ATopPan, ABottomPan );
         //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+LQ( Matrix<Complex<R> >& A, 
+    Matrix<Complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("LQ");
+#endif
+    typedef Complex<R> C;
+    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+
+    // Matrix views
+    Matrix<C>
+        ATL, ATR,  A00, A01, A02,  ATopPan, ABottomPan,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+    Matrix<C>
+        tT,  t0,
+        tB,  t1,
+             t2;
+
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( t, tT,
+         tB, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        ATopPan.View1x2( A11, A12 );
+        ABottomPan.View1x2( A21, A22 );
+
+        //--------------------------------------------------------------------//
+        internal::PanelLQ( ATopPan, t1 );
+        ApplyPackedReflectors
+        ( RIGHT, UPPER, HORIZONTAL, FORWARD, CONJUGATED,
+          0, ATopPan, t1, ABottomPan );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

@@ -48,6 +48,57 @@ namespace elem {
 
 template<typename R> 
 inline void
+QR( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("QR");
+#endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
+
+    Matrix<R>
+        ATL, ATR,  A00, A01, A02,  ALeftPan, ARightPan,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        ALeftPan.View2x1
+        ( A11,
+          A21 );
+
+        ARightPan.View2x1
+        ( A12,
+          A22 );
+
+        //--------------------------------------------------------------------//
+        internal::PanelQR( ALeftPan );
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, FORWARD, 0, ALeftPan, ARightPan );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
 QR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -87,6 +138,80 @@ QR( DistMatrix<R,MC,MR>& A )
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, FORWARD, 0, ALeftPan, ARightPan );
         //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+QR( Matrix<Complex<R> >& A, 
+    Matrix<Complex<R> >& t )
+{
+#ifndef RELEASE
+    PushCallStack("QR");
+#endif
+    typedef Complex<R> C;
+
+    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+
+    // Matrix views
+    Matrix<C>
+        ATL, ATR,  A00, A01, A02,  ALeftPan, ARightPan,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+    Matrix<C>
+        tT,  t0,
+        tB,  t1,
+             t2;
+
+    PartitionDownLeftDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( t, tT,
+         tB, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        ALeftPan.View2x1
+        ( A11,
+          A21 );
+
+        ARightPan.View2x1
+        ( A12,
+          A22 );
+
+        //--------------------------------------------------------------------//
+        internal::PanelQR( ALeftPan, t1 );
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 
+          0, ALeftPan, t1, ARightPan );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDown
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

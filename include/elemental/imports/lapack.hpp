@@ -165,6 +165,37 @@ void TriangularInverse
 ( char uplo, char diag, int n, const dcomplex* A, int lda );
 
 //
+// Compute the SVD of a general matrix using a divide and conquer algorithm
+//
+
+void DivideAndConquerSVD
+( int m, int n, float* A, int lda, 
+  float* s, float* U, int ldu, float* VTrans, int ldvt );
+void DivideAndConquerSVD
+( int m, int n, double* A, int lda, 
+  double* s, double* U, int ldu, double* VTrans, int ldvt );
+void DivideAndConquerSVD
+( int m, int n, scomplex* A, int lda, 
+  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva );
+void DivideAndConquerSVD
+( int m, int n, dcomplex* A, int lda, 
+  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
+
+//
+// Compute the singular values of a general matrix using a divide and conquer 
+// algorithm
+//
+
+void DivideAndConquerSingularValues
+( int m, int n, float* A, int lda, float* s );
+void DivideAndConquerSingularValues
+( int m, int n, double* A, int lda, double* s );
+void DivideAndConquerSingularValues
+( int m, int n, scomplex* A, int lda, float* s );
+void DivideAndConquerSingularValues
+( int m, int n, dcomplex* A, int lda, double* s );
+
+//
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
 //
 
@@ -293,6 +324,28 @@ void LAPACK(zbdsqr)
   const int* numColsC, double* d, double* e,
   elem::dcomplex* VAdj, const int* ldVAdj, elem::dcomplex* U, const int* ldU,
   elem::dcomplex* C, const int* ldC, double* work, int* info );
+
+// Divide and Conquer SVD
+void LAPACK(sgesdd)
+( const char* jobz, const int* m, const int* n, float* A, const int* lda,
+  float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
+  float* work, const int* lwork, int* iwork, int* info );
+void LAPACK(dgesdd)
+( const char* jobz, const int* m, const int* n, double* A, const int* lda,
+  double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
+  double* work, const int* lwork, int* iwork, int* info );
+void LAPACK(cgesdd)
+( const char* jobz, const int* m, const int* n, 
+  elem::scomplex* A, const int* lda, float* s, 
+  elem::scomplex* U, const int* ldu, elem::scomplex* VTrans, const int* ldvt,
+  elem::scomplex* work, const int* lwork, float* rwork, 
+  int* iwork, int* info );
+void LAPACK(zgesdd)
+( const char* jobz, const int* m, const int* n, 
+  elem::dcomplex* A, const int* lda, double* s, 
+  elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
+  elem::dcomplex* work, const int* lwork, double* rwork, 
+  int* iwork, int* info );
 
 } // extern "C"
 
