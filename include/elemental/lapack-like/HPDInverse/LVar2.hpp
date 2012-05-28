@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 //
 // This approach is based upon a (conjugate)-transposition of the reordered 
@@ -41,7 +42,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
+HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HPDInverseLVar2");
@@ -87,42 +88,41 @@ internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
         A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
 
         A10_STAR_VR = A10;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A10_STAR_MC = A10_STAR_VR;
         A10_STAR_MR = A10_STAR_VR;
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, ADJOINT,
           (F)1, A10_STAR_MC, A10_STAR_MR, (F)1, A00 );
 
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
-        internal::LocalGemm
+        LocalGemm
         ( TRANSPOSE, NORMAL, (F)-1, A21Trans_STAR_MC, A10_STAR_MR, (F)1, A20 );
 
         A21_VR_STAR = A21_VC_STAR;
         A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, TRANSPOSE,
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
 
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)-1, A11_STAR_STAR, A21_VC_STAR );
 
-        internal::LocalTriangularInverse
-        ( LOWER, NON_UNIT, A11_STAR_STAR );
+        LocalTriangularInverse( LOWER, NON_UNIT, A11_STAR_STAR );
 
-        internal::LocalHetrmm( LOWER, A11_STAR_STAR );
+        LocalHetrmm( LOWER, A11_STAR_STAR );
 
         A11 = A11_STAR_STAR;
         A10 = A10_STAR_VR;
@@ -147,4 +147,5 @@ internal::HPDInverseLVar2( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

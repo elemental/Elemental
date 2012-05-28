@@ -228,76 +228,30 @@ void PivotFunc
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void PanelLQ( DistMatrix<R,MC,MR>& A );
+void PanelLQ( Matrix<R>& A );
+template<typename R>
+void PanelLQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
+void PanelLQ( DistMatrix<R,MC,MR>& A );
+template<typename R>
 void PanelLQ
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MD,STAR>& t );
-
-//----------------------------------------------------------------------------//
-// Norm                                                                       //
-//----------------------------------------------------------------------------//
-
-template<typename F>
-typename Base<F>::type FrobeniusNorm( const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type InfinityNorm( const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type MaxNorm( const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type OneNorm( const Matrix<F>& A );
-
-template<typename F>
-typename Base<F>::type FrobeniusNorm( const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type InfinityNorm( const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type MaxNorm( const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type OneNorm( const DistMatrix<F,MC,MR>& A );
-
-//----------------------------------------------------------------------------//
-// HermitianNorm                                                              //
-//----------------------------------------------------------------------------//
-
-template<typename F>
-typename Base<F>::type 
-HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type 
-HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type 
-HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A );
-template<typename F>
-typename Base<F>::type 
-HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A );
-
-template<typename F>
-typename Base<F>::type 
-HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type 
-HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type
-HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
-template<typename F>
-typename Base<F>::type
-HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A );
+( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // QR                                                                         //
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void PanelQR( DistMatrix<R,MC,MR>& A );
+void PanelQR( Matrix<R>& A );
+template<typename R>
+void PanelQR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
+void PanelQR( DistMatrix<R,MC,MR>& A );
+template<typename R>
 void PanelQR
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MD,STAR>& t );
+( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // Reflector                                                                  //
@@ -500,202 +454,6 @@ void TriangularInverseLVar3
 template<typename F>
 void TriangularInverseUVar3
 ( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& U );
-
-//----------------------------------------------------------------------------//
-// ApplyPackedReflectors                                                      //
-//----------------------------------------------------------------------------//
-
-template<typename R>
-void ApplyPackedReflectorsLLVF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLLVF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLLVB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLLVB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLLHF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLLHF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLLHB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLLHB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLUVF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLUVF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLUVB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLUVB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLUHF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLUHF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsLUHB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsLUHB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRLVF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRLVF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRLVB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRLVB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRLHF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRLHF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRLHB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRLHB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRUVF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRUVF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRUVB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRUVB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRUHF
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRUHF
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
-
-template<typename R>
-void ApplyPackedReflectorsRUHB
-( int offset, 
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A );
-template<typename R>
-void ApplyPackedReflectorsRUHB
-( Conjugation conjugation, int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A );
 
 //----------------------------------------------------------------------------//
 // LAPACK-like Utility Functions                                              //

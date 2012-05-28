@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRLVar4");
@@ -109,19 +110,19 @@ internal::HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         // A10 := inv(L11) A10
         L11_STAR_STAR = L11;
         A10_STAR_VR = A10;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT,
           (F)1, L11_STAR_STAR, A10_STAR_VR );
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11; 
-        internal::LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A20 := A20 - L21 A10
         L21_MC_STAR = L21;
         A10_STAR_MR = A10_STAR_VR;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (F)-1, L21_MC_STAR, A10_STAR_MR, (F)1, A20 );
         A10 = A10_STAR_MR; // delayed write from  A10 := inv(L11) A10
 
@@ -135,7 +136,7 @@ internal::HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
 
         // A21 := A21 - 1/2 Y21
@@ -147,7 +148,7 @@ internal::HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         L21_VR_STAR = L21_VC_STAR;
         A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( LOWER, TRANSPOSE,
           (F)-1, L21_MC_STAR,      A21Adj_STAR_MR, 
                  A21Trans_STAR_MC, L21Adj_STAR_MR,
@@ -186,4 +187,5 @@ internal::HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

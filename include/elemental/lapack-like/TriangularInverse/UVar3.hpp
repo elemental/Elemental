@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::TriangularInverseUVar3
+TriangularInverseUVar3
 ( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
@@ -76,7 +77,7 @@ internal::TriangularInverseUVar3
         //--------------------------------------------------------------------//
         U01_VC_STAR = U01;
         U11_STAR_STAR = U11;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, UPPER, NORMAL, diag, (F)-1, U11_STAR_STAR, U01_VC_STAR );
 
         // We transpose before the communication to avoid cache-thrashing
@@ -84,15 +85,15 @@ internal::TriangularInverseUVar3
         U12Trans_MR_STAR.TransposeFrom( U12 );
         U01Trans_STAR_MC.TransposeFrom( U01_VC_STAR );
 
-        internal::LocalGemm
+        LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           (F)1, U01Trans_STAR_MC, U12Trans_MR_STAR, (F)1, U02 );
         U01.TransposeFrom( U01Trans_STAR_MC );
 
         U12_STAR_VR.TransposeFrom( U12Trans_MR_STAR );
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, NORMAL, diag, (F)1, U11_STAR_STAR, U12_STAR_VR );
-        internal::LocalTriangularInverse( UPPER, diag, U11_STAR_STAR );
+        LocalTriangularInverse( UPPER, diag, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         U12 = U12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -110,4 +111,5 @@ internal::TriangularInverseUVar3
 #endif
 }
 
+} // namespace internal
 } // namespace elem

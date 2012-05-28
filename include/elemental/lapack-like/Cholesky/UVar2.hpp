@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 /*
    Parallelization of Variant 2 Upper Cholesky factorization. 
@@ -62,9 +63,9 @@ namespace elem {
    A12[MC,MR] <- A12[* ,VR]
    -----------------------------------------------------
 */
-template<typename F> // representation of real or complex number
+template<typename F> 
 inline void
-internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
+CholeskyUVar2( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar2");
@@ -114,7 +115,7 @@ internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
         X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
         //--------------------------------------------------------------------//
         A01_MC_STAR = A01;
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A01, A01_MC_STAR, (F)0, X11Adj_MR_STAR );
         X11Adj_MR_MC.SumScatterFrom( X11Adj_MR_STAR );
@@ -122,10 +123,10 @@ internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
         Axpy( (F)-1, X11, A11 );
 
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A02, A01_MC_STAR, (F)0, X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
@@ -133,7 +134,7 @@ internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
         Axpy( (F)-1, X12, A12 );
 
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -187,7 +188,7 @@ internal::CholeskyUVar2( DistMatrix<F,MC,MR>& A )
 */
 template<typename F> 
 inline void
-internal::CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
+CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar2Naive");
@@ -235,21 +236,21 @@ internal::CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
         X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
         //--------------------------------------------------------------------//
         A01_MC_STAR = A01;
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, 
           (F)1, A01_MC_STAR, A01, (F)0, X11_STAR_MR );
         A11.SumScatterUpdate( (F)-1, X11_STAR_MR );
 
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, (F)1, A01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
@@ -268,4 +269,5 @@ internal::CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

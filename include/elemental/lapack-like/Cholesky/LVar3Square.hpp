@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 /*
    Parallelization of Variant 3 Lower Cholesky factorization for
@@ -61,7 +62,7 @@ namespace elem {
 */
 template<typename F>
 inline void
-internal::CholeskyLVar3Square( DistMatrix<F,MC,MR>& A )
+CholeskyLVar3Square( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar3Square");
@@ -118,11 +119,11 @@ internal::CholeskyLVar3Square( DistMatrix<F,MC,MR>& A )
         A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
@@ -153,7 +154,7 @@ internal::CholeskyLVar3Square( DistMatrix<F,MC,MR>& A )
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, TRANSPOSE, 
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
@@ -174,4 +175,5 @@ internal::CholeskyLVar3Square( DistMatrix<F,MC,MR>& A )
 #endif
 } 
 
+} // namespace internal
 } // namespace elem

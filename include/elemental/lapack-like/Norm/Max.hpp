@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
-internal::MaxNorm( const Matrix<F>& A )
+MaxNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
@@ -59,7 +60,7 @@ internal::MaxNorm( const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-internal::MaxNorm( const DistMatrix<F,MC,MR>& A )
+MaxNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
@@ -85,4 +86,5 @@ internal::MaxNorm( const DistMatrix<F,MC,MR>& A )
     return maxAbs;
 }
 
+} // namespace internal
 } // namespace elem

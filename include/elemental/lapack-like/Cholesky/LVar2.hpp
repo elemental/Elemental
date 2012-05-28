@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 /*
    Parallelization of Variant 2 Lower Cholesky factorization. 
@@ -64,7 +65,7 @@ namespace elem {
 */
 template<typename F> 
 inline void
-internal::CholeskyLVar2( DistMatrix<F,MC,MR>& A )
+CholeskyLVar2( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar2");
@@ -106,22 +107,22 @@ internal::CholeskyLVar2( DistMatrix<F,MC,MR>& A )
         X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
         A10Adj_MR_STAR.AdjointFrom( A10 );
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, 
           (F)1, A10, A10Adj_MR_STAR, (F)0, X11_MC_STAR );
         A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL,
           (F)1, A20, A10Adj_MR_STAR, (F)0, X21_MC_STAR );
         A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -171,7 +172,7 @@ internal::CholeskyLVar2( DistMatrix<F,MC,MR>& A )
 */
 template<typename F>
 inline void
-internal::CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
+CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar2Naive");
@@ -219,20 +220,20 @@ internal::CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
         X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
         A10_STAR_MR = A10;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, ADJOINT, (F)1, A10, A10_STAR_MR, (F)0, X11_MC_STAR );
         A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
 
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, ADJOINT, (F)1, A20, A10_STAR_MR, (F)0, X21_MC_STAR );
         A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -251,4 +252,5 @@ internal::CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

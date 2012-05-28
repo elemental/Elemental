@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R>
 inline void
-internal::HermitianPanelTridiagU
+HermitianPanelTridiagU
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
@@ -201,7 +202,7 @@ internal::HermitianPanelTridiagU
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = internal::ColReflector( alpha01B, a01T );
+            tau = ColReflector( alpha01B, a01T );
         }
         // Store the subdiagonal value and turn a01 into a proper reflector
         // by explicitly placing the implicit one in its bottom entry
@@ -425,7 +426,7 @@ internal::HermitianPanelTridiagU
         PopBlocksizeStack();
         Zero( p01_MC_STAR );
         Zero( q01_MR_STAR );
-        internal::LocalSymvColAccumulateU
+        LocalSymvColAccumulateU
         ( (R)1, A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR );
         PushBlocksizeStack( 1 );
 
@@ -738,7 +739,7 @@ internal::HermitianPanelTridiagU
 
 template<typename R>
 inline void
-internal::HermitianPanelTridiagU
+HermitianPanelTridiagU
 ( DistMatrix<Complex<R>,MC,MR  >& A,
   DistMatrix<Complex<R>,MC,MR  >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
@@ -927,7 +928,7 @@ internal::HermitianPanelTridiagU
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = internal::ColReflector( alpha01B, a01T );
+            tau = ColReflector( alpha01B, a01T );
             if( g.Row() == alpha01B.ColAlignment() )
                 tau1.SetLocalEntry(0,0,tau);
         }
@@ -1156,7 +1157,7 @@ internal::HermitianPanelTridiagU
         PopBlocksizeStack();
         Zero( p01_MC_STAR );
         Zero( q01_MR_STAR );
-        internal::LocalHemvColAccumulateU
+        LocalHemvColAccumulateU
         ( (C)1, A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR );
         PushBlocksizeStack( 1 );
 
@@ -1477,4 +1478,5 @@ internal::HermitianPanelTridiagU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

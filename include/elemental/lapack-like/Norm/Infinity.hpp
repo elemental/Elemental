@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
-internal::InfinityNorm( const Matrix<F>& A )
+InfinityNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::InfinityNorm");
@@ -58,7 +59,7 @@ internal::InfinityNorm( const Matrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-internal::InfinityNorm( const DistMatrix<F,MC,MR>& A )
+InfinityNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::InfinityNorm");
@@ -94,4 +95,5 @@ internal::InfinityNorm( const DistMatrix<F,MC,MR>& A )
     return maxRowSum;
 }
 
+} // namespace internal
 } // namespace elem

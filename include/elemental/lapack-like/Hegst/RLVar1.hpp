@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRLVar1");
@@ -113,7 +114,7 @@ internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         Z10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
         Zero( Z10Adj_MC_STAR );
         Zero( Z10Adj_MR_STAR );
-        internal::LocalSymmetricAccumulateRL
+        LocalSymmetricAccumulateRL
         ( ADJOINT,
           (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Z10Adj_MC_STAR, Z10Adj_MR_STAR );
@@ -143,7 +144,7 @@ internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;
         L11_STAR_STAR = L11;
-        internal::LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( RIGHT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A10 := A10 - 1/2 Y10
@@ -151,7 +152,7 @@ internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
         // A10 := inv(L11) A10
         A10_STAR_VR = A10;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
         //--------------------------------------------------------------------//
@@ -183,4 +184,5 @@ internal::HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

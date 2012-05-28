@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 /*
    Parallelization of Variant 3 Lower Cholesky factorization. 
@@ -61,7 +62,7 @@ namespace elem {
 */
 template<typename F>
 inline void
-internal::CholeskyLVar3( DistMatrix<F,MC,MR>& A )
+CholeskyLVar3( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar3");
@@ -102,11 +103,11 @@ internal::CholeskyLVar3( DistMatrix<F,MC,MR>& A )
         A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21_VR_STAR = A21_VC_STAR;
@@ -115,7 +116,7 @@ internal::CholeskyLVar3( DistMatrix<F,MC,MR>& A )
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, TRANSPOSE, 
           (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
 
@@ -164,7 +165,7 @@ internal::CholeskyLVar3( DistMatrix<F,MC,MR>& A )
 */
 template<typename F>
 inline void
-internal::CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
+CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar3Naive");
@@ -209,11 +210,11 @@ internal::CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
         A21_MR_STAR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( LOWER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
 
         A21_MC_STAR = A21_VC_STAR;
@@ -221,7 +222,7 @@ internal::CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
 
         // (A21^T[* ,MC])^T A21^H[* ,MR] = A21[MC,* ] A21^H[* ,MR]
         //                               = (A21 A21^H)[MC,MR]
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, ADJOINT, (F)-1, A21_MC_STAR, A21_MR_STAR, (F)1, A22 );
 
         A21 = A21_MC_STAR;
@@ -241,4 +242,5 @@ internal::CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A )
 #endif
 } 
 
+} // namespace internal
 } // namespace elem

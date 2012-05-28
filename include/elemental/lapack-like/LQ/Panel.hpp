@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R> 
 inline void
-internal::PanelLQ( Matrix<R>& A )
+PanelLQ( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -87,7 +88,7 @@ internal::PanelLQ( Matrix<R>& A )
 
 template<typename R> 
 inline void
-internal::PanelLQ( DistMatrix<R,MC,MR>& A )
+PanelLQ( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -169,7 +170,7 @@ internal::PanelLQ( DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-internal::PanelLQ
+PanelLQ
 ( Matrix<Complex<R> >& A,
   Matrix<Complex<R> >& t )
 {
@@ -250,7 +251,7 @@ internal::PanelLQ
 
 template<typename R>
 inline void
-internal::PanelLQ
+PanelLQ
 ( DistMatrix<Complex<R>,MC,MR  >& A,
   DistMatrix<Complex<R>,MD,STAR>& t )
 {
@@ -362,4 +363,5 @@ internal::PanelLQ
 #endif
 }
 
+} // namespace internal
 } // namespace elem

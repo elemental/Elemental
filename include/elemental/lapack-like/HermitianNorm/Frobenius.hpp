@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline typename Base<F>::type 
-internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");
@@ -136,7 +137,7 @@ internal::HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-internal::HermitianFrobeniusNorm
+HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
@@ -251,4 +252,5 @@ internal::HermitianFrobeniusNorm
     return norm;
 }
 
+} // namespace internal
 } // namespace elem

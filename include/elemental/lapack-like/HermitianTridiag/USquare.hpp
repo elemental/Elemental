@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R> 
 inline void
-internal::HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
+HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianTridiagUSquare");
@@ -89,7 +90,7 @@ internal::HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
                 APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-                internal::HermitianPanelTridiagUSquare
+                HermitianPanelTridiagUSquare
                 ( ATL, WPan, 
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
                 
@@ -106,7 +107,7 @@ internal::HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
                 ( WPan_MR_STAR, W01_MR_STAR,
                                 W11_MR_STAR, A11.Height() );
 
-                internal::LocalTrr2k
+                LocalTrr2k
                 ( UPPER, TRANSPOSE, TRANSPOSE,
                   (R)-1, A01_MC_STAR, W01_MR_STAR,
                          W01_MC_STAR, A01_MR_STAR,
@@ -139,7 +140,7 @@ internal::HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-internal::HermitianTridiagUSquare
+HermitianTridiagUSquare
 ( DistMatrix<Complex<R>,MC,  MR  >& A,
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
@@ -219,7 +220,7 @@ internal::HermitianTridiagUSquare
                 APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-                internal::HermitianPanelTridiagUSquare
+                HermitianPanelTridiagUSquare
                 ( ATL, WPan, t1,
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -236,7 +237,7 @@ internal::HermitianTridiagUSquare
                 ( WPan_MR_STAR, W01_MR_STAR,
                                 W11_MR_STAR, A11.Height() );
 
-                internal::LocalTrr2k
+                LocalTrr2k
                 ( UPPER, ADJOINT, ADJOINT,
                   (C)-1, A01_MC_STAR, W01_MR_STAR,
                          W01_MC_STAR, A01_MR_STAR,
@@ -281,4 +282,5 @@ internal::HermitianTridiagUSquare
 #endif
 }
 
+} // namespace internal
 } // namespace elem

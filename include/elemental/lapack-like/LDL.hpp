@@ -59,9 +59,11 @@ inline void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 #endif
 }
 
+namespace internal {
+
 template<typename F>
 inline void
-internal::LDLVar3
+LDLVar3
 ( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
@@ -130,13 +132,13 @@ internal::LDLVar3
         A21AdjOrTrans_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11; 
-        internal::LocalLDL
+        LocalLDL
         ( orientation, A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         d1 = d1_STAR_STAR;
 
         A21_VC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, orientation, UNIT, 
           (F)1, A11_STAR_STAR, A21_VC_STAR );
 
@@ -148,7 +150,7 @@ internal::LDLVar3
         else
             A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR );
 
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, TRANSPOSE,
           (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
 
@@ -176,5 +178,7 @@ internal::LDLVar3
     PopCallStack();
 #endif
 }
+
+} // namespace internal
 
 } // namespace elem

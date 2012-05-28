@@ -36,6 +36,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 //
 // Follows the LAPACK convention of defining tau such that
@@ -58,7 +59,7 @@ namespace elem {
 
 template<typename R>
 inline R
-internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
+ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::ColReflector");
@@ -147,7 +148,7 @@ internal::ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 
 template<typename R> 
 inline Complex<R>
-internal::ColReflector
+ColReflector
 ( DistMatrix<Complex<R>,MC,MR>& chi, DistMatrix<Complex<R>,MC,MR>& x )
 {
 #ifndef RELEASE
@@ -236,4 +237,5 @@ internal::ColReflector
     return tau;
 }
 
+} // namespace internal
 } // namespace elem

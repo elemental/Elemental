@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
-internal::FrobeniusNorm( const Matrix<F>& A )
+FrobeniusNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
@@ -75,7 +76,7 @@ internal::FrobeniusNorm( const Matrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-internal::FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
+FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");
@@ -130,4 +131,5 @@ internal::FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
     return norm;
 }
 
+} // namespace internal
 } // namespace elem

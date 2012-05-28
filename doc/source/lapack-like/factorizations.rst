@@ -137,14 +137,16 @@ stored in the lower trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the rows of the strictly upper 
 trapezoid.
 
+.. cpp:function:: void LQ( Matrix<R>& A )
 .. cpp:function:: void LQ( DistMatrix<R,MC,MR>& A )
 
-   Overwrite the real distributed matrix :math:`A` with :math:`L` and the 
+   Overwrite the real matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`.
 
+.. cpp:function:: void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 .. cpp:function:: void LQ( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
-   Overwrite the complex distributed matrix :math:`A` with :math:`L` and the 
+   Overwrite the complex matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
@@ -162,14 +164,16 @@ stored in the upper trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the columns of the strictly lower 
 trapezoid.
 
+.. cpp:function:: void QR( Matrix<R>& A )
 .. cpp:function:: void QR( DistMatrix<R,MC,MR>& A )
 
-   Overwrite the real distributed matrix :math:`A` with :math:`R` and the 
+   Overwrite the real matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`.
 
+.. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 .. cpp:function:: void QR( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
-   Overwrite the complex distributed matrix :math:`A` with :math:`R` and the 
+   Overwrite the complex matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.

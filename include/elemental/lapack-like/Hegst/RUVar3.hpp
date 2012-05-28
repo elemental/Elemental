@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRUVar4");
@@ -139,19 +140,19 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
         U11_STAR_STAR = U11;
-        internal::LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - U01' A02
         U01_MC_STAR = U01;
         X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, (F)1, U01_MC_STAR, A02, (F)0, X12_STAR_MR );
         A12.SumScatterUpdate( (F)-1, X12_STAR_MR );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
@@ -160,14 +161,14 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 
         // A01 := A01 inv(U11)
         A01_VC_STAR = A01;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // Y02 := Y02 + A01 U12
         A01_MC_STAR = A01;
         U12Adj_MR_STAR.AdjointFrom( U12 );
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, ADJOINT, (F)1, A01_MC_STAR, U12Adj_MR_STAR, (F)1, Y02 );
 
         // Y12 := Y12 + A11 U12
@@ -184,12 +185,12 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
                     A11Buffer[j+i*ldim] = Conj(A11Buffer[i+j*ldim]);
         }
         A11_MC_STAR = A11_STAR_STAR;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, ADJOINT, (F)1, A11_MC_STAR, U12Adj_MR_STAR, (F)0, Y12 );
 
         // Y12 := Y12 + A01' U02
         Z12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, (F)1, A01_MC_STAR, U02, (F)0, Z12_STAR_MR );
         Y12.SumScatterUpdate( (F)1, Z12_STAR_MR );
         //--------------------------------------------------------------------//
@@ -226,4 +227,5 @@ internal::HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::PanelLU
+PanelLU
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
   DistMatrix<int,STAR,STAR>& p, 
@@ -233,4 +234,5 @@ internal::PanelLU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

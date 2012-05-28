@@ -32,7 +32,6 @@
 */
 
 namespace elem {
-
 namespace bidiag {
 
 template<typename R>

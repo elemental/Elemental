@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R> 
 inline void
-internal::HermitianPanelTridiagLSquare
+HermitianPanelTridiagLSquare
 ( DistMatrix<R,MC,MR  >& A,
   DistMatrix<R,MC,MR  >& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
@@ -212,7 +213,7 @@ internal::HermitianPanelTridiagLSquare
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = internal::ColReflector( alpha21T, a21B );
+            tau = ColReflector( alpha21T, a21B );
         }
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry
@@ -740,7 +741,7 @@ internal::HermitianPanelTridiagLSquare
 
 template<typename R>
 inline void
-internal::HermitianPanelTridiagLSquare
+HermitianPanelTridiagLSquare
 ( DistMatrix<Complex<R>,MC,MR  >& A,
   DistMatrix<Complex<R>,MC,MR  >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
@@ -938,7 +939,7 @@ internal::HermitianPanelTridiagLSquare
         if( thisIsMyCol )
         {
             // Compute the Householder reflector
-            tau = internal::ColReflector( alpha21T, a21B );
+            tau = ColReflector( alpha21T, a21B );
             if( g.Row() == alpha21T.ColAlignment() )
                 tau1.SetLocalEntry(0,0,tau);
         }
@@ -1477,4 +1478,5 @@ internal::HermitianPanelTridiagLSquare
 #endif
 }
 
+} // namespace internal
 } // namespace elem

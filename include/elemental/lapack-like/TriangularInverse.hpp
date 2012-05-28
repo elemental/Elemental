@@ -52,9 +52,11 @@ TriangularInverse
 #endif
 }
 
+namespace internal {
+
 template<typename F>
 inline void
-internal::TriangularInverseVar3
+TriangularInverseVar3
 ( UpperOrLower uplo, 
   UnitOrNonUnit diag, 
   DistMatrix<F,MC,MR>& A  )
@@ -63,12 +65,14 @@ internal::TriangularInverseVar3
     PushCallStack("internal::TriangularInverseVar3");
 #endif
     if( uplo == LOWER )
-        internal::TriangularInverseLVar3( diag, A );
+        TriangularInverseLVar3( diag, A );
     else
-        internal::TriangularInverseUVar3( diag, A );
+        TriangularInverseUVar3( diag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace internal
 
 } // namespace elem

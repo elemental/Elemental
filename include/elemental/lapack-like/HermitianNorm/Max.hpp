@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline typename Base<F>::type
-internal::HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianMaxNorm");
@@ -76,7 +77,7 @@ internal::HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-internal::HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
+HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianMaxNorm");
@@ -128,4 +129,5 @@ internal::HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
     return maxAbs;
 }
 
+} // namespace internal
 } // namespace elem

@@ -32,13 +32,14 @@
 */
 
 namespace elem {
+namespace internal {
 
 // I do not see any algorithmic optimizations to make for the upper var3 
 // Cholesky, since most memory access is stride one.
 template<typename F> 
 inline void
-internal::CholeskyUVar3( DistMatrix<F,MC,MR>& A )
-{ internal::CholeskyUVar3Naive( A ); }
+CholeskyUVar3( DistMatrix<F,MC,MR>& A )
+{ CholeskyUVar3Naive( A ); }
 
 /*
    Parallelization of Variant 3 Upper Cholesky factorization. 
@@ -67,7 +68,7 @@ internal::CholeskyUVar3( DistMatrix<F,MC,MR>& A )
 */
 template<typename F> 
 inline void
-internal::CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
+CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar3Naive");
@@ -106,16 +107,16 @@ internal::CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
         A12_STAR_VR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalCholesky( UPPER, A11_STAR_STAR );
+        LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MC = A12_STAR_VR;
         A12_STAR_MR = A12_STAR_VR;
-        internal::LocalTrrk
+        LocalTrrk
         ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
@@ -134,4 +135,5 @@ internal::CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

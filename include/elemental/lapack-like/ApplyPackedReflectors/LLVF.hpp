@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 //
 // Since applying Householder transforms from vectors stored left-to-right
@@ -52,7 +53,7 @@ namespace elem {
 
 template<typename R> 
 inline void
-internal::ApplyPackedReflectorsLLVF
+ApplyPackedReflectorsLLVF
 ( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
@@ -132,7 +133,7 @@ internal::ApplyPackedReflectorsLLVF
 
 template<typename R> 
 inline void
-internal::ApplyPackedReflectorsLLVF
+ApplyPackedReflectorsLLVF
 ( int offset, 
   const DistMatrix<R,MC,MR>& H,
         DistMatrix<R,MC,MR>& A )
@@ -207,17 +208,17 @@ internal::ApplyPackedReflectorsLLVF
         HalveMainDiagonal( SInv_STAR_STAR );
 
         HPan_MC_STAR = HPanCopy;
-        internal::LocalGemm
+        LocalGemm
         ( TRANSPOSE, NORMAL, 
           (R)1, HPan_MC_STAR, AB, (R)0, Z_STAR_MR );
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, 
           (R)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (R)-1, HPan_MC_STAR, Z_STAR_MR, (R)1, AB );
         //--------------------------------------------------------------------//
         HPan_MC_STAR.FreeAlignments();
@@ -243,7 +244,7 @@ internal::ApplyPackedReflectorsLLVF
 
 template<typename R> 
 inline void
-internal::ApplyPackedReflectorsLLVF
+ApplyPackedReflectorsLLVF
 ( Conjugation conjugation, int offset, 
   const Matrix<Complex<R> >& H,
   const Matrix<Complex<R> >& t,
@@ -349,7 +350,7 @@ internal::ApplyPackedReflectorsLLVF
 
 template<typename R> 
 inline void
-internal::ApplyPackedReflectorsLLVF
+ApplyPackedReflectorsLLVF
 ( Conjugation conjugation, int offset, 
   const DistMatrix<Complex<R>,MC,MR  >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t,
@@ -446,15 +447,15 @@ internal::ApplyPackedReflectorsLLVF
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_MC_STAR = HPanCopy;
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, (C)1, HPan_MC_STAR, AB, (C)0, Z_STAR_MR );
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VR );
 
         Z_STAR_MR = Z_STAR_VR;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (C)-1, HPan_MC_STAR, Z_STAR_MR, (C)1, AB );
         //--------------------------------------------------------------------//
         HPan_MC_STAR.FreeAlignments();
@@ -484,4 +485,5 @@ internal::ApplyPackedReflectorsLLVF
 #endif
 }
 
+} // namespace internal
 } // namespace elem

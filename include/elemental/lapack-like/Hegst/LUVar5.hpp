@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstLUVar5");
@@ -122,7 +123,7 @@ internal::HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         A01_VC_STAR = A01_MC_STAR;
         A01_MR_STAR = A01_VC_STAR;
         U01_MR_STAR = U01_MC_STAR;
-        internal::LocalTrr2k
+        LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
           (F)1, U01_MC_STAR, A01_MR_STAR, 
                 A01_MC_STAR, U01_MR_STAR,
@@ -133,12 +134,12 @@ internal::HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 
         // A01 := A01 U11'
         U11_STAR_STAR = U11;
-        internal::LocalTrmm
+        LocalTrmm
         ( RIGHT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A11 := U11 A11 U11'
-        internal::LocalHegst( LEFT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalHegst( LEFT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
         //--------------------------------------------------------------------//
         A01_MC_STAR.FreeAlignments();
@@ -167,4 +168,5 @@ internal::HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

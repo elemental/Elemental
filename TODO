@@ -1,0 +1,13 @@
+Functionality
+=============
+TODO: Fill this list in
+
+Documentation
+=============
+- Add BidiagonalQR and DivideAndConquerSVD to list of LAPACK imports
+
+Formatting
+==========
+- Make namespacing of internal functions consistent
+- Move FLAME bidiagonal QR algorithm declaration into imports/flame.hpp
+

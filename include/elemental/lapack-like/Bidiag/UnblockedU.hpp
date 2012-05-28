@@ -32,7 +32,6 @@
 */
 
 namespace elem {
-
 namespace bidiag {
 
 template<typename R>
@@ -332,5 +331,4 @@ inline void UnblockedBidiagU
 }
 
 } // namespace bidiag
-
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRUVar4");
@@ -111,19 +112,19 @@ internal::HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         // A01 := A01 inv(U11)
         A01_VC_STAR = A01;
         U11_STAR_STAR = U11;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
-        internal::LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A02 := A02 - A01 U12
         A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
         U12Trans_MR_STAR.TransposeFrom( U12 );
-        internal::LocalGemm
+        LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           (F)-1, A01Trans_STAR_MC, U12Trans_MR_STAR, (F)1, A02 );
 
@@ -140,7 +141,7 @@ internal::HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
 
         // A12 := A12 - 1/2 Y12
@@ -152,7 +153,7 @@ internal::HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
         U12_STAR_VC = U12_STAR_VR;
         A12_STAR_MC = A12_STAR_VC;
         U12_STAR_MC = U12_STAR_VC;
-        internal::LocalTrr2k
+        LocalTrr2k
         ( UPPER, ADJOINT, TRANSPOSE, ADJOINT,
           (F)-1, A12_STAR_MC, U12Trans_MR_STAR,
                  U12_STAR_MC, A12_STAR_MR,
@@ -192,4 +193,5 @@ internal::HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

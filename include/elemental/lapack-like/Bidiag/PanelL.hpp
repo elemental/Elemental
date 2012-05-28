@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R>
 inline void 
-internal::PanelBidiagL
+PanelBidiagL
 ( DistMatrix<R,MC,  MR  >& A, 
   DistMatrix<R,MC,  MR  >& X, 
   DistMatrix<R,MC,  MR  >& Y,
@@ -79,7 +80,7 @@ internal::PanelBidiagL
 
 template<typename R> 
 inline void
-internal::PanelBidiagL
+PanelBidiagL
 ( DistMatrix<Complex<R>,MC,  MR  >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
@@ -130,4 +131,5 @@ internal::PanelBidiagL
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R>
 inline void 
-internal::PanelBidiagU
+PanelBidiagU
 ( DistMatrix<R,MC,  MR  >& A, 
   DistMatrix<R,MC,  MR  >& X, 
   DistMatrix<R,MC,  MR  >& Y,
@@ -247,7 +248,7 @@ internal::PanelBidiagU
         R tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = internal::ColReflector( alpha11, a21 );
+            tauQ = ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
                 // Store delta and force | alpha11 | = | 1 |
@@ -346,7 +347,7 @@ internal::PanelBidiagU
         R tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = internal::RowReflector( alpha12L, a12R );
+            tauP = RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 // Store epsilon and force | alpha12L | = | 1 |
@@ -466,7 +467,7 @@ internal::PanelBidiagU
 
 template<typename R> 
 inline void
-internal::PanelBidiagU
+PanelBidiagU
 ( DistMatrix<Complex<R>,MC,  MR  >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
@@ -711,7 +712,7 @@ internal::PanelBidiagU
         C tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = internal::ColReflector( alpha11, a21 );
+            tauQ = ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
                 tauQ1.SetLocalEntry(0,0,tauQ);
@@ -816,7 +817,7 @@ internal::PanelBidiagU
         C tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = internal::RowReflector( alpha12L, a12R );
+            tauP = RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 tauP1.SetLocalEntry(0,0,tauP);
@@ -954,4 +955,5 @@ internal::PanelBidiagU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

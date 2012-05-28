@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline typename Base<F>::type
-internal::OneNorm( const Matrix<F>& A )
+OneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::OneNorm");
@@ -58,7 +59,7 @@ internal::OneNorm( const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-internal::OneNorm( const DistMatrix<F,MC,MR>& A )
+OneNorm( const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::OneNorm");
@@ -95,4 +96,5 @@ internal::OneNorm( const DistMatrix<F,MC,MR>& A )
     return maxColSum;
 }
 
+} // namespace internal
 } // namespace elem

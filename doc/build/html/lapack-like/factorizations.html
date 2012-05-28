@@ -209,16 +209,26 @@ stored in the lower trapezoid of <img class="math" src="../_images/math/019e9892
 representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the rows of the strictly upper
 trapezoid.</p>
 <dl class="function">
+<dt id="LQ__Matrix:R:R">
+void <tt class="descname">LQ</tt><big>(</big>Matrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LQ__Matrix:R:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="LQ__DistMatrix:R.MC.MR:R">
 void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the real distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+<dd><p>Overwrite the real matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="LQ__Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">LQ</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#LQ__Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="LQ__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R">
 void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
+<dd><p>Overwrite the complex matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)
 Householder transformations and is stored in the column vector <cite>t</cite>.</p>
@@ -238,16 +248,26 @@ stored in the upper trapezoid of <img class="math" src="../_images/math/019e9892
 representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/> are stored within the columns of the strictly lower
 trapezoid.</p>
 <dl class="function">
+<dt id="QR__Matrix:R:R">
+void <tt class="descname">QR</tt><big>(</big>Matrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#QR__Matrix:R:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="QR__DistMatrix:R.MC.MR:R">
 void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the real distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+<dd><p>Overwrite the real matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="QR__Matrix:Complex:R::R.Matrix:Complex:R::R">
+void <tt class="descname">QR</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#QR__Matrix:Complex:R::R.Matrix:Complex:R::R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="QR__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R">
 void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrite the complex distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
+<dd><p>Overwrite the complex matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)
 Householder transformations and is stored in the column vector <cite>t</cite>.</p>

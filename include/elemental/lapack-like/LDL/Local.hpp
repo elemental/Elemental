@@ -59,10 +59,12 @@ LDLT( Matrix<F>& A, Matrix<F>& d )
 #endif
 }
 
+namespace internal {
+
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-internal::LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
     PushCallStack("LDLVar3");
@@ -138,5 +140,7 @@ internal::LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
     PopCallStack();
 #endif
 }
+
+} // namespace internal
 
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& L )
+TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TriangularInverseLVar3");
@@ -74,19 +75,19 @@ internal::TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& L )
         //--------------------------------------------------------------------//
         L10_STAR_VR = L10;
         L11_STAR_STAR = L11;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, (F)-1, L11_STAR_STAR, L10_STAR_VR );
 
         L21_MC_STAR = L21;
         L10_STAR_MR = L10_STAR_VR;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (F)1, L21_MC_STAR, L10_STAR_MR, (F)1, L20 );
         L10 = L10_STAR_MR;
 
         L21_VC_STAR = L21_MC_STAR;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, L21_VC_STAR );
-        internal::LocalTriangularInverse( LOWER, diag, L11_STAR_STAR );
+        LocalTriangularInverse( LOWER, diag, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         L21 = L21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -104,4 +105,5 @@ internal::TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& L )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R> 
 inline void
-internal::HermitianTridiagU( DistMatrix<R,MC,MR>& A )
+HermitianTridiagU( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianTridiagU");
@@ -89,7 +90,7 @@ internal::HermitianTridiagU( DistMatrix<R,MC,MR>& A )
                 APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-                internal::HermitianPanelTridiagU
+                HermitianPanelTridiagU
                 ( ATL, WPan, 
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -106,7 +107,7 @@ internal::HermitianTridiagU( DistMatrix<R,MC,MR>& A )
                 ( WPan_MR_STAR, W01_MR_STAR,
                                 W11_MR_STAR, A11.Height() );
 
-                internal::LocalTrr2k
+                LocalTrr2k
                 ( UPPER, TRANSPOSE, TRANSPOSE,
                   (R)-1, A01_MC_STAR, W01_MR_STAR,
                          W01_MC_STAR, A01_MR_STAR,
@@ -139,7 +140,7 @@ internal::HermitianTridiagU( DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-internal::HermitianTridiagU
+HermitianTridiagU
 ( DistMatrix<Complex<R>,MC,  MR  >& A,
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
@@ -217,7 +218,7 @@ internal::HermitianTridiagU
                 APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
                 WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-                internal::HermitianPanelTridiagU
+                HermitianPanelTridiagU
                 ( ATL, WPan, t1,
                   APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -234,7 +235,7 @@ internal::HermitianTridiagU
                 ( WPan_MR_STAR, W01_MR_STAR,
                                 W11_MR_STAR, A11.Height() );
  
-                internal::LocalTrr2k
+                LocalTrr2k
                 ( UPPER, ADJOINT, ADJOINT,
                   (C)-1, A01_MC_STAR, W01_MR_STAR,
                          W01_MC_STAR, A01_MR_STAR,
@@ -279,4 +280,5 @@ internal::HermitianTridiagU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

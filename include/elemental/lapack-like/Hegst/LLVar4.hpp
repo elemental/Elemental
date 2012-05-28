@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstLLVar4");
@@ -121,7 +122,7 @@ internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         A10_STAR_MC = A10_STAR_VR;
         L10_STAR_MR = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
-        internal::LocalTrr2k
+        LocalTrr2k
         ( LOWER, ADJOINT, ADJOINT,
           (F)1, A10_STAR_MC, L10_STAR_MR, 
                 L10_STAR_MC, A10_STAR_MR, 
@@ -132,23 +133,23 @@ internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
         // A10 := L11' A10
         L11_STAR_STAR = L11;
-        internal::LocalTrmm
+        LocalTrmm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A20 := A20 + A21 L10
         A21_MC_STAR = A21;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (F)1, A21_MC_STAR, L10_STAR_MR, (F)1, A20 );
 
         // A11 := L11' A11 L11
-        internal::LocalHegst
+        LocalHegst
         ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 L11
         A21_VC_STAR = A21_MC_STAR;
-        internal::LocalTrmm
+        LocalTrmm
         ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
@@ -178,4 +179,5 @@ internal::HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

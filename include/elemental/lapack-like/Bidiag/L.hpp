@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R>
 inline void 
-internal::BidiagL( DistMatrix<R,MC,MR>& A )
+BidiagL( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::BidiagL");
@@ -87,7 +88,7 @@ internal::BidiagL( DistMatrix<R,MC,MR>& A )
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            internal::PanelBidiagL
+            PanelBidiagL
             ( ABR, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
@@ -105,9 +106,9 @@ internal::BidiagL( DistMatrix<R,MC,MR>& A )
             X21_MC_STAR = X21;
             Y21_MR_STAR = Y21;
 
-            internal::LocalGemm
+            LocalGemm
             ( NORMAL, TRANSPOSE, (R)-1, A21_MC_STAR, Y21_MR_STAR, (R)1, A22 );
-            internal::LocalGemm
+            LocalGemm
             ( NORMAL, NORMAL, (R)-1, X21_MC_STAR, A12_STAR_MR, (R)1, A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
@@ -137,7 +138,7 @@ internal::BidiagL( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-internal::BidiagL
+BidiagL
 ( DistMatrix<Complex<R>,MC,  MR  >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
@@ -232,7 +233,7 @@ internal::BidiagL
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            internal::PanelBidiagL
+            PanelBidiagL
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
@@ -250,9 +251,9 @@ internal::BidiagL
             X21_MC_STAR = X21;
             Y21_MR_STAR = Y21;
 
-            internal::LocalGemm
+            LocalGemm
             ( NORMAL, ADJOINT, (C)-1, A21_MC_STAR, Y21_MR_STAR, (C)1, A22 );
-            internal::LocalGemm
+            LocalGemm
             ( NORMAL, NORMAL, (C)-1, X21_MC_STAR, A12_STAR_MR, (C)1, A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
@@ -305,4 +306,5 @@ internal::BidiagL
 #endif
 }
 
+} // namespace internal
 } // namespace elem

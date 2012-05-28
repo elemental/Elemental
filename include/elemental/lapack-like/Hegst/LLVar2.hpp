@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline void
-internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstLLVar2");
@@ -108,14 +109,14 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         // A10 := L11' A10
         L11_STAR_STAR = L11;
         A10_STAR_VR = A10;
-        internal::LocalTrmm
+        LocalTrmm
         ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A10 := A10 + L21' A20
         L21_MC_STAR = L21;
         X10_STAR_MR.ResizeTo( A10.Height(), A10.Width() );
-        internal::LocalGemm
+        LocalGemm
         ( ADJOINT, NORMAL, (F)1, L21_MC_STAR, A20, (F)0, X10_STAR_MR );
         A10.SumScatterUpdate( (F)1, X10_STAR_MR );
 
@@ -127,7 +128,7 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
         Z21_MR_STAR.ResizeTo( A21.Height(), A21.Width() );
         Zero( Z21_MC_STAR );
         Zero( Z21_MR_STAR );
-        internal::LocalSymmetricAccumulateLL
+        LocalSymmetricAccumulateLL
         ( ADJOINT, 
           (F)1, A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
         Z21_MR_MC.SumScatterFrom( Z21_MR_STAR );
@@ -136,7 +137,7 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
         // A21 := A21 L11
         A21_VC_STAR = A21;
-        internal::LocalTrmm
+        LocalTrmm
         ( RIGHT, LOWER, NORMAL, NON_UNIT,
           (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
@@ -146,7 +147,7 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
         // A11 := L11' A11 L11
         A11_STAR_STAR = A11;
-        internal::LocalHegst( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A11 := A11 + (A21' L21 + L21' A21)
@@ -188,4 +189,5 @@ internal::HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 #endif
 }
 
+} // namespace internal
 } // namespace elem

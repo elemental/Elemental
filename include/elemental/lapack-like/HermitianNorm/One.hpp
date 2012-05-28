@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
-internal::HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianOneNorm");
@@ -77,7 +78,7 @@ internal::HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-internal::HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
+HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianOneNorm");
@@ -196,4 +197,5 @@ internal::HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
     return maxColSum;
 }
 
+} // namespace internal
 } // namespace elem

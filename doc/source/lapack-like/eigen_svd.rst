@@ -437,6 +437,8 @@ triplet :math:`(U,\Sigma,V)` such that
 where :math:`U` and :math:`V` are unitary, and :math:`\Sigma` is diagonal with 
 non-negative entries.
 
+.. cpp:function:: void SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
+
 .. cpp:function:: void SVD( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& V )
 
    Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `V` with :math:`V`. 
@@ -449,6 +451,8 @@ non-negative entries.
       bidiagonal SVD (as opposed to a Divide and Conquer algorithm) and 
       does not apply Householder reflectors in the most efficient manner 
       possible.
+
+.. cpp:function:: void SingularValues( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
 
 .. cpp:function:: void SingularValues( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 

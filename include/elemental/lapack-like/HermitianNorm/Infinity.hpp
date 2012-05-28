@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // The operator L1 and Linf norms for Hermitian matrices are identical. The 
 // former is the maximum column L1 norm and the latter is the maximum row L1 
@@ -39,13 +40,13 @@ namespace elem {
 
 template<typename F>
 inline typename Base<F>::type
-internal::HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -54,18 +55,19 @@ internal::HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-internal::HermitianInfinityNorm
+HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = internal::HermitianOneNorm( uplo, A );
+    R maxRowSum = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
 
+} // namespace internal
 } // namespace elem

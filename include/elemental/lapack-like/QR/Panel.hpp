@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename R>
 inline void
-internal::PanelQR( Matrix<R>& A )
+PanelQR( Matrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
@@ -91,7 +92,7 @@ internal::PanelQR( Matrix<R>& A )
 
 template<typename R>
 inline void
-internal::PanelQR( DistMatrix<R,MC,MR>& A )
+PanelQR( DistMatrix<R,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
@@ -176,7 +177,7 @@ internal::PanelQR( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void
-internal::PanelQR
+PanelQR
 ( Matrix<Complex<R> >& A,
   Matrix<Complex<R> >& t )
 {
@@ -259,7 +260,7 @@ internal::PanelQR
 
 template<typename R> 
 inline void
-internal::PanelQR
+PanelQR
 ( DistMatrix<Complex<R>,MC,MR  >& A,
   DistMatrix<Complex<R>,MD,STAR>& t )
 {
@@ -372,4 +373,5 @@ internal::PanelQR
 #endif
 }
 
+} // namespace internal
 } // namespace elem
