@@ -193,7 +193,7 @@ PanelQR
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
-    DistMatrix<C,MD,STAR>
+    Matrix<C>
         tT,  t0,
         tB,  tau1,
              t2;
