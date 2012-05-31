@@ -32,13 +32,14 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Right Lower Normal (Non)Unit Trmm
 //   X := X tril(L), and
 //   X := X trilu(L)
 template<typename T>
 inline void
-internal::TrmmRLN
+TrmmRLN
 ( UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
@@ -48,9 +49,9 @@ internal::TrmmRLN
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
-        internal::TrmmRLNA( diag, alpha, L, X );
+        TrmmRLNA( diag, alpha, L, X );
     else
-        internal::TrmmRLNC( diag, alpha, L, X );
+        TrmmRLNC( diag, alpha, L, X );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -58,7 +59,7 @@ internal::TrmmRLN
 
 template<typename T>
 inline void
-internal::TrmmRLNA
+TrmmRLNA
 ( UnitOrNonUnit diag, 
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
@@ -100,7 +101,7 @@ internal::TrmmRLNA
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
         Zero( Z1Trans_MR_STAR );
-        internal::LocalTrmmAccumulateRLN
+        LocalTrmmAccumulateRLN
         ( TRANSPOSE, diag, alpha, L, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.SumScatterFrom( Z1Trans_MR_STAR );
@@ -124,7 +125,7 @@ internal::TrmmRLNA
     
 template<typename T>
 inline void
-internal::TrmmRLNC
+TrmmRLNC
 ( UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& L,
                  DistMatrix<T,MC,MR>& X )
@@ -184,12 +185,12 @@ internal::TrmmRLNC
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;
-        internal::LocalTrmm
+        LocalTrmm
         ( RIGHT, LOWER, NORMAL, diag, (T)1, L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         L21_MR_STAR = L21;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (T)1, X2, L21_MR_STAR, (T)0, D1_MC_STAR );
         X1.SumScatterUpdate( (T)1, D1_MC_STAR );
        //--------------------------------------------------------------------//
@@ -213,7 +214,7 @@ internal::TrmmRLNC
 
 template<typename T>
 inline void
-internal::LocalTrmmAccumulateRLN
+LocalTrmmAccumulateRLN
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,  MR  >& L,
   const DistMatrix<T,STAR,MC  >& X_STAR_MC,
@@ -295,11 +296,11 @@ internal::LocalTrmmAccumulateRLN
         MakeTrapezoidal( LEFT, LOWER, 0, D11 );
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation,
           alpha, D11, X1_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
 
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation,
           alpha, L21, X2_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
         //--------------------------------------------------------------------//
@@ -327,4 +328,5 @@ internal::LocalTrmmAccumulateRLN
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::TrsvLN
+TrsvLN
 ( UnitOrNonUnit diag, 
   const DistMatrix<F,MC,MR>& L, 
         DistMatrix<F,MC,MR>& x )
@@ -210,4 +211,5 @@ internal::TrsvLN
 #endif
 }
 
+} // namespace internal
 } // namespace elem

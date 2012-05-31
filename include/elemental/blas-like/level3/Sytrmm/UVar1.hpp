@@ -36,10 +36,50 @@ namespace internal {
 
 template<typename T>
 inline void
-HetrmmUVar1( DistMatrix<T,MC,MR>& U )
+SytrmmUVar1( Matrix<T>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HetrmmUVar1");
+    PushCallStack("internal::SytrmmUVar1");
+#endif
+     Matrix<T>
+        UTL, UTR,  U00, U01, U02,
+        UBL, UBR,  U10, U11, U12,
+                   U20, U21, U22;
+
+    PartitionDownDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
+    {
+        RepartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+
+        //--------------------------------------------------------------------/
+        Trrk( UPPER, NORMAL, TRANSPOSE, (T)1, U01, U01, (T)1, U00 );
+        Trmm( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11, U01 );
+        SytrmmUUnblocked( U11 );
+        //--------------------------------------------------------------------/
+
+        SlidePartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+SytrmmUVar1( DistMatrix<T,MC,MR>& U )
+{
+#ifndef RELEASE
+    PushCallStack("internal::SytrmmUVar1");
     if( U.Height() != U.Width() )
         throw std::logic_error("U must be square");
 #endif
@@ -85,7 +125,7 @@ HetrmmUVar1( DistMatrix<T,MC,MR>& U )
         ( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11_STAR_STAR, U01_VC_STAR );
         U01 = U01_VC_STAR;
 
-        LocalHetrmm( UPPER, U11_STAR_STAR );
+        LocalSytrmm( UPPER, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
         U01Adj_STAR_MR.FreeAlignments();

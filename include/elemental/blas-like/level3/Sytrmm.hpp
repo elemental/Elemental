@@ -31,17 +31,46 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./level3/Gemm.hpp"
-#include "./level3/Hemm.hpp"
-#include "./level3/Her2k.hpp"
-#include "./level3/Herk.hpp"
-#include "./level3/Hetrmm.hpp"
-#include "./level3/Symm.hpp"
-#include "./level3/Syr2k.hpp"
-#include "./level3/Syrk.hpp"
-#include "./level3/Sytrmm.hpp"
-#include "./level3/Trmm.hpp"
-#include "./level3/Trr2k.hpp"
-#include "./level3/Trrk.hpp"
-#include "./level3/Trsm.hpp"
+#include "./Sytrmm/Unblocked.hpp"
+#include "./Sytrmm/LVar1.hpp"
+#include "./Sytrmm/UVar1.hpp"
 
+namespace elem {
+
+template<typename T>
+inline void
+Sytrmm( UpperOrLower uplo, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Sytrmm");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+#endif
+    if( uplo == LOWER )
+        internal::SytrmmLVar1( A );
+    else
+        internal::SytrmmUVar1( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Sytrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Sytrmm");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+#endif
+    if( uplo == LOWER )
+        internal::SytrmmLVar1( A );
+    else
+        internal::SytrmmUVar1( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace elem

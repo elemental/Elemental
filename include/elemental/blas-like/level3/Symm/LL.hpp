@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::SymmLL
+SymmLL
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -45,9 +46,9 @@ internal::SymmLL
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
-        internal::SymmLLA( alpha, A, B, beta, C );
+        SymmLLA( alpha, A, B, beta, C );
     else
-        internal::SymmLLC( alpha, A, B, beta, C );
+        SymmLLC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,7 +56,7 @@ internal::SymmLL
 
 template<typename T>
 inline void
-internal::SymmLLA
+SymmLLA
 ( T alpha, const DistMatrix<T,MC,MR>& A, 
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -113,7 +114,7 @@ internal::SymmLLA
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
         Zero( Z1_MC_STAR );
         Zero( Z1_MR_STAR );
-        internal::LocalSymmetricAccumulateLL
+        LocalSymmetricAccumulateLL
         ( TRANSPOSE, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
 
@@ -144,7 +145,7 @@ internal::SymmLLA
 
 template<typename T>
 inline void
-internal::SymmLLC
+SymmLLC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -234,11 +235,11 @@ internal::SymmLLC
 
         B1Trans_MR_STAR.TransposeFrom( B1 );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, TRANSPOSE, 
           alpha, AColPan_MC_STAR, B1Trans_MR_STAR, (T)1, CBelow );
 
-        internal::LocalGemm
+        LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
           alpha, ARowPan_STAR_MC, B1Trans_MR_STAR, (T)1, CAbove );
         //--------------------------------------------------------------------//
@@ -269,4 +270,5 @@ internal::SymmLLC
 #endif
 }
 
+} // namespace internal
 } // namespace elem

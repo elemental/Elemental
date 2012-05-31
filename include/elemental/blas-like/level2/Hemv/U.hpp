@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::LocalHemvColAccumulateU
+LocalHemvColAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -232,7 +233,7 @@ internal::LocalHemvColAccumulateU
 
 template<typename T>
 inline void
-internal::LocalHemvRowAccumulateU
+LocalHemvRowAccumulateU
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
@@ -397,4 +398,5 @@ internal::LocalHemvRowAccumulateU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -45,33 +45,20 @@
    internal namespace. For example,
 
      template<typename T,Distribution U,Distribution V>
-     T internal::Dot
+     T internal::DotHelper
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
 namespace elem {
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline T
-Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
-{
-#ifndef RELEASE
-    PushCallStack("Dot");
-#endif
-    T dotProduct = internal::Dot( x, y );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return dotProduct;
-}
+namespace internal {
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot
+DotHelper
 ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -153,10 +140,10 @@ internal::Dot
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -226,10 +213,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -299,10 +286,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -384,10 +371,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -457,10 +444,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -530,10 +517,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -603,10 +590,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -676,10 +663,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -749,10 +736,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -822,10 +809,10 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
+DotHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dot");
+    PushCallStack("internal::DotHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -847,6 +834,23 @@ internal::Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
     PopCallStack();
 #endif
     return globalDot;
+}
+
+} // namespace internal
+
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline T
+Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+{
+#ifndef RELEASE
+    PushCallStack("Dot");
+#endif
+    T dotProduct = internal::DotHelper( x, y );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return dotProduct;
 }
 
 } // namespace elem

@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::HerkLN
+HerkLN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
@@ -80,7 +81,7 @@ internal::HerkLN
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Adj_STAR_MR.AdjointFrom( A1_VR_STAR );
 
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, alpha, A1_MC_STAR, A1Adj_STAR_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -96,4 +97,5 @@ internal::HerkLN
 #endif
 }
 
+} // namespace internal
 } // namespace elem

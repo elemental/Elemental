@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::GemmNT
+GemmNT
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -57,15 +58,15 @@ internal::GemmNT
 
     if( m <= n && weightTowardsC*m <= k )
     {
-        internal::GemmNTB( orientationOfB, alpha, A, B, beta, C );
+        GemmNTB( orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        internal::GemmNTA( orientationOfB, alpha, A, B, beta, C );
+        GemmNTA( orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
-        internal::GemmNTC( orientationOfB, alpha, A, B, beta, C );
+        GemmNTC( orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -75,7 +76,7 @@ internal::GemmNT
 // Normal Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-internal::GemmNTA
+GemmNTA
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -141,7 +142,7 @@ internal::GemmNTA
 
         // C1[MC,*] := alpha A[MC,MR] (B1[*,MR])^T
         //           = alpha A[MC,MR] (B1^T)[MR,*]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, orientationOfB, alpha, A, B1_STAR_MR, (T)0, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -168,7 +169,7 @@ internal::GemmNTA
 // Normal Transpose Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void
-internal::GemmNTB
+GemmNTB
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -242,7 +243,7 @@ internal::GemmNTB
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha A1[*,MR] (B^T)[MR,MC]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, orientationOfB, alpha, A1_STAR_MR, B, (T)0, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
@@ -274,7 +275,7 @@ internal::GemmNTB
 // Normal Transpose Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void
-internal::GemmNTC
+GemmNTC
 ( Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -335,7 +336,7 @@ internal::GemmNTC
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         //           = alpha A1[MC,*] (B1^T)[*,MR]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, orientationOfB, alpha, A1_MC_STAR, B1_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -354,4 +355,5 @@ internal::GemmNTC
 #endif
 }
 
+} // namespace internal
 } // namespace elem

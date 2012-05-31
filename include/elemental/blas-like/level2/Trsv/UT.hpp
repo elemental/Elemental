@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename F>
 inline void
-internal::TrsvUT
+TrsvUT
 ( Orientation orientation,
   UnitOrNonUnit diag, 
   const DistMatrix<F,MC,MR>& U, 
@@ -213,4 +214,5 @@ internal::TrsvUT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -822,6 +822,22 @@ void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
+// Sytrmm (SYmmetric TRiangular Matrix-Matrix multiply):
+//
+// Either L := tril(L^T L) or U := triu(U U^T)
+//
+// NOTE: This is not a standard BLAS routine and is similar to the LAPACK
+//       routine ?LAUUM. See 'Hetrmm'.
+//
+
+// Serial version
+template<typename T>
+void Sytrmm( UpperOrLower uplo, Matrix<T>& A );
+
+// Parallel version
+template<typename T>
+void Sytrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
+
 //
 // Trmm (TRiangular Matrix-Matrix multiplication):
 //

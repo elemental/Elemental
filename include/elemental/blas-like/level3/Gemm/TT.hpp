@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::GemmTT
+GemmTT
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -57,18 +58,15 @@ internal::GemmTT
 
     if( m <= n && weightTowardsC*m <= k )
     {
-        internal::GemmTTB
-        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        GemmTTB( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        internal::GemmTTA
-        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        GemmTTA( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else
     {
-        internal::GemmTTC
-        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -78,7 +76,7 @@ internal::GemmTT
 // Transpose Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-internal::GemmTTA
+GemmTTA
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -148,7 +146,7 @@ internal::GemmTTA
 
         // D1[MR,*] := alpha (A[MC,MR])^T (B1[*,MC])^T
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
-        internal::LocalGemm
+        LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A, B1_STAR_MC, (T)0, D1_MR_STAR );
 
@@ -179,7 +177,7 @@ internal::GemmTTA
 // Transpose Transpose Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void
-internal::GemmTTB
+GemmTTB
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -249,7 +247,7 @@ internal::GemmTTB
  
         // D1[*,MC] := alpha (A1[MR,*])^T (B[MC,MR])^T
         //           = alpha (A1^T)[*,MR] (B^T)[MR,MC]
-        internal::LocalGemm
+        LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A1_MR_STAR, B, (T)0, D1_STAR_MC );
 
@@ -280,7 +278,7 @@ internal::GemmTTB
 // Transpose Transpose Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void
-internal::GemmTTC
+GemmTTC
 ( Orientation orientationOfA, 
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -347,7 +345,7 @@ internal::GemmTTC
 
         // C[MC,MR] += alpha (A1[*,MC])^T (B1[MR,*])^T
         //           = alpha (A1^T)[MC,*] (B1^T)[*,MR]
-        internal::LocalGemm
+        LocalGemm
         ( orientationOfA, orientationOfB, 
           alpha, A1_STAR_MC, B1_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
@@ -369,4 +367,5 @@ internal::GemmTTC
 #endif
 }
 
+} // namespace internal
 } // namespace elem

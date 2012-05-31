@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::GemmNN
+GemmNN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -54,19 +55,19 @@ internal::GemmNN
 
     if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
     {
-        internal::GemmNNDot( alpha, A, B, beta, C );
+        GemmNNDot( alpha, A, B, beta, C );
     }
     else if( m <= n && weightTowardsC*m <= k )
     {
-        internal::GemmNNB( alpha, A, B, beta, C );    
+        GemmNNB( alpha, A, B, beta, C );    
     }
     else if( n <= m && weightTowardsC*n <= k )
     {
-        internal::GemmNNA( alpha, A, B, beta, C );
+        GemmNNA( alpha, A, B, beta, C );
     }
     else
     {
-        internal::GemmNNC( alpha, A, B, beta, C );
+        GemmNNC( alpha, A, B, beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -76,7 +77,7 @@ internal::GemmNN
 // Normal Normal Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
-internal::GemmNNA
+GemmNNA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -134,7 +135,7 @@ internal::GemmNNA
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, (T)0, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
@@ -160,7 +161,7 @@ internal::GemmNNA
 // Normal Normal Gemm that avoids communicating the matrix B.
 template<typename T>
 inline void 
-internal::GemmNNB
+GemmNNB
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -225,8 +226,7 @@ internal::GemmNNB
         A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
-        internal::LocalGemm
-        ( NORMAL, NORMAL, alpha, A1_STAR_MC, B, (T)0, D1_STAR_MR );
+        LocalGemm( NORMAL, NORMAL, alpha, A1_STAR_MC, B, (T)0, D1_STAR_MR );
 
         // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
         C1.SumScatterUpdate( (T)1, D1_STAR_MR );
@@ -254,7 +254,7 @@ internal::GemmNNB
 // Normal Normal Gemm that avoids communicating the matrix C.
 template<typename T>
 inline void 
-internal::GemmNNC
+GemmNNC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -314,7 +314,7 @@ internal::GemmNNC
 
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -336,7 +336,7 @@ internal::GemmNNC
 // Normal Normal Gemm for panel-panel dot products. 
 template<typename T>
 inline void 
-internal::GemmNNDot
+GemmNNDot
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -422,7 +422,7 @@ internal::GemmNNDot
                 C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_STAR = B1;
-                internal::LocalGemm
+                LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VC, B1_VC_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
@@ -515,7 +515,7 @@ internal::GemmNNDot
                 C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_STAR_VR = A1;
-                internal::LocalGemm
+                LocalGemm
                 ( NORMAL, NORMAL, 
                   alpha, A1_STAR_VR, B1_VR_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
@@ -550,4 +550,5 @@ internal::GemmNNDot
 #endif
 }
 
+} // namespace internal
 } // namespace elem

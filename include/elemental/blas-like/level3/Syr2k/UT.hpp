@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::Syr2kUT
+Syr2kUT
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -113,7 +114,7 @@ internal::Syr2kUT
         B1_STAR_VR.TransposeFrom( B1Trans_MR_STAR );
         B1_STAR_MC = B1_STAR_VR;
 
-        internal::LocalTrr2k
+        LocalTrr2k
         ( UPPER, TRANSPOSE, TRANSPOSE, TRANSPOSE, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR,
                  B1_STAR_MC, A1Trans_MR_STAR,
@@ -141,4 +142,5 @@ internal::Syr2kUT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

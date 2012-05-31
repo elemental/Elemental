@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::SyrkLN
+SyrkLN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
   T beta,        DistMatrix<T,MC,MR>& C )
 {
@@ -80,7 +81,7 @@ internal::SyrkLN
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
 
-        internal::LocalTrrk
+        LocalTrrk
         ( LOWER, alpha, A1_MC_STAR, A1Trans_STAR_MR, (T)1, C );
         //--------------------------------------------------------------------//
         A1_MC_STAR.FreeAlignments();
@@ -96,4 +97,5 @@ internal::SyrkLN
 #endif
 }
 
+} // namespace internal 
 } // namespace elem

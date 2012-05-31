@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Right Upper Adjoint/Transpose (Non)Unit Trmm
 //   X := X triu(U)^T, 
@@ -40,7 +41,7 @@ namespace elem {
 //   X := X triuu(U)^H
 template<typename T>
 inline void
-internal::TrmmRUT
+TrmmRUT
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& U,
@@ -51,9 +52,9 @@ internal::TrmmRUT
 #endif
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Height() )
-        internal::TrmmRUTA( orientation, diag, alpha, U, X );
+        TrmmRUTA( orientation, diag, alpha, U, X );
     else
-        internal::TrmmRUTC( orientation, diag, alpha, U, X );
+        TrmmRUTC( orientation, diag, alpha, U, X );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -61,7 +62,7 @@ internal::TrmmRUT
 
 template<typename T>
 inline void
-internal::TrmmRUTA
+TrmmRUTA
 ( Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& U,
                  DistMatrix<T,MC,MR>& X )
@@ -104,7 +105,7 @@ internal::TrmmRUTA
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
         Zero( Z1AdjOrTrans_MC_STAR );
-        internal::LocalTrmmAccumulateRUT
+        LocalTrmmAccumulateRUT
         ( orientation, diag, alpha,
           U, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
 
@@ -132,7 +133,7 @@ internal::TrmmRUTA
 
 template<typename T>
 inline void
-internal::TrmmRUTC
+TrmmRUTC
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& U,
@@ -195,13 +196,13 @@ internal::TrmmRUTC
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
-        internal::LocalTrmm
+        LocalTrmm
         ( RIGHT, UPPER, orientation, diag, 
           (T)1, U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         U12_STAR_MR = U12;
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, orientation, (T)1, X2, U12_STAR_MR, (T)0, D1_MC_STAR );
         X1.SumScatterUpdate( (T)1, D1_MC_STAR );
        //--------------------------------------------------------------------//
@@ -225,7 +226,7 @@ internal::TrmmRUTC
 
 template<typename T>
 inline void
-internal::LocalTrmmAccumulateRUT
+LocalTrmmAccumulateRUT
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
   const DistMatrix<T,MC,MR  >& U,
   const DistMatrix<T,MR,STAR>& XAdjOrTrans_MR_STAR,
@@ -314,11 +315,11 @@ internal::LocalTrmmAccumulateRUT
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, alpha, D11, X1AdjOrTrans_MR_STAR,
           (T)1, Z1AdjOrTrans_MC_STAR );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, alpha, U01, X1AdjOrTrans_MR_STAR,
           (T)1, Z0AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
@@ -348,4 +349,5 @@ internal::LocalTrmmAccumulateRUT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

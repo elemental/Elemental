@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::Her2kLN
+Her2kLN
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -101,7 +102,7 @@ internal::Her2kLN
         B1_VR_STAR = B1_MC_STAR = B1;
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
 
-        internal::LocalTrr2k
+        LocalTrr2k
         ( LOWER, 
           alpha, A1_MC_STAR, B1Adj_STAR_MR, 
                  B1_MC_STAR, A1Adj_STAR_MR,
@@ -127,4 +128,5 @@ internal::Her2kLN
 #endif
 }
 
+} // namespace internal
 } // namespace elem

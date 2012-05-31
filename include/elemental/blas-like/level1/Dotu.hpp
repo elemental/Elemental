@@ -45,32 +45,19 @@
    internal namespace. For example,
 
      template<typename T,Distribution U,Distribution V>
-     T internal::Dotu
+     T internal::DotuHelper
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
 namespace elem {
 
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline T
-Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
-{
-#ifndef RELEASE
-    PushCallStack("Dotu");
-#endif
-    T dotProduct = internal::Dotu( x, y );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return dotProduct;
-}
+namespace internal {
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -152,10 +139,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -225,10 +212,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -298,10 +285,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -383,10 +370,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -456,10 +443,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -529,10 +516,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,MC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -602,10 +589,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VC,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -675,10 +662,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VC>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -748,10 +735,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,VR,STAR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -821,10 +808,10 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,VR>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline T
-internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Dotu");
+    PushCallStack("internal::DotuHelper");
     if( x.Grid() != y.Grid() )
         throw std::logic_error("{x,y} must be distributed over the same grid");
     if( (x.Height() != 1 && x.Width() != 1) ||
@@ -846,6 +833,23 @@ internal::Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,STAR,STAR>& y )
     PopCallStack();
 #endif
     return globalDotu;
+}
+
+} // namespace internal
+
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline T
+Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+{
+#ifndef RELEASE
+    PushCallStack("Dotu");
+#endif
+    T dotProduct = internal::DotuHelper( x, y );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return dotProduct;
 }
 
 } // namespace elem

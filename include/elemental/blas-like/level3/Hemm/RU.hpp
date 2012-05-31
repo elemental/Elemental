@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::HemmRU
+HemmRU
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -45,9 +46,9 @@ internal::HemmRU
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
-        internal::HemmRUA( alpha, A, B, beta, C );
+        HemmRUA( alpha, A, B, beta, C );
     else
-        internal::HemmRUC( alpha, A, B, beta, C );
+        HemmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,7 +56,7 @@ internal::HemmRU
 
 template<typename T>
 inline void
-internal::HemmRUA
+HemmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -123,7 +124,7 @@ internal::HemmRUA
         B1_STAR_MC.AdjointFrom( B1Adj_VC_STAR );
         Zero( Z1Adj_MC_STAR );
         Zero( Z1Adj_MR_STAR );
-        internal::LocalSymmetricAccumulateRU
+        LocalSymmetricAccumulateRU
         ( ADJOINT, alpha, A, B1_STAR_MC, B1Adj_MR_STAR, 
           Z1Adj_MC_STAR, Z1Adj_MR_STAR );
 
@@ -159,7 +160,7 @@ internal::HemmRUA
 
 template<typename T>
 inline void
-internal::HemmRUC
+HemmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -236,11 +237,11 @@ internal::HemmRUC
         MakeTrapezoidal( LEFT,  LOWER,  0, ARowPanAdj_MR_STAR );
         MakeTrapezoidal( RIGHT, LOWER, -1, AColPanAdj_STAR_MR );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, ADJOINT, 
           alpha, B1_MC_STAR, ARowPanAdj_MR_STAR, (T)1, CRight );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL,
           alpha, B1_MC_STAR, AColPanAdj_STAR_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
@@ -270,7 +271,7 @@ internal::HemmRUC
 
 template<typename T>
 inline void
-internal::LocalSymmetricAccumulateRU
+LocalSymmetricAccumulateRU
 ( Orientation orientation, T alpha,
   const DistMatrix<T,MC,  MR  >& A,
   const DistMatrix<T,STAR,MC  >& B_STAR_MC,
@@ -393,20 +394,20 @@ internal::LocalSymmetricAccumulateRU
         //--------------------------------------------------------------------//
         D11 = A11;
         MakeTrapezoidal( LEFT, UPPER, 0, D11 );
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation,
           alpha, D11, B1_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
         MakeTrapezoidal( LEFT, UPPER, 1, D11 );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, alpha, D11, B1AdjOrTrans_MR_STAR, 
           (T)1, Z1AdjOrTrans_MC_STAR );
 
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation,
           alpha, A12, B1_STAR_MC, (T)1, Z2AdjOrTrans_MR_STAR );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, alpha, A12, B2AdjOrTrans_MR_STAR, 
           (T)1, Z1AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
@@ -446,4 +447,5 @@ internal::LocalSymmetricAccumulateRU
 #endif
 }
 
+} // namespace internal
 } // namespace elem

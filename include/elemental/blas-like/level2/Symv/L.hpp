@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::LocalSymvColAccumulateL
+LocalSymvColAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,MR  >& A,
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
@@ -229,7 +230,7 @@ internal::LocalSymvColAccumulateL
 
 template<typename T>
 inline void
-internal::LocalSymvRowAccumulateL
+LocalSymvRowAccumulateL
 ( T alpha, 
   const DistMatrix<T,MC,  MR>& A,
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
@@ -394,4 +395,5 @@ internal::LocalSymvRowAccumulateL
 #endif
 }
 
+} // namespace internal
 } // namespace elem

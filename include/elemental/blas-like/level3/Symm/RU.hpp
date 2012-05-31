@@ -32,10 +32,11 @@
 */
 
 namespace elem {
+namespace internal {
 
 template<typename T>
 inline void
-internal::SymmRU
+SymmRU
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -45,9 +46,9 @@ internal::SymmRU
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Height() )
-        internal::SymmRUA( alpha, A, B, beta, C );
+        SymmRUA( alpha, A, B, beta, C );
     else
-        internal::SymmRUC( alpha, A, B, beta, C );
+        SymmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,7 +56,7 @@ internal::SymmRU
 
 template<typename T>
 inline void
-internal::SymmRUA
+SymmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -123,7 +124,7 @@ internal::SymmRUA
         B1_STAR_MC.TransposeFrom( B1Trans_VC_STAR );
         Zero( Z1Trans_MC_STAR );
         Zero( Z1Trans_MR_STAR );
-        internal::LocalSymmetricAccumulateRU
+        LocalSymmetricAccumulateRU
         ( TRANSPOSE, alpha, A, B1_STAR_MC, B1Trans_MR_STAR, 
           Z1Trans_MC_STAR, Z1Trans_MR_STAR );
 
@@ -159,7 +160,7 @@ internal::SymmRUA
 
 template<typename T>
 inline void
-internal::SymmRUC
+SymmRUC
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
   T beta,        DistMatrix<T,MC,MR>& C )
@@ -236,11 +237,11 @@ internal::SymmRUC
         MakeTrapezoidal( LEFT,  LOWER,  0, ARowPanTrans_MR_STAR );
         MakeTrapezoidal( RIGHT, LOWER, -1, AColPanTrans_STAR_MR );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, TRANSPOSE, 
           alpha, B1_MC_STAR, ARowPanTrans_MR_STAR, (T)1, CRight );
 
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL,
           alpha, B1_MC_STAR, AColPanTrans_STAR_MR, (T)1, CLeft );
         //--------------------------------------------------------------------//
@@ -268,4 +269,5 @@ internal::SymmRUC
 #endif
 }
 
+} // namespace internal
 } // namespace elem
