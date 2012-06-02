@@ -107,7 +107,9 @@ int QDWH
 
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
-        if( c > 100 )
+        // TODO: Fix this later
+        //if( c > 100 )
+        if( true )
         {
             //
             // Use a QR-based algorithm since U is not well-conditioned
@@ -213,20 +215,9 @@ int QDWH
         const R b = (a-1)*(a-1)/4;
         const R c = a+b-1;
 
-        if( g.Rank() == 0 )
-        {
-            std::cout << "lowerBound    = " << lowerBound << "\n"
-                      << "dd            = " << dd << "\n"
-                      << "sqd           = " << sqd << "\n"
-                      << "arg           = " << arg << "\n"
-                      << "a             = " << a << "\n"
-                      << "b             = " << b << "\n"
-                      << "c             = " << c << "\n"
-                      << std::endl;
-        }
-        
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
+        // TODO: Fix this later
         //if( c > 100 )
         if( true )
         {
