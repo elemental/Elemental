@@ -46,18 +46,18 @@ namespace elem {
 // where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
 // reflector.
 
-template<typename R> 
+template<typename Real> 
 inline void
-LQ( Matrix<R>& A )
+LQ( Matrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("LQ");
 #endif
-    if( IsComplex<R>::val )
+    if( IsComplex<Real>::val )
         throw std::logic_error("Called real routine with complex datatype");
 
     // Matrix views
-    Matrix<R>
+    Matrix<Real>
         ATL, ATR,  A00, A01, A02,  ATopPan, ABottomPan,
         ABL, ABR,  A10, A11, A12,
                    A20, A21, A22;
@@ -93,19 +93,19 @@ LQ( Matrix<R>& A )
 #endif
 }
 
-template<typename R> 
+template<typename Real> 
 inline void
-LQ( DistMatrix<R,MC,MR>& A )
+LQ( DistMatrix<Real,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("LQ");
 #endif
-    if( IsComplex<R>::val )
+    if( IsComplex<Real>::val )
         throw std::logic_error("Called real routine with complex datatype");
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<R,MC,MR>
+    DistMatrix<Real,MC,MR>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATopPan(g), ABottomPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -141,15 +141,15 @@ LQ( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-template<typename R> 
+template<typename Real> 
 inline void
-LQ( Matrix<Complex<R> >& A, 
-    Matrix<Complex<R> >& t )
+LQ( Matrix<Complex<Real> >& A, 
+    Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
     PushCallStack("LQ");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
@@ -209,17 +209,17 @@ LQ( Matrix<Complex<R> >& A,
 #endif
 }
 
-template<typename R> 
+template<typename Real> 
 inline void
-LQ( DistMatrix<Complex<R>,MC,MR  >& A, 
-    DistMatrix<Complex<R>,MD,STAR>& t )
+LQ( DistMatrix<Complex<Real>,MC,MR  >& A, 
+    DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("LQ");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     const Grid& g = A.Grid();
     if( t.Viewing() )
     {

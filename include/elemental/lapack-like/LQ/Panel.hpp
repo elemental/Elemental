@@ -34,19 +34,19 @@
 namespace elem {
 namespace internal {
 
-template<typename R> 
+template<typename Real> 
 inline void
-PanelLQ( Matrix<R>& A )
+PanelLQ( Matrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
 #endif
-    Matrix<R>
+    Matrix<Real>
         ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
 
-    Matrix<R> z;
+    Matrix<Real> z;
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -65,11 +65,11 @@ PanelLQ( Matrix<R>& A )
 
         Zeros( ABottomPan.Height(), 1, z );
         //--------------------------------------------------------------------//
-        const R tau = Reflector( alpha11, a12 );
-        const R alpha = alpha11.Get(0,0);
+        const Real tau = Reflector( alpha11, a12 );
+        const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
-        Gemv( NORMAL, (R)1, ABottomPan, aTopRow, (R)0, z );
+        Gemv( NORMAL, (Real)1, ABottomPan, aTopRow, (Real)0, z );
         Ger( -tau, z, aTopRow, ABottomPan );
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
@@ -86,9 +86,9 @@ PanelLQ( Matrix<R>& A )
 #endif
 }
 
-template<typename R> 
+template<typename Real> 
 inline void
-PanelLQ( DistMatrix<R,MC,MR>& A )
+PanelLQ( DistMatrix<Real,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -96,14 +96,14 @@ PanelLQ( DistMatrix<R,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<R,MC,MR>
+    DistMatrix<Real,MC,MR>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
 
     // Temporary distributions
-    DistMatrix<R,STAR,MR> aTopRow_STAR_MR(g);
-    DistMatrix<R,MC,STAR> z_MC_STAR(g);
+    DistMatrix<Real,STAR,MR> aTopRow_STAR_MR(g);
+    DistMatrix<Real,MC,STAR> z_MC_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -124,11 +124,11 @@ PanelLQ( DistMatrix<R,MC,MR>& A )
         z_MC_STAR.AlignWith( ABottomPan );
         Zeros( ABottomPan.Height(), 1, z_MC_STAR );
         //--------------------------------------------------------------------//
-        const R tau = Reflector( alpha11, a12 );
+        const Real tau = Reflector( alpha11, a12 );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
                                        g.Col() == alpha11.RowAlignment() );
-        R alpha = (R)0;
+        Real alpha = 0;
         if( myDiagonalEntry )
         {
             alpha = alpha11.GetLocalEntry(0,0);
@@ -139,9 +139,9 @@ PanelLQ( DistMatrix<R,MC,MR>& A )
 
         Gemv
         ( NORMAL,
-          (R)1, ABottomPan.LockedLocalMatrix(),
-                aTopRow_STAR_MR.LockedLocalMatrix(),
-          (R)0, z_MC_STAR.LocalMatrix() );
+          (Real)1, ABottomPan.LockedLocalMatrix(),
+                   aTopRow_STAR_MR.LockedLocalMatrix(),
+          (Real)0, z_MC_STAR.LocalMatrix() );
         z_MC_STAR.SumOverRow();
 
         Ger
@@ -168,11 +168,11 @@ PanelLQ( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-template<typename R>
+template<typename Real>
 inline void
 PanelLQ
-( Matrix<Complex<R> >& A,
-  Matrix<Complex<R> >& t )
+( Matrix<Complex<Real> >& A,
+  Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -180,7 +180,7 @@ PanelLQ
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
 
     Matrix<C>
         ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
@@ -249,11 +249,11 @@ PanelLQ
 #endif
 }
 
-template<typename R>
+template<typename Real>
 inline void
 PanelLQ
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MD,STAR>& t )
+( DistMatrix<Complex<Real>,MC,MR  >& A,
+  DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -265,7 +265,7 @@ PanelLQ
     if( !t.AlignedWithDiagonal( A, 0 ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
     // Matrix views
@@ -316,7 +316,7 @@ PanelLQ
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
                                        g.Col() == alpha11.RowAlignment() );
-        C alpha = (C)0;
+        C alpha = 0;
         if( myDiagonalEntry )
         {
             alpha = alpha11.GetLocalEntry(0,0);

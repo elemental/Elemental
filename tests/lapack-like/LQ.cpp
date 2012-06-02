@@ -62,7 +62,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
 
-    // Form Z := Q^H Q as an approximation to identity
+    // Form Z := Q Q^H as an approximation to identity
     DistMatrix<R,MC,MR> Z(m,n,g);
     MakeIdentity( Z );
     ApplyPackedReflectors
@@ -77,7 +77,7 @@ void TestCorrectness
     DistMatrix<R,MC,MR> X(minDim,minDim,g);
     MakeIdentity( X );
 
-    // Form X := I - Q^H Q
+    // Form X := I - Q Q^H
     Axpy( (R)-1, ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
@@ -85,9 +85,9 @@ void TestCorrectness
     R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
-        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
+             << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
     }
 
     if( g.Rank() == 0 )
@@ -138,7 +138,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
 
-    // Form Z := Q^H Q as an approximation to identity
+    // Form Z := Q Q^H as an approximation to identity
     DistMatrix<C,MC,MR> Z(m,n,g);
     MakeIdentity( Z );
     ApplyPackedReflectors
@@ -153,7 +153,7 @@ void TestCorrectness
     DistMatrix<C,MC,MR> X(minDim,minDim,g);
     MakeIdentity( X );
 
-    // Form X := I - Q^H Q
+    // Form X := I - Q Q^H
     Axpy( (C)-1, ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
@@ -161,9 +161,9 @@ void TestCorrectness
     R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
-        cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-             << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
+        cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
+             << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
+             << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
     }
 
     if( g.Rank() == 0 )

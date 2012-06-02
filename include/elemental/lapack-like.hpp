@@ -35,15 +35,7 @@
 
 namespace elem {
 
-//
-// We ensure that all enums are lifted into the elemental namespace so that
-// they can be conveniently used as function arguments, e.g., 
-//
-// using namespace elem;
-// Matrix<double> A;
-// ...
-// double norm = Norm( A, ONE_NORM );
-//
+// TODO: Better organize this file
 
 namespace norm_type_wrapper {
 enum NormType
@@ -761,16 +753,31 @@ void LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p );
 // matrix.                                                                    //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-void LQ( Matrix<R>& A );
-template<typename R>
-void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
+// Implementations which overwrite A with both L and Q (with Q implicitly 
+// represented as the product of Householder reflectors).
+template<typename Real>
+void LQ( Matrix<Real>& A );
+template<typename Real>
+void LQ( DistMatrix<Real,MC,MR>& A );
+template<typename Real>
+void LQ( Matrix<Complex<Real> >& A, 
+         Matrix<Complex<Real> >& t );
+template<typename Real>
+void LQ( DistMatrix<Complex<Real>,MC,MR  >& A, 
+         DistMatrix<Complex<Real>,MD,STAR>& t );
 
-template<typename R>
-void LQ( DistMatrix<R,MC,MR>& A );
-template<typename R>
-void LQ
-( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
+// Implementations which return the explicit Q from the LQ decomposition
+template<typename F>
+void ExplicitLQ( Matrix<F>& A );
+template<typename F>
+void ExplicitLQ( DistMatrix<F,MC,MR>& A );
+
+// Implementations which return the explicit LQ decomposition, with 
+// Q overwriting A on exit
+template<typename F>
+void ExplicitLQ( Matrix<F>& L, Matrix<F>& A );
+template<typename F>
+void ExplicitLQ( DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& A );
 
 //----------------------------------------------------------------------------//
 // Norm                                                                       //
@@ -844,16 +851,31 @@ SymmetricNorm
 // transform / UT transform to be computed mainly with Level 3 BLAS.          //
 //----------------------------------------------------------------------------//
 
-template<typename R>
-void QR( Matrix<R>& A );
-template<typename R>
-void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
+// Implementations which overwrite A with both Q and R (with Q implicitly 
+// represented as the product of Householder reflectors).
+template<typename Real>
+void QR( Matrix<Real>& A );
+template<typename Real>
+void QR( DistMatrix<Real,MC,MR>& A );
+template<typename Real>
+void QR( Matrix<Complex<Real> >& A, 
+         Matrix<Complex<Real> >& t );
+template<typename Real>
+void QR( DistMatrix<Complex<Real>,MC,MR  >& A, 
+         DistMatrix<Complex<Real>,MD,STAR>& t );
 
-template<typename R>
-void QR( DistMatrix<R,MC,MR>& A );
-template<typename R>
-void QR
-( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
+// Implementations which return the explicit Q from the QR decomposition
+template<typename F>
+void ExplicitQR( Matrix<F>& A );
+template<typename F>
+void ExplicitQR( DistMatrix<F,MC,MR>& A );
+
+// Implementations which return the explicit QR decomposition, with 
+// Q overwriting A on exit
+template<typename F>
+void ExplicitQR( Matrix<F>& A, Matrix<F>& R );
+template<typename F>
+void ExplicitQR( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& R );
 
 //----------------------------------------------------------------------------//
 // Reflector (Householder reflector):                                         //
@@ -1106,6 +1128,22 @@ template<typename F>
 void TriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,MC,MR>& A  );
 
+//----------------------------------------------------------------------------//
+// QR-based Halley iteration for the polar decomposition                      //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+void Halley
+( Matrix<F>& A, 
+  typename Base<F>::type lowerBound, 
+  typename Base<F>::type twoNormEstimate );
+
+template<typename F>
+void Halley
+( DistMatrix<F,MC,MR>& A, 
+  typename Base<F>::type lowerBound, 
+  typename Base<F>::type twoNormEstimate );
+
 } // namespace elem
 
 //----------------------------------------------------------------------------//
@@ -1121,7 +1159,10 @@ void TriangularInverse
 #include "./lapack-like/CholeskySolve.hpp"
 #include "./lapack-like/ComposePivots.hpp"
 #include "./lapack-like/Determinant.hpp"
+#include "./lapack-like/ExplicitLQ.hpp"
+#include "./lapack-like/ExplicitQR.hpp"
 #include "./lapack-like/GaussianElimination.hpp"
+#include "./lapack-like/Halley.hpp"
 #include "./lapack-like/Hegst.hpp"
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"

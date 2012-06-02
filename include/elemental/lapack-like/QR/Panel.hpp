@@ -34,19 +34,19 @@
 namespace elem {
 namespace internal {
 
-template<typename R>
+template<typename Real>
 inline void
-PanelQR( Matrix<R>& A )
+PanelQR( Matrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
 #endif
-    Matrix<R>
+    Matrix<Real>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
 
-    Matrix<R> z;
+    Matrix<Real> z;
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -68,11 +68,11 @@ PanelQR( Matrix<R>& A )
 
         Zeros( ARightPan.Width(), 1, z );
         //--------------------------------------------------------------------//
-        const R tau = Reflector( alpha11, a21 );
-        const R alpha = alpha11.Get(0,0);
+        const Real tau = Reflector( alpha11, a21 );
+        const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
-        Gemv( TRANSPOSE, (R)1, ARightPan, aLeftCol, (R)0, z );
+        Gemv( TRANSPOSE, (Real)1, ARightPan, aLeftCol, (Real)0, z );
         Ger( -tau, aLeftCol, z, ARightPan );
 
         alpha11.Set(0,0,alpha);
@@ -90,9 +90,9 @@ PanelQR( Matrix<R>& A )
 #endif
 }
 
-template<typename R>
+template<typename Real>
 inline void
-PanelQR( DistMatrix<R,MC,MR>& A )
+PanelQR( DistMatrix<Real,MC,MR>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
@@ -100,14 +100,14 @@ PanelQR( DistMatrix<R,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<R,MC,MR>
+    DistMatrix<Real,MC,MR>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
 
     // Temporary distributions
-    DistMatrix<R,MC,STAR> aLeftCol_MC_STAR(g);
-    DistMatrix<R,MR,STAR> z_MR_STAR(g);
+    DistMatrix<Real,MC,STAR> aLeftCol_MC_STAR(g);
+    DistMatrix<Real,MR,STAR> z_MR_STAR(g);
 
     PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
@@ -131,11 +131,11 @@ PanelQR( DistMatrix<R,MC,MR>& A )
         z_MR_STAR.AlignWith( ARightPan );
         Zeros( ARightPan.Width(), 1, z_MR_STAR );
         //--------------------------------------------------------------------//
-        const R tau = Reflector( alpha11, a21 );
+        const Real tau = Reflector( alpha11, a21 );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
-        R alpha = (R)0;
+        Real alpha = 0;
         if( myDiagonalEntry )
         {
             alpha = alpha11.GetLocalEntry(0,0);
@@ -146,9 +146,9 @@ PanelQR( DistMatrix<R,MC,MR>& A )
 
         Gemv
         ( TRANSPOSE, 
-          (R)1, ARightPan.LockedLocalMatrix(), 
-                aLeftCol_MC_STAR.LockedLocalMatrix(),
-          (R)0, z_MR_STAR.LocalMatrix() );
+          (Real)1, ARightPan.LockedLocalMatrix(), 
+                   aLeftCol_MC_STAR.LockedLocalMatrix(),
+          (Real)0, z_MR_STAR.LocalMatrix() );
         z_MR_STAR.SumOverCol(); 
 
         Ger
@@ -175,11 +175,11 @@ PanelQR( DistMatrix<R,MC,MR>& A )
 #endif
 }
 
-template<typename R> 
+template<typename Real> 
 inline void
 PanelQR
-( Matrix<Complex<R> >& A,
-  Matrix<Complex<R> >& t )
+( Matrix<Complex<Real> >& A,
+  Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelQR");
@@ -187,7 +187,7 @@ PanelQR
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
 
     Matrix<C>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -327,7 +327,7 @@ PanelQR
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
-        C alpha = (C)0;
+        C alpha = 0;
         if( myDiagonalEntry )
         {
             alpha = alpha11.GetLocalEntry(0,0);

@@ -238,6 +238,14 @@ R Exp( const R& alpha );
 template<typename R>
 Complex<R> Exp( const Complex<R>& alpha );
 
+// Power, return alpha^beta
+// TODO: Mixed versions, such as a real number to an integer power, 
+//       or a complex number to a real power
+template<typename R>
+R Pow( const R& alpha, const R& beta );
+template<typename R>
+Complex<R> Pow( const Complex<R>& alpha, const Complex<R>& beta );
+
 // Logarithm
 template<typename R>
 R Log( const R& alpha );
@@ -605,6 +613,21 @@ template<typename R>
 inline Complex<R>
 Exp( const Complex<R>& alpha )
 { return Polar( Exp(alpha.real), alpha.imag ); }
+
+template<typename R>
+inline R
+Pow( const R& alpha, const R& beta )
+{ return pow(alpha,beta); }
+
+template<typename R>
+inline Complex<R>
+Pow( const Complex<R>& alpha, const Complex<R>& beta )
+{
+    if( alpha.real == (R)0 && alpha.imag == (R)0 )
+        return Complex<R>(0,0);
+    else
+        return Exp( beta*Log(alpha) );
+}
 
 template<typename R>
 inline R 
