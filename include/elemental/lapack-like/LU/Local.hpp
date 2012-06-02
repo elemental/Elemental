@@ -63,7 +63,7 @@ LU( Matrix<F>& A )
         F alpha = alpha11.Get(0,0);
         if( alpha == static_cast<F>(0) )
             throw SingularMatrixException();
-        Scal( static_cast<F>(1)/alpha, a21 );
+        Scale( 1/alpha, a21 );
         Geru( (F)-1, a21, a12, A22 );
         //--------------------------------------------------------------------//
 

@@ -401,7 +401,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -569,7 +569,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -747,7 +747,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -826,7 +826,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -910,7 +910,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -992,7 +992,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1158,7 +1158,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1329,7 +1329,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1509,7 +1509,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1590,7 +1590,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w );
+        Scale( 1/scale, w );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1675,7 +1675,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w ); 
+        Scale( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1758,7 +1758,7 @@ HermitianEig
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
-        Scal( 1/scale, w ); 
+        Scale( 1/scale, w ); 
 #ifndef RELEASE
     PopCallStack();
 #endif

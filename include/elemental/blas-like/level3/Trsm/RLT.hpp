@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Right Lower (Conjugate)Transpose (Non)Unit Trsm
 //   X := X tril(L)^-T,
@@ -40,7 +41,7 @@ namespace elem {
 //   X := X trilu(L)^-H
 template<typename F>
 inline void
-internal::TrsmRLT
+TrsmRLT
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -82,7 +83,7 @@ internal::TrsmRLT
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -106,7 +107,7 @@ internal::TrsmRLT
         X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
         
         // X1[VC,*] := X1[VC,*] (L11[*,*])^-(T/H)
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, orientation, diag, 
           (F)1, L11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
@@ -116,7 +117,7 @@ internal::TrsmRLT
 
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
         //            = X1[MC,*] (L21^(T/H))[*,MR]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, orientation, (F)-1, X1_MC_STAR, L21_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();
@@ -137,4 +138,5 @@ internal::TrsmRLT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

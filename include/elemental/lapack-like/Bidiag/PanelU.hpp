@@ -302,7 +302,7 @@ PanelBidiagU
         // Substract z21 = Y20 ABL^T aB1 from y21
         y21.SumScatterUpdate( (R)-1, z21_MC_STAR );
         if( thisIsMyCol )
-            Scal( tauQ, y21 );
+            Scale( tauQ, y21 );
 
         // 
         // y21 := y21 + Y20 a10^T
@@ -399,7 +399,7 @@ PanelBidiagU
           (R)1,  s21_MC_STAR.LocalMatrix() );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
-        Scal( tauP, x21.LocalMatrix() );
+        Scale( tauP, x21.LocalMatrix() );
         //--------------------------------------------------------------------//
         // Auxilliary alignments
         sB1_MR_STAR.FreeAlignments();
@@ -767,7 +767,7 @@ PanelBidiagU
         // Subtract z21 = Y20 ABL^H aB1 from y21
         y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
         if( thisIsMyCol )
-            Scal( tauQ, y21 );
+            Scale( tauQ, y21 );
 
         //
         // y21 := y21 + Y20 a10^H
@@ -873,7 +873,7 @@ PanelBidiagU
           (C)1,  s21_MC_STAR.LocalMatrix() );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
-        Scal( tauP, x21.LocalMatrix() );
+        Scale( tauP, x21.LocalMatrix() );
 
         // Undo the in-place conjugation of a12
         Conjugate( a12 );

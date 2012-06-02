@@ -2069,10 +2069,12 @@ LocalTrr2kKernel
 
 } // namespace trr2k
 
+namespace internal {
+
 // E := alpha (A B + C D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
            const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
@@ -2115,18 +2117,18 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k( uplo, alpha, AT, BL, CT, DL, beta, ETL );
-        internal::LocalTrr2k( uplo, alpha, AB, BR, CB, DR, beta, EBR );
+        LocalTrr2k( uplo, alpha, AT, BL, CT, DL, beta, ETL );
+        LocalTrr2k( uplo, alpha, AB, BR, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2136,7 +2138,7 @@ internal::LocalTrr2k
 // E := alpha (A B + C D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfD,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
@@ -2183,22 +2185,18 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CB, DT, beta, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, beta, EBL );
         }
         else
         {
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CT, DB, beta, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, beta, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
-        ( uplo, orientationOfD, alpha, AT, BL, CT, DT, beta, ETL );
-        internal::LocalTrr2k
-        ( uplo, orientationOfD, alpha, AB, BR, CB, DB, beta, EBR );
+        LocalTrr2k( uplo, orientationOfD, alpha, AT, BL, CT, DT, beta, ETL );
+        LocalTrr2k( uplo, orientationOfD, alpha, AB, BR, CB, DB, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2208,7 +2206,7 @@ internal::LocalTrr2k
 // E := alpha (A B + C^{T/H} D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfC,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
@@ -2251,22 +2249,18 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
-        ( uplo, orientationOfC, alpha, AT, BL, CL, DL, beta, ETL );
-        internal::LocalTrr2k
-        ( uplo, orientationOfC, alpha, AB, BR, CR, DR, beta, EBR );
+        LocalTrr2k( uplo, orientationOfC, alpha, AT, BL, CL, DL, beta, ETL );
+        LocalTrr2k( uplo, orientationOfC, alpha, AB, BR, CR, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2276,7 +2270,7 @@ internal::LocalTrr2k
 // E := alpha (A B + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfC,
   Orientation orientationOfD,
@@ -2324,22 +2318,22 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-            internal::LocalGemm
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            internal::LocalGemm
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfC, orientationOfD, 
           alpha, AT, BL, CL, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfC, orientationOfD,
           alpha, AB, BR, CR, DB, beta, EBR );
     }
@@ -2351,7 +2345,7 @@ internal::LocalTrr2k
 // E := alpha (A B^{T/H} + C D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
@@ -2398,22 +2392,18 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, beta, EBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, beta, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, beta, ETR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, beta, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
-        ( uplo, orientationOfB, alpha, AT, BT, CT, DL, beta, ETL );
-        internal::LocalTrr2k
-        ( uplo, orientationOfB, alpha, AB, BB, CB, DR, beta, EBR );
+        LocalTrr2k( uplo, orientationOfB, alpha, AT, BT, CT, DL, beta, ETL );
+        LocalTrr2k( uplo, orientationOfB, alpha, AB, BB, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2423,7 +2413,7 @@ internal::LocalTrr2k
 // E := alpha (A B^{T/H} + C D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfD,
@@ -2473,24 +2463,20 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
+            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfD,
           alpha, AT, BT, CT, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfD,
           alpha, AB, BB, CB, DB, beta, EBR );
     }
@@ -2502,7 +2488,7 @@ internal::LocalTrr2k
 // E := alpha (A B^{T/H} + C^{T/H} D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -2550,24 +2536,20 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfC,
           alpha, AT, BT, CL, DL, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfC,
           alpha, AB, BB, CR, DR, beta, EBR );
     }
@@ -2579,7 +2561,7 @@ internal::LocalTrr2k
 // E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   Orientation orientationOfC,
@@ -2630,24 +2612,22 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-            internal::LocalGemm
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-            internal::LocalGemm
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfC, orientationOfD,
           alpha, AT, BT, CL, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfB, orientationOfC, orientationOfD,
           alpha, AB, BB, CR, DB, beta, EBR );
     }
@@ -2659,7 +2639,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B + C D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
@@ -2702,22 +2682,18 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
-        ( uplo, orientationOfA, alpha, AL, BL, CT, DL, beta, ETL );
-        internal::LocalTrr2k
-        ( uplo, orientationOfA, alpha, AR, BR, CB, DR, beta, EBR );
+        LocalTrr2k( uplo, orientationOfA, alpha, AL, BL, CT, DL, beta, ETL );
+        LocalTrr2k( uplo, orientationOfA, alpha, AR, BR, CB, DR, beta, EBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2727,7 +2703,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B + C D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfD,
@@ -2775,24 +2751,20 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
+            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfD,
           alpha, AL, BL, CT, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfD,
           alpha, AR, BR, CB, DB, beta, EBR );
     }
@@ -2804,7 +2776,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B + C^{T/H} D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
@@ -2846,24 +2818,20 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfC,
           alpha, AL, BL, CL, DL, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfC, 
           alpha, AR, BR, CR, DR, beta, EBR );
     }
@@ -2875,7 +2843,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC,
@@ -2922,24 +2890,22 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            internal::LocalGemm
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            internal::LocalGemm
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, AL, BL, CL, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, AR, BR, CR, DB, beta, EBR );
     }
@@ -2951,7 +2917,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B^{T/H} + C D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -2999,22 +2965,22 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB,
           alpha, AL, BT, CT, DL, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB,
           alpha, AR, BB, CB, DR, beta, EBR );
     }
@@ -3026,7 +2992,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -3077,24 +3043,23 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            internal::LocalGemm
+            LocalGemm
             ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            internal::LocalGemm
-            ( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, AL, BT, CT, DT, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, AR, BB, CB, DB, beta, EBR );
     }
@@ -3106,7 +3071,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -3153,24 +3118,22 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            internal::LocalGemm
-            ( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, AL, BT, CL, DL, beta, ETL );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, AR, BB, CR, DR, beta, EBR );
     }
@@ -3182,7 +3145,7 @@ internal::LocalTrr2k
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::LocalTrr2k
+LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfB,
@@ -3233,26 +3196,26 @@ internal::LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
         }
         else
         {
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
         }
 
         // Recurse
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, 
           orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
           alpha, AL, BT, CL, DT, beta, ETL );
 
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, 
           orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, AR, BB, CR, DB, beta, EBR );
@@ -3261,5 +3224,7 @@ internal::LocalTrr2k
     PopCallStack();
 #endif
 }
+
+} // namespace internal
 
 } // namespace elem

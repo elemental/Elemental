@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Left Upper (Conjugate)Transpose (Non)Unit Trsm
 //   X := triu(U)^-T  X, 
@@ -42,7 +43,7 @@ namespace elem {
 // width(X) >> p
 template<typename F>
 inline void
-internal::TrsmLUTLarge
+TrsmLUTLarge
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -85,7 +86,7 @@ internal::TrsmLUTLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -113,7 +114,7 @@ internal::TrsmLUTLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
         
         // X1[* ,VR] := U11^-[T/H][*,*] X1[* ,VR]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, orientation, diag, (F)1, U11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -123,7 +124,7 @@ internal::TrsmLUTLarge
 
         // X2[MC,MR] -= (U12[* ,MC])^(T/H) X1[* ,MR]
         //            = U12^(T/H)[MC,*] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( orientation, NORMAL, (F)-1, U12_STAR_MC, X1_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
         U12_STAR_MC.FreeAlignments();
@@ -149,7 +150,7 @@ internal::TrsmLUTLarge
 // width(X) ~= p
 template<typename F>
 inline void
-internal::TrsmLUTMedium
+TrsmLUTMedium
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -191,7 +192,7 @@ internal::TrsmLUTMedium
     DistMatrix<F,MR,  STAR> X1AdjOrTrans_MR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -225,7 +226,7 @@ internal::TrsmLUTMedium
         // X1[* ,MR] := U11^-[T/H][*,*] X1[* ,MR]
         //
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] U11^-1[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, UPPER, NORMAL, diag, 
           (F)1, U11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
 
@@ -238,7 +239,7 @@ internal::TrsmLUTMedium
 
         // X2[MC,MR] -= (U12[* ,MC])^[T/H] X1[* ,MR]
         //            = U12^[T/H][MC,*] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation, 
           (F)-1, U12_STAR_MC, X1AdjOrTrans_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
@@ -265,7 +266,7 @@ internal::TrsmLUTMedium
 // width(X) << p
 template<typename F>
 inline void
-internal::TrsmLUTSmall
+TrsmLUTSmall
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -308,7 +309,7 @@ internal::TrsmLUTSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -334,15 +335,14 @@ internal::TrsmLUTSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
         
         // X1[* ,* ] := U11^-[T/H][* ,* ] X1[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, UPPER, orientation, diag,
           (F)1, U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         X1 = X1_STAR_STAR;
 
         // X2[VR,* ] -= U12[* ,VR]^[T/H] X1[* ,* ]
-        internal::LocalGemm
-        ( orientation, NORMAL, (F)-1, U12, X1_STAR_STAR, (F)1, X2 );
+        LocalGemm( orientation, NORMAL, (F)-1, U12, X1_STAR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal
@@ -362,4 +362,5 @@ internal::TrsmLUTSmall
 #endif
 }
 
+} // namespace internal
 } // namespace elem

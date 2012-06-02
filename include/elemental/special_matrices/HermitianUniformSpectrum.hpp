@@ -99,7 +99,7 @@ MakeHermitianUniformSpectrum
     Matrix<F> u( n, 1 );
     MakeUniform( u );
     const R origNorm = Nrm2( u );
-    Scal( (F)1/origNorm, u );
+    Scale( 1/origNorm, u );
 
     // Form v := D u
     Matrix<F> v( n, 1 );
@@ -173,7 +173,7 @@ MakeHermitianUniformSpectrum
         u.AlignWith( ABackup );
     Uniform( n, 1, u );
     const R origNorm = Nrm2( u );
-    Scal( (F)1/origNorm, u );
+    Scale( 1/origNorm, u );
 
     // Form v := D u
     DistMatrix<F,MC,MR> v( grid );

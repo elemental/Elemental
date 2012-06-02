@@ -127,7 +127,7 @@ RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
         do
         {
             ++count;
-            Scal( invOfSafeInv, x );
+            Scale( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
@@ -142,7 +142,7 @@ RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
     }
 
     R tau = (beta-alpha)/beta;
-    Scal( one/(alpha-beta), x );
+    Scale( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -218,7 +218,7 @@ RowReflector
         do
         {
             ++count;
-            Scal( (C)invOfSafeInv, x );
+            Scale( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
@@ -233,7 +233,7 @@ RowReflector
     }
 
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
-    Scal( one/(alpha-beta), x );
+    Scale( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;

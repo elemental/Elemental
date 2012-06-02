@@ -120,7 +120,7 @@ GemmTTA
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -221,7 +221,7 @@ GemmTTB
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm 
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionRight( A, AL, AR, 0 );
     PartitionDown
     ( C, CT,
@@ -320,7 +320,7 @@ GemmTTC
     DistMatrix<T,MR,STAR> B1_MR_STAR(g);
     
     // Start the algorithm    
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, 0 ); 

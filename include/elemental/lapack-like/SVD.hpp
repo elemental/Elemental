@@ -627,7 +627,7 @@ SVD
     R scale;
     svd::CheckScale( A, needRescaling, scale );
     if( needRescaling )
-        Scal( (F)scale, A );
+        Scale( scale, A );
 
     // TODO: Switch between different algorithms. For instance, starting 
     //       with a QR decomposition of tall-skinny matrices.
@@ -690,7 +690,7 @@ SingularValues
     R scale;
     svd::CheckScale( A, needRescaling, scale );
     if( needRescaling )
-        Scal( (F)scale, A );
+        Scale( scale, A );
 
     // TODO: Switch between different algorithms. For instance, starting 
     //       with a QR decomposition of tall-skinny matrices.

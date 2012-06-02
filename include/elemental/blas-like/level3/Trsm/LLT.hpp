@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Left Lower (Conjugate)Transpose (Non)Unit Trsm
 //   X := tril(L)^-T,
@@ -42,7 +43,7 @@ namespace elem {
 // width(X) >> p
 template<typename F>
 inline void
-internal::TrsmLLTLarge
+TrsmLLTLarge
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -85,7 +86,7 @@ internal::TrsmLLTLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -113,7 +114,7 @@ internal::TrsmLLTLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := L11^-[T/H][* ,* ] X1[* ,VR]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, orientation, diag, (F)1, L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -123,7 +124,7 @@ internal::TrsmLLTLarge
 
         // X0[MC,MR] -= (L10[* ,MC])^(T/H) X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( orientation, NORMAL, (F)-1, L10_STAR_MC, X1_STAR_MR, (F)1, X0 );
         //--------------------------------------------------------------------//
         L10_STAR_MC.FreeAlignments();
@@ -149,7 +150,7 @@ internal::TrsmLLTLarge
 // width(X) ~= p
 template<typename F>
 inline void
-internal::TrsmLLTMedium
+TrsmLLTMedium
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -191,7 +192,7 @@ internal::TrsmLLTMedium
     DistMatrix<F,MR,  STAR> X1AdjOrTrans_MR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -224,7 +225,7 @@ internal::TrsmLLTMedium
 
         // X1[* ,MR] := L11^-[T/H][* ,* ] X1[* ,MR]
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, 
           (F)1, L11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
 
@@ -236,7 +237,7 @@ internal::TrsmLLTMedium
 
         // X0[MC,MR] -= (L10[* ,MC])^[T/H] X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( orientation, orientation, 
           (F)-1, L10_STAR_MC, X1AdjOrTrans_MR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
@@ -261,7 +262,6 @@ internal::TrsmLLTMedium
 }
 
 // TODO: Find a better name and/or namespace for this utility function
-namespace internal {
 template<typename F>
 inline void AddInLocalData
 ( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
@@ -284,12 +284,11 @@ inline void AddInLocalData
     PopCallStack();
 #endif
 }
-} // namespace internal
 
 // width(X) << p
 template<typename F>
 inline void
-internal::TrsmLLTSmall
+TrsmLLTSmall
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -332,7 +331,7 @@ internal::TrsmLLTSmall
     DistMatrix<F,STAR,STAR> Z1_STAR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -356,14 +355,13 @@ internal::TrsmLLTSmall
         //--------------------------------------------------------------------//
         // X1 -= L21' X2
         Z1_STAR_STAR.ResizeTo( X1.Height(), X1.Width() );
-        internal::LocalGemm
-        ( orientation, NORMAL, (F)-1, L21, X2, (F)0, Z1_STAR_STAR );
-        internal::AddInLocalData( X1, Z1_STAR_STAR );
+        LocalGemm( orientation, NORMAL, (F)-1, L21, X2, (F)0, Z1_STAR_STAR );
+        AddInLocalData( X1, Z1_STAR_STAR );
         Z1_STAR_STAR.SumOverGrid();
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, orientation, UNIT, (F)1, L11_STAR_STAR, Z1_STAR_STAR );
         X1 = Z1_STAR_STAR;
         //--------------------------------------------------------------------//
@@ -387,7 +385,7 @@ internal::TrsmLLTSmall
 
 template<typename F>
 inline void
-internal::TrsmLLTSmall
+TrsmLLTSmall
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   F alpha, 
@@ -430,7 +428,7 @@ internal::TrsmLLTSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -456,16 +454,14 @@ internal::TrsmLLTSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VR,* ]
 
         // X1[* ,* ] := L11^-[T/H][* ,* ] X1[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, orientation, diag,
           (F)1, L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         X1 = X1_STAR_STAR;
 
         // X0[VR,* ] -= L10[* ,VR]^(T/H) X1[* ,* ]
-        internal::LocalGemm
-        ( orientation, NORMAL,
-          (F)-1, L10, X1_STAR_STAR, (F)1, X0 );
+        LocalGemm( orientation, NORMAL, (F)-1, L10, X1_STAR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal
@@ -485,4 +481,5 @@ internal::TrsmLLTSmall
 #endif
 }
 
+} // namespace internal
 } // namespace elem

@@ -173,7 +173,7 @@ TrmmRLTC
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );

@@ -32,11 +32,12 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Distributed E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
 template<typename T>
 inline void
-internal::Trr2kTNTT
+Trr2kTNTT
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   Orientation orientationOfC, Orientation orientationOfD,
@@ -118,7 +119,7 @@ internal::Trr2kTNTT
             D1AdjOrTrans_STAR_MR.AdjointFrom( D1_VR_STAR );
         else
             D1AdjOrTrans_STAR_MR.TransposeFrom( D1_VR_STAR );
-        internal::LocalTrr2k
+        LocalTrr2k
         ( uplo, orientationOfA, TRANSPOSE, orientationOfC,
           alpha, A1_STAR_MC, B1Trans_MR_STAR, 
                  C1_STAR_MC, D1AdjOrTrans_STAR_MR,
@@ -154,4 +155,5 @@ internal::Trr2kTNTT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

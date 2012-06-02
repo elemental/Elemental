@@ -305,7 +305,7 @@ TrrkNNKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -731,10 +731,12 @@ LocalTrrkKernel
 
 } // namespace trrk
 
+namespace internal {
+
 // Local C := alpha A B + beta C
 template<typename T>
 inline void
-internal::TrrkNN
+TrrkNN
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
   T beta,        Matrix<T>& C )
@@ -773,8 +775,8 @@ internal::TrrkNN
             Gemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
 
         // Recurse
-        internal::TrrkNN( uplo, alpha, AT, BL, beta, CTL );
-        internal::TrrkNN( uplo, alpha, AB, BR, beta, CBR );
+        TrrkNN( uplo, alpha, AT, BL, beta, CTL );
+        TrrkNN( uplo, alpha, AB, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -784,7 +786,7 @@ internal::TrrkNN
 // Distributed C := alpha A B + beta C
 template<typename T>
 inline void
-internal::LocalTrrk
+LocalTrrk
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
@@ -821,13 +823,13 @@ internal::LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
         else
-            internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
 
         // Recurse
-        internal::LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
-        internal::LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
+        LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
+        LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -837,7 +839,7 @@ internal::LocalTrrk
 // Local C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
-internal::TrrkNT
+TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -880,8 +882,8 @@ internal::TrrkNT
             Gemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
 
         // Recurse
-        internal::TrrkNT( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        internal::TrrkNT( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+        TrrkNT( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
+        TrrkNT( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -891,7 +893,7 @@ internal::TrrkNT
 // Distributed C := alpha A B^{T/H} + beta C
 template<typename T>
 inline void
-internal::LocalTrrk
+LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
@@ -932,17 +934,13 @@ internal::LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
         else
-            internal::LocalGemm
-            ( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
 
         // Recurse
-        internal::LocalTrrk
-        ( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        internal::LocalTrrk
-        ( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
+        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -952,7 +950,7 @@ internal::LocalTrrk
 // Local C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-internal::TrrkTN
+TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -989,8 +987,8 @@ internal::TrrkTN
             Gemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
 
         // Recurse
-        internal::TrrkTN( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        internal::TrrkTN( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+        TrrkTN( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
+        TrrkTN( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1000,7 +998,7 @@ internal::TrrkTN
 // Distributed C := alpha A^{T/H} B + beta C
 template<typename T>
 inline void
-internal::LocalTrrk
+LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
@@ -1035,15 +1033,13 @@ internal::LocalTrrk
              CBL, CBR, half );
 
         if( uplo == LOWER )
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
         else
-            internal::LocalGemm
-            ( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
 
         // Recurse
-        internal::LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        internal::LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
+        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1053,7 +1049,7 @@ internal::LocalTrrk
 // Local C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
-internal::TrrkTT
+TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const Matrix<T>& A, const Matrix<T>& B,
@@ -1094,9 +1090,9 @@ internal::TrrkTT
             Gemm( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
 
         // Recurse
-        internal::TrrkTT
+        TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
-        internal::TrrkTT
+        TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
 #ifndef RELEASE
@@ -1107,7 +1103,7 @@ internal::TrrkTT
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
-internal::LocalTrrk
+LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
@@ -1147,24 +1143,26 @@ internal::LocalTrrk
 
         if( uplo == LOWER )
         { 
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, CBL );
         }
         else
         {
-            internal::LocalGemm
+            LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, CTR );
         }
 
         // Recurse
-        internal::LocalTrrk
+        LocalTrrk
         ( uplo, orientationOfA, orientationOfB, alpha, AL, BT, beta, CTL );
-        internal::LocalTrrk
+        LocalTrrk
         ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
+
+} // namespace internal
 
 } // namespace elem

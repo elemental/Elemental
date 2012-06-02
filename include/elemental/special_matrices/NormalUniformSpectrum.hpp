@@ -96,7 +96,7 @@ MakeNormalUniformSpectrum
     Matrix<C> u( n, 1 );
     MakeUniform( u );
     const R origNorm = Nrm2( u );
-    Scal( (C)1/origNorm, u );
+    Scale( 1/origNorm, u );
 
     // Form v := D u
     Matrix<C> v( n, 1 );
@@ -165,7 +165,7 @@ MakeNormalUniformSpectrum
         u.AlignWith( ABackup );
     Uniform( n, 1, u );
     const R origNorm = Nrm2( u );
-    Scal( (C)1/origNorm, u );
+    Scale( 1/origNorm, u );
 
     // Form v := D u
     DistMatrix<C,MC,MR> v( grid );

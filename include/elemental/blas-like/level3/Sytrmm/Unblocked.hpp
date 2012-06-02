@@ -70,7 +70,7 @@ SytrmmLUnblocked( Matrix<T>& L )
         }
         else
         {
-            Scal( lambda, l10 );
+            Scale( lambda, l10 );
         }
         //--------------------------------------------------------------------//
 
@@ -122,7 +122,7 @@ SytrmmUUnblocked( Matrix<T>& U )
         }
         else
         {
-            Scal( upsilon, u01 );
+            Scale( upsilon, u01 );
         }
         //--------------------------------------------------------------------//
 

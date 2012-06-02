@@ -72,7 +72,7 @@ GemvT
         DistMatrix<T,MC,MR  > z(g);
 
         // Start the algorithm
-        Scal( beta, y );
+        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_STAR.ResizeTo( A.Width(), 1 );
@@ -103,7 +103,7 @@ GemvT
         DistMatrix<T,MC,MR  > zTrans(g);
 
         // Start the algorithm
-        Scal( beta, y );
+        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_STAR.ResizeTo( A.Width(), 1 );
@@ -134,7 +134,7 @@ GemvT
         DistMatrix<T,MC,  MR  > z(g);
 
         // Start the algorithm
-        Scal( beta, y );
+        Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_STAR.ResizeTo( A.Width(), 1 );
@@ -165,7 +165,7 @@ GemvT
         DistMatrix<T,MC,  MR  > zTrans(g);
 
         // Start the algorithm
-        Scal( beta, y );
+        Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z_MR_STAR.ResizeTo( A.Width(), 1 );

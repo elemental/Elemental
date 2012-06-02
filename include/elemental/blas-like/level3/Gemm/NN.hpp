@@ -113,7 +113,7 @@ GemmNNA
     DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
     // Start the algorithm
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionRight( B, BL, BR, 0 );
     PartitionRight( C, CL, CR, 0 );
     while( BR.Width() > 0 )
@@ -198,7 +198,7 @@ GemmNNB
     DistMatrix<T,STAR,MR> D1_STAR_MR(g);
 
     // Start the algorithm
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDown
     ( A, AT,
          AB, 0 );
@@ -291,7 +291,7 @@ GemmNNC
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g); 
 
     // Start the algorithm
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionRight( A, AL, AR, 0 ); 
     LockedPartitionDown
     ( B, BT, 
@@ -380,7 +380,7 @@ GemmNNDot
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
-        Scal( beta, C );
+        Scale( beta, C );
         LockedPartitionDown
         ( A, AT,
              AB, 0 );
@@ -473,7 +473,7 @@ GemmNNDot
         DistMatrix<T,STAR,STAR> C11_STAR_STAR(g);
 
         // Star the algorithm
-        Scal( beta, C );
+        Scale( beta, C );
         LockedPartitionRight( B, BL, BR, 0 );
         PartitionRight( C, CL, CR, 0 );
         while( BR.Width() > 0 )

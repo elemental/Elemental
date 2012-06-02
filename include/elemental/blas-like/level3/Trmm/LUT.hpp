@@ -181,7 +181,7 @@ TrmmLUTC
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );

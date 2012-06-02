@@ -89,7 +89,7 @@ SymmRLA
 
     Matrix<T> Z1Local;
 
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDown
     ( B, BT,
          BB, 0 );
@@ -193,7 +193,7 @@ SymmRLC
     DistMatrix<T,MR,  STAR> ARowPanTrans_MR_STAR(g);
 
     // Start the algorithm
-    Scal( beta, C );
+    Scale( beta, C );
     LockedPartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );

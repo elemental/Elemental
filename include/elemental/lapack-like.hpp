@@ -1133,13 +1133,13 @@ void TriangularInverse
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void Halley
+int QDWH
 ( Matrix<F>& A, 
   typename Base<F>::type lowerBound, 
   typename Base<F>::type twoNormEstimate );
 
 template<typename F>
-void Halley
+int QDWH
 ( DistMatrix<F,MC,MR>& A, 
   typename Base<F>::type lowerBound, 
   typename Base<F>::type twoNormEstimate );

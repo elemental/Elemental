@@ -79,7 +79,7 @@ Hemv
         DistMatrix<T,MC,MR  > z(g);
 
         // Begin the algoritm
-        Scal( beta, y );
+        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
@@ -126,7 +126,7 @@ Hemv
         DistMatrix<T,MC,MR  > zTrans(g);
 
         // Begin the algoritm
-        Scal( beta, y );
+        Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
@@ -176,7 +176,7 @@ Hemv
         DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
-        Scal( beta, y );
+        Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );
@@ -225,7 +225,7 @@ Hemv
         DistMatrix<T,MR,  MC> z_MR_MC(g);
 
         // Begin the algoritm
-        Scal( beta, y );
+        Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
         z_STAR_MC.AlignWith( A );

@@ -94,7 +94,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
         do
         {
             ++count;
-            Scal( invOfSafeInv, x );
+            Scale( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
@@ -107,7 +107,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     }
 
     R tau = (beta-alpha) / beta;
-    Scal( one/(alpha-beta), x );
+    Scale( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;
@@ -173,7 +173,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
         do
         {
             ++count;
-            Scal( (C)invOfSafeInv, x );
+            Scale( invOfSafeInv, x );
             alpha *= invOfSafeInv;
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
@@ -186,7 +186,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     }
 
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
-    Scal( one/(alpha-beta), x );
+    Scale( one/(alpha-beta), x );
 
     for( int j=0; j<count; ++j )
         beta *= safeInv;

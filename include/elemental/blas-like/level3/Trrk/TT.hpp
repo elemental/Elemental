@@ -32,11 +32,12 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 inline void
-internal::TrrkTT
+TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,MR>& A,
@@ -90,7 +91,7 @@ internal::TrrkTT
             B1AdjOrTrans_STAR_MR.AdjointFrom( B1_VR_STAR );
         else
             B1AdjOrTrans_STAR_MR.TransposeFrom( B1_VR_STAR );
-        internal::LocalTrrk
+        LocalTrrk
         ( uplo, orientationOfA,
           alpha, A1_STAR_MC, B1AdjOrTrans_STAR_MR, beta, C );
         //--------------------------------------------------------------------//
@@ -112,4 +113,5 @@ internal::TrrkTT
 #endif
 }
 
+} // namespace internal
 } // namespace elem

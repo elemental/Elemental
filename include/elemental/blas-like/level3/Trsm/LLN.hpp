@@ -32,6 +32,7 @@
 */
 
 namespace elem {
+namespace internal {
 
 // Left Lower NORMAL (Non)Unit Trsm 
 //   X := tril(L)^-1  X, or
@@ -40,7 +41,7 @@ namespace elem {
 // For large numbers of RHS's, e.g., width(X) >> p
 template<typename F>
 inline void
-internal::TrsmLLNLarge
+TrsmLLNLarge
 ( UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,MC,MR>& L,
                  DistMatrix<F,MC,MR>& X,
@@ -79,7 +80,7 @@ internal::TrsmLLNLarge
     DistMatrix<F,STAR,VR  > X1_STAR_VR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -107,7 +108,7 @@ internal::TrsmLLNLarge
         X1_STAR_VR    = X1;  // X1[* ,VR] <- X1[MC,MR]
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
@@ -116,7 +117,7 @@ internal::TrsmLLNLarge
         L21_MC_STAR = L21;        // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, NORMAL, (F)-1, L21_MC_STAR, X1_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
@@ -142,7 +143,7 @@ internal::TrsmLLNLarge
 // For medium numbers of RHS's, e.g., width(X) ~= p
 template<typename F>
 inline void
-internal::TrsmLLNMedium
+TrsmLLNMedium
 ( UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,MC,MR>& L,
                  DistMatrix<F,MC,MR>& X,
@@ -180,7 +181,7 @@ internal::TrsmLLNMedium
     DistMatrix<F,MR,  STAR> X1Trans_MR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -209,7 +210,7 @@ internal::TrsmLLNMedium
 
         // X1[* ,MR] := L11^-1[* ,* ] X1[* ,MR]
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, LOWER, TRANSPOSE, diag, 
           (F)1, L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
@@ -217,7 +218,7 @@ internal::TrsmLLNMedium
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
-        internal::LocalGemm
+        LocalGemm
         ( NORMAL, TRANSPOSE, (F)-1, L21_MC_STAR, X1Trans_MR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
@@ -243,7 +244,7 @@ internal::TrsmLLNMedium
 // For small numbers of RHS's, e.g., width(X) < p
 template<typename F>
 inline void
-internal::TrsmLLNSmall
+TrsmLLNSmall
 ( UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,VC,STAR>& L,
                  DistMatrix<F,VC,STAR>& X,
@@ -282,7 +283,7 @@ internal::TrsmLLNSmall
     DistMatrix<F,STAR,STAR> X1_STAR_STAR(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -308,13 +309,12 @@ internal::TrsmLLNSmall
         X1_STAR_STAR = X1;   // X1[* ,* ] <- X1[VC,* ]
 
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, 
           (F)1, L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        internal::LocalGemm
-        ( NORMAL, NORMAL, (F)-1, L21, X1_STAR_STAR, (F)1, X2 );
+        LocalGemm( NORMAL, NORMAL, (F)-1, L21, X1_STAR_STAR, (F)1, X2 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal
@@ -334,4 +334,5 @@ internal::TrsmLLNSmall
 #endif
 }
 
+} // namespace internal
 } // namespace elem

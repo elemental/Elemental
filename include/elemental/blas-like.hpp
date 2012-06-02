@@ -105,13 +105,17 @@ template<> int LocalTrr2kBlocksize<dcomplex>();
 
 // Serial version
 template<typename T>
-void
-Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y );
+void Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y );
+template<typename T>
+void Axpy( typename Base<T>::type alpha, const Matrix<T>& X, Matrix<T>& Y );
 
 // Parallel version
 template<typename T, Distribution U, Distribution V>
-void
-Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
+void Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
+template<typename T, Distribution U, Distribution V>
+void Axpy
+( typename Base<T>::type alpha, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
 
 //
 // Copy:
@@ -283,7 +287,7 @@ template<typename R>
 R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x );
 
 // 
-// Scal:
+// Scale (also Scal for legacy reasons):
 //
 // X := alpha X
 //
@@ -291,10 +295,22 @@ R Nrm2( const DistMatrix<Complex<R>, MC, MR >& x );
 // Serial version
 template<typename T>
 void Scal( T alpha, Matrix<T>& X );
-    
+template<typename T>
+void Scale( T alpha, Matrix<T>& X );
+template<typename T>
+void Scal( typename Base<T>::type alpha, Matrix<T>& X );
+template<typename T>
+void Scale( typename Base<T>::type alpha, Matrix<T>& X );
+   
 // Parallel version
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 void Scal( T alpha, DistMatrix<T,U,V>& X );
+template<typename T,Distribution U,Distribution V>
+void Scale( T alpha, DistMatrix<T,U,V>& X );
+template<typename T,Distribution U,Distribution V>
+void Scal( typename Base<T>::type alpha, DistMatrix<T,U,V>& X );
+template<typename T,Distribution U,Distribution V>
+void Scale( typename Base<T>::type alpha, DistMatrix<T,U,V>& X );
     
 //----------------------------------------------------------------------------//
 // Level 1 BLAS-like extensions                                               //
@@ -312,8 +328,8 @@ void Adjoint( const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T, 
-         Distribution U, Distribution V,
-         Distribution W, Distribution Z>
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
 void Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 
@@ -334,7 +350,7 @@ template<typename Z>
 void Conjugate( Matrix<Complex<Z> >& A );
 
 // In-place parallel version
-template<typename T, Distribution U, Distribution V>
+template<typename T,Distribution U,Distribution V>
 void Conjugate( DistMatrix<T,U,V>& A );
 
 // Out-of-place serial version.
@@ -343,8 +359,8 @@ void Conjugate( const Matrix<T>& A, Matrix<T>& B );
 
 // Out-of-place parallel version.
 template<typename T, 
-         Distribution U, Distribution V,
-         Distribution W, Distribution Z>
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
 void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
@@ -391,8 +407,8 @@ void Transpose( const Matrix<T>& A, Matrix<T>& B );
 
 // Parallel version
 template<typename T, 
-         Distribution U, Distribution V,
-         Distribution W, Distribution Z>
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
 void Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
@@ -1027,6 +1043,11 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 
 template<typename T>
 inline void
+Axpy( typename Base<T>::type alpha, const Matrix<T>& X, Matrix<T>& Y )
+{ Axpy( (T)alpha, X, Y ); }
+
+template<typename T>
+inline void
 Copy( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
@@ -1396,10 +1417,10 @@ Nrm2( const Matrix<Complex<R> >& x )
 
 template<typename T>
 inline void
-Scal( T alpha, Matrix<T>& X )
+Scale( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("Scal");
+    PushCallStack("Scale");
 #endif
     if( alpha != (T)1 )
     {
@@ -1415,6 +1436,21 @@ Scal( T alpha, Matrix<T>& X )
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+Scale( typename Base<T>::type alpha, Matrix<T>& X )
+{ Scale( (T)alpha, X ); }
+
+template<typename T>
+inline void
+Scal( T alpha, Matrix<T>& X )
+{ Scale( alpha, X ); }
+
+template<typename T>
+inline void
+Scal( typename Base<T>::type alpha, Matrix<T>& X )
+{ Scale( (T)alpha, X ); }
 
 //----------------------------------------------------------------------------//
 // Local BLAS-like routines: Level 1 (extensions)                             //
@@ -1734,7 +1770,7 @@ Gemv
     }
     else
     {
-        Scal( beta, y );
+        Scale( beta, y );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2111,7 +2147,7 @@ Gemm
     }
     else
     {
-        Scal( beta, C );
+        Scale( beta, C );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2414,6 +2450,13 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 #endif
 }
 
+template<typename T,Distribution U,Distribution V>
+inline void
+Axpy
+( typename Base<T>::type alpha, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
+{ Axpy( (T)alpha, X, Y ); }
+
 template<typename T,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
 inline void
@@ -2645,16 +2688,23 @@ Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 
 template<typename T,Distribution U,Distribution V>
 inline void
+Scale( T alpha, DistMatrix<T,U,V>& A )
+{ Scale( alpha, A.LocalMatrix() ); }
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Scale( typename Base<T>::type alpha, DistMatrix<T,U,V>& A )
+{ Scale( (T)alpha, A.LocalMatrix() ); }
+
+template<typename T,Distribution U,Distribution V>
+inline void
 Scal( T alpha, DistMatrix<T,U,V>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Scal");
-#endif
-    Scal( alpha, A.LocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+{ Scale( alpha, A ); }
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Scal( typename Base<T>::type alpha, DistMatrix<T,U,V>& A )
+{ Scale( (T)alpha, A ); }
 
 //----------------------------------------------------------------------------//
 // Distributed BLAS-like routines: Level 1 (extensions)                       //

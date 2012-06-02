@@ -44,13 +44,13 @@ namespace elem {
 //
 
 template<typename F>
-int Halley
+int QDWH
 ( Matrix<F>& A, 
   typename Base<F>::type lowerBound,
   typename Base<F>::type twoNormEstimate )
 {
 #ifndef RELEASE
-    PushCallStack("Halley");
+    PushCallStack("QDWH");
 #endif
     typedef typename Base<F>::type R;
     const int height = A.Height();
@@ -81,7 +81,7 @@ int Halley
     } 
 
     // Initialize A as U
-    Scal( 1/lowerBound, A );
+    Scale( 1/twoNormEstimate, A );
 
     int numIts=0;
     R frobNormADiff;
@@ -89,7 +89,7 @@ int Halley
     Matrix<F> Q( height+width, width );
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
-                      QB );
+                      QB, height );
     Matrix<F> C;
     Matrix<F> ATemp;
     do
@@ -113,10 +113,10 @@ int Halley
             // Use a QR-based algorithm since U is not well-conditioned
             //
             QT = A;
-            Scal( Sqrt(c), QT );
+            Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (a-b/c)/Sqrt(c), QT, QB, b/c, A );
+            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
         }
         else
         {
@@ -124,12 +124,12 @@ int Halley
             // Use faster Cholesky-based algorithm since U is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, c, A, C );
+            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Scal( b/c, A );
+            Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
@@ -137,7 +137,7 @@ int Halley
         {
             Adjoint( A, ATemp );
             Axpy( (F)1, ATemp, A );
-            Scal( oneHalf, A );
+            Scale( oneHalf, A );
         }
 
         Axpy( (F)-1, A, ALast );
@@ -151,13 +151,13 @@ int Halley
 }
 
 template<typename F>
-int Halley
+int QDWH
 ( DistMatrix<F,MC,MR>& A, 
   typename Base<F>::type lowerBound,
   typename Base<F>::type twoNormEstimate )
 {
 #ifndef RELEASE
-    PushCallStack("Halley");
+    PushCallStack("QDWH");
 #endif
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
@@ -189,7 +189,7 @@ int Halley
     } 
 
     // Initialize A as U
-    Scal( 1/lowerBound, A );
+    Scale( 1/twoNormEstimate, A );
 
     int numIts=0;
     R frobNormADiff;
@@ -197,7 +197,7 @@ int Halley
     DistMatrix<F> Q( height+width, width, g );
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
-                      QB );
+                      QB, height );
     DistMatrix<F> C( g );
     DistMatrix<F> ATemp( g );
     do
@@ -213,18 +213,31 @@ int Halley
         const R b = (a-1)*(a-1)/4;
         const R c = a+b-1;
 
+        if( g.Rank() == 0 )
+        {
+            std::cout << "lowerBound    = " << lowerBound << "\n"
+                      << "dd            = " << dd << "\n"
+                      << "sqd           = " << sqd << "\n"
+                      << "arg           = " << arg << "\n"
+                      << "a             = " << a << "\n"
+                      << "b             = " << b << "\n"
+                      << "c             = " << c << "\n"
+                      << std::endl;
+        }
+        
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
-        if( c > 100 )
+        //if( c > 100 )
+        if( true )
         {
             //
             // Use a QR-based algorithm since U is not well-conditioned
             //
             QT = A;
-            Scal( Sqrt(c), QT );
+            Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (a-b/c)/Sqrt(c), QT, QB, b/c, A );
+            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
         }
         else
         {
@@ -232,12 +245,12 @@ int Halley
             // Use faster Cholesky-based algorithm since U is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, c, A, C );
+            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Scal( b/c, A );
+            Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
@@ -245,7 +258,7 @@ int Halley
         {
             Adjoint( A, ATemp );
             Axpy( (F)1, ATemp, A );
-            Scal( oneHalf, A );
+            Scale( oneHalf, A );
         }
 
         Axpy( (F)-1, A, ALast );

@@ -296,26 +296,10 @@ void LocalTrmmAccumulateRUT
   const DistMatrix<T,MR,  STAR>& XHermOrTrans_MR_STAR,
         DistMatrix<T,MC,  STAR>& ZHermOrTrans_MC_STAR );
 
-//
-// LEFT OFF HERE in conversion of implementations in 'internal' namespace
-//
-
 // Triangular rank-k Update:
 // tril(C) := alpha tril( A B ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A B ) + beta triu(C)
-
-template<typename T>
-void TrrkNN
-( UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-
-template<typename T>
-void TrrkNN
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
 
 template<typename T>
 void LocalTrrk
@@ -327,20 +311,6 @@ void LocalTrrk
 // tril(C) := alpha tril( A B^{T/H} ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A B^{T/H} ) + beta triu(C)
-
-template<typename T>
-void TrrkNT
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-
-template<typename T>
-void TrrkNT
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
 
 template<typename T>
 void LocalTrrk
@@ -355,20 +325,6 @@ void LocalTrrk
 // triu(C) := alpha triu( A^{T/H} B ) + beta triu(C)
 
 template<typename T>
-void TrrkTN
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-
-template<typename T>
-void TrrkTN
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
-
-template<typename T>
 void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -379,20 +335,6 @@ void LocalTrrk
 // tril(C) := alpha tril( A^{T/H} B^{T/H} ) + beta tril(C)
 //   or 
 // triu(C) := alpha triu( A^{T/H} B^{T/H} ) + beta triu(C)
-
-template<typename T>
-void TrrkTT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B,
-  T beta,        Matrix<T>& C );
-
-template<typename T>
-void TrrkTT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C );
 
 template<typename T>
 void LocalTrrk
@@ -407,13 +349,6 @@ void LocalTrrk
 // triu(E) := alpha triu( A B + C D ) + beta triu(E)
 
 template<typename T>
-void Trr2kNNNN
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,STAR,MR>& B, 
@@ -424,14 +359,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A B + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kNNNT
-( UpperOrLower uplo,
-  Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -447,14 +374,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B + C^{T/H} D ) + beta triu(E)
 
 template<typename T>
-void Trr2kNNTN
-( UpperOrLower uplo,
-  Orientation orientationOfC,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfC,
@@ -466,14 +385,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A B + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B + C^{T/H} D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kNNTT
-( UpperOrLower uplo,
-  Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -490,14 +401,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C D ) + beta triu(E)
 
 template<typename T>
-void Trr2kNTNN
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
@@ -509,14 +412,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A B^{T/H} + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kNTNT
-( UpperOrLower uplo,
-  Orientation orientationOfB, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -533,14 +428,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D ) + beta triu(E)
 
 template<typename T>
-void Trr2kNTTN
-( UpperOrLower uplo,
-  Orientation orientationOfB, Orientation orientationOfC,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfB,
@@ -553,15 +440,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A B^{T/H} + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kNTTT
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -579,14 +457,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C D ) + beta triu(E)
 
 template<typename T>
-void Trr2kTNNN
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -598,14 +468,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A^{T/H} B + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kTNNT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -622,14 +484,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D ) + beta triu(E)
 
 template<typename T>
-void Trr2kTNTN
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfC,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -642,15 +496,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A^{T/H} B + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B + C^{T/H} D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kTNTT
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -668,14 +513,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D ) + beta triu(E)
 
 template<typename T>
-void Trr2kTTNN
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -688,15 +525,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kTTNT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -714,15 +542,6 @@ void LocalTrr2k
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D ) + beta triu(E)
 
 template<typename T>
-void Trr2kTTTN
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, 
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
-
-template<typename T>
 void LocalTrr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -736,15 +555,6 @@ void LocalTrr2k
 // tril(E) := alpha tril( A^{T/H} B^{T/H} + C^{T/H} D^{T/H} ) + beta tril(E)
 //   or
 // triu(E) := alpha triu( A^{T/H} B^{T/H} + C^{T/H} D^{T/H} ) + beta triu(E)
-
-template<typename T>
-void Trr2kTTTT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfB,
-  Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E );
 
 template<typename T>
 void LocalTrr2k
@@ -828,34 +638,6 @@ template<typename F>
 void TrsmLUTSmall
 ( Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,STAR,VR>& U, DistMatrix<F,VR,STAR>& X,
-  bool checkIfSingular=false );
-
-// Right, Lower, Normal Trsm
-template<typename F>
-void TrsmRLN
-( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
-  bool checkIfSingular=false );
-
-// Right, Lower, (Conjugate)Transpose Trsm
-template<typename F>
-void TrsmRLT
-( Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& X,
-  bool checkIfSingular=false );
-
-// Right, Upper, Normal Trsm
-template<typename F>
-void TrsmRUN
-( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
-  bool checkIfSingular=false );
-
-// Right, Upper, (Conjugate)Transpose Trsm
-template<typename F>
-void TrsmRUT
-( Orientation orientation, UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& X,
   bool checkIfSingular=false );
 
 //----------------------------------------------------------------------------//

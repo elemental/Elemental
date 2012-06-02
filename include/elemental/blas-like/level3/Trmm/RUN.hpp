@@ -162,7 +162,7 @@ TrmmRUNC
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
     
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionUpDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );

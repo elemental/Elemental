@@ -205,8 +205,8 @@ PanelLU
         if( alpha == (F)0 )
             throw SingularMatrixException();
         F alpha11Inv = ((F)1) / alpha;
-        Scal( alpha11Inv, a21.LocalMatrix() );
-        Scal( alpha11Inv, b1.LocalMatrix()  );
+        Scale( alpha11Inv, a21.LocalMatrix() );
+        Scale( alpha11Inv, b1.LocalMatrix()  );
         Geru( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
         Geru( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
         //--------------------------------------------------------------------//

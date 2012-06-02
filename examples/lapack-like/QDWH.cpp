@@ -30,29 +30,68 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+#include "elemental.hpp"
+using namespace std;
+using namespace elem;
 
-namespace elem {
-namespace internal {
+// Typedef our real and complex types to 'R' and 'C' for convenience
+typedef double R;
+typedef Complex<R> C;
 
-// Distributed E := alpha (A^{T/H} B + C D^{T/H}) + beta E
-template<typename T>
-inline void
-Trr2kTNNT
-( UpperOrLower uplo,
-  Orientation orientationOfA, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E )
+void Usage()
 {
-#ifndef RELEASE
-    PushCallStack("internal::Trr2kTNNT");
-#endif
-    Trr2kNTTN
-    ( uplo, orientationOfD, orientationOfA, alpha, C, D, A, B, beta, E );
-#ifndef RELEASE
-    PopCallStack();
-#endif
+    cout << "QDWH <m> <n>\n"
+         << "  <m>: height of random matrix to test polar decomp. on\n"
+         << "  <n>: width of random matrix to test polar decomp. on\n"
+         << endl;
 }
 
-} // namespace internal
-} // namespace elem
+int
+main( int argc, char* argv[] )
+{
+    Initialize( argc, argv );
+
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
+
+    if( argc < 3 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int m = atoi( argv[1] );
+    const int n = atoi( argv[2] );
+
+    try 
+    {
+        Grid g( comm );
+        DistMatrix<C,MC,MR> A( g ), Q( g ), P( g );
+        Uniform( m, n, A );
+
+        A.Print("A");
+
+        // Compute the polar decomp of A through a QR-based Halley iteration
+        const R lowerBound = 1e-7;
+        const R frobNormOfA = Norm( A, FROBENIUS_NORM );
+        Q = A;
+        const int numIts = QDWH( Q, lowerBound, frobNormOfA );
+        Zeros( n, n, P );
+        Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
+
+        Q.Print("Q");
+        P.Print("P");
+    }
+    catch( exception& e )
+    {
+        cerr << "Process " << commRank << " caught exception with message: "
+             << e.what() << endl;
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+    }
+
+    Finalize();
+    return 0;
+}

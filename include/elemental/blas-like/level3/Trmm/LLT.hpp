@@ -181,7 +181,7 @@ TrmmLLTC
     DistMatrix<T,MC,  MR  > D1(g);
 
     // Start the algorithm
-    Scal( alpha, X );
+    Scale( alpha, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
