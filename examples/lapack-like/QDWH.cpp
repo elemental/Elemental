@@ -70,8 +70,6 @@ main( int argc, char* argv[] )
         DistMatrix<C,MC,MR> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
 
-        A.Print("A");
-
         // Compute the polar decomp of A through a QR-based Halley iteration
         const R lowerBound = 1e-7;
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
@@ -80,8 +78,17 @@ main( int argc, char* argv[] )
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 
-        Q.Print("Q");
-        P.Print("P");
+        DistMatrix<C,MC,MR> B( A );
+        Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
+        const R frobNormA = Norm( A, FROBENIUS_NORM );
+        const R frobNormError = Norm( B, FROBENIUS_NORM );
+        if( g.Rank() == 0 )
+        {
+            std::cout << numIts << " iterations\n"
+                      << "||A||_F      = " << frobNormA << "\n"
+                      << "||A - QP||_F = " << frobNormError << "\n"
+                      << std::endl;
+        }
     }
     catch( exception& e )
     {

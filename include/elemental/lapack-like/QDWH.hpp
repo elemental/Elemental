@@ -107,9 +107,7 @@ int QDWH
 
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
-        // TODO: Fix this later
-        //if( c > 100 )
-        if( true )
+        if( c > 100 )
         {
             //
             // Use a QR-based algorithm since U is not well-conditioned
@@ -129,8 +127,8 @@ int QDWH
             Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
@@ -217,9 +215,7 @@ int QDWH
 
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
-        // TODO: Fix this later
-        //if( c > 100 )
-        if( true )
+        if( c > 100 )
         {
             //
             // Use a QR-based algorithm since U is not well-conditioned
@@ -239,8 +235,8 @@ int QDWH
             Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
