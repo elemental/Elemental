@@ -315,15 +315,16 @@ void <tt class="descname">Trtrmm</tt><big>(</big><a class="reference internal" h
 <p>Symmetric/Hermitian triangular matrix-matrix multiply (with diagonal scaling):
 performs <img class="math" src="../_images/math/6ec6fdd8c9ad64d976e1022c561ebf7783213c3d.png" alt="L := L^T D^{-1} L"/>, <img class="math" src="../_images/math/df84b8917dd29a1807a46fa8f71b455201e676e4.png" alt="L := L^H D^{-1} L"/>,
 <img class="math" src="../_images/math/990d8555f8bb636ee27a5bb7c44062697ee9f349.png" alt="U D^{-1} U^T"/>, or <img class="math" src="../_images/math/8371f8beabf584eb980e5dc4c477618ff1a47bfe.png" alt="U := U D^{-1} U^H"/>, depending upon the choice
-of the <cite>orientation</cite> and <cite>uplo</cite> parameters.</p>
+of the <cite>orientation</cite> and <cite>uplo</cite> parameters. Note that <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/>
+are unit-diagonal and their diagonal is overwritten with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>.</p>
 <dl class="function">
-<dt id="Trdtrmm__Orientation.UpperOrLower.Matrix:T:R">
-void <tt class="descname">Trdtrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trdtrmm__Orientation.UpperOrLower.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trdtrmm__Orientation.UpperOrLower.Matrix:F:R">
+void <tt class="descname">Trdtrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trdtrmm__Orientation.UpperOrLower.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="Trdtrmm__Orientation.UpperOrLower.DistMatrix:T.MC.MR:R">
-void <tt class="descname">Trdtrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;T, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trdtrmm__Orientation.UpperOrLower.DistMatrix:T.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Trdtrmm__Orientation.UpperOrLower.DistMatrix:F.MC.MR:R">
+void <tt class="descname">Trdtrmm</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Trdtrmm__Orientation.UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>

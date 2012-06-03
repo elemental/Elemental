@@ -214,7 +214,7 @@ Symmetric/Hermitian triangular matrix-matrix multiply: performs
 .. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 
 Trdtrmm
-------
+-------
 .. note:: 
 
    This is a modification of Trtrmm for LDL factorizations.
@@ -222,10 +222,11 @@ Trdtrmm
 Symmetric/Hermitian triangular matrix-matrix multiply (with diagonal scaling): 
 performs :math:`L := L^T D^{-1} L`, :math:`L := L^H D^{-1} L`, 
 :math:`U D^{-1} U^T`, or :math:`U := U D^{-1} U^H`, depending upon the choice 
-of the `orientation` and `uplo` parameters. 
+of the `orientation` and `uplo` parameters. Note that :math:`L` and :math:`U`
+are unit-diagonal and their diagonal is overwritten with :math:`D`.
 
-.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
-.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
 Trsm
 ----
