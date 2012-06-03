@@ -36,12 +36,56 @@ namespace internal {
 
 template<typename T>
 inline void
-HetrmmLVar1( DistMatrix<T,MC,MR>& L )
+TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HetrmmLVar1");
+    PushCallStack("internal::TrtrmmLVar1");
+    if( orientation == NORMAL )
+        throw std::logic_error("Must be (conjugate-)transposed");
+#endif
+    Matrix<T>
+        LTL, LTR,  L00, L01, L02,
+        LBL, LBR,  L10, L11, L12,
+                   L20, L21, L22;
+
+    PartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    {
+        RepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        //--------------------------------------------------------------------/
+        Trrk( LOWER, orientation, NORMAL, (T)1, L10, L10, (T)1, L00 );
+        Trmm( LEFT, LOWER, orientation, NON_UNIT, (T)1, L11, L10 );
+        TrtrmmLUnblocked( orientation, L11 );
+        //--------------------------------------------------------------------/
+
+        SlidePartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+TrtrmmLVar1( Orientation orientation, DistMatrix<T,MC,MR>& L )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrtrmmLVar1");
     if( L.Height() != L.Width() )
         throw std::logic_error("L must be square");
+    if( orientation == NORMAL )
+        throw std::logic_error("Must be (conjugate-)transposed");
 #endif
     const Grid& g = L.Grid();
 
@@ -78,14 +122,16 @@ HetrmmLVar1( DistMatrix<T,MC,MR>& L )
         L10_STAR_VC = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VC;
         L10_STAR_MR = L10_STAR_VR;
-        LocalTrrk( LOWER, ADJOINT, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L00 );
+        LocalTrrk
+        ( LOWER, orientation, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L00 );
 
         L11_STAR_STAR = L11;
         LocalTrmm
-        ( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11_STAR_STAR, L10_STAR_VR );
+        ( LEFT, LOWER, orientation, NON_UNIT, 
+          (T)1, L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
-        LocalHetrmm( LOWER, L11_STAR_STAR );
+        LocalTrtrmm( orientation, LOWER, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         //--------------------------------------------------------------------//
         L10_STAR_MR.FreeAlignments();

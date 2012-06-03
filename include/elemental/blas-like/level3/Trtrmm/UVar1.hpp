@@ -36,38 +36,38 @@ namespace internal {
 
 template<typename T>
 inline void
-SytrmmLVar1( Matrix<T>& L )
+TrtrmmUVar1( Orientation orientation, Matrix<T>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SytrmmLVar1");
+    PushCallStack("internal::TrtrmmUVar1");
 #endif
-    Matrix<T>
-        LTL, LTR,  L00, L01, L02,
-        LBL, LBR,  L10, L11, L12,
-                   L20, L21, L22;
+     Matrix<T>
+        UTL, UTR,  U00, U01, U02,
+        UBL, UBR,  U10, U11, U12,
+                   U20, U21, U22;
 
     PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
     {
         RepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
          /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
         //--------------------------------------------------------------------/
-        Trrk( LOWER, TRANSPOSE, NORMAL, (T)1, L10, L10, (T)1, L00 );
-        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11, L10 );
-        SytrmmLUnblocked( L11 );
+        Trrk( UPPER, NORMAL, orientation, (T)1, U01, U01, (T)1, U00 );
+        Trmm( RIGHT, UPPER, orientation, NON_UNIT, (T)1, U11, U01 );
+        TrtrmmUUnblocked( orientation, U11 );
         //--------------------------------------------------------------------/
 
         SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
          /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -76,68 +76,72 @@ SytrmmLVar1( Matrix<T>& L )
 
 template<typename T>
 inline void
-SytrmmLVar1( DistMatrix<T,MC,MR>& L )
+TrtrmmUVar1( Orientation orientation, DistMatrix<T,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SytrmmLVar1");
-    if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+    PushCallStack("internal::TrtrmmUVar1");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("U must be square");
 #endif
-    const Grid& g = L.Grid();
+    const Grid& g = U.Grid();
 
     // Matrix views
     DistMatrix<T,MC,MR>
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
+        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
+        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
+                         U20(g), U21(g), U22(g);
 
     // Temporary distributions
-    DistMatrix<T,STAR,VR  > L10_STAR_VR(g);
-    DistMatrix<T,STAR,VC  > L10_STAR_VC(g);
-    DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
-    DistMatrix<T,STAR,MR  > L10_STAR_MR(g);
-    DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<T,VC,  STAR> U01_VC_STAR(g);
+    DistMatrix<T,VR,  STAR> U01_VR_STAR(g);
+    DistMatrix<T,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
 
     PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() && LTL.Width() < L.Height() )
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( UTL.Height() < U.Height() && UTL.Width() < U.Height() )
     {
         RepartitionDownDiagonal 
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
          /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        L10_STAR_VR.AlignWith( L00 );
-        L10_STAR_VC.AlignWith( L00 );
-        L10_STAR_MC.AlignWith( L00 );
-        L10_STAR_MR.AlignWith( L00 );
+        U01_MC_STAR.AlignWith( U00 );
+        U01_VC_STAR.AlignWith( U00 );
+        U01_VR_STAR.AlignWith( U00 );
+        U01AdjOrTrans_STAR_MR.AlignWith( U00 );
         //--------------------------------------------------------------------//
-        L10_STAR_VR = L10;
-        L10_STAR_VC = L10_STAR_VR;
-        L10_STAR_MC = L10_STAR_VC;
-        L10_STAR_MR = L10_STAR_VR;
-        LocalTrrk( LOWER, ADJOINT, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L00 );
+        U01_MC_STAR = U01;
+        U01_VC_STAR = U01_MC_STAR;
+        U01_VR_STAR = U01_VC_STAR;
+        if( orientation == ADJOINT )
+            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
+        else
+            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
+        LocalTrrk( UPPER, (T)1, U01_MC_STAR, U01AdjOrTrans_STAR_MR, (T)1, U00 );
 
-        L11_STAR_STAR = L11;
+        U11_STAR_STAR = U11;
         LocalTrmm
-        ( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11_STAR_STAR, L10_STAR_VR );
-        L10 = L10_STAR_VR;
+        ( RIGHT, UPPER, orientation, NON_UNIT, 
+          (T)1, U11_STAR_STAR, U01_VC_STAR );
+        U01 = U01_VC_STAR;
 
-        LocalSytrmm( LOWER, L11_STAR_STAR );
-        L11 = L11_STAR_STAR;
+        LocalTrtrmm( orientation, UPPER, U11_STAR_STAR );
+        U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
-        L10_STAR_MR.FreeAlignments();
-        L10_STAR_MC.FreeAlignments();
-        L10_STAR_VC.FreeAlignments();
-        L10_STAR_VR.FreeAlignments();
+        U01AdjOrTrans_STAR_MR.FreeAlignments();
+        U01_VR_STAR.FreeAlignments();
+        U01_VC_STAR.FreeAlignments();
+        U01_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
          /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
 #ifndef RELEASE
     PopCallStack();

@@ -50,10 +50,12 @@ void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C );
 
 template<typename T>
-void LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
+void LocalTrtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
 
 template<typename T>
-void LocalSytrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
+void LocalTrdtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A );
 
 template<typename T,Distribution BColDist,Distribution BRowDist>
 void LocalTrmm
@@ -673,10 +675,6 @@ HerkGFlops
 
 template<typename T>
 double
-HetrmmGFlops( int m, double seconds );
-            
-template<typename T>
-double
 SymmGFlops
 ( LeftOrRight side, int m, int n, double seconds );
             
@@ -833,12 +831,13 @@ inline void LocalGemm
 
 template<typename T>
 inline void 
-LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
+LocalTrtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalHetrmm");
+    PushCallStack("internal::LocalTrtrmm");
 #endif
-    Hetrmm( uplo, A.LocalMatrix() );
+    Trtrmm( orientation, uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -846,12 +845,13 @@ LocalHetrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 
 template<typename T>
 inline void 
-LocalSytrmm( UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
+LocalTrdtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalSytrmm");
+    PushCallStack("internal::LocalTrdtrmm");
 #endif
-    Sytrmm( uplo, A.LocalMatrix() );
+    Trdtrmm( orientation, uplo, A.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1037,26 +1037,6 @@ HerkGFlops<dcomplex>
 ( int m, int k, double seconds )
 { return 4.*HerkGFlops<float>(m,k,seconds); }
 
-template<>
-inline double
-HetrmmGFlops<float>( int n, double seconds )
-{ return (1./3.*n*n*n)/(1.e9*seconds); }
-
-template<>
-inline double
-HetrmmGFlops<double>( int n, double seconds )
-{ return HetrmmGFlops<float>( n, seconds ); }
-
-template<>
-inline double
-HetrmmGFlops<scomplex>( int n, double seconds )
-{ return 4.*HetrmmGFlops<float>( n, seconds ); }
-
-template<>
-inline double
-HetrmmGFlops<dcomplex>( int n, double seconds )
-{ return 4.*HetrmmGFlops<double>( n, seconds ); }
-            
 template<>
 inline double
 SymmGFlops<float>

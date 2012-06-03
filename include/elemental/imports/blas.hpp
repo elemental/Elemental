@@ -427,17 +427,6 @@ void Herk
   T alpha, const T* A, int lda,
   T beta,        T* C, int ldc );
 
-// NOTE: This is the only non-standard naming convention of an existing BLAS
-//       routine. The routines for forming U := U' U and L := L L' are in
-//       LAPACK and are called ?lauum. I am instead labeling it Hetrmm to 
-//       match the BLAS naming conventions, and it stands for 
-//       'HErmitian TRiangular Matrix-Matrix multiplication'
-void Hetrmm( char uplo, int n, float* A, int lda );
-void Hetrmm( char uplo, int n, double* A, int lda );
-void Hetrmm( char uplo, int n, scomplex* A, int lda );
-void Hetrmm( char uplo, int n, dcomplex* A, int lda );
-template<typename T> void Hetrmm( char uplo, int n, T* A, int lda );
-
 void Symm
 ( char side, char uplo, int m, int n,
   float alpha, const float* A, int lda, const float* B, int ldb,
@@ -863,13 +852,6 @@ void BLAS(zherk)
   const elem::dcomplex* beta,        
         elem::dcomplex* C, const int* ldc );
 
-void LAPACK(slauum)( char* uplo, int* n, float* A, int* lda, int* info );
-void LAPACK(dlauum)( char* uplo, int* n, double* A, int* lda, int* info );
-void LAPACK(clauum)
-( char* uplo, int* n, elem::scomplex* A, int* lda, int* info );
-void LAPACK(zlauum)
-( char* uplo, int* n, elem::dcomplex* A, int* lda, int* info );
-
 void BLAS(ssymm)
 ( const char* side, const char* uplo,
   const int* m, const int* n,
@@ -1223,7 +1205,6 @@ void Gemm
 // TODO: templated Hemm
 // TODO: templated Her2k
 // TODO: templated Herk
-// TODO: templated Hetrmm
 // TODO: templated Symm
 // TODO: templated Syr2k
 // TODO: templated Syrk

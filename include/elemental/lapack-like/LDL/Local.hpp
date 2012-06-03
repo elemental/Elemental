@@ -87,54 +87,45 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         return;
     }
 
-    std::vector<F> s21( n-1 );
-    F* RESTRICT ABuffer = A.Buffer();
-    F* RESTRICT dBuffer = d.Buffer();
-    const int lda = A.LDim();
+    F* ABuffer = A.Buffer();
+    F* dBuffer = d.Buffer();
+    const int ldim = A.LDim();
     for( int j=0; j<n; ++j )
     {
         const int a21Height = n - (j+1);
 
         // Extract and store the diagonal of D
-        const F alpha11 = ABuffer[j+j*lda];
+        const F alpha11 = ABuffer[j+j*ldim];
         if( alpha11 == (F)0 )
             throw SingularMatrixException();
         dBuffer[j] = alpha11; 
 
-        // Make a copy of a21 in s21 before scaling
-        MemCopy( &s21[0], &ABuffer[(j+1)+j*lda], a21Height );
-
-        // a21 := a21 / alpha11
-        const F alpha11Inv = static_cast<F>(1)/alpha11;
-        {
-            F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
-            for( int i=0; i<a21Height; ++i )
-                a21[i] *= alpha11Inv;
-        }
-
-        // A22 := A22 - s21 a21^[T/H]
+        // A22 := A22 - a21 (a21/alpha11)^[T/H]
+        const F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( orientation == ADJOINT )
         {
-            const F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
             for( int k=0; k<a21Height; ++k )
             {
-                const F conjAlpha = Conj(a21[k]);
-                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*lda];
+                const F beta = Conj(a21[k]/alpha11);
+                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
                 for( int i=k; i<a21Height; ++i )
-                    A22Col[i] -= s21[i]*conjAlpha;
+                    A22Col[i] -= a21[i]*beta;
             }
         }
         else
         {
-            const F* RESTRICT a21 = &ABuffer[(j+1)+j*lda];
             for( int k=0; k<a21Height; ++k )
             {
-                const F alpha = a21[k];
-                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*lda];
+                const F beta = a21[k]/alpha11;
+                F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
                 for( int i=k; i<a21Height; ++i )
-                    A22Col[i] -= s21[i]*alpha;
+                    A22Col[i] -= a21[i]*beta;
             }
         }
+        
+        // a21 := a21 / alpha11
+        for( int i=0; i<a21Height; ++i )
+            a21[i] /= alpha11;
     }
 #ifndef RELEASE
     PopCallStack();

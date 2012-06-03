@@ -1,10 +1,11 @@
 Functionality
 =============
-TODO: Fill this list in
+- Explicit expansion of packed Householder reflectors
 
 Documentation
 =============
 - Add BidiagonalQR and DivideAndConquerSVD to list of LAPACK imports
+- Add documentation for QDWH and Halley
 
 Formatting
 ==========

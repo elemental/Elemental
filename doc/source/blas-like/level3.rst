@@ -79,26 +79,6 @@ Please see ``SetLocalTrrkBlocksize<T>( int blocksize )``
 and ``int LocalTrrkBlocksize<T>()`` in the *Tuning parameters*
 section for information on tuning the distributed ``Herk``.
 
-Hetrmm
-------
-.. note:: 
-
-   This routine directly corresponds with the LAPACK routines ?lauum, but it 
-   only involves matrix-matrix multiplication, so it is lumped in with the 
-   BLAS-like routines in Elemental.
-
-Hermitian triangular matrix-matrix multiply: performs 
-:math:`L := L^H L` or :math:`U := U U^H`, depending upon the choice of the 
-`uplo` parameter. 
-
-.. cpp:function:: void Hetrmm( UpperOrLower uplo, Matrix<T>& A )
-
-   The serial implementation (templated over the datatype).
-
-.. cpp:function:: void Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
-
-   The distributed implementation (templated over the datatype).
-
 Symm
 ----
 Symmetric matrix-matrix multiplication: updates
@@ -218,6 +198,34 @@ respectively.
 .. cpp:function:: void Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
 
    The distributed implementation (templated over the datatype).
+
+Trtrmm
+------
+.. note:: 
+
+   This routine loosely corresponds with the LAPACK routines ?lauum.
+
+Symmetric/Hermitian triangular matrix-matrix multiply: performs 
+:math:`L := L^T L`, :math:`L := L^H L`, :math:`U U^T`, or 
+:math:`U := U U^H`, depending upon the choice of the `orientation` and 
+`uplo` parameters. 
+
+.. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
+.. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+
+Trdtrmm
+------
+.. note:: 
+
+   This is a modification of Trtrmm for LDL factorizations.
+
+Symmetric/Hermitian triangular matrix-matrix multiply (with diagonal scaling): 
+performs :math:`L := L^T D^{-1} L`, :math:`L := L^H D^{-1} L`, 
+:math:`U D^{-1} U^T`, or :math:`U := U D^{-1} U^H`, depending upon the choice 
+of the `orientation` and `uplo` parameters. 
+
+.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
+.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 
 Trsm
 ----

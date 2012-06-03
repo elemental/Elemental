@@ -34,17 +34,22 @@
 namespace elem {
 namespace internal {
 
-template<typename T>
+template<typename F>
 inline void
-SytrmmUVar1( Matrix<T>& U )
+TrdtrmmUVar1( Orientation orientation, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SytrmmUVar1");
+    PushCallStack("internal::TrtdrmmUVar1");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("U must be square");
+    if( orientation == NORMAL )
+        throw std::logic_error("Orientation must be (conjugate-)transpose");
 #endif
-     Matrix<T>
+     Matrix<F>
         UTL, UTR,  U00, U01, U02,
         UBL, UBR,  U10, U11, U12,
                    U20, U21, U22;
+     Matrix<F> d1, S01;
 
     PartitionDownDiagonal
     ( U, UTL, UTR,
@@ -58,9 +63,12 @@ SytrmmUVar1( Matrix<T>& U )
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
         //--------------------------------------------------------------------/
-        Trrk( UPPER, NORMAL, TRANSPOSE, (T)1, U01, U01, (T)1, U00 );
-        Trmm( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11, U01 );
-        SytrmmUUnblocked( U11 );
+        U11.GetDiagonal( d1 );
+        S01 = U01;
+        DiagonalSolve( LEFT, NORMAL, d1, U01, true );
+        Trrk( UPPER, NORMAL, orientation, (F)1, U01, S01, (F)1, U00 );
+        Trmm( RIGHT, UPPER, ADJOINT, UNIT, (F)1, U11, U01 );
+        TrdtrmmUUnblocked( orientation, U11 );
         //--------------------------------------------------------------------/
 
         SlidePartitionDownDiagonal
@@ -74,29 +82,32 @@ SytrmmUVar1( Matrix<T>& U )
 #endif
 }
 
-template<typename T>
+template<typename F>
 inline void
-SytrmmUVar1( DistMatrix<T,MC,MR>& U )
+TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SytrmmUVar1");
+    PushCallStack("internal::TrdtrmmUVar1");
     if( U.Height() != U.Width() )
         throw std::logic_error("U must be square");
+    if( orientation == NORMAL )
+        throw std::logic_error("Orientation must be (conjugate-)transpose");
 #endif
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<F,MC,MR>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
+    DistMatrix<F,MD,STAR> d1(g);
 
     // Temporary distributions
-    DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<T,VC,  STAR> U01_VC_STAR(g);
-    DistMatrix<T,VR,  STAR> U01_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > U01Adj_STAR_MR(g);
-    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> S01_MC_STAR(g);
+    DistMatrix<F,VC,  STAR> S01_VC_STAR(g);
+    DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
 
     PartitionDownDiagonal
     ( U, UTL, UTR,
@@ -109,29 +120,39 @@ SytrmmUVar1( DistMatrix<T,MC,MR>& U )
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        U01_MC_STAR.AlignWith( U00 );
-        U01_VC_STAR.AlignWith( U00 );
+        S01_MC_STAR.AlignWith( U00 );
+        S01_VC_STAR.AlignWith( U00 );
         U01_VR_STAR.AlignWith( U00 );
-        U01Adj_STAR_MR.AlignWith( U00 );
+        U01AdjOrTrans_STAR_MR.AlignWith( U00 );
         //--------------------------------------------------------------------//
-        U01_MC_STAR = U01;
-        U01_VC_STAR = U01_MC_STAR;
-        U01_VR_STAR = U01_VC_STAR;
-        U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        LocalTrrk( UPPER, (T)1, U01_MC_STAR, U01Adj_STAR_MR, (T)1, U00 );
+        U11.GetDiagonal( d1 );
+        S01_MC_STAR = U01;
+        S01_VC_STAR = S01_MC_STAR;
+        U01_VR_STAR = S01_VC_STAR;
+        if( orientation == TRANSPOSE )
+        {
+            DiagonalSolve( RIGHT, NORMAL, d1, U01_VR_STAR );
+            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
+        }
+        else
+        {
+            DiagonalSolve( RIGHT, ADJOINT, d1, U01_VR_STAR );
+            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
+        }
+        LocalTrrk( UPPER, (F)1, S01_MC_STAR, U01AdjOrTrans_STAR_MR, (F)1, U00 );
 
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11_STAR_STAR, U01_VC_STAR );
-        U01 = U01_VC_STAR;
+        ( RIGHT, UPPER, ADJOINT, UNIT, (F)1, U11_STAR_STAR, U01_VR_STAR );
+        U01 = U01_VR_STAR;
 
-        LocalSytrmm( UPPER, U11_STAR_STAR );
+        LocalTrdtrmm( orientation, UPPER, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
-        U01Adj_STAR_MR.FreeAlignments();
+        U01AdjOrTrans_STAR_MR.FreeAlignments();
         U01_VR_STAR.FreeAlignments();
-        U01_VC_STAR.FreeAlignments();
-        U01_MC_STAR.FreeAlignments();
+        S01_VC_STAR.FreeAlignments();
+        S01_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,

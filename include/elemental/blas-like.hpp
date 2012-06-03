@@ -752,24 +752,6 @@ void Herk
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
 
 //
-// Hetrmm (HErmitian TRiangular Matrix-Matrix multiply):
-//
-// Either L := tril(L' L) or U := triu(U U')
-//
-// NOTE: This is not a standard BLAS routine and is in fact the same operation
-//       as the LAPACK routine ?LAUUM. Since it is similar in spirit to many
-//       other BLAS routines, I have instead placed it here.
-//
-
-// Serial version
-template<typename T>
-void Hetrmm( UpperOrLower uplo, Matrix<T>& A );
-
-// Parallel version
-template<typename T>
-void Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
-
-//
 // Symm (SYmmetric Matrix-Matrix multiplication):
 //
 // Performs the update
@@ -837,22 +819,6 @@ template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C );
-
-// Sytrmm (SYmmetric TRiangular Matrix-Matrix multiply):
-//
-// Either L := tril(L^T L) or U := triu(U U^T)
-//
-// NOTE: This is not a standard BLAS routine and is similar to the LAPACK
-//       routine ?LAUUM. See 'Hetrmm'.
-//
-
-// Serial version
-template<typename T>
-void Sytrmm( UpperOrLower uplo, Matrix<T>& A );
-
-// Parallel version
-template<typename T>
-void Sytrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
 
 //
 // Trmm (TRiangular Matrix-Matrix multiplication):
@@ -955,6 +921,40 @@ void Trsm
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B,
   bool checkIfSingular=false );
+
+// Trtrmm (TRiangular TRiangular Matrix-Matrix multiply):
+//
+// Either L := tril(L^[T/H] L) or U := triu(U U^[T/H])
+//
+// NOTE: This is not a standard BLAS routine and is similar to the LAPACK
+//       routine ?LAUUM. 
+//
+
+// Serial version
+template<typename T>
+void Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A );
+
+// Parallel version
+template<typename T>
+void Trtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
+
+// Trdtrmm (TRiangular Diagonal TRiangular Matrix-Matrix multiply):
+//
+// Either L := tril(L^T inv(D) L) or U := triu(U inv(D) U^T)
+//
+// NOTE: This is not a standard BLAS routine and is similar to the LAPACK
+//       routine ?LAUUM. 
+//
+
+// Serial version
+template<typename T>
+void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A );
+
+// Parallel version
+template<typename T>
+void Trdtrmm
+( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A );
 
 } // namespace elem
 
@@ -2240,20 +2240,6 @@ Herk
     ( uploChar, transChar, C.Height(), k, 
       alpha, A.LockedBuffer(), A.LDim(), 
       beta,  C.Buffer(),       C.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
-Hetrmm( UpperOrLower uplo, Matrix<T>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Hetrmm");
-#endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    blas::Hetrmm( uploChar, A.Height(), A.Buffer(), A.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

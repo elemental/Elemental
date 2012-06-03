@@ -123,7 +123,7 @@ HPDInverseUVar2( DistMatrix<F,MC,MR>& A )
 
         LocalTriangularInverse( UPPER, NON_UNIT, A11_STAR_STAR );
 
-        LocalHetrmm( UPPER, A11_STAR_STAR );
+        LocalTrtrmm( ADJOINT, UPPER, A11_STAR_STAR );
 
         A11 = A11_STAR_STAR;
         A01 = A01_VC_STAR;

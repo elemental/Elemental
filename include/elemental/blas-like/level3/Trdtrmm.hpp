@@ -31,24 +31,43 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Hetrmm/LVar1.hpp"
-#include "./Hetrmm/UVar1.hpp"
+#include "./Trdtrmm/Unblocked.hpp"
+#include "./Trdtrmm/LVar1.hpp"
+#include "./Trdtrmm/UVar1.hpp"
 
 namespace elem {
 
-template<typename T>
+template<typename F>
 inline void
-Hetrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+Trdtrdmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Hetrmm");
+    PushCallStack("Trdtrdmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::HetrmmLVar1( A );
+        internal::TrdtrmmLVar1( orientation, A );
     else
-        internal::HetrmmUVar1( A );
+        internal::TrdtrmmUVar1( orientation, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Trdtrmm");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+#endif
+    if( uplo == LOWER )
+        internal::TrdtrmmLVar1( orientation, A );
+    else
+        internal::TrdtrmmUVar1( orientation, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

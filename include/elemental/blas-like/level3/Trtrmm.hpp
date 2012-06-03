@@ -31,25 +31,25 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Sytrmm/Unblocked.hpp"
-#include "./Sytrmm/LVar1.hpp"
-#include "./Sytrmm/UVar1.hpp"
+#include "./Trtrmm/Unblocked.hpp"
+#include "./Trtrmm/LVar1.hpp"
+#include "./Trtrmm/UVar1.hpp"
 
 namespace elem {
 
 template<typename T>
 inline void
-Sytrmm( UpperOrLower uplo, Matrix<T>& A )
+Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sytrmm");
+    PushCallStack("Trtrmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::SytrmmLVar1( A );
+        internal::TrtrmmLVar1( orientation, A );
     else
-        internal::SytrmmUVar1( A );
+        internal::TrtrmmUVar1( orientation, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -57,17 +57,17 @@ Sytrmm( UpperOrLower uplo, Matrix<T>& A )
 
 template<typename T>
 inline void
-Sytrmm( UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sytrmm");
+    PushCallStack("Trtrmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::SytrmmLVar1( A );
+        internal::TrtrmmLVar1( orientation, A );
     else
-        internal::SytrmmUVar1( A );
+        internal::TrtrmmUVar1( orientation, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
