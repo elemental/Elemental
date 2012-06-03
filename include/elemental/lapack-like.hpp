@@ -1137,12 +1137,16 @@ int QDWH
 ( Matrix<F>& A, 
   typename Base<F>::type lowerBound, 
   typename Base<F>::type twoNormEstimate );
-
 template<typename F>
 int QDWH
 ( DistMatrix<F,MC,MR>& A, 
   typename Base<F>::type lowerBound, 
   typename Base<F>::type twoNormEstimate );
+
+template<typename F>
+int Halley( Matrix<F>& A, typename Base<F>::type twoNormEstimate );
+template<typename F>
+int Halley( DistMatrix<F,MC,MR>& A, typename Base<F>::type twoNormEstimate );
 
 } // namespace elem
 
@@ -1162,6 +1166,7 @@ int QDWH
 #include "./lapack-like/ExplicitLQ.hpp"
 #include "./lapack-like/ExplicitQR.hpp"
 #include "./lapack-like/GaussianElimination.hpp"
+#include "./lapack-like/Halley.hpp"
 #include "./lapack-like/Hegst.hpp"
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"

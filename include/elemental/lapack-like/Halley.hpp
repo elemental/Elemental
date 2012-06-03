@@ -34,23 +34,18 @@
 namespace elem {
 
 //
-// Based on Yuji Nakatsukasa's implementation of a QR-based dynamically 
-// weighted Halley iteration for the polar decomposition. In particular, this
-// implementation mirrors the routine 'qdwh', which is part of the zip-file
-// available here:
+// A simplification of QDWH.hpp, which is loosely based on Yuji Nakatsukasa's 
+// implementation of a QR-based dynamically weighted Halley iteration for the 
+// polar decomposition. 
 //     http://www.mathworks.com/matlabcentral/fileexchange/36830
-//
-// No support for column-pivoting or row-sorting yet.
 //
 
 template<typename F>
-int QDWH
-( Matrix<F>& A, 
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type twoNormEstimate )
+int Halley
+( Matrix<F>& A, typename Base<F>::type twoNormEstimate )
 {
 #ifndef RELEASE
-    PushCallStack("QDWH");
+    PushCallStack("Halley");
 #endif
     typedef typename Base<F>::type R;
     const int height = A.Height();
@@ -65,6 +60,9 @@ int QDWH
     const R tolerance0 = 5*epsilon;
     const R tolerance1 = 50*epsilon;
     const R tolerance2 = Pow(tolerance0,oneThird);
+    const R a = 3;
+    const R b = 1;
+    const R c = 3;
 
     // Store whether or not A is numerically Hermitian
     bool startedHermitian=false;
@@ -97,17 +95,8 @@ int QDWH
         ++numIts;
         ALast = A;
 
-        const R L2 = lowerBound*lowerBound;
-        const Complex<R> dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-        const Complex<R> sqd = Sqrt( 1+dd );
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
-
-        if( c > 100 )
+        // TODO: Come up with a test for when we can use the Cholesky approach
+        if( true )
         {
             //
             // The standard QR-based algorithm
@@ -143,7 +132,7 @@ int QDWH
         Axpy( (F)-1, A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
-    while( frobNormADiff > tolerance2 || Abs(1-lowerBound) > tolerance0 );
+    while( frobNormADiff > tolerance2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -151,13 +140,11 @@ int QDWH
 }
 
 template<typename F>
-int QDWH
-( DistMatrix<F,MC,MR>& A, 
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type twoNormEstimate )
+int Halley
+( DistMatrix<F,MC,MR>& A, typename Base<F>::type twoNormEstimate )
 {
 #ifndef RELEASE
-    PushCallStack("QDWH");
+    PushCallStack("Halley");
 #endif
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
@@ -173,6 +160,9 @@ int QDWH
     const R tolerance0 = 5*epsilon;
     const R tolerance1 = 50*epsilon;
     const R tolerance2 = Pow(tolerance0,oneThird);
+    const R a = 3;
+    const R b = 1;
+    const R c = 3;
 
     // Store whether or not A is numerically Hermitian
     bool startedHermitian=false;
@@ -205,17 +195,8 @@ int QDWH
         ++numIts;
         ALast = A;
 
-        const R L2 = lowerBound*lowerBound;
-        const Complex<R> dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-        const Complex<R> sqd = Sqrt( 1+dd );
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
-
-        if( c > 100 )
+        // TODO: Come up with a test for when we can use the Cholesky approach
+        if( true )
         {
             //
             // The standard QR-based algorithm
@@ -251,7 +232,7 @@ int QDWH
         Axpy( (F)-1, A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
-    while( frobNormADiff > tolerance2 || Abs(1-lowerBound) > tolerance0 );
+    while( frobNormADiff > tolerance2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
