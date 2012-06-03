@@ -39,7 +39,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Trdtrdmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
+Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Trdtrdmm");
@@ -57,7 +57,7 @@ Trdtrdmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F>
 inline void
-Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Trdtrmm");

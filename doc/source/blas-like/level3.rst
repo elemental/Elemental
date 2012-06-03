@@ -17,7 +17,7 @@ where :math:`\mbox{op}_A(M)` and :math:`\mbox{op}_B(M)` can each be chosen from
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -34,7 +34,7 @@ accessed.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Hemm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Hemm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -50,7 +50,7 @@ triangle of :math:`C` specified by the `uplo` parameter is modified.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -71,7 +71,7 @@ specified by the `uplo` parameter is modified.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Herk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Herk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -92,7 +92,7 @@ is accessed.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -108,7 +108,7 @@ triangle of :math:`C` specified by the `uplo` parameter is modified.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -129,7 +129,7 @@ specified by the `uplo` parameter is modified.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -151,7 +151,7 @@ whether :math:`A` is treated as unit-diagonal or not).
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T>& A, DistMatrix<T>& B )
 
    The distributed implementation (templated over the datatype).
 
@@ -172,7 +172,7 @@ where only the triangle of `E` specified by `uplo` is modified, and
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D, T beta, DistMatrix<T,MC,MR>& E )
+.. cpp:function:: void Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, const DistMatrix<T>& C, const DistMatrix<T>& D, T beta, DistMatrix<T>& E )
 
    The distributed implementation (templated over the datatype).
 
@@ -195,7 +195,7 @@ respectively.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B, T beta, DistMatrix<T,MC,MR>& C )
+.. cpp:function:: void Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
 
    The distributed implementation (templated over the datatype).
 
@@ -211,7 +211,7 @@ Symmetric/Hermitian triangular matrix-matrix multiply: performs
 `uplo` parameters. 
 
 .. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
-.. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T>& A )
 
 Trdtrmm
 -------
@@ -227,7 +227,7 @@ Note that :math:`L` and :math:`U` are unit-diagonal and their diagonal is
 overwritten with :math:`D`.
 
 .. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
-.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
 
 Trsm
 ----
@@ -243,6 +243,6 @@ whether :math:`A` is treated as unit-diagonal or not).
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& B )
+.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T>& A, DistMatrix<T>& B )
 
    The distributed implementation (templated over the datatype).

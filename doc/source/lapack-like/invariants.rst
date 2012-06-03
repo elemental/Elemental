@@ -41,7 +41,7 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
    Returns the determinant of the (fully populated) square matrix `A`, which is 
    overwritten during the computation.
 
-.. cpp:function:: F Determinant( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: F Determinant( DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -69,7 +69,7 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
    Returns the determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
 
-.. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -95,7 +95,7 @@ important characterization.
 
    Return the trace of the square matrix `A`.
 
-.. cpp:function:: F Trace( const DistMatrix<F,MC,MR>& A )
+.. cpp:function:: F Trace( const DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.
 

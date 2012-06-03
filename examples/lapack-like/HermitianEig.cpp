@@ -60,7 +60,6 @@ main( int argc, char* argv[] )
         Grid g( comm );
     
         // Create an n x n complex distributed matrix, 
-        // [MC,MR] is standard 2d matrix distribution. 
         // We distribute the matrix using grid 'g'.
         //
         // There are quite a few available constructors, including ones that 
@@ -68,7 +67,7 @@ main( int argc, char* argv[] )
         // distribution alignments (i.e., which process row and column owns the
         // top-left element)
         const int n = 6; // choose a small problem size since we will print
-        DistMatrix<C,MC,MR> H( n, n, g );
+        DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
         //
@@ -112,7 +111,7 @@ main( int argc, char* argv[] )
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         DistMatrix<R,VR,STAR> w( g );
-        DistMatrix<C,MC,MR> X( g );
+        DistMatrix<C> X( g );
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         HermitianEig( LOWER, H, w, X ); // only use lower half of H

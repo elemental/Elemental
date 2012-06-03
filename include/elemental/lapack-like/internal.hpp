@@ -68,103 +68,103 @@ void LocalTriangularInverse
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void CholeskyLVar2( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar2( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar2Naive( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyLVar3( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyLVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3Naive( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyLVar3Square( DistMatrix<F,MC,MR>& A );
+void CholeskyLVar3Square( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyUVar2( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar2( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar2Naive( DistMatrix<F>& A );
  
 template<typename F>
-void CholeskyUVar3( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3Naive( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyUVar3Square( DistMatrix<F,MC,MR>& A );
+void CholeskyUVar3Square( DistMatrix<F>& A );
             
 //----------------------------------------------------------------------------//
 // GaussElim                                                                  //
 //----------------------------------------------------------------------------//
             
 template<typename F>
-void ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B );
+void ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B );
 
 //----------------------------------------------------------------------------//
 // Hegst                                                                      //
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void HegstLLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar1( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar2( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 // HegstLLVar3 would redundantly compute too much data
 
 template<typename F>
-void HegstLLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstLLVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstLLVar5( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstLUVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar1( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstLUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar2( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 // HegstLUVar3 would redundantly compute too much data
 
 template<typename F>
-void HegstLUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar4( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstLUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstLUVar5( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstRLVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar1( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstRLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar2( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstRLVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar3( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar4( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstRLVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L );
+void HegstRLVar5( DistMatrix<F>& A, const DistMatrix<F>& L );
 
 template<typename F>
-void HegstRUVar1( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar1( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstRUVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar3( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstRUVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar4( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 template<typename F>
-void HegstRUVar5( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U );
+void HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 //----------------------------------------------------------------------------//
 // LDL                                                                        //
@@ -176,7 +176,7 @@ void LDLVar3
 
 template<typename F>
 void LDLVar3
-( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d );
+( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d );
 
 //----------------------------------------------------------------------------//
 // LU                                                                         //
@@ -233,10 +233,10 @@ template<typename R>
 void PanelLQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
-void PanelLQ( DistMatrix<R,MC,MR>& A );
+void PanelLQ( DistMatrix<R>& A );
 template<typename R>
 void PanelLQ
-( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
+( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // QR                                                                         //
@@ -248,81 +248,81 @@ template<typename R>
 void PanelQR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
 
 template<typename R>
-void PanelQR( DistMatrix<R,MC,MR>& A );
+void PanelQR( DistMatrix<R>& A );
 template<typename R>
 void PanelQR
-( DistMatrix<Complex<R>,MC,MR  >& A, DistMatrix<Complex<R>,MD,STAR>& t );
+( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t );
 
 //----------------------------------------------------------------------------//
 // Reflector                                                                  //
 //----------------------------------------------------------------------------//
 template<typename R>
-R ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+R ColReflector( DistMatrix<R>& chi, DistMatrix<R>& x );
 
 template<typename R>
 Complex<R> ColReflector
-( DistMatrix<Complex<R>,MC,MR>& chi, 
-  DistMatrix<Complex<R>,MC,MR>& x );
+( DistMatrix<Complex<R> >& chi, 
+  DistMatrix<Complex<R> >& x );
 
 template<typename R>
-R RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x );
+R RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x );
 
 template<typename R>
 Complex<R> RowReflector
-( DistMatrix<Complex<R>,MC,MR>& chi,
-  DistMatrix<Complex<R>,MC,MR>& x );
+( DistMatrix<Complex<R> >& chi,
+  DistMatrix<Complex<R> >& x );
 
 //----------------------------------------------------------------------------//
 // Bidiag                                                                     //
 //----------------------------------------------------------------------------//
 
 template<typename R>
-void BidiagL( DistMatrix<R,MC,MR>& A );
+void BidiagL( DistMatrix<R>& A );
 template<typename R>
-void BidiagU( DistMatrix<R,MC,MR>& A );
+void BidiagU( DistMatrix<R>& A );
 
 template<typename R>
 void BidiagL
-( DistMatrix<Complex<R>,MC,MR>& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ );
 template<typename R>
 void BidiagU
-( DistMatrix<Complex<R>,MC,MR>& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ );
 
 template<typename R>
 void PanelBidiagL
-( DistMatrix<R,MC,  MR  >& A,
-  DistMatrix<R,MC,  MR  >& X,
-  DistMatrix<R,MC,  MR  >& Y,
+( DistMatrix<R>& A,
+  DistMatrix<R>& X,
+  DistMatrix<R>& Y,
   DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR );
 template<typename R>
 void PanelBidiagU
-( DistMatrix<R,MC,  MR  >& A,
-  DistMatrix<R,MC,  MR  >& X,
-  DistMatrix<R,MC,  MR  >& Y,
+( DistMatrix<R>& A,
+  DistMatrix<R>& X,
+  DistMatrix<R>& Y,
   DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR );
 
 template<typename R>
 void PanelBidiagL
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
-  DistMatrix<Complex<R>,MC,  MR  >& X,
-  DistMatrix<Complex<R>,MC,  MR  >& Y,
+  DistMatrix<Complex<R> >& X,
+  DistMatrix<Complex<R> >& Y,
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR );
 template<typename R>
 void PanelBidiagU
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
-  DistMatrix<Complex<R>,MC,  MR  >& X,
-  DistMatrix<Complex<R>,MC,  MR  >& Y,
+  DistMatrix<Complex<R> >& X,
+  DistMatrix<Complex<R> >& Y,
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR );
 
@@ -332,32 +332,32 @@ void PanelBidiagU
 
 template<typename R>
 void HermitianPanelTridiagL
-( DistMatrix<R,MC,MR  >& A, 
-  DistMatrix<R,MC,MR  >& W,
+( DistMatrix<R>& A, 
+  DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR,
   DistMatrix<R,MR,STAR>& APan_MR_STAR,
   DistMatrix<R,MC,STAR>& W_MC_STAR,
   DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagU
-( DistMatrix<R,MC,MR  >& A, 
-  DistMatrix<R,MC,MR  >& W,
+( DistMatrix<R>& A, 
+  DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR,
   DistMatrix<R,MR,STAR>& APan_MR_STAR,
   DistMatrix<R,MC,STAR>& W_MC_STAR,
   DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagLSquare
-( DistMatrix<R,MC,MR  >& A, 
-  DistMatrix<R,MC,MR  >& W,
+( DistMatrix<R>& A, 
+  DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR,
   DistMatrix<R,MR,STAR>& APan_MR_STAR,
   DistMatrix<R,MC,STAR>& W_MC_STAR,
   DistMatrix<R,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagUSquare
-( DistMatrix<R,MC,MR  >& A, 
-  DistMatrix<R,MC,MR  >& W,
+( DistMatrix<R>& A, 
+  DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR,
   DistMatrix<R,MR,STAR>& APan_MR_STAR,
   DistMatrix<R,MC,STAR>& W_MC_STAR,
@@ -365,8 +365,8 @@ void HermitianPanelTridiagUSquare
 
 template<typename R>
 void HermitianPanelTridiagL
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MC,MR  >& W,
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
   DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR,
   DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
@@ -374,8 +374,8 @@ void HermitianPanelTridiagL
   DistMatrix<Complex<R>,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagU
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MC,MR  >& W,
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
   DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR,
   DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
@@ -384,8 +384,8 @@ void HermitianPanelTridiagU
 
 template<typename R>
 void HermitianPanelTridiagLSquare
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MC,MR  >& W,
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
   DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR,
   DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
@@ -393,8 +393,8 @@ void HermitianPanelTridiagLSquare
   DistMatrix<Complex<R>,MR,STAR>& W_MR_STAR );
 template<typename R>
 void HermitianPanelTridiagUSquare
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MC,MR  >& W,
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
   DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR,
   DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
@@ -402,31 +402,31 @@ void HermitianPanelTridiagUSquare
   DistMatrix<Complex<R>,MR,STAR>& W_MR_STAR );
  
 template<typename R>
-void HermitianTridiagL( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagL( DistMatrix<R>& A );
 template<typename R>
-void HermitianTridiagU( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagU( DistMatrix<R>& A );
 
 template<typename R>
-void HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagLSquare( DistMatrix<R>& A );
 template<typename R>
-void HermitianTridiagUSquare( DistMatrix<R,MC,MR>& A );
+void HermitianTridiagUSquare( DistMatrix<R>& A );
 
 template<typename R>
 void HermitianTridiagL
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,STAR,STAR>& t );
 template<typename R>
 void HermitianTridiagU
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,STAR,STAR>& t );
 
 template<typename R>
 void HermitianTridiagLSquare
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,STAR,STAR>& t );
 template<typename R>
 void HermitianTridiagUSquare
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,STAR,STAR>& t );
 
 //----------------------------------------------------------------------------//
@@ -434,10 +434,10 @@ void HermitianTridiagUSquare
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void HPDInverseLVar2( DistMatrix<F,MC,MR>& A );
+void HPDInverseLVar2( DistMatrix<F>& A );
 
 template<typename F>
-void HPDInverseUVar2( DistMatrix<F,MC,MR>& A );
+void HPDInverseUVar2( DistMatrix<F>& A );
 
 //----------------------------------------------------------------------------//
 // Triangular Inverse                                                         //
@@ -445,15 +445,15 @@ void HPDInverseUVar2( DistMatrix<F,MC,MR>& A );
 
 template<typename F>
 void TriangularInverseVar3
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,MC,MR>& A  );
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  );
 
 template<typename F>
 void TriangularInverseLVar3
-( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& L );
+( UnitOrNonUnit diag, DistMatrix<F>& L );
 
 template<typename F>
 void TriangularInverseUVar3
-( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& U );
+( UnitOrNonUnit diag, DistMatrix<F>& U );
 
 //----------------------------------------------------------------------------//
 // LAPACK-like Utility Functions                                              //

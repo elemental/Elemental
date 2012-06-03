@@ -59,7 +59,7 @@ void TestTrmm
   int m, int n, T alpha, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g), X(g);
+    DistMatrix<T> A(g), X(g);
 
     if( side == LEFT )
         Uniform( m, m, A );

@@ -41,7 +41,7 @@
 namespace elem {
 
 template<typename R> 
-inline void Bidiag( DistMatrix<R,MC,MR>& A )
+inline void Bidiag( DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("Bidiag");
@@ -59,7 +59,7 @@ inline void Bidiag( DistMatrix<R,MC,MR>& A )
 
 template<typename R> 
 inline void Bidiag
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {

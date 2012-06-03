@@ -152,7 +152,7 @@ int QDWH
 
 template<typename F>
 int QDWH
-( DistMatrix<F,MC,MR>& A, 
+( DistMatrix<F>& A, 
   typename Base<F>::type lowerBound,
   typename Base<F>::type twoNormEstimate )
 {
@@ -179,7 +179,7 @@ int QDWH
     if( height == width )
     {
         // Check if A is Hermitian
-        DistMatrix<F,MC,MR> AAdj( g );
+        DistMatrix<F> AAdj( g );
         Adjoint( A, AAdj );
         Axpy( (F)-1, A, AAdj );
         const R frobNormA = Norm( A, FROBENIUS_NORM );

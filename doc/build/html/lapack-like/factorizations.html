@@ -67,8 +67,8 @@ void <tt class="descname">Cholesky</tt><big>(</big><a class="reference internal"
 </dd></dl>
 
 <dl class="function">
-<dt id="Cholesky__UpperOrLower.DistMatrix:F.MC.MR:R">
-void <tt class="descname">Cholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Cholesky__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="Cholesky__UpperOrLower.DistMatrix:F:R">
+void <tt class="descname">Cholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#Cholesky__UpperOrLower.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the <cite>uplo</cite> triangle of the distributed HPD matrix <cite>A</cite> with its
 Cholesky factor.</p>
 </dd></dl>
@@ -88,8 +88,8 @@ factorizations of <img class="math" src="../_images/math/ff5fb3d775862e2123b007e
 </div><p>If <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is found to have eigenvalues less than <img class="math" src="../_images/math/60c039da126159e46c98e041d7652feb5fd08c9d.png" alt="-n \epsilon ||A||_2"/>,
 then a <tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> will be thrown.</p>
 <dl class="function">
-<dt id="HPSDCholesky__UpperOrLower.DistMatrix:F.MC.MR:R">
-void <tt class="descname">HPSDCholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPSDCholesky__UpperOrLower.DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="HPSDCholesky__UpperOrLower.DistMatrix:F:R">
+void <tt class="descname">HPSDCholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPSDCholesky__UpperOrLower.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the <cite>uplo</cite> triangle of the distributed HPSD matrix <cite>A</cite> with its
 Cholesky factor.</p>
 </dd></dl>
@@ -110,18 +110,27 @@ be numerically singular, then a <tt class="docutils literal"><span class="pre">S
 </div>
 </div></blockquote>
 <dl class="function">
-<dt id="LDLH__Matrix:F:R.Matrix:F:R">
-void <tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLH__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LDLH__Matrix:F:R">
+void <tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LDLH__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LDLH__DistMatrix:F:R">
+void <tt class="descname">LDLH</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LDLH__DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
 portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
-the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
-in the vector <cite>d</cite>.</p>
+the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
-void <tt class="descname">LDLH</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLH__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but for distributed matrices.</p>
+<dt id="LDLH__Matrix:F:R.Matrix:F:R">
+void <tt class="descname">LDLH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLH__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LDLH__DistMatrix:F:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descname">LDLH</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLH__DistMatrix:F:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also return the diagonal in the column vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
 </dd></dl>
 
 </div>
@@ -137,18 +146,27 @@ be numerically singular, then a <tt class="docutils literal"><span class="pre">S
 </div>
 </div></blockquote>
 <dl class="function">
-<dt id="LDLT__Matrix:F:R.Matrix:F:R">
-void <tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLT__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LDLT__Matrix:F:R">
+void <tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LDLT__Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LDLT__DistMatrix:F:R">
+void <tt class="descname">LDLT</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LDLT__DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the strictly lower triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the strictly lower
 portion of <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> (<img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> implicitly has ones on its diagonal) and
-the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>, and then also return the diagonal of <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>
-in the vector <cite>d</cite>.</p>
+the diagonal with <img class="math" src="../_images/math/9ffb448918db29f2a72f8f87f421b3b3cad18f95.png" alt="D"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R">
-void <tt class="descname">LDLT</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLT__DistMatrix:F.MC.MR:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but for distributed matrices.</p>
+<dt id="LDLT__Matrix:F:R.Matrix:F:R">
+void <tt class="descname">LDLT</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLT__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LDLT__DistMatrix:F:R.DistMatrix:F.MC.STAR:R">
+void <tt class="descname">LDLT</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F, MC, STAR&gt;&amp; <em>d</em><big>)</big><a class="headerlink" href="#LDLT__DistMatrix:F:R.DistMatrix:F.MC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as above, but also return the diagonal in the vector <tt class="docutils literal"><span class="pre">d</span></tt>.</p>
 </dd></dl>
 
 </div>
@@ -170,8 +188,8 @@ void <tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em><big
 </dd></dl>
 
 <dl class="function">
-<dt id="LU__DistMatrix:F.MC.MR:R">
-void <tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LU__DistMatrix:F.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LU__DistMatrix:F:R">
+void <tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LU__DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with its LU decomposition.</p>
 </dd></dl>
 
@@ -189,8 +207,8 @@ void <tt class="descname">LU</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Ma
 </dd></dl>
 
 <dl class="function">
-<dt id="LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R">
-void <tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;F, VC, STAR&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#LU__DistMatrix:F.MC.MR:R.DistMatrix:F.VC.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LU__DistMatrix:F:R.DistMatrix:F.VC.STAR:R">
+void <tt class="descname">LU</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F, VC, STAR&gt;&amp; <em>p</em><big>)</big><a class="headerlink" href="#LU__DistMatrix:F:R.DistMatrix:F.VC.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrites the distributed matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the LU decomposition of
 <img class="math" src="../_images/math/377291318df52e4f013ab2bf28ee82454a9e57da.png" alt="PA"/>, where <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <cite>p</cite>.</p>
 </dd></dl>
@@ -214,8 +232,8 @@ void <tt class="descname">LQ</tt><big>(</big>Matrix&lt;R&gt;&amp; <em>A</em><big
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="LQ__DistMatrix:R.MC.MR:R">
-void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LQ__DistMatrix:R:R">
+void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:R:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the real matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
 </dd></dl>
@@ -226,8 +244,8 @@ void <tt class="descname">LQ</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp;
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="LQ__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R">
-void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="LQ__DistMatrix:Complex:R::R.DistMatrix:Complex:R:.MD.STAR:R">
+void <tt class="descname">LQ</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#LQ__DistMatrix:Complex:R::R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the complex matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/859ccf4cd60c7bc6b8fa1afc9a42dc811a826d6f.png" alt="L"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)
@@ -253,8 +271,8 @@ void <tt class="descname">QR</tt><big>(</big>Matrix&lt;R&gt;&amp; <em>A</em><big
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="QR__DistMatrix:R.MC.MR:R">
-void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;R, MC, MR&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:R.MC.MR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="QR__DistMatrix:R:R">
+void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;R&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:R:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the real matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>.</p>
 </dd></dl>
@@ -265,8 +283,8 @@ void <tt class="descname">QR</tt><big>(</big>Matrix&lt;Complex&lt;R&gt;&gt;&amp;
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="QR__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R">
-void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:Complex:R:.MC.MR:R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
+<dt id="QR__DistMatrix:Complex:R::R.DistMatrix:Complex:R:.MD.STAR:R">
+void <tt class="descname">QR</tt><big>(</big>DistMatrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, DistMatrix&lt;Complex&lt;R&gt;, MD, STAR&gt;&amp; <em>t</em><big>)</big><a class="headerlink" href="#QR__DistMatrix:Complex:R::R.DistMatrix:Complex:R:.MD.STAR:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite the complex matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with <img class="math" src="../_images/math/eff43e84f8a3bcf7b6965f0a3248bc4d3a9d0cd4.png" alt="R"/> and the
 Householder reflectors representing <img class="math" src="../_images/math/298596ed0f27c869bb9f8e2fcc113098bebe982b.png" alt="\hat Q"/>; unlike the real case,
 phase information is needed in order to define the (generalized)

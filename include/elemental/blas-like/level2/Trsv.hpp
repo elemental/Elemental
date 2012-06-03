@@ -44,8 +44,8 @@ Trsv
 ( UpperOrLower uplo,
   Orientation orientation,
   UnitOrNonUnit diag,
-  const DistMatrix<F,MC,MR>& A,
-        DistMatrix<F,MC,MR>& x   )
+  const DistMatrix<F>& A,
+        DistMatrix<F>& x )
 {
 #ifndef RELEASE
     PushCallStack("Trsv");

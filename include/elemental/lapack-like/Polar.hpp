@@ -40,7 +40,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P )
+Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 {
 #ifndef RELEASE
     PushCallStack("Polar");
@@ -51,7 +51,7 @@ Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P )
 
     // Get the SVD of A
     DistMatrix<R,VR,STAR> s(g);
-    DistMatrix<F,MC,MR  > U(g), V(g);
+    DistMatrix<F> U(g), V(g);
     U = A;
     SVD( U, s, V );
 

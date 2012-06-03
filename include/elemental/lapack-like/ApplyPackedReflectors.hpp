@@ -129,8 +129,8 @@ ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order,
   int offset,
-  const DistMatrix<R,MC,MR>& H, 
-        DistMatrix<R,MC,MR>& A )
+  const DistMatrix<R>& H, 
+        DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("ApplyPackedReflectors");
@@ -289,9 +289,9 @@ ApplyPackedReflectors
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
   int offset,
-  const DistMatrix<Complex<R>,MC,MR  >& H, 
+  const DistMatrix<Complex<R> >& H, 
   const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A )
+        DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("ApplyPackedReflectors");
@@ -374,9 +374,9 @@ ApplyPackedReflectors
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
   int offset,
-  const DistMatrix<Complex<R>,MC,  MR  >& H, 
+  const DistMatrix<Complex<R> >& H, 
   const DistMatrix<Complex<R>,STAR,STAR>& t,
-        DistMatrix<Complex<R>,MC,  MR  >& A )
+        DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("ApplyPackedReflectors");

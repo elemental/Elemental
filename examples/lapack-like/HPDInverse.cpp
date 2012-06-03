@@ -34,14 +34,16 @@
 using namespace std;
 using namespace elem;
 
-// Create a typedef for convenience
+// Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;
+typedef Complex<R> C;
 
-// A functor for returning the exponential of a real number
-class ExpFunctor {
-public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
-};
+void Usage()
+{
+    cout << "HPDInverse <n>\n"
+         << "  <n>: size of random matrix to test HPDInverse on\n"
+         << endl;
+}
 
 int
 main( int argc, char* argv[] )
@@ -51,45 +53,40 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
+    if( argc < 2 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int n = atoi( argv[1] );
+
     try 
     {
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
-        DistMatrix<R> H( n, n, g );
+        DistMatrix<C> A( g );
+        HermitianUniformSpectrum( n, A, (R)1, (R)20 );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
-        // We will fill entry (i,j) with the value i+j so that
-        // the global matrix is symmetric. However, only one triangle of the 
-        // matrix actually needs to be filled, the symmetry can be implicit.
-        //
-        const int colShift = H.ColShift(); // first row we own
-        const int rowShift = H.RowShift(); // first col we own
-        const int colStride = H.ColStride();
-        const int rowStride = H.RowStride();
-        const int localHeight = H.LocalHeight();
-        const int localWidth = H.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        // Make a copy of A and then overwrite it with its inverse
+        DistMatrix<C> invA( A );
+        HPDInverse( LOWER, invA );
+
+        // Form I - invA*A and print the relevant norms
+        DistMatrix<C> E( g );
+        Identity( n, n, E );
+        Hemm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
+
+        const R frobNormA = HermitianNorm( LOWER, A, FROBENIUS_NORM );
+        const R frobNormInvA = HermitianNorm( LOWER, invA, FROBENIUS_NORM );
+        const R frobNormError = Norm( E, FROBENIUS_NORM );
+        if( g.Rank() == 0 )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const int i = colShift + iLocal*colStride;
-                const int j = rowShift + jLocal*rowStride;
-                H.SetLocalEntry( iLocal, jLocal, R(i+j) );
-            }
+            std::cout << "|| A          ||_F = " << frobNormA << "\n"
+                      << "|| invA       ||_F = " << frobNormInvA << "\n"
+                      << "|| I - invA A ||_F = " << frobNormError << "\n"
+                      << std::endl;
         }
-
-        // Print our matrix.
-        H.Print("H");
-
-        // Reform the matrix with the exponentials of the original eigenvalues
-        RealHermitianFunction( LOWER, H, ExpFunctor() );
-
-        // Print the exponential of the original matrix
-        H.Print("exp(H)");
     }
     catch( exception& e )
     {

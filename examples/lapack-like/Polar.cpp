@@ -67,7 +67,7 @@ main( int argc, char* argv[] )
     try 
     {
         Grid g( comm );
-        DistMatrix<C,MC,MR> A( g ), Q( g ), P( g );
+        DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
 
         // Compute the polar decomp of A (but do not overwrite A)

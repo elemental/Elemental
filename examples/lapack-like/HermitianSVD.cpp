@@ -59,8 +59,7 @@ main( int argc, char* argv[] )
         // r x c grid.
         Grid g( comm );
     
-        // Create an n x n complex distributed matrix, 
-        // [MC,MR] is standard 2d matrix distribution. 
+        // Create an n x n complex distributed matrix.
         // We distribute the matrix using grid 'g'.
         //
         // There are quite a few available constructors, including ones that 
@@ -68,7 +67,7 @@ main( int argc, char* argv[] )
         // distribution alignments (i.e., which process row and column owns the
         // top-left element)
         const int n = 6; // choose a small problem size since we will print
-        DistMatrix<C,MC,MR> H( n, n, g );
+        DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
         //
@@ -115,7 +114,7 @@ main( int argc, char* argv[] )
         //           'Tuning' section of the README for details.
         //
         DistMatrix<R,VR,STAR> s( g );
-        DistMatrix<C,MC,MR> U( g ), V( g );
+        DistMatrix<C> U( g ), V( g );
         HermitianSVD( LOWER, H, s, U, V ); // only use lower half of H
 
         // Print the singular value decomposition

@@ -34,14 +34,17 @@
 using namespace std;
 using namespace elem;
 
-// Create a typedef for convenience
+// Typedef our real and complex types to 'R' and 'C' for convenience
 typedef double R;
+typedef Complex<R> C;
 
-// A functor for returning the exponential of a real number
-class ExpFunctor {
-public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
-};
+void Usage()
+{
+    cout << "LDLInverse <conjugate> <n>\n"
+         << "  <conjugate>: use LDL^T if 0, LDL^H if otherwise\n"
+         << "  <n>: size of random matrix to test LDLInverse on\n"
+         << endl;
+}
 
 int
 main( int argc, char* argv[] )
@@ -51,45 +54,65 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
+    if( argc < 3 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const bool conjugate = atoi( argv[1] );
+    const int n = atoi( argv[2] );
+
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+
     try 
     {
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
-        DistMatrix<R> H( n, n, g );
+        DistMatrix<C> A( g );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
-        // We will fill entry (i,j) with the value i+j so that
-        // the global matrix is symmetric. However, only one triangle of the 
-        // matrix actually needs to be filled, the symmetry can be implicit.
-        //
-        const int colShift = H.ColShift(); // first row we own
-        const int rowShift = H.RowShift(); // first col we own
-        const int colStride = H.ColStride();
-        const int rowStride = H.RowStride();
-        const int localHeight = H.LocalHeight();
-        const int localWidth = H.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        if( conjugate )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const int i = colShift + iLocal*colStride;
-                const int j = rowShift + jLocal*rowStride;
-                H.SetLocalEntry( iLocal, jLocal, R(i+j) );
-            }
+            HermitianUniformSpectrum( n, A, -30, -20 );
+        }
+        else
+        {
+            Uniform( n, n, A );
+            DistMatrix<C> ATrans( g );
+            Transpose( A, ATrans );
+            Axpy( (C)1, ATrans, A );
         }
 
-        // Print our matrix.
-        H.Print("H");
+        // Make a copy of A and then overwrite it with its inverse
+        // WARNING: There is no pivoting here!
+        DistMatrix<C> invA( A );
+        if( conjugate )
+            LDLH( invA );
+        else
+            LDLT( invA );
+        TriangularInverse( LOWER, UNIT, invA );
+        Trdtrmm( orientation, LOWER, invA );
 
-        // Reform the matrix with the exponentials of the original eigenvalues
-        RealHermitianFunction( LOWER, H, ExpFunctor() );
+        // Form I - invA*A and print the relevant norms
+        DistMatrix<C> E( g );
+        Identity( n, n, E );
+        if( conjugate )
+            Hemm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
+        else
+            Symm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
 
-        // Print the exponential of the original matrix
-        H.Print("exp(H)");
+        const R frobNormA = Norm( A, FROBENIUS_NORM );
+        const R frobNormInvA = 
+            ( conjugate ? HermitianNorm( LOWER, invA, FROBENIUS_NORM )
+                        : SymmetricNorm( LOWER, invA, FROBENIUS_NORM ) );
+        const R frobNormError = Norm( E, FROBENIUS_NORM );
+        if( g.Rank() == 0 )
+        {
+            std::cout << "|| A          ||_F = " << frobNormA << "\n"
+                      << "|| invA       ||_F = " << frobNormInvA << "\n"
+                      << "|| I - invA A ||_F = " << frobNormError << "\n"
+                      << std::endl;
+        }
     }
     catch( exception& e )
     {

@@ -53,7 +53,7 @@ For computing norms of fully-populated matrices.
 
    Return the norm of the fully-populated real matrix `A`.
 
-.. cpp:function:: R Norm( const DistMatrix<R,MC,MR>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const DistMatrix<R>& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated real distributed matrix `A`.
 
@@ -61,7 +61,7 @@ For computing norms of fully-populated matrices.
 
    Return the norm of the fully-populated complex matrix `A`.
 
-.. cpp:function:: R Norm( const DistMatrix<Complex<R>,MC,MR>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: R Norm( const DistMatrix<Complex<R> >& A, NormType type=FROBENIUS_NORM )
 
    Return the norm of the fully-populated complex distributed matrix `A`.
 

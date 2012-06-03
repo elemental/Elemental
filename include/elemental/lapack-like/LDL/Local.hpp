@@ -35,12 +35,40 @@ namespace elem {
 
 template<typename F>
 inline void
+LDLH( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLH");
+#endif
+    Matrix<F> d;
+    LDLH( A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
 LDLH( Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
     PushCallStack("LDLH");
 #endif
     internal::LDLVar3( ADJOINT, A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LDLT( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    Matrix<F> d;
+    LDLT( A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -100,10 +128,10 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
             throw SingularMatrixException();
         dBuffer[j] = alpha11; 
 
-        // A22 := A22 - a21 (a21/alpha11)^[T/H]
-        const F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
+        F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( orientation == ADJOINT )
         {
+            // A22 := A22 - a21 (a21 / alpha11)^H
             for( int k=0; k<a21Height; ++k )
             {
                 const F beta = Conj(a21[k]/alpha11);
@@ -114,6 +142,7 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         }
         else
         {
+            // A22 := A22 - a21 (a21 / alpha11)^T
             for( int k=0; k<a21Height; ++k )
             {
                 const F beta = a21[k]/alpha11;

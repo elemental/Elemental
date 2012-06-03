@@ -963,7 +963,7 @@ TrrkTN
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkKernelTN( uplo, orientationOfA, alpha, A, B, beta, C );
+        TrrkTNKernel( uplo, orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
@@ -1062,7 +1062,7 @@ TrrkTT
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
     {
-        TrrkKernelTT
+        TrrkTTKernel
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
     else

@@ -55,7 +55,7 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
         if( delta11 == (F)0 )
             throw SingularMatrixException();
 
-        const F* RESTRICT l10 = LBuffer[j];
+        F* RESTRICT l10 = &LBuffer[j];
         if( orientation == ADJOINT )
         {
             // L00 := L00 + l10^H (l10 / delta11)
@@ -64,7 +64,7 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
                 const F gamma = l10[k*ldim] / delta11; 
                 F* RESTRICT L00Col = &LBuffer[k*ldim];
                 for( int i=k; i<j; ++i )
-                    L00Col[i] += Conj(l10[i])*gamma;
+                    L00Col[i] += Conj(l10[i*ldim])*gamma;
             }
         }
         else
@@ -75,7 +75,7 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
                 const F gamma = l10[k*ldim] / delta11;
                 F* RESTRICT L00Col = &LBuffer[k*ldim];
                 for( int i=k; i<j; ++i )
-                    L00Col[i] += l10[i]*gamma;
+                    L00Col[i] += l10[i*ldim]*gamma;
             }
         }
 
@@ -112,7 +112,7 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
         if( delta11 == (F)0 )
             throw SingularMatrixException();
 
-        const F* RESTRICT u01 = UBuffer[j*ldim];
+        F* RESTRICT u01 = &UBuffer[j*ldim];
         if( orientation == ADJOINT )
         {
             // U00 := U00 + u01 (u01 / conj(delta11))^H

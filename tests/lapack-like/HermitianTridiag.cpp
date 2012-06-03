@@ -54,8 +54,8 @@ template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, 
-  const DistMatrix<R,MC,MR>& A, 
-        DistMatrix<R,MC,MR>& AOrig )
+  const DistMatrix<R>& A, 
+        DistMatrix<R>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
@@ -81,7 +81,7 @@ void TestCorrectness
     eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
-    DistMatrix<R,MC,MR> B(g);
+    DistMatrix<R> B(g);
     B.AlignWith( A );
     Zeros( m, m, B );
     B.SetDiagonal( d );
@@ -126,9 +126,9 @@ template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, 
-  const DistMatrix<Complex<R>,MC,  MR  >& A, 
+  const DistMatrix<Complex<R> >& A, 
   const DistMatrix<Complex<R>,STAR,STAR>& t,
-        DistMatrix<Complex<R>,MC,  MR  >& AOrig )
+        DistMatrix<Complex<R> >& AOrig )
 {
     typedef Complex<R> C;
     const Grid& g = A.Grid();
@@ -153,7 +153,7 @@ void TestCorrectness
     eOpposite = e_STAR_STAR;
     
     // Zero B and then fill its tridiagonal
-    DistMatrix<C,MC,MR> B(g);
+    DistMatrix<C> B(g);
     B.AlignWith( A );
     Zeros( m, m, B );
     B.SetRealDiagonal( d );
@@ -211,7 +211,7 @@ void TestHermitianTridiag<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(g), AOrig(g);
+    DistMatrix<R> A(g), AOrig(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness )
@@ -261,7 +261,7 @@ void TestHermitianTridiag<Complex<double> >
     typedef Complex<R> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,  MR  > A(g), AOrig(g);
+    DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,STAR,STAR> t(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );

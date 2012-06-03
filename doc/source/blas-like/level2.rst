@@ -18,7 +18,7 @@ be interpreted as column vectors.
 
    Serial implementation (templated over the datatype).
 
-.. cpp:function:: void Gemv( Orientation orientation, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
+.. cpp:function:: void Gemv( Orientation orientation, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x, T beta, DistMatrix<T>& y )
 
    Distributed implementation (templated over the datatype).
 
@@ -32,7 +32,7 @@ interpreted as column vectors.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Ger( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Ger( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype). 
 
@@ -45,7 +45,7 @@ in the BLAS.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Gerc( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Gerc( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype). 
 
@@ -59,7 +59,7 @@ interpreted as column vectors.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Geru( T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Geru( T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype). 
 
@@ -72,7 +72,7 @@ Hermitian matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Hemv( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
+.. cpp:function:: void Hemv( UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x, T beta, DistMatrix<T>& y )
 
    The distributed implementation (templated over the datatype).
 
@@ -89,7 +89,7 @@ where only the triangle of :math:`A` specified by `uplo` is updated.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Her( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Her( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -103,7 +103,7 @@ where only the triangle of :math:`A` specified by `uplo` is updated.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Her2( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Her2( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -116,7 +116,7 @@ Symmetric matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Symv( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& x, T beta, DistMatrix<T,MC,MR>& y )
+.. cpp:function:: void Symv( UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x, T beta, DistMatrix<T>& y )
 
    The distributed implementation (templated over the datatype).
 
@@ -133,7 +133,7 @@ where only the triangle of :math:`A` specified by `uplo` is updated.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Syr( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Syr( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -147,7 +147,7 @@ where only the triangle of :math:`A` specified by `uplo` is updated.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Syr2( UpperOrLower uplo, T alpha, const DistMatrix<T,MC,MR>& x, const DistMatrix<T,MC,MR>& y, DistMatrix<T,MC,MR>& A )
+.. cpp:function:: void Syr2( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y, DistMatrix<T>& A )
 
    The distributed implementation (templated over the datatype).
 
@@ -167,7 +167,7 @@ treated as implicitly having a unit-diagonal if `diag` is set to ``UNIT``.
 
    The serial implementation (templated over the datatype).
 
-.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, const DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& x )
+.. cpp:function:: void Trsv( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, const DistMatrix<F>& A, DistMatrix<F>& x )
 
    The distributed implementation (templated over the datatype).
 

@@ -167,7 +167,7 @@ The diagonal of the trapezoidal matrix is defined relative to either the
 upper-left or bottom-right corner of the matrix, depending on the 
 value of ``side``; whether or not the trapezoid is upper or lower
 (analogous to an upper or lower-triangular matrix) is determined by the 
- ``uplo`` parameter, and the last diagonal is defined with the ``offset`` 
+``uplo`` parameter, and the last diagonal is defined with the ``offset`` 
 integer.
 
 .. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
@@ -184,21 +184,8 @@ Returns :math:`||x||_2 = \sqrt{(x,x)} = \sqrt{x^H x}`. As with most other
 routines, even if :math:`x` is stored as a row vector, it will be interpreted
 as a column vector.
 
-.. cpp:function:: R Nrm2( const Matrix<R>& x )
-
-   Serial version for real datatypes.
-
-.. cpp:function:: R Nrm2( const Matrix<Complex<R> >& x )
-
-   Serial version for complex datatypes.
-
-.. cpp:function:: R Nrm2( const DistMatrix<R,MC,MR>& x )
-
-   Distributed version for real datatypes.
-
-.. cpp:function:: R Nrm2( const DistMatrix<Complex<R>,MC,MR>& x )
-
-   Distributed version for complex datatypes.
+.. cpp:function:: typename Base<F>::type Nrm2( const Matrix<F>& x )
+.. cpp:function:: typename Base<F>::type Nrm2( const DistMatrix<F>& x )
 
 Scal
 ----

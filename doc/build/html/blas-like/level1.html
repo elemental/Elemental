@@ -255,10 +255,9 @@ individual distributions of <img class="math" src="../_images/math/26eeb5258ca50
 The diagonal of the trapezoidal matrix is defined relative to either the
 upper-left or bottom-right corner of the matrix, depending on the
 value of <tt class="docutils literal"><span class="pre">side</span></tt>; whether or not the trapezoid is upper or lower
-(analogous to an upper or lower-triangular matrix) is determined by the</p>
-<blockquote>
-<div><tt class="docutils literal"><span class="pre">uplo</span></tt> parameter, and the last diagonal is defined with the <tt class="docutils literal"><span class="pre">offset</span></tt></div></blockquote>
-<p>integer.</p>
+(analogous to an upper or lower-triangular matrix) is determined by the
+<tt class="docutils literal"><span class="pre">uplo</span></tt> parameter, and the last diagonal is defined with the <tt class="docutils literal"><span class="pre">offset</span></tt>
+integer.</p>
 <dl class="function">
 <dt id="MakeTrapezoidal__LeftOrRight.UpperOrLower.i.Matrix:T:R">
 void <tt class="descname">MakeTrapezoidal</tt><big>(</big><a class="reference internal" href="../core/environment.html#LeftOrRight" title="LeftOrRight">LeftOrRight</a> <em>side</em>, <a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, int <em>offset</em>, Matrix&lt;T&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#MakeTrapezoidal__LeftOrRight.UpperOrLower.i.Matrix:T:R" title="Permalink to this definition">¶</a></dt>
@@ -278,28 +277,14 @@ void <tt class="descname">MakeTrapezoidal</tt><big>(</big><a class="reference in
 routines, even if <img class="math" src="../_images/math/26eeb5258ca5099acf8fe96b2a1049c48c89a5e6.png" alt="x"/> is stored as a row vector, it will be interpreted
 as a column vector.</p>
 <dl class="function">
-<dt id="Nrm2__Matrix:R:CR">
-R <tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__Matrix:R:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serial version for real datatypes.</p>
-</dd></dl>
+<dt id="Nrm2__Matrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
-<dt id="Nrm2__Matrix:Complex:R::CR">
-R <tt class="descname">Nrm2</tt><big>(</big>const Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__Matrix:Complex:R::CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serial version for complex datatypes.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Nrm2__DistMatrix:R.MC.MR:CR">
-R <tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;R, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__DistMatrix:R.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Distributed version for real datatypes.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Nrm2__DistMatrix:Complex:R:.MC.MR:CR">
-R <tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;Complex&lt;R&gt;, MC, MR&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__DistMatrix:Complex:R:.MC.MR:CR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Distributed version for complex datatypes.</p>
-</dd></dl>
+<dt id="Nrm2__DistMatrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Nrm2</tt><big>(</big>const DistMatrix&lt;F&gt;&amp; <em>x</em><big>)</big><a class="headerlink" href="#Nrm2__DistMatrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="scal">

@@ -51,7 +51,7 @@ main( int argc, char* argv[] )
         Grid g( comm );
     
         const int n = 6; // choose a small problem size since we will print
-        DistMatrix<C,MC,MR> L(g), A(g);
+        DistMatrix<C> L(g), A(g);
         Uniform( n, n, L );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
         Zeros( n, n, A );

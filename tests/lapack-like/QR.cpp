@@ -51,8 +51,8 @@ void Usage()
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<R,MC,MR>& A,
-        DistMatrix<R,MC,MR>& AOrig )
+  const DistMatrix<R>& A,
+        DistMatrix<R>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = A.Height();
@@ -63,16 +63,16 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
-    DistMatrix<R,MC,MR> Z(g);
+    DistMatrix<R> Z(g);
     Identity( m, n, Z );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Z );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, Z );
 
-    DistMatrix<R,MC,MR> ZUpper(g);
+    DistMatrix<R> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<R,MC,MR> X(g);
+    DistMatrix<R> X(g);
     Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
@@ -94,7 +94,7 @@ void TestCorrectness
     }
 
     // Form Q R
-    DistMatrix<R,MC,MR> U( A );
+    DistMatrix<R> U( A );
     MakeTrapezoidal( LEFT, UPPER, 0, U );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, U );
 
@@ -121,9 +121,9 @@ void TestCorrectness
 template<typename R> // represents a real number
 void TestCorrectness
 ( bool printMatrices,
-  const DistMatrix<Complex<R>,MC,MR  >& A,
+  const DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& AOrig )
+        DistMatrix<Complex<R> >& AOrig )
 {
     typedef Complex<R> C;
 
@@ -136,18 +136,18 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q^H Q as an approximation to identity
-    DistMatrix<C,MC,MR> Z(g);
+    DistMatrix<C> Z(g);
     Identity( m, n, Z );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, Z );
     
-    DistMatrix<C,MC,MR> ZUpper(g);
+    DistMatrix<C> ZUpper(g);
     ZUpper.View( Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<C,MC,MR> X(g);
+    DistMatrix<C> X(g);
     Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
@@ -167,7 +167,7 @@ void TestCorrectness
         cout << "  Testing if A = QR..." << endl;
 
     // Form Q R
-    DistMatrix<C,MC,MR> U( A );
+    DistMatrix<C> U( A );
     MakeTrapezoidal( LEFT, UPPER, 0, U );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, U );
@@ -205,7 +205,7 @@ void TestQR<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> A(g), AOrig(g);
+    DistMatrix<R> A(g), AOrig(g);
 
     Uniform( m, n, A );
     if( testCorrectness )
@@ -254,7 +254,7 @@ void TestQR<Complex<double> >
     typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > A(g), AOrig(g);
+    DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,MD,STAR> t(g);
 
     Uniform( m, n, A );

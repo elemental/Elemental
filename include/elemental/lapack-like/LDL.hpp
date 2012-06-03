@@ -36,7 +36,20 @@
 namespace elem {
 
 template<typename F>
-inline void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+inline void LDLT( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    DistMatrix<F,MC,STAR> d( A.Grid() );
+    LDLT( A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
     PushCallStack("LDLT");
@@ -48,7 +61,20 @@ inline void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
 }
 
 template<typename F>
-inline void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+inline void LDLH( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLH");
+#endif
+    DistMatrix<F,MC,STAR> d( A.Grid() );
+    LDLH( A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
     PushCallStack("LDLH");
@@ -64,7 +90,7 @@ namespace internal {
 template<typename F>
 inline void
 LDLVar3
-( Orientation orientation, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
     PushCallStack("internal::LDLVar3");
@@ -88,7 +114,7 @@ LDLVar3
     }
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -154,8 +180,7 @@ LDLVar3
         ( LOWER, TRANSPOSE,
           (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
 
-        DiagonalSolve( LEFT, NORMAL, d1_STAR_STAR, S21Trans_STAR_MC );
-        A21.TransposeFrom( S21Trans_STAR_MC );
+        A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A21_VC_STAR.FreeAlignments();
         A21_VR_STAR.FreeAlignments();

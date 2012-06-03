@@ -60,7 +60,7 @@ void TestCorrectness
   ForwardOrBackward order,
   int offset,
   bool printMatrices,
-  const DistMatrix<R,MC,MR>& H )
+  const DistMatrix<R>& H )
 {
     const Grid& g = H.Grid();
     const int m = H.Height();
@@ -69,12 +69,12 @@ void TestCorrectness
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q^H Q as an approximation to identity
-    DistMatrix<R,MC,MR> Y(m,m,g);
+    DistMatrix<R> Y(m,m,g);
     MakeIdentity( Y );
     ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, Y );
     if( printMatrices )
     {
-        DistMatrix<R,MC,MR> W(m,m,g);
+        DistMatrix<R> W(m,m,g);
         MakeIdentity( W );
         if( order == FORWARD )
         {
@@ -91,12 +91,12 @@ void TestCorrectness
             W.Print("Q");
         }
     }
-    DistMatrix<R,MC,MR> Z(m,m,g);
+    DistMatrix<R> Z(m,m,g);
     Zero( Z );
     Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
 
     // Form X := I - Q^H Q or Q Q^H
-    DistMatrix<R,MC,MR> X(m,m,g);
+    DistMatrix<R> X(m,m,g);
     MakeIdentity( X );
     Axpy( (R)-1, Z, X );
     if( printMatrices )
@@ -135,7 +135,7 @@ void TestCorrectness
   Conjugation conjugation,
   int offset,
   bool printMatrices,
-  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R> >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t )
 {
     typedef Complex<R> C;
@@ -147,13 +147,13 @@ void TestCorrectness
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
-    DistMatrix<C,MC,MR> Y(m,m,g);
+    DistMatrix<C> Y(m,m,g);
     MakeIdentity( Y );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
-        DistMatrix<C,MC,MR> W(m,m,g);
+        DistMatrix<C> W(m,m,g);
         MakeIdentity( W );
         if( order == FORWARD )
         {
@@ -170,12 +170,12 @@ void TestCorrectness
             W.Print("Q");
         }
     }
-    DistMatrix<C,MC,MR> Z(m,m,g);
+    DistMatrix<C> Z(m,m,g);
     MakeZeros( Z );
     Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
     
     // Form X := I - Q^H Q or Q Q^H
-    DistMatrix<C,MC,MR> X(m,m,g);
+    DistMatrix<C> X(m,m,g);
     MakeIdentity( X );
     Axpy( (C)-1, Z, X );
     if( printMatrices )
@@ -224,7 +224,7 @@ void TestUT<double>
     typedef double R;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<R,MC,MR> H(g), A(g);
+    DistMatrix<R> H(g), A(g);
     Uniform( m, m, H );
     Uniform( m, m, A );
     if( printMatrices )
@@ -268,7 +268,7 @@ void TestUT<Complex<double> >
     typedef Complex<double> C;
 
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<C,MC,MR  > H(g), A(g);
+    DistMatrix<C> H(g), A(g);
     Uniform( m, m, H );
     Uniform( m, m, A );
 
@@ -277,7 +277,7 @@ void TestUT<Complex<double> >
     t.AlignWithDiagonal( H, offset );
     t.ResizeTo( diagLength, 1 );
 
-    DistMatrix<C,MC,MR> HCol(g);
+    DistMatrix<C> HCol(g);
     if( uplo == LOWER )
     {
         for( int i=0; i<t.Height(); ++i )

@@ -113,7 +113,7 @@ ApplyInverseRowPivots( Matrix<F>& A, const Matrix<int>& p )
 
 template<typename F>
 inline void
-ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyRowPivots");
@@ -128,7 +128,7 @@ ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 template<typename F>
 inline void
 ApplyInverseRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyInverseRowPivots");
@@ -142,7 +142,7 @@ ApplyInverseRowPivots
 
 template<typename F>
 inline void
-ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyRowPivots");
@@ -158,7 +158,7 @@ ApplyRowPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 template<typename F>
 inline void
 ApplyInverseRowPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyInverseRowPivots");
@@ -174,7 +174,7 @@ ApplyInverseRowPivots
 template<typename F> 
 inline void
 ApplyRowPivots
-( DistMatrix<F,MC,MR>& A, 
+( DistMatrix<F>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
 {

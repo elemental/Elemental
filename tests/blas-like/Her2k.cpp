@@ -56,7 +56,7 @@ void TestHer2k
   int m, int k, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g), B(g), C(g);
+    DistMatrix<T> A(g), B(g), C(g);
 
     if( orientation == NORMAL )
     {

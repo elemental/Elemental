@@ -13,7 +13,7 @@ a ``NonHPDMatrixException`` will be thrown.
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
-.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
    Overwrite the `uplo` triangle of the distributed HPD matrix `A` with its 
    Cholesky factor.
@@ -37,7 +37,7 @@ and
 If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`, 
 then a ``NonHPSDMatrixException`` will be thrown.
 
-.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
    Overwrite the `uplo` triangle of the distributed HPSD matrix `A` with its
    Cholesky factor.
@@ -55,16 +55,17 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
       The following routines do not pivot, so please use with caution.
 
-.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLH( Matrix<F>& A )
+.. cpp:function:: void LDLH( DistMatrix<F>& A )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
-   the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
-   in the vector `d`. 
+   the diagonal with :math:`D`.
 
-.. cpp:function:: void LDLH( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
-   Same as above, but for distributed matrices.
+   Same as above, but also return the diagonal in the column vector ``d``.
 
 :math:`LDL^T` factorization
 ---------------------------
@@ -76,16 +77,17 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
 
       The following routines do not pivot, so please use with caution.
 
-.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLT( Matrix<F>& A )
+.. cpp:function:: void LDLT( DistMatrix<F>& A )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
-   the diagonal with :math:`D`, and then also return the diagonal of :math:`D` 
-   in the vector `d`. 
+   the diagonal with :math:`D`.
 
-.. cpp:function:: void LDLT( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,STAR>& d )
+.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& d )
+.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
-   Same as above, but for distributed matrices.
+   Same as above, but also return the diagonal in the vector ``d``.
 
 :math:`LU` factorization
 ------------------------
@@ -103,7 +105,7 @@ portion of :math:`A` can be overwritten with the strictly lower portion of
 
    Overwrites :math:`A` with its LU decomposition.
 
-.. cpp:function:: void LU( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void LU( DistMatrix<F>& A )
 
    Overwrites :math:`A` with its LU decomposition.
 
@@ -119,7 +121,7 @@ and :math:`U` are as described above and :math:`P` is a permutation matrix.
    Ovewrites :math:`A` with the LU decomposition of :math:`PA`, where 
    :math:`P` is represented by the pivot vector `p`.
 
-.. cpp:function:: void LU( DistMatrix<F,MC,MR>& A, DistMatrix<F,VC,STAR>& p )
+.. cpp:function:: void LU( DistMatrix<F>& A, DistMatrix<F,VC,STAR>& p )
 
    Overwrites the distributed matrix :math:`A` with the LU decomposition of 
    :math:`PA`, where :math:`P` is represented by the pivot vector `p`.
@@ -138,13 +140,13 @@ representing :math:`\hat Q` are stored within the rows of the strictly upper
 trapezoid.
 
 .. cpp:function:: void LQ( Matrix<R>& A )
-.. cpp:function:: void LQ( DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void LQ( DistMatrix<R>& A )
 
    Overwrite the real matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`.
 
 .. cpp:function:: void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
-.. cpp:function:: void LQ( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,MD,STAR>& t )
+.. cpp:function:: void LQ( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 
@@ -165,13 +167,13 @@ representing :math:`\hat Q` are stored within the columns of the strictly lower
 trapezoid.
 
 .. cpp:function:: void QR( Matrix<R>& A )
-.. cpp:function:: void QR( DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void QR( DistMatrix<R>& A )
 
    Overwrite the real matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`.
 
 .. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
-.. cpp:function:: void QR( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,MD,STAR>& t )
+.. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`; unlike the real case, 

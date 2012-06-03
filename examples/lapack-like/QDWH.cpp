@@ -67,7 +67,7 @@ main( int argc, char* argv[] )
     try 
     {
         Grid g( comm );
-        DistMatrix<C,MC,MR> A( g ), Q( g ), P( g );
+        DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
         const R frobNormA = Norm( A, FROBENIUS_NORM );
         if( g.Rank() == 0 )
@@ -77,17 +77,18 @@ main( int argc, char* argv[] )
         const R lowerBound = 1e-7;
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
         Q = A;
-        const int numItsQWDH = QDWH( Q, lowerBound, frobNormOfA );
+        const int numItsQDWH = QDWH( Q, lowerBound, frobNormOfA );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 
-        DistMatrix<C,MC,MR> B( A );
+        DistMatrix<C> B( A );
         Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
-        const R frobNormQWDHError = Norm( B, FROBENIUS_NORM );
+        const R frobNormQDWHError = Norm( B, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
-            std::cout << numItsQWDH << " iterations of QWDH\n"
-                      << "||A - QP||_F = " << frobNormQWDHError << "\n"
+            std::cout << numItsQDWH << " iterations of QDWH\n"
+                      << "||A - QP||_F / ||A||_F = " 
+                      << frobNormQDWHError/frobNormA << "\n"
                       << std::endl;
         }
 
@@ -102,7 +103,8 @@ main( int argc, char* argv[] )
         if( g.Rank() == 0 )
         {
             std::cout << numItsHalley << " iterations of Halley\n"
-                      << "||A - QP||_F = " << frobNormHalleyError << "\n"
+                      << "||A - QP||_F / ||A||_F = " 
+                      << frobNormHalleyError/frobNormA << "\n"
                       << std::endl;
         }
     }

@@ -42,7 +42,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-Cholesky( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Cholesky");

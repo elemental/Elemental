@@ -37,9 +37,9 @@ namespace internal {
 template<typename T>
 inline void
 GemmNN
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemmNN");
@@ -78,9 +78,9 @@ GemmNN
 template<typename T>
 inline void
 GemmNNA
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemmNNA");
@@ -102,10 +102,10 @@ GemmNNA
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> BL(g), BR(g),
-                        B0(g), B1(g), B2(g);
-    DistMatrix<T,MC,MR> CL(g), CR(g),
-                        C0(g), C1(g), C2(g);
+    DistMatrix<T> BL(g), BR(g),
+                  B0(g), B1(g), B2(g);
+    DistMatrix<T> CL(g), CR(g),
+                  C0(g), C1(g), C2(g);
 
     // Temporary distributions
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
@@ -162,9 +162,9 @@ GemmNNA
 template<typename T>
 inline void 
 GemmNNB
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemmNNB");
@@ -186,12 +186,12 @@ GemmNNB
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AT(g),  A0(g),
-                        AB(g),  A1(g),
-                                A2(g);
-    DistMatrix<T,MC,MR> CT(g),  C0(g),
-                        CB(g),  C1(g),
-                                C2(g);
+    DistMatrix<T> AT(g),  A0(g),
+                  AB(g),  A1(g),
+                          A2(g);
+    DistMatrix<T> CT(g),  C0(g),
+                  CB(g),  C1(g),
+                          C2(g);
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
@@ -255,9 +255,9 @@ GemmNNB
 template<typename T>
 inline void 
 GemmNNC
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemmNNC");
@@ -279,12 +279,12 @@ GemmNNC
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AL(g), AR(g),
-                        A0(g), A1(g), A2(g);         
+    DistMatrix<T> AL(g), AR(g),
+                  A0(g), A1(g), A2(g);         
 
-    DistMatrix<T,MC,MR> BT(g),  B0(g),
-                        BB(g),  B1(g),
-                                B2(g);
+    DistMatrix<T> BT(g),  B0(g),
+                  BB(g),  B1(g),
+                          B2(g);
 
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
@@ -337,9 +337,9 @@ GemmNNC
 template<typename T>
 inline void 
 GemmNNDot
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemmNNDot");
@@ -363,16 +363,16 @@ GemmNNDot
     if( A.Height() > B.Width() )
     {
         // Matrix views
-        DistMatrix<T,MC,MR> AT(g), AB(g),
-                            A0(g), A1(g), A2(g);         
+        DistMatrix<T> AT(g), AB(g),
+                      A0(g), A1(g), A2(g);         
 
-        DistMatrix<T,MC,MR> BL(g),  B0(g),
-                            BR(g),  B1(g),
-                                    B2(g);
+        DistMatrix<T> BL(g),  B0(g),
+                      BR(g),  B1(g),
+                              B2(g);
 
-        DistMatrix<T,MC,MR> CT(g), C0(g), C1L(g), C1R(g),
-                            CB(g), C1(g), C10(g), C11(g), C12(g),
-                                   C2(g);
+        DistMatrix<T> CT(g), C0(g), C1L(g), C1R(g),
+                      CB(g), C1(g), C10(g), C11(g), C12(g),
+                             C2(g);
 
         // Temporary distributions
         DistMatrix<T,STAR,VC> A1_STAR_VC(g);
@@ -455,14 +455,14 @@ GemmNNDot
     else
     {
         // Matrix views
-        DistMatrix<T,MC,MR> AT(g), AB(g),
-                            A0(g), A1(g), A2(g);         
+        DistMatrix<T> AT(g), AB(g),
+                      A0(g), A1(g), A2(g);         
 
-        DistMatrix<T,MC,MR> BL(g),  B0(g),
-                            BR(g),  B1(g),
-                                    B2(g);
+        DistMatrix<T> BL(g),  B0(g),
+                      BR(g),  B1(g),
+                              B2(g);
 
-        DistMatrix<T,MC,MR> 
+        DistMatrix<T> 
             CL(g), CR(g),         C1T(g),  C01(g),
             C0(g), C1(g), C2(g),  C1B(g),  C11(g),
                                            C21(g);

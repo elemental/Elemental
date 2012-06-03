@@ -37,9 +37,9 @@ template<typename T>
 inline void
 Her2
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,MR>& x,
-           const DistMatrix<T,MC,MR>& y,
-                 DistMatrix<T,MC,MR>& A )
+  T alpha, const DistMatrix<T>& x,
+           const DistMatrix<T>& y,
+                 DistMatrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("Her2");

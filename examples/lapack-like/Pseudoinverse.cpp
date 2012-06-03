@@ -67,11 +67,11 @@ main( int argc, char* argv[] )
     try 
     {
         Grid g( comm );
-        DistMatrix<C,MC,MR> A( g );
+        DistMatrix<C> A( g );
         Uniform( m, n, A );
 
         // Compute the pseudoinverseof A (but do not overwrite A)
-        DistMatrix<C,MC,MR> pinvA( A );
+        DistMatrix<C> pinvA( A );
         Pseudoinverse( pinvA );
 
         A.Print("A");

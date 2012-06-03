@@ -40,9 +40,9 @@ template<typename T>
 inline void
 Gemv
 ( Orientation orientation,
-  T alpha, const DistMatrix<T,MC,MR>& A, 
-           const DistMatrix<T,MC,MR>& x,
-  T beta,        DistMatrix<T,MC,MR>& y )
+  T alpha, const DistMatrix<T>& A, 
+           const DistMatrix<T>& x,
+  T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("Gemv");

@@ -51,9 +51,9 @@ void Usage()
 template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool pivoted, bool printMatrices, 
-  const DistMatrix<F,MC,MR>& A,
+  const DistMatrix<F>& A,
   const DistMatrix<int,VC,STAR>& p,
-  const DistMatrix<F,MC,MR>& AOrig )
+  const DistMatrix<F>& AOrig )
 {
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
@@ -63,7 +63,7 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Generate random right-hand sides
-    DistMatrix<F,MC,MR> X(g), Y(g);
+    DistMatrix<F> X(g), Y(g);
     Uniform( m, 100, X );
     Y = X;
     if( pivoted )
@@ -105,7 +105,7 @@ void TestLU
   int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g), ARef(g);
+    DistMatrix<F> A(g), ARef(g);
     DistMatrix<int,VC,STAR> p(g);
 
     Uniform( m, m, A );

@@ -62,10 +62,10 @@ void Usage()
 void TestCorrectnessDouble
 ( bool printMatrices,
   UpperOrLower uplo,
-  const DistMatrix<double,MC,  MR>& A,
+  const DistMatrix<double>& A,
   const DistMatrix<double,VR,STAR>& w,
-  const DistMatrix<double,MC,  MR>& Z,
-  const DistMatrix<double,MC  ,MR>& AOrig )
+  const DistMatrix<double>& Z,
+  const DistMatrix<double>& AOrig )
 {
     const Grid& g = A.Grid();
     const int n = Z.Height();
@@ -84,7 +84,7 @@ void TestCorrectnessDouble
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<double,MC,MR> X(g);
+    DistMatrix<double> X(g);
     Identity( k, k, X );
     Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
     double oneNormOfError = Norm( X, ONE_NORM );
@@ -137,10 +137,10 @@ void TestCorrectnessDouble
 void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   UpperOrLower uplo,
-  const DistMatrix<Complex<double>,MC,  MR>& A,
-  const DistMatrix<        double, VR,STAR>& w,
-  const DistMatrix<Complex<double>,MC,  MR>& Z,
-  const DistMatrix<Complex<double>,MC  ,MR>& AOrig )
+  const DistMatrix<Complex<double> >& A,
+  const DistMatrix<double,VR,STAR>& w,
+  const DistMatrix<Complex<double> >& Z,
+  const DistMatrix<Complex<double> >& AOrig )
 {
     const Grid& g = A.Grid();
     const int n = Z.Height();
@@ -158,7 +158,7 @@ void TestCorrectnessDoubleComplex
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<Complex<double>,MC,MR> X( g );
+    DistMatrix<Complex<double> > X( g );
     Identity( k, k, X );
     Herk
     ( uplo, ADJOINT, 
@@ -220,7 +220,7 @@ void TestHermitianEigDouble
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<double,MC,MR  > A(g), AOrig(g), Z(g);
+    DistMatrix<double> A(g), AOrig(g), Z(g);
     DistMatrix<double,VR,STAR> w(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
@@ -289,8 +289,8 @@ void TestHermitianEigDoubleComplex
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<Complex<double>,MC,  MR> A(g), AOrig(g), Z(g);
-    DistMatrix<        double, VR,STAR> w(g);
+    DistMatrix<Complex<double> > A(g), AOrig(g), Z(g);
+    DistMatrix<double,VR,STAR> w(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness )

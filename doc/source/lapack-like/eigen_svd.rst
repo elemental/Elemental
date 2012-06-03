@@ -38,22 +38,22 @@ Paolo Bientinesi's PMRRR for the tridiagonal eigenvalue problem.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of the double-precision complex
    Hermitian distributed matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the full set of eigenpairs of the double-precision real symmetric 
    distributed matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the full set of eigenpairs of the double-precision complex Hermitian
    distributed matrix `A`.
@@ -61,22 +61,22 @@ Full spectrum computation
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, int a, int b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, int a, int b )
 
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with indices in the range :math:`a,a+1,...,b`.
@@ -84,22 +84,22 @@ Index-based subset computation
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues of a double-precision real symmetric distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues of a double-precision complex Hermitian distributed 
    matrix `A` lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, double a, double b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double a, double b )
 
    Compute the eigenpairs of a double-precision real symmetric distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the eigenpairs of a double-precision complex Hermitian distributed 
    matrix `A` with eigenvalues lying in the half-open interval :math:`(a,b]`.
@@ -114,12 +114,12 @@ routine from the following list:
 
    Sort a column-vector of real eigenvalues into non-decreasing order.
 
-.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
+.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
 
    Sort a set of real eigenpairs into non-decreasing order (based on the 
    eigenvalues).
 
-.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
+.. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
 
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing
    order (based on the eigenvalues).
@@ -148,7 +148,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    Since Elemental currently depends on PMRRR for its tridiagonal 
    eigensolver, only double-precision results are supported as of now.
 
-.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, const RealFunctor& f )
+.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in Hermitian matrix by replacing 
    each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
@@ -156,7 +156,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    class which has the member function ``R operator()( R omega ) const``.
    See `examples/lapack-like/RealSymmetricFunction.cpp <../../../../examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
 
-.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const ComplexFunctor& f )
+.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by
    replacing each eigenvalue :math:`\omega_i` with 
@@ -191,22 +191,22 @@ Please see the ``HermitianEig`` documentation for more details.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag )
 
    Compute the full set of eigenvalues of the double-precision real 
    skew-symmetric distributed matrix `G`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag )
 
    Compute the full set of eigenvalues of the double-precision complex
    skew-Hermitian distributed matrix `G`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
 
    Compute the full set of eigenpairs of the double-precision real 
    skew-symmetric distributed matrix `G`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
 
    Compute the full set of eigenpairs of the double-precision complex 
    skew-Hermitian distributed matrix `G`.
@@ -214,22 +214,22 @@ Full spectrum computation
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
 
    Compute the eigenvalues of a double-precision real skew-symmetric 
    distributed matrix `G` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
 
    Compute the eigenvalues of a double-precision complex skew-Hermitian 
    distributed matrix `G` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z, int a, int b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z, int a, int b )
 
    Compute the eigenpairs of a double-precision real skew-symmetric distributed 
    matrix `G` with indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
 
    Compute the eigenpairs of a double-precision complex skew-Hermitian 
    distributed matrix `G` with indices in the range :math:`a,a+1,...,b`.
@@ -237,22 +237,22 @@ Index-based subset computation
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
 
    Compute the eigenvalues of a double-precision real skew-symmetric distributed
    matrix `G` lying in the half-open interval :math:`(a,b]i`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
 
    Compute the eigenvalues of a double-precision complex skew-Hermitian 
    distributed matrix `G` lying in the half-open interval :math:`(a,b]i`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z, double a, double b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z, double a, double b )
 
    Compute the eigenpairs of a double-precision real skew-symmetric distributed 
    matrix `G` with eigenvalues lying in the half-open interval :math:`(a,b]i`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double>,MC,MR>& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
 
    Compute the eigenpairs of a double-precision complex skew-Hermitian 
    distributed matrix `G` with eigenvalues lying in the half-open interval 
@@ -291,25 +291,25 @@ which uses the ``AXBX`` enum value.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of a generalized EVP involving the 
    double-precision real symmetric distributed matrices `A` and `B`, where 
    `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w )
 
    Compute the full set of eigenvalues of a generalized EVP involving the 
    double-precision complex Hermitian distributed matrices `A` and `B`, where
    `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the full set of eigenpairs of a generalized EVP involving the 
    double-precision real symmetric distributed matrices `A` and `B`, where 
    `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the full set of eigenpairs of a generalized EVP involving the 
    double-precision complex Hermitian distributed matrices `A` and `B`, where 
@@ -318,25 +318,25 @@ Full spectrum computation
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues with indices in the range :math:`a,a+1,...,b` of a 
    generalized EVP involving the double-precision real symmetric distributed 
    matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, int a, int b )
 
    Compute the eigenvalues with indices in the range :math:`a,a+1,...,b` of a 
    generalized EVP involving the double-precision complex Hermitian distributed 
    matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, int a, int b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, int a, int b )
 
    Compute the eigenpairs with indices in the range :math:`a,a+1,...,b` of a 
    generalized EVP involving the double-precision real symmetric distributed 
    matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the eigenpairs with indices in the range :math:`a,a+1,...,b` of a 
    generalized EVP involving the double-precision complex Hermitian distributed 
@@ -345,26 +345,26 @@ Index-based subset computation
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues lying in the half-open interval :math:`(a,b]` of a 
    generalized EVP involving the double-precision real symmetric distributed 
    matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, double a, double b )
 
    Compute the eigenvalues lying in the half-open interval :math:`(a,b]` of a 
    generalized EVP involving the double-precision complex Hermitian distributed 
    matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double,MC,MR>& A, DistMatrix<double,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z, double a, double b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double a, double b )
 
    Compute the eigenpairs whose eigenvalues lie in the half-open 
    interval :math:`(a,b]` of a generalized EVP involving the double-precision 
    real symmetric distributed matrices `A` and `B`, where `B` is also 
    positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double>,MC,MR>& A, DistMatrix<Complex<double>,MC,MR>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double,MC,MR>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
 
    Compute the eigenpairs whose eigenvalues lie in the half-open interval 
    :math:`(a,b]` of a generalized EVP involving the double-precision complex 
@@ -404,11 +404,11 @@ Then an SVD of :math:`A` can easily be computed as
 
 where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips introduced by negative eigenvalues.
 
-.. cpp:function:: void HermitianSVD( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& V )
+.. cpp:function:: void HermitianSVD( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 
    Return a vector of singular values, :math:`s`, and the left and right singular vector matrices, :math:`U` and :math:`V`, such that :math:`A=U \mathrm{diag}(s) V^H`.
 
-.. cpp:function:: void HermitianSingularValues( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+.. cpp:function:: void HermitianSingularValues( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 
    Return the singular values of :math:`A` in `s`. Note that the appropriate triangle of `A` is overwritten during computation.
 
@@ -420,7 +420,7 @@ attempts to compute said matrix square root and throws a
 ``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are
 computed.
 
-.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
    Overwrites the Hermitian positive semi-definite distributed matrix `A` with
    its matrix square root.
@@ -439,7 +439,7 @@ non-negative entries.
 
 .. cpp:function:: void SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
 
-.. cpp:function:: void SVD( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F,MC,MR>& V )
+.. cpp:function:: void SVD( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F>& V )
 
    Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `V` with :math:`V`. 
 
@@ -454,7 +454,7 @@ non-negative entries.
 
 .. cpp:function:: void SingularValues( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
 
-.. cpp:function:: void SingularValues( DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+.. cpp:function:: void SingularValues( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 
    Forms the singular values of :math:`A` in `s`. Note that `A` is overwritten in order to compute the singular values.
 
@@ -470,7 +470,7 @@ Polar decomposition
 -------------------
 Every matrix :math:`A` can be written as :math:`A=QP`, where :math:`Q` is unitary and :math:`P` is Hermitian and positive semi-definite. This is known as the *polar decomposition* of :math:`A` and can be constructed as :math:`Q := U V^H` and :math:`P := V \Sigma V^H`, where :math:`A = U \Sigma V^H` is the SVD of :math:`A`.
 
-.. cpp:function:: void Polar( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& P )
+.. cpp:function:: void Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 
    Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 
    :math:`Q` within `A` and :math:`P` within `P`.

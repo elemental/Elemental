@@ -55,7 +55,7 @@ void TestSymm
   const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g), B(g), C(g);
+    DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
         Uniform( m, m, A );

@@ -37,9 +37,9 @@ namespace internal {
 template<typename T>
 inline void
 HemmLL
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::HemmLL");
@@ -57,9 +57,9 @@ HemmLL
 template<typename T>
 inline void
 HemmLLA
-( T alpha, const DistMatrix<T,MC,MR>& A, 
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A, 
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::HemmLLA");
@@ -69,21 +69,21 @@ HemmLLA
 #endif
     const Grid& g = A.Grid();
 
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         BL(g), BR(g),
         B0(g), B1(g), B2(g);
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         CL(g), CR(g),
         C0(g), C1(g), C2(g);
 
     DistMatrix<T,MC,STAR> B1_MC_STAR(g);
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
     DistMatrix<T,STAR,MR> B1Adj_STAR_MR(g);
-    DistMatrix<T,MC,MR  > Z1(g);
     DistMatrix<T,MC,STAR> Z1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
+    DistMatrix<T> Z1(g);
 
     Scale( beta, C );
     LockedPartitionRight
@@ -146,9 +146,9 @@ HemmLLA
 template<typename T>
 inline void
 HemmLLC
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::HemmLLC");
@@ -159,17 +159,17 @@ HemmLLC
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         BT(g),  B0(g),
         BB(g),  B1(g),
                 B2(g);
 
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         CT(g),  C0(g),  CAbove(g),
         CB(g),  C1(g),  CBelow(g),
                 C2(g);
@@ -274,7 +274,7 @@ template<typename T>
 inline void
 LocalSymmetricAccumulateLL
 ( Orientation orientation, T alpha,  
-  const DistMatrix<T,MC,  MR  >& A,
+  const DistMatrix<T>& A,
   const DistMatrix<T,MC,  STAR>& B_MC_STAR,
   const DistMatrix<T,STAR,MR  >& BAdjOrTrans_STAR_MR,
         DistMatrix<T,MC,  STAR>& Z_MC_STAR,
@@ -319,12 +319,12 @@ LocalSymmetricAccumulateLL
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<T,MC,MR> D11(g);
+    DistMatrix<T> D11(g);
 
     DistMatrix<T,MC,STAR> 
         BT_MC_STAR(g),  B0_MC_STAR(g),

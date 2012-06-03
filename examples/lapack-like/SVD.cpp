@@ -67,19 +67,18 @@ main( int argc, char* argv[] )
     try 
     {
         Grid g( comm );
-        DistMatrix<C,MC,MR> A( g );
+        DistMatrix<C> A( g );
         Uniform( m, n, A );
 
         // Compute the SVD of A (but do not overwrite A)
-        DistMatrix<C,MC,MR> U( g );
-        DistMatrix<C,MC,MR> V( g );
+        DistMatrix<C> U( g ), V( g );
         DistMatrix<R,VR,STAR> s( g );
         U = A;
         SVD( U, s, V );
 
         // This is a bit of a hack since norms are not supported for anything
-        // but [MC,MR] distributions (as of yet)
-        DistMatrix<R,MC,MR> s_MC_MR( s );
+        // but the standard ([MC,MR]) distribution (as of yet)
+        DistMatrix<R> s_MC_MR( s );
         const R twoNormOfA = Norm( s_MC_MR, MAX_NORM );
 
         // Combine various cheap bounds on the two-norm of A:

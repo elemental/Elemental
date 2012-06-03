@@ -64,12 +64,12 @@ void TestCorrectnessDouble
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   UpperOrLower uplo,
-  const DistMatrix<double,MC,MR  >& A,
-  const DistMatrix<double,MC,MR  >& B,
+  const DistMatrix<double>& A,
+  const DistMatrix<double>& B,
   const DistMatrix<double,VR,STAR>& w,
-  const DistMatrix<double,MC,MR  >& X,
-  const DistMatrix<double,MC,MR  >& AOrig,
-  const DistMatrix<double,MC,MR  >& BOrig )
+  const DistMatrix<double>& X,
+  const DistMatrix<double>& AOrig,
+  const DistMatrix<double>& BOrig )
 {
     const Grid& g = A.Grid();
     const int n = X.Height();
@@ -91,7 +91,7 @@ void TestCorrectnessDouble
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
-        DistMatrix<double,MC,MR> Y( g );
+        DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
@@ -128,7 +128,7 @@ void TestCorrectnessDouble
                  << "  Testing orthonormality of eigenvectors w.r.t. B..." 
                  << endl; 
         }
-        DistMatrix<double,MC,MR> Z(g);
+        DistMatrix<double> Z(g);
         Z = X;
         if( uplo == LOWER )
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
@@ -151,12 +151,12 @@ void TestCorrectnessDouble
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
-        DistMatrix<double,MC,MR> Y( g );
+        DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         // Set Z := AY = ABX
-        DistMatrix<double,MC,MR> Z( n, k, g );
+        DistMatrix<double> Z( n, k, g );
         Hemm( LEFT, uplo, (double)1, AOrig, Y, (double)0, Z );
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
@@ -215,12 +215,12 @@ void TestCorrectnessDouble
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
-        DistMatrix<double,MC,MR> Y( g );
+        DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm( LEFT, uplo, (double)1, AOrig, X, (double)0, Y );
         // Set Z := BY = BAX
-        DistMatrix<double,MC,MR> Z( n, k, g );
+        DistMatrix<double> Z( n, k, g );
         Hemm( LEFT, uplo, (double)1, BOrig, Y, (double)0, Z );
         // Set Z := Z - XW = BAX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
@@ -280,12 +280,12 @@ void TestCorrectnessDoubleComplex
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   UpperOrLower uplo,
-  const DistMatrix<Complex<double>,MC,MR  >& A,
-  const DistMatrix<Complex<double>,MC,MR  >& B,
-  const DistMatrix<        double, VR,STAR>& w,
-  const DistMatrix<Complex<double>,MC,MR  >& X,
-  const DistMatrix<Complex<double>,MC,MR  >& AOrig,
-  const DistMatrix<Complex<double>,MC,MR  >& BOrig )
+  const DistMatrix<Complex<double> >& A,
+  const DistMatrix<Complex<double> >& B,
+  const DistMatrix<double,VR,STAR>& w,
+  const DistMatrix<Complex<double> >& X,
+  const DistMatrix<Complex<double> >& AOrig,
+  const DistMatrix<Complex<double> >& BOrig )
 {
     const Grid& g = A.Grid();
     const int n = X.Height();
@@ -306,7 +306,7 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of AX from BXW..." << endl;
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
-        DistMatrix<Complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
@@ -350,7 +350,7 @@ void TestCorrectnessDoubleComplex
                  << "  Testing orthonormality of eigenvectors w.r.t. B..."
                  << endl;
         }
-        DistMatrix<Complex<double>,MC,MR> Z(g);
+        DistMatrix<Complex<double> > Z(g);
         Z = X;
         if( uplo == LOWER )
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
@@ -374,7 +374,7 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of ABX from XW..." << endl;
         // Set Y := BX
-        DistMatrix<Complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
@@ -382,7 +382,7 @@ void TestCorrectnessDoubleComplex
           Complex<double>(1), BOrig, X, 
           Complex<double>(0), Y );
         // Set Z := AY = ABX
-        DistMatrix<Complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<Complex<double> > Z( n, k, g );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), AOrig, Y, 
@@ -448,7 +448,7 @@ void TestCorrectnessDoubleComplex
         if( g.Rank() == 0 )
             cout << "  Testing for deviation of BAX from XW..." << endl;
         // Set Y := AX
-        DistMatrix<Complex<double>,MC,MR> Y( g );
+        DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
         Y.ResizeTo( n, k );
         Hemm
@@ -456,7 +456,7 @@ void TestCorrectnessDoubleComplex
           Complex<double>(1), AOrig, X, 
           Complex<double>(0), Y );
         // Set Z := BY = BAX
-        DistMatrix<Complex<double>,MC,MR> Z( n, k, g );
+        DistMatrix<Complex<double> > Z( n, k, g );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), BOrig, Y, 
@@ -525,10 +525,10 @@ void TestHermitianGenDefiniteEigDouble
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<double,MC,MR  > A(g), AOrig(g);
-    DistMatrix<double,MC,MR  > B(g), BOrig(g);
+    DistMatrix<double> A(g), AOrig(g);
+    DistMatrix<double> B(g), BOrig(g);
     DistMatrix<double,VR,STAR> w(g);
-    DistMatrix<double,MC,MR  > X(g);
+    DistMatrix<double> X(g);
 
     HermitianUniformSpectrum( m, A, 1, 10 );
     if( eigType == BAX )
@@ -536,7 +536,7 @@ void TestHermitianGenDefiniteEigDouble
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
         Zeros( m, m, B );
-        DistMatrix<double,MC,MR> C(g);
+        DistMatrix<double> C(g);
         Uniform( m, m, C );
         Herk( uplo, ADJOINT, (double)1, C, (double)0, B );
     }
@@ -614,10 +614,10 @@ void TestHermitianGenDefiniteEigDoubleComplex
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
-    DistMatrix<Complex<double>,MC,MR  > A(g), AOrig(g);
-    DistMatrix<Complex<double>,MC,MR  > B(g), BOrig(g);
-    DistMatrix<        double, VR,STAR> w(g);
-    DistMatrix<Complex<double>,MC,MR  > X(g);
+    DistMatrix<Complex<double> > A(g), AOrig(g);
+    DistMatrix<Complex<double> > B(g), BOrig(g);
+    DistMatrix<double,VR,STAR> w(g);
+    DistMatrix<Complex<double> > X(g);
 
     HermitianUniformSpectrum( m, A, 1, 10 );
     if( eigType == BAX )
@@ -625,7 +625,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
         Zeros( m, m, B );
-        DistMatrix<Complex<double>,MC,MR> C(g);
+        DistMatrix<Complex<double> > C(g);
         Uniform( m, m, C );
         Herk
         ( uplo, ADJOINT, 

@@ -51,7 +51,7 @@ main( int argc, char* argv[] )
         Grid g( comm );
     
         const int n = 6; // choose a small problem size since we will print
-        DistMatrix<C,MC,MR> H( n, n, g );
+        DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
         //

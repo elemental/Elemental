@@ -23,13 +23,13 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
    be inferred since the Householder vectors must be unit length); the scales
    with proper phases are returned in the column vector `t`.
 
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
 
    Overwrites the main and sub (super) diagonal of the real distributed matrix 
    `A` with its similar symmetric tridiagonal matrix and stores the scaled 
    Householder vectors below (above) its tridiagonal entries.
 
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,STAR,STAR>& t )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& t )
 
    Similar to above, but the complex Hermitian matrix is reduced to 
    real symmetric tridiagonal form, with the added complication of needing to 
@@ -64,7 +64,7 @@ matrix.
    Same as above, but the complex scalings for the Householder reflectors are 
    returned in the vectors `tP` and `tQ`.
 
-.. cpp:function:: void Bidiag( DistMatrix<R,MC,MR>& A )
+.. cpp:function:: void Bidiag( DistMatrix<R>& A )
 
    Overwrites the main and sub (or super) diagonal of the real distributed 
    matrix `A` with the resulting bidiagonal matrix and stores the scaled 
@@ -72,7 +72,7 @@ matrix.
 
    .. note:: The :math:`m < n` case is not yet supported.
 
-.. cpp:function:: void Bidiag( DistMatrix<Complex<R>,MC,MR>& A, DistMatrix<Complex<R>,STAR,STAR>& tP, DistMatrix<Complex<R>,STAR,STAR>& tQ )
+.. cpp:function:: void Bidiag( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& tP, DistMatrix<Complex<R>,STAR,STAR>& tQ )
 
    Same as above, but the complex scalings for the Householder reflectors are 
    returned in the vectors `tP` and `tQ`.

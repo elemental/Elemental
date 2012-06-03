@@ -111,7 +111,7 @@ ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p )
 
 template<typename F>
 inline void
-ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyColumnPivots");
@@ -126,7 +126,7 @@ ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
 template<typename F>
 inline void
 ApplyInverseColumnPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,VC,STAR>& p )
+( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyInverseColumnPivots");
@@ -140,7 +140,7 @@ ApplyInverseColumnPivots
 
 template<typename F>
 inline void
-ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyColumnPivots");
@@ -156,7 +156,7 @@ ApplyColumnPivots( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
 template<typename F>
 inline void
 ApplyInverseColumnPivots
-( DistMatrix<F,MC,MR>& A, const DistMatrix<int,STAR,STAR>& p )
+( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("ApplyInverseColumnPivots");
@@ -172,7 +172,7 @@ ApplyInverseColumnPivots
 template<typename F> 
 inline void
 ApplyColumnPivots
-( DistMatrix<F,MC,MR>& A, 
+( DistMatrix<F>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
 {

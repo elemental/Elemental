@@ -22,7 +22,7 @@ row pivots in reverse order to the columns of the result.
 
    Overwrites the general matrix `A` with its inverse.
 
-.. cpp:function:: void Inverse( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void Inverse( DistMatrix<F>& A )
 
    The same as above, but for distributed matrices.
 
@@ -45,7 +45,7 @@ where :math:`\epsilon` is the relative machine precision,
 :math:`n` is the height of :math:`A`, and :math:`||A||_2` can be computed
 as the maximum absolute value of the eigenvalues of :math:`A`.
 
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
 
    Computes the pseudoinverse of a distributed Hermitian matrix with data
    stored in the `uplo` triangle.
@@ -77,7 +77,7 @@ If the matrix is found to not be HPD, then a ``NonHPDMatrixException`` is thrown
    Overwrite the `uplo` triangle of the HPD matrix `A` with the same 
    triangle of the inverse of `A`.
 
-.. cpp:function:: void HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.
 
@@ -100,7 +100,7 @@ where :math:`\epsilon` is the relative machine precision,
 :math:`n` is the height of :math:`A`, and :math:`||A||_2` is the maximum 
 singular value.
 
-.. cpp:function:: Pseudoinverse( DistMatrix<F,MC,MR>& A )
+.. cpp:function:: Pseudoinverse( DistMatrix<F>& A )
 
    Replaces `A` with its pseudoinverse.
 
@@ -113,6 +113,6 @@ Inverts a (possibly unit-diagonal) triangular matrix in-place.
    Inverts the triangle of `A` specified by the parameter `uplo`; 
    if `diag` is set to `UNIT`, then `A` is treated as unit-diagonal.
 
-.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,MC,MR>& A )
+.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.

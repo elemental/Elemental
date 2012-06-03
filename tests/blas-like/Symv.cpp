@@ -55,7 +55,7 @@ void TestSymv
   const bool printMatrices, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g), x(g), y(g);
+    DistMatrix<T> A(g), x(g), y(g);
 
     Uniform( m, m, A );
     Uniform( m, 1, x );

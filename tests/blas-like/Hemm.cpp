@@ -55,7 +55,7 @@ void TestHemm
   int m, int n, T alpha, T beta, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<T,MC,MR> A(g), B(g), C(g);
+    DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
         HermitianUniformSpectrum( m, A, -10, 10 );

@@ -37,9 +37,9 @@ namespace internal {
 template<typename T>
 inline void
 GemvN
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& x,
-  T beta,        DistMatrix<T,MC,MR>& y )
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& x,
+  T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("internal::GemvN");
@@ -90,8 +90,7 @@ GemvN
         // Temporary distributions
         DistMatrix<T,MR,STAR> x_MR_STAR(g);
         DistMatrix<T,MC,STAR> z_MC_STAR(g);
-        DistMatrix<T,MC,MR  > z(g);
-        DistMatrix<T,MC,MR  > zTrans(g);
+        DistMatrix<T> z(g), zTrans(g);
 
         // Start the algorithm
         Scale( beta, y );
@@ -144,8 +143,7 @@ GemvN
         // Temporary distributions
         DistMatrix<T,STAR,MR  > x_STAR_MR(g);
         DistMatrix<T,MC,  STAR> z_MC_STAR(g);
-        DistMatrix<T,MC,  MR  > z(g);
-        DistMatrix<T,MC,  MR  > zTrans(g);
+        DistMatrix<T> z(g), zTrans(g);
 
         // Start the algorithm
         Scale( beta, y );

@@ -90,37 +90,37 @@ main( int argc, char* argv[] )
 
         // Now that we have a valid DistMatrix (in a [* ,* ] distribution), 
         // we can trivially redistribute into the usual matrix distribution
-        DistMatrix<C,MC,MR> H_MC_MR( H_STAR_STAR );
-        H_MC_MR.Print("H[MC,MR]");
+        DistMatrix<C> H( H_STAR_STAR );
+        H.Print("H");
 
         // Call the eigensolver. We first create an empty complex eigenvector 
-        // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
+        // matrix, X, and an eigenvalue column vector, w[VR,* ]
         DistMatrix<R,VR,STAR> w_VR_STAR( grid );
-        DistMatrix<C,MC,MR> X_MC_MR( grid );
+        DistMatrix<C> X( grid );
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        HermitianEig( LOWER, H_MC_MR, w_VR_STAR, X_MC_MR );
+        HermitianEig( LOWER, H, w_VR_STAR, X );
 
         // Sort the eigensolution, then print
-        SortEig( w_VR_STAR, X_MC_MR );
+        SortEig( w_VR_STAR, X );
         w_VR_STAR.Print("Eigenvalues of H");
-        X_MC_MR.Print("Eigenvectors of H");
+        X.Print("Eigenvectors of H");
 
         // Store a complete copy of w and X on the root
-        Matrix<R> w;
-        Matrix<C> X;
+        Matrix<R> wLocal;
+        Matrix<C> XLocal;
         {
             // Give every process a full copy of w and X
             DistMatrix<R,STAR,STAR> w_STAR_STAR( w_VR_STAR );
-            DistMatrix<C,STAR,STAR> X_STAR_STAR( X_MC_MR );
+            DistMatrix<C,STAR,STAR> X_STAR_STAR( X );
 
             // Copy the data into a sequential matrix if we are the root matrix
             if( commRank == 0 )
             {
-                w = w_STAR_STAR.LocalMatrix();
-                X = X_STAR_STAR.LocalMatrix();
-                w.Print("Eigenvalues on root process");
-                X.Print("Eigenvectors on root process");
+                wLocal = w_STAR_STAR.LocalMatrix();
+                XLocal = X_STAR_STAR.LocalMatrix();
+                wLocal.Print("Eigenvalues on root process");
+                XLocal.Print("Eigenvectors on root process");
             }
         }
     }

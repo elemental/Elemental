@@ -54,15 +54,15 @@ void Usage()
 template<typename F> // represents a real or complex field
 void TestCorrectness
 ( bool printMatrices, LeftOrRight side, UpperOrLower uplo,
-  const DistMatrix<F,MC,MR>& A,
-  const DistMatrix<F,MC,MR>& B,
-  const DistMatrix<F,MC,MR>& AOrig )
+  const DistMatrix<F>& A,
+  const DistMatrix<F>& B,
+  const DistMatrix<F>& AOrig )
 {
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(m,100,g), Y(m,100,g), Z(m,100,g);
+    DistMatrix<F> X(m,100,g), Y(m,100,g), Z(m,100,g);
     MakeUniform( X );
     Y = X;
 
@@ -216,16 +216,16 @@ void TestHegst
   LeftOrRight side, UpperOrLower uplo, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g);
-    DistMatrix<F,MC,MR> B(g);
-    DistMatrix<F,MC,MR> AOrig(g);
+    DistMatrix<F> A(g);
+    DistMatrix<F> B(g);
+    DistMatrix<F> AOrig(g);
 
     A.ResizeTo( m, m );
     B.ResizeTo( m, m );
 
     if( testCorrectness )
     {
-        DistMatrix<F,MC,MR> C(m,m,g);
+        DistMatrix<F> C(m,m,g);
         MakeUniform( C );
         Herk( uplo, NORMAL, (F)1, C, (F)0, A );
         MakeUniform( C );

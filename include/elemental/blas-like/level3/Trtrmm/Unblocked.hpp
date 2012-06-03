@@ -51,7 +51,7 @@ TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
     const int ldim = L.LDim();
     for( int j=0; j<n; ++j )
     {
-        const T* RESTRICT l10 = LBuffer[j];
+        T* RESTRICT l10 = &LBuffer[j];
         if( orientation == ADJOINT )
         {
             // L00 := L00 + l10^H l10
@@ -65,7 +65,7 @@ TrtrmmLUnblocked( Orientation orientation, Matrix<T>& L )
         }
         else
         {
-            // L00 := L00 + l10^H l10
+            // L00 := L00 + l10^T l10
             for( int k=0; k<j; ++k )
             {
                 const T gamma = l10[k*ldim];
@@ -108,7 +108,7 @@ TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
     const int ldim = U.LDim();
     for( int j=0; j<n; ++j )
     {
-        const T* RESTRICT u01 = UBuffer[j*ldim];
+        T* RESTRICT u01 = &UBuffer[j*ldim];
         if( orientation == ADJOINT )
         {
             // U00 := U00 + u01 u01^H

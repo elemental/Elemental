@@ -54,14 +54,14 @@ template<typename F> // represents a real or complex number
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, UnitOrNonUnit diag,
-  const DistMatrix<F,MC,MR>& A,
-  const DistMatrix<F,MC,MR>& AOrig )
+  const DistMatrix<F>& A,
+  const DistMatrix<F>& AOrig )
 {
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F,MC,MR> X(g), Y(g);
+    DistMatrix<F> X(g), Y(g);
     Uniform( m, 100, X );
     Y = X;
 
@@ -99,7 +99,7 @@ void TestTriangularInverse
   UpperOrLower uplo, UnitOrNonUnit diag, int m, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g), AOrig(g);
+    DistMatrix<F> A(g), AOrig(g);
     HermitianUniformSpectrum( m, A, 1, 10 );
     MakeTrapezoidal( LEFT, uplo, 0, A );
     if( testCorrectness )

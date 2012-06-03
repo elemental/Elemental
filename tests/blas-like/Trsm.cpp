@@ -59,7 +59,7 @@ void TestTrsm
   int m, int n, F alpha, const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F,MC,MR> A(g), X(g);
+    DistMatrix<F> A(g), X(g);
 
     if( side == LEFT )
         HermitianUniformSpectrum( m, A, 1, 10 );

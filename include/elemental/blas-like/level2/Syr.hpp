@@ -37,8 +37,8 @@ template<typename T>
 inline void
 Syr
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,MR>& x,
-                 DistMatrix<T,MC,MR>& A )
+  T alpha, const DistMatrix<T>& x,
+                 DistMatrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("Syr");
