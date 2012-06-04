@@ -69,42 +69,56 @@ main( int argc, char* argv[] )
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
-        const R frobNormA = Norm( A, FROBENIUS_NORM );
+        const R frobA = Norm( A, FROBENIUS_NORM );
         if( g.Rank() == 0 )
-            std::cout << "||A||_F = " << frobNormA << "\n" << std::endl;
+            std::cout << "||A||_F = " << frobA << "\n" << std::endl;
 
-        // Compute the polar decomp of A through a QR-based Halley iteration
+        // Compute the polar decomp of A using a QR-based Dynamically Weighted
+        // Halley (QDWH) iteration
         const R lowerBound = 1e-7;
-        const R frobNormOfA = Norm( A, FROBENIUS_NORM );
         Q = A;
-        const int numItsQDWH = QDWH( Q, lowerBound, frobNormOfA );
+        const int numItsQDWH = QDWH( Q, lowerBound, frobA );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 
+        // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
         Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
-        const R frobNormQDWHError = Norm( B, FROBENIUS_NORM );
+        const R frobQDWH = Norm( B, FROBENIUS_NORM );
+        Identity( n, n, B );
+        Herk( LOWER, NORMAL, (C)1, Q, (C)-1, B );
+        const R frobQDWHOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             std::cout << numItsQDWH << " iterations of QDWH\n"
                       << "||A - QP||_F / ||A||_F = " 
-                      << frobNormQDWHError/frobNormA << "\n"
+                      << frobQDWH/frobA << "\n"
+                      << "||I - QQ^H||_F / ||A||_F = " 
+                      << frobQDWHOrthog/frobA << "\n"
                       << std::endl;
         }
 
+        // Compute the polar decomp of A using a standard QR-based Halley
+        // iteration
         Q = A;
-        const int numItsHalley = Halley( Q, frobNormOfA );
+        const int numItsHalley = Halley( Q, frobA );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 
+        // Check and report the overall and orthogonality error
         B = A; 
         Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
-        const R frobNormHalleyError = Norm( B, FROBENIUS_NORM );
+        const R frobHalley = Norm( B, FROBENIUS_NORM );
+        Identity( n, n, B );
+        Herk( LOWER, NORMAL, (C)1, Q, (C)-1, B );
+        const R frobHalleyOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             std::cout << numItsHalley << " iterations of Halley\n"
                       << "||A - QP||_F / ||A||_F = " 
-                      << frobNormHalleyError/frobNormA << "\n"
+                      << frobHalley/frobA << "\n"
+                      << "||I - QQ^H||_F / ||A||_F = "
+                      << frobHalleyOrthog/frobA << "\n"
                       << std::endl;
         }
     }
