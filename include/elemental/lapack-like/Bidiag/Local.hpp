@@ -307,7 +307,7 @@ inline void BidiagL
         // Put epsilonP back instead of the temporary value, 1
         alpha11.Set(0,0,epsilonP);
 
-        // Undue the temporary conjugation
+        // Undo the temporary conjugation
         Conjugate( a1R );
 
         if( A22.Height() != 0 )

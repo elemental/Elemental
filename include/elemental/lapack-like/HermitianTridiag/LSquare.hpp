@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename R> 
 inline void
-HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A )
+HermitianTridiagLSquare( DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianTridiagLSquare");
@@ -50,13 +50,13 @@ HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A )
     if( g.InGrid() )
     {
         // Matrix views 
-        DistMatrix<R,MC,MR> 
+        DistMatrix<R> 
             ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
             ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                              A20(g), A21(g), A22(g);
 
         // Temporary distributions
-        DistMatrix<R,MC,  MR  > WPan(g);
+        DistMatrix<R> WPan(g);
         DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
         DistMatrix<R,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),
                                                   A21_MC_STAR(g);
@@ -143,7 +143,7 @@ HermitianTridiagLSquare( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 HermitianTridiagLSquare
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
@@ -169,7 +169,7 @@ HermitianTridiagLSquare
     if( g.InGrid() )
     {
         // Matrix views 
-        DistMatrix<C,MC,MR> 
+        DistMatrix<C> 
             ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
             ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                              A20(g), A21(g), A22(g);
@@ -178,7 +178,7 @@ HermitianTridiagLSquare
                                       t2(g);
 
         // Temporary distributions
-        DistMatrix<C,MC,  MR  > WPan(g);
+        DistMatrix<C> WPan(g);
         DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
         DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
         DistMatrix<C,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),

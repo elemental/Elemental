@@ -34,6 +34,7 @@
 #include "./Bidiag/Local.hpp"
 #include "./Bidiag/PanelL.hpp"
 #include "./Bidiag/PanelU.hpp"
+#include "./Bidiag/UnblockedL.hpp"
 #include "./Bidiag/UnblockedU.hpp"
 #include "./Bidiag/L.hpp"
 #include "./Bidiag/U.hpp"

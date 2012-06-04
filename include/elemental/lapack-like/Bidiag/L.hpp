@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename R>
 inline void 
-BidiagL( DistMatrix<R,MC,MR>& A )
+BidiagL( DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::BidiagL");
@@ -46,17 +46,16 @@ BidiagL( DistMatrix<R,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views 
-    DistMatrix<R,MC,MR> 
+    DistMatrix<R> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<R,STAR,STAR> ABR_STAR_STAR(g);
-    DistMatrix<R,MC,  MR  > X(g), X11(g),
-                                  X21(g);
-    DistMatrix<R,MC,  MR  > Y(g), Y11(g),
-                                  Y21(g);
+    DistMatrix<R> X(g), X11(g),
+                        X21(g);
+    DistMatrix<R> Y(g), Y11(g),
+                        Y21(g);
     DistMatrix<R,MC,  STAR> X21_MC_STAR(g);
     DistMatrix<R,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<R,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
@@ -120,9 +119,7 @@ BidiagL( DistMatrix<R,MC,MR>& A )
         }
         else
         {
-            ABR_STAR_STAR = ABR;
-            Bidiag( ABR_STAR_STAR.LocalMatrix() );
-            ABR = ABR_STAR_STAR;
+            bidiag::UnblockedBidiagL( ABR );
         }
 
         SlidePartitionDownDiagonal
@@ -139,7 +136,7 @@ BidiagL( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 BidiagL
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {
@@ -165,7 +162,7 @@ BidiagL
     tQDiag.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
-    DistMatrix<C,MC,MR> 
+    DistMatrix<C> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -180,10 +177,10 @@ BidiagL
     DistMatrix<C,STAR,STAR> ABR_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tP1_STAR_STAR(g);
     DistMatrix<C,STAR,STAR> tQ1_STAR_STAR(g);
-    DistMatrix<C,MC,  MR  > X(g), X11(g),
-                                  X21(g);
-    DistMatrix<C,MC,  MR  > Y(g), Y11(g),
-                                  Y21(g);
+    DistMatrix<C> X(g), X11(g),
+                        X21(g);
+    DistMatrix<C> Y(g), Y11(g),
+                        Y21(g);
     DistMatrix<C,MC,  STAR> X21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<C,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
@@ -265,18 +262,7 @@ BidiagL
         }
         else
         {
-            ABR_STAR_STAR = ABR;
-            tP1_STAR_STAR.ResizeTo( tP1.Height(), 1 );
-            tQ1_STAR_STAR.ResizeTo( tQ1.Height(), 1 );
-
-            Bidiag
-            ( ABR_STAR_STAR.LocalMatrix(), 
-              tP1_STAR_STAR.LocalMatrix(), 
-              tQ1_STAR_STAR.LocalMatrix() );
-
-            ABR = ABR_STAR_STAR;
-            tP1 = tP1_STAR_STAR;
-            tQ1 = tQ1_STAR_STAR;
+            bidiag::UnblockedBidiagL( ABR, tP1, tQ1 );
         }
 
         SlidePartitionDown

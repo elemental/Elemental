@@ -37,12 +37,34 @@ namespace elem {
 namespace internal {
 
 //----------------------------------------------------------------------------//
+// Local BLAS-like: Level 2                                                   //
+//----------------------------------------------------------------------------//
+
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                    Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist>
+void LocalGemv
+( Orientation orientation, 
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
+           const DistMatrix<T,xColDist,xRowDist>& x,
+  T beta,        DistMatrix<T,yColDist,yRowDist>& y );
+
+template<typename T,Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist,
+                    Distribution AColDist,Distribution ARowDist>
+inline void LocalGer
+( T alpha, const DistMatrix<T,xColDist,xRowDist>& x, 
+           const DistMatrix<T,yColDist,yRowDist>& y,
+                 DistMatrix<T,AColDist,ARowDist>& A );
+
+
+//----------------------------------------------------------------------------//
 // Local BLAS-like: Level 3                                                   //
 //----------------------------------------------------------------------------//
 
 template<typename T,Distribution AColDist,Distribution ARowDist,
-                     Distribution BColDist,Distribution BRowDist,
-                     Distribution CColDist,Distribution CRowDist>
+                    Distribution BColDist,Distribution BRowDist,
+                    Distribution CColDist,Distribution CRowDist>
 void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
@@ -709,12 +731,56 @@ namespace elem {
 namespace internal {
 
 //
+// Level 2 Local BLAS-like routines
+//
+
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                    Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist>
+inline void LocalGemv
+( Orientation orientation, 
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 
+           const DistMatrix<T,xColDist,xRowDist>& x,
+  T beta,        DistMatrix<T,yColDist,yRowDist>& y )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalGemv");
+    // TODO: Add error checking here
+#endif
+    Gemv
+    ( orientation , 
+      alpha, A.LockedLocalMatrix(), x.LockedLocalMatrix(),
+      beta,                         y.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist,
+                    Distribution AColDist,Distribution ARowDist>
+inline void LocalGer
+( T alpha, const DistMatrix<T,xColDist,xRowDist>& x, 
+           const DistMatrix<T,yColDist,yRowDist>& y,
+                 DistMatrix<T,AColDist,ARowDist>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalGer");
+    // TODO: Add error checking here
+#endif
+    Ger( alpha, x.LockedLocalMatrix(), y.LockedLocalMatrix(), A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
 // Level 3 Local BLAS-like routines
 //
 
 template<typename T,Distribution AColDist,Distribution ARowDist,
-                     Distribution BColDist,Distribution BRowDist,
-                     Distribution CColDist,Distribution CRowDist>
+                    Distribution BColDist,Distribution BRowDist,
+                    Distribution CColDist,Distribution CRowDist>
 inline void LocalGemm
 ( Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,AColDist,ARowDist>& A, 

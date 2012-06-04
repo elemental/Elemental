@@ -37,8 +37,8 @@ namespace internal {
 template<typename R> 
 inline void
 HermitianPanelTridiagLSquare
-( DistMatrix<R,MC,MR  >& A,
-  DistMatrix<R,MC,MR  >& W,
+( DistMatrix<R>& A,
+  DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
   DistMatrix<R,MR,STAR>& APan_MR_STAR,
   DistMatrix<R,MC,STAR>& W_MC_STAR,
@@ -86,11 +86,11 @@ HermitianPanelTridiagLSquare
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 
-    DistMatrix<R,MC,MR> 
+    DistMatrix<R> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g),  alpha21T(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),            a21B(g),
                          A20(g), a21(g),     A22(g),  A20B(g);
-    DistMatrix<R,MC,MR> 
+    DistMatrix<R> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
         WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
                          W20(g), w21(g),     W22(g),  W20B(g), w21Last(g);
@@ -527,16 +527,9 @@ HermitianPanelTridiagLSquare
             }
         }
 
-        Gemv
-        ( TRANSPOSE, 
-          (R)1, W20B.LockedLocalMatrix(),
-                a21B_MC_STAR.LockedLocalMatrix(),
-          (R)0, x01_MR_STAR.LocalMatrix() );
-        Gemv
-        ( TRANSPOSE, 
-          (R)1, A20B.LockedLocalMatrix(),
-                a21B_MC_STAR.LockedLocalMatrix(),
-          (R)0, y01_MR_STAR.LocalMatrix() );
+        LocalGemv( TRANSPOSE, (R)1, W20B, a21B_MC_STAR, (R)0, x01_MR_STAR );
+        LocalGemv( TRANSPOSE, (R)1, A20B, a21B_MC_STAR, (R)0, y01_MR_STAR );
+
         // Combine the AllReduce column summations of x01[MR,* ] and y01[MR,* ]
         {
             const int x01LocalHeight = x01_MR_STAR.LocalHeight();
@@ -560,16 +553,8 @@ HermitianPanelTridiagLSquare
               &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
         }
 
-        Gemv
-        ( NORMAL, 
-          (R)-1, A20B.LockedLocalMatrix(),
-                 x01_MR_STAR.LockedLocalMatrix(),
-          (R)+1, p21B_MC_STAR.LocalMatrix() );
-        Gemv
-        ( NORMAL, 
-          (R)-1, W20B.LockedLocalMatrix(),
-                 y01_MR_STAR.LockedLocalMatrix(),
-          (R)+1, p21B_MC_STAR.LocalMatrix() );
+        LocalGemv( NORMAL, (R)-1, A20B, x01_MR_STAR, (R)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, (R)-1, W20B, y01_MR_STAR, (R)1, p21B_MC_STAR );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
         // it needs to be summed over process rows instead of process 
@@ -731,7 +716,7 @@ HermitianPanelTridiagLSquare
     PopBlocksizeStack();
 
     // View the portion of A that e is the subdiagonal of, then place e into it
-    DistMatrix<R,MC,MR> expandedATL(g);
+    DistMatrix<R> expandedATL(g);
     expandedATL.View( A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetDiagonal( e, -1 );
 #ifndef RELEASE
@@ -742,8 +727,8 @@ HermitianPanelTridiagLSquare
 template<typename R>
 inline void
 HermitianPanelTridiagLSquare
-( DistMatrix<Complex<R>,MC,MR  >& A,
-  DistMatrix<Complex<R>,MC,MR  >& W,
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
   DistMatrix<Complex<R>,MC,STAR>& APan_MC_STAR, 
   DistMatrix<Complex<R>,MR,STAR>& APan_MR_STAR,
@@ -799,11 +784,11 @@ HermitianPanelTridiagLSquare
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 
-    DistMatrix<C,MC,MR> 
+    DistMatrix<C> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g),  alpha21T(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),            a21B(g),
                          A20(g), a21(g),     A22(g),  A20B(g);
-    DistMatrix<C,MC,MR> 
+    DistMatrix<C> 
         WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
         WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
                          W20(g), w21(g),     W22(g),  W20B(g), w21Last(g);
@@ -1259,16 +1244,9 @@ HermitianPanelTridiagLSquare
             }
         }
 
-        Gemv
-        ( ADJOINT, 
-          (C)1, W20B.LockedLocalMatrix(),
-                a21B_MC_STAR.LockedLocalMatrix(),
-          (C)0, x01_MR_STAR.LocalMatrix() );
-        Gemv
-        ( ADJOINT, 
-          (C)1, A20B.LockedLocalMatrix(),
-                a21B_MC_STAR.LockedLocalMatrix(),
-          (C)0, y01_MR_STAR.LocalMatrix() );
+        LocalGemv( ADJOINT, (C)1, W20B, a21B_MC_STAR, (C)0, x01_MR_STAR );
+        LocalGemv( ADJOINT, (C)1, A20B, a21B_MC_STAR, (C)0, y01_MR_STAR );
+
         // Combine the AllReduce column summations of x01[MR,* ] and 
         // y01[MR,* ]
         {
@@ -1293,16 +1271,8 @@ HermitianPanelTridiagLSquare
               &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
         }
 
-        Gemv
-        ( NORMAL, 
-          (C)-1, A20B.LockedLocalMatrix(),
-                 x01_MR_STAR.LockedLocalMatrix(),
-          (C)+1, p21B_MC_STAR.LocalMatrix() );
-        Gemv
-        ( NORMAL, 
-          (C)-1, W20B.LockedLocalMatrix(),
-                 y01_MR_STAR.LockedLocalMatrix(),
-          (C)+1, p21B_MC_STAR.LocalMatrix() );
+        LocalGemv( NORMAL, (C)-1, A20B, x01_MR_STAR, (C)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, (C)-1, W20B, y01_MR_STAR, (C)1, p21B_MC_STAR );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
         // it needs to be summed over process rows instead of process 
@@ -1470,7 +1440,7 @@ HermitianPanelTridiagLSquare
     PopBlocksizeStack();
 
     // View the portion of A that e is the subdiagonal of, then place e into it
-    DistMatrix<C,MC,MR> expandedATL(g);
+    DistMatrix<C> expandedATL(g);
     expandedATL.View( A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetRealDiagonal( e, -1 );
 #ifndef RELEASE

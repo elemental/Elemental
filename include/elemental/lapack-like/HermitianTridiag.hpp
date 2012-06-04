@@ -45,7 +45,7 @@ namespace elem {
 
 template<typename R>
 inline void
-HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianTridiag");
@@ -90,7 +90,7 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
         mpi::Comm viewingComm = g.ViewingComm();
         const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
-        DistMatrix<R,MC,MR> ASquare(squareGrid);
+        DistMatrix<R> ASquare(squareGrid);
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
@@ -130,7 +130,7 @@ template<typename R>
 inline void
 HermitianTridiag
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR  >& A,
+  DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
@@ -176,7 +176,7 @@ HermitianTridiag
 
         mpi::Comm viewingComm = g.ViewingComm();
         const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
-        DistMatrix<C,MC,MR> ASquare(squareGrid);
+        DistMatrix<C> ASquare(squareGrid);
         DistMatrix<C,STAR,STAR> tSquare(squareGrid);
 
         // Perform the fast tridiagonalization on the square grid

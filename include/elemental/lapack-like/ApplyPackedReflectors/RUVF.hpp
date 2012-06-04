@@ -383,7 +383,7 @@ ApplyPackedReflectorsRUVF
         HPan_MR_STAR.AlignWith( ALeft );
         ZAdj_STAR_MC.AlignWith( ALeft );
         ZAdj_STAR_VC.AlignWith( ALeft );
-        Zeros( HPan.Width(), ALeft.Height(), ZAdj_STAR_VC );
+        Zeros( HPan.Width(), ALeft.Height(), ZAdj_STAR_MC );
         Zeros( HPan.Width(), HPan.Width(), SInv_STAR_STAR );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;

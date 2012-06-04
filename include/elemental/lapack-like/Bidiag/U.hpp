@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename R>
 inline void 
-BidiagU( DistMatrix<R,MC,MR>& A )
+BidiagU( DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::BidiagU");
@@ -46,16 +46,16 @@ BidiagU( DistMatrix<R,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views 
-    DistMatrix<R,MC,MR> 
+    DistMatrix<R> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
     // Temporary distributions
-    DistMatrix<R,MC,  MR  > X(g), X11(g),
-                                  X21(g);
-    DistMatrix<R,MC,  MR  > Y(g), Y11(g),
-                                  Y21(g);
+    DistMatrix<R> X(g), X11(g),
+                        X21(g);
+    DistMatrix<R> Y(g), Y11(g),
+                        Y21(g);
     DistMatrix<R,MC,  STAR> X21_MC_STAR(g);
     DistMatrix<R,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<R,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
@@ -136,7 +136,7 @@ BidiagU( DistMatrix<R,MC,MR>& A )
 template<typename R> 
 inline void
 BidiagU
-( DistMatrix<Complex<R>,MC,  MR  >& A,
+( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {
@@ -162,7 +162,7 @@ BidiagU
     tQDiag.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
-    DistMatrix<C,MC,MR> 
+    DistMatrix<C> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -174,10 +174,10 @@ BidiagU
                                    tQ2(g);
 
     // Temporary distributions
-    DistMatrix<C,MC,  MR  > X(g), X11(g),
-                                  X21(g);
-    DistMatrix<C,MC,  MR  > Y(g), Y11(g),
-                                  Y21(g);
+    DistMatrix<C> X(g), X11(g),
+                        X21(g);
+    DistMatrix<C> Y(g), Y11(g),
+                        Y21(g);
     DistMatrix<C,MC,  STAR> X21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> Y21_MR_STAR(g);
     DistMatrix<C,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
