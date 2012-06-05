@@ -38,7 +38,7 @@ namespace internal {
 // need to be (conjugate-)transposed in order to play nice with cache.
 template<typename F> 
 inline void
-HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
+HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRUVar2");
@@ -52,12 +52,12 @@ HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
@@ -72,13 +72,13 @@ HegstRUVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& U )
     DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
     DistMatrix<F,STAR,MR  > U01Adj_STAR_MR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,MC,  MR  > X11(g);
     DistMatrix<F,STAR,MR  > X11_STAR_MR(g);
     DistMatrix<F,MR,  STAR> X12Adj_MR_STAR(g);
     DistMatrix<F,MR,  MC  > X12Adj_MR_MC(g);
-    DistMatrix<F,MC,  MR  > Y01(g);
     DistMatrix<F,MR,  MC  > Y01_MR_MC(g);
     DistMatrix<F,MR,  STAR> Y01_MR_STAR(g);
+    DistMatrix<F> X11(g);
+    DistMatrix<F> Y01(g);
 
     Matrix<F> X12Local;
 

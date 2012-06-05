@@ -50,13 +50,13 @@ ExplicitQRHelper( Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Real,MC,MR>& A )
+ExplicitQRHelper( DistMatrix<Real>& A )
 {
     QR( A );
 
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
-    DistMatrix<Real,MC,MR> Q( g );
+    DistMatrix<Real> Q( g );
     Q.AlignWith( A );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Q );
@@ -80,14 +80,14 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Complex<Real>,MC,MR>& A )
+ExplicitQRHelper( DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
     QR( A, t );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<Complex<Real>,MC,MR> Q( g );
+    DistMatrix<Complex<Real> > Q( g );
     Q.AlignWith( A );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors
@@ -112,7 +112,7 @@ ExplicitQRHelper( Matrix<Real>& A, Matrix<Real>& R )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Real,MC,MR>& A, DistMatrix<Real,MC,MR>& R )
+ExplicitQRHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
 {
     QR( A );
     R = A;
@@ -120,7 +120,7 @@ ExplicitQRHelper( DistMatrix<Real,MC,MR>& A, DistMatrix<Real,MC,MR>& R )
 
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
-    DistMatrix<Real,MC,MR> Q( g );
+    DistMatrix<Real> Q( g );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Q );
     A = Q;
@@ -146,7 +146,7 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
 template<typename Real>
 inline void
 ExplicitQRHelper
-( DistMatrix<Complex<Real>,MC,MR>& A, DistMatrix<Complex<Real>,MC,MR>& R )
+( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& R )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
@@ -155,7 +155,7 @@ ExplicitQRHelper
     MakeTrapezoidal( LEFT, UPPER, 0, R );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<Complex<Real>,MC,MR> Q( g );
+    DistMatrix<Complex<Real> > Q( g );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
@@ -179,7 +179,7 @@ ExplicitQR( Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitQR( DistMatrix<F,MC,MR>& A )
+ExplicitQR( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("ExplicitQR");
@@ -205,7 +205,7 @@ ExplicitQR( Matrix<F>& A, Matrix<F>& R )
 
 template<typename F> 
 inline void
-ExplicitQR( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& R )
+ExplicitQR( DistMatrix<F>& A, DistMatrix<F>& R )
 {
 #ifndef RELEASE
     PushCallStack("ExplicitQR");

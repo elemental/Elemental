@@ -148,7 +148,7 @@ MakeNormalUniformSpectrum
     std::vector<C> d( n );
     for( int j=0; j<n; ++j )
         d[j] = center + radius*SampleUnitBall<C>();
-    DistMatrix<C,MC,MR> ABackup( grid );
+    DistMatrix<C> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );
     else
@@ -158,7 +158,7 @@ MakeNormalUniformSpectrum
     }
 
     // Form u 
-    DistMatrix<C,MC,MR> u( grid );
+    DistMatrix<C> u( grid );
     if( standardDist )
         u.AlignWith( A );
     else
@@ -168,7 +168,7 @@ MakeNormalUniformSpectrum
     Scale( 1/origNorm, u );
 
     // Form v := D u
-    DistMatrix<C,MC,MR> v( grid );
+    DistMatrix<C> v( grid );
     if( standardDist )
         v.AlignWith( A );
     else
@@ -187,7 +187,7 @@ MakeNormalUniformSpectrum
     }
 
     // Form w := Conj(D) u
-    DistMatrix<C,MC,MR> w( grid );
+    DistMatrix<C> w( grid );
     if( standardDist )
         w.AlignWith( A );
     else

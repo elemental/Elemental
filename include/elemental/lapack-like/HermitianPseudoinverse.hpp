@@ -42,7 +42,7 @@ namespace elem {
 template<typename F>
 inline void
 HermitianPseudoinverse
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianPseudoinverse");
@@ -52,7 +52,7 @@ HermitianPseudoinverse
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<F,MC,MR> Z(g);
+    DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Compute the two-norm of A as the maximum absolute value of its

@@ -50,7 +50,7 @@ namespace hermitian_eig {
 template<typename R>
 inline void
 InPlaceRedist
-( DistMatrix<R,MC,MR>& paddedZ,
+( DistMatrix<R>& paddedZ,
   int height,
   int width,
   int rowAlignmentOfInput,
@@ -133,7 +133,7 @@ InPlaceRedist
 template<typename R>
 inline void
 InPlaceRedist
-( DistMatrix<Complex<R>,MC,MR>& paddedZ,
+( DistMatrix<Complex<R> >& paddedZ,
   int height,
   int width,
   int rowAlignmentOfInput,
@@ -220,7 +220,7 @@ InPlaceRedist
 template<typename F>
 inline void
 CheckScale
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, 
+( UpperOrLower uplo, DistMatrix<F>& A, 
   bool& needRescaling, typename Base<F>::type& scale )
 {
     typedef typename Base<F>::type R;
@@ -250,9 +250,9 @@ CheckScale
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<double,MC,  MR>& paddedZ )
+  DistMatrix<double>& paddedZ )
 {
 #ifndef RELEASE
     PushCallStack("HermitianEig");
@@ -357,7 +357,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<R,MC,MR> 
+        DistMatrix<R> 
             paddedZL(g), paddedZR(g),  
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -417,9 +417,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<double,MC,  MR>& paddedZ,
+  DistMatrix<double>& paddedZ,
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
@@ -525,7 +525,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<R,MC,MR> 
+        DistMatrix<R> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -583,9 +583,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<double,MC,  MR>& paddedZ,
+  DistMatrix<double>& paddedZ,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
@@ -703,7 +703,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<R,MC,MR> 
+        DistMatrix<R> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -759,7 +759,7 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -842,7 +842,7 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
   int lowerBound, int upperBound ) 
 {
@@ -924,7 +924,7 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& A,
+  DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
 {
@@ -1004,9 +1004,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,MR  >& A,
-  DistMatrix<        double, VR,STAR>& w,
-  DistMatrix<Complex<double>,MC,MR  >& paddedZ )
+  DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
+  DistMatrix<Complex<double> >& paddedZ )
 {
 #ifndef RELEASE
     PushCallStack("HermitianEig");
@@ -1112,7 +1112,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<C,MC,MR> 
+        DistMatrix<C> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g); 
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -1173,9 +1173,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
-  DistMatrix<        double, VR,STAR>& w,
-  DistMatrix<Complex<double>,MC,  MR>& paddedZ,
+  DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
+  DistMatrix<Complex<double> >& paddedZ,
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
@@ -1283,7 +1283,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<C,MC,MR> 
+        DistMatrix<C> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -1342,9 +1342,9 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
-  DistMatrix<        double, VR,STAR>& w,
-  DistMatrix<Complex<double>,MC,  MR>& paddedZ,
+  DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
+  DistMatrix<Complex<double> >& paddedZ,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
@@ -1463,7 +1463,7 @@ HermitianEig
         const int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
-        DistMatrix<C,MC,MR> 
+        DistMatrix<C> 
             paddedZL(g), paddedZR(g),
             paddedZ0(g), paddedZ1(g), paddedZ2(g);
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
@@ -1521,7 +1521,7 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
+  DistMatrix<Complex<double> >& A,
   DistMatrix<        double, VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -1605,8 +1605,8 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
-  DistMatrix<        double, VR,STAR>& w,
+  DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
@@ -1688,8 +1688,8 @@ HermitianEig
 inline void
 HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& A,
-  DistMatrix<        double, VR,STAR>& w,
+  DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE

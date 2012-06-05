@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F> 
 inline void
-HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstLLVar2( DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstLLVar2");
@@ -50,12 +50,12 @@ HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
@@ -71,10 +71,10 @@ HegstLLVar2( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
     DistMatrix<F,STAR,MR  > X10_STAR_MR(g);
     DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
-    DistMatrix<F,MC,  MR  > Y21(g);
     DistMatrix<F,MC,  STAR> Z21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> Z21_MR_STAR(g);
     DistMatrix<F,MR,  MC  > Z21_MR_MC(g);
+    DistMatrix<F> Y21(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,

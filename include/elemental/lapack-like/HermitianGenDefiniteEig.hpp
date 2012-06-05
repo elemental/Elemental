@@ -40,10 +40,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w,
-  DistMatrix<R,MC,  MR>& X )
+  DistMatrix<R>& X )
 {
 #ifndef RELEASE
     PushCallStack("HermitianGenDefiniteEig");
@@ -83,10 +83,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w,
-  DistMatrix<R,MC,  MR>& X,
+  DistMatrix<R>& X,
   int a, int b )
 {
 #ifndef RELEASE
@@ -125,10 +125,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w,
-  DistMatrix<R,MC,  MR>& X,
+  DistMatrix<R>& X,
   R a, R b )
 {
 #ifndef RELEASE
@@ -166,8 +166,8 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -194,8 +194,8 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w,
   int a, int b )
 {
@@ -221,8 +221,8 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<R,MC,  MR>& A,
-  DistMatrix<R,MC,  MR>& B,
+  DistMatrix<R>& A,
+  DistMatrix<R>& B,
   DistMatrix<R,VR,STAR>& w,
   R a, R b )
 {
@@ -247,10 +247,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
-  DistMatrix<        R, VR,STAR>& w,
-  DistMatrix<Complex<R>,MC,  MR>& X )
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
+  DistMatrix<R,VR,STAR>& w,
+  DistMatrix<Complex<R> >& X )
 {
 #ifndef RELEASE
     PushCallStack("HermitianGenDefiniteEig");
@@ -290,10 +290,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
-  DistMatrix<        R, VR,STAR>& w,
-  DistMatrix<Complex<R>,MC,  MR>& X,
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
+  DistMatrix<R,VR,STAR>& w,
+  DistMatrix<Complex<R> >& X,
   int a, int b )
 {
 #ifndef RELEASE
@@ -332,10 +332,10 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
-  DistMatrix<        R, VR,STAR>& w,
-  DistMatrix<Complex<R>,MC,  MR>& X,
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
+  DistMatrix<R,VR,STAR>& w,
+  DistMatrix<Complex<R> >& X,
   R a, R b )
 {
 #ifndef RELEASE
@@ -373,8 +373,8 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
   DistMatrix<        R, VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -401,9 +401,9 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
-  DistMatrix<        R, VR,STAR>& w,
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
+  DistMatrix<R,VR,STAR>& w,
   int a, int b )
 {
 #ifndef RELEASE
@@ -428,9 +428,9 @@ template<typename R>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<Complex<R>,MC,  MR>& B,
-  DistMatrix<        R, VR,STAR>& w,
+  DistMatrix<Complex<R> >& A,
+  DistMatrix<Complex<R> >& B,
+  DistMatrix<R,VR,STAR>& w,
   R a, R b )
 {
 #ifndef RELEASE

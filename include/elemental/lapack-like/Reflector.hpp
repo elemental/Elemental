@@ -199,7 +199,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
 
 template<typename F>
 inline F
-Reflector( DistMatrix<F,MC,MR>& chi, DistMatrix<F,MC,MR>& x )
+Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 {
 #ifndef RELEASE
     PushCallStack("Reflector");

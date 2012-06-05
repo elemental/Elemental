@@ -40,9 +40,9 @@ template<typename F>
 inline void
 ReformHermitianMatrix
 ( UpperOrLower uplo,
-        DistMatrix<F,                     MC,MR  >& A,
+        DistMatrix<F>& A,
   const DistMatrix<typename Base<F>::type,VR,STAR>& w,
-  const DistMatrix<F,                     MC,MR  >& Z )
+  const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformHermitianMatrix");
@@ -50,8 +50,8 @@ ReformHermitianMatrix
     const Grid& g = A.Grid();
     typedef typename Base<F>::type R;
 
-    DistMatrix<F,MC,MR> ZL(g), ZR(g),
-                        Z0(g), Z1(g), Z2(g);
+    DistMatrix<F> ZL(g), ZR(g),
+                  Z0(g), Z1(g), Z2(g);
     DistMatrix<R,VR,STAR> wT(g),  w0(g),
                           wB(g),  w1(g),
                                   w2(g);
@@ -124,9 +124,9 @@ ReformHermitianMatrix
 template<typename R>
 inline void
 ReformNormalMatrix
-(       DistMatrix<Complex<R>,MC,MR  >& A,
+(       DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,VR,STAR>& w,
-  const DistMatrix<Complex<R>,MC,MR  >& Z )
+  const DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformNormalMatrix");
@@ -134,8 +134,8 @@ ReformNormalMatrix
     const Grid& g = A.Grid();
     typedef Complex<R> C;
 
-    DistMatrix<C,MC,MR> ZL(g), ZR(g),
-                        Z0(g), Z1(g), Z2(g);
+    DistMatrix<C> ZL(g), ZR(g),
+                  Z0(g), Z1(g), Z2(g);
     DistMatrix<C,VR,STAR> wT(g),  w0(g),
                           wB(g),  w1(g),
                                   w2(g);
@@ -214,7 +214,7 @@ ReformNormalMatrix
 template<typename F,class RealFunctor>
 inline void
 RealHermitianFunction
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, const RealFunctor& f )
+( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
     PushCallStack("RealHermitianFunction");
@@ -226,7 +226,7 @@ RealHermitianFunction
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<F,MC,MR> Z(g);
+    DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
@@ -254,7 +254,7 @@ RealHermitianFunction
 template<typename R,class ComplexFunctor>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A, const ComplexFunctor& f )
+( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
 {
 #ifndef RELEASE
     PushCallStack("ComplexHermitianFunction");
@@ -266,7 +266,7 @@ ComplexHermitianFunction
     // Get the EVD of A
     const Grid& g = A.Grid();
     DistMatrix<R,VR,STAR> w(g);
-    DistMatrix<C,MC,MR> Z(g);
+    DistMatrix<C> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     // Form f(w)

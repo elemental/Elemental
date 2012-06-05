@@ -41,9 +41,9 @@ namespace elem {
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,         MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z )
+  DistMatrix<double>& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -54,7 +54,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -86,9 +86,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,         MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z,
+  DistMatrix<double>& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z,
   int a, int b )
 {
 #ifndef RELEASE
@@ -100,7 +100,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -130,9 +130,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,         MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z,
+  DistMatrix<double>& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z,
   double a, double b )
 {
 #ifndef RELEASE
@@ -144,7 +144,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -173,7 +173,7 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double>& G,
   DistMatrix<double,VR,STAR>& wImag )
 {
 #ifndef RELEASE
@@ -185,7 +185,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -217,7 +217,7 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double>& G,
   DistMatrix<double,VR,STAR>& wImag,
   int a, int b )
 {
@@ -230,7 +230,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -260,7 +260,7 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<double,MC,  MR>& G,
+  DistMatrix<double>& G,
   DistMatrix<double,VR,STAR>& wImag,
   double a, double b )
 {
@@ -273,7 +273,7 @@ SkewHermitianEig
     int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<double>,MC,MR> A(grid);
+    DistMatrix<Complex<double> > A(grid);
     A.Align( G.ColAlignment(), G.RowAlignment() );
     A.ResizeTo( n, n );
 
@@ -302,9 +302,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z )
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -333,9 +333,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z,
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z,
   int a, int b )
 {
 #ifndef RELEASE
@@ -363,9 +363,9 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
-  DistMatrix<Complex<double>,MC,  MR>& Z,
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& Z,
   double a, double b )
 {
 #ifndef RELEASE
@@ -391,8 +391,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag )
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag )
 {
 #ifndef RELEASE
     PushCallStack("SkewHermitianEig");
@@ -421,8 +421,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag,
   int a, int b )
 {
 #ifndef RELEASE
@@ -450,8 +450,8 @@ SkewHermitianEig
 inline void
 SkewHermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double>,MC,  MR>& G,
-  DistMatrix<double,         VR,STAR>& wImag,
+  DistMatrix<Complex<double> >& G,
+  DistMatrix<double,VR,STAR>& wImag,
   double a, double b )
 {
 #ifndef RELEASE

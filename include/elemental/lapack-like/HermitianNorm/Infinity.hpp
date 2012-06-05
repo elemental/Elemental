@@ -56,7 +56,7 @@ HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 inline typename Base<F>::type
 HermitianInfinityNorm
-( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianInfinityNorm");

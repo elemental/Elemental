@@ -76,7 +76,7 @@ FrobeniusNorm( const Matrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-FrobeniusNorm( const DistMatrix<F,MC,MR>& A )
+FrobeniusNorm( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::FrobeniusNorm");

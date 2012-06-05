@@ -39,7 +39,7 @@ namespace elem {
 // Performs LU factorization without pivoting
 template<typename F> 
 inline void
-LU( DistMatrix<F,MC,MR>& A )
+LU( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("LU");
@@ -47,7 +47,7 @@ LU( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
                          A20(g), A21(g), A22(g);
@@ -113,7 +113,7 @@ LU( DistMatrix<F,MC,MR>& A )
 // Performs LU factorization with partial pivoting
 template<typename F> 
 inline void
-LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
+LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     PushCallStack("LU");
@@ -129,7 +129,7 @@ LU( DistMatrix<F,MC,MR>& A, DistMatrix<int,VC,STAR>& p )
         p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AB(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
                          A20(g), A21(g), A22(g);

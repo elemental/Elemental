@@ -65,7 +65,7 @@ namespace internal {
 */
 template<typename F> 
 inline void
-CholeskyLVar2( DistMatrix<F,MC,MR>& A )
+CholeskyLVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar2");
@@ -76,7 +76,7 @@ CholeskyLVar2( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),   A00(g), A01(g), A02(g),
         ABL(g), ABR(g),   A10(g), A11(g), A12(g),
                           A20(g), A21(g), A22(g);
@@ -172,7 +172,7 @@ CholeskyLVar2( DistMatrix<F,MC,MR>& A )
 */
 template<typename F>
 inline void
-CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
+CholeskyLVar2Naive( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyLVar2Naive");
@@ -189,7 +189,7 @@ CholeskyLVar2Naive( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),   A00(g), A01(g), A02(g),
         ABL(g), ABR(g),   A10(g), A11(g), A12(g),
                           A20(g), A21(g), A22(g);

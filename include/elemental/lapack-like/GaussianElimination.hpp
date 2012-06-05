@@ -35,7 +35,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("GaussianElimination");
@@ -58,7 +58,7 @@ GaussianElimination( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
 
 template<typename F> 
 inline void
-internal::ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+internal::ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("internal::ReduceToRowEchelon");
@@ -70,12 +70,12 @@ internal::ReduceToRowEchelon( DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  APan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         BT(g),  B0(g),
         BB(g),  B1(g),
                 B2(g);

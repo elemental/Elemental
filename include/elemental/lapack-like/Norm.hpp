@@ -71,7 +71,7 @@ Norm( const Matrix<F>& A, NormType type )
 
 template<typename F> 
 inline typename Base<F>::type
-Norm( const DistMatrix<F,MC,MR>& A, NormType type )
+Norm( const DistMatrix<F>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");

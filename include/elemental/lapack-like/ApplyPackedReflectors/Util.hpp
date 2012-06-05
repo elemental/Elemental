@@ -69,7 +69,7 @@ SetDiagonalToOne( LeftOrRight side, int offset, Matrix<T>& H )
 
 template<typename T> 
 void
-SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T,MC,MR>& H )
+SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T>& H )
 {
 #ifndef RELEASE
     PushCallStack("SetDiagonalToOne");

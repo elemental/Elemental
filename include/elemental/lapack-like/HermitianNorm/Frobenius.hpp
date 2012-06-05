@@ -138,7 +138,7 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 template<typename F>
 inline typename Base<F>::type
 HermitianFrobeniusNorm
-( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
+( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianFrobeniusNorm");

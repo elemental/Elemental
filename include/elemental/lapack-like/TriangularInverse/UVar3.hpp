@@ -37,7 +37,7 @@ namespace internal {
 template<typename F>
 inline void
 TriangularInverseUVar3
-( UnitOrNonUnit diag, DistMatrix<F,MC,MR>& U )
+( UnitOrNonUnit diag, DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TriangularInverseUVar3");
@@ -47,7 +47,7 @@ TriangularInverseUVar3
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);

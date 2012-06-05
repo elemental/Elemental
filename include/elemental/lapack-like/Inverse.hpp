@@ -108,7 +108,7 @@ Inverse( Matrix<F>& A )
 
 template<typename F> 
 inline void
-Inverse( DistMatrix<F,MC,MR>& A )
+Inverse( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Inverse");
@@ -121,12 +121,12 @@ Inverse( DistMatrix<F,MC,MR>& A )
     TriangularInverse( UPPER, NON_UNIT, A );
 
     // Solve inv(A) L = inv(U) for inv(A)
-    DistMatrix<F,MC,MR> ATL(g), ATR(g), 
-                        ABL(g), ABR(g);
-    DistMatrix<F,MC,MR> A00(g), A01(g), A02(g),
-                        A10(g), A11(g), A12(g),
-                        A20(g), A21(g), A22(g);
-    DistMatrix<F,MC,MR> A1(g), A2(g);
+    DistMatrix<F> ATL(g), ATR(g), 
+                  ABL(g), ABR(g);
+    DistMatrix<F> A00(g), A01(g), A02(g),
+                  A10(g), A11(g), A12(g),
+                  A20(g), A21(g), A22(g);
+    DistMatrix<F> A1(g), A2(g);
     DistMatrix<F,VC,  STAR> A1_VC_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,VR,  STAR> L21_VR_STAR(g);

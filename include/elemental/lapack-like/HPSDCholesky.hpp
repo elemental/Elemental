@@ -37,13 +37,13 @@ namespace elem {
 namespace hpsd_cholesky {
 
 template<typename F>
-void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
+void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F>& A )
 {
     const Grid& g = A.Grid();
-    DistMatrix<F,MC,MR> ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-                        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MC,MR> A11Adj(g);
+    DistMatrix<F> ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+                  ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                                   A20(g), A21(g), A22(g);
+    DistMatrix<F> A11Adj(g);
     DistMatrix<F,MR,MC> A11_MR_MC(g);
     DistMatrix<F,MR,MC> A21_MR_MC(g);
     DistMatrix<F,MR,MC> A12_MR_MC(g);
@@ -107,7 +107,7 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F,MC,MR>& A )
 
 template<typename R>
 inline void
-HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
+HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("HPSDCholesky");
@@ -132,7 +132,7 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R,MC,MR>& A )
 
 template<typename R>
 inline void
-HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R>,MC,MR>& A )
+HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("HPSDCholesky");

@@ -37,9 +37,9 @@ namespace internal {
 template<typename R>
 inline void 
 PanelBidiagL
-( DistMatrix<R,MC,  MR  >& A, 
-  DistMatrix<R,MC,  MR  >& X, 
-  DistMatrix<R,MC,  MR  >& Y,
+( DistMatrix<R>& A, 
+  DistMatrix<R>& X, 
+  DistMatrix<R>& Y,
   DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR )
 {
@@ -81,11 +81,11 @@ PanelBidiagL
 template<typename R> 
 inline void
 PanelBidiagL
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
-  DistMatrix<Complex<R>,MC,  MR  >& X, 
-  DistMatrix<Complex<R>,MC,  MR  >& Y,
+  DistMatrix<Complex<R> >& X, 
+  DistMatrix<Complex<R> >& Y,
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {

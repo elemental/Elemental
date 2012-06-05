@@ -38,7 +38,7 @@ namespace internal {
 // Cholesky, since most memory access is stride one.
 template<typename F> 
 inline void
-CholeskyUVar3( DistMatrix<F,MC,MR>& A )
+CholeskyUVar3( DistMatrix<F>& A )
 { CholeskyUVar3Naive( A ); }
 
 /*
@@ -68,7 +68,7 @@ CholeskyUVar3( DistMatrix<F,MC,MR>& A )
 */
 template<typename F> 
 inline void
-CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
+CholeskyUVar3Naive( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar3Naive");
@@ -79,7 +79,7 @@ CholeskyUVar3Naive( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);

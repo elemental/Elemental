@@ -35,7 +35,7 @@ namespace elem {
 
 template<typename F> 
 inline SafeProduct<F> 
-SafeDeterminant( DistMatrix<F,MC,MR>& A )
+SafeDeterminant( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("SafeDeterminant");
@@ -87,7 +87,7 @@ SafeDeterminant( DistMatrix<F,MC,MR>& A )
 }
 
 template<typename F> 
-inline F Determinant( DistMatrix<F,MC,MR>& A )
+inline F Determinant( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Determinant");

@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F> 
 inline void
-HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstRLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRLVar4");
@@ -50,12 +50,12 @@ HegstRLVar4( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);

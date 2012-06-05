@@ -34,7 +34,7 @@
 namespace elem {
 
 template<typename F> 
-inline F Trace( const DistMatrix<F,MC,MR>& A )
+inline F Trace( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Trace");

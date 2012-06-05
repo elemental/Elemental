@@ -69,9 +69,9 @@ namespace svd {
 template<typename R>
 inline void
 SimpleSVD
-( DistMatrix<R,MC,  MR>& A,
+( DistMatrix<R>& A,
   DistMatrix<R,VR,STAR>& s,
-  DistMatrix<R,MC,  MR>& V )
+  DistMatrix<R>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -117,11 +117,11 @@ SimpleSVD
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VTrans into a standard matrix dist.
-    DistMatrix<R,MC,MR> B( A );
+    DistMatrix<R> B( A );
     if( m >= n )
     {
-        DistMatrix<R,MC,MR> AT( grid ),
-                            AB( grid );
+        DistMatrix<R> AT( grid ),
+                      AB( grid );
         DistMatrix<R,VC,STAR> UT_VC_STAR( grid ), 
                               UB_VC_STAR( grid );
         PartitionDown( A, AT,
@@ -134,8 +134,8 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<R,MC,MR> VT( grid ), 
-                            VB( grid );
+        DistMatrix<R> VT( grid ), 
+                      VB( grid );
         DistMatrix<R,STAR,VC> VTransL_STAR_VC( grid ), VTransR_STAR_VC( grid );
         PartitionDown( V, VT, 
                           VB, m );
@@ -171,9 +171,9 @@ SimpleSVD
 template<>
 inline void
 SimpleSVD
-( DistMatrix<double,MC,  MR>& A,
+( DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& s,
-  DistMatrix<double,MC,  MR>& V )
+  DistMatrix<double>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -231,11 +231,11 @@ SimpleSVD
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and V into a standard matrix dist.
-    DistMatrix<R,MC,MR> B( A );
+    DistMatrix<R> B( A );
     if( m >= n )
     {
-        DistMatrix<R,MC,MR> AT( grid ),
-                            AB( grid );
+        DistMatrix<R> AT( grid ),
+                      AB( grid );
         DistMatrix<R,VC,STAR> UT_VC_STAR( grid ), 
                               UB_VC_STAR( grid );
         PartitionDown( A, AT,
@@ -248,8 +248,8 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<R,MC,MR> VT( grid ), 
-                            VB( grid );
+        DistMatrix<R> VT( grid ), 
+                      VB( grid );
         DistMatrix<R,VC,STAR> VT_VC_STAR( grid ), 
                               VB_VC_STAR( grid );
         PartitionDown( V, VT, 
@@ -288,7 +288,7 @@ SimpleSVD
 template<typename R>
 inline void
 SimpleSingularValues
-( DistMatrix<R,MC,  MR>& A,
+( DistMatrix<R>& A,
   DistMatrix<R,VR,STAR>& s )
 {
 #ifndef RELEASE
@@ -331,9 +331,9 @@ SimpleSingularValues
 template<typename R>
 inline void
 SimpleSVD
-( DistMatrix<Complex<R>,MC,  MR>& A,
-  DistMatrix<R,         VR,STAR>& s,
-  DistMatrix<Complex<R>,MC,  MR>& V )
+( DistMatrix<Complex<R> >& A,
+  DistMatrix<R,VR,STAR>& s,
+  DistMatrix<Complex<R> >& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -380,11 +380,11 @@ SimpleSVD
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VAdj into a standard matrix dist.
-    DistMatrix<C,MC,MR> B( A );
+    DistMatrix<C> B( A );
     if( m >= n )
     {
-        DistMatrix<C,MC,MR> AT( grid ),
-                            AB( grid );
+        DistMatrix<C> AT( grid ),
+                      AB( grid );
         DistMatrix<C,VC,STAR> UT_VC_STAR( grid ),
                               UB_VC_STAR( grid );
         PartitionDown( A, AT,
@@ -397,8 +397,8 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<C,MC,MR> VT( grid ), 
-                            VB( grid );
+        DistMatrix<C> VT( grid ), 
+                      VB( grid );
         DistMatrix<C,STAR,VC> VAdjL_STAR_VC( grid ), VAdjR_STAR_VC( grid );
         PartitionDown( V, VT, 
                           VB, m );
@@ -434,9 +434,9 @@ SimpleSVD
 template<>
 inline void
 SimpleSVD
-( DistMatrix<Complex<double>,MC,  MR>& A,
-  DistMatrix<double,         VR,STAR>& s,
-  DistMatrix<Complex<double>,MC,  MR>& V )
+( DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& s,
+  DistMatrix<Complex<double> >& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::SimpleSVD");
@@ -494,11 +494,11 @@ SimpleSVD
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and V into a standard matrix dist.
-    DistMatrix<C,MC,MR> B( A );
+    DistMatrix<C> B( A );
     if( m >= n )
     {
-        DistMatrix<C,MC,MR> AT( grid ),
-                            AB( grid );
+        DistMatrix<C> AT( grid ),
+                      AB( grid );
         DistMatrix<C,VC,STAR> UT_VC_STAR( grid ), 
                               UB_VC_STAR( grid );
         PartitionDown( A, AT,
@@ -511,8 +511,8 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<C,MC,MR> VT( grid ), 
-                            VB( grid );
+        DistMatrix<C> VT( grid ), 
+                      VB( grid );
         DistMatrix<C,VC,STAR> VT_VC_STAR( grid ), 
                               VB_VC_STAR( grid );
         PartitionDown( V, VT, 
@@ -551,7 +551,7 @@ SimpleSVD
 template<typename F>
 inline void
 CheckScale
-( DistMatrix<F,MC,MR>& A, bool& needRescaling, typename Base<F>::type& scale )
+( DistMatrix<F>& A, bool& needRescaling, typename Base<F>::type& scale )
 {
     typedef typename Base<F>::type R;
 
@@ -613,9 +613,9 @@ SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
 template<typename F>
 inline void
 SVD
-( DistMatrix<F,                     MC,  MR>& A,
+( DistMatrix<F>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F,                     MC,  MR>& V )
+  DistMatrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -677,7 +677,7 @@ SingularValues( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
 template<typename F>
 inline void
 SingularValues
-( DistMatrix<F,                     MC,  MR>& A,
+( DistMatrix<F>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s )
 {
 #ifndef RELEASE
@@ -702,7 +702,7 @@ SingularValues
     {
         // Lower bidiagonalization is not yet supported, so we instead play a 
         // trick to get the SVD of A.
-        DistMatrix<F,MC,MR> AAdj( A.Grid() );
+        DistMatrix<F> AAdj( A.Grid() );
         Adjoint( A, AAdj );
         svd::SimpleSingularValues( AAdj, s );
     }

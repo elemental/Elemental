@@ -68,7 +68,7 @@ namespace internal {
 
 template<typename R> 
 inline R
-RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
+RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::RowReflector");
@@ -158,7 +158,7 @@ RowReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 template<typename R>
 inline Complex<R>
 RowReflector
-( DistMatrix<Complex<R>,MC,MR>& chi, DistMatrix<Complex<R>,MC,MR>& x )
+( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::RowReflector");    

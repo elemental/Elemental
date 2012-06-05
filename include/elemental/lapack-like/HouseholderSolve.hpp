@@ -37,8 +37,8 @@ template<typename R>
 inline void
 HouseholderSolve
 ( Orientation orientation, 
-  DistMatrix<R,MC,MR>& A, const DistMatrix<R,MC,MR>& B,
-                                DistMatrix<R,MC,MR>& X )
+  DistMatrix<R>& A, const DistMatrix<R>& B,
+                          DistMatrix<R>& X )
 {
 #ifndef RELEASE
     PushCallStack("HouseholderSolve");
@@ -71,7 +71,7 @@ HouseholderSolve
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            DistMatrix<R,MC,MR> AT( g );
+            DistMatrix<R> AT( g );
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, X, true );
         }
@@ -82,15 +82,15 @@ HouseholderSolve
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            DistMatrix<R,MC,MR> XT( g ),
-                                XB( g );
+            DistMatrix<R> XT( g ),
+                          XB( g );
             PartitionDown( X, XT,
                               XB, m );
             XT = B;
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            DistMatrix<R,MC,MR> AL( g );
+            DistMatrix<R> AL( g );
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, XT, true );
 
@@ -110,15 +110,15 @@ HouseholderSolve
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            DistMatrix<R,MC,MR> XT( g ),
-                                XB( g );
+            DistMatrix<R> XT( g ),
+                          XB( g );
             PartitionDown( X, XT,
                               XB, n );
             XT = B; 
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            DistMatrix<R,MC,MR> AT( g );
+            DistMatrix<R> AT( g );
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, XT, true );
 
@@ -140,7 +140,7 @@ HouseholderSolve
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            DistMatrix<R,MC,MR> AL( g );
+            DistMatrix<R> AL( g );
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, X, true );
         }
@@ -154,9 +154,9 @@ template<typename R>
 inline void
 HouseholderSolve
 ( Orientation orientation, 
-  DistMatrix<Complex<R>,MC,MR>& A, 
-  const DistMatrix<Complex<R>,MC,MR>& B,
-        DistMatrix<Complex<R>,MC,MR>& X )
+  DistMatrix<Complex<R> >& A, 
+  const DistMatrix<Complex<R> >& B,
+        DistMatrix<Complex<R> >& X )
 {
 #ifndef RELEASE
     PushCallStack("HouseholderSolve");
@@ -194,7 +194,7 @@ HouseholderSolve
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            DistMatrix<C,MC,MR> AT( g );
+            DistMatrix<C> AT( g );
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, X, true );
         }
@@ -206,15 +206,15 @@ HouseholderSolve
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            DistMatrix<C,MC,MR> XT( g ),
-                                XB( g );
+            DistMatrix<C> XT( g ),
+                          XB( g );
             PartitionDown( X, XT,
                               XB, m );
             XT = B;
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            DistMatrix<C,MC,MR> AL( g );
+            DistMatrix<C> AL( g );
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, XT, true );
 
@@ -236,15 +236,15 @@ HouseholderSolve
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            DistMatrix<C,MC,MR> XT( g ),
-                                XB( g );
+            DistMatrix<C> XT( g ),
+                          XB( g );
             PartitionDown( X, XT,
                               XB, n );
             XT = B;
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            DistMatrix<C,MC,MR> AT( g );
+            DistMatrix<C> AT( g );
             AT.LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, XT, true );
 
@@ -269,7 +269,7 @@ HouseholderSolve
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            DistMatrix<C,MC,MR> AL( g );
+            DistMatrix<C> AL( g );
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, X, true );
         }

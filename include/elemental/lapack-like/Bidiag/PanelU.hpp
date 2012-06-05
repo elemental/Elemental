@@ -108,11 +108,11 @@ PanelBidiagU
     DistMatrix<R,MR,  MC  > z21_MR_MC(g);
     DistMatrix<R,MC,  STAR> z21_MC_STAR(g);
     DistMatrix<R,MR,  STAR> z21_MR_STAR(g);
-    DistMatrix<R,MC,  MR  > q21(g);
+    DistMatrix<R> q21(g);
     DistMatrix<R,MR,  MC  > q21_MR_MC(g);
     DistMatrix<R,MC,  STAR> q21_MC_STAR(g);
     DistMatrix<R,MR,  STAR> q21_MR_STAR(g);
-    DistMatrix<R,MC,  MR  > s01(g);
+    DistMatrix<R> s01(g);
     DistMatrix<R,MC,  STAR> s01_MC_STAR(g);
     DistMatrix<R,MR,  STAR> s01_MR_STAR(g);
     DistMatrix<R,MC,  STAR> s21_MC_STAR(g);
@@ -426,11 +426,11 @@ PanelBidiagU
 template<typename R> 
 inline void
 PanelBidiagU
-( DistMatrix<Complex<R>,MC,  MR  >& A, 
+( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
-  DistMatrix<Complex<R>,MC,  MR  >& X, 
-  DistMatrix<Complex<R>,MC,  MR  >& Y,
+  DistMatrix<Complex<R> >& X, 
+  DistMatrix<Complex<R> >& Y,
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {
@@ -511,11 +511,11 @@ PanelBidiagU
     DistMatrix<C,MR,  MC  > z21_MR_MC(g);
     DistMatrix<C,MC,  STAR> z21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> z21_MR_STAR(g);
-    DistMatrix<C,MC,  MR  > q21(g);
+    DistMatrix<C> q21(g);
     DistMatrix<C,MR,  MC  > q21_MR_MC(g);
     DistMatrix<C,MC,  STAR> q21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> q21_MR_STAR(g);
-    DistMatrix<C,MC,  MR  > s01(g);
+    DistMatrix<C> s01(g);
     DistMatrix<C,MC,  STAR> s01_MC_STAR(g);
     DistMatrix<C,MR,  STAR> s01_MR_STAR(g);
     DistMatrix<C,MC,  STAR> s21_MC_STAR(g);

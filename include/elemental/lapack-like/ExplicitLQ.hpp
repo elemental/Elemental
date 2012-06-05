@@ -50,13 +50,13 @@ ExplicitLQHelper( Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Real,MC,MR>& A )
+ExplicitLQHelper( DistMatrix<Real>& A )
 {
     LQ( A );
 
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
-    DistMatrix<Real,MC,MR> Q( g );
+    DistMatrix<Real> Q( g );
     Q.AlignWith( A );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
@@ -80,14 +80,14 @@ ExplicitLQHelper( Matrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Complex<Real>,MC,MR>& A )
+ExplicitLQHelper( DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
     LQ( A, t );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<Complex<Real>,MC,MR> Q( g );
+    DistMatrix<Complex<Real> > Q( g );
     Q.AlignWith( A );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors
@@ -112,7 +112,7 @@ ExplicitLQHelper( Matrix<Real>& L, Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Real,MC,MR>& L, DistMatrix<Real,MC,MR>& A )
+ExplicitLQHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
 {
     LQ( A );
     L = A;
@@ -120,7 +120,7 @@ ExplicitLQHelper( DistMatrix<Real,MC,MR>& L, DistMatrix<Real,MC,MR>& A )
 
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
-    DistMatrix<Real,MC,MR> Q( g );
+    DistMatrix<Real> Q( g );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
     A = Q;
@@ -146,7 +146,7 @@ ExplicitLQHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
 template<typename Real>
 inline void
 ExplicitLQHelper
-( DistMatrix<Complex<Real>,MC,MR>& L, DistMatrix<Complex<Real>,MC,MR>& A )
+( DistMatrix<Complex<Real> >& L, DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
@@ -155,7 +155,7 @@ ExplicitLQHelper
     MakeTrapezoidal( LEFT, LOWER, 0, L );
 
     // TODO: Replace this with an in-place expansion of Q
-    DistMatrix<Complex<Real>,MC,MR> Q( g );
+    DistMatrix<Complex<Real> > Q( g );
     Identity( A.Height(), A.Width(), Q );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
@@ -179,7 +179,7 @@ ExplicitLQ( Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitLQ( DistMatrix<F,MC,MR>& A )
+ExplicitLQ( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("ExplicitLQ");
@@ -205,7 +205,7 @@ ExplicitLQ( Matrix<F>& L, Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitLQ( DistMatrix<F,MC,MR>& L, DistMatrix<F,MC,MR>& A )
+ExplicitLQ( DistMatrix<F>& L, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("ExplicitLQ");

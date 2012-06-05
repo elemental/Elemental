@@ -62,7 +62,7 @@ namespace internal {
 */
 template<typename F>
 inline void
-CholeskyUVar3Square( DistMatrix<F,MC,MR>& A )
+CholeskyUVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar3Square");
@@ -91,7 +91,7 @@ CholeskyUVar3Square( DistMatrix<F,MC,MR>& A )
     const bool onDiagonal = ( transposeRank == g.VCRank() );
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);

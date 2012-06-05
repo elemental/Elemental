@@ -139,8 +139,8 @@ template<typename R>
 inline void
 ApplyPackedReflectorsLUVF
 ( int offset, 
-  const DistMatrix<R,MC,MR>& H,
-        DistMatrix<R,MC,MR>& A )
+  const DistMatrix<R>& H,
+        DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsLUVF");
@@ -154,16 +154,16 @@ ApplyPackedReflectorsLUVF
 #endif
     const Grid& g = H.Grid();
 
-    DistMatrix<R,MC,MR>
+    DistMatrix<R>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<R,MC,MR>
+    DistMatrix<R>
         AT(g),  A0(g),  ATop(g),
         AB(g),  A1(g),
                 A2(g);
 
-    DistMatrix<R,MC,  MR  > HPanCopy(g);
+    DistMatrix<R> HPanCopy(g);
     DistMatrix<R,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<R,MC,  STAR> HPan_MC_STAR(g);
     DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
@@ -367,9 +367,9 @@ template<typename R>
 inline void
 ApplyPackedReflectorsLUVF
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R> >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A )
+        DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsLUVF");
@@ -389,11 +389,11 @@ ApplyPackedReflectorsLUVF
     typedef Complex<R> C;
     const Grid& g = H.Grid();
 
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         AT(g),  A0(g),  ATop(g),
         AB(g),  A1(g),
                 A2(g);
@@ -402,7 +402,7 @@ ApplyPackedReflectorsLUVF
         tB(g),  t1(g),
                 t2(g);
 
-    DistMatrix<C,MC,  MR  > HPanCopy(g);
+    DistMatrix<C> HPanCopy(g);
     DistMatrix<C,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<C,MC,  STAR> HPan_MC_STAR(g);
     DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);

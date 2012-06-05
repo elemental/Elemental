@@ -42,8 +42,8 @@ namespace elem {
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo, 
-  DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
-  DistMatrix<F,MC,MR>& U, DistMatrix<F,MC,MR>& V )
+  DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
+  DistMatrix<F>& U, DistMatrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSVD");
@@ -92,7 +92,7 @@ inline void HermitianSVD
 template<typename F>
 inline void HermitianSingularValues
 ( UpperOrLower uplo, 
-  DistMatrix<F,MC,MR>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+  DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSingularValues");

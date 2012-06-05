@@ -65,7 +65,7 @@ namespace internal {
 */
 template<typename F> 
 inline void
-CholeskyUVar2( DistMatrix<F,MC,MR>& A )
+CholeskyUVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar2");
@@ -76,7 +76,7 @@ CholeskyUVar2( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -87,10 +87,10 @@ CholeskyUVar2( DistMatrix<F,MC,MR>& A )
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,MR,  STAR> X11Adj_MR_STAR(g);
     DistMatrix<F,MR,  MC  > X11Adj_MR_MC(g);
-    DistMatrix<F,MC,  MR  > X11(g);
     DistMatrix<F,MR,  STAR> X12Adj_MR_STAR(g);
     DistMatrix<F,MR,  MC  > X12Adj_MR_MC(g);
-    DistMatrix<F,MC,  MR  > X12(g);
+    DistMatrix<F> X11(g);
+    DistMatrix<F> X12(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -188,7 +188,7 @@ CholeskyUVar2( DistMatrix<F,MC,MR>& A )
 */
 template<typename F> 
 inline void
-CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
+CholeskyUVar2Naive( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::CholeskyUVar2Naive");
@@ -205,7 +205,7 @@ CholeskyUVar2Naive( DistMatrix<F,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);

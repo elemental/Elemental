@@ -56,7 +56,7 @@ template<typename F>
 inline void
 Hegst
 ( LeftOrRight side, UpperOrLower uplo, 
-  DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& B )
+  DistMatrix<F>& A, const DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("Hegst");

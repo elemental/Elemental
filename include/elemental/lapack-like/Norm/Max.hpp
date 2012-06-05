@@ -60,7 +60,7 @@ MaxNorm( const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-MaxNorm( const DistMatrix<F,MC,MR>& A )
+MaxNorm( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");

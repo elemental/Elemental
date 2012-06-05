@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F>
 inline void
-HegstRLVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
+HegstRLVar3( DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::HegstRLVar4");
@@ -50,15 +50,15 @@ HegstRLVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         YTL(g), YTR(g),  Y00(g), Y01(g), Y02(g),
         YBL(g), YBR(g),  Y10(g), Y11(g), Y12(g),
                          Y20(g), Y21(g), Y22(g);
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
@@ -79,7 +79,7 @@ HegstRLVar3( DistMatrix<F,MC,MR>& A, const DistMatrix<F,MC,MR>& L )
 
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use HegstRLVar4 instead.
-    DistMatrix<F,MC,MR> Y(g);
+    DistMatrix<F> Y(g);
     Y.AlignWith( A );
     Y.ResizeTo( A.Height(), A.Width() );
     Zero( Y );

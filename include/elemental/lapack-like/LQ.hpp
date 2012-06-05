@@ -95,7 +95,7 @@ LQ( Matrix<Real>& A )
 
 template<typename Real> 
 inline void
-LQ( DistMatrix<Real,MC,MR>& A )
+LQ( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("LQ");
@@ -105,7 +105,7 @@ LQ( DistMatrix<Real,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<Real,MC,MR>
+    DistMatrix<Real>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATopPan(g), ABottomPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -211,7 +211,7 @@ LQ( Matrix<Complex<Real> >& A,
 
 template<typename Real> 
 inline void
-LQ( DistMatrix<Complex<Real>,MC,MR  >& A, 
+LQ( DistMatrix<Complex<Real> >& A, 
     DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
@@ -235,7 +235,7 @@ LQ( DistMatrix<Complex<Real>,MC,MR  >& A,
     }
 
     // Matrix views
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATopPan(g), ABottomPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);

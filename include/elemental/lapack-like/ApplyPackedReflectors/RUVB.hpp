@@ -121,8 +121,8 @@ template<typename R>
 inline void
 ApplyPackedReflectorsRUVB
 ( int offset, 
-  const DistMatrix<R,MC,MR>& H,
-        DistMatrix<R,MC,MR>& A )
+  const DistMatrix<R>& H,
+        DistMatrix<R>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsRUVB");
@@ -136,11 +136,11 @@ ApplyPackedReflectorsRUVB
 #endif
     const Grid& g = H.Grid();
 
-    DistMatrix<R,MC,MR>
+    DistMatrix<R>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<R,MC,MR> ALeft(g);
+    DistMatrix<R> ALeft(g);
 
     DistMatrix<R,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<R,MR,  STAR> HPan_MR_STAR(g);
@@ -311,9 +311,9 @@ template<typename R>
 inline void
 ApplyPackedReflectorsRUVB
 ( Conjugation conjugation, int offset, 
-  const DistMatrix<Complex<R>,MC,MR  >& H,
+  const DistMatrix<Complex<R> >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R>,MC,MR  >& A )
+        DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::ApplyPackedReflectorsRUVB");
@@ -333,11 +333,11 @@ ApplyPackedReflectorsRUVB
     typedef Complex<R> C;
     const Grid& g = H.Grid();
 
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
                          H20(g), H21(g), H22(g);
-    DistMatrix<C,MC,MR> ALeft(g);
+    DistMatrix<C> ALeft(g);
     DistMatrix<C,MD,STAR>
         tT(g),  t0(g),
         tB(g),  t1(g),

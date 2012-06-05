@@ -99,7 +99,7 @@ QR( Matrix<Real>& A )
 
 template<typename Real> 
 inline void
-QR( DistMatrix<Real,MC,MR>& A )
+QR( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("QR");
@@ -109,7 +109,7 @@ QR( DistMatrix<Real,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<Real,MC,MR>
+    DistMatrix<Real>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
@@ -226,7 +226,7 @@ QR( Matrix<Complex<Real> >& A,
 
 template<typename Real> 
 inline void
-QR( DistMatrix<Complex<Real>,MC,MR  >& A, 
+QR( DistMatrix<Complex<Real> >& A, 
     DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
@@ -251,7 +251,7 @@ QR( DistMatrix<Complex<Real>,MC,MR  >& A,
     }
 
     // Matrix views
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);

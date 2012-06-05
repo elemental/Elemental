@@ -77,7 +77,7 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A )
+HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::HermitianMaxNorm");

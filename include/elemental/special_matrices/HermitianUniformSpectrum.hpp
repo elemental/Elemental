@@ -156,7 +156,7 @@ MakeHermitianUniformSpectrum
     std::vector<F> d( n );
     for( int j=0; j<n; ++j )
         d[j] = lower + (upper-lower)*plcg::SerialUniform<R>();
-    DistMatrix<F,MC,MR> ABackup( grid );
+    DistMatrix<F> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );
     else
@@ -166,7 +166,7 @@ MakeHermitianUniformSpectrum
     }
 
     // Form u 
-    DistMatrix<F,MC,MR> u( grid );
+    DistMatrix<F> u( grid );
     if( standardDist )
         u.AlignWith( A );
     else
@@ -176,7 +176,7 @@ MakeHermitianUniformSpectrum
     Scale( 1/origNorm, u );
 
     // Form v := D u
-    DistMatrix<F,MC,MR> v( grid );
+    DistMatrix<F> v( grid );
     if( standardDist )
         v.AlignWith( A );
     else

@@ -38,7 +38,7 @@ namespace elem {
 
 template<typename F>
 inline void
-HPDInverse( UpperOrLower uplo, DistMatrix<F,MC,MR>& A  )
+HPDInverse( UpperOrLower uplo, DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("HPDInverse");

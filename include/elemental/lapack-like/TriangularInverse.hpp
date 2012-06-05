@@ -41,7 +41,7 @@ inline void
 TriangularInverse
 ( UpperOrLower uplo, 
   UnitOrNonUnit diag, 
-  DistMatrix<F,MC,MR>& A  )
+  DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("TriangularInverse");
@@ -59,7 +59,7 @@ inline void
 TriangularInverseVar3
 ( UpperOrLower uplo, 
   UnitOrNonUnit diag, 
-  DistMatrix<F,MC,MR>& A  )
+  DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("internal::TriangularInverseVar3");

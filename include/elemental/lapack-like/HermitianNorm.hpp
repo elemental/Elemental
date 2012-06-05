@@ -71,7 +71,7 @@ HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 
 template<typename F>
 inline typename Base<F>::type
-HermitianNorm( UpperOrLower uplo, const DistMatrix<F,MC,MR>& A, NormType type )
+HermitianNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("HermitianNorm");

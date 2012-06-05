@@ -88,7 +88,7 @@ PanelLQ( Matrix<Real>& A )
 
 template<typename Real> 
 inline void
-PanelLQ( DistMatrix<Real,MC,MR>& A )
+PanelLQ( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLQ");
@@ -96,7 +96,7 @@ PanelLQ( DistMatrix<Real,MC,MR>& A )
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<Real,MC,MR>
+    DistMatrix<Real>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
@@ -252,7 +252,7 @@ PanelLQ
 template<typename Real>
 inline void
 PanelLQ
-( DistMatrix<Complex<Real>,MC,MR  >& A,
+( DistMatrix<Complex<Real> >& A,
   DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
@@ -269,7 +269,7 @@ PanelLQ
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<C,MC,MR>
+    DistMatrix<C>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
@@ -279,7 +279,7 @@ PanelLQ
                 t2(g);
 
     // Temporary distributions
-    DistMatrix<C,MC,  MR  > aTopRowConj(g);
+    DistMatrix<C> aTopRowConj(g);
     DistMatrix<C,STAR,MR  > aTopRowConj_STAR_MR(g);
     DistMatrix<C,MC,  STAR> z_MC_STAR(g);
 

@@ -59,7 +59,7 @@ InfinityNorm( const Matrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-InfinityNorm( const DistMatrix<F,MC,MR>& A )
+InfinityNorm( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::InfinityNorm");

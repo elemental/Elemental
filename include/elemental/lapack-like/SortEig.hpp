@@ -80,7 +80,7 @@ SortEig( DistMatrix<R,VR,STAR>& w )
 
 template<typename R>
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -126,7 +126,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R,MC,MR>& Z )
 
 template<typename R> 
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R>,MC,MR>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");

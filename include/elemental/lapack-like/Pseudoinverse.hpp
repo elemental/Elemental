@@ -39,7 +39,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Pseudoinverse( DistMatrix<F,MC,MR>& A )
+Pseudoinverse( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Pseudoinverse");
@@ -53,7 +53,7 @@ Pseudoinverse( DistMatrix<F,MC,MR>& A )
 
     // Get the SVD of A
     DistMatrix<R,VR,STAR> s(g);
-    DistMatrix<F,MC,MR  > U(g), V(g);
+    DistMatrix<F> U(g), V(g);
     U = A;
     SVD( U, s, V );
 

@@ -36,7 +36,7 @@ namespace elem {
 template<typename F>
 inline void
 CholeskySolve
-( UpperOrLower uplo, DistMatrix<F,MC,MR>& A, DistMatrix<F,MC,MR>& B )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("CholeskySolve");

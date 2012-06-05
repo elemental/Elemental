@@ -59,7 +59,7 @@ namespace internal {
 
 template<typename R>
 inline R
-ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
+ColReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::ColReflector");
@@ -149,7 +149,7 @@ ColReflector( DistMatrix<R,MC,MR>& chi, DistMatrix<R,MC,MR>& x )
 template<typename R> 
 inline Complex<R>
 ColReflector
-( DistMatrix<Complex<R>,MC,MR>& chi, DistMatrix<Complex<R>,MC,MR>& x )
+( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::ColReflector");
