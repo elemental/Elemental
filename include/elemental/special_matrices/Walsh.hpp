@@ -124,9 +124,9 @@ Walsh( int k, DistMatrix<T,U,V>& A, bool binary )
                 s %= t;
             }
             if( on )
-                A.SetLocalEntry( iLocal, jLocal, onValue );
+                A.SetLocal( iLocal, jLocal, onValue );
             else
-                A.SetLocalEntry( iLocal, jLocal, offValue );
+                A.SetLocal( iLocal, jLocal, offValue );
         }
     }
 #ifndef RELEASE

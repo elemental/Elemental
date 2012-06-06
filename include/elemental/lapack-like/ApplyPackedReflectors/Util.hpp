@@ -91,7 +91,7 @@ SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T>& H )
             if( i >= 0 && i < height && (i-colShift) % r == 0 )
             {
                 const int iLoc = (i-colShift)/r;
-                H.SetLocalEntry(iLoc,jLoc,1);
+                H.SetLocal(iLoc,jLoc,1);
             }
         }
     }
@@ -104,7 +104,7 @@ SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T>& H )
             if( i >= 0 && i < height && (i-colShift) % r == 0 )
             {
                 const int iLoc = (i-colShift)/r;
-                H.SetLocalEntry(iLoc,jLoc,1);
+                H.SetLocal(iLoc,jLoc,1);
             }
         }
     }
@@ -139,8 +139,8 @@ HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 #endif
     for( int j=0; j<SInv.Height(); ++j )
     {
-        const R value = SInv.GetLocalEntry(j,j);
-        SInv.SetLocalEntry(j,j,value/2);
+        const R value = SInv.GetLocal(j,j);
+        SInv.SetLocal(j,j,value/2);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -192,16 +192,16 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/Conj(t.GetLocalEntry(j,0));
-            SInv.SetLocalEntry(j,j,value);
+            const Complex<R> value = Complex<R>(1)/Conj(t.GetLocal(j,0));
+            SInv.SetLocal(j,j,value);
         }
     }
     else
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/t.GetLocalEntry(j,0);
-            SInv.SetLocalEntry(j,j,value);
+            const Complex<R> value = Complex<R>(1)/t.GetLocal(j,0);
+            SInv.SetLocal(j,j,value);
         }
     }
 #ifndef RELEASE

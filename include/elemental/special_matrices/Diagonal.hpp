@@ -74,7 +74,7 @@ Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
         if( (j-colShift+colStride) % colStride == 0 )
         {
             const int iLocal = (j-colShift) / colStride;
-            D.SetLocalEntry( iLocal, jLocal, d[j] );
+            D.SetLocal( iLocal, jLocal, d[j] );
         }
     }
 #ifndef RELEASE

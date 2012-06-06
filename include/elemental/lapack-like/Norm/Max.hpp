@@ -72,7 +72,7 @@ MaxNorm( const DistMatrix<F>& A )
     {
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+            const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }

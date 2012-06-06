@@ -101,7 +101,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
-                const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
         }
@@ -115,7 +115,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
-                const R thisAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
         }

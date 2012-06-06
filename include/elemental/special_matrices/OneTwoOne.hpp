@@ -110,9 +110,9 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
         {
             const int i = colShift + iLocal*colStride;
             if( i == j )
-                A.SetLocalEntry( iLocal, jLocal, (T)2 );
+                A.SetLocal( iLocal, jLocal, (T)2 );
             else if( i == j-1 || i == j+1 )
-                A.SetLocalEntry( iLocal, jLocal, (T)1 );
+                A.SetLocal( iLocal, jLocal, (T)1 );
         }
     }
 #ifndef RELEASE

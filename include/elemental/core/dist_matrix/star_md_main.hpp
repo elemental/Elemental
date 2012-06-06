@@ -986,7 +986,7 @@ DistMatrix<T,STAR,MD,Int>::Get( Int i, Int j ) const
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
-        u = this->GetLocalEntry(i,jLoc);
+        u = this->GetLocal(i,jLoc);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -1020,7 +1020,7 @@ DistMatrix<T,STAR,MD,Int>::Set( Int i, Int j, T u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
-        this->SetLocalEntry(i,jLoc,u);
+        this->SetLocal(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1051,7 +1051,7 @@ DistMatrix<T,STAR,MD,Int>::Update( Int i, Int j, T u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
-        this->UpdateLocalEntry(i,jLoc,u);
+        this->UpdateLocal(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1376,7 +1376,7 @@ DistMatrix<T,STAR,MD,Int>::GetReal( Int i, Int j ) const
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        u = this->GetRealLocalEntry( i, jLocal );
+        u = this->GetRealLocal( i, jLocal );
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -1413,7 +1413,7 @@ DistMatrix<T,STAR,MD,Int>::GetImag( Int i, Int j ) const
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        u = this->GetImagLocalEntry( i, jLocal );
+        u = this->GetImagLocal( i, jLocal );
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -1446,7 +1446,7 @@ DistMatrix<T,STAR,MD,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->SetRealLocalEntry( i, jLocal, u );
+        this->SetRealLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1480,7 +1480,7 @@ DistMatrix<T,STAR,MD,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->SetImagLocalEntry( i, jLocal, u );
+        this->SetImagLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1511,7 +1511,7 @@ DistMatrix<T,STAR,MD,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->UpdateRealLocalEntry( i, jLocal, u );
+        this->UpdateRealLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1545,7 +1545,7 @@ DistMatrix<T,STAR,MD,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->UpdateImagLocalEntry( i, jLocal, u );
+        this->UpdateImagLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();

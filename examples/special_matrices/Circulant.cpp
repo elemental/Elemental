@@ -91,9 +91,9 @@ main( int argc, char* argv[] )
         {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
             {
-                const double absValue = Abs(A.GetLocalEntry(iLocal,jLocal));
+                const double absValue = Abs(A.GetLocal(iLocal,jLocal));
                 if( absValue < 1e-13 )
-                    A.SetLocalEntry(iLocal,jLocal,0);
+                    A.SetLocal(iLocal,jLocal,0);
             }
         }
         A.Print("A with values below 1e-13 removed");

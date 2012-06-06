@@ -799,7 +799,7 @@ DistMatrix<T,STAR,MR,Int>::Get( Int i, Int j ) const
     if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
-        u = this->GetLocalEntry(i,jLoc);
+        u = this->GetLocal(i,jLoc);
     }
     mpi::Broadcast( &u, 1, ownerCol, g.RowComm() );
 
@@ -823,7 +823,7 @@ DistMatrix<T,STAR,MR,Int>::Set( Int i, Int j, T u )
     if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalEntry(i,jLoc,u);
+        this->SetLocal(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -844,7 +844,7 @@ DistMatrix<T,STAR,MR,Int>::Update( Int i, Int j, T u )
     if( g.Col() == ownerCol )
     {
         const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalEntry(i,jLoc,u);
+        this->UpdateLocal(i,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2075,7 +2075,7 @@ DistMatrix<T,STAR,MR,Int>::GetReal( Int i, Int j ) const
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        u = this->GetRealLocalEntry( i, jLocal );
+        u = this->GetRealLocal( i, jLocal );
     }
     mpi::Broadcast( &u, 1, ownerCol, g.RowComm() );
 #ifndef RELEASE
@@ -2103,7 +2103,7 @@ DistMatrix<T,STAR,MR,Int>::GetImag( Int i, Int j ) const
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        u = this->GetImagLocalEntry( i, jLocal );
+        u = this->GetImagLocal( i, jLocal );
     }
     mpi::Broadcast( &u, 1, ownerCol, g.RowComm() );
 #ifndef RELEASE
@@ -2126,7 +2126,7 @@ DistMatrix<T,STAR,MR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        this->SetRealLocalEntry( i, jLocal, u );
+        this->SetRealLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2150,7 +2150,7 @@ DistMatrix<T,STAR,MR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        this->SetImagLocalEntry( i, jLocal, u );
+        this->SetImagLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2171,7 +2171,7 @@ DistMatrix<T,STAR,MR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        this->UpdateRealLocalEntry( i, jLocal, u );
+        this->UpdateRealLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2195,7 +2195,7 @@ DistMatrix<T,STAR,MR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     if( g.Col() == ownerCol )
     {
         const Int jLocal = (j-this->RowShift()) / g.Width();
-        this->UpdateImagLocalEntry( i, jLocal, u );
+        this->UpdateImagLocal( i, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();

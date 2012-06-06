@@ -113,11 +113,11 @@ PanelLU
         //--------------------------------------------------------------------//
         
         // Store the index/value of the pivot candidate in A
-        F pivotValue = alpha11.GetLocalEntry(0,0);
+        F pivotValue = alpha11.GetLocal(0,0);
         int pivotIndex = a01.Height();
         for( int i=0; i<a21.Height(); ++i )
         {
-            F value = a21.GetLocalEntry(i,0);
+            F value = a21.GetLocal(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -128,7 +128,7 @@ PanelLU
         // Update the pivot candidate to include local data from B
         for( int i=0; i<B.LocalHeight(); ++i )
         {
-            F value = b1.GetLocalEntry(i,0);
+            F value = b1.GetLocal(i,0);
             if( FastAbs(value) > FastAbs(pivotValue) )
             {
                 pivotValue = value;
@@ -140,7 +140,7 @@ PanelLU
         // [ pivotValue | pivotRow | pivotIndex ]
         if( pivotIndex < A.Height() )
         {
-            sendBufFloat[0] = A.GetLocalEntry(pivotIndex,a10.Width());
+            sendBufFloat[0] = A.GetLocal(pivotIndex,a10.Width());
 
             const int ALDim = A.LocalLDim();
             const F* ABuffer = A.LocalBuffer(pivotIndex,0);
@@ -150,7 +150,7 @@ PanelLU
         else
         {
             const int localIndex = ((pivotIndex-A.Height())-colShift)/r;
-            sendBufFloat[0] = b1.GetLocalEntry(localIndex,0);
+            sendBufFloat[0] = b1.GetLocal(localIndex,0);
 
             const int BLDim = B.LocalLDim();
             const F* BBuffer = B.LocalBuffer(localIndex,0);
@@ -165,7 +165,7 @@ PanelLU
 
         // Update the pivot vector
         const int maxIndex = *recvBufInt;
-        p.SetLocalEntry(a01.Height(),0,maxIndex+pivotOffset);
+        p.SetLocal(a01.Height(),0,maxIndex+pivotOffset);
 
         // Copy the current row into the pivot row
         if( maxIndex < A.Height() )
@@ -201,7 +201,7 @@ PanelLU
         }
 
         // Now we can perform the update of the current panel
-        F alpha = alpha11.GetLocalEntry(0,0);
+        F alpha = alpha11.GetLocal(0,0);
         if( alpha == (F)0 )
             throw SingularMatrixException();
         F alpha11Inv = ((F)1) / alpha;

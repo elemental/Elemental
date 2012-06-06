@@ -104,12 +104,12 @@ void TestCorrectnessDouble
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
-        const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
+        const double omega = w_MR_STAR.GetLocal(jLocal,0);
         for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
-            const double chi = X.GetLocalEntry(iLocal,jLocal);
-            const double zeta = Z.GetLocalEntry(iLocal,jLocal);
-            X.SetLocalEntry(iLocal,jLocal,chi-omega*zeta);
+            const double chi = X.GetLocal(iLocal,jLocal);
+            const double zeta = Z.GetLocal(iLocal,jLocal);
+            X.SetLocal(iLocal,jLocal,chi-omega*zeta);
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
@@ -184,12 +184,12 @@ void TestCorrectnessDoubleComplex
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
-        const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
+        const double omega = w_MR_STAR.GetLocal(jLocal,0);
         for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
-            const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-            const Complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
-            X.SetLocalEntry(iLocal,jLocal,chi-omega*zeta);
+            const Complex<double> chi = X.GetLocal(iLocal,jLocal);
+            const Complex<double> zeta = Z.GetLocal(iLocal,jLocal);
+            X.SetLocal(iLocal,jLocal,chi-omega*zeta);
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW

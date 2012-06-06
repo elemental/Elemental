@@ -97,7 +97,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
     for( int i=0; i<k; ++i )
     {
         pairs[i].index = i;
-        pairs[i].value = w_STAR_STAR.GetLocalEntry(i,0);
+        pairs[i].value = w_STAR_STAR.GetLocal(i,0);
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
@@ -113,7 +113,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
         MemCopy
         ( ZPerm_VC_STAR.LocalBuffer(0,j), 
           Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
-        w_STAR_STAR.SetLocalEntry(j,0,pairs[j].value);
+        w_STAR_STAR.SetLocal(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();
 
@@ -143,7 +143,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
     for( int i=0; i<k; ++i )
     {
         pairs[i].index = i;
-        pairs[i].value = w_STAR_STAR.GetLocalEntry(i,0);
+        pairs[i].value = w_STAR_STAR.GetLocal(i,0);
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
@@ -159,7 +159,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
         MemCopy
         ( ZPerm_VC_STAR.LocalBuffer(0,j), 
           Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
-        w_STAR_STAR.SetLocalEntry(j,0,pairs[j].value);
+        w_STAR_STAR.SetLocal(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();
 

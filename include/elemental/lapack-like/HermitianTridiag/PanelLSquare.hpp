@@ -926,7 +926,7 @@ HermitianPanelTridiagLSquare
             // Compute the Householder reflector
             tau = ColReflector( alpha21T, a21B );
             if( g.Row() == alpha21T.ColAlignment() )
-                tau1.SetLocalEntry(0,0,tau);
+                tau1.SetLocal(0,0,tau);
         }
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.

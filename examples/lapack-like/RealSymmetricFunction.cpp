@@ -78,7 +78,7 @@ main( int argc, char* argv[] )
                 //           and the columns rowShift:rowStride:n
                 const int i = colShift + iLocal*colStride;
                 const int j = rowShift + jLocal*rowStride;
-                H.SetLocalEntry( iLocal, jLocal, R(i+j) );
+                H.SetLocal( iLocal, jLocal, R(i+j) );
             }
         }
 

@@ -247,8 +247,8 @@ PanelBidiagU
             {
                 // Store delta and force | alpha11 | = | 1 |
                 //                       |   a21   |   | u |
-                delta1.SetLocalEntry(0,0,alpha11.GetLocalEntry(0,0));
-                alpha11.SetLocalEntry(0,0,(R)1);
+                delta1.SetLocal(0,0,alpha11.GetLocal(0,0));
+                alpha11.SetLocal(0,0,(R)1);
             }
         }
 
@@ -325,8 +325,8 @@ PanelBidiagU
             {
                 // Store epsilon and force | alpha12L | = | 1 |
                 //                         |  a21R^T  |   | v |
-                epsilon1.SetLocalEntry(0,0,alpha12L.GetLocalEntry(0,0));
-                alpha12L.SetLocalEntry(0,0,(R)1);
+                epsilon1.SetLocal(0,0,alpha12L.GetLocal(0,0));
+                alpha12L.SetLocal(0,0,(R)1);
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
@@ -667,11 +667,11 @@ PanelBidiagU
             tauQ = ColReflector( alpha11, a21 );
             if( thisIsMyRow )
             {
-                tauQ1.SetLocalEntry(0,0,tauQ);
+                tauQ1.SetLocal(0,0,tauQ);
                 // Store delta and force | alpha11 | = | 1 |
                 //                       |   a21   |   | u |
-                delta1.SetLocalEntry(0,0,alpha11.GetRealLocalEntry(0,0));
-                alpha11.SetLocalEntry(0,0,(C)1);
+                delta1.SetLocal(0,0,alpha11.GetRealLocal(0,0));
+                alpha11.SetLocal(0,0,(C)1);
             }
         }
 
@@ -751,11 +751,11 @@ PanelBidiagU
             tauP = RowReflector( alpha12L, a12R );
             if( nextIsMyCol )
             {
-                tauP1.SetLocalEntry(0,0,tauP);
+                tauP1.SetLocal(0,0,tauP);
                 // Store epsilon and force | alpha12L | = | 1 |
                 //                         |  a12R^T  |   | v |
-                epsilon1.SetLocalEntry(0,0,alpha12L.GetRealLocalEntry(0,0));
-                alpha12L.SetLocalEntry(0,0,(C)1);
+                epsilon1.SetLocal(0,0,alpha12L.GetRealLocal(0,0));
+                alpha12L.SetLocal(0,0,(C)1);
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );

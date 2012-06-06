@@ -131,8 +131,8 @@ PanelLQ( DistMatrix<Real>& A )
         Real alpha = 0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.GetLocalEntry(0,0);
-            alpha11.SetLocalEntry(0,0,1);
+            alpha = alpha11.GetLocal(0,0);
+            alpha11.SetLocal(0,0,1);
         }
 
         aTopRow_STAR_MR = aTopRow;
@@ -151,7 +151,7 @@ PanelLQ( DistMatrix<Real>& A )
           ABottomPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.SetLocalEntry(0,0,alpha);
+            alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
         aTopRow_STAR_MR.FreeAlignments();
         z_MC_STAR.FreeAlignments();
@@ -319,8 +319,8 @@ PanelLQ
         C alpha = 0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.GetLocalEntry(0,0);
-            alpha11.SetLocalEntry(0,0,1);
+            alpha = alpha11.GetLocal(0,0);
+            alpha11.SetLocal(0,0,1);
         }
 
         Conjugate( aTopRow, aTopRowConj );
@@ -340,7 +340,7 @@ PanelLQ
           ABottomPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.SetLocalEntry(0,0,alpha);
+            alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
         aTopRowConj_STAR_MR.FreeAlignments();
         z_MC_STAR.FreeAlignments();

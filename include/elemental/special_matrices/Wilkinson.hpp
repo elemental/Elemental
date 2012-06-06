@@ -87,12 +87,12 @@ Wilkinson( int k, DistMatrix<T,U,V>& A )
             if( i == j )
             {
                 if( j <= k )
-                    A.SetLocalEntry( iLocal, jLocal, (T)k-j );
+                    A.SetLocal( iLocal, jLocal, (T)k-j );
                 else
-                    A.SetLocalEntry( iLocal, jLocal, (T)j-k );
+                    A.SetLocal( iLocal, jLocal, (T)j-k );
             }
             else if( i == j-1 || i == j+1 )
-                A.SetLocalEntry( iLocal, jLocal, (T)1 );
+                A.SetLocal( iLocal, jLocal, (T)1 );
         }
     }
 #ifndef RELEASE

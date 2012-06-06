@@ -93,7 +93,7 @@ ReformHermitianMatrix
         const int localHeight = Z1_VR_STAR.LocalHeight();
         for( int j=0; j<width; ++j )
         {
-            const R omega = w1_STAR_STAR.GetLocalEntry(j,0);
+            const R omega = w1_STAR_STAR.GetLocal(j,0);
             F* buffer = Z1_VR_STAR.LocalBuffer(0,j);
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 buffer[iLocal] *= omega;
@@ -174,7 +174,7 @@ ReformNormalMatrix
         const int localHeight = Z1_VR_STAR.LocalHeight();
         for( int j=0; j<width; ++j )
         {
-            const C conjOmega = Conj(w1_STAR_STAR.GetLocalEntry(j,0));
+            const C conjOmega = Conj(w1_STAR_STAR.GetLocal(j,0));
             C* buffer = Z1_VR_STAR.LocalBuffer(0,j);
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 buffer[iLocal] *= conjOmega;
@@ -233,8 +233,8 @@ RealHermitianFunction
     const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        w.SetLocalEntry(iLocal,0,f(omega));
+        const R omega = w.GetLocal(iLocal,0);
+        w.SetLocal(iLocal,0,f(omega));
     }
 
     // Form the custom outer product, Z Omega Z^T
@@ -276,8 +276,8 @@ ComplexHermitianFunction
     const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
-        fw.SetLocalEntry(iLocal,0,f(omega));
+        const R omega = w.GetLocal(iLocal,0);
+        fw.SetLocal(iLocal,0,f(omega));
     }
 
     // Form the custom outer product, Z f(Omega) Z^H

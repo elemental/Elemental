@@ -1227,7 +1227,7 @@ DistMatrix<T,MR,MC,Int>::Get( Int i, Int j ) const
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
         const Int jLoc = (j-this->RowShift()) / g.Height();
-        u = this->GetLocalEntry(iLoc,jLoc);
+        u = this->GetLocal(iLoc,jLoc);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 
@@ -1254,7 +1254,7 @@ DistMatrix<T,MR,MC,Int>::Set( Int i, Int j, T u )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
         const Int jLoc = (j-this->RowShift()) / g.Height();
-        this->SetLocalEntry(iLoc,jLoc,u);
+        this->SetLocal(iLoc,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1278,7 +1278,7 @@ DistMatrix<T,MR,MC,Int>::Update( Int i, Int j, T u )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
         const Int jLoc = (j-this->RowShift()) / g.Height();
-        this->UpdateLocalEntry(iLoc,jLoc,u);
+        this->UpdateLocal(iLoc,jLoc,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3779,7 +3779,7 @@ DistMatrix<T,MR,MC,Int>::GetReal( Int i, Int j ) const
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
         const Int jLoc = (j-this->RowShift()) / g.Height();
-        u = this->GetRealLocalEntry(iLoc,jLoc);
+        u = this->GetRealLocal(iLoc,jLoc);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -3810,7 +3810,7 @@ DistMatrix<T,MR,MC,Int>::GetImag( Int i, Int j ) const
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
         const Int jLoc = (j-this->RowShift()) / g.Height();
-        u = this->GetImagLocalEntry(iLoc,jLoc);
+        u = this->GetImagLocal(iLoc,jLoc);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -3836,7 +3836,7 @@ DistMatrix<T,MR,MC,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     {
         const Int iLocal = (i-this->ColShift()) / g.Width();
         const Int jLocal = (j-this->RowShift()) / g.Height();
-        this->SetRealLocalEntry( iLocal, jLocal, u );
+        this->SetRealLocal( iLocal, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3863,7 +3863,7 @@ DistMatrix<T,MR,MC,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     {
         const Int iLocal = (i-this->ColShift()) / g.Width();
         const Int jLocal = (j-this->RowShift()) / g.Height();
-        this->SetImagLocalEntry( iLocal, jLocal, u );
+        this->SetImagLocal( iLocal, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3887,7 +3887,7 @@ DistMatrix<T,MR,MC,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
     {
         const Int iLocal = (i-this->ColShift()) / g.Width();
         const Int jLocal = (j-this->RowShift()) / g.Height();
-        this->UpdateRealLocalEntry( iLocal, jLocal, u );
+        this->UpdateRealLocal( iLocal, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3914,7 +3914,7 @@ DistMatrix<T,MR,MC,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     {
         const Int iLocal = (i-this->ColShift()) / g.Width();
         const Int jLocal = (j-this->RowShift()) / g.Height();
-        this->UpdateImagLocalEntry( iLocal, jLocal, u );
+        this->UpdateImagLocal( iLocal, jLocal, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -4274,7 +4274,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonal
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            this->SetRealLocalEntry( iLocal, jLocal, dLocalBuffer[k] );
+            this->SetRealLocal( iLocal, jLocal, dLocalBuffer[k] );
         }
     }
 #ifndef RELEASE
@@ -4341,7 +4341,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonal
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            this->SetImagLocalEntry( iLocal, jLocal, dLocalBuffer[k] );
+            this->SetImagLocal( iLocal, jLocal, dLocalBuffer[k] );
         }
     }
 #ifndef RELEASE
@@ -4408,7 +4408,7 @@ DistMatrix<T,MR,MC,Int>::SetRealDiagonal
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            this->SetRealLocalEntry( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+            this->SetRealLocal( iLocal, jLocal, dLocalBuffer[k*dLDim] );
         }
     }
 #ifndef RELEASE
@@ -4475,7 +4475,7 @@ DistMatrix<T,MR,MC,Int>::SetImagDiagonal
         {
             const Int iLocal = iLocalStart + k*(lcm/c);
             const Int jLocal = jLocalStart + k*(lcm/r);
-            this->SetImagLocalEntry( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+            this->SetImagLocal( iLocal, jLocal, dLocalBuffer[k*dLDim] );
         }
     }
 #ifndef RELEASE

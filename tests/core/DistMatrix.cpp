@@ -82,8 +82,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     {
         for( int i=0; i<height; ++i )
         {
-            if( A_STAR_STAR.GetLocalEntry(i,j) != 
-                B_STAR_STAR.GetLocalEntry(i,j) )
+            if( A_STAR_STAR.GetLocal(i,j) != B_STAR_STAR.GetLocal(i,j) )
             {
                 myErrorFlag = 1;
                 break;

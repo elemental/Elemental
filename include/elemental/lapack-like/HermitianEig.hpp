@@ -347,7 +347,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -515,7 +515,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -693,7 +693,7 @@ HermitianEig
         // Copy wVector into the distributed matrix w[VR,* ]
         w.ResizeTo( k, 1 );
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -821,7 +821,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -905,7 +905,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -987,7 +987,7 @@ HermitianEig
         const int k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1102,7 +1102,7 @@ HermitianEig
         
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the
         // send/recv buffer memory usage low.
@@ -1273,7 +1273,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -1453,7 +1453,7 @@ HermitianEig
         k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
@@ -1585,7 +1585,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1670,7 +1670,7 @@ HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary
@@ -1753,7 +1753,7 @@ HermitianEig
         const int k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
         for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
-            w.SetLocalEntry(iLocal,0,wVector[iLocal]);
+            w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
     // Rescale the eigenvalues if necessary

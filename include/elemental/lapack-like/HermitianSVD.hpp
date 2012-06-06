@@ -63,8 +63,8 @@ inline void HermitianSVD
     const int numLocalVals = s.LocalHeight();
     for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R sigma = s.GetLocalEntry(iLocal,0);
-        s.SetLocalEntry(iLocal,0,Abs(sigma));
+        const R sigma = s.GetLocal(iLocal,0);
+        s.SetLocal(iLocal,0,Abs(sigma));
     }
 
     // Copy V into U (flipping the sign as necessary)
@@ -74,7 +74,7 @@ inline void HermitianSVD
     const int localWidth = V.LocalWidth();
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const R sigma = s_MR_STAR.GetLocalEntry( jLocal, 0 );
+        const R sigma = s_MR_STAR.GetLocal( jLocal, 0 );
         F* UCol = U.LocalBuffer( 0, jLocal );
         const F* VCol = V.LockedLocalBuffer( 0, jLocal );
         if( sigma >= 0 )
@@ -106,8 +106,8 @@ inline void HermitianSingularValues
     const int numLocalVals = s.LocalHeight();
     for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R sigma = s.GetLocalEntry(iLocal,0);
-        s.SetLocalEntry(iLocal,0,Abs(sigma));
+        const R sigma = s.GetLocal(iLocal,0);
+        s.SetLocal(iLocal,0,Abs(sigma));
     }
 #ifndef RELEASE
     PopCallStack();

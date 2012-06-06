@@ -89,7 +89,7 @@ FrobeniusNorm( const DistMatrix<F>& A )
     {
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
-            const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+            const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
             if( alphaAbs != 0 )
             {
                 if( alphaAbs <= localScale )

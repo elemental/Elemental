@@ -132,28 +132,23 @@ public:
     // Local entry manipulation
     //
 
-    T GetLocalEntry( Int iLocal, Int jLocal ) const;
-    void SetLocalEntry( Int iLocal, Int jLocal, T alpha );
-    void UpdateLocalEntry( Int iLocal, Int jLocal, T alpha );
+    T GetLocal( Int iLocal, Int jLocal ) const;
+    void SetLocal( Int iLocal, Int jLocal, T alpha );
+    void UpdateLocal( Int iLocal, Int jLocal, T alpha );
 
     //
     // Though the following routines are meant for complex data, all but two
     // logically applies to real data.
     //
 
-    typename Base<T>::type 
-    GetRealLocalEntry( Int iLocal, Int jLocal ) const;
-    typename Base<T>::type 
-    GetImagLocalEntry( Int iLocal, Int jLocal ) const;
-    void SetRealLocalEntry
+    typename Base<T>::type GetRealLocal( Int iLocal, Int jLocal ) const;
+    typename Base<T>::type GetImagLocal( Int iLocal, Int jLocal ) const;
+    void SetRealLocal( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    void UpdateRealLocal
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     // Only valid for complex data
-    void SetImagLocalEntry
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    void UpdateRealLocalEntry
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    // Only valid for complex data
-    void UpdateImagLocalEntry
+    void SetImagLocal( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    void UpdateImagLocal
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
 
     //
@@ -616,20 +611,17 @@ AbstractDistMatrix<T,Int>::LocalLDim() const
 
 template<typename T,typename Int>
 inline T
-AbstractDistMatrix<T,Int>::GetLocalEntry
-( Int i, Int j ) const
+AbstractDistMatrix<T,Int>::GetLocal( Int i, Int j ) const
 { return localMatrix_.Get(i,j); }
 
 template<typename T,typename Int>
 void
-AbstractDistMatrix<T,Int>::SetLocalEntry
-( Int iLocal, Int jLocal, T alpha )
+AbstractDistMatrix<T,Int>::SetLocal( Int iLocal, Int jLocal, T alpha )
 { localMatrix_.Set(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
-AbstractDistMatrix<T,Int>::UpdateLocalEntry
-( Int iLocal, Int jLocal, T alpha )
+AbstractDistMatrix<T,Int>::UpdateLocal( Int iLocal, Int jLocal, T alpha )
 { localMatrix_.Update(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
@@ -712,37 +704,35 @@ AbstractDistMatrix<T,Int>::Write
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-AbstractDistMatrix<T,Int>::GetRealLocalEntry
-( Int iLocal, Int jLocal ) const
+AbstractDistMatrix<T,Int>::GetRealLocal( Int iLocal, Int jLocal ) const
 { return this->localMatrix_.GetReal(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-AbstractDistMatrix<T,Int>::GetImagLocalEntry
-( Int iLocal, Int jLocal ) const
+AbstractDistMatrix<T,Int>::GetImagLocal( Int iLocal, Int jLocal ) const
 { return this->localMatrix_.GetImag(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::SetRealLocalEntry
+AbstractDistMatrix<T,Int>::SetRealLocal
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.SetReal(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::SetImagLocalEntry
+AbstractDistMatrix<T,Int>::SetImagLocal
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.SetImag(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::UpdateRealLocalEntry
+AbstractDistMatrix<T,Int>::UpdateRealLocal
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.UpdateReal(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::UpdateImagLocalEntry
+AbstractDistMatrix<T,Int>::UpdateImagLocal
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { this->localMatrix_.UpdateImag(iLocal,jLocal,alpha); }
 

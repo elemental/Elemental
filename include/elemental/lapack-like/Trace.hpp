@@ -50,7 +50,7 @@ inline F Trace( const DistMatrix<F>& A )
     {
         const int nLocalDiag = d.LocalHeight();
         for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
-            localTrace += d.GetLocalEntry(iLocal,0);
+            localTrace += d.GetLocal(iLocal,0);
     }
     F trace;
     mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );

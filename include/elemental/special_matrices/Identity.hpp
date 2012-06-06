@@ -102,7 +102,7 @@ MakeIdentity( DistMatrix<T,U,V>& I )
         {
             const int i = colShift + iLocal*colStride;
             if( i == j )
-                I.SetLocalEntry( iLocal, jLocal, (T)1 );
+                I.SetLocal( iLocal, jLocal, (T)1 );
         }
     }
 #ifndef RELEASE

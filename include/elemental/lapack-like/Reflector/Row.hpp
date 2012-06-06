@@ -98,7 +98,7 @@ RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
     if( norm == 0 )
     {
         if( gridCol == rowAlignment )
-            chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
+            chi.SetLocal(0,0,-chi.GetLocal(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -107,7 +107,7 @@ RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
 
     R alpha;
     if( gridCol == rowAlignment )
-        alpha = chi.GetLocalEntry(0,0);
+        alpha = chi.GetLocal(0,0);
     mpi::Broadcast( &alpha, 1, rowAlignment, rowComm );
 
     R beta;
@@ -147,7 +147,7 @@ RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridCol == rowAlignment )
-        chi.SetLocalEntry(0,0,beta);
+        chi.SetLocal(0,0,beta);
         
 #ifndef RELEASE
     PopCallStack();
@@ -188,13 +188,13 @@ RowReflector
 
     C alpha;
     if( gridCol == rowAlignment )
-        alpha = chi.GetLocalEntry(0,0);
+        alpha = chi.GetLocal(0,0);
     mpi::Broadcast( &alpha, 1, rowAlignment, rowComm );
 
     if( norm == (R)0 && alpha.imag == (R)0 )
     {
         if( gridCol == rowAlignment )
-            chi.SetLocalEntry(0,0,-chi.GetLocalEntry(0,0));
+            chi.SetLocal(0,0,-chi.GetLocal(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
@@ -238,7 +238,7 @@ RowReflector
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridCol == rowAlignment )
-        chi.SetLocalEntry(0,0,beta);
+        chi.SetLocal(0,0,beta);
         
 #ifndef RELEASE
     PopCallStack();

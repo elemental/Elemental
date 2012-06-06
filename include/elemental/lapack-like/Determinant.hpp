@@ -64,7 +64,7 @@ SafeDeterminant( DistMatrix<F>& A )
             const int nLocalDiag = d.LocalHeight();
             for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
             {
-                const F delta = d.GetLocalEntry(iLocal,0);
+                const F delta = d.GetLocal(iLocal,0);
                 R alpha = Abs(delta);
                 localRho *= delta/alpha;
                 localKappa += std::log(alpha)/n;

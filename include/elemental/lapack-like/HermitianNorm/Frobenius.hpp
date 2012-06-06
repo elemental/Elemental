@@ -165,7 +165,7 @@ HermitianFrobeniusNorm
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
                 if( alphaAbs != 0 )
                 {
                     if( alphaAbs <= localScale )
@@ -201,7 +201,7 @@ HermitianFrobeniusNorm
                  iLocal<A.LocalHeight(); ++iLocal )
             {
                 int i = colShift + iLocal*r;
-                const R alphaAbs = Abs(A.GetLocalEntry(iLocal,jLocal));
+                const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
                 if( alphaAbs != 0 )
                 {
                     if( alphaAbs <= localScale )

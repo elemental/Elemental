@@ -99,8 +99,7 @@ struct MakeUniformHelper<T,MC,MR>
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry
-                ( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -156,8 +155,7 @@ struct MakeUniformHelper<T,MD,STAR>
             const int localHeight = A.LocalHeight();
             for( int j=0; j<n; ++j )
                 for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                    A.SetLocalEntry
-                    ( iLocal, j, center+radius*SampleUnitBall<T>() );
+                    A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -172,8 +170,7 @@ struct MakeUniformHelper<T,MR,MC>
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry
-                ( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -258,8 +255,7 @@ struct MakeUniformHelper<T,STAR,MD>
             const int localWidth = A.LocalWidth();
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 for( int i=0; i<m; ++i )
-                    A.SetLocalEntry
-                    ( i, jLocal, center+radius*SampleUnitBall<T>() );
+                    A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -349,7 +345,7 @@ struct MakeUniformHelper<T,STAR,VC>
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int i=0; i<m; ++i )
-                A.SetLocalEntry( i, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -363,7 +359,7 @@ struct MakeUniformHelper<T,STAR,VR>
         const int localWidth = A.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             for( int i=0; i<m; ++i )
-                A.SetLocalEntry( i, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -377,7 +373,7 @@ struct MakeUniformHelper<T,VC,STAR>
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, j, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -391,7 +387,7 @@ struct MakeUniformHelper<T,VR,STAR>
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocalEntry( iLocal, j, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
     }
 };
 

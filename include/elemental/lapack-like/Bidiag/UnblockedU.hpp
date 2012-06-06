@@ -92,7 +92,7 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
         const R tauQ = Reflector( alpha11, a21 );
         R epsilonQ=0;
         if( thisIsMyCol && thisIsMyRow )
-            epsilonQ = alpha11.GetLocalEntry(0,0);
+            epsilonQ = alpha11.GetLocal(0,0);
 
         // Set aB1 = | 1 | and form x12^T := (aB1^T AB2)^T = AB2^T aB1
         //           | u |
@@ -109,7 +109,7 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
 
         // Put epsilonQ back instead of the temporary value, 1
         if( thisIsMyCol && thisIsMyRow )
-            alpha11.SetLocalEntry(0,0,epsilonQ);
+            alpha11.SetLocal(0,0,epsilonQ);
 
         if( A22.Width() != 0 )
         {
@@ -122,7 +122,7 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
             const R tauP = Reflector( alpha12L, a12R );
             R epsilonP=0;
             if( nextIsMyCol && thisIsMyRow )
-                epsilonP = alpha12L.GetLocalEntry(0,0);
+                epsilonP = alpha12L.GetLocal(0,0);
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
@@ -139,7 +139,7 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
 
             // Put epsilonP back instead of the temporary value, 1
             if( nextIsMyCol && thisIsMyRow )
-                alpha12L.SetLocalEntry(0,0,epsilonP);
+                alpha12L.SetLocal(0,0,epsilonP);
         }
         //--------------------------------------------------------------------//
         aB1_MC_STAR.FreeAlignments();
@@ -237,7 +237,7 @@ inline void UnblockedBidiagU
         tQ.Set(A00.Height(),0,tauQ );
         C epsilonQ=0;
         if( thisIsMyCol && thisIsMyRow )
-            epsilonQ = alpha11.GetLocalEntry(0,0);
+            epsilonQ = alpha11.GetLocal(0,0);
 
         // Set aB1 = | 1 | and form x12^H := (aB1^H AB2)^H = AB2^H aB1
         //           | u |
@@ -254,7 +254,7 @@ inline void UnblockedBidiagU
 
         // Put epsilonQ back instead of the temporary value, 1
         if( thisIsMyCol && thisIsMyRow )
-            alpha11.SetLocalEntry(0,0,epsilonQ);
+            alpha11.SetLocal(0,0,epsilonQ);
 
         if( A22.Width() != 0 )
         {
@@ -272,7 +272,7 @@ inline void UnblockedBidiagU
             tP.Set(A00.Height(),0,tauP);
             C epsilonP=0;
             if( nextIsMyCol && thisIsMyRow )
-                epsilonP = alpha12L.GetLocalEntry(0,0);
+                epsilonP = alpha12L.GetLocal(0,0);
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
@@ -292,7 +292,7 @@ inline void UnblockedBidiagU
 
             // Put epsilonP back instead of the temporary value, 1
             if( nextIsMyCol && thisIsMyRow )
-                alpha12L.SetLocalEntry(0,0,epsilonP);
+                alpha12L.SetLocal(0,0,epsilonP);
 
             // Undue the temporary conjugation
             Conjugate( a12 );

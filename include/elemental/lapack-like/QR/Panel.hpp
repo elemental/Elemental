@@ -138,8 +138,8 @@ PanelQR( DistMatrix<Real>& A )
         Real alpha = 0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.GetLocalEntry(0,0);
-            alpha11.SetLocalEntry(0,0,1);
+            alpha = alpha11.GetLocal(0,0);
+            alpha11.SetLocal(0,0,1);
         }
 
         aLeftCol_MC_STAR = aLeftCol;
@@ -158,7 +158,7 @@ PanelQR( DistMatrix<Real>& A )
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.SetLocalEntry(0,0,alpha);
+            alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
         aLeftCol_MC_STAR.FreeAlignments();
         z_MR_STAR.FreeAlignments();
@@ -330,8 +330,8 @@ PanelQR
         C alpha = 0;
         if( myDiagonalEntry )
         {
-            alpha = alpha11.GetLocalEntry(0,0);
-            alpha11.SetLocalEntry(0,0,1);
+            alpha = alpha11.GetLocal(0,0);
+            alpha11.SetLocal(0,0,1);
         }
 
         aLeftCol_MC_STAR = aLeftCol;
@@ -350,7 +350,7 @@ PanelQR
           ARightPan.LocalMatrix() );
 
         if( myDiagonalEntry )
-            alpha11.SetLocalEntry(0,0,alpha);
+            alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
         aLeftCol_MC_STAR.FreeAlignments();
         z_MR_STAR.FreeAlignments();

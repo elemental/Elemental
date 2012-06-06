@@ -97,7 +97,7 @@ void TestCorrectnessDouble
         Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
+            const double omega = w_MR_STAR.GetLocal(jLocal,0);
             blas::Scal( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
@@ -161,12 +161,12 @@ void TestCorrectnessDouble
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
+            const double omega = w_MR_STAR.GetLocal(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const double chi = X.GetLocalEntry(iLocal,jLocal);
-                const double zeta = Z.GetLocalEntry(iLocal,jLocal);
-                Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
+                const double chi = X.GetLocal(iLocal,jLocal);
+                const double zeta = Z.GetLocal(iLocal,jLocal);
+                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
@@ -225,12 +225,12 @@ void TestCorrectnessDouble
         // Set Z := Z - XW = BAX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
+            const double omega = w_MR_STAR.GetLocal(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const double chi = X.GetLocalEntry(iLocal,jLocal);
-                const double zeta = Z.GetLocalEntry(iLocal,jLocal);
-                Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
+                const double chi = X.GetLocal(iLocal,jLocal);
+                const double zeta = Z.GetLocal(iLocal,jLocal);
+                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW
@@ -315,7 +315,7 @@ void TestCorrectnessDoubleComplex
           Complex<double>(0), Y );
         for( int jLocal=0; jLocal<Y.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0);
+            const double omega = w_MR_STAR.GetLocal(jLocal,0);
             blas::Scal
             ( 2*Y.LocalHeight(), omega, (double*)Y.LocalBuffer(0,jLocal), 1 );
         }
@@ -390,13 +390,12 @@ void TestCorrectnessDoubleComplex
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
+            const double omega = w_MR_STAR.GetLocal(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const Complex<double> zeta = 
-                    Z.GetLocalEntry(iLocal,jLocal);
-                Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
+                const Complex<double> chi = X.GetLocal(iLocal,jLocal);
+                const Complex<double> zeta = Z.GetLocal(iLocal,jLocal);
+                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
@@ -464,12 +463,12 @@ void TestCorrectnessDoubleComplex
         // Set Z := Z - XW = BAX-XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
-            const double omega = w_MR_STAR.GetLocalEntry(jLocal,0); 
+            const double omega = w_MR_STAR.GetLocal(jLocal,0); 
             for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
-                const Complex<double> chi = X.GetLocalEntry(iLocal,jLocal);
-                const Complex<double> zeta = Z.GetLocalEntry(iLocal,jLocal);
-                Z.SetLocalEntry(iLocal,jLocal,zeta-omega*chi);
+                const Complex<double> chi = X.GetLocal(iLocal,jLocal);
+                const Complex<double> zeta = Z.GetLocal(iLocal,jLocal);
+                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW

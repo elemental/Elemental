@@ -109,7 +109,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             myPartialUpperColSums[jLocal] = 0;
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
                 myPartialUpperColSums[jLocal] += 
-                    Abs(A.GetLocalEntry(iLocal,jLocal));
+                    Abs(A.GetLocal(iLocal,jLocal));
         } 
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
@@ -118,7 +118,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             myPartialStrictlyUpperRowSums[iLocal] = 0;
             for( int jLocal=numLowerCols; jLocal<A.LocalWidth(); ++jLocal )
                 myPartialStrictlyUpperRowSums[iLocal] += 
-                    Abs(A.GetLocalEntry(iLocal,jLocal));
+                    Abs(A.GetLocal(iLocal,jLocal));
         }
 
         // Just place the sums into their appropriate places in a vector an 
@@ -156,7 +156,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
                 myPartialLowerColSums[jLocal] += 
-                    Abs(A.GetLocalEntry(iLocal,jLocal));
+                    Abs(A.GetLocal(iLocal,jLocal));
         } 
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
         {
@@ -165,7 +165,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             myPartialStrictlyLowerRowSums[iLocal] = 0;
             for( int jLocal=0; jLocal<numStrictlyLowerCols; ++jLocal )
                 myPartialStrictlyLowerRowSums[iLocal] += 
-                    Abs(A.GetLocalEntry(iLocal,jLocal));
+                    Abs(A.GetLocal(iLocal,jLocal));
         }
 
         // Just place the sums into their appropriate places in a vector an 

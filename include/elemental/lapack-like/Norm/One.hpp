@@ -72,7 +72,7 @@ OneNorm( const DistMatrix<F>& A )
     {
         myPartialColSums[jLocal] = 0;
         for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
-            myPartialColSums[jLocal] += Abs(A.GetLocalEntry(iLocal,jLocal));
+            myPartialColSums[jLocal] += Abs(A.GetLocal(iLocal,jLocal));
     }
 
     // Sum our partial column sums to get the column sums over A[* ,MR]

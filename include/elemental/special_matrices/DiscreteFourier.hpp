@@ -118,11 +118,11 @@ MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-            A.SetLocalEntry( iLocal, jLocal, Exp(-2*pi*i*j/n)/nSqrt );
+            A.SetLocal( iLocal, jLocal, Exp(-2*pi*i*j/n)/nSqrt );
 
             const R theta = -2*pi*i*j/n;
             const Complex<R> alpha( Cos(theta), Sin(theta) );
-            A.SetLocalEntry( iLocal, jLocal, alpha/nSqrt );
+            A.SetLocal( iLocal, jLocal, alpha/nSqrt );
         }
     }
 #ifndef RELEASE

@@ -113,7 +113,7 @@ CauchyLike
                 throw std::logic_error( msg.str().c_str() );
             }
 #endif
-            A.SetLocalEntry( iLocal, jLocal, r[i]*s[j]/(x[i]-y[j]) );
+            A.SetLocal( iLocal, jLocal, r[i]*s[j]/(x[i]-y[j]) );
         }
     }
 #ifndef RELEASE

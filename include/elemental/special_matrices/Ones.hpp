@@ -89,7 +89,7 @@ MakeOnes( DistMatrix<T,U,V>& A )
     const int localWidth = A.LocalWidth();
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            A.SetLocalEntry( iLocal, jLocal, (T)1 );
+            A.SetLocal( iLocal, jLocal, (T)1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

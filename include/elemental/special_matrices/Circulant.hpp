@@ -72,7 +72,7 @@ Circulant( const std::vector<T>& a, DistMatrix<T,U,V>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-            A.SetLocalEntry( iLocal, jLocal, a[(i-j+n)%n] );
+            A.SetLocal( iLocal, jLocal, a[(i-j+n)%n] );
         }
     }
 #ifndef RELEASE

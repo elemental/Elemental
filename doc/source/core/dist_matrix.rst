@@ -148,15 +148,15 @@ to be available for all matrix distributions.
       Add :math:`\alpha` to the ``(i,j)`` entry of the global matrix. This 
       operation is collective.
 
-   .. cpp:function:: T GetLocalEntry( int iLocal, int jLocal ) const
+   .. cpp:function:: T GetLocal( int iLocal, int jLocal ) const
 
       Return the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   .. cpp:function:: void SetLocalEntry( int iLocal, int jLocal, T alpha )
+   .. cpp:function:: void SetLocal( int iLocal, int jLocal, T alpha )
 
       Set the ``(iLocal,jLocal)`` entry of our local matrix to :math:`\alpha`.
 
-   .. cpp:function:: void UpdateLocalEntry( int iLoca, int jLocal, T alpha )
+   .. cpp:function:: void UpdateLocal( int iLoca, int jLocal, T alpha )
 
       Add :math:`\alpha` to the ``(iLocal,jLocal)`` entry of our local matrix.
 
@@ -194,30 +194,30 @@ to be available for all matrix distributions.
       Add :math:`\alpha` to the imaginary part of the ``(i,j)`` entry of the 
       global matrix.
 
-   .. cpp:function:: typename RealBase<T>::type GetRealLocalEntry( int iLocal, int jLocal ) const
+   .. cpp:function:: typename RealBase<T>::type GetRealLocal( int iLocal, int jLocal ) const
 
       Return the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   .. cpp:function:: typename RealBase<T>::type GetImagLocalEntry( int iLocal, int jLocal ) const
+   .. cpp:function:: typename RealBase<T>::type GetImagLocal( int iLocal, int jLocal ) const
 
       Return the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
       matrix.
 
-   .. cpp:function:: void SetRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetRealLocal( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
       Set the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
 
-   .. cpp:function:: void SetImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+   .. cpp:function:: void SetImagLocal( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
       Set the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
       matrix.
 
-   .. cpp:function:: void UpdateRealLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+   .. cpp:function:: void UpdateRealLocal( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
       Add :math:`\alpha` to the real part of the ``(iLocal,jLocal)`` entry of 
       our local matrix.
 
-   .. cpp:function:: void UpdateImagLocalEntry( int iLocal, int jLocal, typename RealBase<T>::type alpha )
+   .. cpp:function:: void UpdateImagLocal( int iLocal, int jLocal, typename RealBase<T>::type alpha )
 
       Add :math:`\alpha` to the imaginary part of the ``(iLocal,jLocal)`` entry 
       of our local matrix.

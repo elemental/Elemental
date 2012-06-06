@@ -247,20 +247,20 @@ operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetLocalEntry__i.iC">
-T <tt class="descname">GetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetLocal__i.iC">
+T <tt class="descname">GetLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetLocal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetLocalEntry__i.i.T">
-void <tt class="descname">SetLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetLocal__i.i.T">
+void <tt class="descname">SetLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocal__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix to <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateLocalEntry__i.i.T">
-void <tt class="descname">UpdateLocalEntry</tt><big>(</big>int <em>iLoca</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateLocalEntry__i.i.T" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateLocal__i.i.T">
+void <tt class="descname">UpdateLocal</tt><big>(</big>int <em>iLoca</em>, int <em>jLocal</em>, T <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateLocal__i.i.T" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
@@ -311,41 +311,41 @@ global matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetRealLocalEntry__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetRealLocal__i.iC">
+typename RealBase&lt;T&gt;::type <tt class="descname">GetRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealLocal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetImagLocalEntry__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagLocalEntry__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetImagLocal__i.iC">
+typename RealBase&lt;T&gt;::type <tt class="descname">GetImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagLocal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetRealLocal__i.i.typename-RealBase:T:::type">
+void <tt class="descname">SetRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetImagLocal__i.i.typename-RealBase:T:::type">
+void <tt class="descname">SetImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateRealLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateRealLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateRealLocal__i.i.typename-RealBase:T:::type">
+void <tt class="descname">UpdateRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of
 our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateImagLocalEntry__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateImagLocalEntry</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagLocalEntry__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateImagLocal__i.i.typename-RealBase:T:::type">
+void <tt class="descname">UpdateImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry
 of our local matrix.</p>
 </dd></dl>

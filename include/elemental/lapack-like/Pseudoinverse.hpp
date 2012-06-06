@@ -62,7 +62,7 @@ Pseudoinverse( DistMatrix<F>& A )
     const int numLocalVals = s.LocalHeight();
     for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R sigma = s.GetLocalEntry(iLocal,0);
+        const R sigma = s.GetLocal(iLocal,0);
         maxLocalVal = std::max(maxLocalVal,sigma);
     }
     R twoNorm;
@@ -73,11 +73,11 @@ Pseudoinverse( DistMatrix<F>& A )
     const R tolerance = k*twoNorm*eps;
     for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
-        const R sigma = s.GetLocalEntry(iLocal,0);
+        const R sigma = s.GetLocal(iLocal,0);
         if( sigma < tolerance )
-            s.SetLocalEntry(iLocal,0,0);
+            s.SetLocal(iLocal,0,0);
         else
-            s.SetLocalEntry(iLocal,0,1/sigma);
+            s.SetLocal(iLocal,0,1/sigma);
     }
 
     // Scale U with the singular values, U := U Sigma

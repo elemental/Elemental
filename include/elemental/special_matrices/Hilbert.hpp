@@ -107,7 +107,7 @@ MakeHilbert( DistMatrix<F,U,V>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-            A.SetLocalEntry( iLocal, jLocal, one/(i+j+1) );
+            A.SetLocal( iLocal, jLocal, one/(i+j+1) );
         }
     }
 #ifndef RELEASE

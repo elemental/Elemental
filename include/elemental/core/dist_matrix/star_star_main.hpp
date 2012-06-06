@@ -144,7 +144,7 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
             for( Int i=0; i<height; ++i )
             {
                 for( Int j=0; j<width; ++j )
-                    os << this->GetLocalEntry(i,j) << " ";
+                    os << this->GetLocal(i,j) << " ";
                 os << "\n";
             }
             os << std::endl;
@@ -500,13 +500,13 @@ DistMatrix<T,STAR,STAR,Int>::Get( Int i, Int j ) const
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = this->GetLocalEntry(i,j);
+        u = this->GetLocal(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = this->GetLocalEntry(i,j);
+            u = this->GetLocal(i,j);
         mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), 
           this->Grid().ViewingComm() );
@@ -526,7 +526,7 @@ DistMatrix<T,STAR,STAR,Int>::Set( Int i, Int j, T u )
     this->AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-        this->SetLocalEntry(i,j,u);
+        this->SetLocal(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -542,7 +542,7 @@ DistMatrix<T,STAR,STAR,Int>::Update( Int i, Int j, T u )
 #endif
     if( this->Grid().InGrid() )
     {
-        this->UpdateLocalEntry(i,j,u);
+        this->UpdateLocal(i,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1620,7 +1620,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
         {
             for( Int j=0; j<A.Width(); ++j ) 
                 for( Int i=0; i<A.Height(); ++i )
-                    sendBuffer[i+j*A.Height()] = A.GetLocalEntry(i,j);
+                    sendBuffer[i+j*A.Height()] = A.GetLocal(i,j);
             const Int recvViewingRank = this->Grid().VCToViewingMap(0);
             mpi::ISend
             ( sendBuffer, A.Height()*A.Width(), recvViewingRank, 0,
@@ -1644,7 +1644,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 
             for( Int j=0; j<A.Width(); ++j )
                 for( Int i=0; i<A.Height(); ++i )
-                    this->SetLocalEntry(i,j,bcastBuffer[i+j*A.Height()]);
+                    this->SetLocal(i,j,bcastBuffer[i+j*A.Height()]);
         }
 
         if( A.Grid().VCRank() == 0 )
@@ -1834,13 +1834,13 @@ DistMatrix<T,STAR,STAR,Int>::GetReal( Int i, Int j ) const
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = this->GetRealLocalEntry(i,j);
+        u = this->GetRealLocal(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = this->GetRealLocalEntry(i,j);
+            u = this->GetRealLocal(i,j);
         mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), this->Grid().ViewingComm() );
     }
@@ -1867,13 +1867,13 @@ DistMatrix<T,STAR,STAR,Int>::GetImag( Int i, Int j ) const
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = this->GetImagLocalEntry(i,j);
+        u = this->GetImagLocal(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = this->GetImagLocalEntry(i,j);
+            u = this->GetImagLocal(i,j);
         mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), this->Grid().ViewingComm() );
     }
@@ -1892,7 +1892,7 @@ DistMatrix<T,STAR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-        this->SetRealLocalEntry(i,j,u);
+        this->SetRealLocal(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1909,7 +1909,7 @@ DistMatrix<T,STAR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
     if( this->Grid().InGrid() )
-        this->SetImagLocalEntry(i,j,u);
+        this->SetImagLocal(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1925,7 +1925,7 @@ DistMatrix<T,STAR,STAR,Int>::UpdateReal
     AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-        this->UpdateRealLocalEntry(i,j,u);
+        this->UpdateRealLocal(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1943,7 +1943,7 @@ DistMatrix<T,STAR,STAR,Int>::UpdateImag
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
     if( this->Grid().InGrid() )
-        this->UpdateImagLocalEntry(i,j,u);
+        this->UpdateImagLocal(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif

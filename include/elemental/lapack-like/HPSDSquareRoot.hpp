@@ -61,7 +61,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
+        const R omega = w.GetLocal(iLocal,0);
         maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
     }
     R twoNorm;
@@ -71,7 +71,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     R minLocalEig = twoNorm;
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
+        const R omega = w.GetLocal(iLocal,0);
         minLocalEig = std::min(minLocalEig,omega);
     }
     R minEig;
@@ -89,11 +89,11 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     // Overwrite the eigenvalues with f(w)
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
+        const R omega = w.GetLocal(iLocal,0);
         if( omega > (R)0 )
-            w.SetLocalEntry(iLocal,0,Sqrt(omega));
+            w.SetLocal(iLocal,0,Sqrt(omega));
         else
-            w.SetLocalEntry(iLocal,0,0);
+            w.SetLocal(iLocal,0,0);
     }
 
     // Form the pseudoinverse

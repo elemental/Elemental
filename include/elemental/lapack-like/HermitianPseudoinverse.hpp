@@ -61,7 +61,7 @@ HermitianPseudoinverse
     const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
+        const R omega = w.GetLocal(iLocal,0);
         maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
     }
     R twoNorm;
@@ -73,11 +73,11 @@ HermitianPseudoinverse
     const R tolerance = n*twoNorm*eps;
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
-        const R omega = w.GetLocalEntry(iLocal,0);
+        const R omega = w.GetLocal(iLocal,0);
         if( Abs(omega) < tolerance )
-            w.SetLocalEntry(iLocal,0,0);
+            w.SetLocal(iLocal,0,0);
         else
-            w.SetLocalEntry(iLocal,0,1/omega);
+            w.SetLocal(iLocal,0,1/omega);
     }
 
     // Form the pseudoinverse

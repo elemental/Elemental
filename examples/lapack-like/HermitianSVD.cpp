@@ -89,7 +89,7 @@ main( int argc, char* argv[] )
                 //           and the columns rowShift:rowStride:n
                 const int i = colShift + iLocal*colStride;
                 const int j = rowShift + jLocal*rowStride;
-                H.SetLocalEntry( iLocal, jLocal, C(i+j,i-j) );
+                H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
             }
         }
         // Alternatively, we could have sequentially filled the matrix with 

@@ -72,7 +72,7 @@ InfinityNorm( const DistMatrix<F>& A )
     {
         myPartialRowSums[iLocal] = 0;
         for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
-            myPartialRowSums[iLocal] += Abs(A.GetLocalEntry(iLocal,jLocal));
+            myPartialRowSums[iLocal] += Abs(A.GetLocal(iLocal,jLocal));
     }
 
     // Sum our partial row sums to get the row sums over A[MC,* ]

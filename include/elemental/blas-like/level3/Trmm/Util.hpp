@@ -54,7 +54,7 @@ SetDiagonalToOne( DistMatrix<T,MC,MR>& D )
         if( j >= 0 && j < height && (j-colShift) % r == 0 )
         {
             const int iLoc = (j-colShift)/r;
-            D.SetLocalEntry(iLoc,jLoc,1);
+            D.SetLocal(iLoc,jLoc,1);
         }
     }
 #ifndef RELEASE
