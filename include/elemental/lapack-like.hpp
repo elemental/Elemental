@@ -1078,7 +1078,8 @@ void Polar( DistMatrix<F>& A, DistMatrix<F>& P );
 
 template<typename F>
 void SVD
-( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V );
+( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V, 
+  bool useQR=false );
 template<typename F>
 void SVD
 ( DistMatrix<F>& A, 

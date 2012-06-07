@@ -182,18 +182,30 @@ void DivideAndConquerSVD
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
 
 //
-// Compute the singular values of a general matrix using a divide and conquer 
-// algorithm
+// Compute the SVD of a general matrix using the QR algorithm
 //
 
-void DivideAndConquerSingularValues
-( int m, int n, float* A, int lda, float* s );
-void DivideAndConquerSingularValues
-( int m, int n, double* A, int lda, double* s );
-void DivideAndConquerSingularValues
-( int m, int n, scomplex* A, int lda, float* s );
-void DivideAndConquerSingularValues
-( int m, int n, dcomplex* A, int lda, double* s );
+void QRSVD
+( int m, int n, float* A, int lda, 
+  float* s, float* U, int ldu, float* VTrans, int ldvt );
+void QRSVD
+( int m, int n, double* A, int lda, 
+  double* s, double* U, int ldu, double* VTrans, int ldvt );
+void QRSVD
+( int m, int n, scomplex* A, int lda, 
+  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva );
+void QRSVD
+( int m, int n, dcomplex* A, int lda, 
+  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
+
+//
+// Compute the singular values of a general matrix using the QR algorithm
+//
+
+void SingularValues( int m, int n, float* A, int lda, float* s );
+void SingularValues( int m, int n, double* A, int lda, double* s );
+void SingularValues( int m, int n, scomplex* A, int lda, float* s );
+void SingularValues( int m, int n, dcomplex* A, int lda, double* s );
 
 //
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
@@ -346,6 +358,28 @@ void LAPACK(zgesdd)
   elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
   elem::dcomplex* work, const int* lwork, double* rwork, 
   int* iwork, int* info );
+
+// QR-algorithm SVD
+void LAPACK(sgesvd)
+( const char* jobu, const char* jobvt, const int* m, const int* n, 
+  float* A, const int* lda,
+  float* s, float* U, const int* ldu, float* VTrans, const int* ldvt,
+  float* work, const int* lwork, int* info );
+void LAPACK(dgesvd)
+( const char* jobu, const char* jobvt, const int* m, const int* n, 
+  double* A, const int* lda,
+  double* s, double* U, const int* ldu, double* VTrans, const int* ldvt,
+  double* work, const int* lwork, int* info );
+void LAPACK(cgesvd)
+( const char* jobu, const char* jobva, const int* m, const int* n, 
+  elem::scomplex* A, const int* lda, float* s, 
+  elem::scomplex* U, const int* ldu, elem::scomplex* VTrans, const int* ldvt,
+  elem::scomplex* work, const int* lwork, float* rwork, int* info );
+void LAPACK(zgesvd)
+( const char* jobu, const char* jobva, const int* m, const int* n, 
+  elem::dcomplex* A, const int* lda, double* s, 
+  elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
+  elem::dcomplex* work, const int* lwork, double* rwork, int* info );
 
 } // extern "C"
 

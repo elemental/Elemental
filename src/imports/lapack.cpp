@@ -685,7 +685,7 @@ void DivideAndConquerSVD
 
     LAPACK(sgesdd)
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, &dummyWork, &lwork,
-      0, &info );
+      &iwork[0], &info );
 
     lwork = dummyWork;
     std::vector<float> work(lwork);
@@ -754,7 +754,9 @@ void DivideAndConquerSVD
     const char jobz='S';
     int lwork=-1, info;
     const int k = std::min(m,n);
-    std::vector<float> rwork(5*k*k+5*k);
+    const int K = std::max(m,n);
+    const int lrwork = k*std::max(5*k+7,2*K+2*k+1);
+    std::vector<float> rwork(lrwork);
     std::vector<int> iwork(8*k);
 
     scomplex dummyWork;
@@ -793,7 +795,9 @@ void DivideAndConquerSVD
     int lwork=-1, info;
     dcomplex dummyWork;
     const int k = std::min(m,n);
-    std::vector<double> rwork(5*k*k+5*k);
+    const int K = std::max(m,n);
+    const int lrwork = k*std::max(5*k+7,2*K+2*k+1);
+    std::vector<double> rwork(lrwork);
     std::vector<int> iwork(8*k);
 
     LAPACK(zgesdd)
@@ -821,30 +825,29 @@ void DivideAndConquerSVD
 }
 
 //
-// Divide and Conquer Singular Values
+// QR-algorithm SVD
 //
 
-void DivideAndConquerSingularValues
-( int m, int n, float* A, int lda, float* s )
+void QRSVD
+( int m, int n, float* A, int lda, 
+  float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSingularValues");
+    PushCallStack("lapack::QRSVD");
 #endif
-    const char jobz='N';
-    int fakeLDim=1, lwork=-1, info;
+    const char jobu='S', jobvt='S';
+    int lwork=-1, info;
     float dummyWork;
-    const int k = std::min(m,n);
-    std::vector<int> iwork(8*k);
 
-    LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
-      &iwork[0], &info );
+    LAPACK(sgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
+      &dummyWork, &lwork, &info );
 
     lwork = dummyWork;
     std::vector<float> work(lwork);
-    LAPACK(sgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
-      &iwork[0], &info );
+    LAPACK(sgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
+      &work[0], &lwork, &info );
     if( info < 0 )
     {
         std::ostringstream msg;
@@ -853,34 +856,33 @@ void DivideAndConquerSingularValues
     }
     else if( info > 0 )
     {
-        throw std::runtime_error("sgesdd's updating process failed");
+        throw std::runtime_error("sgesvd's updating process failed");
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void DivideAndConquerSingularValues
-( int m, int n, double* A, int lda, double* s )
+void QRSVD
+( int m, int n, double* A, int lda, 
+  double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSingularValues");
+    PushCallStack("lapack::QRSVD");
 #endif
-    const char jobz='N';
-    int fakeLDim=1, lwork=-1, info;
+    const char jobu='S', jobvt='S';
+    int lwork=-1, info;
     double dummyWork;
-    const int k = std::min(m,n);
-    std::vector<int> iwork(8*k);
 
-    LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
-      &iwork[0], &info );
+    LAPACK(dgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
+      &dummyWork, &lwork, &info );
 
     lwork = dummyWork;
     std::vector<double> work(lwork);
-    LAPACK(dgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
-      &iwork[0], &info );
+    LAPACK(dgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, U, &ldu, VTrans, &ldvt, 
+      &work[0], &lwork, &info );
     if( info < 0 )
     {
         std::ostringstream msg;
@@ -889,35 +891,35 @@ void DivideAndConquerSingularValues
     }
     else if( info > 0 )
     {
-        throw std::runtime_error("dgesdd's updating process failed");
+        throw std::runtime_error("dgesvd's updating process failed");
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void DivideAndConquerSingularValues
-( int m, int n, scomplex* A, int lda, float* s )
+void QRSVD
+( int m, int n, scomplex* A, int lda, 
+  float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSingularValues");
+    PushCallStack("lapack::QRSVD");
 #endif
-    const char jobz='N';
-    int fakeLDim=1, lwork=-1, info;
-    scomplex dummyWork;
+    const char jobu='S', jobva='S';
+    int lwork=-1, info;
     const int k = std::min(m,n);
-    std::vector<float> rwork(7*k);
-    std::vector<int> iwork(8*k);
+    std::vector<float> rwork(5*k);
 
-    LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
-      &rwork[0], &iwork[0], &info );
+    scomplex dummyWork;
+    LAPACK(cgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
+      &dummyWork, &lwork, &rwork[0], &info );
 
     lwork = dummyWork.real;
     std::vector<scomplex> work(lwork);
-    LAPACK(cgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
-      &rwork[0], &iwork[0], &info );
+    LAPACK(cgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
+      &work[0], &lwork, &rwork[0], &info );
     if( info < 0 )
     {
         std::ostringstream msg;
@@ -926,35 +928,35 @@ void DivideAndConquerSingularValues
     }
     else if( info > 0 )
     {
-        throw std::runtime_error("cgesdd's updating process failed");
+        throw std::runtime_error("cgesvd's updating process failed");
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void DivideAndConquerSingularValues
-( int m, int n, dcomplex* A, int lda, double* s )
+void QRSVD
+( int m, int n, dcomplex* A, int lda, 
+  double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSingularValues");
+    PushCallStack("lapack::QRSVD");
 #endif
-    const char jobz='N';
-    int fakeLDim=1, lwork=-1, info;
+    const char jobu='S', jobva='S';
+    int lwork=-1, info;
     dcomplex dummyWork;
     const int k = std::min(m,n);
-    std::vector<double> rwork(7*k);
-    std::vector<int> iwork(8*k);
+    std::vector<double> rwork(5*k);
 
-    LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &dummyWork, &lwork,
-      &rwork[0], &iwork[0], &info );
+    LAPACK(zgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
+      &dummyWork, &lwork, &rwork[0], &info );
 
     lwork = dummyWork.real;
     std::vector<dcomplex> work(lwork);
-    LAPACK(zgesdd)
-    ( &jobz, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, &work[0], &lwork,
-      &rwork[0], &iwork[0], &info );
+    LAPACK(zgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
+      &work[0], &lwork, &rwork[0], &info );
     if( info < 0 )
     {
         std::ostringstream msg;
@@ -963,7 +965,147 @@ void DivideAndConquerSingularValues
     }
     else if( info > 0 )
     {
-        throw std::runtime_error("zgesdd's updating process failed");
+        throw std::runtime_error("zgesvd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
+// Compute singular values with QR algorithm
+//
+
+void SingularValues( int m, int n, float* A, int lda, float* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SingularValues");
+#endif
+    const char jobu='N', jobvt='N';
+    int fakeLDim=1, lwork=-1, info;
+    float dummyWork;
+
+    LAPACK(sgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work(lwork);
+    LAPACK(sgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("sgesvd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void SingularValues( int m, int n, double* A, int lda, double* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SingularValues");
+#endif
+    const char jobu='N', jobvt='N';
+    int fakeLDim=1, lwork=-1, info;
+    double dummyWork;
+
+    LAPACK(dgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<double> work(lwork);
+    LAPACK(dgesvd)
+    ( &jobu, &jobvt, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("dgesvd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void SingularValues( int m, int n, scomplex* A, int lda, float* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SingularValues");
+#endif
+    const char jobu='N', jobva='N';
+    int fakeLDim=1, lwork=-1, info;
+    scomplex dummyWork;
+    const int k = std::min(m,n);
+    std::vector<float> rwork(5*k);
+
+    LAPACK(cgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &dummyWork, &lwork, &rwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<scomplex> work(lwork);
+    LAPACK(cgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &work[0], &lwork, &rwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("cgesvd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void SingularValues( int m, int n, dcomplex* A, int lda, double* s )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::SingularValues");
+#endif
+    const char jobu='N', jobva='N';
+    int fakeLDim=1, lwork=-1, info;
+    dcomplex dummyWork;
+    const int k = std::min(m,n);
+    std::vector<double> rwork(5*k);
+
+    LAPACK(zgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &dummyWork, &lwork, &rwork[0], &info );
+
+    lwork = dummyWork.real;
+    std::vector<dcomplex> work(lwork);
+    LAPACK(zgesvd)
+    ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
+      &work[0], &lwork, &rwork[0], &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("zgesvd's updating process failed");
     }
 #ifndef RELEASE
     PopCallStack();
