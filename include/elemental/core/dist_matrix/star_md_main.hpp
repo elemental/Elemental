@@ -1354,7 +1354,7 @@ DistMatrix<T,STAR,MD,Int>::GetReal( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::GetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1391,7 +1391,7 @@ DistMatrix<T,STAR,MD,Int>::GetImag( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::GetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1428,7 +1428,7 @@ DistMatrix<T,STAR,MD,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     Int ownerRank;
     const elem::Grid& g = this->Grid();
@@ -1459,7 +1459,7 @@ DistMatrix<T,STAR,MD,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::SetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
@@ -1493,7 +1493,7 @@ DistMatrix<T,STAR,MD,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::UpdateReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     Int ownerRank;
     const elem::Grid& g = this->Grid();
@@ -1524,7 +1524,7 @@ DistMatrix<T,STAR,MD,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::UpdateImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");

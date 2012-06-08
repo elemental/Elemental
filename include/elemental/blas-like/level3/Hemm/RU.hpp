@@ -36,26 +36,6 @@ namespace internal {
 
 template<typename T>
 inline void
-HemmRU
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::HemmRU");
-#endif
-    // TODO: Come up with a better routing mechanism
-    if( A.Height() > 5*B.Height() )
-        HemmRUA( alpha, A, B, beta, C );
-    else
-        HemmRUC( alpha, A, B, beta, C );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
 HemmRUA
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
@@ -442,6 +422,26 @@ LocalSymmetricAccumulateRU
           ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR ); 
     }
     PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+HemmRU
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::HemmRU");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( A.Height() > 5*B.Height() )
+        HemmRUA( alpha, A, B, beta, C );
+    else
+        HemmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif

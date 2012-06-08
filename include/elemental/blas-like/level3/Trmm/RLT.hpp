@@ -34,32 +34,6 @@
 namespace elem {
 namespace internal {
 
-// Right Lower Adjoint/Transpose (Non)Unit Trmm
-//   X := X tril(L)^T,
-//   X := X tril(L)^H,
-//   X := X trilu(L)^T, or
-//   X := X trilu(L)^H
-template<typename T>
-inline void
-TrmmRLT
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
-{
-#ifndef RELEASE
-    PushCallStack("internal::TrmmRLT");
-#endif
-    // TODO: Come up with a better routing mechanism
-    if( L.Height() > 5*X.Height() )
-        TrmmRLTA( orientation, diag, alpha, L, X );
-    else
-        TrmmRLTC( orientation, diag, alpha, L, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 template<typename T>
 inline void
 TrmmRLTA
@@ -344,6 +318,32 @@ LocalTrmmAccumulateRLT
           ZBAdjOrTrans_MC_STAR,  Z2AdjOrTrans_MC_STAR );
     }
     PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Right Lower Adjoint/Transpose (Non)Unit Trmm
+//   X := X tril(L)^T,
+//   X := X tril(L)^H,
+//   X := X trilu(L)^T, or
+//   X := X trilu(L)^H
+template<typename T>
+inline void
+TrmmRLT
+( Orientation orientation, 
+  UnitOrNonUnit diag,
+  T alpha, const DistMatrix<T,MC,MR>& L,
+                 DistMatrix<T,MC,MR>& X )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrmmRLT");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( L.Height() > 5*X.Height() )
+        TrmmRLTA( orientation, diag, alpha, L, X );
+    else
+        TrmmRLTC( orientation, diag, alpha, L, X );
 #ifndef RELEASE
     PopCallStack();
 #endif

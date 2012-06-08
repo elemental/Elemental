@@ -36,26 +36,6 @@ namespace internal {
 
 template<typename T>
 inline void
-SymmRU
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::SymmRU");
-#endif
-    // TODO: Come up with a better routing mechanism
-    if( A.Height() > 5*B.Height() )
-        SymmRUA( alpha, A, B, beta, C );
-    else
-        SymmRUC( alpha, A, B, beta, C );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
 SymmRUA
 ( T alpha, const DistMatrix<T,MC,MR>& A,
            const DistMatrix<T,MC,MR>& B,
@@ -264,6 +244,26 @@ SymmRUC
         ( CL,     /**/ CR,
           C0, C1, /**/ C2 );
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+SymmRU
+( T alpha, const DistMatrix<T,MC,MR>& A,
+           const DistMatrix<T,MC,MR>& B,
+  T beta,        DistMatrix<T,MC,MR>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::SymmRU");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( A.Height() > 5*B.Height() )
+        SymmRUA( alpha, A, B, beta, C );
+    else
+        SymmRUC( alpha, A, B, beta, C );
 #ifndef RELEASE
     PopCallStack();
 #endif

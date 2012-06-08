@@ -34,33 +34,6 @@
 namespace elem {
 namespace internal {
 
-// Left Upper (Conjugate)Transpose (Non)Unit Trmm
-//   X := triu(U)^T  X, 
-//   X := triu(U)^H  X,
-//   X := triuu(U)^T X, or
-//   X := triuu(U)^H X
-
-template<typename T>
-inline void
-TrmmLUT
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& U,
-                 DistMatrix<T,MC,MR>& X )
-{
-#ifndef RELEASE
-    PushCallStack("internal::TrmmLUT");
-#endif
-    // TODO: Come up with a better routing mechanism
-    if( U.Height() > 5*X.Width() )
-        TrmmLUTA( orientation, diag, alpha, U, X );
-    else
-        TrmmLUTC( orientation, diag, alpha, U, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 template<typename T>
 inline void
 TrmmLUTA
@@ -366,6 +339,32 @@ LocalTrmmAccumulateLUT
           ZB_MR_STAR,  Z2_MR_STAR );
     }
     PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Left Upper (Conjugate)Transpose (Non)Unit Trmm
+//   X := triu(U)^T  X, 
+//   X := triu(U)^H  X,
+//   X := triuu(U)^T X, or
+//   X := triuu(U)^H X
+template<typename T>
+inline void
+TrmmLUT
+( Orientation orientation, 
+  UnitOrNonUnit diag,
+  T alpha, const DistMatrix<T,MC,MR>& U,
+                 DistMatrix<T,MC,MR>& X )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrmmLUT");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( U.Height() > 5*X.Width() )
+        TrmmLUTA( orientation, diag, alpha, U, X );
+    else
+        TrmmLUTC( orientation, diag, alpha, U, X );
 #ifndef RELEASE
     PopCallStack();
 #endif

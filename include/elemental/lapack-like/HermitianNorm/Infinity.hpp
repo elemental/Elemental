@@ -46,7 +46,7 @@ HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
     PushCallStack("internal::HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = HermitianOneNorm( uplo, A );
+    R maxRowSum = HermitianNorm( uplo, A, ONE_NORM );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -62,7 +62,7 @@ HermitianInfinityNorm
     PushCallStack("internal::HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = HermitianOneNorm( uplo, A );
+    R maxRowSum = HermitianNorm( uplo, A, ONE_NORM );
 #ifndef RELEASE
     PopCallStack();
 #endif

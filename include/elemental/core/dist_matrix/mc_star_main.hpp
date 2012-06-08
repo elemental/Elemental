@@ -2146,7 +2146,7 @@ DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -2174,7 +2174,7 @@ DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 

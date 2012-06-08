@@ -34,29 +34,6 @@
 namespace elem {
 namespace internal {
 
-// Right Lower Normal (Non)Unit Trmm
-//   X := X tril(L), and
-//   X := X trilu(L)
-template<typename T>
-inline void
-TrmmRLN
-( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
-{
-#ifndef RELEASE
-    PushCallStack("internal::TrmmRLN");
-#endif
-    // TODO: Come up with a better routing mechanism
-    if( L.Height() > 5*X.Height() )
-        TrmmRLNA( diag, alpha, L, X );
-    else
-        TrmmRLNC( diag, alpha, L, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 template<typename T>
 inline void
 TrmmRLNA
@@ -323,6 +300,29 @@ LocalTrmmAccumulateRLN
           ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR );
     }
     PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Right Lower Normal (Non)Unit Trmm
+//   X := X tril(L), and
+//   X := X trilu(L)
+template<typename T>
+inline void
+TrmmRLN
+( UnitOrNonUnit diag,
+  T alpha, const DistMatrix<T,MC,MR>& L,
+                 DistMatrix<T,MC,MR>& X )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrmmRLN");
+#endif
+    // TODO: Come up with a better routing mechanism
+    if( L.Height() > 5*X.Height() )
+        TrmmRLNA( diag, alpha, L, X );
+    else
+        TrmmRLNC( diag, alpha, L, X );
 #ifndef RELEASE
     PopCallStack();
 #endif

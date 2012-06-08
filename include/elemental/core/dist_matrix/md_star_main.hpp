@@ -1373,7 +1373,7 @@ DistMatrix<T,MD,STAR,Int>::GetReal( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::GetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1410,7 +1410,7 @@ DistMatrix<T,MD,STAR,Int>::GetImag( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::GetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1447,7 +1447,7 @@ DistMatrix<T,MD,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::SetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1480,7 +1480,7 @@ DistMatrix<T,MD,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::SetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
     if( !IsComplex<T>::val )
@@ -1515,7 +1515,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::UpdateReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
 
@@ -1548,7 +1548,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::UpdateImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
     if( !IsComplex<T>::val )

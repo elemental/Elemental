@@ -34,46 +34,6 @@
 namespace elem {
 namespace internal {
 
-template<typename T>
-inline void
-GemmNN
-( T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::GemmNN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
-#endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Width();
-    const float weightTowardsC = 2.0;
-    const float weightAwayFromDot = 10.0;
-
-    if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
-    {
-        GemmNNDot( alpha, A, B, beta, C );
-    }
-    else if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmNNB( alpha, A, B, beta, C );    
-    }
-    else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmNNA( alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmNNC( alpha, A, B, beta, C );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Normal Normal Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
@@ -549,6 +509,47 @@ GemmNNDot
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+GemmNN
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::GemmNN");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("{A,B,C} must be distributed over the same grid");
+#endif
+    const int m = C.Height();
+    const int n = C.Width();
+    const int k = A.Width();
+    const float weightTowardsC = 2.0;
+    const float weightAwayFromDot = 10.0;
+
+    if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
+    {
+        GemmNNDot( alpha, A, B, beta, C );
+    }
+    else if( m <= n && weightTowardsC*m <= k )
+    {
+        GemmNNB( alpha, A, B, beta, C );    
+    }
+    else if( n <= m && weightTowardsC*n <= k )
+    {
+        GemmNNA( alpha, A, B, beta, C );
+    }
+    else
+    {
+        GemmNNC( alpha, A, B, beta, C );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 
 } // namespace internal
 } // namespace elem

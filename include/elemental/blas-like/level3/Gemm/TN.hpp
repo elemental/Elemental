@@ -34,44 +34,6 @@
 namespace elem {
 namespace internal {
 
-template<typename T>
-inline void
-GemmTN
-( Orientation orientationOfA,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::GemmTN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
-    if( orientationOfA == NORMAL )
-        throw std::logic_error("GemmTN assumes A is (Conjugate)Transposed");
-#endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Height();
-    const float weightTowardsC = 2.0;
-
-    if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmTNB( orientationOfA, alpha, A, B, beta, C );
-    }
-    else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmTNA( orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTNC( orientationOfA, alpha, A, B, beta, C );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Transpose Normal Gemm that avoids communicating the matrix A.
 template<typename T> 
 inline void
@@ -350,6 +312,45 @@ GemmTNC
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+GemmTN
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::GemmTN");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("{A,B,C} must be distributed over the same grid");
+    if( orientationOfA == NORMAL )
+        throw std::logic_error("GemmTN assumes A is (Conjugate)Transposed");
+#endif
+    const int m = C.Height();
+    const int n = C.Width();
+    const int k = A.Height();
+    const float weightTowardsC = 2.0;
+
+    if( m <= n && weightTowardsC*m <= k )
+    {
+        GemmTNB( orientationOfA, alpha, A, B, beta, C );
+    }
+    else if( n <= m && weightTowardsC*n <= k )
+    {
+        GemmTNA( orientationOfA, alpha, A, B, beta, C );
+    }
+    else
+    {
+        GemmTNC( orientationOfA, alpha, A, B, beta, C );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 
 } // namespace internal
 } // namespace elem

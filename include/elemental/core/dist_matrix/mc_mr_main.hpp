@@ -4539,7 +4539,7 @@ DistMatrix<T,MC,MR,Int>::GetReal( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R; 
 
@@ -4570,7 +4570,7 @@ DistMatrix<T,MC,MR,Int>::GetImag( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R; 
 
@@ -4601,7 +4601,7 @@ DistMatrix<T,MC,MR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid(); 
     const Int ownerRow = (i + this->ColAlignment()) % g.Height();
@@ -4624,7 +4624,7 @@ DistMatrix<T,MC,MR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
@@ -4650,7 +4650,7 @@ DistMatrix<T,MC,MR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::UpdateReal");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid(); 
     const Int ownerRow = (i + this->ColAlignment()) % g.Height();
@@ -4673,7 +4673,7 @@ DistMatrix<T,MC,MR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::UpdateImag");
-    AssertValidEntry( i, j );
+    this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
@@ -4701,7 +4701,7 @@ DistMatrix<T,MC,MR,Int>::GetRealDiagonal
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -4778,7 +4778,7 @@ DistMatrix<T,MC,MR,Int>::GetImagDiagonal
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -4855,7 +4855,7 @@ DistMatrix<T,MC,MR,Int>::GetRealDiagonal
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetRealDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -4934,7 +4934,7 @@ DistMatrix<T,MC,MR,Int>::GetImagDiagonal
 #ifndef RELEASE
     PushCallStack("[MC,MR]::GetImagDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -5012,7 +5012,7 @@ DistMatrix<T,MC,MR,Int>::SetRealDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     const Int length = this->DiagonalLength( offset );
@@ -5077,7 +5077,7 @@ DistMatrix<T,MC,MR,Int>::SetImagDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     const Int length = this->DiagonalLength( offset );
@@ -5144,7 +5144,7 @@ DistMatrix<T,MC,MR,Int>::SetRealDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetRealDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     const Int length = this->DiagonalLength( offset );
@@ -5211,7 +5211,7 @@ DistMatrix<T,MC,MR,Int>::SetImagDiagonal
 {
 #ifndef RELEASE
     PushCallStack("[MC,MR]::SetImagDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     const Int length = this->DiagonalLength( offset );

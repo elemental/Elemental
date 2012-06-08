@@ -34,45 +34,6 @@
 namespace elem {
 namespace internal {
 
-template<typename T>
-inline void
-GemmNT
-( Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::GemmNT");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
-    if( orientationOfB == NORMAL )
-        throw std::logic_error
-        ("GemmNT requires that B be (Conjugate)Transposed");
-#endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Width();
-    const float weightTowardsC = 2.0;
-
-    if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmNTB( orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmNTA( orientationOfB, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmNTC( orientationOfB, alpha, A, B, beta, C );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Normal Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
@@ -354,6 +315,46 @@ GemmNTC
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+GemmNT
+( Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::GemmNT");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("{A,B,C} must be distributed over the same grid");
+    if( orientationOfB == NORMAL )
+        throw std::logic_error
+        ("GemmNT requires that B be (Conjugate)Transposed");
+#endif
+    const int m = C.Height();
+    const int n = C.Width();
+    const int k = A.Width();
+    const float weightTowardsC = 2.0;
+
+    if( m <= n && weightTowardsC*m <= k )
+    {
+        GemmNTB( orientationOfB, alpha, A, B, beta, C );
+    }
+    else if( n <= m && weightTowardsC*n <= k )
+    {
+        GemmNTA( orientationOfB, alpha, A, B, beta, C );
+    }
+    else
+    {
+        GemmNTC( orientationOfB, alpha, A, B, beta, C );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 
 } // namespace internal
 } // namespace elem

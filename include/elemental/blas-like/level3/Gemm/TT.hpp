@@ -34,45 +34,6 @@
 namespace elem {
 namespace internal {
 
-template<typename T>
-inline void
-GemmTT
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    PushCallStack("internal::GemmTT");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
-    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
-        throw std::logic_error("GemmTT expects A and B to be transposed");
-#endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Height();
-    const float weightTowardsC = 2.0;
-
-    if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmTTB( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmTTA( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Transpose Transpose Gemm that avoids communicating the matrix A.
 template<typename T>
 inline void
@@ -366,6 +327,46 @@ GemmTTC
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+GemmTT
+( Orientation orientationOfA, 
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("internal::GemmTT");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error
+        ("{A,B,C} must be distributed over the same grid");
+    if( orientationOfA == NORMAL || orientationOfB == NORMAL )
+        throw std::logic_error("GemmTT expects A and B to be transposed");
+#endif
+    const int m = C.Height();
+    const int n = C.Width();
+    const int k = A.Height();
+    const float weightTowardsC = 2.0;
+
+    if( m <= n && weightTowardsC*m <= k )
+    {
+        GemmTTB( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    }
+    else if( n <= m && weightTowardsC*n <= k )
+    {
+        GemmTTA( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    }
+    else
+    {
+        GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 
 } // namespace internal
 } // namespace elem
