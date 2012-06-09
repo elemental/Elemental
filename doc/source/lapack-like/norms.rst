@@ -114,4 +114,4 @@ estimates will likely be added later.
 
    .. math::
 
-      \|A\|_2 \le \sqrt( \|A\|_1 \|A\|_{\infty} ).
+      \|A\|_2 \le \sqrt{ \|A\|_1 \|A\|_{\infty} }.
