@@ -33,71 +33,52 @@
 
 namespace elem {
 
-template<typename T> 
-inline void
-Wilkinson( int k, Matrix<T>& A )
+template<typename F>
+inline typename Base<F>::type
+TwoNormLowerBound( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Wilkinson");
+    PushCallStack("TwoNormLowerBound");
 #endif
-    const int n = 2*k+1;
-    A.ResizeTo( n, n );
-    MakeZeros( A );
+    typedef typename Base<F>::type R;
+    const R m = A.Height();
+    const R n = A.Width();
 
-    for( int j=0; j<n; ++j )
-    {
-        if( j <= k )
-            A.Set( j, j, (T)k-j );
-        else
-            A.Set( j, j, (T)j-k );
-
-        if( j > 0 )
-            A.Set( j-1, j, (T)1 );
-        if( j < n-1 )
-            A.Set( j+1, j, (T)1 );
-    }
+    const R maxNorm = Norm( A, MAX_NORM );
+    const R oneNorm = Norm( A, ONE_NORM );
+    const R infNorm = Norm( A, INFINITY_NORM );
+    const R frobNorm = Norm( A, FROBENIUS_NORM );
+    R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
+    lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
+    lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return lowerBound;
 }
 
-template<typename T,Distribution U,Distribution V>
-inline void
-Wilkinson( int k, DistMatrix<T,U,V>& A )
+template<typename F> 
+inline typename Base<F>::type
+TwoNormLowerBound( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Wilkinson");
+    PushCallStack("TwoNormLowerBound");
 #endif
-    const int n = 2*k+1;
-    A.ResizeTo( n, n );
-    MakeZeros( A );
+    typedef typename Base<F>::type R;
+    const R m = A.Height();
+    const R n = A.Width();
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
-    {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const int i = colShift + iLocal*colStride;
-            if( i == j )
-            {
-                if( j <= k )
-                    A.SetLocal( iLocal, jLocal, (T)k-j );
-                else
-                    A.SetLocal( iLocal, jLocal, (T)j-k );
-            }
-            else if( i == j-1 || i == j+1 )
-                A.SetLocal( iLocal, jLocal, (T)1 );
-        }
-    }
+    const R maxNorm = Norm( A, MAX_NORM );
+    const R oneNorm = Norm( A, ONE_NORM );
+    const R infNorm = Norm( A, INFINITY_NORM );
+    const R frobNorm = Norm( A, FROBENIUS_NORM );
+    R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
+    lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
+    lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return lowerBound;
 }
 
 } // namespace elem

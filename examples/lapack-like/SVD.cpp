@@ -81,27 +81,12 @@ main( int argc, char* argv[] )
         DistMatrix<R> s_MC_MR( s );
         const R twoNormOfA = Norm( s_MC_MR, MAX_NORM );
 
-        // Combine various cheap bounds on the two-norm of A:
-        //             ||A||_max \le ||A||_2,
-        //   1/sqrt(n) ||A||_oo  \le ||A||_2,
-        //   1/sqrt(m) ||A||_1   \le ||A||_2,
-        //   1/sqrt(k) ||A||_F   \le ||A||_2.
-        //
-        //   ||A||_2 \le \sqrt(m n) ||A||_max,
-        //   ||A||_2 \le \sqrt(m)   ||A||_oo,
-        //   ||A||_2 \le \sqrt(n)   ||A||_1,
-        //   ||A||_2 \le \sqrt( ||A||_1 ||A||_oo ).
-        //
         const R maxNormOfA = Norm( A, MAX_NORM );
         const R oneNormOfA = Norm( A, ONE_NORM );
         const R infNormOfA = Norm( A, INFINITY_NORM );
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
-        R lowerBound = std::max( maxNormOfA, infNormOfA/sqrt(n) );
-        lowerBound = std::max( lowerBound, oneNormOfA/sqrt(m) );
-        lowerBound = std::max( lowerBound, frobNormOfA/sqrt(min(m,n)) );
-        R upperBound = std::min( sqrt(m*n)*maxNormOfA, sqrt(m)*infNormOfA );
-        upperBound = std::min( upperBound, sqrt(n)*oneNormOfA );
-        upperBound = std::min( upperBound, sqrt( oneNormOfA*infNormOfA ) );
+        const R lowerBound = TwoNormLowerBound( A );
+        const R upperBound = TwoNormUpperBound( A );
 
         DiagonalScale( RIGHT, NORMAL, s, U );
         Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );

@@ -16,7 +16,7 @@ added in the near future.
 
      .. math::
 
-        \|A\|_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}
+        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
 
    * ``INFINITY_NORM``: 
 
@@ -35,7 +35,7 @@ added in the near future.
 
         \[
         \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
-                = \max_j \sum_{i=0}^{n-1} |\alpha_{i,j}|
+                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
         \]
 
    * ``MAX_NORM``: 
@@ -49,21 +49,10 @@ Norm
 
 For computing norms of fully-populated matrices.
 
-.. cpp:function:: R Norm( const Matrix<R>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: typename Base<F>::type Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: typename Base<F>::type Norm( const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 
-   Return the norm of the fully-populated real matrix `A`.
-
-.. cpp:function:: R Norm( const DistMatrix<R>& A, NormType type=FROBENIUS_NORM )
-
-   Return the norm of the fully-populated real distributed matrix `A`.
-
-.. cpp:function:: R Norm( const Matrix<Complex<R> >& A, NormType type=FROBENIUS_NORM )
-
-   Return the norm of the fully-populated complex matrix `A`.
-
-.. cpp:function:: R Norm( const DistMatrix<Complex<R> >& A, NormType type=FROBENIUS_NORM )
-
-   Return the norm of the fully-populated complex distributed matrix `A`.
+   Return the norm of the fully-populated matrix `A`.
 
 HermitianNorm
 -------------
@@ -77,3 +66,52 @@ SymmetricNorm
 Same as ``Norm``, but the (distributed) matrix is implicitly symmetric
 with the data stored in the triangle specified by ``UpperOrLower``.
 
+Norm estimates
+==============
+
+Since the two-norm is extremely useful, but expensive to compute, it is useful
+to be able to compute rough lower and upper bounds for it. The following 
+routines provide cheap, rough estimates. The ability to compute sharper 
+estimates will likely be added later.
+
+.. cpp:function:: typename Base<F>::type TwoNormLowerBound( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoNormLowerBound( const DistMatrix<F>& A )
+
+   Return the tightest lower bound on :math:`\|A\|_2` implied by the following inequalities:
+
+   .. math::
+
+      \|A\|_2 \ge \|A\|_{\mathrm{max}},
+
+   .. math::
+
+      \|A\|_2 \ge \frac{1}{\sqrt{n}} \|A\|_{\infty},
+
+   .. math::
+
+      \|A\|_2 \ge \frac{1}{\sqrt{m}} \|A\|_1,\;\;\mathrm{and}
+
+   .. math::
+
+      \|A\|_2 \ge \frac{1}{\mathrm{min}(m,n)} \|A\|_F.
+
+.. cpp:function:: typename Base<F>::type TwoNormUpperBound( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoNormUpperBound( const DistMatrix<F>& A )
+
+   Return the tightest upper bound on :math:`\|A\|_2` implied by the following inequalities:
+
+   .. math::
+
+      \|A\|_2 \le \sqrt{m n} \|A\|_{\mathrm{max}},
+
+   .. math::
+
+      \|A\|_2 \le \sqrt{m} \|A\|_{\infty},
+
+   .. math::
+
+      \|A\|_2 \le \sqrt{n} \|A\|_1,\;\;\mathrm{and}
+
+   .. math::
+
+      \|A\|_2 \le \sqrt( \|A\|_1 \|A\|_{\infty} ).

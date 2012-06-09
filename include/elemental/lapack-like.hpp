@@ -781,10 +781,19 @@ void ExplicitLQ( DistMatrix<F>& L, DistMatrix<F>& A );
 template<typename F>
 typename Base<F>::type 
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
-
 template<typename F>
 typename Base<F>::type 
 Norm( const DistMatrix<F>& A, NormType type=FROBENIUS_NORM );
+
+// TODO: provide an option to compute more accurate estimates
+template<typename F>
+typename Base<F>::type TwoNormLowerBound( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type TwoNormUpperBound( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type TwoNormLowerBound( const Matrix<F>& A );
+template<typename F>
+typename Base<F>::type TwoNormUpperBound( const Matrix<F>& A );
 
 //----------------------------------------------------------------------------//
 // HermitianNorm                                                              //
@@ -1189,6 +1198,8 @@ int Halley( DistMatrix<F>& A, typename Base<F>::type twoNormEstimate );
 #include "./lapack-like/SVD.hpp"
 #include "./lapack-like/Trace.hpp"
 #include "./lapack-like/TriangularInverse.hpp"
+#include "./lapack-like/TwoNormLowerBound.hpp"
+#include "./lapack-like/TwoNormUpperBound.hpp"
 
 namespace elem {
 

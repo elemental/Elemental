@@ -66,7 +66,7 @@ added in the near future.</p>
 <ul>
 <li><p class="first"><tt class="docutils literal"><span class="pre">FROBENIUS_NORM</span></tt>:</p>
 <div class="math">
-<p><img src="../_images/math/271d02942fa8192dc28bf103afef5b697c876592.png" alt="\|A\|_F = \sqrt{\sum_{i,j=0}^{n-1} |\alpha_{i,j}|^2}"/></p>
+<p><img src="../_images/math/fec751f28351f8543c825bcd4c0162e54080d4fd.png" alt="\|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}"/></p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">INFINITY_NORM</span></tt>:</p>
 <div class="math">
@@ -77,9 +77,9 @@ added in the near future.</p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">ONE_NORM</span></tt>:</p>
 <div class="math">
-<p><img src="../_images/math/062c935e7b7300154c5446cbbc26670ceb206012.png" alt="\[
+<p><img src="../_images/math/eb08c9019c7c6e5db60ebb0384189e892e1449df.png" alt="\[
 \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1
-        = \max_j \sum_{i=0}^{n-1} |\alpha_{i,j}|
+        = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
 \]"/></p>
 </div></li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">MAX_NORM</span></tt>:</p>
@@ -93,27 +93,14 @@ added in the near future.</p>
 <h2>Norm<a class="headerlink" href="#norm" title="Permalink to this headline">¶</a></h2>
 <p>For computing norms of fully-populated matrices.</p>
 <dl class="function">
-<dt id="Norm__Matrix:R:CR.NormType">
-R <tt class="descname">Norm</tt><big>(</big>const Matrix&lt;R&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__Matrix:R:CR.NormType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the norm of the fully-populated real matrix <cite>A</cite>.</p>
-</dd></dl>
+<dt id="Norm__Matrix:F:CR.NormType">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Norm</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__Matrix:F:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
-<dt id="Norm__DistMatrix:R:CR.NormType">
-R <tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;R&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__DistMatrix:R:CR.NormType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the norm of the fully-populated real distributed matrix <cite>A</cite>.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Norm__Matrix:Complex:R::CR.NormType">
-R <tt class="descname">Norm</tt><big>(</big>const Matrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__Matrix:Complex:R::CR.NormType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the norm of the fully-populated complex matrix <cite>A</cite>.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="Norm__DistMatrix:Complex:R::CR.NormType">
-R <tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__DistMatrix:Complex:R::CR.NormType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the norm of the fully-populated complex distributed matrix <cite>A</cite>.</p>
+<dt id="Norm__DistMatrix:F:CR.NormType">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__DistMatrix:F:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the norm of the fully-populated matrix <cite>A</cite>.</p>
 </dd></dl>
 
 </div>
@@ -127,6 +114,51 @@ with the data stored in the triangle specified by <tt class="docutils literal"><
 <p>Same as <tt class="docutils literal"><span class="pre">Norm</span></tt>, but the (distributed) matrix is implicitly symmetric
 with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">UpperOrLower</span></tt>.</p>
 </div>
+</div>
+<div class="section" id="norm-estimates">
+<h1>Norm estimates<a class="headerlink" href="#norm-estimates" title="Permalink to this headline">¶</a></h1>
+<p>Since the two-norm is extremely useful, but expensive to compute, it is useful
+to be able to compute rough lower and upper bounds for it. The following
+routines provide cheap, rough estimates. The ability to compute sharper
+estimates will likely be added later.</p>
+<dl class="function">
+<dt id="TwoNormLowerBound__Matrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">TwoNormLowerBound</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#TwoNormLowerBound__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="TwoNormLowerBound__DistMatrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">TwoNormLowerBound</tt><big>(</big>const DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#TwoNormLowerBound__DistMatrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tightest lower bound on <img class="math" src="../_images/math/6fef820797d7d3c89de44d590e1a520ec66ff191.png" alt="\|A\|_2"/> implied by the following inequalities:</p>
+<div class="math">
+<p><img src="../_images/math/b45f5e72f9e5d40693381c5fb0500e67ec340dbf.png" alt="\|A\|_2 \ge \|A\|_{\mathrm{max}},"/></p>
+</div><div class="math">
+<p><img src="../_images/math/b176f0478cc0586b7a30359ebeeb36a389827b72.png" alt="\|A\|_2 \ge \frac{1}{\sqrt{n}} \|A\|_{\infty},"/></p>
+</div><div class="math">
+<p><img src="../_images/math/8022c4865384ba76efaabf84fc1058b6212b4ef7.png" alt="\|A\|_2 \ge \frac{1}{\sqrt{m}} \|A\|_1,\;\;\mathrm{and}"/></p>
+</div><div class="math">
+<p><img src="../_images/math/ac548df2858bcfcaa9c3f283c0dd57e73dcb1e1d.png" alt="\|A\|_2 \ge \frac{1}{\mathrm{min}(m,n)} \|A\|_F."/></p>
+</div></dd></dl>
+
+<dl class="function">
+<dt id="TwoNormUpperBound__Matrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">TwoNormUpperBound</tt><big>(</big>const Matrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#TwoNormUpperBound__Matrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="TwoNormUpperBound__DistMatrix:F:CR">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">TwoNormUpperBound</tt><big>(</big>const DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#TwoNormUpperBound__DistMatrix:F:CR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the tightest upper bound on <img class="math" src="../_images/math/6fef820797d7d3c89de44d590e1a520ec66ff191.png" alt="\|A\|_2"/> implied by the following inequalities:</p>
+<div class="math">
+<p><img src="../_images/math/e212044ea437bedebaea7671d351e2ae42e70713.png" alt="\|A\|_2 \le \sqrt{m n} \|A\|_{\mathrm{max}},"/></p>
+</div><div class="math">
+<p><img src="../_images/math/6623f53d2ff60fe4925b1d21d225f3692a45bd26.png" alt="\|A\|_2 \le \sqrt{m} \|A\|_{\infty},"/></p>
+</div><div class="math">
+<p><img src="../_images/math/cfe0e3425b951ddc53846fb4b1bb7d65a830a20f.png" alt="\|A\|_2 \le \sqrt{n} \|A\|_1,\;\;\mathrm{and}"/></p>
+</div><div class="math">
+<p><img src="../_images/math/893557656fc84db94eddd231a7dbee7876f2ac53.png" alt="\|A\|_2 \le \sqrt( \|A\|_1 \|A\|_{\infty} )."/></p>
+</div></dd></dl>
+
 </div>
 
 

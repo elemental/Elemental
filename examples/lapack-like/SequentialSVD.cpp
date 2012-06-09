@@ -40,9 +40,8 @@ typedef Complex<R> C;
 
 void Usage()
 {
-    cout << "SequentialSVD <m> <n>\n"
-         << "  <m>: height of random matrix to test SVD on\n"
-         << "  <n>: width of random matrix to test SVD on\n"
+    cout << "SequentialSVD <n>\n"
+         << "  <k>: size of random matrix to test SVD on (in some cases 2k+1)\n"
          << endl;
 }
 
@@ -54,77 +53,122 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
-    if( argc < 3 )
+    if( argc < 2 )
     {
         if( commRank == 0 )
             Usage();
         Finalize();
         return 0;
     }
-    const int m = atoi( argv[1] );
-    const int n = atoi( argv[2] );
+    const int k = atoi( argv[1] );
+
+    enum TestType { FOURIER=0, HILBERT=1, IDENTITY=2, ONES=3, ONE_TWO_ONE=4,
+                    UNIFORM=5, WILKINSON=6, ZEROS=7 }; 
 
     try 
     {
-        Matrix<C> A;
-        Uniform( m, n, A );
-
-        // Compute the SVD of A (but do not overwrite A)
-        Matrix<C> U, V;
+        Matrix<C> A, U, V;
         Matrix<R> s;
-        U = A;
-        SVD( U, s, V );
 
-        const R twoNormOfA = Norm( s, MAX_NORM );
-
-        // Combine various cheap bounds on the two-norm of A:
-        //             ||A||_max \le ||A||_2,
-        //   1/sqrt(n) ||A||_oo  \le ||A||_2,
-        //   1/sqrt(m) ||A||_1   \le ||A||_2,
-        //   1/sqrt(k) ||A||_F   \le ||A||_2.
-        //
-        //   ||A||_2 \le \sqrt(m n) ||A||_max,
-        //   ||A||_2 \le \sqrt(m)   ||A||_oo,
-        //   ||A||_2 \le \sqrt(n)   ||A||_1,
-        //   ||A||_2 \le \sqrt( ||A||_1 ||A||_oo ).
-        //
-        const R maxNormOfA = Norm( A, MAX_NORM );
-        const R oneNormOfA = Norm( A, ONE_NORM );
-        const R infNormOfA = Norm( A, INFINITY_NORM );
-        const R frobNormOfA = Norm( A, FROBENIUS_NORM );
-        R lowerBound = std::max( maxNormOfA, infNormOfA/sqrt(n) );
-        lowerBound = std::max( lowerBound, oneNormOfA/sqrt(m) );
-        lowerBound = std::max( lowerBound, frobNormOfA/sqrt(min(m,n)) );
-        R upperBound = std::min( sqrt(m*n)*maxNormOfA, sqrt(m)*infNormOfA );
-        upperBound = std::min( upperBound, sqrt(n)*oneNormOfA );
-        upperBound = std::min( upperBound, sqrt( oneNormOfA*infNormOfA ) );
-
-        DiagonalScale( RIGHT, NORMAL, s, U );
-        Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
-        const R maxNormOfE = Norm( A, MAX_NORM );
-        const R oneNormOfE = Norm( A, ONE_NORM );
-        const R infNormOfE = Norm( A, INFINITY_NORM );
-        const R frobNormOfE = Norm( A, FROBENIUS_NORM );
-        const R epsilon = lapack::MachineEpsilon<R>();
-        const R scaledResidual = frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
-
-        if( commRank == 0 )
+        for( int test=0; test<16; ++test )
         {
-            cout << "||A||_max   = " << maxNormOfA << "\n"
-                 << "||A||_1     = " << oneNormOfA << "\n"
-                 << "||A||_oo    = " << infNormOfA << "\n"
-                 << "||A||_F     = " << frobNormOfA << "\n"
-                 << "\n"
-                 << "lower bound = " << lowerBound << "\n"
-                 << "||A||_2     = " << twoNormOfA << "\n"
-                 << "upper bound = " << upperBound << "\n"
-                 << "\n"
-                 << "||A - U Sigma V^H||_max = " << maxNormOfE << "\n"
-                 << "||A - U Sigma V^H||_1   = " << oneNormOfE << "\n"
-                 << "||A - U Sigma V^H||_oo  = " << infNormOfE << "\n"
-                 << "||A - U Sigma V^H||_F   = " << frobNormOfE << "\n"
-                 << "||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = " 
-                 << scaledResidual << "\n" << endl;
+            int n;
+            const TestType testType = static_cast<TestType>(test/2);
+            const bool useQR = test % 2;
+            const std::string qrString = ( useQR ? "with QR:" : "with D&C:" );
+            switch( testType )
+            {
+            case FOURIER:     
+                if( commRank == 0 ) 
+                    std::cout << "Testing DiscreteFourier " 
+                              << qrString << std::endl;
+                n = k;
+                DiscreteFourier( n, A ); 
+                break;
+            case HILBERT:     
+                if( commRank == 0 )
+                    std::cout << "Testing Hilbert " << qrString << std::endl;
+                n = k;
+                Hilbert( n, A ); 
+                break;
+            case IDENTITY:    
+                if( commRank == 0 )
+                    std::cout << "Testing Identity " << qrString << std::endl;
+                n = k;
+                Identity( n, n, A ); 
+                break;
+            case ONES:        
+                if( commRank == 0 )
+                    std::cout << "Testing Ones " << qrString << std::endl;
+                n = k;
+                Ones( n, n, A ); 
+                break;
+            case ONE_TWO_ONE: 
+                if( commRank == 0 )
+                    std::cout << "Testing OneTwoOne " << qrString << std::endl;
+                n = k;
+                OneTwoOne( n, A ); 
+                break;
+            case UNIFORM:     
+                if( commRank == 0 )
+                    std::cout << "Testing Uniform " << qrString << std::endl;
+                n = k;
+                Uniform( n, n, A ); 
+                break;
+            case WILKINSON:   
+                if( commRank == 0 )
+                    std::cout << "Testing Wilkinson " << qrString << std::endl;
+                Wilkinson( k, A ); 
+                n = 2*k+1;
+                break;
+            case ZEROS:       
+                if( commRank == 0 )
+                    std::cout << "Testing Zeros " << qrString << std::endl;
+                n = k;
+                Zeros( n, n, A ); 
+                break;
+            };
+
+            // Make a copy of A and then perform the SVD
+            U = A;
+            SVD( U, s, V, useQR );
+
+            const R twoNormOfA = Norm( s, MAX_NORM );
+
+            const R maxNormOfA = Norm( A, MAX_NORM );
+            const R oneNormOfA = Norm( A, ONE_NORM );
+            const R infNormOfA = Norm( A, INFINITY_NORM );
+            const R frobNormOfA = Norm( A, FROBENIUS_NORM );
+            const R lowerBound = TwoNormLowerBound( A );
+            const R upperBound = TwoNormUpperBound( A );
+
+            DiagonalScale( RIGHT, NORMAL, s, U );
+            Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
+            const R maxNormOfE = Norm( A, MAX_NORM );
+            const R oneNormOfE = Norm( A, ONE_NORM );
+            const R infNormOfE = Norm( A, INFINITY_NORM );
+            const R frobNormOfE = Norm( A, FROBENIUS_NORM );
+            const R epsilon = lapack::MachineEpsilon<R>();
+            const R scaledResidual = frobNormOfE/(n*epsilon*twoNormOfA);
+
+            if( commRank == 0 )
+            {
+                cout << "||A||_max   = " << maxNormOfA << "\n"
+                     << "||A||_1     = " << oneNormOfA << "\n"
+                     << "||A||_oo    = " << infNormOfA << "\n"
+                     << "||A||_F     = " << frobNormOfA << "\n"
+                     << "\n"
+                     << "lower bound = " << lowerBound << "\n"
+                     << "||A||_2     = " << twoNormOfA << "\n"
+                     << "upper bound = " << upperBound << "\n"
+                     << "\n"
+                     << "||A - U Sigma V^H||_max = " << maxNormOfE << "\n"
+                     << "||A - U Sigma V^H||_1   = " << oneNormOfE << "\n"
+                     << "||A - U Sigma V^H||_oo  = " << infNormOfE << "\n"
+                     << "||A - U Sigma V^H||_F   = " << frobNormOfE << "\n"
+                     << "||A - U Sigma V_H||_F / (n eps ||A||_2) = " 
+                     << scaledResidual << "\n" << endl;
+            }
         }
     }
     catch( exception& e )

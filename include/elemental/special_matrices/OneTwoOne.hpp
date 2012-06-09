@@ -78,7 +78,7 @@ MakeOneTwoOne( Matrix<T>& A )
         A.Set( j, j, (T)2 );
         if( j > 0 )
             A.Set( j-1, j, (T)1 );
-        if( j < n )
+        if( j < n-1 )
             A.Set( j+1, j, (T)1 );
     }
 #ifndef RELEASE
