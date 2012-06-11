@@ -332,7 +332,8 @@ void ExplicitQR( DistMatrix<F>& A, DistMatrix<F>& R );
 // Overwrites B := inv(A) B, where A is Hermitian positive-definite, using a 
 // Cholesky factorization of A. 
 //
-// TODO: Serial version
+template<typename F>
+void CholeskySolve( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void CholeskySolve( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B );
 
@@ -457,6 +458,9 @@ void HermitianTridiag
 //
 // HermitianEig (Hermitian Eigensolver)
 //
+
+// TODO: Serial version
+
 #ifndef WITHOUT_PMRRR
 // Grab the full set of eigenpairs of the real, symmetric matrix A
 void HermitianEig
@@ -805,7 +809,8 @@ void HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A );
 // Polar decomposition
 //
 
-// TODO: Serial version
+template<typename F>
+void Polar( Matrix<F>& A, Matrix<F>& P );
 template<typename F>
 void Polar( DistMatrix<F>& A, DistMatrix<F>& P );
 

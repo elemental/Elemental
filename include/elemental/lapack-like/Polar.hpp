@@ -40,6 +40,34 @@ namespace elem {
 
 template<typename F>
 inline void
+Polar( Matrix<F>& A, Matrix<F>& P )
+{
+#ifndef RELEASE
+    PushCallStack("Polar");
+#endif
+    typedef typename Base<F>::type R;
+    const int n = A.Width();
+
+    // Get the SVD of A
+    Matrix<R> s;
+    Matrix<F> U, V;
+    U = A;
+    SVD( U, s, V );
+
+    // Form Q := U V^H in A
+    MakeZeros( A );
+    Gemm( NORMAL, ADJOINT, (F)1, U, V, (F)0, A );
+
+    // Form P := V Sigma V^H in P
+    Zeros( n, n, P );
+    hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
 Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 {
 #ifndef RELEASE

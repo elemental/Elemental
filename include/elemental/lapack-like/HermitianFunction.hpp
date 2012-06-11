@@ -36,6 +36,67 @@ namespace elem {
 namespace hermitian_function {
 
 // A :=  Z Omega Z^T, where Omega is diagonal and real-valued
+
+template<typename F>
+inline void
+ReformHermitianMatrix
+( UpperOrLower uplo,
+        Matrix<F>& A,
+  const Matrix<typename Base<F>::type>& w,
+  const Matrix<F>& Z )
+{
+#ifndef RELEASE
+    PushCallStack("hermitian_function::ReformHermitianMatrix");
+#endif
+    typedef typename Base<F>::type R;
+
+    Matrix<F> ZL, ZR,
+              Z0, Z1, Z2;
+    Matrix<R> wT,  w0,
+              wB,  w1,
+                   w2;
+
+    Matrix<F> Z1Copy, Y1;
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, UPPER, 1, A );
+    else
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    LockedPartitionRight( Z, ZL, ZR, 0 );
+    LockedPartitionDown
+    ( w, wT,
+         wB, 0 );
+    while( ZL.Width() < Z.Width() )
+    {
+        LockedRepartitionRight
+        ( ZL, /**/ ZR,
+          Z0, /**/ Z1, Z2 );
+        LockedRepartitionDown
+        ( wT,  w0,
+         /**/ /**/
+               w1,
+          wB,  w2 );
+
+        //--------------------------------------------------------------------//
+        Y1 = Z1Copy = Z1;
+        DiagonalScale( RIGHT, NORMAL, w1, Y1 );
+        Trrk( uplo, NORMAL, ADJOINT, (F)1, Z1Copy, Y1, (F)1, A );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionDown
+        ( wT,  w0,
+               w1,
+         /**/ /**/
+          wB,  w2 );
+        SlideLockedPartitionRight
+        ( ZL,     /**/ ZR,
+          Z0, Z1, /**/ Z2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F>
 inline void
 ReformHermitianMatrix
@@ -88,16 +149,7 @@ ReformHermitianMatrix
         Z1_VR_STAR = Z1_MC_STAR;
         w1_STAR_STAR = w1;
 
-        // Scale Z1[VR,* ] with the modified eigenvalues
-        const int width = Z1_VR_STAR.Width();
-        const int localHeight = Z1_VR_STAR.LocalHeight();
-        for( int j=0; j<width; ++j )
-        {
-            const R omega = w1_STAR_STAR.GetLocal(j,0);
-            F* buffer = Z1_VR_STAR.LocalBuffer(0,j);
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                buffer[iLocal] *= omega;
-        }
+        DiagonalScale( RIGHT, NORMAL, w1_STAR_STAR, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
         internal::LocalTrrk( uplo, (F)1, Z1_MC_STAR, Z1Adj_STAR_MR, (F)1, A );
@@ -121,6 +173,63 @@ ReformHermitianMatrix
 }
 
 // A :=  Z Omega Z^T, where Omega is complex-valued and diagonal
+
+template<typename R>
+inline void
+ReformNormalMatrix
+(       Matrix<Complex<R> >& A,
+  const Matrix<Complex<R> >& w,
+  const Matrix<Complex<R> >& Z )
+{
+#ifndef RELEASE
+    PushCallStack("hermitian_function::ReformNormalMatrix");
+#endif
+    typedef Complex<R> C;
+
+    Matrix<C> ZL, ZR,
+              Z0, Z1, Z2;
+    Matrix<C> wT,  w0,
+              wB,  w1,
+                   w2;
+
+    Matrix<C> Y1, Z1Copy;
+
+    Zero( A );
+    LockedPartitionRight( Z, ZL, ZR, 0 );
+    LockedPartitionDown
+    ( w, wT,
+         wB, 0 );
+    while( ZL.Width() < Z.Width() )
+    {
+        LockedRepartitionRight
+        ( ZL, /**/ ZR,
+          Z0, /**/ Z1, Z2 );
+        LockedRepartitionDown
+        ( wT,  w0,
+         /**/ /**/
+               w1,
+          wB,  w2 );
+
+        //--------------------------------------------------------------------//
+        Y1 = Z1Copy = Z1;
+        DiagonalScale( RIGHT, ADJOINT, w1, Y1 );
+        Gemm( NORMAL, NORMAL, (C)1, Z1Copy, Y1, (C)1, A );
+        //--------------------------------------------------------------------//
+
+        SlideLockedPartitionDown
+        ( wT,  w0,
+               w1,
+         /**/ /**/
+          wB,  w2 );
+        SlideLockedPartitionRight
+        ( ZL,     /**/ ZR,
+          Z0, Z1, /**/ Z2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename R>
 inline void
 ReformNormalMatrix
@@ -169,16 +278,7 @@ ReformNormalMatrix
         Z1_VR_STAR = Z1_MC_STAR;
         w1_STAR_STAR = w1;
 
-        // Scale Z1[VR,* ] with the modified eigenvalues
-        const int width = Z1_VR_STAR.Width();
-        const int localHeight = Z1_VR_STAR.LocalHeight();
-        for( int j=0; j<width; ++j )
-        {
-            const C conjOmega = Conj(w1_STAR_STAR.GetLocal(j,0));
-            C* buffer = Z1_VR_STAR.LocalBuffer(0,j);
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                buffer[iLocal] *= conjOmega;
-        }
+        DiagonalScale( RIGHT, ADJOINT, w1_STAR_STAR, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
         internal::LocalGemm

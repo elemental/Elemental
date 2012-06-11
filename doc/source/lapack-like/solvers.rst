@@ -13,6 +13,7 @@ successive triangular solves against :math:`B`:
    B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B
 
 
+.. cpp:function:: void CholeskySolve( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B )
 .. cpp:function:: void CholeskySolve( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B )
 
    Overwrite `B` with the solution to :math:`AX=B`, where `A` is Hermitian 

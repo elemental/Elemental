@@ -385,6 +385,7 @@ the *polar decomposition* of :math:`A` and can be constructed as
 :math:`A = U \Sigma V^H` is the SVD of :math:`A`. Alternatively, it can be 
 computed through Halley iteration.
 
+.. cpp:function:: void Polar( Matrix<F>& A, Matrix<F>& P )
 .. cpp:function:: void Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 
    Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 

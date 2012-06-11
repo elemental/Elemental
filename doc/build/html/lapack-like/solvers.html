@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="Elemental 0.75-dev documentation" href="../index.html" />
     <link rel="up" title="High-level linear algebra" href="../lapack-like.html" />
-    <link rel="next" title="In-place inversion" href="inversion.html" />
+    <link rel="next" title="Factorization-based inversion" href="inversion.html" />
     <link rel="prev" title="Factorizations" href="factorizations.html" /> 
   </head>
   <body>
@@ -44,7 +44,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="inversion.html">In-place inversion</a>&#160;&#160;»
+        <a href="inversion.html">Factorization-based inversion</a>&#160;&#160;»
         </p>
 
       </div>
@@ -62,6 +62,11 @@ successive triangular solves against <img class="math" src="../_images/math/ff5f
 <div class="math">
 <p><img src="../_images/math/06eb928e2b49f225204f45b7afd827573f3a12d4.png" alt="B := A^{-1} B = (L L^H)^{-1} B = L^{-H} L^{-1} B"/></p>
 </div><dl class="function">
+<dt id="CholeskySolve__UpperOrLower.Matrix:F:R.Matrix:F:R">
+void <tt class="descname">CholeskySolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#CholeskySolve__UpperOrLower.Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="CholeskySolve__UpperOrLower.DistMatrix:F:R.DistMatrix:F:R">
 void <tt class="descname">CholeskySolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#CholeskySolve__UpperOrLower.DistMatrix:F:R.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrite <cite>B</cite> with the solution to <img class="math" src="../_images/math/7a1605c661eac4ff6ddfcbee07333bf6f5a121c7.png" alt="AX=B"/>, where <cite>A</cite> is Hermitian
@@ -116,7 +121,7 @@ factorization, and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022a
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="inversion.html">In-place inversion</a>&#160;&#160;»
+        <a href="inversion.html">Factorization-based inversion</a>&#160;&#160;»
         </p>
 
       </div>
