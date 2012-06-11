@@ -649,6 +649,7 @@ if(BUILD_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
   set(CORE_EXAMPLES Constructors)
+  set(BLAS_EXAMPLES Gemv)
   set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve HPDInverse LDL 
                       LDLInverse Polar Pseudoinverse QDWH SequentialSVD SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
@@ -681,6 +682,23 @@ if(BUILD_EXAMPLES)
                             LINK_FLAGS ${MPI_LINK_FLAGS})
     endif(MPI_LINK_FLAGS)
     install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
+  endforeach(EXAMPLE)
+
+  # Build the BLAS-like tests
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/blas-like")
+  foreach(EXAMPLE ${BLAS_EXAMPLES})
+    add_executable(examples-blas-${EXAMPLE} 
+                   ${EXAMPLE_DIR}/blas-like/${EXAMPLE}.cpp)
+    target_link_libraries(examples-blas-${EXAMPLE} elemental)
+    set_target_properties(examples-blas-${EXAMPLE} PROPERTIES
+                          OUTPUT_NAME ${EXAMPLE}
+                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    if(MPI_LINK_FLAGS)
+      set_target_properties(examples-blas-${EXAMPLE} PROPERTIES
+                            LINK_FLAGS ${MPI_LINK_FLAGS})
+    endif(MPI_LINK_FLAGS)
+    install(TARGETS examples-blas-${EXAMPLE} 
+            DESTINATION bin/examples/blas-like)
   endforeach(EXAMPLE)
 
   # Build the LAPACK-like tests
