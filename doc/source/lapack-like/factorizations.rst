@@ -10,37 +10,14 @@ given an HPD :math:`A`. If :math:`A` is found to be numerically indefinite, then
 a ``NonHPDMatrixException`` will be thrown.
 
 .. cpp:function:: void Cholesky( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
-.. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
+.. note::
 
-   Overwrite the `uplo` triangle of the distributed HPD matrix `A` with its 
-   Cholesky factor.
-
-It is also possible to form the Cholesky factors of Hermitian positive 
-semi-definite (HPSD) matrices through their eigenvalue decomposition, though it 
-is significantly more expensive than the HPD case: Let :math:`A = U \Lambda U^H`
-be the eigenvalue decomposition of :math:`A`, where all entries of :math:`\Lambda`
-are non-negative. Then :math:`B = U \sqrt \Lambda U^H` is the matrix square root
-of :math:`A`, i.e., :math:`B B = A`, and it follows that the QR and LQ 
-factorizations of :math:`B` yield Cholesky factors of :math:`A`:
-
-.. math::
-   A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,
-
-and
-
-.. math::
-   A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
-
-If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`, 
-then a ``NonHPSDMatrixException`` will be thrown.
-
-.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
-
-   Overwrite the `uplo` triangle of the distributed HPSD matrix `A` with its
-   Cholesky factor.
+   See HPSDCholesky for a generalization which also works for semi-definite
+   matrices.
 
 :math:`LDL^H` factorization
 ---------------------------

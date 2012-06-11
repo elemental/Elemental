@@ -42,7 +42,7 @@ namespace elem {
 
 template<typename F>
 int Halley
-( Matrix<F>& A, typename Base<F>::type twoNormEstimate )
+( Matrix<F>& A, typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
     PushCallStack("Halley");
@@ -79,7 +79,7 @@ int Halley
     } 
 
     // Form the first iterate
-    Scale( 1/twoNormEstimate, A );
+    Scale( 1/upperBound, A );
 
     int numIts=0;
     R frobNormADiff;
@@ -141,7 +141,7 @@ int Halley
 
 template<typename F>
 int Halley
-( DistMatrix<F>& A, typename Base<F>::type twoNormEstimate )
+( DistMatrix<F>& A, typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
     PushCallStack("Halley");
@@ -179,7 +179,7 @@ int Halley
     } 
 
     // Form the first iterate
-    Scale( 1/twoNormEstimate, A );
+    Scale( 1/upperBound, A );
 
     int numIts=0;
     R frobNormADiff;

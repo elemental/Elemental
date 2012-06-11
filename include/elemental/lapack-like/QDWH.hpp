@@ -47,7 +47,7 @@ template<typename F>
 int QDWH
 ( Matrix<F>& A, 
   typename Base<F>::type lowerBound,
-  typename Base<F>::type twoNormEstimate )
+  typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
     PushCallStack("QDWH");
@@ -81,7 +81,7 @@ int QDWH
     } 
 
     // Form the first iterate
-    Scale( 1/twoNormEstimate, A );
+    Scale( 1/upperBound, A );
 
     int numIts=0;
     R frobNormADiff;
@@ -154,7 +154,7 @@ template<typename F>
 int QDWH
 ( DistMatrix<F>& A, 
   typename Base<F>::type lowerBound,
-  typename Base<F>::type twoNormEstimate )
+  typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
     PushCallStack("QDWH");
@@ -189,7 +189,7 @@ int QDWH
     } 
 
     // Form the first iterate
-    Scale( 1/twoNormEstimate, A );
+    Scale( 1/upperBound, A );
 
     int numIts=0;
     R frobNormADiff;

@@ -17,5 +17,6 @@ eigensolvers, are placed here.
    lapack-like/inversion
    lapack-like/condensed
    lapack-like/eigen_svd
+   lapack-like/functions
    lapack-like/util
    lapack-like/tuning

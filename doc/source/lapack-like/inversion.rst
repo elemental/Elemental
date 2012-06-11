@@ -1,5 +1,5 @@
-In-place inversion
-==================
+Factorization-based inversion
+=============================
 
 General inversion
 -----------------
@@ -25,30 +25,6 @@ row pivots in reverse order to the columns of the result.
 .. cpp:function:: void Inverse( DistMatrix<F>& A )
 
    The same as above, but for distributed matrices.
-
-Hermitian pseudoinverse
------------------------
-Computes the pseudoinverse of a Hermitian matrix through a customized version of
-``RealHermitianFunction`` which used the eigenvalue mapping function
-
-.. math::
-   :nowrap:
-
-   \[
-   f(\omega) = \left\{\begin{array}{cc} 
-     1/\omega, & |\omega| \ge \epsilon \, n \, ||A||_2 \\
-         0,      & \mbox{otherwise}
-   \end{array}\right.,
-   \]
-
-where :math:`\epsilon` is the relative machine precision,
-:math:`n` is the height of :math:`A`, and :math:`||A||_2` can be computed
-as the maximum absolute value of the eigenvalues of :math:`A`.
-
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
-
-   Computes the pseudoinverse of a distributed Hermitian matrix with data
-   stored in the `uplo` triangle.
 
 HPD inversion
 -------------
@@ -80,29 +56,6 @@ If the matrix is found to not be HPD, then a ``NonHPDMatrixException`` is thrown
 .. cpp:function:: void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 
    Same as above, but for a distributed matrix.
-
-Pseudoinverse
--------------
-Computes the pseudoinverse of a general matrix through computing its SVD,
-modifying the singular values with the function
-
-.. math::
-   :nowrap:
-
-   \[
-   f(\sigma) = \left\{\begin{array}{cc} 
-     1/\sigma, & \sigma \ge \epsilon \, n \, ||A||_2 \\
-         0,      & \mbox{otherwise}
-   \end{array}\right.,
-   \]
-
-where :math:`\epsilon` is the relative machine precision,
-:math:`n` is the height of :math:`A`, and :math:`||A||_2` is the maximum 
-singular value.
-
-.. cpp:function:: Pseudoinverse( DistMatrix<F>& A )
-
-   Replaces `A` with its pseudoinverse.
 
 Triangular inversion
 --------------------

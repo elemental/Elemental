@@ -66,8 +66,8 @@ SymmetricNorm
 Same as ``Norm``, but the (distributed) matrix is implicitly symmetric
 with the data stored in the triangle specified by ``UpperOrLower``.
 
-Norm estimates
-==============
+Two-norm estimates
+------------------
 
 Since the two-norm is extremely useful, but expensive to compute, it is useful
 to be able to compute rough lower and upper bounds for it. The following 

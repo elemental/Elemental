@@ -124,46 +124,6 @@ routine from the following list:
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing
    order (based on the eigenvalues).
 
-Hermitian functions
--------------------
-Reform the matrix with the eigenvalues modified by a user-defined function. 
-When the user-defined function is real-valued, the result will remain Hermitian,
-but when the function is complex-valued, the result is best characterized as 
-normal. 
-
-When the user-defined function, say :math:`f`, is analytic, we can say much
-more about the result: if the eigenvalue decomposition of the 
-Hermitian matrix :math:`A` is :math:`A=Z \Omega Z^H`, then
-
-.. math::
-
-   f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H.
-
-Two important special cases are :math:`f(\lambda) = \exp(\lambda)` and 
-:math:`f(\lambda)=\exp(i \lambda)`, where the former results in a Hermitian 
-matrix and the latter in a normal (in fact, unitary) matrix.
-
-.. note:: 
-
-   Since Elemental currently depends on PMRRR for its tridiagonal 
-   eigensolver, only double-precision results are supported as of now.
-
-.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
-
-   Modifies the eigenvalues of the passed-in Hermitian matrix by replacing 
-   each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
-   ``RealFunctor`` is any 
-   class which has the member function ``R operator()( R omega ) const``.
-   See `examples/lapack-like/RealSymmetricFunction.cpp <../../../../examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
-
-.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
-
-   Modifies the eigenvalues of the passed-in complex Hermitian matrix by
-   replacing each eigenvalue :math:`\omega_i` with 
-   :math:`f(\omega_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
-   which has the member function ``Complex<R> operator()( R omega ) const``.
-   See `examples/lapack-like/ComplexHermitianFunction.cpp <../../../../examples/lapack-like/ComplexHermitianFunction.cpp>`_ for an example usage.
-
 Skew-Hermitian eigensolver
 --------------------------
 Essentially identical to the Hermitian eigensolver, ``HermitianEig``;
@@ -402,28 +362,47 @@ Then an SVD of :math:`A` can easily be computed as
 
    A = U |\Lambda| V^H,
 
-where the columns of :math:`U` equal the columns of :math:`V`, modulo sign flips introduced by negative eigenvalues.
+where the columns of :math:`U` equal the columns of :math:`V`, modulo sign 
+flips introduced by negative eigenvalues.
 
 .. cpp:function:: void HermitianSVD( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 
-   Return a vector of singular values, :math:`s`, and the left and right singular vector matrices, :math:`U` and :math:`V`, such that :math:`A=U \mathrm{diag}(s) V^H`.
+   Return a vector of singular values, :math:`s`, and the left and right 
+   singular vector matrices, :math:`U` and :math:`V`, such that 
+   :math:`A=U \mathrm{diag}(s) V^H`.
 
 .. cpp:function:: void HermitianSingularValues( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 
-   Return the singular values of :math:`A` in `s`. Note that the appropriate triangle of `A` is overwritten during computation.
+   Return the singular values of :math:`A` in `s`. Note that the appropriate 
+   triangle of `A` is overwritten during computation.
 
-Square root
------------
-Hermitian matrices with non-negative eigenvalues have a
-natural matrix square root through their eigenvalue decomposition. This routine
-attempts to compute said matrix square root and throws a
-``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are
-computed.
+Polar decomposition
+-------------------
+Every matrix :math:`A` can be written as :math:`A=QP`, where :math:`Q` is 
+unitary and :math:`P` is Hermitian and positive semi-definite. This is known as
+the *polar decomposition* of :math:`A` and can be constructed as 
+:math:`Q := U V^H` and :math:`P := V \Sigma V^H`, where 
+:math:`A = U \Sigma V^H` is the SVD of :math:`A`. Alternatively, it can be 
+computed through Halley iteration.
 
-.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
+.. cpp:function:: void Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 
-   Overwrites the Hermitian positive semi-definite distributed matrix `A` with
-   its matrix square root.
+   Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 
+   :math:`Q` within `A` and :math:`P` within `P`. The current implementation
+   first computes the SVD.
+
+.. cpp:function:: void Halley( Matrix<F>& A, typename Base<F>::type upperBound )
+.. cpp:function:: void Halley( DistMatrix<F>& A, typename Base<F>::type upperBound )
+
+   Overwrites :math:`A` with the :math:`Q` from the polar decomposition using 
+   a simple QR-based Halley iteration. **TODO: better explanation**
+
+.. cpp:function:: void QDWH( Matrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound )
+.. cpp:function:: void QDWH( DistMatrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound )
+
+   Overwrites :math:`A` with the :math:`Q` from the polar decomposition using 
+   a QR-based dynamically weighted Halley iteration. 
+   **TODO: better explanation**
 
 SVD
 ---
@@ -466,11 +445,3 @@ non-negative entries.
       compute the singular values of the bidiagonal matrix (as opposed to 
       bisection).
 
-Polar decomposition
--------------------
-Every matrix :math:`A` can be written as :math:`A=QP`, where :math:`Q` is unitary and :math:`P` is Hermitian and positive semi-definite. This is known as the *polar decomposition* of :math:`A` and can be constructed as :math:`Q := U V^H` and :math:`P := V \Sigma V^H`, where :math:`A = U \Sigma V^H` is the SVD of :math:`A`.
-
-.. cpp:function:: void Polar( DistMatrix<F>& A, DistMatrix<F>& P )
-
-   Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 
-   :math:`Q` within `A` and :math:`P` within `P`.

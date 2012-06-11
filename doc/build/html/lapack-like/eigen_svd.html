@@ -29,7 +29,7 @@
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
     <link rel="top" title="Elemental 0.75-dev documentation" href="../index.html" />
     <link rel="up" title="High-level linear algebra" href="../lapack-like.html" />
-    <link rel="next" title="Utilities" href="util.html" />
+    <link rel="next" title="Matrix functions" href="functions.html" />
     <link rel="prev" title="Reduction to condensed form" href="condensed.html" /> 
   </head>
   <body>
@@ -44,7 +44,7 @@
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="util.html">Utilities</a>&#160;&#160;»
+        <a href="functions.html">Matrix functions</a>&#160;&#160;»
         </p>
 
       </div>
@@ -202,46 +202,6 @@ order (based on the eigenvalues).</p>
 </dd></dl>
 
 </div>
-</div>
-<div class="section" id="hermitian-functions">
-<h2>Hermitian functions<a class="headerlink" href="#hermitian-functions" title="Permalink to this headline">¶</a></h2>
-<p>Reform the matrix with the eigenvalues modified by a user-defined function.
-When the user-defined function is real-valued, the result will remain Hermitian,
-but when the function is complex-valued, the result is best characterized as
-normal.</p>
-<p>When the user-defined function, say <img class="math" src="../_images/math/bb2c93730dbb48558bb3c4738c956c4e8f816437.png" alt="f"/>, is analytic, we can say much
-more about the result: if the eigenvalue decomposition of the
-Hermitian matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> is <img class="math" src="../_images/math/efc8c3f5200c949f3cdba974936b91be0b6a9807.png" alt="A=Z \Omega Z^H"/>, then</p>
-<div class="math">
-<p><img src="../_images/math/8d5ba8aa264e83427bdc0599b419d15cc4876457.png" alt="f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H."/></p>
-</div><p>Two important special cases are <img class="math" src="../_images/math/ac1c08876a0e5ed799dcd99c9fdba7cec3978228.png" alt="f(\lambda) = \exp(\lambda)"/> and
-<img class="math" src="../_images/math/e35eb2b96977d189df0be2f8dbe697e35cbdd220.png" alt="f(\lambda)=\exp(i \lambda)"/>, where the former results in a Hermitian
-matrix and the latter in a normal (in fact, unitary) matrix.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Since Elemental currently depends on PMRRR for its tridiagonal
-eigensolver, only double-precision results are supported as of now.</p>
-</div>
-<dl class="function">
-<dt id="RealHermitianFunction__UpperOrLower.DistMatrix:F:R.RealFunctorCR">
-void <tt class="descname">RealHermitianFunction</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em>, const RealFunctor&amp; <em>f</em><big>)</big><a class="headerlink" href="#RealHermitianFunction__UpperOrLower.DistMatrix:F:R.RealFunctorCR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modifies the eigenvalues of the passed-in Hermitian matrix by replacing
-each eigenvalue <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with <img class="math" src="../_images/math/0e908c184b35e991c28fa6abc15e5407a227b74a.png" alt="f(\omega_i) \in \mathbb{R}"/>.
-<tt class="docutils literal"><span class="pre">RealFunctor</span></tt> is any
-class which has the member function <tt class="docutils literal"><span class="pre">R</span> <span class="pre">operator()(</span> <span class="pre">R</span> <span class="pre">omega</span> <span class="pre">)</span> <span class="pre">const</span></tt>.
-See <a class="reference external" href="../../../../examples/lapack-like/RealHermitianFunction.cpp">examples/lapack-like/RealSymmetricFunction.cpp</a> for an example usage.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="ComplexHermitianFunction__UpperOrLower.DistMatrix:Complex:R::R.ComplexFunctorCR">
-void <tt class="descname">ComplexHermitianFunction</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;Complex&lt;R&gt;&gt;&amp; <em>A</em>, const ComplexFunctor&amp; <em>f</em><big>)</big><a class="headerlink" href="#ComplexHermitianFunction__UpperOrLower.DistMatrix:Complex:R::R.ComplexFunctorCR" title="Permalink to this definition">¶</a></dt>
-<dd><p>Modifies the eigenvalues of the passed-in complex Hermitian matrix by
-replacing each eigenvalue <img class="math" src="../_images/math/8fc80d5e036efbaf3de0e9dab053194a1e6676ee.png" alt="\omega_i"/> with
-<img class="math" src="../_images/math/641818d442432effa2d38a4c7a50b5f171bdaa7c.png" alt="f(\omega_i) \in \mathbb{C}"/>. <tt class="docutils literal"><span class="pre">ComplexFunctor</span></tt> can be any class
-which has the member function <tt class="docutils literal"><span class="pre">Complex&lt;R&gt;</span> <span class="pre">operator()(</span> <span class="pre">R</span> <span class="pre">omega</span> <span class="pre">)</span> <span class="pre">const</span></tt>.
-See <a class="reference external" href="../../../../examples/lapack-like/ComplexHermitianFunction.cpp">examples/lapack-like/ComplexHermitianFunction.cpp</a> for an example usage.</p>
-</dd></dl>
-
 </div>
 <div class="section" id="skew-hermitian-eigensolver">
 <h2>Skew-Hermitian eigensolver<a class="headerlink" href="#skew-hermitian-eigensolver" title="Permalink to this headline">¶</a></h2>
@@ -513,32 +473,63 @@ Robert Granat et al.&#8217;s approaches.</p>
 Then an SVD of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can easily be computed as</p>
 <div class="math">
 <p><img src="../_images/math/17c4a3214d0f18b17a0cd51d09e86402bb61ee90.png" alt="A = U |\Lambda| V^H,"/></p>
-</div><p>where the columns of <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> equal the columns of <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, modulo sign flips introduced by negative eigenvalues.</p>
+</div><p>where the columns of <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> equal the columns of <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, modulo sign
+flips introduced by negative eigenvalues.</p>
 <dl class="function">
 <dt id="HermitianSVD__UpperOrLower.DistMatrix:F:R.DistMatrix:typename-Base:F:::type.VR.STAR:R.DistMatrix:F:R.DistMatrix:F:R">
 void <tt class="descname">HermitianSVD</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;typename Base&lt;F&gt;::type, VR, STAR&gt;&amp; <em>s</em>, DistMatrix&lt;F&gt;&amp; <em>U</em>, DistMatrix&lt;F&gt;&amp; <em>V</em><big>)</big><a class="headerlink" href="#HermitianSVD__UpperOrLower.DistMatrix:F:R.DistMatrix:typename-Base:F:::type.VR.STAR:R.DistMatrix:F:R.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a vector of singular values, <img class="math" src="../_images/math/f37bba504894945c07a32f5496d74299a37aa51c.png" alt="s"/>, and the left and right singular vector matrices, <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> and <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, such that <img class="math" src="../_images/math/7ae88fb587f3630b827ee331e0c72767173c11e7.png" alt="A=U \mathrm{diag}(s) V^H"/>.</p>
+<dd><p>Return a vector of singular values, <img class="math" src="../_images/math/f37bba504894945c07a32f5496d74299a37aa51c.png" alt="s"/>, and the left and right
+singular vector matrices, <img class="math" src="../_images/math/e2bbebb3bd73f1ae5c64098ab0244f739abf7ca4.png" alt="U"/> and <img class="math" src="../_images/math/12d58aa29201da09d8e620f8698e3a37547f6b4a.png" alt="V"/>, such that
+<img class="math" src="../_images/math/7ae88fb587f3630b827ee331e0c72767173c11e7.png" alt="A=U \mathrm{diag}(s) V^H"/>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="HermitianSingularValues__UpperOrLower.DistMatrix:F:R.DistMatrix:typename-Base:F:::type.VR.STAR:R">
 void <tt class="descname">HermitianSingularValues</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;typename Base&lt;F&gt;::type, VR, STAR&gt;&amp; <em>s</em><big>)</big><a class="headerlink" href="#HermitianSingularValues__UpperOrLower.DistMatrix:F:R.DistMatrix:typename-Base:F:::type.VR.STAR:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the singular values of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> in <cite>s</cite>. Note that the appropriate triangle of <cite>A</cite> is overwritten during computation.</p>
+<dd><p>Return the singular values of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> in <cite>s</cite>. Note that the appropriate
+triangle of <cite>A</cite> is overwritten during computation.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="square-root">
-<h2>Square root<a class="headerlink" href="#square-root" title="Permalink to this headline">¶</a></h2>
-<p>Hermitian matrices with non-negative eigenvalues have a
-natural matrix square root through their eigenvalue decomposition. This routine
-attempts to compute said matrix square root and throws a
-<tt class="docutils literal"><span class="pre">NonHPSDMatrixException</span></tt> if any sufficiently negative eigenvalues are
-computed.</p>
+<div class="section" id="polar-decomposition">
+<h2>Polar decomposition<a class="headerlink" href="#polar-decomposition" title="Permalink to this headline">¶</a></h2>
+<p>Every matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be written as <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, where <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> is
+unitary and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is Hermitian and positive semi-definite. This is known as
+the <em>polar decomposition</em> of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and can be constructed as
+<img class="math" src="../_images/math/10e19d6b19dc729b5eabd4f7e2479680b36e07cd.png" alt="Q := U V^H"/> and <img class="math" src="../_images/math/f4df1da82d32b0eb23940ba586912b246cc54193.png" alt="P := V \Sigma V^H"/>, where
+<img class="math" src="../_images/math/a114f3216c8958345e738846285eae646c3b8e73.png" alt="A = U \Sigma V^H"/> is the SVD of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>. Alternatively, it can be
+computed through Halley iteration.</p>
 <dl class="function">
-<dt id="HPSDSquareRoot__UpperOrLower.DistMatrix:F:R">
-void <tt class="descname">HPSDSquareRoot</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, DistMatrix&lt;F&gt;&amp; <em>A</em><big>)</big><a class="headerlink" href="#HPSDSquareRoot__UpperOrLower.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Overwrites the Hermitian positive semi-definite distributed matrix <cite>A</cite> with
-its matrix square root.</p>
+<dt id="Polar__DistMatrix:F:R.DistMatrix:F:R">
+void <tt class="descname">Polar</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>P</em><big>)</big><a class="headerlink" href="#Polar__DistMatrix:F:R.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the polar decomposition of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, returning
+<img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> within <cite>A</cite> and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> within <cite>P</cite>. The current implementation
+first computes the SVD.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="Halley__Matrix:F:R.typename-Base:F:::type">
+void <tt class="descname">Halley</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upperBound</em><big>)</big><a class="headerlink" href="#Halley__Matrix:F:R.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="Halley__DistMatrix:F:R.typename-Base:F:::type">
+void <tt class="descname">Halley</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upperBound</em><big>)</big><a class="headerlink" href="#Halley__DistMatrix:F:R.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> from the polar decomposition using
+a simple QR-based Halley iteration. <strong>TODO: better explanation</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="QDWH__Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">QDWH</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lowerBound</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upperBound</em><big>)</big><a class="headerlink" href="#QDWH__Matrix:F:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="QDWH__DistMatrix:F:R.typename-Base:F:::type.typename-Base:F:::type">
+void <tt class="descname">QDWH</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>lowerBound</em>, <a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <em>upperBound</em><big>)</big><a class="headerlink" href="#QDWH__DistMatrix:F:R.typename-Base:F:::type.typename-Base:F:::type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrites <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> with the <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> from the polar decomposition using
+a QR-based dynamically weighted Halley iteration.
+<strong>TODO: better explanation</strong></p>
 </dd></dl>
 
 </div>
@@ -590,17 +581,6 @@ bisection).</p>
 </dd></dl>
 
 </div>
-<div class="section" id="polar-decomposition">
-<h2>Polar decomposition<a class="headerlink" href="#polar-decomposition" title="Permalink to this headline">¶</a></h2>
-<p>Every matrix <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> can be written as <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, where <img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> is unitary and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is Hermitian and positive semi-definite. This is known as the <em>polar decomposition</em> of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and can be constructed as <img class="math" src="../_images/math/10e19d6b19dc729b5eabd4f7e2479680b36e07cd.png" alt="Q := U V^H"/> and <img class="math" src="../_images/math/f4df1da82d32b0eb23940ba586912b246cc54193.png" alt="P := V \Sigma V^H"/>, where <img class="math" src="../_images/math/a114f3216c8958345e738846285eae646c3b8e73.png" alt="A = U \Sigma V^H"/> is the SVD of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>.</p>
-<dl class="function">
-<dt id="Polar__DistMatrix:F:R.DistMatrix:F:R">
-void <tt class="descname">Polar</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>P</em><big>)</big><a class="headerlink" href="#Polar__DistMatrix:F:R.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the polar decomposition of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/>, <img class="math" src="../_images/math/0095e4ae4379710ecc5ce11a09cb5a218c9e6525.png" alt="A=QP"/>, returning
-<img class="math" src="../_images/math/9866e3a998d628ba0941eb4fea0666ac391d149a.png" alt="Q"/> within <cite>A</cite> and <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> within <cite>P</cite>.</p>
-</dd></dl>
-
-</div>
 </div>
 
 
@@ -612,7 +592,7 @@ void <tt class="descname">Polar</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</
         &#160;&#160;::&#160;&#160;
         <a class="uplink" href="../index.html">Contents</a>
         &#160;&#160;::&#160;&#160;
-        <a href="util.html">Utilities</a>&#160;&#160;»
+        <a href="functions.html">Matrix functions</a>&#160;&#160;»
         </p>
 
       </div>
