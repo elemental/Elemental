@@ -33,13 +33,16 @@
 
 namespace elem {
 
+namespace internal {
+
 // Local LU _without_ partial pivoting
+
 template<typename F> 
 inline void
-LU( Matrix<F>& A )
+UnblockedLU_FLAME( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    PushCallStack("internal::UnblockedLU_FLAME");
 #endif
     // Matrix views 
     Matrix<F>
@@ -78,5 +81,33 @@ LU( Matrix<F>& A )
     PopCallStack();
 #endif
 }
+
+template<typename F>
+inline void
+UnblockedLU( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::UnblockedLU");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    for( int j=0; j<std::min(m,n); ++j )
+    {
+        const F alpha = A.Get(j,j);
+        if( alpha == (F)0 )
+            throw SingularMatrixException();
+
+        blas::Scal( m-(j+1), 1/alpha, A.Buffer(j+1,j), 1 );
+        blas::Geru
+        ( m-(j+1), n-(j+1),
+          (F)-1, A.LockedBuffer(j+1,j), 1, A.LockedBuffer(j,j+1), A.LDim(),
+                 A.Buffer(j+1,j+1), A.LDim() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
 
 } // namespace elem

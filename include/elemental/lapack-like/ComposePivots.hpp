@@ -95,8 +95,10 @@ ComposePivots
 // were performed in an n x n matrix. 
 // Requires O(b^2) work.
 
+namespace internal {
+
 inline void
-internal::ComposePanelPivots
+ComposePanelPivots
 ( const Matrix<int>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
 {
@@ -146,9 +148,11 @@ internal::ComposePanelPivots
 }
 
 inline void
-internal::ComposePanelPivots
+ComposePanelPivots
 ( const DistMatrix<int,STAR,STAR>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
 { ComposePanelPivots( p.LockedLocalMatrix(), pivotOffset, image, preimage ); }
+
+} // namespace internal
 
 } // namespace elem

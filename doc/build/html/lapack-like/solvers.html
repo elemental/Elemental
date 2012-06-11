@@ -81,10 +81,15 @@ accessed.</p>
 <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> and right-hand side matrix <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/>. The solution is computed through
 (partially pivoted) Gaussian elimination.</p>
 <dl class="function">
+<dt id="GaussianElimination__Matrix:F:R.Matrix:F:R">
+void <tt class="descname">GaussianElimination</tt><big>(</big>Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#GaussianElimination__Matrix:F:R.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="GaussianElimination__DistMatrix:F:R.DistMatrix:F:R">
 void <tt class="descname">GaussianElimination</tt><big>(</big>DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#GaussianElimination__DistMatrix:F:R.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
-<dd><p>Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> will have been overwritten with Gaussian elimination
-and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> will be overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
+<dd><p>Upon completion, <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> will have been overwritten with Gaussian
+elimination and <img class="math" src="../_images/math/ff5fb3d775862e2123b007eb4373ff6cc1a34d4e.png" alt="B"/> will be overwritten with <img class="math" src="../_images/math/6a47ca0fe7cb276abc022af6ac88ddae1a9d6894.png" alt="X"/>.</p>
 </dd></dl>
 
 </div>
@@ -100,6 +105,11 @@ If <img class="math" src="../_images/math/8da67e35e9c517fa132e6b7d8b548f3940e80d
 <li>If solving <img class="math" src="../_images/math/584fa1222622b11d609820d2acf93680aeb80598.png" alt="A^H X=B"/>, then either <img class="math" src="../_images/math/94395c624045e61ea8f5470554605ae9438fa00f.png" alt="X=Q R^{-H} B"/> or
 <img class="math" src="../_images/math/ec7d23ff5de8a2760bc4f057671e8756652e375b.png" alt="X=L^{-H} Q B"/>.</li>
 </ul>
+<dl class="function">
+<dt id="HouseholderSolve__Orientation.Matrix:F:R.Matrix:F:CR.Matrix:F:R">
+void <tt class="descname">HouseholderSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, Matrix&lt;F&gt;&amp; <em>A</em>, const Matrix&lt;F&gt;&amp; <em>B</em>, Matrix&lt;F&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#HouseholderSolve__Orientation.Matrix:F:R.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="function">
 <dt id="HouseholderSolve__Orientation.DistMatrix:F:R.DistMatrix:F:CR.DistMatrix:F:R">
 void <tt class="descname">HouseholderSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, DistMatrix&lt;F&gt;&amp; <em>A</em>, const DistMatrix&lt;F&gt;&amp; <em>B</em>, DistMatrix&lt;F&gt;&amp; <em>X</em><big>)</big><a class="headerlink" href="#HouseholderSolve__Orientation.DistMatrix:F:R.DistMatrix:F:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>

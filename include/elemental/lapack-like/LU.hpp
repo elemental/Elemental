@@ -37,6 +37,50 @@
 namespace elem {
 
 // Performs LU factorization without pivoting
+
+template<typename F> 
+inline void
+LU( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LU");
+#endif
+    // Matrix views
+    Matrix<F>
+        ATL, ATR,  A00, A01, A02, 
+        ABL, ABR,  A10, A11, A12,  
+                   A20, A21, A22;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        //--------------------------------------------------------------------//
+        internal::UnblockedLU( A11 );
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11, A21 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
+        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F> 
 inline void
 LU( DistMatrix<F>& A )
@@ -111,6 +155,86 @@ LU( DistMatrix<F>& A )
 }
 
 // Performs LU factorization with partial pivoting
+
+template<typename F> 
+inline void
+LU( Matrix<F>& A, Matrix<int>& p )
+{
+#ifndef RELEASE
+    PushCallStack("LU");
+    if( p.Viewing() && 
+        (std::min(A.Height(),A.Width()) != p.Height() || p.Width() != 1) ) 
+        throw std::logic_error
+        ("p must be a vector of the same height as the min dimension of A.");
+#endif
+    if( !p.Viewing() )
+        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+
+    // Matrix views
+    Matrix<F>
+        ATL, ATR,  A00, A01, A02,  ABRL, ABRR,
+        ABL, ABR,  A10, A11, A12,  
+                   A20, A21, A22;
+
+    Matrix<int>
+        pT,  p0, 
+        pB,  p1,
+             p2;
+
+    // Pivot composition
+    std::vector<int> image, preimage;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( p, pT,
+         pB, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( pT,  p0,
+         /**/ /**/
+               p1,
+          pB,  p2 );
+
+        PartitionRight( ABR, ABRL, ABRR, A11.Width() );
+
+        const int pivotOffset = A01.Height();
+        //--------------------------------------------------------------------//
+        internal::PanelLU( ABRL, p1, pivotOffset );
+        internal::ComposePanelPivots( p1, pivotOffset, image, preimage );
+        ApplyRowPivots( ABL, image, preimage );
+        ApplyRowPivots( ABRR, image, preimage );
+
+        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
+        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlidePartitionDown
+        ( pT,  p0,
+               p1,
+         /**/ /**/
+          pB,  p2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F> 
 inline void
 LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
@@ -172,7 +296,7 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
 
         AB.View1x2( ABL, ABR );
 
-        int pivotOffset = A01.Height();
+        const int pivotOffset = A01.Height();
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_MR.AlignWith( A22 );
         A21_MC_STAR.AlignWith( A22 );

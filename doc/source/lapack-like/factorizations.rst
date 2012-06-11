@@ -79,9 +79,6 @@ portion of :math:`A` can be overwritten with the strictly lower portion of
 ``SingularMatrixException`` will be thrown.
 
 .. cpp:function:: void LU( Matrix<F>& A )
-
-   Overwrites :math:`A` with its LU decomposition.
-
 .. cpp:function:: void LU( DistMatrix<F>& A )
 
    Overwrites :math:`A` with its LU decomposition.
@@ -94,13 +91,9 @@ pivoted). An LU factorization with partial pivoting therefore computes
 and :math:`U` are as described above and :math:`P` is a permutation matrix.
 
 .. cpp:function:: void LU( Matrix<F>& A, Matrix<int>& p )
-
-   Ovewrites :math:`A` with the LU decomposition of :math:`PA`, where 
-   :math:`P` is represented by the pivot vector `p`.
-
 .. cpp:function:: void LU( DistMatrix<F>& A, DistMatrix<F,VC,STAR>& p )
 
-   Overwrites the distributed matrix :math:`A` with the LU decomposition of 
+   Overwrites the matrix :math:`A` with the LU decomposition of 
    :math:`PA`, where :math:`P` is represented by the pivot vector `p`.
 
 :math:`LQ` factorization

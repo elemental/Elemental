@@ -37,6 +37,118 @@ template<typename R>
 inline void
 HouseholderSolve
 ( Orientation orientation, 
+  Matrix<R>& A, const Matrix<R>& B,
+                      Matrix<R>& X )
+{
+#ifndef RELEASE
+    PushCallStack("HouseholderSolve");
+#endif
+    // TODO: Add scaling
+    const int m = A.Height();
+    const int n = A.Width();
+    if( orientation == NORMAL )
+    {
+        if( m != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
+        if( m >= n )
+        {
+            // Overwrite A with its packed QR factorization
+            QR( A );
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q' to X
+            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( n, X.Width() );
+
+            // Solve against R (checking for singularities)
+            Matrix<R> AT;
+            AT.LockedView( A, 0, 0, n, n );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, AT, X, true );
+        }
+        else
+        {
+            // Overwrite A with its packed LQ factorization
+            LQ( A );
+
+            // Copy B into X
+            X.ResizeTo( n, B.Width() );
+            Matrix<R> XT,
+                      XB;
+            PartitionDown( X, XT,
+                              XB, m );
+            XT = B;
+            Zero( XB );
+
+            // Solve against L (checking for singularities)
+            Matrix<R> AL;
+            AL.LockedView( A, 0, 0, m, m );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, AL, XT, true );
+
+            // Apply Q' to X 
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, X );
+        }
+    }
+    else // orientation == ADJOINT
+    {
+        if( n != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
+        if( m >= n )
+        {
+            // Overwrite A with its packed QR factorization
+            QR( A );
+
+            // Copy B into X
+            X.ResizeTo( m, B.Width() );
+            Matrix<R> XT,
+                      XB;
+            PartitionDown( X, XT,
+                              XB, n );
+            XT = B; 
+            Zero( XB );
+
+            // Solve against R' (checking for singularities)
+            Matrix<R> AT;
+            AT.LockedView( A, 0, 0, n, n );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, AT, XT, true );
+
+            // Apply Q to X
+            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, X );
+        }
+        else
+        {
+            // Overwrite A with its packed LQ factorization
+            LQ( A );
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q to X
+            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, X );
+
+            // Shrink X to its new size
+            X.ResizeTo( m, X.Width() );
+
+            // Solve against L' (check for singularities)
+            Matrix<R> AL;
+            AL.LockedView( A, 0, 0, m, m );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, X, true );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
+HouseholderSolve
+( Orientation orientation, 
   DistMatrix<R>& A, const DistMatrix<R>& B,
                           DistMatrix<R>& X )
 {
@@ -143,6 +255,132 @@ HouseholderSolve
             DistMatrix<R> AL( g );
             AL.LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, AL, X, true );
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+HouseholderSolve
+( Orientation orientation, 
+  Matrix<Complex<R> >& A, 
+  const Matrix<Complex<R> >& B,
+        Matrix<Complex<R> >& X )
+{
+#ifndef RELEASE
+    PushCallStack("HouseholderSolve");
+    if( orientation == TRANSPOSE )
+        throw std::logic_error("Invalid orientation");
+#endif
+    typedef Complex<R> C;
+
+    // TODO: Add scaling
+    const int m = A.Height();
+    const int n = A.Width();
+    Matrix<C> t;
+    if( orientation == NORMAL )
+    {
+        if( m != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
+        if( m >= n )
+        {
+            // Overwrite A with its packed QR factorization (and store the 
+            // corresponding Householder scalars in t)
+            QR( A, t );
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q' to X
+            ApplyPackedReflectors
+            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( n, X.Width() );
+
+            // Solve against R (checking for singularities)
+            Matrix<C> AT;
+            AT.LockedView( A, 0, 0, n, n );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, AT, X, true );
+        }
+        else
+        {
+            // Overwrite A with its packed LQ factorization (and store the
+            // corresponding Householder scalars in it)
+            LQ( A, t );
+
+            // Copy B into X
+            X.ResizeTo( n, B.Width() );
+            Matrix<C> XT,
+                      XB;
+            PartitionDown( X, XT,
+                              XB, m );
+            XT = B;
+            Zero( XB );
+
+            // Solve against L (checking for singularities)
+            Matrix<C> AL;
+            AL.LockedView( A, 0, 0, m, m );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (C)1, AL, XT, true );
+
+            // Apply Q' to X 
+            ApplyPackedReflectors
+            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, X );
+        }
+    }
+    else // orientation == ADJOINT
+    {
+        if( n != B.Height() )
+            throw std::logic_error("A and B do not conform");
+
+        if( m >= n )
+        {
+            // Overwrite A with its packed QR factorization (and store the 
+            // corresponding Householder scalars in t)
+            QR( A, t );
+
+            // Copy B into X
+            X.ResizeTo( m, B.Width() );
+            Matrix<C> XT,
+                      XB;
+            PartitionDown( X, XT,
+                              XB, n );
+            XT = B;
+            Zero( XB );
+
+            // Solve against R' (checking for singularities)
+            Matrix<C> AT;
+            AT.LockedView( A, 0, 0, n, n );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (C)1, AT, XT, true );
+
+            // Apply Q to X
+            ApplyPackedReflectors
+            ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, X );
+        }
+        else
+        {
+            // Overwrite A with its packed LQ factorization (and store the
+            // corresponding Householder scalars in t)
+            LQ( A, t );
+
+            // Copy B into X
+            X = B;
+
+            // Apply Q to X
+            ApplyPackedReflectors
+            ( LEFT, UPPER, HORIZONTAL, FORWARD, UNCONJUGATED, 0, A, t, X );
+
+            // Shrink X to its new height
+            X.ResizeTo( m, X.Width() );
+
+            // Solve against L' (check for singularities)
+            Matrix<C> AL;
+            AL.LockedView( A, 0, 0, m, m );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (C)1, AL, X, true );
         }
     }
 #ifndef RELEASE

@@ -102,6 +102,8 @@ void CholeskyUVar3Square( DistMatrix<F>& A );
 //----------------------------------------------------------------------------//
             
 template<typename F>
+void ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B );
+template<typename F>
 void ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B );
 
 //----------------------------------------------------------------------------//
@@ -206,6 +208,8 @@ template<> void DestroyPivotOp<double>();
 template<> void DestroyPivotOp<scomplex>();
 template<> void DestroyPivotOp<dcomplex>();
 
+template<typename F>
+void PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 );
 template<typename F>
 void PanelLU
 ( DistMatrix<F,STAR,STAR>& A, 

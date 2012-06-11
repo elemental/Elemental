@@ -35,6 +35,27 @@ namespace elem {
 
 template<typename F> 
 inline void
+GaussianElimination( Matrix<F>& A, Matrix<F>& B )
+{
+#ifndef RELEASE
+    PushCallStack("GaussianElimination");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( A.Height() != B.Height() )
+        throw std::logic_error("A and B must be the same height");
+#endif
+    internal::ReduceToRowEchelon( A, B );
+    if( B.Width() == 1 )
+        Trsv( UPPER, NORMAL, NON_UNIT, A, B );
+    else
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
 GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
@@ -51,6 +72,85 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
+internal::ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
+{
+#ifndef RELEASE
+    PushCallStack("internal::ReduceToRowEchelon");
+    if( A.Height() != B.Height() )
+        throw std::logic_error("A and B must be the same height");
+#endif
+    // Matrix views
+    Matrix<F>
+        ATL, ATR,  A00, A01, A02,  APan,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    Matrix<F>
+        BT,  B0,
+        BB,  B1,
+             B2;
+
+    Matrix<int> p1;
+
+    // Pivot composition
+    std::vector<int> image, preimage;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionDown
+    ( B, BT,
+         BB, 0 );
+    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        RepartitionDown
+        ( BT,  B0,
+         /**/ /**/
+               B1,
+          BB,  B2 );
+
+        APan.View2x1
+        ( A12,
+          A22 );
+
+        //--------------------------------------------------------------------//
+        internal::PanelLU( APan, p1, A00.Height() );
+        internal::ComposePanelPivots( p1, A00.Height(), image, preimage );
+        ApplyRowPivots( BB,image, preimage );
+
+        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, B1 );
+
+        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
+        Gemm( NORMAL, NORMAL, (F)-1, A21, B1,  (F)1, B2 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlidePartitionDown
+        ( BT,  B0,
+               B1,
+         /**/ /**/
+          BB,  B2 );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

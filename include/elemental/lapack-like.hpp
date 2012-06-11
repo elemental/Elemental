@@ -164,7 +164,8 @@ void Cholesky( UpperOrLower uplo, DistMatrix<F>& A );
 //
 // Uses an LU factorization with partial pivoting to overwrite B := A^-1 B 
 //
-// TODO: Serial version
+template<typename F>
+void GaussianElimination( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B );
 
@@ -345,11 +346,22 @@ void CholeskySolve( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B );
 // using Householder based QR or LQ factorizations, where op(A) can be either 
 // A or A^H, depending on the value or 'orientation'.
 //
-// TODO: Serial version
+
+template<typename R>
+void HouseholderSolve
+( Orientation orientation, 
+  Matrix<R>& A, const Matrix<R>& B, Matrix<R>& X );
 template<typename R>
 void HouseholderSolve
 ( Orientation orientation, 
   DistMatrix<R>& A, const DistMatrix<R>& B, DistMatrix<R>& X );
+
+template<typename R>
+void HouseholderSolve
+( Orientation orientation, 
+        Matrix<Complex<R> >& A,
+  const Matrix<Complex<R> >& B, 
+        Matrix<Complex<R> >& X );
 template<typename R>
 void HouseholderSolve
 ( Orientation orientation, 
@@ -1154,28 +1166,6 @@ Hegst( LeftOrRight side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
     lapack::Hegst
     ( itype, uploChar, A.Height(), 
       A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline void
-LU( Matrix<F>& A, Matrix<int>& p )
-{
-#ifndef RELEASE
-    PushCallStack("LU");
-    if( p.Height() != A.Height() )
-        throw std::logic_error("A and p must be the same height");
-#endif
-    lapack::LU
-    ( A.Height(), A.Width(), A.Buffer(), A.LDim(), p.Buffer() );
-
-    // Convert from Fortran to C indexing
-    int* pBuffer = p.Buffer();
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
-        --pBuffer[i];
 #ifndef RELEASE
     PopCallStack();
 #endif
