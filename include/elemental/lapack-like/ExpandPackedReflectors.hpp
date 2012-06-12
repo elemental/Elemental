@@ -86,6 +86,7 @@ ExpandPackedReflectors
     PopCallStack();
 #endif
 }
+*/
 
 template<typename R> 
 inline void
@@ -97,7 +98,7 @@ ExpandPackedReflectors
     PushCallStack("ExpandPackedReflectors");
 #endif
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( offset, H, t );
+        internal::ExpandPackedReflectorsLV( conjugation, offset, H, t );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE
@@ -105,6 +106,8 @@ ExpandPackedReflectors
 #endif
 }
 
+// None of the underlying routines are implemented yet
+/*
 template<typename R> 
 inline void
 ExpandPackedReflectors
@@ -117,7 +120,7 @@ ExpandPackedReflectors
     PushCallStack("ExpandPackedReflectors");
 #endif
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( offset, H, t );
+        internal::ExpandPackedReflectorsLV( conjugation, offset, H, t );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE

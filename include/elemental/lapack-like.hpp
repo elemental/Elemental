@@ -1048,6 +1048,10 @@ template<typename R>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, int offset,
   Matrix<R>& H );
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 
+  int offset, Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t );
 
 // None of the underlying routines are written yet
 /*
@@ -1055,11 +1059,6 @@ template<typename R>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, int offset,
   DistMatrix<R>& H );
-
-template<typename R>
-void ExpandPackedReflectors
-( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 
-  int offset, Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t );
 template<typename R>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 

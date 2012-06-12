@@ -35,6 +35,7 @@ using namespace std;
 using namespace elem;
 
 typedef double R;
+typedef Complex<R> C;
 
 void Usage()
 {
@@ -64,18 +65,20 @@ main( int argc, char* argv[] )
 
     try 
     {
-        Matrix<R> A;
+        Matrix<C> A;
         Uniform( m, n, A );
 
         // Compute the QR decomposition of A, but do not overwrite A
-        Matrix<R> B( A );
+        Matrix<C> B( A );
+        Matrix<C> t;
         SetBlocksize( 3 );
-        QR( B );
+        QR( B, t );
 
         A.Print("A");
         B.Print("B := qr(A)");
+        t.Print("t");
 
-        ExpandPackedReflectors( LOWER, VERTICAL, 0, B );
+        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, B, t );
 
         B.Print("Q");
     }
