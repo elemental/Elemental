@@ -651,7 +651,8 @@ if(BUILD_EXAMPLES)
   set(CORE_EXAMPLES Constructors)
   set(BLAS_EXAMPLES Gemv)
   set(LAPACK_EXAMPLES GaussianElimination HouseholderSolve HPDInverse LDL 
-                      LDLInverse Polar Pseudoinverse QDWH SequentialSVD SVD)
+                      LDLInverse Polar Pseudoinverse QDWH SequentialQR 
+                      SequentialSVD SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
                        Hankel HermitianUniformSpectrum Hilbert Identity 
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform

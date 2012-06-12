@@ -1036,6 +1036,43 @@ void ApplyPackedReflectors
         DistMatrix<Complex<R> >& A );
 
 //
+// ExpandPackedReflectors:
+//
+// More efficient version of ApplyPackedReflectors (by a factor of 3) for the 
+// case where 'A' is an identity matrix.
+//
+// NOTE: only the Lower/Vertical case is currently supported
+//
+
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, int offset,
+  Matrix<R>& H );
+
+// None of the underlying routines are written yet
+/*
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, int offset,
+  DistMatrix<R>& H );
+
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 
+  int offset, Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t );
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 
+  int offset,
+  DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,MD,STAR>& t );
+template<typename R>
+void ExpandPackedReflectors
+( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
+  int offset,
+  DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,STAR,STAR>& t );
+*/
+
+//
 // Hegst (HErmitian GEneralized to STandard eigenvalue problem):  
 //
 // If side==LEFT, 
@@ -1095,6 +1132,7 @@ GridOrder GetHermitianTridiagGridOrder();
 #include "./lapack-like/CholeskySolve.hpp"
 #include "./lapack-like/ComposePivots.hpp"
 #include "./lapack-like/Determinant.hpp"
+#include "./lapack-like/ExpandPackedReflectors.hpp"
 #include "./lapack-like/ExplicitLQ.hpp"
 #include "./lapack-like/ExplicitQR.hpp"
 #include "./lapack-like/GaussianElimination.hpp"

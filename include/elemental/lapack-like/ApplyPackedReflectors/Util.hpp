@@ -35,7 +35,7 @@ namespace elem {
 namespace internal {
 
 template<typename T> 
-void
+inline void
 SetDiagonalToOne( LeftOrRight side, int offset, Matrix<T>& H )
 {
 #ifndef RELEASE
@@ -68,7 +68,7 @@ SetDiagonalToOne( LeftOrRight side, int offset, Matrix<T>& H )
 }
 
 template<typename T> 
-void
+inline void
 SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T>& H )
 {
 #ifndef RELEASE
@@ -114,7 +114,7 @@ SetDiagonalToOne( LeftOrRight side, int offset, DistMatrix<T>& H )
 }
 
 template<typename R> 
-void 
+inline void 
 HalveMainDiagonal( Matrix<R>& SInv )
 {
 #ifndef RELEASE
@@ -131,7 +131,7 @@ HalveMainDiagonal( Matrix<R>& SInv )
 }
 
 template<typename R> 
-void 
+inline void 
 HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
@@ -148,7 +148,7 @@ HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 }
 
 template<typename R> 
-void
+inline void
 FixDiagonal
 ( Conjugation conjugation,
   const Matrix<Complex<R> >& t,
@@ -179,7 +179,7 @@ FixDiagonal
 }
 
 template<typename R> 
-void
+inline void
 FixDiagonal
 ( Conjugation conjugation,
   const DistMatrix<Complex<R>,STAR,STAR>& t,
