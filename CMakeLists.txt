@@ -232,6 +232,8 @@ if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
     FortranCInterface_HEADER(
       ${CMAKE_CURRENT_BINARY_DIR}/include/elemental/FCMangle.h 
       MACRO_NAMESPACE "FC_")
+    install(FILES ${PROJECT_BINARY_DIR}/include/elemental/FCMangle.h
+            DESTINATION include/elemental/)
   endif(FortranCInterface_VERIFIED_CXX)
 endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
 
