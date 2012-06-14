@@ -58,6 +58,7 @@ namespace elem {
 //    adjoint(H) [chi; 0] = [-chi; 0],
 // which is accomplished by setting tau=2, and v=0.
 //
+
 template<typename R>
 inline R
 Reflector( Matrix<R>& chi, Matrix<R>& x )
@@ -66,8 +67,6 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     PushCallStack("Reflector");
 #endif
     R norm = Nrm2( x );
-    R alpha = chi.Get(0,0);
-
     if( norm == 0 )
     {
         chi.Set(0,0,-chi.Get(0,0));
@@ -78,6 +77,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     }
 
     R beta;
+    R alpha = chi.Get(0,0);
     if( alpha <= 0 )
         beta = lapack::SafeNorm( alpha, norm );
     else
@@ -118,6 +118,66 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     return tau;
 }
 
+template<typename R>
+inline R
+Reflector( R& chi, int m, R* x, int incx )
+{
+#ifndef RELEASE
+    PushCallStack("Reflector");
+#endif
+    R norm = blas::Nrm2( m, x, incx );
+    if( norm == 0 )
+    {
+        x[0] = -x[0];
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return (R)2;
+    }
+
+    R beta;
+    R alpha = chi;
+    if( alpha <= 0 )
+        beta = lapack::SafeNorm( alpha, norm );
+    else
+        beta = -lapack::SafeNorm( alpha, norm );
+
+    // Avoid overflow by scaling the vector
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
+    int count=0;
+    if( Abs(beta) < safeInv )
+    {
+        R invOfSafeInv = one/safeInv;
+        do
+        {
+            ++count;
+            blas::Scal( m, invOfSafeInv, x, incx );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
+
+        norm = blas::Nrm2( m, x, incx );
+        if( alpha <= 0 )
+            beta = lapack::SafeNorm( alpha, norm );
+        else
+            beta = -lapack::SafeNorm( alpha, norm );
+    }
+
+    R tau = (beta-alpha) / beta;
+    blas::Scal( m, one/(alpha-beta), x, incx );
+
+    for( int j=0; j<count; ++j )
+        beta *= safeInv;
+    chi = beta;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return tau;
+}
+
 //
 // Follows the LAPACK convention of defining tau such that
 //
@@ -135,6 +195,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 //    adjoint(H) [chi; 0] = [-chi; 0],
 // which is accomplished by setting tau=2, and v=0.
 //
+
 template<typename R>
 inline Complex<R>
 Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
@@ -191,6 +252,69 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     chi.Set(0,0,beta);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return tau;
+}
+
+template<typename R>
+inline Complex<R>
+Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
+{
+#ifndef RELEASE
+    PushCallStack("Reflector");
+#endif
+    typedef Complex<R> C;
+
+    R norm = blas::Nrm2( m, x, incx );
+    C alpha = chi;
+
+    if( norm == 0 && alpha.imag == (R)0 )
+    {
+        chi = -chi;
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return (C)2;
+    }
+
+    R beta;
+    if( alpha.real <= 0 )
+        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    else
+        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+
+    const R one = 1;
+    const R safeMin = lapack::MachineSafeMin<R>();
+    const R epsilon = lapack::MachineEpsilon<R>();
+    const R safeInv = safeMin/epsilon;
+    int count = 0;
+    if( Abs(beta) < safeInv )
+    {
+        R invOfSafeInv = one/safeInv;
+        do
+        {
+            ++count;
+            blas::Scal( m, invOfSafeInv, x, incx );
+            alpha *= invOfSafeInv;
+            beta *= invOfSafeInv;
+        } while( Abs(beta) < safeInv );
+
+        norm = blas::Nrm2( m, x, incx );
+        if( alpha.real <= 0 )
+            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        else
+            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    }
+
+    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    blas::Scal( m, one/(alpha-beta), x, incx );
+
+    for( int j=0; j<count; ++j )
+        beta *= safeInv;
+    chi = beta;
+
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -964,7 +964,12 @@ bool PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 );
 // Reflector (Householder reflector): 
 //
 template<typename R>
+R Reflector( R& chi, int m, R* x, int incx );
+template<typename R>
 R Reflector( Matrix<R>& chi, Matrix<R>& x );
+template<typename R>
+Complex<R>
+Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx );
 template<typename R>
 Complex<R>
 Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x );
