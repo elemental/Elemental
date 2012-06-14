@@ -233,7 +233,7 @@ template<typename T,typename Int>
 inline
 Matrix<T,Int>::Matrix()
 : viewing_(false), lockedView_(false),
-  height_(0), width_(0), data_(0), lockedData_(0), ldim_(1),
+  height_(0), width_(0), ldim_(1), data_(0), lockedData_(0),
   memory_()
 { }
 
@@ -241,7 +241,7 @@ template<typename T,typename Int>
 inline
 Matrix<T,Int>::Matrix( Int height, Int width )
 : viewing_(false), lockedView_(false),
-  height_(height), width_(width), lockedData_(0), ldim_(std::max(height,1))
+  height_(height), width_(width), ldim_(std::max(height,1)), lockedData_(0)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -260,7 +260,7 @@ inline
 Matrix<T,Int>::Matrix
 ( Int height, Int width, Int ldim )
 : viewing_(false), lockedView_(false),
-  height_(height), width_(width), lockedData_(0), ldim_(ldim)
+  height_(height), width_(width), ldim_(ldim), lockedData_(0)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -289,7 +289,7 @@ inline
 Matrix<T,Int>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim )
 : viewing_(true), lockedView_(true),
-  height_(height), width_(width), data_(0), lockedData_(buffer), ldim_(ldim)
+  height_(height), width_(width), ldim_(ldim), data_(0), lockedData_(buffer)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -314,7 +314,7 @@ inline
 Matrix<T,Int>::Matrix
 ( Int height, Int width, T* buffer, Int ldim )
 : viewing_(true), lockedView_(false),
-  height_(height), width_(width), data_(buffer), lockedData_(0), ldim_(ldim)
+  height_(height), width_(width), ldim_(ldim), data_(buffer), lockedData_(0)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix");
@@ -339,7 +339,7 @@ inline
 Matrix<T,Int>::Matrix
 ( const Matrix<T,Int>& A )
 : viewing_(false), lockedView_(false), 
-  height_(0), width_(0), data_(0), lockedData_(0), ldim_(1)
+  height_(0), width_(0), ldim_(1), data_(0), lockedData_(0)
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Matrix( const Matrix& )");

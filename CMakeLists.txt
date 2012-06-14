@@ -549,6 +549,7 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 # MPI libraries) to be linked last
 add_library(cmake-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
 target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+install(TARGETS cmake-dummy-lib DESTINATION lib)
 
 # The main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)

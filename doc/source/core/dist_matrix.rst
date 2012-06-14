@@ -240,21 +240,6 @@ to be available for all matrix distributions.
       Resize the distributed matrix so that it is :math:`0 \times 0` and free 
       all allocated storage.
 
-   .. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset=0 )
-
-      Explicitly introduce zeroes into the distributed matrix such that it is 
-      trapezoidal with respect to the left or right diagonal (as chosen by the 
-      ``side`` parameter). Whether or not the matrix is lower or upper 
-      trapezoidal is determined by the ``shape`` parameter, and the diagonal 
-      offset is chosen by the ``offset`` parameter (:math:`0` denotes the main 
-      diagonal, :math:`-1` denotes the subdiagonal, and :math:`+1` denotes the 
-      superdiagonal).
-
-   .. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset=0 )
-
-      Scale the portion of the matrix determined by the above discussion by the 
-      scalar :math:`\alpha`.
-
    .. cpp:function:: void ResizeTo( int height, int width )
 
       Reconfigure the matrix so that it is `height` :math:`\times` `width`.
@@ -263,30 +248,6 @@ to be available for all matrix distributions.
 
       Clear the distributed matrix's contents and reconfigure for the new 
       process grid.
-
-   .. cpp:function:: void SetToIdentity()
-
-      Set the entire matrix to zero and then introduce ones onto the main 
-      diagonal.
-
-   .. cpp:function:: void SetToRandom()
-
-      Independently draw each entry of the matrix from the uniform distribution
-      over the unit ball.
-
-   .. cpp:function:: void SetToRandomHermitian()
-
-      Same as above, but the diagonal is forced to be real-valued
-      (the rest of the symmetry is implicit).
-
-   .. cpp:function:: void SetToRandomHPD()
-
-      Same as above, but a sufficiently large constant is added to every 
-      diagonal entry in order to ensure that the matrix is positive-definite.
-
-   .. cpp:function:: void SetToZero()
-
-      Set all entries of the distributed matrix to zero.
 
 ``[MC,MR]``
 -----------

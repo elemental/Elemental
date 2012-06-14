@@ -373,25 +373,6 @@ all allocated storage.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::MakeTrapezoidal__LeftOrRight.UpperOrLower.i">
-void <tt class="descname">MakeTrapezoidal</tt><big>(</big><a class="reference internal" href="environment.html#LeftOrRight" title="LeftOrRight">LeftOrRight</a> <em>side</em>, <a class="reference internal" href="environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::MakeTrapezoidal__LeftOrRight.UpperOrLower.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Explicitly introduce zeroes into the distributed matrix such that it is
-trapezoidal with respect to the left or right diagonal (as chosen by the
-<tt class="docutils literal"><span class="pre">side</span></tt> parameter). Whether or not the matrix is lower or upper
-trapezoidal is determined by the <tt class="docutils literal"><span class="pre">shape</span></tt> parameter, and the diagonal
-offset is chosen by the <tt class="docutils literal"><span class="pre">offset</span></tt> parameter (<img class="math" src="../_images/math/bc1f9d9bf8a1b606a4188b5ce9a2af1809e27a89.png" alt="0"/> denotes the main
-diagonal, <img class="math" src="../_images/math/bae5aba07d37ff6ff813107e76260fb31ad5794e.png" alt="-1"/> denotes the subdiagonal, and <img class="math" src="../_images/math/1178af8fcc5f3f3acb9f151f7dcc2c4eefe88fd9.png" alt="+1"/> denotes the
-superdiagonal).</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::ScaleTrapezoid__T.LeftOrRight.UpperOrLower.i">
-void <tt class="descname">ScaleTrapezoid</tt><big>(</big>T <em>alpha</em>, <a class="reference internal" href="environment.html#LeftOrRight" title="LeftOrRight">LeftOrRight</a> <em>side</em>, <a class="reference internal" href="environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ScaleTrapezoid__T.LeftOrRight.UpperOrLower.i" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scale the portion of the matrix determined by the above discussion by the
-scalar <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
-</dd></dl>
-
-<dl class="function">
 <dt id="AbstractDistMatrix:T:::ResizeTo__i.i">
 void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>width</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::ResizeTo__i.i" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reconfigure the matrix so that it is <cite>height</cite> <img class="math" src="../_images/math/bac4dbe1c696d11e8dc43dd7f613199b2120daa1.png" alt="\times"/> <cite>width</cite>.</p>
@@ -402,40 +383,6 @@ void <tt class="descname">ResizeTo</tt><big>(</big>int <em>height</em>, int <em>
 void <tt class="descname">SetGrid</tt><big>(</big>const elem::Grid&amp; <em>grid</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetGrid__elem::GridCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear the distributed matrix&#8217;s contents and reconfigure for the new
 process grid.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::SetToIdentity">
-void <tt class="descname">SetToIdentity</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToIdentity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the entire matrix to zero and then introduce ones onto the main
-diagonal.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::SetToRandom">
-void <tt class="descname">SetToRandom</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandom" title="Permalink to this definition">¶</a></dt>
-<dd><p>Independently draw each entry of the matrix from the uniform distribution
-over the unit ball.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::SetToRandomHermitian">
-void <tt class="descname">SetToRandomHermitian</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHermitian" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but the diagonal is forced to be real-valued
-(the rest of the symmetry is implicit).</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::SetToRandomHPD">
-void <tt class="descname">SetToRandomHPD</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToRandomHPD" title="Permalink to this definition">¶</a></dt>
-<dd><p>Same as above, but a sufficiently large constant is added to every
-diagonal entry in order to ensure that the matrix is positive-definite.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="AbstractDistMatrix:T:::SetToZero">
-void <tt class="descname">SetToZero</tt><big>(</big><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetToZero" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set all entries of the distributed matrix to zero.</p>
 </dd></dl>
 
 </dd></dl>
