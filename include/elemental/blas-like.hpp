@@ -430,7 +430,12 @@ template<typename T>
 void Gemv
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y );
+  T beta,                                DistMatrix<T>& y );
+template<typename T>
+void Gemv
+( Orientation orientationOfA,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T,VC,STAR>& x,
+  T beta,                                DistMatrix<T,VC,STAR>& y );
 
 //
 // Ger (GEneral Rank-one update):

@@ -76,7 +76,7 @@ main( int argc, char* argv[] )
 
         // Draw the entries of the original x and y from uniform distributions 
         // over the complex unit ball
-        DistMatrix<C> x( g ), y( g );
+        DistMatrix<C,VC,STAR> x( g ), y( g );
         if( orientation == NORMAL )
         {
             Uniform( n, 1, x );

@@ -64,15 +64,13 @@ GemvN
     const Grid& g = A.Grid();
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MR,STAR> x_MR_STAR(g);
         DistMatrix<T,MC,STAR> z_MC_STAR(g);
 
-        // Start the algorithm
         Scale( beta, y );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        z_MC_STAR.ResizeTo( A.Height(), 1 );
+        Zeros( A.Height(), 1, z_MC_STAR );
         //--------------------------------------------------------------------//
         x_MR_STAR = x;
         Gemv
@@ -87,16 +85,14 @@ GemvN
     }
     else if( x.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,MR,STAR> x_MR_STAR(g);
         DistMatrix<T,MC,STAR> z_MC_STAR(g);
         DistMatrix<T> z(g), zTrans(g);
 
-        // Start the algorithm
         Scale( beta, y );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        z_MC_STAR.ResizeTo( A.Height(), 1 );
+        Zeros( A.Height(), 1, z_MC_STAR );
         z.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
@@ -117,15 +113,13 @@ GemvN
     }
     else if( y.Width() == 1 )
     {
-        // Temporary distributions
         DistMatrix<T,STAR,MR  > x_STAR_MR(g);
         DistMatrix<T,MC,  STAR> z_MC_STAR(g);
 
-        // Start the algorithm
         Scale( beta, y );
         x_STAR_MR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        z_MC_STAR.ResizeTo( A.Height(), 1 );
+        Zeros( A.Height(), 1, z_MC_STAR );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         Gemv
@@ -140,16 +134,14 @@ GemvN
     }
     else
     {
-        // Temporary distributions
         DistMatrix<T,STAR,MR  > x_STAR_MR(g);
         DistMatrix<T,MC,  STAR> z_MC_STAR(g);
         DistMatrix<T> z(g), zTrans(g);
 
-        // Start the algorithm
         Scale( beta, y );
         x_STAR_MR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        z_MC_STAR.ResizeTo( A.Height(), 1 );
+        Zeros( A.Height(), 1, z_MC_STAR );
         z.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
@@ -168,6 +160,55 @@ GemvN
         z.FreeAlignments();
         zTrans.FreeAlignments();
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+GemvN
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T,VC,STAR>& x,
+  T beta,        DistMatrix<T,VC,STAR>& y )
+{
+#ifndef RELEASE
+    PushCallStack("internal::GemvN");
+    if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
+        throw std::logic_error
+        ("{A,x,y} must be distributed over the same grid");
+    if( x.Width() != 1 || y.Width() != 1 )
+        throw std::logic_error("x and y are assumed to be column vectors");
+    if( A.Height() != y.Height() || A.Width() != x.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal GemvN: \n"
+            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+            << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
+        throw std::logic_error( msg.str() );
+    }
+#endif
+    const Grid& g = A.Grid();
+
+    DistMatrix<T,MR,STAR> x_MR_STAR(g);
+    DistMatrix<T,MC,STAR> z_MC_STAR(g);
+
+    Scale( beta, y );
+    x_MR_STAR.AlignWith( A );
+    z_MC_STAR.AlignWith( A );
+    Zeros( A.Height(), 1, z_MC_STAR );
+    //--------------------------------------------------------------------//
+    x_MR_STAR = x;
+    Gemv
+    ( NORMAL,
+      alpha, A.LockedLocalMatrix(), 
+             x_MR_STAR.LockedLocalMatrix(),
+      (T)0,  z_MC_STAR.LocalMatrix() );
+    y.SumScatterUpdate( (T)1, z_MC_STAR );
+    //--------------------------------------------------------------------//
+    x_MR_STAR.FreeAlignments();
+    z_MC_STAR.FreeAlignments();
 #ifndef RELEASE
     PopCallStack();
 #endif

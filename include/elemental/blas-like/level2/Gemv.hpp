@@ -56,5 +56,25 @@ Gemv
 #endif
 }
 
+template<typename T>
+inline void
+Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T>& A, 
+           const DistMatrix<T,VC,STAR>& x,
+  T beta,        DistMatrix<T,VC,STAR>& y )
+{
+#ifndef RELEASE
+    PushCallStack("Gemv");
+#endif
+    if( orientation == NORMAL )
+        internal::GemvN( alpha, A, x, beta, y );
+    else
+        internal::GemvT( orientation, alpha, A, x, beta, y );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 } // namespace elem
 
