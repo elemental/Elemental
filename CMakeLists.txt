@@ -1,5 +1,6 @@
 #
 #  Copyright (c) 2009-2012, Jack Poulson
+#                     2012, Jed Brown (fixing installation issues)
 #  All rights reserved.
 #
 #  This file is part of Elemental.

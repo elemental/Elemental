@@ -1,5 +1,6 @@
 /*
    Copyright (c) 2009-2012, Jack Poulson
+                      2012, Jed Brown (fixing viewingGroup_ leakage)
    All rights reserved.
 
    This file is part of Elemental.
@@ -30,8 +31,8 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_PROCESSGRID_HPP
-#define ELEMENTAL_PROCESSGRID_HPP 1
+#ifndef ELEMENTAL_GRID_HPP
+#define ELEMENTAL_GRID_HPP 1
 
 namespace elem {
 
@@ -328,6 +329,7 @@ inline Grid::~Grid()
             mpi::GroupFree( notOwningGroup_ );
 
         mpi::CommFree( viewingComm_ );
+        mpi::GroupFree( viewingGroup_ );
     }
 }
 
@@ -541,5 +543,5 @@ inline bool operator!= ( const Grid& A, const Grid& B )
 
 } // namespace elem
 
-#endif /* ELEMENTAL_PROCESSGRID_HPP */
+#endif /* ELEMENTAL_GRID_HPP */
 
