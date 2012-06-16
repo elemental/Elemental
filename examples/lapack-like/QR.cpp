@@ -39,7 +39,7 @@ typedef Complex<R> C;
 
 void Usage()
 {
-    cout << "SequentialQR <m> <n>\n"
+    cout << "QR <m> <n>\n"
          << "  <m>: height of random matrix to test QR on\n"
          << "  <n>: width of random matrix to test QR on\n"
          << endl;
@@ -65,12 +65,12 @@ main( int argc, char* argv[] )
 
     try 
     {
-        Matrix<C> A;
+        DistMatrix<C> A;
         Uniform( m, n, A );
 
         // Compute the QR decomposition of A, but do not overwrite A
-        Matrix<C> B( A );
-        Matrix<C> t;
+        DistMatrix<C> B( A );
+        DistMatrix<C,MD,STAR> t;
         SetBlocksize( 3 );
         QR( B, t );
 

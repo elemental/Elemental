@@ -1058,8 +1058,6 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation, 
   int offset, Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t );
 
-// None of the underlying routines are written yet
-/*
 template<typename R>
 void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, int offset,
@@ -1074,7 +1072,6 @@ void ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
   int offset,
   DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,STAR,STAR>& t );
-*/
 
 //
 // Hegst (HErmitian GEneralized to STandard eigenvalue problem):  

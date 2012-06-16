@@ -69,15 +69,20 @@ main( int argc, char* argv[] )
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
+        const R lowerBound = 1e-7;
         const R frobA = Norm( A, FROBENIUS_NORM );
+        const R upperBound = TwoNormUpperBound( A );
         if( g.Rank() == 0 )
-            std::cout << "||A||_F = " << frobA << "\n" << std::endl;
+        {
+            std::cout << "ASSUMING 1 / ||inv(A)||_2 >= " << lowerBound << "\n"
+                      << "||A||_F =  " << frobA << "\n"
+                      << "||A||_2 <= " << upperBound << "\n" << std::endl;
+        }
 
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
-        const R lowerBound = 1e-7;
         Q = A;
-        const int numItsQDWH = QDWH( Q, lowerBound, frobA );
+        const int numItsQDWH = QDWH( Q, lowerBound, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 
@@ -101,7 +106,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a standard QR-based Halley
         // iteration
         Q = A;
-        const int numItsHalley = Halley( Q, frobA );
+        const int numItsHalley = Halley( Q, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
 

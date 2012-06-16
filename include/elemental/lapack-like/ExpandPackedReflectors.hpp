@@ -60,8 +60,6 @@ ExpandPackedReflectors
 #endif
 }
 
-// None of the underlying routines are implemented yet
-/*
 template<typename R> 
 inline void
 ExpandPackedReflectors
@@ -86,7 +84,6 @@ ExpandPackedReflectors
     PopCallStack();
 #endif
 }
-*/
 
 template<typename R> 
 inline void
@@ -106,8 +103,6 @@ ExpandPackedReflectors
 #endif
 }
 
-// None of the underlying routines are implemented yet
-/*
 template<typename R> 
 inline void
 ExpandPackedReflectors
@@ -139,14 +134,13 @@ ExpandPackedReflectors
 #ifndef RELEASE
     PushCallStack("ExpandPackedReflectors");
 #endif
-    DistMatrix<Complex<R>,MD,STAR> tDiag(A.Grid());
-    tDiag.AlignWithDiagonal( A, offset );
+    DistMatrix<Complex<R>,MD,STAR> tDiag(H.Grid());
+    tDiag.AlignWithDiagonal( H, offset );
     tDiag = t;
     ExpandPackedReflectors( uplo, dir, conjugation, offset, H, tDiag );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-*/
 
 } // namespace elem
