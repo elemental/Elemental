@@ -66,40 +66,40 @@ namespace elem {
 
 namespace svd {
 
-template<typename R>
+template<typename Real>
 inline void
-SimpleSVD
-( DistMatrix<R>& A,
-  DistMatrix<R,VR,STAR>& s,
-  DistMatrix<R>& V )
+SimpleSVDUpper
+( DistMatrix<Real>& A,
+  DistMatrix<Real,VR,STAR>& s,
+  DistMatrix<Real>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::SimpleSVD");
+    PushCallStack("svd::SimpleSVDUpper");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& grid = A.Grid();
+    const Grid& g = A.Grid();
 
     // Bidiagonalize A
     Bidiag( A );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
-                          e_MD_STAR( grid );
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
+                             e_MD_STAR( g );
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
-    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                            e_STAR_STAR( e_MD_STAR );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
 
     // Initialize U and VTrans to the appropriate identity matrices.
-    DistMatrix<R,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<R,STAR,VC> VTrans_STAR_VC( grid );
+    DistMatrix<Real,VC,STAR> U_VC_STAR( g );
+    DistMatrix<Real,STAR,VC> VTrans_STAR_VC( g );
     U_VC_STAR.AlignWith( A );
     VTrans_STAR_VC.AlignWith( V );
     Identity( m, k, U_VC_STAR );
@@ -107,8 +107,8 @@ SimpleSVD
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VTrans
-    Matrix<R>& ULocal = U_VC_STAR.LocalMatrix();
-    Matrix<R>& VTransLocal = VTrans_STAR_VC.LocalMatrix();
+    Matrix<Real>& ULocal = U_VC_STAR.LocalMatrix();
+    Matrix<Real>& VTransLocal = VTrans_STAR_VC.LocalMatrix();
     lapack::BidiagQRAlg
     ( uplo, k, VTransLocal.Width(), ULocal.Height(),
       d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
@@ -117,13 +117,13 @@ SimpleSVD
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VTrans into a standard matrix dist.
-    DistMatrix<R> B( A );
+    DistMatrix<Real> B( A );
     if( m >= n )
     {
-        DistMatrix<R> AT( grid ),
-                      AB( grid );
-        DistMatrix<R,VC,STAR> UT_VC_STAR( grid ), 
-                              UB_VC_STAR( grid );
+        DistMatrix<Real> AT( g ),
+                         AB( g );
+        DistMatrix<Real,VC,STAR> UT_VC_STAR( g ), 
+                                 UB_VC_STAR( g );
         PartitionDown( A, AT,
                           AB, n );
         PartitionDown( U_VC_STAR, UT_VC_STAR,
@@ -134,9 +134,10 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<R> VT( grid ), 
-                      VB( grid );
-        DistMatrix<R,STAR,VC> VTransL_STAR_VC( grid ), VTransR_STAR_VC( grid );
+        DistMatrix<Real> VT( g ), 
+                         VB( g );
+        DistMatrix<Real,STAR,VC> 
+            VTransL_STAR_VC( g ), VTransR_STAR_VC( g );
         PartitionDown( V, VT, 
                           VB, m );
         PartitionRight( VTrans_STAR_VC, VTransL_STAR_VC, VTransR_STAR_VC, m );
@@ -167,202 +168,41 @@ SimpleSVD
 #endif
 }
 
-#ifdef HAVE_FLA_BSVD
-template<>
+template<typename Real>
 inline void
-SimpleSVD
-( DistMatrix<double>& A,
-  DistMatrix<double,VR,STAR>& s,
-  DistMatrix<double>& V )
+SimpleSVDUpper
+( DistMatrix<Complex<Real> >& A,
+  DistMatrix<Real,VR,STAR>& s,
+  DistMatrix<Complex<Real> >& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::SimpleSVD");
+    PushCallStack("svd::SimpleSVDUpper");
 #endif
-    typedef double R;
-    typedef Complex<R> C;
-
+    typedef Complex<Real> C;
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& grid = A.Grid();
+    const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    Bidiag( A );
-
-    // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
-                          e_MD_STAR( grid );
-    A.GetDiagonal( d_MD_STAR );
-    A.GetDiagonal( e_MD_STAR, offdiagonal );
-
-    // In order to use serial QR kernels, we need the full bidiagonal matrix
-    // on each process
-    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                            e_STAR_STAR( e_MD_STAR );
-
-    // Initialize U and V to the appropriate identity matrices.
-    DistMatrix<R,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<R,VC,STAR> V_VC_STAR( grid );
-    U_VC_STAR.AlignWith( A );
-    V_VC_STAR.AlignWith( V );
-    Identity( m, k, U_VC_STAR );
-    Identity( n, k, V_VC_STAR );
-
-    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
-    // rotations into our local portion of U and V
-    // NOTE: This _only_ works in the case where m >= n
-    const int numAccum = 32;
-    const int maxNumIts = 30;
-    const int bAlg = 512;
-    std::vector<C> GBuffer( (k-1)*numAccum ),
-                   HBuffer( (k-1)*numAccum );
-    FLA_Bsvd_v_opd_var1
-    ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
-      numAccum, maxNumIts,
-      d_STAR_STAR.LocalBuffer(), 1,
-      e_STAR_STAR.LocalBuffer(), 1,
-      &GBuffer[0], 1, k-1,
-      &HBuffer[0], 1, k-1,
-      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
-      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
-      bAlg );
-
-    // Make a copy of A (for the Householder vectors) and pull the necessary 
-    // portions of U and V into a standard matrix dist.
-    DistMatrix<R> B( A );
-    if( m >= n )
-    {
-        DistMatrix<R> AT( grid ),
-                      AB( grid );
-        DistMatrix<R,VC,STAR> UT_VC_STAR( grid ), 
-                              UB_VC_STAR( grid );
-        PartitionDown( A, AT,
-                          AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR,
-                                  UB_VC_STAR, n );
-        AT = UT_VC_STAR;
-        MakeZeros( AB );
-        V = V_VC_STAR;
-    }
-    else
-    {
-        DistMatrix<R> VT( grid ), 
-                      VB( grid );
-        DistMatrix<R,VC,STAR> VT_VC_STAR( grid ), 
-                              VB_VC_STAR( grid );
-        PartitionDown( V, VT, 
-                          VB, m );
-        PartitionDown
-        ( V_VC_STAR, VT_VC_STAR, 
-                     VB_VC_STAR, m );
-        VT = VT_VC_STAR;
-        MakeZeros( VB );
-    }
-
-    // Backtransform U and V
-    if( m >= n )
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
-    }
-    else
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
-    }
-
-    // Copy out the appropriate subset of the singular values
-    s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-#endif // HAVE_FLA_BSVD
-
-template<typename R>
-inline void
-SimpleSingularValues
-( DistMatrix<R>& A,
-  DistMatrix<R,VR,STAR>& s )
-{
-#ifndef RELEASE
-    PushCallStack("svd::SimpleSingularValues");
-#endif
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::min( m, n );
-    const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& grid = A.Grid();
-
-    // Bidiagonalize A
-    Bidiag( A );
-
-    // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<R,MD,STAR> d_MD_STAR( grid ), 
-                          e_MD_STAR( grid );
-    A.GetDiagonal( d_MD_STAR );
-    A.GetDiagonal( e_MD_STAR, offdiagonal );
-
-    // In order to use serial QR kernels, we need the full bidiagonal matrix
-    // on each process
-    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                            e_STAR_STAR( e_MD_STAR );
-
-    // Compute the singular values of the bidiagonal matrix
-    lapack::BidiagQRAlg
-    ( uplo, k, 0, 0,
-      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
-      0, 1, 0, 1 );
-
-    // Copy out the appropriate subset of the singular values
-    s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename R>
-inline void
-SimpleSVD
-( DistMatrix<Complex<R> >& A,
-  DistMatrix<R,VR,STAR>& s,
-  DistMatrix<Complex<R> >& V )
-{
-#ifndef RELEASE
-    PushCallStack("svd::SimpleSVD");
-#endif
-    typedef Complex<R> C;
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::min( m, n );
-    const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& grid = A.Grid();
-
-    // Bidiagonalize A
-    DistMatrix<C,STAR,STAR> tP( grid ), tQ( grid );
+    DistMatrix<C,STAR,STAR> tP( g ), tQ( g );
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<R,MD,STAR> d_MD_STAR( grid ),
-                          e_MD_STAR( grid );
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
+                             e_MD_STAR( g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
-    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                            e_STAR_STAR( e_MD_STAR );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
 
     // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<C,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<C,STAR,VC> VAdj_STAR_VC( grid );
+    DistMatrix<C,VC,STAR> U_VC_STAR( g );
+    DistMatrix<C,STAR,VC> VAdj_STAR_VC( g );
     U_VC_STAR.AlignWith( A );
     VAdj_STAR_VC.AlignWith( V );
     Identity( m, k, U_VC_STAR );
@@ -383,10 +223,10 @@ SimpleSVD
     DistMatrix<C> B( A );
     if( m >= n )
     {
-        DistMatrix<C> AT( grid ),
-                      AB( grid );
-        DistMatrix<C,VC,STAR> UT_VC_STAR( grid ),
-                              UB_VC_STAR( grid );
+        DistMatrix<C> AT( g ),
+                      AB( g );
+        DistMatrix<C,VC,STAR> UT_VC_STAR( g ),
+                              UB_VC_STAR( g );
         PartitionDown( A, AT,
                           AB, n );
         PartitionDown( U_VC_STAR, UT_VC_STAR,
@@ -397,9 +237,9 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<C> VT( grid ), 
-                      VB( grid );
-        DistMatrix<C,STAR,VC> VAdjL_STAR_VC( grid ), VAdjR_STAR_VC( grid );
+        DistMatrix<C> VT( g ), 
+                      VB( g );
+        DistMatrix<C,STAR,VC> VAdjL_STAR_VC( g ), VAdjR_STAR_VC( g );
         PartitionDown( V, VT, 
                           VB, m );
         PartitionRight( VAdj_STAR_VC, VAdjL_STAR_VC, VAdjR_STAR_VC, m );
@@ -433,41 +273,157 @@ SimpleSVD
 #ifdef HAVE_FLA_BSVD
 template<>
 inline void
-SimpleSVD
-( DistMatrix<Complex<double> >& A,
+SimpleSVDUpper
+( DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& s,
-  DistMatrix<Complex<double> >& V )
+  DistMatrix<double>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::SimpleSVD");
+    PushCallStack("svd::SimpleSVDUpper");
 #endif
-    typedef double R;
-    typedef Complex<R> C;
+    typedef double Real;
+    typedef Complex<Real> C;
 
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
-    const Grid& grid = A.Grid();
+    const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    DistMatrix<C,STAR,STAR> tP( grid ), tQ( grid );
+    Bidiag( A );
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
+                             e_MD_STAR( g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, offdiagonal );
+
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // on each process
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
+
+    // Initialize U and V to the appropriate identity matrices.
+    DistMatrix<Real,VC,STAR> U_VC_STAR( g );
+    DistMatrix<Real,VC,STAR> V_VC_STAR( g );
+    U_VC_STAR.AlignWith( A );
+    V_VC_STAR.AlignWith( V );
+    Identity( m, k, U_VC_STAR );
+    Identity( n, k, V_VC_STAR );
+
+    // Compute the SVD of the bidiagonal matrix and accumulate the Givens
+    // rotations into our local portion of U and V
+    // NOTE: This _only_ works in the case where m >= n
+    const int numAccum = 32;
+    const int maxNumIts = 30;
+    const int bAlg = 512;
+    std::vector<C> GBuffer( (k-1)*numAccum ),
+                   HBuffer( (k-1)*numAccum );
+    FLA_Bsvd_v_opd_var1
+    ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
+      numAccum, maxNumIts,
+      d_STAR_STAR.LocalBuffer(), 1,
+      e_STAR_STAR.LocalBuffer(), 1,
+      &GBuffer[0], 1, k-1,
+      &HBuffer[0], 1, k-1,
+      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
+      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
+      bAlg );
+
+    // Make a copy of A (for the Householder vectors) and pull the necessary 
+    // portions of U and V into a standard matrix dist.
+    DistMatrix<Real> B( A );
+    if( m >= n )
+    {
+        DistMatrix<Real> AT( g ),
+                         AB( g );
+        DistMatrix<Real,VC,STAR> UT_VC_STAR( g ), 
+                                 UB_VC_STAR( g );
+        PartitionDown( A, AT,
+                          AB, n );
+        PartitionDown( U_VC_STAR, UT_VC_STAR,
+                                  UB_VC_STAR, n );
+        AT = UT_VC_STAR;
+        MakeZeros( AB );
+        V = V_VC_STAR;
+    }
+    else
+    {
+        DistMatrix<Real> VT( g ), 
+                         VB( g );
+        DistMatrix<Real,VC,STAR> VT_VC_STAR( g ), 
+                                 VB_VC_STAR( g );
+        PartitionDown( V, VT, 
+                          VB, m );
+        PartitionDown
+        ( V_VC_STAR, VT_VC_STAR, 
+                     VB_VC_STAR, m );
+        VT = VT_VC_STAR;
+        MakeZeros( VB );
+    }
+
+    // Backtransform U and V
+    if( m >= n )
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
+    }
+    else
+    {
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
+        ApplyPackedReflectors
+        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
+    }
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<>
+inline void
+SimpleSVDUpper
+( DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& s,
+  DistMatrix<Complex<double> >& V )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSVDUpper");
+#endif
+    typedef double Real;
+    typedef Complex<Real> C;
+
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& g = A.Grid();
+
+    // Bidiagonalize A
+    DistMatrix<C,STAR,STAR> tP( g ), tQ( g );
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<R,MD,STAR> d_MD_STAR( grid ),
-                          e_MD_STAR( grid );
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
+                             e_MD_STAR( g );
     A.GetRealDiagonal( d_MD_STAR );
     A.GetRealDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
-    DistMatrix<R,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                            e_STAR_STAR( e_MD_STAR );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
 
     // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<C,VC,STAR> U_VC_STAR( grid );
-    DistMatrix<C,VC,STAR> V_VC_STAR( grid );
+    DistMatrix<C,VC,STAR> U_VC_STAR( g );
+    DistMatrix<C,VC,STAR> V_VC_STAR( g );
     U_VC_STAR.AlignWith( A );
     V_VC_STAR.AlignWith( V );
     Identity( m, k, U_VC_STAR );
@@ -497,10 +453,10 @@ SimpleSVD
     DistMatrix<C> B( A );
     if( m >= n )
     {
-        DistMatrix<C> AT( grid ),
-                      AB( grid );
-        DistMatrix<C,VC,STAR> UT_VC_STAR( grid ), 
-                              UB_VC_STAR( grid );
+        DistMatrix<C> AT( g ),
+                      AB( g );
+        DistMatrix<C,VC,STAR> UT_VC_STAR( g ), 
+                              UB_VC_STAR( g );
         PartitionDown( A, AT,
                           AB, n );
         PartitionDown( U_VC_STAR, UT_VC_STAR,
@@ -511,10 +467,10 @@ SimpleSVD
     }
     else
     {
-        DistMatrix<C> VT( grid ), 
-                      VB( grid );
-        DistMatrix<C,VC,STAR> VT_VC_STAR( grid ), 
-                              VB_VC_STAR( grid );
+        DistMatrix<C> VT( g ), 
+                      VB( g );
+        DistMatrix<C,VC,STAR> VT_VC_STAR( g ), 
+                              VB_VC_STAR( g );
         PartitionDown( V, VT, 
                           VB, m );
         PartitionDown
@@ -547,6 +503,207 @@ SimpleSVD
 #endif
 }
 #endif // HAVE_FLA_BSVD
+
+template<typename F>
+inline void
+SVDUpper
+( DistMatrix<F>& A,
+  DistMatrix<typename Base<F>::type,VR,STAR>& s,
+  DistMatrix<F>& V,
+  double heightRatio=1.5 )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SVDUpper");
+    if( A.Height() < A.Width() )
+        throw std::logic_error("A must be at least as tall as it is wide");
+    if( heightRatio <= 1.0 )
+        throw std::logic_error("Nonsensical switchpoint for SVD");
+#endif
+    const Grid& g = A.Grid();
+    const int m = A.Height();
+    const int n = A.Width();
+    if( m > heightRatio*n )
+    {
+        DistMatrix<F> R(g);
+        ExplicitQR( A, R );
+        svd::SimpleSVDUpper( R, s, V );
+        // Unfortunately, extra memory is used in forming A := A R,
+        // where A has been overwritten with the Q from the QR factorization
+        // of the original state of A, and R has been overwritten with the U 
+        // from the SVD of the R from the QR factorization of A
+        //
+        // Perhaps this should be broken into pieces.
+        DistMatrix<F> ACopy( A );
+        Gemm( NORMAL, NORMAL, (F)1, ACopy, R, (F)0, A );
+    }
+    else
+    {
+        svd::SimpleSVDUpper( A, s, V );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Real>
+inline void
+SimpleSingularValuesUpper
+( DistMatrix<Real>& A,
+  DistMatrix<Real,VR,STAR>& s )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSingularValuesUpper");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& g = A.Grid();
+
+    // Bidiagonalize A
+    Bidiag( A );
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
+                             e_MD_STAR( g );
+    A.GetDiagonal( d_MD_STAR );
+    A.GetDiagonal( e_MD_STAR, offdiagonal );
+
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // on each process
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
+
+    // Compute the singular values of the bidiagonal matrix
+    lapack::BidiagQRAlg
+    ( uplo, k, 0, 0,
+      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      0, 1, 0, 1 );
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Real>
+inline void
+SimpleSingularValuesUpper
+( DistMatrix<Complex<Real> >& A,
+  DistMatrix<Real,VR,STAR>& s )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SimpleSingularValuesUpper");
+#endif
+    typedef Complex<Real> C;
+    const int m = A.Height();
+    const int n = A.Width();
+    const int k = std::min( m, n );
+    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const char uplo = ( m>=n ? 'U' : 'L' );
+    const Grid& g = A.Grid();
+
+    // Bidiagonalize A
+    DistMatrix<C,MD,STAR> tP(g), tQ(g);
+    Bidiag( A, tP, tQ );
+
+    // Grab copies of the diagonal and sub/super-diagonal of A
+    DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
+                             e_MD_STAR( g );
+    A.GetRealDiagonal( d_MD_STAR );
+    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
+
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // on each process
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( e_MD_STAR );
+
+    // Compute the singular values of the bidiagonal matrix
+    lapack::BidiagQRAlg
+    ( uplo, k, 0, 0,
+      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      0, 1, 0, 1 );
+
+    // Copy out the appropriate subset of the singular values
+    s = d_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Real>
+inline void
+SingularValuesUpper
+( DistMatrix<Real>& A,
+  DistMatrix<Real,VR,STAR>& s,
+  double heightRatio=1.2 )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SingularValuesUpper");    
+    if( heightRatio <= 1.0 )
+        throw std::logic_error("Nonsensical switchpoint for SingularValues");
+#endif
+    const Grid& g = A.Grid();
+    const int m = A.Height();
+    const int n = A.Width();
+    if( m >= heightRatio*n )
+    {
+        QR( A );
+        DistMatrix<Real> AT(g),
+                         AB(g);
+        PartitionDown
+        ( A, AT,
+             AB, n );
+        MakeTrapezoidal( LEFT, UPPER, 0, AT );
+        SimpleSingularValuesUpper( AT, s );
+    }
+    else
+    {
+        SimpleSingularValuesUpper( A, s );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename Real>
+inline void
+SingularValuesUpper
+( DistMatrix<Complex<Real> >& A,
+  DistMatrix<Real,VR,STAR>& s,
+  double heightRatio=1.2 )
+{
+#ifndef RELEASE
+    PushCallStack("svd::SingularValuesUpper");
+    if( heightRatio <= 1.0 )
+        throw std::logic_error("Nonsensical switchpoint for SingularValues");
+#endif
+    typedef Complex<Real> C;
+    const Grid& g = A.Grid();
+    const int m = A.Height();
+    const int n = A.Width();
+    if( m >= heightRatio*n )
+    {
+        DistMatrix<C,MD,STAR> t(g);
+        QR( A, t );
+        DistMatrix<Real> AT(g),
+                         AB(g);
+        PartitionDown
+        ( A, AT,
+             AB, n );
+        MakeTrapezoidal( LEFT, UPPER, 0, AT );
+        SimpleSingularValuesUpper( AT, s );
+    }
+    else
+    {
+        SimpleSingularValuesUpper( A, s );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 template<typename F>
 inline void
@@ -658,16 +815,19 @@ inline void
 SVD
 ( DistMatrix<F>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F>& V )
+  DistMatrix<F>& V,
+  double heightRatio )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
+    if( heightRatio <= 1.0 )
+        throw std::logic_error("Nonsensical switchpoint for SVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef typename Base<F>::type Real;
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
-    R scale;
+    Real scale;
     svd::CheckScale( A, needRescaling, scale );
     if( needRescaling )
         Scale( scale, A );
@@ -676,14 +836,14 @@ SVD
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::SimpleSVD( A, s, V );
+        svd::SVDUpper( A, s, V, heightRatio );
     }
     else
     {
         // Lower bidiagonalization is not yet supported, so we instead play a 
         // trick to get the SVD of A.
         Adjoint( A, V );
-        svd::SimpleSVD( V, s, A );
+        svd::SVDUpper( V, s, A, heightRatio );
     }
 
     // Rescale the singular values if necessary
@@ -720,7 +880,8 @@ template<typename F>
 inline void
 SingularValues
 ( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s )
+  DistMatrix<typename Base<F>::type,VR,STAR>& s,
+  double heightRatio )
 {
 #ifndef RELEASE
     PushCallStack("SingularValues");
@@ -738,7 +899,7 @@ SingularValues
     //       with a QR decomposition of tall-skinny matrices.
     if( A.Height() >= A.Width() )
     {
-        svd::SimpleSingularValues( A, s );
+        svd::SingularValuesUpper( A, s, heightRatio );
     }
     else
     {
@@ -746,7 +907,7 @@ SingularValues
         // trick to get the SVD of A.
         DistMatrix<F> AAdj( A.Grid() );
         Adjoint( A, AAdj );
-        svd::SimpleSingularValues( AAdj, s );
+        svd::SingularValuesUpper( AAdj, s, heightRatio );
     }
 
     // Rescale the singular values if necessary

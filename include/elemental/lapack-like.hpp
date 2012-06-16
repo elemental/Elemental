@@ -841,7 +841,12 @@ int QDWH
   typename Base<F>::type lowerBound, typename Base<F>::type upperBound );
 
 //
-// SVD
+// SVD: Given A, find (U,s,V) such that A = U diag(s) V^H, where U and V are 
+//      unitary. In particular, A is overwritten with U.
+//
+// Note: If max(m,n) / min(m,n) > heightRatio, then a QR or LQ factorization
+//       is performed in order to reduce the amount of work required for the
+//       bidiagonalization.
 //
 template<typename F>
 void SVD
@@ -851,14 +856,16 @@ template<typename F>
 void SVD
 ( DistMatrix<F>& A, 
   DistMatrix<typename Base<F>::type,VR,STAR>& s, 
-  DistMatrix<F>& V );
+  DistMatrix<F>& V,
+  double heightRatio=1.5 );
 template<typename F>
 void SingularValues
 ( Matrix<F>& A, Matrix<typename Base<F>::type>& s );
 template<typename F>
 void SingularValues
 ( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s );
+  DistMatrix<typename Base<F>::type,VR,STAR>& s,
+  double heightRatio=1.2 );
 
 //
 // Pseudoinverse:

@@ -75,7 +75,12 @@ inline void
 ExplicitQRHelper( Matrix<Real>& A, Matrix<Real>& R )
 {
     QR( A );
-    R = A;
+    Matrix<Real> AT,
+                 AB;
+    PartitionDown
+    ( A, AT,
+         AB, std::min(A.Height(),A.Width()) );
+    R = AT;
     MakeTrapezoidal( LEFT, UPPER, 0, R );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
 }
@@ -84,8 +89,14 @@ template<typename Real>
 inline void
 ExplicitQRHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
 {
+    const Grid& g = A.Grid();
     QR( A );
-    R = A;
+    DistMatrix<Real> AT(g),
+                     AB(g);
+    PartitionDown
+    ( A, AT,
+         AB, std::min(A.Height(),A.Width()) );
+    R = AT;
     MakeTrapezoidal( LEFT, UPPER, 0, R );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
 }
@@ -96,7 +107,12 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
 {
     Matrix<Complex<Real> > t;
     QR( A, t );
-    R = A;
+    Matrix<Complex<Real> > AT,
+                           AB;
+    PartitionDown
+    ( A, AT,
+         AB, std::min(A.Height(),A.Width()) );
+    R = AT;
     MakeTrapezoidal( LEFT, UPPER, 0, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
@@ -109,7 +125,12 @@ ExplicitQRHelper
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
     QR( A, t );
-    R = A;
+    DistMatrix<Complex<Real> > AT(g),
+                               AB(g);
+    PartitionDown
+    ( A, AT,
+         AB, std::min(A.Height(),A.Width()) );
+    R = AT;
     MakeTrapezoidal( LEFT, UPPER, 0, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
