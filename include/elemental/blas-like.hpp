@@ -2398,11 +2398,19 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
     if( X.Grid() != Y.Grid() )
         throw std::logic_error
         ("X and Y must be distributed over the same grid");
-    if( X.ColAlignment() != Y.ColAlignment() ||
-        X.RowAlignment() != Y.RowAlignment() )
-        throw std::logic_error("Axpy requires X and Y be aligned");
 #endif
-    Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
+    if( X.ColAlignment() == Y.ColAlignment() &&
+        X.RowAlignment() == Y.RowAlignment() )
+    {
+        Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
+    }
+    else
+    {
+        DistMatrix<T,U,V> XCopy( X.Grid() );
+        XCopy.AlignWith( Y );
+        XCopy = X;
+        Axpy( alpha, XCopy.LockedLocalMatrix(), Y.LocalMatrix() );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
