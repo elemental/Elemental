@@ -50,15 +50,15 @@ Norm
 For computing norms of fully-populated matrices.
 
 .. cpp:function:: typename Base<F>::type Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
-.. cpp:function:: typename Base<F>::type Norm( const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
-
-   Return the norm of the fully-populated matrix `A`.
+.. cpp:function:: typename Base<F>::type Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 
 HermitianNorm
 -------------
 
 Same as ``Norm``, but the (distributed) matrix is implicitly Hermitian 
-with the data stored in the triangle specified by ``UpperOrLower``.
+with the data stored in the triangle specified by ``UpperOrLower``. Also, 
+while ``Norm`` supports every type of distribution, ``HermitianNorm`` currently
+only supports the standard matrix distribution.
 
 SymmetricNorm
 -------------

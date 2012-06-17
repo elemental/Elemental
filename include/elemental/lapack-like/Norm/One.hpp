@@ -57,16 +57,19 @@ OneNorm( const Matrix<F>& A )
     return maxColSum;
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline typename Base<F>::type
-OneNorm( const DistMatrix<F>& A )
+OneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::OneNorm");
 #endif
     typedef typename Base<F>::type R;
 
-    // Compute the partial column sums defined by our local matrix, A[MC,MR]
+    mpi::Comm colComm = NormColComm( A );
+    mpi::Comm rowComm = NormRowComm( A );
+
+    // Compute the partial column sums defined by our local matrix, A[U,V]
     std::vector<R> myPartialColSums(A.LocalWidth());
     for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
     {
@@ -75,11 +78,10 @@ OneNorm( const DistMatrix<F>& A )
             myPartialColSums[jLocal] += Abs(A.GetLocal(iLocal,jLocal));
     }
 
-    // Sum our partial column sums to get the column sums over A[* ,MR]
+    // Sum our partial column sums to get the column sums over A[* ,V]
     std::vector<R> myColSums(A.LocalWidth());
     mpi::AllReduce
-    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM,
-      A.Grid().ColComm() );
+    ( &myPartialColSums[0], &myColSums[0], A.LocalWidth(), mpi::SUM, colComm );
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
@@ -88,8 +90,7 @@ OneNorm( const DistMatrix<F>& A )
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
-    mpi::AllReduce
-    ( &myMaxColSum, &maxColSum, 1, mpi::MAX, A.Grid().RowComm() );
+    mpi::AllReduce( &myMaxColSum, &maxColSum, 1, mpi::MAX, rowComm );
 #ifndef RELEASE
     PopCallStack();
 #endif

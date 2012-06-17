@@ -98,16 +98,17 @@ added in the near future.</p>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="Norm__DistMatrix:F:CR.NormType">
-<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;F&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__DistMatrix:F:CR.NormType" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the norm of the fully-populated matrix <cite>A</cite>.</p>
-</dd></dl>
+<dt id="Norm__DistMatrix:F.U.V:CR.NormType">
+<a class="reference internal" href="../core/environment.html#Base:F:::type" title="Base&lt;F&gt;::type">typename Base&lt;F&gt;::type</a> <tt class="descname">Norm</tt><big>(</big>const DistMatrix&lt;F, U, V&gt;&amp; <em>A</em>, <a class="reference internal" href="#NormType" title="NormType">NormType</a> <em>type</em><em>=FROBENIUS_NORM </em><big>)</big><a class="headerlink" href="#Norm__DistMatrix:F.U.V:CR.NormType" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="hermitiannorm">
 <h2>HermitianNorm<a class="headerlink" href="#hermitiannorm" title="Permalink to this headline">¶</a></h2>
 <p>Same as <tt class="docutils literal"><span class="pre">Norm</span></tt>, but the (distributed) matrix is implicitly Hermitian
-with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">UpperOrLower</span></tt>.</p>
+with the data stored in the triangle specified by <tt class="docutils literal"><span class="pre">UpperOrLower</span></tt>. Also,
+while <tt class="docutils literal"><span class="pre">Norm</span></tt> supports every type of distribution, <tt class="docutils literal"><span class="pre">HermitianNorm</span></tt> currently
+only supports the standard matrix distribution.</p>
 </div>
 <div class="section" id="symmetricnorm">
 <h2>SymmetricNorm<a class="headerlink" href="#symmetricnorm" title="Permalink to this headline">¶</a></h2>

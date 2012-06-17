@@ -58,9 +58,9 @@ MaxNorm( const Matrix<F>& A )
     return maxAbs;
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline typename Base<F>::type
-MaxNorm( const DistMatrix<F>& A )
+MaxNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("internal::MaxNorm");
@@ -78,8 +78,7 @@ MaxNorm( const DistMatrix<F>& A )
     }
 
     R maxAbs;
-    mpi::AllReduce
-    ( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, NormComm( A ) );
 #ifndef RELEASE
     PopCallStack();
 #endif

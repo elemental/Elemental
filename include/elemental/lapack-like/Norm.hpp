@@ -31,6 +31,7 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "./Norm/Util.hpp"
 #include "./Norm/Frobenius.hpp"
 #include "./Norm/Infinity.hpp"
 #include "./Norm/Max.hpp"
@@ -69,9 +70,9 @@ Norm( const Matrix<F>& A, NormType type )
     return norm;
 }
 
-template<typename F> 
+template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
-Norm( const DistMatrix<F>& A, NormType type )
+Norm( const DistMatrix<F,U,V>& A, NormType type )
 {
 #ifndef RELEASE
     PushCallStack("Norm");

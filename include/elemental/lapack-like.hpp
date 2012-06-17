@@ -57,9 +57,9 @@ using namespace norm_type_wrapper;
 template<typename F>
 typename Base<F>::type 
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 typename Base<F>::type 
-Norm( const DistMatrix<F>& A, NormType type=FROBENIUS_NORM );
+Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM );
 
 // TODO: provide an option to compute more accurate estimates
 template<typename F>

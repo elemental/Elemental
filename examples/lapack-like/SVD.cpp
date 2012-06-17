@@ -76,17 +76,11 @@ main( int argc, char* argv[] )
         U = A;
         SVD( U, s, V );
 
-        // This is a bit of a hack since norms are not supported for anything
-        // but the standard ([MC,MR]) distribution (as of yet)
-        DistMatrix<R> s_MC_MR( s );
-        const R twoNormOfA = Norm( s_MC_MR, MAX_NORM );
-
+        const R twoNormOfA = Norm( s, MAX_NORM );
         const R maxNormOfA = Norm( A, MAX_NORM );
         const R oneNormOfA = Norm( A, ONE_NORM );
         const R infNormOfA = Norm( A, INFINITY_NORM );
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
-        const R lowerBound = TwoNormLowerBound( A );
-        const R upperBound = TwoNormUpperBound( A );
 
         DiagonalScale( RIGHT, NORMAL, s, U );
         Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
@@ -103,10 +97,7 @@ main( int argc, char* argv[] )
                  << "||A||_1     = " << oneNormOfA << "\n"
                  << "||A||_oo    = " << infNormOfA << "\n"
                  << "||A||_F     = " << frobNormOfA << "\n"
-                 << "\n"
-                 << "lower bound = " << lowerBound << "\n"
                  << "||A||_2     = " << twoNormOfA << "\n"
-                 << "upper bound = " << upperBound << "\n"
                  << "\n"
                  << "||A - U Sigma V^H||_max = " << maxNormOfE << "\n"
                  << "||A - U Sigma V^H||_1   = " << oneNormOfE << "\n"
