@@ -1069,8 +1069,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
@@ -1239,8 +1239,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
@@ -1403,8 +1403,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
@@ -1565,8 +1565,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
@@ -1650,8 +1650,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
@@ -1731,8 +1731,8 @@ HermitianEig
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
                           e_MD_STAR( n-1, 1, g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, subdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 

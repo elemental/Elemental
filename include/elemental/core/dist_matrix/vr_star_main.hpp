@@ -1909,10 +1909,10 @@ DistMatrix<T,VR,STAR,Int>::SumScatterUpdate
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,VR,STAR,Int>::GetReal( Int i, Int j ) const
+DistMatrix<T,VR,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::GetReal");
+    PushCallStack("[VR,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1926,7 +1926,7 @@ DistMatrix<T,VR,STAR,Int>::GetReal( Int i, Int j ) const
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        u = this->GetRealLocal(iLoc,j);
+        u = this->GetLocalRealPart(iLoc,j);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VRComm() );
 #ifndef RELEASE
@@ -1937,10 +1937,10 @@ DistMatrix<T,VR,STAR,Int>::GetReal( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,VR,STAR,Int>::GetImag( Int i, Int j ) const
+DistMatrix<T,VR,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::GetImag");
+    PushCallStack("[VR,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1954,7 +1954,7 @@ DistMatrix<T,VR,STAR,Int>::GetImag( Int i, Int j ) const
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        u = this->GetImagLocal(iLoc,j);
+        u = this->GetLocalImagPart(iLoc,j);
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VRComm() );
 #ifndef RELEASE
@@ -1965,10 +1965,11 @@ DistMatrix<T,VR,STAR,Int>::GetImag( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,VR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,VR,STAR,Int>::SetRealPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::SetReal");
+    PushCallStack("[VR,* ]::SetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -1977,7 +1978,7 @@ DistMatrix<T,VR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        this->SetRealLocal(iLoc,j,u);
+        this->SetLocalRealPart(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1986,10 +1987,11 @@ DistMatrix<T,VR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,VR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,VR,STAR,Int>::SetImagPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::SetImag");
+    PushCallStack("[VR,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
@@ -2001,7 +2003,7 @@ DistMatrix<T,VR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        this->SetImagLocal(iLoc,j,u);
+        this->SetLocalImagPart(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2010,10 +2012,11 @@ DistMatrix<T,VR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,VR,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,VR,STAR,Int>::UpdateRealPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::UpdateReal");
+    PushCallStack("[VR,* ]::UpdateRealPart");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -2022,7 +2025,7 @@ DistMatrix<T,VR,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        this->UpdateRealLocal(iLoc,j,u);
+        this->UpdateLocalRealPart(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2031,10 +2034,11 @@ DistMatrix<T,VR,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,VR,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,VR,STAR,Int>::UpdateImagPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[VR,* ]::UpdateImag");
+    PushCallStack("[VR,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
@@ -2046,7 +2050,7 @@ DistMatrix<T,VR,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
-        this->UpdateImagLocal(iLoc,j,u);
+        this->UpdateLocalImagPart(iLoc,j,u);
     }
 #ifndef RELEASE
     PopCallStack();

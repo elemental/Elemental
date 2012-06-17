@@ -141,14 +141,16 @@ public:
     // logically applies to real data.
     //
 
-    typename Base<T>::type GetRealLocal( Int iLocal, Int jLocal ) const;
-    typename Base<T>::type GetImagLocal( Int iLocal, Int jLocal ) const;
-    void SetRealLocal( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    void UpdateRealLocal
+    typename Base<T>::type GetLocalRealPart( Int iLocal, Int jLocal ) const;
+    typename Base<T>::type GetLocalImagPart( Int iLocal, Int jLocal ) const;
+    void SetLocalRealPart
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    void UpdateLocalRealPart
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
     // Only valid for complex data
-    void SetImagLocal( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    void UpdateImagLocal
+    void SetLocalImagPart
+    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    void UpdateLocalImagPart
     ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
 
     //
@@ -193,14 +195,16 @@ public:
     // logically applies to real data.
     //
 
-    virtual typename Base<T>::type GetReal( Int i, Int j ) const = 0;
-    virtual typename Base<T>::type GetImag( Int i, Int j ) const = 0;
-    virtual void SetReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual typename Base<T>::type GetRealPart( Int i, Int j ) const = 0;
+    virtual typename Base<T>::type GetImagPart( Int i, Int j ) const = 0;
+    virtual void SetRealPart( Int i, Int j, typename Base<T>::type alpha ) = 0;
     // Only valid for complex data
-    virtual void SetImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
-    virtual void UpdateReal( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void SetImagPart( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void UpdateRealPart
+    ( Int i, Int j, typename Base<T>::type alpha ) = 0;
     // Only valid for complex data
-    virtual void UpdateImag( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void UpdateImagPart
+    ( Int i, Int j, typename Base<T>::type alpha ) = 0;
 
     //
     // Utilities
@@ -704,37 +708,37 @@ AbstractDistMatrix<T,Int>::Write
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-AbstractDistMatrix<T,Int>::GetRealLocal( Int iLocal, Int jLocal ) const
-{ return this->localMatrix_.GetReal(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
+{ return this->localMatrix_.GetRealPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-AbstractDistMatrix<T,Int>::GetImagLocal( Int iLocal, Int jLocal ) const
-{ return this->localMatrix_.GetImag(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
+{ return this->localMatrix_.GetImagPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::SetRealLocal
+AbstractDistMatrix<T,Int>::SetLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.SetReal(iLocal,jLocal,alpha); }
+{ this->localMatrix_.SetRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::SetImagLocal
+AbstractDistMatrix<T,Int>::SetLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.SetImag(iLocal,jLocal,alpha); }
+{ this->localMatrix_.SetImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::UpdateRealLocal
+AbstractDistMatrix<T,Int>::UpdateLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.UpdateReal(iLocal,jLocal,alpha); }
+{ this->localMatrix_.UpdateRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::UpdateImagLocal
+AbstractDistMatrix<T,Int>::UpdateLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.UpdateImag(iLocal,jLocal,alpha); }
+{ this->localMatrix_.UpdateImagPart(iLocal,jLocal,alpha); }
 
 } // elem
 

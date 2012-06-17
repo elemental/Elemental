@@ -38,6 +38,8 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
+const int n = 300;
+
 int
 main( int argc, char* argv[] )
 {
@@ -66,7 +68,6 @@ main( int argc, char* argv[] )
         // allow you to pass in your own local buffer and to specify the 
         // distribution alignments (i.e., which process row and column owns the
         // top-left element)
-        const int n = 6; // choose a small problem size since we will print
         DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
@@ -92,38 +93,42 @@ main( int argc, char* argv[] )
                 H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
             }
         }
-        // Alternatively, we could have sequentially filled the matrix with 
-        // for( int j=0; j<A.Width(); ++j )
-        //   for( int i=0; i<A.Height(); ++i )
-        //     A.Set( i, j, C(i+j,i-j) );
-        //
-        // More convenient interfaces are being investigated.
-        //
 
-        // Print our matrix.
-        H.Print("H");
-
-        // Print its trace
-        const C trace = Trace( H );
-        if( commRank == 0 )
-            std::cout << "Tr(H) = " << trace << std::endl;
+        // Make a backup of H before we overwrite it within the eigensolver
+        DistMatrix<C> HCopy( H );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
-        DistMatrix<R,VR,STAR> w( g );
-        DistMatrix<C> X( g );
+        //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
+        DistMatrix<R,VR,STAR> w( g );
+        DistMatrix<C> X( g );
         HermitianEig( LOWER, H, w, X ); // only use lower half of H
 
-        // Print the eigensolution
-        w.Print("Eigenvalues of H");
-        X.Print("Eigenvectors of H");
-
-        // Sort the eigensolution, then reprint
+        // Optional: sort the eigenpairs
         SortEig( w, X );
-        w.Print("Sorted eigenvalues of H");
-        X.Print("Sorted eigenvectors of H");
+
+        // Check the residual, || H X - Omega X ||_F
+        const R frobH = HermitianNorm( LOWER, HCopy, FROBENIUS_NORM );
+        DistMatrix<C> E( X );
+        DiagonalScale( RIGHT, NORMAL, w, E );
+        Hemm( LEFT, LOWER, (C)-1, HCopy, X, (C)1, E );
+        const R frobResid = HermitianNorm( LOWER, E, FROBENIUS_NORM );
+
+        // Check the orthogonality of X
+        Identity( n, n, E );
+        Herk( LOWER, NORMAL, (C)-1, X, (C)1, E );
+        const R frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM );
+
+        if( g.Rank() == 0 )
+        {
+            std::cout << "|| H ||_F = " << frobH << "\n"
+                      << "|| H X - X Omega ||_F / || A ||_F = " 
+                      << frobResid / frobH << "\n"
+                      << "|| X X^H - I ||_F = " << frobOrthog / frobH
+                      << "\n" << std::endl;
+        }
     }
     catch( exception& e )
     {

@@ -670,7 +670,7 @@ PanelBidiagU
                 tauQ1.SetLocal(0,0,tauQ);
                 // Store delta and force | alpha11 | = | 1 |
                 //                       |   a21   |   | u |
-                delta1.SetLocal(0,0,alpha11.GetRealLocal(0,0));
+                delta1.SetLocal(0,0,alpha11.GetLocalRealPart(0,0));
                 alpha11.SetLocal(0,0,(C)1);
             }
         }
@@ -754,7 +754,7 @@ PanelBidiagU
                 tauP1.SetLocal(0,0,tauP);
                 // Store epsilon and force | alpha12L | = | 1 |
                 //                         |  a12R^T  |   | v |
-                epsilon1.SetLocal(0,0,alpha12L.GetRealLocal(0,0));
+                epsilon1.SetLocal(0,0,alpha12L.GetLocalRealPart(0,0));
                 alpha12L.SetLocal(0,0,(C)1);
             }
         }
@@ -862,10 +862,10 @@ PanelBidiagU
     PopBlocksizeStack();
 
     // Put back d and e
-    ATL.SetRealDiagonal( d, 0 );
+    ATL.SetRealPartOfDiagonal( d, 0 );
     DistMatrix<Complex<R> > ATLExpanded(g);
     ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
-    ATLExpanded.SetRealDiagonal( e, 1 );
+    ATLExpanded.SetRealPartOfDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

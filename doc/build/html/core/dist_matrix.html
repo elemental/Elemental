@@ -269,83 +269,83 @@ void <tt class="descname">UpdateLocal</tt><big>(</big>int <em>iLoca</em>, int <e
 <p class="last">Many of the following routines are only valid for complex datatypes.</p>
 </div>
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetReal__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetReal</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetReal__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetRealPart__i.iC">
+typename Base&lt;T&gt;::type <tt class="descname">GetRealPart</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealPart__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix. This
 operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetImag__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetImag</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImag__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetImagPart__i.iC">
+typename Base&lt;T&gt;::type <tt class="descname">GetImagPart</tt><big>(</big>int <em>i</em>, int <em>j</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagPart__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix.
 This operation is collective.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetRealPart__i.i.typename-Base:T:::type">
+void <tt class="descname">SetRealPart</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix to
 <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetImagPart__i.i.typename-Base:T:::type">
+void <tt class="descname">SetImagPart</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global matrix to
 <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateReal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateReal</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateReal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateRealPart__i.i.typename-Base:T:::type">
+void <tt class="descname">UpdateRealPart</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the global
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateImag__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateImag</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImag__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateImagPart__i.i.typename-Base:T:::type">
+void <tt class="descname">UpdateImagPart</tt><big>(</big>int <em>i</em>, int <em>j</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(i,j)</span></tt> entry of the
 global matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetRealLocal__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealLocal__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetRealPartLocal__i.iC">
+typename Base&lt;T&gt;::type <tt class="descname">GetRealPartLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetRealPartLocal__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::GetImagLocal__i.iC">
-typename RealBase&lt;T&gt;::type <tt class="descname">GetImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetImagLocal__i.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::GetLocalImagPart__i.iC">
+typename Base&lt;T&gt;::type <tt class="descname">GetLocalImagPart</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#AbstractDistMatrix:T:::GetLocalImagPart__i.iC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetRealLocal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetRealLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetLocalRealPart__i.i.typename-Base:T:::type">
+void <tt class="descname">SetLocalRealPart</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocalRealPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::SetImagLocal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">SetImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetImagLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::SetLocalImagPart__i.i.typename-Base:T:::type">
+void <tt class="descname">SetLocalImagPart</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::SetLocalImagPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of our local
 matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateRealLocal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateRealLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateRealPartLocal__i.i.typename-Base:T:::type">
+void <tt class="descname">UpdateRealPartLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateRealPartLocal__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the real part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry of
 our local matrix.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="AbstractDistMatrix:T:::UpdateImagLocal__i.i.typename-RealBase:T:::type">
-void <tt class="descname">UpdateImagLocal</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename RealBase&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateImagLocal__i.i.typename-RealBase:T:::type" title="Permalink to this definition">¶</a></dt>
+<dt id="AbstractDistMatrix:T:::UpdateLocalImagPart__i.i.typename-Base:T:::type">
+void <tt class="descname">UpdateLocalImagPart</tt><big>(</big>int <em>iLocal</em>, int <em>jLocal</em>, typename Base&lt;T&gt;::type <em>alpha</em><big>)</big><a class="headerlink" href="#AbstractDistMatrix:T:::UpdateLocalImagPart__i.i.typename-Base:T:::type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> to the imaginary part of the <tt class="docutils literal"><span class="pre">(iLocal,jLocal)</span></tt> entry
 of our local matrix.</p>
 </dd></dl>
@@ -622,43 +622,43 @@ are analogous to their general counterparts from above in the obvious
 manner.</p>
 </div>
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::GetRealDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:R.iC">
-void <tt class="descname">GetRealDiagonal</tt><big>(</big>DistMatrix&lt;typename RealBase&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetRealDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::GetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:R.iC">
+void <tt class="descname">GetRealPartOfDiagonal</tt><big>(</big>DistMatrix&lt;typename Base&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::GetImagDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:R.iC">
-void <tt class="descname">GetImagDiagonal</tt><big>(</big>DistMatrix&lt;typename RealBase&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetImagDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::GetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:R.iC">
+void <tt class="descname">GetImagPartOfDiagonal</tt><big>(</big>DistMatrix&lt;typename Base&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::GetRealDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:R.iC">
-void <tt class="descname">GetRealDiagonal</tt><big>(</big>DistMatrix&lt;typename RealBase&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetRealDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::GetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:R.iC">
+void <tt class="descname">GetRealPartOfDiagonal</tt><big>(</big>DistMatrix&lt;typename Base&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::GetImagDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:R.iC">
-void <tt class="descname">GetImagDiagonal</tt><big>(</big>DistMatrix&lt;typename RealBase&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetImagDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::GetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:R.iC">
+void <tt class="descname">GetImagPartOfDiagonal</tt><big>(</big>DistMatrix&lt;typename Base&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><tt class="descclassname"> const</tt><a class="headerlink" href="#DistMatrix:T.MC.MR:::GetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:R.iC" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::SetRealDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:CR.i">
-void <tt class="descname">SetRealDiagonal</tt><big>(</big>const DistMatrix&lt;typename RealBase&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetRealDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::SetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:CR.i">
+void <tt class="descname">SetRealPartOfDiagonal</tt><big>(</big>const DistMatrix&lt;typename Base&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::SetImagDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:CR.i">
-void <tt class="descname">SetImagDiagonal</tt><big>(</big>const DistMatrix&lt;typename RealBase&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetImagDiagonal__DistMatrix:typename-RealBase:T:::type.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::SetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:CR.i">
+void <tt class="descname">SetImagPartOfDiagonal</tt><big>(</big>const DistMatrix&lt;typename Base&lt;T&gt;::type, MD, STAR&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.MD.STAR:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::SetRealDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:CR.i">
-void <tt class="descname">SetRealDiagonal</tt><big>(</big>const DistMatrix&lt;typename RealBase&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetRealDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::SetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:CR.i">
+void <tt class="descname">SetRealPartOfDiagonal</tt><big>(</big>const DistMatrix&lt;typename Base&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetRealPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="DistMatrix:T.MC.MR:::SetImagDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:CR.i">
-void <tt class="descname">SetImagDiagonal</tt><big>(</big>const DistMatrix&lt;typename RealBase&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetImagDiagonal__DistMatrix:typename-RealBase:T:::type.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
+<dt id="DistMatrix:T.MC.MR:::SetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:CR.i">
+void <tt class="descname">SetImagPartOfDiagonal</tt><big>(</big>const DistMatrix&lt;typename Base&lt;T&gt;::type, STAR, MD&gt;&amp; <em>d</em>, int <em>offset</em><em>=0 </em><big>)</big><a class="headerlink" href="#DistMatrix:T.MC.MR:::SetImagPartOfDiagonal__DistMatrix:typename-Base:T:::type.STAR.MD:CR.i" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Alignment</p>

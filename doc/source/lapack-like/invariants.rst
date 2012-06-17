@@ -56,7 +56,7 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
       circle; in order to represent a value that is precisely zero, `rho` 
       is set to zero.
 
-   .. cpp:member:: typename RealBase<F>::type kappa
+   .. cpp:member:: typename Base<F>::type kappa
 
       `kappa` can be an arbitrary real number.
 

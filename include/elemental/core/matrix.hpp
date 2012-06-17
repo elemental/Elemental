@@ -99,28 +99,28 @@ public:
     // logically apply to real data.
     //
 
-    typename Base<T>::type GetReal( Int i, Int j ) const;
-    typename Base<T>::type GetImag( Int i, Int j ) const;
-    void SetReal( Int i, Int j, typename Base<T>::type alpha );
+    typename Base<T>::type GetRealPart( Int i, Int j ) const;
+    typename Base<T>::type GetImagPart( Int i, Int j ) const;
+    void SetRealPart( Int i, Int j, typename Base<T>::type alpha );
     // Only valid for complex data
-    void SetImag( Int i, Int j, typename Base<T>::type alpha );
-    void UpdateReal( Int i, Int j, typename Base<T>::type alpha );
+    void SetImagPart( Int i, Int j, typename Base<T>::type alpha );
+    void UpdateRealPart( Int i, Int j, typename Base<T>::type alpha );
     // Only valid for complex data
-    void UpdateImag( Int i, Int j, typename Base<T>::type alpha );
+    void UpdateImagPart( Int i, Int j, typename Base<T>::type alpha );
 
-    void GetRealDiagonal
+    void GetRealPartOfDiagonal
     ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
-    void GetImagDiagonal
+    void GetImagPartOfDiagonal
     ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
-    void SetRealDiagonal
+    void SetRealPartOfDiagonal
     ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
     // Only valid for complex data
-    void SetImagDiagonal
+    void SetImagPartOfDiagonal
     ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
-    void UpdateRealDiagonal
+    void UpdateRealPartOfDiagonal
     ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
     // Only valid for complex data
-    void UpdateImagDiagonal
+    void UpdateImagPartOfDiagonal
     ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
 
     //
@@ -173,52 +173,52 @@ private:
     void AssertValidEntry( Int i, Int j ) const;
 
     template<typename Z>
-    struct SetRealHelper
+    struct SetRealPartHelper
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetRealHelper<Complex<Z> >
+    struct SetRealPartHelper<Complex<Z> >
     {
         static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-    template<typename Z> friend struct SetRealHelper;
+    template<typename Z> friend struct SetRealPartHelper;
 
     template<typename Z>
-    struct SetImagHelper
+    struct SetImagPartHelper
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct SetImagHelper<Complex<Z> >
+    struct SetImagPartHelper<Complex<Z> >
     {
         static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-    template<typename Z> friend struct SetImagHelper;
+    template<typename Z> friend struct SetImagPartHelper;
 
     template<typename Z>
-    struct UpdateRealHelper
+    struct UpdateRealPartHelper
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateRealHelper<Complex<Z> >
+    struct UpdateRealPartHelper<Complex<Z> >
     {
         static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-    template<typename Z> friend struct UpdateRealHelper;
+    template<typename Z> friend struct UpdateRealPartHelper;
 
     template<typename Z>
-    struct UpdateImagHelper
+    struct UpdateImagPartHelper
     {
         static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
-    struct UpdateImagHelper<Complex<Z> >
+    struct UpdateImagPartHelper<Complex<Z> >
     {
         static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
     };
-    template<typename Z> friend struct UpdateImagHelper;
+    template<typename Z> friend struct UpdateImagPartHelper;
 };
 
 //----------------------------------------------------------------------------//
@@ -603,48 +603,48 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-Matrix<T,Int>::GetReal( Int i, Int j ) const
+Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::GetReal");
+    PushCallStack("Matrix::GetRealPart");
     AssertValidEntry( i, j );
     PopCallStack();
 #endif
     if( lockedData_ )
-        return Real(lockedData_[i+j*ldim_]);
+        return RealPart(lockedData_[i+j*ldim_]);
     else
-        return Real(data_[i+j*ldim_]);
+        return RealPart(data_[i+j*ldim_]);
 }
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-Matrix<T,Int>::GetImag( Int i, Int j ) const
+Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::GetImag");
+    PushCallStack("Matrix::GetImagPart");
     AssertValidEntry( i, j );
     PopCallStack();
 #endif
     if( lockedData_ )
-        return Imag(lockedData_[i+j*ldim_]);
+        return ImagPart(lockedData_[i+j*ldim_]);
     else
-        return Imag(data_[i+j*ldim_]);
+        return ImagPart(data_[i+j*ldim_]);
 }
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::SetReal
+Matrix<T,Int>::SetRealPart
 ( Int i, Int j, typename Base<T>::type alpha )
-{ SetRealHelper<T>::Func( *this, i, j, alpha ); }
+{ SetRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetRealHelper<Z>::Func
+Matrix<T,Int>::SetRealPartHelper<Z>::Func
 ( Matrix<Z>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealHelper::Func");
+    PushCallStack("Matrix::SetRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -656,11 +656,11 @@ Matrix<T,Int>::SetRealHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetRealHelper<Complex<Z> >::Func
+Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealHelper::Func");
+    PushCallStack("Matrix::SetRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -672,18 +672,18 @@ Matrix<T,Int>::SetRealHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::SetImag
+Matrix<T,Int>::SetImagPart
 ( Int i, Int j, typename Base<T>::type alpha ) 
-{ SetImagHelper<T>::Func( *this, i, j, alpha ); }
+{ SetImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetImagHelper<Z>::Func
+Matrix<T,Int>::SetImagPartHelper<Z>::Func
 ( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagHelper::Func");
+    PushCallStack("Matrix::SetImagPartHelper::Func");
 #endif
     throw std::logic_error("Called complex-only routine with real datatype");
 }
@@ -691,11 +691,11 @@ Matrix<T,Int>::SetImagHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::SetImagHelper<Complex<Z> >::Func
+Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagHelper::Func");
+    PushCallStack("Matrix::SetImagPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -707,18 +707,18 @@ Matrix<T,Int>::SetImagHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::UpdateReal
+Matrix<T,Int>::UpdateRealPart
 ( Int i, Int j, typename Base<T>::type alpha )
-{ UpdateRealHelper<T>::Func( *this, i, j, alpha ); }
+{ UpdateRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateRealHelper<Z>::Func
+Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
 ( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealHelper::Func");
+    PushCallStack("Matrix::UpdateRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -730,11 +730,11 @@ Matrix<T,Int>::UpdateRealHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateRealHelper<Complex<Z> >::Func
+Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealHelper::Func");
+    PushCallStack("Matrix::UpdateRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -746,18 +746,18 @@ Matrix<T,Int>::UpdateRealHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::UpdateImag
+Matrix<T,Int>::UpdateImagPart
 ( Int i, Int j, typename Base<T>::type alpha ) 
-{ UpdateImagHelper<T>::Func( *this, i, j, alpha ); }
+{ UpdateImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateImagHelper<Z>::Func
+Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
 ( Matrix<Z>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagHelper::Func");
+    PushCallStack("Matrix::UpdateImagPartHelper::Func");
 #endif
     throw std::logic_error("Called complex-only routine with real datatype");
 }
@@ -765,11 +765,11 @@ Matrix<T,Int>::UpdateImagHelper<Z>::Func
 template<typename T,typename Int>
 template<typename Z>
 inline void
-Matrix<T,Int>::UpdateImagHelper<Complex<Z> >::Func
+Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagHelper::Func");
+    PushCallStack("Matrix::UpdateImagPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
@@ -781,11 +781,11 @@ Matrix<T,Int>::UpdateImagHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::GetRealDiagonal
+Matrix<T,Int>::GetRealPartOfDiagonal
 ( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::GetRealDiagonal");
+    PushCallStack("Matrix::GetRealPartOfDiagonal");
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
@@ -797,10 +797,10 @@ Matrix<T,Int>::GetRealDiagonal
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetReal(j,j+offset) );
+            d.Set( j, 0, GetRealPart(j,j+offset) );
     else
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetReal(j-offset,j) );
+            d.Set( j, 0, GetRealPart(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -808,11 +808,11 @@ Matrix<T,Int>::GetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::GetImagDiagonal
+Matrix<T,Int>::GetImagPartOfDiagonal
 ( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::GetImagDiagonal");
+    PushCallStack("Matrix::GetImagPartOfDiagonal");
     if( d.LockedView() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
@@ -824,10 +824,10 @@ Matrix<T,Int>::GetImagDiagonal
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetImag(j,j+offset) );
+            d.Set( j, 0, GetImagPart(j,j+offset) );
     else
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetImag(j-offset,j) );
+            d.Set( j, 0, GetImagPart(j-offset,j) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -835,21 +835,21 @@ Matrix<T,Int>::GetImagDiagonal
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::SetRealDiagonal
+Matrix<T,Int>::SetRealPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealDiagonal");
+    PushCallStack("Matrix::SetRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            SetReal( j, j+offset, d.Get(j,0) );
+            SetRealPart( j, j+offset, d.Get(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            SetReal( j-offset, j, d.Get(j,0) );
+            SetRealPart( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -857,11 +857,11 @@ Matrix<T,Int>::SetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::SetImagDiagonal
+Matrix<T,Int>::SetImagPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagDiagonal");
+    PushCallStack("Matrix::SetImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -871,10 +871,10 @@ Matrix<T,Int>::SetImagDiagonal
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            SetImag( j, j+offset, d.Get(j,0) );
+            SetImagPart( j, j+offset, d.Get(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            SetImag( j-offset, j, d.Get(j,0) );
+            SetImagPart( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -882,21 +882,21 @@ Matrix<T,Int>::SetImagDiagonal
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::UpdateRealDiagonal
+Matrix<T,Int>::UpdateRealPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealDiagonal");
+    PushCallStack("Matrix::UpdateRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            UpdateReal( j, j+offset, d.Get(j,0) );
+            UpdateRealPart( j, j+offset, d.Get(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            UpdateReal( j-offset, j, d.Get(j,0) );
+            UpdateRealPart( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -904,11 +904,11 @@ Matrix<T,Int>::UpdateRealDiagonal
 
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::UpdateImagDiagonal
+Matrix<T,Int>::UpdateImagPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagDiagonal");
+    PushCallStack("Matrix::UpdateImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -918,10 +918,10 @@ Matrix<T,Int>::UpdateImagDiagonal
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            UpdateImag( j, j+offset, d.Get(j,0) );
+            UpdateImagPart( j, j+offset, d.Get(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            UpdateImag( j-offset, j, d.Get(j,0) );
+            UpdateImagPart( j-offset, j, d.Get(j,0) );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -152,28 +152,28 @@ Z <tt class="descname">FastAbs</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>a
 </div></dd></dl>
 
 <dl class="function">
-<dt id="Real__ZCR">
-Z <tt class="descname">Real</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Real__ZCR" title="Permalink to this definition">¶</a></dt>
+<dt id="RealPart__ZCR">
+Z <tt class="descname">RealPart</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#RealPart__ZCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>, which is
 <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/> itself.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Real__Complex:Z:CR">
-Z <tt class="descname">Real</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Real__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="RealPart__Complex:Z:CR">
+Z <tt class="descname">RealPart</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#RealPart__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the real part of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Imag__ZCR">
-Z <tt class="descname">Imag</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Imag__ZCR" title="Permalink to this definition">¶</a></dt>
+<dt id="ImagPart__ZCR">
+Z <tt class="descname">ImagPart</tt><big>(</big>const Z&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#ImagPart__ZCR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the real variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>, which is
 trivially zero.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="Imag__Complex:Z:CR">
-Z <tt class="descname">Imag</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#Imag__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
+<dt id="ImagPart__Complex:Z:CR">
+Z <tt class="descname">ImagPart</tt><big>(</big>const Complex&lt;Z&gt;&amp; <em>alpha</em><big>)</big><a class="headerlink" href="#ImagPart__Complex:Z:CR" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the imaginary part of the complex variable <img class="math" src="../_images/math/10f32377ac67d94f764f12a15ea987e88c85d3e1.png" alt="\alpha"/>.</p>
 </dd></dl>
 
@@ -444,8 +444,8 @@ bool <tt class="descname">operator!=</tt><big>(</big>const R&amp; <em>alpha</em>
 </dd></dl>
 
 <dl class="function">
-<dt>
-<tt class="descname">std::ostream&amp; operator&lt;&lt;( std::ostream&amp; os, Complex&lt;R&gt; alpha )</tt></dt>
+<dt id="lshift-operator__osR.Complex:R:">
+std::ostream&amp; <tt class="descname">operator&lt;&lt;</tt><big>(</big>std::ostream&amp; <em>os</em>, Complex&lt;R&gt; <em>alpha</em><big>)</big><a class="headerlink" href="#lshift-operator__osR.Complex:R:" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty prints <cite>alpha</cite> in the form <tt class="docutils literal"><span class="pre">a+bi</span></tt>.</p>
 </dd></dl>
 

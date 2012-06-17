@@ -121,7 +121,7 @@ MakeHermitianUniformSpectrum
     {
         const int n = A.Height();
         for( int j=0; j<n; ++j )
-            A.SetImag( j, j, (R)0 );
+            A.SetImagPart( j, j, (R)0 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -235,7 +235,7 @@ MakeHermitianUniformSpectrum
             {
                 const int i = colShift + iLocal*colStride;
                 if( i == j )
-                    A.SetImagLocal( iLocal, jLocal, (R)0 );
+                    A.SetLocalImagPart( iLocal, jLocal, (R)0 );
             }
         }
     }

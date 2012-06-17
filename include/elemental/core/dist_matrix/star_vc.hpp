@@ -149,14 +149,14 @@ public:
     // logically applies to real data.
     //
 
-    virtual typename Base<T>::type GetReal( Int i, Int j ) const;
-    virtual typename Base<T>::type GetImag( Int i, Int j ) const;
-    virtual void SetReal( Int i, Int j, typename Base<T>::type u );
+    virtual typename Base<T>::type GetRealPart( Int i, Int j ) const;
+    virtual typename Base<T>::type GetImagPart( Int i, Int j ) const;
+    virtual void SetRealPart( Int i, Int j, typename Base<T>::type u );
     // Only valid for complex data
-    virtual void SetImag( Int i, Int j, typename Base<T>::type u );
-    virtual void UpdateReal( Int i, Int j, typename Base<T>::type u );
+    virtual void SetImagPart( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateRealPart( Int i, Int j, typename Base<T>::type u );
     // Only valid for complex data
-    virtual void UpdateImag( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateImagPart( Int i, Int j, typename Base<T>::type u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,VC] distribution                              //

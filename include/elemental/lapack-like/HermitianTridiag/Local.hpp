@@ -198,7 +198,7 @@ inline void HermitianTridiagL
         w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha21T, a21B );
-        const R epsilon1 = alpha21T.GetReal(0,0);
+        const R epsilon1 = alpha21T.GetRealPart(0,0);
         t.Set(A00.Height(),0,tau);
         alpha21T.Set(0,0,(C)1);
 
@@ -268,7 +268,7 @@ inline void HermitianTridiagU
         w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha01B, a01T );
-        const R epsilon1 = alpha01B.GetReal(0,0);
+        const R epsilon1 = alpha01B.GetRealPart(0,0);
         t.Set(t.Height()-1-A22.Height(),0,tau);
         alpha01B.Set(0,0,(C)1);
 

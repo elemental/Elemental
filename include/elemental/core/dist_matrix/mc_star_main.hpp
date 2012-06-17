@@ -2142,10 +2142,10 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
+DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetReal");
+    PushCallStack("[MC,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -2159,7 +2159,7 @@ DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        u = this->GetRealLocal( iLocal, j );
+        u = this->GetLocalRealPart( iLocal, j );
     }
     mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
 #ifndef RELEASE
@@ -2170,10 +2170,10 @@ DistMatrix<T,MC,STAR,Int>::GetReal( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
+DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetImag");
+    PushCallStack("[MC,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -2187,7 +2187,7 @@ DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        u = this->GetImagLocal( iLocal, j );
+        u = this->GetLocalImagPart( iLocal, j );
     }
     mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
 #ifndef RELEASE
@@ -2198,17 +2198,17 @@ DistMatrix<T,MC,STAR,Int>::GetImag( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetReal");
+    PushCallStack("[MC,* ]::SetRealPart");
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRow = (i+this->ColAlignment()) % g.Height();
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        this->SetRealLocal( iLocal, j, u );
+        this->SetLocalRealPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2217,10 +2217,10 @@ DistMatrix<T,MC,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetImag");
+    PushCallStack("[MC,* ]::SetImagPart");
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
@@ -2230,7 +2230,7 @@ DistMatrix<T,MC,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        this->SetImagLocal( iLocal, j, u );
+        this->SetLocalImagPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2239,17 +2239,18 @@ DistMatrix<T,MC,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::UpdateRealPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::UpdateReal");
+    PushCallStack("[MC,* ]::UpdateRealPart");
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRow = (i+this->ColAlignment()) % g.Height();
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        this->UpdateRealLocal( iLocal, j, u );
+        this->UpdateLocalRealPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2258,10 +2259,11 @@ DistMatrix<T,MC,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::UpdateImagPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::UpdateImag");
+    PushCallStack("[MC,* ]::UpdateImagPart");
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
@@ -2271,7 +2273,7 @@ DistMatrix<T,MC,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     if( g.Row() == ownerRow )
     {
         const Int iLocal = (i-this->ColShift()) / g.Height();
-        this->UpdateImagLocal( iLocal, j, u );
+        this->UpdateLocalImagPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -2280,11 +2282,11 @@ DistMatrix<T,MC,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetRealDiagonal");
+    PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
     if( d.Viewing() )
         AssertSameGrid( d );
 #endif
@@ -2344,7 +2346,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            dLocalBuffer[k] = Real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            dLocalBuffer[k] = RealPart(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -2354,11 +2356,11 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetImagDiagonal");
+    PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
     if( d.Viewing() )
         AssertSameGrid( d );
 #endif
@@ -2418,7 +2420,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            dLocalBuffer[k] = Imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+            dLocalBuffer[k] = ImagPart(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -2428,11 +2430,11 @@ DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
+DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetRealDiagonal");
+    PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
     if( d.Viewing() )
         AssertSameGrid( d );
 #endif
@@ -2493,7 +2495,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
             dLocalBuffer[k*dLDim] =
-                Real(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                RealPart(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -2503,11 +2505,11 @@ DistMatrix<T,MC,STAR,Int>::GetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
+DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::GetImagDiagonal");
+    PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
     if( d.Viewing() )
         AssertSameGrid( d );
 #endif
@@ -2568,7 +2570,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
             dLocalBuffer[k*dLDim] =
-                Imag(thisLocalBuffer[iLocal+jLocal*thisLDim]);
+                ImagPart(thisLocalBuffer[iLocal+jLocal*thisLDim]);
         }
     }
 #ifndef RELEASE
@@ -2578,11 +2580,11 @@ DistMatrix<T,MC,STAR,Int>::GetImagDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetRealDiagonal");
+    PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
     AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
@@ -2630,7 +2632,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            this->SetRealLocal( iLocal, jLocal, dLocalBuffer[k] );
+            this->SetLocalRealPart( iLocal, jLocal, dLocalBuffer[k] );
         }
     }
 #ifndef RELEASE
@@ -2640,11 +2642,11 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetImagDiagonal");
+    PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
     AssertSameGrid( d );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
@@ -2692,7 +2694,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            this->SetImagLocal( iLocal, jLocal, dLocalBuffer[k] );
+            this->SetLocalImagPart( iLocal, jLocal, dLocalBuffer[k] );
         }
     }
 #ifndef RELEASE
@@ -2702,11 +2704,11 @@ DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
+DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetRealDiagonal");
+    PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
     AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
@@ -2756,7 +2758,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            this->SetRealLocal( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+            this->SetLocalRealPart( iLocal, jLocal, dLocalBuffer[k*dLDim] );
         }
     }
 #ifndef RELEASE
@@ -2766,11 +2768,11 @@ DistMatrix<T,MC,STAR,Int>::SetRealDiagonal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
+DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[MC,* ]::SetImagDiagonal");
+    PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
     AssertSameGrid( d );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
@@ -2822,7 +2824,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagDiagonal
         {
             const Int iLocal = iLocalStart+k;
             const Int jLocal = jStart+k*r;
-            this->SetImagLocal( iLocal, jLocal, dLocalBuffer[k*dLDim] );
+            this->SetLocalImagPart( iLocal, jLocal, dLocalBuffer[k*dLDim] );
         }
     }
 #ifndef RELEASE

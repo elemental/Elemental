@@ -193,8 +193,8 @@ SimpleSVDUpper
     // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
                              e_MD_STAR( g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
@@ -414,8 +414,8 @@ SimpleSVDUpper
     // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
                              e_MD_STAR( g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
     // on each process
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
@@ -612,8 +612,8 @@ SimpleSingularValuesUpper
     // Grab copies of the diagonal and sub/super-diagonal of A
     DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
                              e_MD_STAR( g );
-    A.GetRealDiagonal( d_MD_STAR );
-    A.GetRealDiagonal( e_MD_STAR, offdiagonal );
+    A.GetRealPartOfDiagonal( d_MD_STAR );
+    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process

@@ -123,12 +123,12 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
-        HPanCopy = HPan;
         Transpose( HPanT, ZNew );
         Gemm( TRANSPOSE, NORMAL, (R)1, HPanB, HEffectedOldB, (R)0, ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, SInv, Z );
+        HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, (R)-1, HPan, Z, (R)1, HEffected );
+        Gemm( NORMAL, NORMAL, (R)-1, HPanCopy, Z, (R)1, HEffected );
         //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
@@ -378,12 +378,12 @@ ExpandPackedReflectorsLV
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
-        HPanCopy = HPan;
         Adjoint( HPanT, ZNew );
         Gemm( ADJOINT, NORMAL, (C)1, HPanB, HEffectedOldB, (C)0, ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, SInv, Z );
+        HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, (C)-1, HPan, Z, (C)1, HEffected );
+        Gemm( NORMAL, NORMAL, (C)-1, HPanCopy, Z, (C)1, HEffected );
         //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;

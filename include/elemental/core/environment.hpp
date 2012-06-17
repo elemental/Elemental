@@ -112,15 +112,15 @@ R FastAbs( const Complex<R>& alpha );
 
 // Return the real part of a real or complex number
 template<typename R>
-R Real( const R& alpha );
+R RealPart( const R& alpha );
 template<typename R>
-R Real( const Complex<R>& alpha );
+R RealPart( const Complex<R>& alpha );
 
 // Return the imaginary part of a real or complex number
 template<typename R>
-R Imag( const R& alpha );
+R ImagPart( const R& alpha );
 template<typename R>
-R Imag( const Complex<R>& alpha );
+R ImagPart( const Complex<R>& alpha );
 
 // Conjugation
 template<typename R>
@@ -377,22 +377,22 @@ FastAbs( const Complex<R>& alpha )
 
 template<typename R>
 inline R
-Real( const R& alpha )
+RealPart( const R& alpha )
 { return alpha; }
 
 template<typename R>
 inline R
-Real( const Complex<R>& alpha )
+RealPart( const Complex<R>& alpha )
 { return alpha.real; }
 
 template<typename R>
 inline R
-Imag( const R& alpha )
+ImagPart( const R& alpha )
 { return 0; }
 
 template<typename R>
 inline R
-Imag( const Complex<R>& alpha )
+ImagPart( const Complex<R>& alpha )
 { return alpha.imag; }
 
 template<typename R>

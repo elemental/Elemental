@@ -944,7 +944,7 @@ HermitianPanelTridiagL
         }
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
-        alpha21T.GetRealDiagonal( epsilon1 );
+        alpha21T.GetRealPartOfDiagonal( epsilon1 );
         alpha21T.Set( 0, 0, (C)1 );
 
         // If this is the first iteration, have each member of the owning 
@@ -1490,7 +1490,7 @@ HermitianPanelTridiagL
     // View the portion of A that e is the subdiagonal of, then place e into it
     DistMatrix<C> expandedATL(g);
     expandedATL.View( A, 0, 0, panelSize+1, panelSize+1 );
-    expandedATL.SetRealDiagonal( e, -1 );
+    expandedATL.SetRealPartOfDiagonal( e, -1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -1369,10 +1369,10 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,MD,STAR,Int>::GetReal( Int i, Int j ) const
+DistMatrix<T,MD,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::GetReal");
+    PushCallStack("[MD,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1395,7 +1395,7 @@ DistMatrix<T,MD,STAR,Int>::GetReal( Int i, Int j ) const
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        u = this->GetRealLocal( iLocal, j );
+        u = this->GetLocalRealPart( iLocal, j );
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -1406,10 +1406,10 @@ DistMatrix<T,MD,STAR,Int>::GetReal( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,MD,STAR,Int>::GetImag( Int i, Int j ) const
+DistMatrix<T,MD,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::GetImag");
+    PushCallStack("[MD,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1432,7 +1432,7 @@ DistMatrix<T,MD,STAR,Int>::GetImag( Int i, Int j ) const
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        u = this->GetImagLocal( iLocal, j );
+        u = this->GetLocalImagPart( iLocal, j );
     }
     mpi::Broadcast( &u, 1, ownerRank, g.VCComm() );
 #ifndef RELEASE
@@ -1443,10 +1443,10 @@ DistMatrix<T,MD,STAR,Int>::GetImag( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MD,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::SetReal");
+    PushCallStack("[MD,* ]::SetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1467,7 +1467,7 @@ DistMatrix<T,MD,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        this->SetRealLocal( iLocal, j, u );
+        this->SetLocalRealPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1476,10 +1476,10 @@ DistMatrix<T,MD,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MD,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::SetImag");
+    PushCallStack("[MD,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1502,7 +1502,7 @@ DistMatrix<T,MD,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        this->SetImagLocal( iLocal, j, u );
+        this->SetLocalImagPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1511,10 +1511,10 @@ DistMatrix<T,MD,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MD,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::UpdateRealPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::UpdateReal");
+    PushCallStack("[MD,* ]::UpdateRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1535,7 +1535,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        this->UpdateRealLocal( iLocal, j, u );
+        this->UpdateLocalRealPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1544,10 +1544,10 @@ DistMatrix<T,MD,STAR,Int>::UpdateReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,MD,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::UpdateImagPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[MD,* ]::UpdateImag");
+    PushCallStack("[MD,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1570,7 +1570,7 @@ DistMatrix<T,MD,STAR,Int>::UpdateImag( Int i, Int j, typename Base<T>::type u )
     if( g.VCRank() == ownerRank )
     {
         const Int iLocal = (i-this->ColShift()) / g.LCM();
-        this->UpdateImagLocal( iLocal, j, u );
+        this->UpdateLocalImagPart( iLocal, j, u );
     }
 #ifndef RELEASE
     PopCallStack();

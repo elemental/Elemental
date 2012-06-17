@@ -1819,10 +1819,10 @@ DistMatrix<T,STAR,STAR,Int>::SumOverGrid()
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,STAR,STAR,Int>::GetReal( Int i, Int j ) const
+DistMatrix<T,STAR,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::GetReal");
+    PushCallStack("[* ,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1834,13 +1834,13 @@ DistMatrix<T,STAR,STAR,Int>::GetReal( Int i, Int j ) const
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = this->GetRealLocal(i,j);
+        u = this->GetLocalRealPart(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = this->GetRealLocal(i,j);
+            u = this->GetLocalRealPart(i,j);
         mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), this->Grid().ViewingComm() );
     }
@@ -1852,10 +1852,10 @@ DistMatrix<T,STAR,STAR,Int>::GetReal( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline typename Base<T>::type
-DistMatrix<T,STAR,STAR,Int>::GetImag( Int i, Int j ) const
+DistMatrix<T,STAR,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::GetImag");
+    PushCallStack("[* ,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     typedef typename Base<T>::type R;
@@ -1867,13 +1867,13 @@ DistMatrix<T,STAR,STAR,Int>::GetImag( Int i, Int j ) const
     if( viewingSize == owningSize )
     {
         // Everyone can just grab their own copy of the data
-        u = this->GetImagLocal(i,j);
+        u = this->GetLocalImagPart(i,j);
     }
     else
     {
         // Have the root broadcast its data
         if( this->Grid().VCRank() == 0 )
-            u = this->GetImagLocal(i,j);
+            u = this->GetLocalImagPart(i,j);
         mpi::Broadcast
         ( &u, 1, this->Grid().VCToViewingMap(0), this->Grid().ViewingComm() );
     }
@@ -1885,14 +1885,15 @@ DistMatrix<T,STAR,STAR,Int>::GetImag( Int i, Int j ) const
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,STAR,Int>::SetRealPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::SetReal");
+    PushCallStack("[* ,* ]::SetRealPart");
     this->AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-        this->SetRealLocal(i,j,u);
+        this->SetLocalRealPart(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1900,16 +1901,17 @@ DistMatrix<T,STAR,STAR,Int>::SetReal( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,STAR,Int>::SetImagPart
+( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::SetImag");
+    PushCallStack("[* ,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
     if( this->Grid().InGrid() )
-        this->SetImagLocal(i,j,u);
+        this->SetLocalImagPart(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1917,15 +1919,15 @@ DistMatrix<T,STAR,STAR,Int>::SetImag( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,STAR,Int>::UpdateReal
+DistMatrix<T,STAR,STAR,Int>::UpdateRealPart
 ( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::UpdateReal");
+    PushCallStack("[* ,* ]::UpdateRealPart");
     this->AssertValidEntry( i, j );
 #endif
     if( this->Grid().InGrid() )
-        this->UpdateRealLocal(i,j,u);
+        this->UpdateLocalRealPart(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -1933,17 +1935,17 @@ DistMatrix<T,STAR,STAR,Int>::UpdateReal
 
 template<typename T,typename Int>
 inline void
-DistMatrix<T,STAR,STAR,Int>::UpdateImag
+DistMatrix<T,STAR,STAR,Int>::UpdateImagPart
 ( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,* ]::UpdateImag");
+    PushCallStack("[* ,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
     if( this->Grid().InGrid() )
-        this->UpdateImagLocal(i,j,u);
+        this->UpdateLocalImagPart(i,j,u);
 #ifndef RELEASE
     PopCallStack();
 #endif

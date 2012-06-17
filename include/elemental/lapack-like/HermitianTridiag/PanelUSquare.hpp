@@ -906,7 +906,7 @@ HermitianPanelTridiagUSquare
         }
         // Store the subdiagonal value and turn a01 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
-        alpha01B.GetRealDiagonal( epsilon1 );
+        alpha01B.GetRealPartOfDiagonal( epsilon1 );
         alpha01B.Set( 0, 0, (C)1 );
 
         // If this is the first iteration, have each member of the owning 
@@ -1399,7 +1399,7 @@ HermitianPanelTridiagUSquare
     }
     PopBlocksizeStack();
 
-    expandedABR.SetRealDiagonal( e, 1 );
+    expandedABR.SetRealPartOfDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -35,7 +35,7 @@ Level 1
    Similar to ``blas::Dot``, but this routine instead returns 
    :math:`\alpha := x^T y` (`x` is not conjugated).
 
-.. cpp:function:: RealBase<T>::type blas::Nrm2( int n, const T* x, int incx )
+.. cpp:function:: Base<T>::type blas::Nrm2( int n, const T* x, int incx )
 
    Return the Euclidean two-norm of the vector `x`, where
    :math:`||x||_2 = \sqrt{\sum_{i=0}^{n-1} |x_i|^2}`. Note that if `T` 

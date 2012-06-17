@@ -34,8 +34,8 @@
 using namespace std;
 using namespace elem;
 
-typedef double R;
-typedef Complex<R> C;
+typedef double Real;
+typedef Complex<Real> C;
 
 void Usage()
 {
@@ -65,22 +65,35 @@ main( int argc, char* argv[] )
 
     try 
     {
-        DistMatrix<C> A;
+        const Grid g( comm );
+        DistMatrix<C> A(g);
         Uniform( m, n, A );
+        const Real frobA = Norm( A, FROBENIUS_NORM );
 
         // Compute the QR decomposition of A, but do not overwrite A
-        DistMatrix<C> B( A );
-        DistMatrix<C,MD,STAR> t;
-        SetBlocksize( 3 );
-        QR( B, t );
+        DistMatrix<C> Q( A ), R(g);
+        ExplicitQR( Q, R );
 
-        A.Print("A");
-        B.Print("B := qr(A)");
-        t.Print("t");
+        // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
+        DistMatrix<C> E( A );
+        Gemm( NORMAL, NORMAL, (C)-1, Q, R, (C)1, E );
+        const Real frobQR = Norm( E, FROBENIUS_NORM );
 
-        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, B, t );
+        // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
+        const int k = std::min(m,n);
+        Identity( k, k, E );
+        Herk( LOWER, ADJOINT, (C)-1, Q, (C)1, E );
+        const Real frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM ); 
 
-        B.Print("Q");
+        if( g.Rank() == 0 )
+        {
+            std::cout << "|| A ||_F = " << frobA << "\n"
+                      << "|| A - Q R ||_F / || A ||_F   = " 
+                      << frobQR/frobA << "\n"
+                      << "|| I - Q^H Q ||_F / || A ||_F = "
+                      << frobOrthog/frobA << "\n"
+                      << std::endl;
+        }
     }
     catch( exception& e )
     {

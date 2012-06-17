@@ -83,21 +83,21 @@ Scalar manipulation
    
       |\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|
 
-.. cpp:function:: Z Real( const Z& alpha )
+.. cpp:function:: Z RealPart( const Z& alpha )
 
    Return the real part of the real variable :math:`\alpha`, which is 
    :math:`\alpha` itself. 
 
-.. cpp:function:: Z Real( const Complex<Z>& alpha )
+.. cpp:function:: Z RealPart( const Complex<Z>& alpha )
 
    Return the real part of the complex variable :math:`\alpha`.
 
-.. cpp:function:: Z Imag( const Z& alpha )
+.. cpp:function:: Z ImagPart( const Z& alpha )
 
    Return the imaginary part of the real variable :math:`\alpha`, which is 
    trivially zero.
 
-.. cpp:function:: Z Imag( const Complex<Z>& alpha )
+.. cpp:function:: Z ImagPart( const Complex<Z>& alpha )
 
    Return the imaginary part of the complex variable :math:`\alpha`.
 

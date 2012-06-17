@@ -142,8 +142,8 @@ void TestCorrectness
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
     DistMatrix<R,MD,STAR> d(g);
     DistMatrix<R,MD,STAR> e(g);
-    A.GetRealDiagonal( d );
-    A.GetRealDiagonal( e, subdiagonal );
+    A.GetRealPartOfDiagonal( d );
+    A.GetRealPartOfDiagonal( e, subdiagonal );
      
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
     DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
@@ -156,9 +156,9 @@ void TestCorrectness
     DistMatrix<C> B(g);
     B.AlignWith( A );
     Zeros( m, m, B );
-    B.SetRealDiagonal( d );
-    B.SetRealDiagonal( e, subdiagonal );
-    B.SetRealDiagonal( eOpposite, -subdiagonal );
+    B.SetRealPartOfDiagonal( d );
+    B.SetRealPartOfDiagonal( e, subdiagonal );
+    B.SetRealPartOfDiagonal( eOpposite, -subdiagonal );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
     if( uplo == LOWER )
