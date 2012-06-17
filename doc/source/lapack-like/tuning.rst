@@ -13,10 +13,8 @@ form:
    an evolution of the HJS tridiagonalization approach
    (see "*Towards an efficient parallel eigensolver for dense symmetric 
    matrices*" by Bruce Hendrickson, Elizabeth Jessup, and Christopher Smith)
-   which is described in detail in Kenneth Stanley's dissertation and briefly
-   described in "*Application of a high performance parallel eigensolver to 
-   electronic structure calculations*" by Mark Sears, Ken Stanley, and Greg
-   Henry.
+   which is described in detail in Ken Stanley's dissertation, "*Execution time 
+   of symmetric eigensolvers*". 
 
 There is clearly a small penalty associated with the extra redistributions
 necessary for the second approach, but the benefit from using a square process
