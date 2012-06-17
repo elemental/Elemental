@@ -104,6 +104,7 @@ void OpCreate( UserFunction* func, bool commutes, Op& op );
 void OpFree( Op& op );
 
 // Communicator manipulation
+int WorldRank();
 int CommRank( Comm comm );
 int CommSize( Comm comm );
 void CommCreate( Comm parentComm, Group subsetGroup, Comm& subsetComm );

@@ -113,6 +113,19 @@ void OpFree( Op& op )
 // Communicator manipulation //
 //---------------------------//
 
+int WorldRank()
+{
+#ifndef RELEASE
+    PushCallStack("mpi::WorldRank");
+#endif
+    int rank;
+    SafeMpi( MPI_Comm_rank( mpi::COMM_WORLD, &rank ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return rank;
+}
+
 int CommRank( Comm comm )
 {
 #ifndef RELEASE
