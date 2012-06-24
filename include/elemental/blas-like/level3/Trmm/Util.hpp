@@ -34,7 +34,7 @@
 namespace elem {
 namespace internal {
 
-template<typename T> // represents a real or complex ring
+template<typename T> 
 void
 SetDiagonalToOne( DistMatrix<T,MC,MR>& D )
 {

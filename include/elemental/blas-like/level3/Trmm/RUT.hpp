@@ -58,6 +58,9 @@ TrmmRUTA
     DistMatrix<T,MC,  MR  > Z1AdjOrTrans(g);
     DistMatrix<T,MR,  MC  > Z1AdjOrTrans_MR_MC(g);
 
+    X1AdjOrTrans_MR_STAR.AlignWith( U );
+    Z1AdjOrTrans_MC_STAR.AlignWith( U );
+
     PartitionDown
     ( X, XT,
          XB, 0 );
@@ -69,16 +72,13 @@ TrmmRUTA
                X1,
           XB,  X2 );
 
-        X1AdjOrTrans_MR_STAR.AlignWith( U );
-        Z1AdjOrTrans_MC_STAR.AlignWith( U );
         Z1AdjOrTrans_MR_MC.AlignWith( X1 );
-        Z1AdjOrTrans_MC_STAR.ResizeTo( X1.Width(), X1.Height() );
+        Zeros( X1.Width(), X1.Height(), Z1AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
         if( orientation == ADJOINT )
             X1AdjOrTrans_MR_STAR.AdjointFrom( X1 );
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
-        Zero( Z1AdjOrTrans_MC_STAR );
         LocalTrmmAccumulateRUT
         ( orientation, diag, alpha,
           U, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
@@ -90,8 +90,6 @@ TrmmRUTA
         else
             Transpose( Z1AdjOrTrans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
         //--------------------------------------------------------------------//
-        X1AdjOrTrans_MR_STAR.FreeAlignments();
-        Z1AdjOrTrans_MC_STAR.FreeAlignments();
         Z1AdjOrTrans_MR_MC.FreeAlignments();
 
         SlidePartitionDown
@@ -166,7 +164,7 @@ TrmmRUTC
 
         U12_STAR_MR.AlignWith( X2 );
         D1_MC_STAR.AlignWith( X1 );
-        D1_MC_STAR.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Height(), X1.Width(), D1_MC_STAR );
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;

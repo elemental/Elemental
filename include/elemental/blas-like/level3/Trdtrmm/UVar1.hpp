@@ -45,11 +45,11 @@ TrdtrmmUVar1( Orientation orientation, Matrix<F>& U )
     if( orientation == NORMAL )
         throw std::logic_error("Orientation must be (conjugate-)transpose");
 #endif
-     Matrix<F>
+    Matrix<F>
         UTL, UTR,  U00, U01, U02,
         UBL, UBR,  U10, U11, U12,
                    U20, U21, U22;
-     Matrix<F> d1, S01;
+    Matrix<F> d1, S01;
 
     PartitionDownDiagonal
     ( U, UTL, UTR,
@@ -109,6 +109,11 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
     DistMatrix<F,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
 
+    S01_MC_STAR.AlignWith( U );
+    S01_VC_STAR.AlignWith( U );
+    U01_VR_STAR.AlignWith( U );
+    U01AdjOrTrans_STAR_MR.AlignWith( U );
+
     PartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -120,10 +125,6 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        S01_MC_STAR.AlignWith( U00 );
-        S01_VC_STAR.AlignWith( U00 );
-        U01_VR_STAR.AlignWith( U00 );
-        U01AdjOrTrans_STAR_MR.AlignWith( U00 );
         //--------------------------------------------------------------------//
         U11.GetDiagonal( d1 );
         S01_MC_STAR = U01;
@@ -149,10 +150,6 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
         LocalTrdtrmm( orientation, UPPER, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
-        U01AdjOrTrans_STAR_MR.FreeAlignments();
-        U01_VR_STAR.FreeAlignments();
-        S01_VC_STAR.FreeAlignments();
-        S01_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,

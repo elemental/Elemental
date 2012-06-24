@@ -52,7 +52,6 @@ HemmLUA
     DistMatrix<T>
         BL(g), BR(g),
         B0(g), B1(g), B2(g);
-
     DistMatrix<T>
         CL(g), CR(g),
         C0(g), C1(g), C2(g);
@@ -64,6 +63,12 @@ HemmLUA
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
     DistMatrix<T> Z1(g);
+
+    B1_MC_STAR.AlignWith( A );
+    B1_VR_STAR.AlignWith( A );
+    B1Adj_STAR_MR.AlignWith( A );
+    Z1_MC_STAR.AlignWith( A );
+    Z1_MR_STAR.AlignWith( A );
 
     Scale( beta, C );
     LockedPartitionRight
@@ -80,20 +85,13 @@ HemmLUA
         ( CL, /**/ CR,
           C0, /**/ C1, C2 );
 
-        B1_MC_STAR.AlignWith( A );
-        B1_VR_STAR.AlignWith( A );
-        B1Adj_STAR_MR.AlignWith( A );
-        Z1_MC_STAR.AlignWith( A );
-        Z1_MR_STAR.AlignWith( A );
         Z1.AlignWith( C1 );
-        Z1_MC_STAR.ResizeTo( C1.Height(), C1.Width() );
-        Z1_MR_STAR.ResizeTo( C1.Height(), C1.Width() );
+        Zeros( C1.Height(), C1.Width(), Z1_MC_STAR );
+        Zeros( C1.Height(), C1.Width(), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Adj_STAR_MR.AdjointFrom( B1_VR_STAR );
-        Zero( Z1_MC_STAR );
-        Zero( Z1_MR_STAR );
         LocalSymmetricAccumulateLU
         ( ADJOINT,
           alpha, A, B1_MC_STAR, B1Adj_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -103,11 +101,6 @@ HemmLUA
         Z1.SumScatterUpdate( (T)1, Z1_MC_STAR );
         Axpy( (T)1, Z1, C1 );
         //--------------------------------------------------------------------//
-        B1_MC_STAR.FreeAlignments();
-        B1_VR_STAR.FreeAlignments();
-        B1Adj_STAR_MR.FreeAlignments();
-        Z1_MC_STAR.FreeAlignments();
-        Z1_MR_STAR.FreeAlignments();
         Z1.FreeAlignments();
 
         SlideLockedPartitionRight
@@ -143,11 +136,9 @@ HemmLUC
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
                          A20(g), A21(g), A22(g);
-
     DistMatrix<T> BT(g),  B0(g),
                   BB(g),  B1(g),
                           B2(g);
-
     DistMatrix<T> CT(g),  C0(g),  CAbove(g),
                   CB(g),  C1(g),  CBelow(g),
                           C2(g);
@@ -156,6 +147,8 @@ HemmLUC
     DistMatrix<T,MC,  STAR> AColPan_MC_STAR(g);
     DistMatrix<T,STAR,MC  > ARowPan_STAR_MC(g);
     DistMatrix<T,MR,  STAR> B1Adj_MR_STAR(g);
+
+    B1Adj_MR_STAR.AlignWith( C );
 
     // Start the algorithm
     Scale( beta, C );
@@ -189,7 +182,6 @@ HemmLUC
           CB,  C2 );
 
         ARowPan.LockedView1x2( A11, A12 );
-
         AColPan.LockedView2x1
         ( A01,
           A11 );
@@ -197,14 +189,12 @@ HemmLUC
         CAbove.View2x1
         ( C0,
           C1 );
-
         CBelow.View2x1
         ( C1,
           C2 );
 
         AColPan_MC_STAR.AlignWith( CAbove );
         ARowPan_STAR_MC.AlignWith( CBelow );
-        B1Adj_MR_STAR.AlignWith( C );
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
@@ -223,7 +213,6 @@ HemmLUC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR.FreeAlignments();
         ARowPan_STAR_MC.FreeAlignments();
-        B1Adj_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

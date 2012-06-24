@@ -72,6 +72,12 @@ Trr2kNNTT
     DistMatrix<T,VR,  STAR> D1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > D1AdjOrTrans_STAR_MR(g);
 
+    A1_MC_STAR.AlignWith( E );
+    B1Trans_MR_STAR.AlignWith( E );
+    C1_STAR_MC.AlignWith( E );
+    D1_VR_STAR.AlignWith( E );
+    D1AdjOrTrans_STAR_MR.AlignWith( E );
+
     LockedPartitionRight( A, AL, AR, 0 );
     LockedPartitionDown
     ( B, BT,
@@ -99,11 +105,6 @@ Trr2kNNTT
         ( DL, /**/ DR,
           D0, /**/ D1, D2 );
 
-        A1_MC_STAR.AlignWith( E );
-        B1Trans_MR_STAR.AlignWith( E );
-        C1_STAR_MC.AlignWith( E );
-        D1_VR_STAR.AlignWith( E );
-        D1AdjOrTrans_STAR_MR.AlignWith( E );
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1;
         C1_STAR_MC = C1;
@@ -119,11 +120,6 @@ Trr2kNNTT
                  C1_STAR_MC, D1AdjOrTrans_STAR_MR,
           beta,  E );
         //--------------------------------------------------------------------//
-        D1AdjOrTrans_STAR_MR.FreeAlignments();
-        D1_VR_STAR.FreeAlignments();
-        C1_STAR_MC.FreeAlignments();
-        B1Trans_MR_STAR.FreeAlignments();
-        A1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( DL,     /**/ DR,

@@ -66,7 +66,6 @@ Syr2kUT
     DistMatrix<T,MC,MR> AT(g),  A0(g),
                         AB(g),  A1(g),
                                 A2(g);
-
     DistMatrix<T,MC,MR> BT(g),  B0(g),
                         BB(g),  B1(g),
                                 B2(g);
@@ -78,6 +77,11 @@ Syr2kUT
     DistMatrix<T,STAR,VR  > B1_STAR_VR(g);
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
     DistMatrix<T,STAR,MC  > B1_STAR_MC(g);
+
+    A1Trans_MR_STAR.AlignWith( C );
+    B1Trans_MR_STAR.AlignWith( C );
+    A1_STAR_MC.AlignWith( C );
+    B1_STAR_MC.AlignWith( C );
 
     // Start the algorithm
     ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
@@ -101,10 +105,6 @@ Syr2kUT
                B1,
           BB,  B2 );
 
-        A1Trans_MR_STAR.AlignWith( C );
-        B1Trans_MR_STAR.AlignWith( C );
-        A1_STAR_MC.AlignWith( C );
-        B1_STAR_MC.AlignWith( C );
         //--------------------------------------------------------------------//
         A1Trans_MR_STAR.TransposeFrom( A1 );
         A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
@@ -120,10 +120,6 @@ Syr2kUT
                  B1_STAR_MC, A1Trans_MR_STAR,
           (T)1,  C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_STAR.FreeAlignments();
-        B1Trans_MR_STAR.FreeAlignments();
-        A1_STAR_MC.FreeAlignments();
-        B1_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,

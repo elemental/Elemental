@@ -315,6 +315,12 @@ public:
     void AdjointFrom( const DistMatrix<T,MR,STAR,Int>& A );
     void TransposeFrom( const DistMatrix<T,STAR,MC,Int>& A );
     void TransposeFrom( const DistMatrix<T,MR,STAR,Int>& A );
+    void AdjointSumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
+    void AdjointSumScatterUpdate
+    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
+    void TransposeSumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
+    void TransposeSumScatterUpdate
+    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
 
     //
     // Though the following routines are meant for complex data, all but two

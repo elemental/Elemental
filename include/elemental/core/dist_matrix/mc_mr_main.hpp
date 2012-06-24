@@ -2033,6 +2033,102 @@ DistMatrix<T,MC,MR,Int>::TransposeFrom( const DistMatrix<T,MR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,MR,Int>::AdjointSumScatterFrom
+( const DistMatrix<T,MR,STAR,Int>& AAdj_MR_STAR )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::AdjointSumScatterFrom");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( AAdj_MR_STAR );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( AAdj_MR_STAR );
+#endif
+    const Grid& g = AAdj_MR_STAR.Grid();
+    DistMatrix<T,MR,MC,Int> AAdj( g );
+    if( this->Viewing() )
+        AAdj.AlignWith( *this );
+    AAdj.SumScatterFrom( AAdj_MR_STAR );
+    Adjoint( AAdj, *this );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,MR,Int>::TransposeSumScatterFrom
+( const DistMatrix<T,MR,STAR,Int>& ATrans_MR_STAR )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::TransposeSumScatterFrom");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( ATrans_MR_STAR );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( ATrans_MR_STAR );
+#endif
+    const Grid& g = ATrans_MR_STAR.Grid();
+    DistMatrix<T,MR,MC,Int> ATrans( g );
+    if( this->Viewing() )
+        ATrans.AlignWith( *this );
+    ATrans.SumScatterFrom( ATrans_MR_STAR );
+    Transpose( ATrans, *this );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,MR,Int>::AdjointSumScatterUpdate
+( T alpha, const DistMatrix<T,MR,STAR,Int>& AAdj_MR_STAR )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::AdjointSumScatterUpdate");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( AAdj_MR_STAR );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( AAdj_MR_STAR );
+#endif
+    const Grid& g = AAdj_MR_STAR.Grid();
+    DistMatrix<T,MR,MC,Int> AAdj( g );
+    AAdj.SumScatterFrom( AAdj_MR_STAR );
+    DistMatrix<T,MC,MR,Int> A( g );
+    if( this->Viewing() )
+        A.AlignWith( *this );
+    Adjoint( AAdj, A );
+    Axpy( alpha, A, *this );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,MR,Int>::TransposeSumScatterUpdate
+( T alpha, const DistMatrix<T,MR,STAR,Int>& ATrans_MR_STAR )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::TransposeSumScatterUpdate");
+    this->AssertNotLockedView();
+    this->AssertSameGrid( ATrans_MR_STAR );
+    if( this->Viewing() )
+        this->AssertSameSizeAsTranspose( ATrans_MR_STAR );
+#endif
+    const Grid& g = ATrans_MR_STAR.Grid();
+    DistMatrix<T,MR,MC,Int> ATrans( g );
+    ATrans.SumScatterFrom( ATrans_MR_STAR );
+    DistMatrix<T,MC,MR,Int> A( g );
+    if( this->Viewing() )
+        A.AlignWith( *this );
+    Transpose( ATrans, A );
+    Axpy( alpha, A, *this );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
 inline const DistMatrix<T,MC,MR,Int>&
 DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 {

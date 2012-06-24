@@ -66,6 +66,9 @@ SyrkUT
     DistMatrix<T,STAR,VR  > A1_STAR_VR(g);
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
 
+    A1Trans_MR_STAR.AlignWith( C );
+    A1_STAR_MC.AlignWith( C );
+
     // Start the algorithm
     ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionUp
@@ -79,8 +82,6 @@ SyrkUT
          /**/ /**/
           AB,  A2 );
 
-        A1Trans_MR_STAR.AlignWith( C );
-        A1_STAR_MC.AlignWith( C );
         //--------------------------------------------------------------------//
         A1Trans_MR_STAR.TransposeFrom( A1 );
         A1_STAR_VR.TransposeFrom( A1Trans_MR_STAR );
@@ -90,8 +91,6 @@ SyrkUT
         ( UPPER, TRANSPOSE, TRANSPOSE, 
           alpha, A1_STAR_MC, A1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1Trans_MR_STAR.FreeAlignments();
-        A1_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionUp
         ( AT,  A0,

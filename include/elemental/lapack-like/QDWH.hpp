@@ -62,23 +62,8 @@ int QDWH
         throw std::logic_error("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
-    const R tolerance0 = 5*epsilon;
-    const R tolerance1 = 50*epsilon;
-    const R tolerance2 = Pow(tolerance0,oneThird);
-
-    // Store whether or not A is numerically Hermitian
-    bool startedHermitian=false;
-    if( height == width )
-    {
-        // Check if A is Hermitian
-        Matrix<F> AAdj;
-        Adjoint( A, AAdj );
-        Axpy( (F)-1, A, AAdj );
-        const R frobNormA = Norm( A, FROBENIUS_NORM );
-        const R frobNormDiff = Norm( AAdj, FROBENIUS_NORM );
-        if( frobNormDiff/frobNormA < tolerance1 )
-            startedHermitian = true;
-    } 
+    const R tol = 5*epsilon;
+    const R cubeRootTol = Pow(tol,oneThird);
 
     // Form the first iterate
     Scale( 1/upperBound, A );
@@ -104,6 +89,8 @@ int QDWH
         const R a = (sqd + Sqrt( arg )/2).real;
         const R b = (a-1)*(a-1)/4;
         const R c = a+b-1;
+        const Complex<R> alpha = a-b/c;
+        const Complex<R> beta = b/c;
 
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
@@ -116,7 +103,7 @@ int QDWH
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
         {
@@ -129,21 +116,14 @@ int QDWH
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
-            Scale( b/c, A );
-            Axpy( a-b/c, ATemp, A );
-        }
-
-        if( startedHermitian )
-        {
-            Adjoint( A, ATemp );
-            Axpy( (F)1, ATemp, A );
-            Scale( oneHalf, A );
+            Scale( beta, A );
+            Axpy( alpha, ATemp, A );
         }
 
         Axpy( (F)-1, A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
-    while( frobNormADiff > tolerance2 || Abs(1-lowerBound) > tolerance0 );
+    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -170,23 +150,8 @@ int QDWH
         throw std::logic_error("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
-    const R tolerance0 = 5*epsilon;
-    const R tolerance1 = 50*epsilon;
-    const R tolerance2 = Pow(tolerance0,oneThird);
-
-    // Store whether or not A is numerically Hermitian
-    bool startedHermitian=false;
-    if( height == width )
-    {
-        // Check if A is Hermitian
-        DistMatrix<F> AAdj( g );
-        Adjoint( A, AAdj );
-        Axpy( (F)-1, A, AAdj );
-        const R frobNormA = Norm( A, FROBENIUS_NORM );
-        const R frobNormDiff = Norm( AAdj, FROBENIUS_NORM );
-        if( frobNormDiff/frobNormA < tolerance1 )
-            startedHermitian = true;
-    } 
+    const R tol = 5*epsilon;
+    const R cubeRootTol = Pow(tol,oneThird);
 
     // Form the first iterate
     Scale( 1/upperBound, A );
@@ -212,6 +177,8 @@ int QDWH
         const R a = (sqd + Sqrt( arg )/2).real;
         const R b = (a-1)*(a-1)/4;
         const R c = a+b-1;
+        const Complex<R> alpha = a-b/c;
+        const Complex<R> beta = b/c;
 
         lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
 
@@ -224,7 +191,7 @@ int QDWH
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
         {
@@ -237,21 +204,14 @@ int QDWH
             ATemp = A;
             Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
             Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
-            Scale( b/c, A );
-            Axpy( a-b/c, ATemp, A );
-        }
-
-        if( startedHermitian )
-        {
-            Adjoint( A, ATemp );
-            Axpy( (F)1, ATemp, A );
-            Scale( oneHalf, A );
+            Scale( beta, A );
+            Axpy( alpha, ATemp, A );
         }
 
         Axpy( (F)-1, A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
-    while( frobNormADiff > tolerance2 || Abs(1-lowerBound) > tolerance0 );
+    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 #ifndef RELEASE
     PopCallStack();
 #endif

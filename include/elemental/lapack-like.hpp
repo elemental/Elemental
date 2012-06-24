@@ -826,11 +826,19 @@ void Polar( Matrix<F>& A, Matrix<F>& P );
 template<typename F>
 void Polar( DistMatrix<F>& A, DistMatrix<F>& P );
 
-// QR-based Halley iteration for the polar decomposition 
+// QR-based Halley iteration 
 template<typename F>
 int Halley( Matrix<F>& A, typename Base<F>::type upperBound );
 template<typename F>
 int Halley( DistMatrix<F>& A, typename Base<F>::type upperBound );
+template<typename F>
+int HermitianHalley
+( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type upperBound );
+template<typename F>
+int HermitianHalley
+( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type upperBound );
+
+// Dynamically-weighted QR-based Halley iteration
 template<typename F>
 int QDWH
 ( Matrix<F>& A, 
@@ -838,6 +846,14 @@ int QDWH
 template<typename F>
 int QDWH
 ( DistMatrix<F>& A, 
+  typename Base<F>::type lowerBound, typename Base<F>::type upperBound );
+template<typename F>
+int HermitianQDWH
+( UpperOrLower uplo, Matrix<F>& A,
+  typename Base<F>::type lowerBound, typename Base<F>::type upperBound );
+template<typename F>
+int HermitianQDWH
+( UpperOrLower uplo, DistMatrix<F>& A,
   typename Base<F>::type lowerBound, typename Base<F>::type upperBound );
 
 //
@@ -1149,8 +1165,10 @@ GridOrder GetHermitianTridiagGridOrder();
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"
+#include "./lapack-like/HermitianHalley.hpp"
 #include "./lapack-like/HermitianNorm.hpp"
 #include "./lapack-like/HermitianPseudoinverse.hpp"
+#include "./lapack-like/HermitianQDWH.hpp"
 #include "./lapack-like/HermitianSVD.hpp"
 #include "./lapack-like/HermitianTridiag.hpp"
 #include "./lapack-like/HouseholderSolve.hpp"

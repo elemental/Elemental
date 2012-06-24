@@ -65,6 +65,12 @@ SymmLLA
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
 
+    B1_MC_STAR.AlignWith( A );
+    B1_VR_STAR.AlignWith( A );
+    B1Trans_STAR_MR.AlignWith( A );
+    Z1_MC_STAR.AlignWith( A );
+    Z1_MR_STAR.AlignWith( A );
+
     Scale( beta, C );
     LockedPartitionRight
     ( B, BL, BR, 0 );
@@ -80,20 +86,13 @@ SymmLLA
         ( CL, /**/ CR,
           C0, /**/ C1, C2 );
 
-        B1_MC_STAR.AlignWith( A );
-        B1_VR_STAR.AlignWith( A );
-        B1Trans_STAR_MR.AlignWith( A );
-        Z1_MC_STAR.AlignWith( A );
-        Z1_MR_STAR.AlignWith( A );
         Z1.AlignWith( C1 );
-        Z1_MC_STAR.ResizeTo( C1.Height(), C1.Width() );
-        Z1_MR_STAR.ResizeTo( C1.Height(), C1.Width() );
+        Zeros( C1.Height(), C1.Width(), Z1_MC_STAR );
+        Zeros( C1.Height(), C1.Width(), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
-        Zero( Z1_MC_STAR );
-        Zero( Z1_MR_STAR );
         LocalSymmetricAccumulateLL
         ( TRANSPOSE, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );
@@ -103,11 +102,6 @@ SymmLLA
         Z1.SumScatterUpdate( (T)1, Z1_MC_STAR );
         Axpy( (T)1, Z1, C1 );
         //--------------------------------------------------------------------//
-        B1_MC_STAR.FreeAlignments();
-        B1_VR_STAR.FreeAlignments();
-        B1Trans_STAR_MR.FreeAlignments();
-        Z1_MC_STAR.FreeAlignments();
-        Z1_MR_STAR.FreeAlignments();
         Z1.FreeAlignments();
 
         SlideLockedPartitionRight
@@ -143,12 +137,10 @@ SymmLLC
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
                          A20(g), A21(g), A22(g);
-
     DistMatrix<T,MC,MR> 
         BT(g),  B0(g),
         BB(g),  B1(g),
                 B2(g);
-
     DistMatrix<T,MC,MR> 
         CT(g),  C0(g),  CAbove(g),
         CB(g),  C1(g),  CBelow(g),
@@ -158,6 +150,8 @@ SymmLLC
     DistMatrix<T,MC,  STAR> AColPan_MC_STAR(g);
     DistMatrix<T,STAR,MC  > ARowPan_STAR_MC(g);
     DistMatrix<T,MR,  STAR> B1Trans_MR_STAR(g);
+
+    B1Trans_MR_STAR.AlignWith( C );
 
     // Start the algorithm
     Scale( beta, C );
@@ -191,7 +185,6 @@ SymmLLC
           CB,  C2 );
 
         ARowPan.LockedView1x2( A10, A11 );
-
         AColPan.LockedView2x1
         ( A11,
           A21 );
@@ -199,14 +192,12 @@ SymmLLC
         CAbove.View2x1
         ( C0,
           C1 );
-
         CBelow.View2x1
         ( C1,
           C2 );
 
         AColPan_MC_STAR.AlignWith( CBelow );
         ARowPan_STAR_MC.AlignWith( CAbove );
-        B1Trans_MR_STAR.AlignWith( C );
         //--------------------------------------------------------------------//
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
@@ -225,7 +216,6 @@ SymmLLC
         //--------------------------------------------------------------------//
         AColPan_MC_STAR.FreeAlignments();
         ARowPan_STAR_MC.FreeAlignments();
-        B1Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

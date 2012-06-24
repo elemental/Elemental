@@ -65,6 +65,10 @@ TrmmLLNA
     DistMatrix<T,STAR,MR  > X1Trans_STAR_MR(g);
     DistMatrix<T,MC,  STAR> Z1_MC_STAR(g);
 
+    X1_VR_STAR.AlignWith( L );
+    X1Trans_STAR_MR.AlignWith( L );
+    Z1_MC_STAR.AlignWith( L );
+
     PartitionRight
     ( X, XL, XR, 0 );
     while( XL.Width() < X.Width() )
@@ -73,22 +77,15 @@ TrmmLLNA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        X1_VR_STAR.AlignWith( L );
-        X1Trans_STAR_MR.AlignWith( L );
-        Z1_MC_STAR.AlignWith( L );
-        Z1_MC_STAR.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Height(), X1.Width(), Z1_MC_STAR );
         //--------------------------------------------------------------------//
         X1_VR_STAR = X1;
         X1Trans_STAR_MR.TransposeFrom( X1_VR_STAR );
-        Zero( Z1_MC_STAR );
         LocalTrmmAccumulateLLN
         ( TRANSPOSE, diag, alpha, L, X1Trans_STAR_MR, Z1_MC_STAR );
 
         X1.SumScatterFrom( Z1_MC_STAR );
         //--------------------------------------------------------------------//
-        X1_VR_STAR.FreeAlignments();
-        X1Trans_STAR_MR.FreeAlignments();
-        Z1_MC_STAR.FreeAlignments();
 
         SlidePartitionRight
         ( XL,     /**/ XR,
@@ -127,7 +124,6 @@ TrmmLLNC
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-
     DistMatrix<T,MC,MR> XT(g),  X0(g),
                         XB(g),  X1(g),
                                 X2(g);
@@ -166,8 +162,8 @@ TrmmLLNC
         D1Trans_MR_STAR.AlignWith( X1 );
         D1Trans_MR_MC.AlignWith( X1 );
         D1.AlignWith( X1 );
-        D1Trans_MR_STAR.ResizeTo( X1.Width(), X1.Height() );
-        D1.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Width(), X1.Height(), D1Trans_MR_STAR );
+        Zeros( X1.Height(), X1.Width(), D1 );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11;
         X1_STAR_VR = X1;

@@ -109,6 +109,11 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F,MC,MR>& L )
     DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
 
+    L10_STAR_VR.AlignWith( L );
+    S10_STAR_VC.AlignWith( L );
+    S10_STAR_MC.AlignWith( L );
+    L10_STAR_MR.AlignWith( L );
+
     PartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -120,10 +125,6 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F,MC,MR>& L )
                /**/       L10, /**/ L11, L12,
           LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
-        L10_STAR_VR.AlignWith( L00 );
-        S10_STAR_VC.AlignWith( L00 );
-        S10_STAR_MC.AlignWith( L00 );
-        L10_STAR_MR.AlignWith( L00 );
         //--------------------------------------------------------------------//
         L11.GetDiagonal( d1 );
 
@@ -143,10 +144,6 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F,MC,MR>& L )
         LocalTrdtrmm( orientation, LOWER, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         //--------------------------------------------------------------------//
-        L10_STAR_MR.FreeAlignments();
-        S10_STAR_MC.FreeAlignments();
-        S10_STAR_VC.FreeAlignments();
-        L10_STAR_VR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

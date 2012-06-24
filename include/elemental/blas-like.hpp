@@ -329,24 +329,17 @@ void Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 // while the out-of-place sets B := Conjugate(A).
 //
 
-// In-place serial version for real datatypes. 
-// Note: this is a no-op.
+// In-place versions
 template<typename Z>
 void Conjugate( Matrix<Z>& A );
-
-// In-place serial version for complex datatypes.
 template<typename Z>
 void Conjugate( Matrix<Complex<Z> >& A );
-
-// In-place parallel version
 template<typename T,Distribution U,Distribution V>
 void Conjugate( DistMatrix<T,U,V>& A );
 
-// Out-of-place serial version.
+// Out-of-place versions
 template<typename T>
 void Conjugate( const Matrix<T>& A, Matrix<T>& B );
-
-// Out-of-place parallel version.
 template<typename T, 
          Distribution U,Distribution V,
          Distribution W,Distribution Z>
@@ -368,6 +361,43 @@ void MakeTrapezoidal
 template<typename T,Distribution U,Distribution V>
 void MakeTrapezoidal
 ( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A );
+
+//
+// MakeHermitian:
+//
+// Turn an implicitly Hermitian matrix into an explicitly Hermitian one by 
+// forcing the diagonal to be real and conjugate-transposing the specified 
+// strictly triangular portion of the matrix into the other.
+//
+
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, Matrix<T>& A );
+template<typename T>
+void MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A );
+
+//
+// MakeReal:
+//
+// Modify a matrix to ensure that all of its imaginary components are zero.
+//
+
+template<typename T>
+void MakeReal( Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeReal( DistMatrix<T,U,V>& A );
+
+//
+// MakeSymmetric:
+//
+// Turn an implicitly symmetric matrix into an explicitly symmetric one by 
+// forcing the diagonal to be real and conjugate-transposing the specified 
+// strictly triangular portion of the matrix into the other.
+//
+
+template<typename T>
+void MakeSymmetric( UpperOrLower uplo, Matrix<T>& A );
+template<typename T>
+void MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A );
 
 //
 // ScaleTrapezoid:
@@ -1503,6 +1533,38 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
 
 template<typename T>
 inline void
+MakeReal( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeReal");
+#endif
+    T* ABuffer = A.Buffer();
+    const int height = A.Height();
+    const int width = A.Width();
+    const int ldim = A.LDim();
+    for( int j=0; j<width; ++j )
+        for( int i=0; i<height; ++i )
+            ABuffer[i+j*ldim] = RealPart(ABuffer[i+j*ldim]);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+MakeReal( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeReal");
+#endif
+    MakeReal( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 MakeTrapezoidal
 ( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
 {
@@ -1570,6 +1632,118 @@ MakeTrapezoidal
             }
         }
     }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeHermitian");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix Hermitian");
+
+    Matrix<T> d;
+    A.GetDiagonal( d );
+    MakeReal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    Matrix<T> AAdj;
+    Adjoint( A, AAdj );
+    Axpy( (T)1, AAdj, A );
+
+    A.SetDiagonal( d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeHermitian");
+#endif
+    const Grid& g = A.Grid();
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix Hermitian");
+
+    DistMatrix<T,MD,STAR> d(g);
+    A.GetDiagonal( d );
+    MakeReal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    DistMatrix<T> AAdj(g);
+    Adjoint( A, AAdj );
+    Axpy( (T)1, AAdj, A );
+
+    A.SetDiagonal( d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeSymmetric");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix symmetric");
+
+    Matrix<T> d;
+    A.GetDiagonal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    Matrix<T> ATrans;
+    Transpose( A, ATrans );
+    Axpy( (T)1, ATrans, A );
+
+    A.SetDiagonal( d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeSymmetric");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix symmetric");
+
+    const Grid& g = A.Grid();
+    DistMatrix<T> d(g);
+    A.GetDiagonal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    DistMatrix<T> ATrans(g);
+    Transpose( A, ATrans );
+    Axpy( (T)1, ATrans, A );
+
+    A.SetDiagonal( d );
 #ifndef RELEASE
     PopCallStack();
 #endif

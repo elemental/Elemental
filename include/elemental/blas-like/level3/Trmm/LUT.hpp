@@ -76,6 +76,9 @@ TrmmLUTA
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
 
+    X1_MC_STAR.AlignWith( U );
+    Z1_MR_STAR.AlignWith( U );
+
     PartitionRight
     ( X, XL, XR, 0 );
     while( XL.Width() < X.Width() )
@@ -84,20 +87,15 @@ TrmmLUTA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        X1_MC_STAR.AlignWith( U );
-        Z1_MR_STAR.AlignWith( U );
-        Z1_MR_STAR.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Height(), X1.Width(), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
-        Zero( Z1_MR_STAR );
         LocalTrmmAccumulateLUT
         ( orientation, diag, alpha, U, X1_MC_STAR, Z1_MR_STAR );
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
-        Z1_MR_STAR.FreeAlignments();
 
         SlidePartitionRight
         ( XL,     /**/ XR,
@@ -179,8 +177,8 @@ TrmmLUTC
         D1AdjOrTrans_MR_STAR.AlignWith( X1 );
         D1AdjOrTrans_MR_MC.AlignWith( X1 );
         D1.AlignWith( X1 );
-        D1AdjOrTrans_MR_STAR.ResizeTo( X1.Width(), X1.Height() );
-        D1.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Width(), X1.Height(), D1AdjOrTrans_MR_STAR );
+        Zeros( X1.Height(), X1.Width(), D1 );
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;

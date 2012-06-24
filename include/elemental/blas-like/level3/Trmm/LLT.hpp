@@ -67,7 +67,6 @@ TrmmLLTA
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-
     DistMatrix<T,MC,MR>
         XL(g), XR(g),
         X0(g), X1(g), X2(g);
@@ -75,6 +74,9 @@ TrmmLLTA
     DistMatrix<T,MC,STAR> X1_MC_STAR(g);
     DistMatrix<T,MR,STAR> Z1_MR_STAR(g);
     DistMatrix<T,MR,MC  > Z1_MR_MC(g);
+
+    X1_MC_STAR.AlignWith( L );
+    Z1_MR_STAR.AlignWith( L );
 
     PartitionRight
     ( X, XL, XR, 0 );
@@ -84,20 +86,15 @@ TrmmLLTA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        X1_MC_STAR.AlignWith( L );
-        Z1_MR_STAR.AlignWith( L );
-        Z1_MR_STAR.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Height(), X1.Width(), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
-        Zero( Z1_MR_STAR );
         LocalTrmmAccumulateLLT
         ( orientation, diag, alpha, L, X1_MC_STAR, Z1_MR_STAR );
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
         X1 = Z1_MR_MC;
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
-        Z1_MR_STAR.FreeAlignments();
 
         SlidePartitionRight
         ( XL,     /**/ XR,
@@ -140,7 +137,6 @@ TrmmLLTC
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-
     DistMatrix<T,MC,MR> XT(g),  X0(g),
                         XB(g),  X1(g),
                                 X2(g);
@@ -179,8 +175,8 @@ TrmmLLTC
         D1AdjOrTrans_MR_STAR.AlignWith( X1 );
         D1AdjOrTrans_MR_MC.AlignWith( X1 );
         D1.AlignWith( X1 );
-        D1AdjOrTrans_MR_STAR.ResizeTo( X1.Width(), X1.Height() );
-        D1.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Width(), X1.Height(), D1AdjOrTrans_MR_STAR );
+        Zeros( X1.Height(), X1.Width(), D1 );
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;

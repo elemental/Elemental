@@ -74,7 +74,6 @@ TrsmLLTLarge
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-
     DistMatrix<F,MC,MR> XT(g),  X0(g),
                         XB(g),  X1(g),
                                 X2(g);

@@ -63,7 +63,6 @@ Her2kUN
     // Matrix views 
     DistMatrix<T,MC,MR> AL(g), AR(g),
                         A0(g), A1(g), A2(g);
-
     DistMatrix<T,MC,MR> BL(g), BR(g),
                         B0(g), B1(g), B2(g);
 
@@ -76,6 +75,13 @@ Her2kUN
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > A1Adj_STAR_MR(g);
     DistMatrix<T,STAR,MR  > B1Adj_STAR_MR(g);
+
+    A1_MC_STAR.AlignWith( C );
+    B1_MC_STAR.AlignWith( C );
+    A1_VR_STAR.AlignWith( C );
+    B1_VR_STAR.AlignWith( C );
+    A1Adj_STAR_MR.AlignWith( C );
+    B1Adj_STAR_MR.AlignWith( C );
 
     // Start the algorithm
     ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
@@ -91,12 +97,6 @@ Her2kUN
         ( BL, /**/ BR,
           B0, /**/ B1, B2 );
 
-        A1_MC_STAR.AlignWith( C );
-        B1_MC_STAR.AlignWith( C );
-        A1_VR_STAR.AlignWith( C );
-        B1_VR_STAR.AlignWith( C );
-        A1Adj_STAR_MR.AlignWith( C );
-        B1Adj_STAR_MR.AlignWith( C );
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Adj_STAR_MR.AdjointFrom( A1_VR_STAR );
@@ -110,12 +110,6 @@ Her2kUN
                  B1_MC_STAR, A1Adj_STAR_MR,
           (T)1,  C );
         //--------------------------------------------------------------------//
-        A1_MC_STAR.FreeAlignments();
-        B1_MC_STAR.FreeAlignments();
-        A1_VR_STAR.FreeAlignments();
-        B1_VR_STAR.FreeAlignments();
-        A1Adj_STAR_MR.FreeAlignments();
-        B1Adj_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( AL,     /**/ AR,

@@ -72,6 +72,10 @@ GemmNNA
     DistMatrix<T,STAR,MR> B1Trans_STAR_MR(g);
     DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
+    B1_VR_STAR.AlignWith( A );
+    B1Trans_STAR_MR.AlignWith( A );
+    D1_MC_STAR.AlignWith( A );
+
     // Start the algorithm
     Scale( beta, C );
     LockedPartitionRight( B, BL, BR, 0 );
@@ -86,10 +90,7 @@ GemmNNA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        B1_VR_STAR.AlignWith( A );
-        B1Trans_STAR_MR.AlignWith( A );
-        D1_MC_STAR.AlignWith( A );
-        D1_MC_STAR.ResizeTo( C1.Height(), C1.Width() );
+        Zeros( C1.Height(), C1.Width(), D1_MC_STAR );
         //--------------------------------------------------------------------//
         B1_VR_STAR = B1;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
@@ -101,9 +102,6 @@ GemmNNA
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.SumScatterUpdate( (T)1, D1_MC_STAR );
         //--------------------------------------------------------------------//
-        B1_VR_STAR.FreeAlignments();
-        B1Trans_STAR_MR.FreeAlignments();
-        D1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( BL,     /**/ BR,
@@ -155,7 +153,10 @@ GemmNNB
 
     // Temporary distributions
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
-    DistMatrix<T,STAR,MR> D1_STAR_MR(g);
+    DistMatrix<T,MR,STAR> D1Trans_MR_STAR(g);
+
+    A1_STAR_MC.AlignWith( B );
+    D1Trans_MR_STAR.AlignWith( B );
 
     // Start the algorithm
     Scale( beta, C );
@@ -179,20 +180,16 @@ GemmNNB
                C1,
           CB,  C2 );
 
-        A1_STAR_MC.AlignWith( B );
-        D1_STAR_MR.AlignWith( B );
-        D1_STAR_MR.ResizeTo( C1.Height(), C1.Width() );
+        Zeros( C1.Width(), C1.Height(), D1Trans_MR_STAR );
         //--------------------------------------------------------------------//
         A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
-        // D1[*,MR] := alpha A1[*,MC] B[MC,MR]
-        LocalGemm( NORMAL, NORMAL, alpha, A1_STAR_MC, B, (T)0, D1_STAR_MR );
+        // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
+        LocalGemm
+        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, (T)0, D1Trans_MR_STAR );
 
-        // C1[MC,MR] += scattered result of D1[*,MR] summed over grid cols
-        C1.SumScatterUpdate( (T)1, D1_STAR_MR );
+        C1.TransposeSumScatterUpdate( (T)1, D1Trans_MR_STAR );
         //--------------------------------------------------------------------//
-        A1_STAR_MC.FreeAlignments();
-        D1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDown
         ( AT,  A0,
@@ -241,7 +238,6 @@ GemmNNC
     // Matrix views
     DistMatrix<T> AL(g), AR(g),
                   A0(g), A1(g), A2(g);         
-
     DistMatrix<T> BT(g),  B0(g),
                   BB(g),  B1(g),
                           B2(g);
@@ -249,6 +245,9 @@ GemmNNC
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g); 
+
+    A1_MC_STAR.AlignWith( C );
+    B1Trans_MR_STAR.AlignWith( C );
 
     // Start the algorithm
     Scale( beta, C );
@@ -266,8 +265,6 @@ GemmNNC
                                     B1, 
                                BB,  B2 );
 
-        A1_MC_STAR.AlignWith( C );
-        B1Trans_MR_STAR.AlignWith( C );
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; 
         B1Trans_MR_STAR.TransposeFrom( B1 );
@@ -277,8 +274,6 @@ GemmNNC
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, (T)1, C );
         //--------------------------------------------------------------------//
-        A1_MC_STAR.FreeAlignments();
-        B1Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionRight( AL,     /**/ AR,
                                    A0, A1, /**/ A2 );
@@ -325,11 +320,9 @@ GemmNNDot
         // Matrix views
         DistMatrix<T> AT(g), AB(g),
                       A0(g), A1(g), A2(g);         
-
         DistMatrix<T> BL(g),  B0(g),
                       BR(g),  B1(g),
                               B2(g);
-
         DistMatrix<T> CT(g), C0(g), C1L(g), C1R(g),
                       CB(g), C1(g), C10(g), C11(g), C12(g),
                              C2(g);
@@ -361,10 +354,8 @@ GemmNNDot
                    C1,
               CB,  C2 );
 
-            A1_STAR_VC.AlignWith( B1 );
-            //----------------------------------------------------------------//
             A1_STAR_VC = A1; 
-            //----------------------------------------------------------------//
+            B1_VC_STAR.AlignWith( A1_STAR_VC );
 
             LockedPartitionRight( B, BL, BR, 0 );
             PartitionRight( C1, C1L, C1R, 0 );
@@ -378,8 +369,7 @@ GemmNNDot
                 ( C1L, /**/ C1R,
                   C10, /**/ C11, C12 );
 
-                B1_VC_STAR.AlignWith( A1_STAR_VC );
-                C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
+                Zeros( C11.Height(), C11.Width(), C11_STAR_STAR );
                 //------------------------------------------------------------//
                 B1_VC_STAR = B1;
                 LocalGemm
@@ -387,7 +377,6 @@ GemmNNDot
                   alpha, A1_STAR_VC, B1_VC_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
                 //------------------------------------------------------------//
-                B1_VC_STAR.FreeAlignments();
 
                 SlideLockedPartitionRight
                 ( BL,     /**/ BR,
@@ -397,7 +386,7 @@ GemmNNDot
                 ( C1L,      /**/ C1R,
                   C10, C11, /**/ C12 );
             }
-            A1_STAR_VC.FreeAlignments();
+            B1_VC_STAR.FreeAlignments();
 
             SlideLockedPartitionDown
             ( AT,  A0,
@@ -417,11 +406,9 @@ GemmNNDot
         // Matrix views
         DistMatrix<T> AT(g), AB(g),
                       A0(g), A1(g), A2(g);         
-
         DistMatrix<T> BL(g),  B0(g),
                       BR(g),  B1(g),
                               B2(g);
-
         DistMatrix<T> 
             CL(g), CR(g),         C1T(g),  C01(g),
             C0(g), C1(g), C2(g),  C1B(g),  C11(g),
@@ -446,10 +433,8 @@ GemmNNDot
             ( CL, /**/ CR,
               C0, /**/ C1, C2 );
 
-            B1_VR_STAR.AlignWith( A1 );
-            //----------------------------------------------------------------//
             B1_VR_STAR = B1;
-            //----------------------------------------------------------------//
+            A1_STAR_VR.AlignWith( B1_VR_STAR );
 
             LockedPartitionDown
             ( A, AT,
@@ -471,8 +456,7 @@ GemmNNDot
                         C11,
                   C1B,  C21 );
 
-                A1_STAR_VR.AlignWith( B1_VR_STAR );
-                C11_STAR_STAR.ResizeTo( C11.Height(), C11.Width() );
+                Zeros( C11.Height(), C11.Width(), C11_STAR_STAR );
                 //------------------------------------------------------------//
                 A1_STAR_VR = A1;
                 LocalGemm
@@ -480,7 +464,6 @@ GemmNNDot
                   alpha, A1_STAR_VR, B1_VR_STAR, (T)0, C11_STAR_STAR );
                 C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
                 //------------------------------------------------------------//
-                A1_STAR_VR.FreeAlignments();
 
                 SlideLockedPartitionDown
                 ( AT,  A0,
@@ -494,7 +477,7 @@ GemmNNDot
                  /***/ /***/
                   C1B,  C21 );
             }
-            B1_VR_STAR.FreeAlignments();
+            A1_STAR_VR.FreeAlignments();
 
             SlideLockedPartitionRight
             ( BL,     /**/ BR,
@@ -549,7 +532,6 @@ GemmNN
     PopCallStack();
 #endif
 }
-
 
 } // namespace internal
 } // namespace elem

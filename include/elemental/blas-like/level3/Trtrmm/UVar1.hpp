@@ -98,6 +98,11 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T,MC,MR>& U )
     DistMatrix<T,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
 
+    U01_MC_STAR.AlignWith( U );
+    U01_VC_STAR.AlignWith( U );
+    U01_VR_STAR.AlignWith( U );
+    U01AdjOrTrans_STAR_MR.AlignWith( U );
+
     PartitionDownDiagonal
     ( U, UTL, UTR,
          UBL, UBR, 0 );
@@ -109,10 +114,6 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T,MC,MR>& U )
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
-        U01_MC_STAR.AlignWith( U00 );
-        U01_VC_STAR.AlignWith( U00 );
-        U01_VR_STAR.AlignWith( U00 );
-        U01AdjOrTrans_STAR_MR.AlignWith( U00 );
         //--------------------------------------------------------------------//
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;
@@ -132,10 +133,6 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T,MC,MR>& U )
         LocalTrtrmm( orientation, UPPER, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
-        U01AdjOrTrans_STAR_MR.FreeAlignments();
-        U01_VR_STAR.FreeAlignments();
-        U01_VC_STAR.FreeAlignments();
-        U01_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,

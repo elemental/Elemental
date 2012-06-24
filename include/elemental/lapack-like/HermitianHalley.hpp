@@ -41,19 +41,18 @@ namespace elem {
 //
 
 template<typename F>
-int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
+int HermitianHalley
+( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("Halley");
+    PushCallStack("HermitianHalley");
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Height must equal width");
     typedef typename Base<F>::type R;
     const int height = A.Height();
-    const int width = A.Width();
     const R oneHalf = ((R)1)/((R)2);
     const R oneThird = ((R)1)/((R)3);
-
-    if( height < width )
-        throw std::logic_error("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -68,7 +67,7 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
     int numIts=0;
     R frobNormADiff;
     Matrix<F> ALast;
-    Matrix<F> Q( height+width, width );
+    Matrix<F> Q( 2*height, height );
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
                       QB, height );
@@ -87,18 +86,21 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
             //
             // The standard QR-based algorithm
             //
+            MakeHermitian( uplo, A );
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Trrk
+            ( uplo, NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
         }
         else
         {
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            MakeHermitian( uplo, A );
+            Identity( height, height, C );
             Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -109,9 +111,11 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
         }
 
         Axpy( (F)-1, A, ALast );
-        frobNormADiff = Norm( ALast, FROBENIUS_NORM );
+        frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );
+
+    MakeHermitian( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -119,21 +123,19 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
 }
 
 template<typename F>
-int Halley
-( DistMatrix<F>& A, typename Base<F>::type upperBound )
+int HermitianHalley
+( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type upperBound )
 {
 #ifndef RELEASE
     PushCallStack("Halley");
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Height must equal width");
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int height = A.Height();
-    const int width = A.Width();
     const R oneHalf = ((R)1)/((R)2);
     const R oneThird = ((R)1)/((R)3);
-
-    if( height < width )
-        throw std::logic_error("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -148,7 +150,7 @@ int Halley
     int numIts=0;
     R frobNormADiff;
     DistMatrix<F> ALast( g );
-    DistMatrix<F> Q( height+width, width, g );
+    DistMatrix<F> Q( 2*height, height, g );
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
                       QB, height );
@@ -167,18 +169,21 @@ int Halley
             //
             // The standard QR-based algorithm
             //
+            MakeHermitian( uplo, A );
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Trrk
+            ( uplo, NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
         }
         else
         {
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            MakeHermitian( uplo, A );
+            Identity( height, height, C );
             Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -189,9 +194,11 @@ int Halley
         }
 
         Axpy( (F)-1, A, ALast );
-        frobNormADiff = Norm( ALast, FROBENIUS_NORM );
+        frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );
+
+    MakeHermitian( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

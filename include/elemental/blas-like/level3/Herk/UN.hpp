@@ -65,6 +65,10 @@ HerkUN
     DistMatrix<T,VR,  STAR> A1_VR_STAR(g);
     DistMatrix<T,STAR,MR  > A1Adj_STAR_MR(g);
 
+    A1_MC_STAR.AlignWith( C );
+    A1_VR_STAR.AlignWith( C );
+    A1Adj_STAR_MR.AlignWith( C );
+
     // Start the algorithm
     ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
     LockedPartitionRight( A, AL, AR, 0 );
@@ -74,18 +78,12 @@ HerkUN
         ( AL, /**/ AR,
           A0, /**/ A1, A2 );
 
-        A1_MC_STAR.AlignWith( C );
-        A1_VR_STAR.AlignWith( C );
-        A1Adj_STAR_MR.AlignWith( C );
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Adj_STAR_MR.AdjointFrom( A1_VR_STAR );
 
         LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Adj_STAR_MR, (T)1, C ); 
         //--------------------------------------------------------------------//
-        A1_MC_STAR.FreeAlignments();
-        A1_VR_STAR.FreeAlignments();
-        A1Adj_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionRight
         ( AL,     /**/ AR,
