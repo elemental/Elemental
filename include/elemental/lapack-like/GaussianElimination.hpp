@@ -130,7 +130,7 @@ internal::ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
         //--------------------------------------------------------------------//
         internal::PanelLU( APan, p1, A00.Height() );
         internal::ComposePanelPivots( p1, A00.Height(), image, preimage );
-        ApplyRowPivots( BB,image, preimage );
+        ApplyRowPivots( BB, image, preimage );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, B1 );

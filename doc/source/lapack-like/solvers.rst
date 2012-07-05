@@ -52,3 +52,23 @@ If :math:`m \ge n`, then the first step is to form the QR factorization of
    `orientation` must be equal to ``ADJOINT`` and :math:`A^H X=B` will 
    be solved. Upon completion, :math:`A` is overwritten with its QR or LQ 
    factorization, and :math:`X` is overwritten with the solution.
+
+LU solve
+--------
+Uses an in-place LU factorization (with or without partial pivoting) to 
+solve against one or more right-hand sides.
+
+.. cpp:function:: void LUSolve( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+.. cpp:function:: void LUSolve( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+
+   Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
+   :math:`B := A^{-H} B`, where :math:`A` has been overwritten with its LU 
+   factors (without partial pivoting).
+
+.. cpp:function:: void LUSolve( Orientation orientation, const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
+.. cpp:function:: void LUSolve( Orientation orientation, const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
+
+   Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
+   :math:`B := A^{-H} B`, where :math:`A` has been overwritten with 
+   its LU factors with partial pivoting, which satisfy :math:`P A = L U`, where
+   the permutation matrix :math:`P` is represented by the pivot vector ``p``.

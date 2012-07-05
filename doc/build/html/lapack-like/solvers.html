@@ -120,6 +120,38 @@ factorization, and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022a
 </dd></dl>
 
 </div>
+<div class="section" id="lu-solve">
+<h2>LU solve<a class="headerlink" href="#lu-solve" title="Permalink to this headline">¶</a></h2>
+<p>Uses an in-place LU factorization (with or without partial pivoting) to
+solve against one or more right-hand sides.</p>
+<dl class="function">
+<dt id="LUSolve__Orientation.Matrix:F:CR.Matrix:F:R">
+void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:F:R">
+void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update <img class="math" src="../_images/math/a04223ecc9b120b298c555c5fea078ead20336fd.png" alt="B := A^{-1} B"/>, <img class="math" src="../_images/math/2e555dd7150ae735cac02f66cfcc5eb33d750916.png" alt="B := A^{-T} B"/>, or
+<img class="math" src="../_images/math/cb8868372d3d0d10aa794de32b625a89d560206d.png" alt="B := A^{-H} B"/>, where <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> has been overwritten with its LU
+factors (without partial pivoting).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LUSolve__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R">
+void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, const Matrix&lt;int&gt;&amp; <em>p</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R">
+void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, const DistMatrix&lt;int, VC, STAR&gt;&amp; <em>p</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update <img class="math" src="../_images/math/a04223ecc9b120b298c555c5fea078ead20336fd.png" alt="B := A^{-1} B"/>, <img class="math" src="../_images/math/2e555dd7150ae735cac02f66cfcc5eb33d750916.png" alt="B := A^{-T} B"/>, or
+<img class="math" src="../_images/math/cb8868372d3d0d10aa794de32b625a89d560206d.png" alt="B := A^{-H} B"/>, where <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> has been overwritten with
+its LU factors with partial pivoting, which satisfy <img class="math" src="../_images/math/d76feca2c97d7c86a4de3ef9c086862aee6ef03a.png" alt="P A = L U"/>, where
+the permutation matrix <img class="math" src="../_images/math/4b4cade9ca8a2c8311fafcf040bc5b15ca507f52.png" alt="P"/> is represented by the pivot vector <tt class="docutils literal"><span class="pre">p</span></tt>.</p>
+</dd></dl>
+
+</div>
 </div>
 
 

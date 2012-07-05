@@ -369,6 +369,30 @@ void HouseholderSolve
   const DistMatrix<Complex<R> >& B, 
         DistMatrix<Complex<R> >& X );
 
+//
+// LUSolve (solve after having perfored an LU factorization of A):
+//
+// The strictly lower triangle of A represents an implicitly unit 
+// lower-triangular matrix L, and the upper triangle represents an upper
+// triangular matrix U.
+//
+
+template<typename F>
+void LUSolve
+( Orientation orientation, const Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void LUSolve
+( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B );
+
+template<typename F>
+void LUSolve
+( Orientation orientation, 
+  const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B );
+template<typename F>
+void LUSolve
+( Orientation orientation,
+  const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B );
+
 //----------------------------------------------------------------------------//
 // Factorization-based inversion                                              //
 //----------------------------------------------------------------------------//
@@ -1179,6 +1203,7 @@ GridOrder GetHermitianTridiagGridOrder();
 #include "./lapack-like/LDL.hpp"
 #include "./lapack-like/LQ.hpp"
 #include "./lapack-like/LU.hpp"
+#include "./lapack-like/LUSolve.hpp"
 #include "./lapack-like/Norm.hpp"
 #include "./lapack-like/PivotParity.hpp"
 #include "./lapack-like/Polar.hpp"
