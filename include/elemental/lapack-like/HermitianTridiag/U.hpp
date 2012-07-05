@@ -45,93 +45,90 @@ HermitianTridiagU( DistMatrix<R>& A )
 #endif
     const Grid& g = A.Grid();
 
-    if( g.InGrid() )
+    // Matrix views 
+    DistMatrix<R> 
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
+
+    // Temporary distributions
+    DistMatrix<R> WPan(g);
+    DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<R,MC,  STAR> APan_MC_STAR(g),  A01_MC_STAR(g),
+                                              A11_MC_STAR(g);
+    DistMatrix<R,MR,  STAR> APan_MR_STAR(g),  A01_MR_STAR(g),
+                                              A11_MR_STAR(g);
+    DistMatrix<R,MC,  STAR> WPan_MC_STAR(g),  W01_MC_STAR(g),
+                                              W11_MC_STAR(g);
+    DistMatrix<R,MR,  STAR> WPan_MR_STAR(g),  W01_MR_STAR(g),
+                                              W11_MR_STAR(g);
+
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ABR.Height() < A.Height() )
     {
-        // Matrix views 
-        DistMatrix<R> 
-            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                             A20(g), A21(g), A22(g);
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        // Temporary distributions
-        DistMatrix<R> WPan(g);
-        DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
-        DistMatrix<R,MC,  STAR> APan_MC_STAR(g),  A01_MC_STAR(g),
-                                                  A11_MC_STAR(g);
-        DistMatrix<R,MR,  STAR> APan_MR_STAR(g),  A01_MR_STAR(g),
-                                                  A11_MR_STAR(g);
-        DistMatrix<R,MC,  STAR> WPan_MC_STAR(g),  W01_MC_STAR(g),
-                                                  W11_MC_STAR(g);
-        DistMatrix<R,MR,  STAR> WPan_MR_STAR(g),  W01_MR_STAR(g),
-                                                  W11_MR_STAR(g);
-
-        PartitionUpDiagonal
-        ( A, ATL, ATR,
-             ABL, ABR, 0 );
-        while( ABR.Height() < A.Height() )
+        if( A00.Height() > 0 )
         {
-            RepartitionUpDiagonal
-            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                   /**/       A10, A11, /**/ A12,
-             /*************/ /******************/
-              ABL, /**/ ABR,  A20, A21, /**/ A22 );
+            WPan.AlignWith( A01 );
+            APan_MC_STAR.AlignWith( A00 );
+            WPan_MC_STAR.AlignWith( A00 );
+            APan_MR_STAR.AlignWith( A00 );
+            WPan_MR_STAR.AlignWith( A00 );
+            //----------------------------------------------------------------//
+            WPan.ResizeTo( ATL.Height(), A11.Width() );
+            APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-            if( A00.Height() > 0 )
-            {
-                WPan.AlignWith( A01 );
-                APan_MC_STAR.AlignWith( A00 );
-                WPan_MC_STAR.AlignWith( A00 );
-                APan_MR_STAR.AlignWith( A00 );
-                WPan_MR_STAR.AlignWith( A00 );
-                //------------------------------------------------------------//
-                WPan.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            HermitianPanelTridiagU
+            ( ATL, WPan, 
+              APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
-                HermitianPanelTridiagU
-                ( ATL, WPan, 
-                  APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
+            PartitionUp
+            ( APan_MC_STAR, A01_MC_STAR,
+                            A11_MC_STAR, A11.Height() );
+            PartitionUp
+            ( APan_MR_STAR, A01_MR_STAR,
+                            A11_MR_STAR, A11.Height() );
+            PartitionUp
+            ( WPan_MC_STAR, W01_MC_STAR,
+                            W11_MC_STAR, A11.Height() );
+            PartitionUp
+            ( WPan_MR_STAR, W01_MR_STAR,
+                            W11_MR_STAR, A11.Height() );
 
-                PartitionUp
-                ( APan_MC_STAR, A01_MC_STAR,
-                                A11_MC_STAR, A11.Height() );
-                PartitionUp
-                ( APan_MR_STAR, A01_MR_STAR,
-                                A11_MR_STAR, A11.Height() );
-                PartitionUp
-                ( WPan_MC_STAR, W01_MC_STAR,
-                                W11_MC_STAR, A11.Height() );
-                PartitionUp
-                ( WPan_MR_STAR, W01_MR_STAR,
-                                W11_MR_STAR, A11.Height() );
-
-                LocalTrr2k
-                ( UPPER, TRANSPOSE, TRANSPOSE,
-                  (R)-1, A01_MC_STAR, W01_MR_STAR,
-                         W01_MC_STAR, A01_MR_STAR,
-                  (R)1,  A00 );
-                //------------------------------------------------------------//
-                WPan_MR_STAR.FreeAlignments();
-                APan_MR_STAR.FreeAlignments();
-                WPan_MC_STAR.FreeAlignments();
-                APan_MC_STAR.FreeAlignments();
-                WPan.FreeAlignments();
-            }
-            else
-            {
-                A11_STAR_STAR = A11;
-                HermitianTridiag( UPPER, A11_STAR_STAR.LocalMatrix() );
-                A11 = A11_STAR_STAR;
-            }
-
-            SlidePartitionUpDiagonal
-            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-             /*************/ /******************/
-                   /**/       A10, /**/ A11, A12,
-              ABL, /**/ ABR,  A20, /**/ A21, A22 );
+            LocalTrr2k
+            ( UPPER, TRANSPOSE, TRANSPOSE,
+              (R)-1, A01_MC_STAR, W01_MR_STAR,
+                     W01_MC_STAR, A01_MR_STAR,
+              (R)1,  A00 );
+            //----------------------------------------------------------------//
+            WPan_MR_STAR.FreeAlignments();
+            APan_MR_STAR.FreeAlignments();
+            WPan_MC_STAR.FreeAlignments();
+            APan_MC_STAR.FreeAlignments();
+            WPan.FreeAlignments();
         }
+        else
+        {
+            A11_STAR_STAR = A11;
+            HermitianTridiag( UPPER, A11_STAR_STAR.LocalMatrix() );
+            A11 = A11_STAR_STAR;
+        }
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -160,119 +157,117 @@ HermitianTridiagU
     tDiag.AlignWithDiagonal( A, 1 );
     tDiag.ResizeTo( A.Height()-1, 1 );
 
-    if( g.InGrid() )
+    // Matrix views 
+    DistMatrix<C> 
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
+    DistMatrix<C,MD,STAR> tT(g),  t0(g), 
+                          tB(g),  t1(g),
+                                  t2(g);
+
+    // Temporary distributions
+    DistMatrix<C> WPan(g);
+    DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
+    DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<C,MC,  STAR> APan_MC_STAR(g),  A01_MC_STAR(g),
+                                              A11_MC_STAR(g);
+    DistMatrix<C,MR,  STAR> APan_MR_STAR(g),  A01_MR_STAR(g),
+                                              A11_MR_STAR(g);
+    DistMatrix<C,MC,  STAR> WPan_MC_STAR(g),  W01_MC_STAR(g),
+                                              W11_MC_STAR(g);
+    DistMatrix<C,MR,  STAR> WPan_MR_STAR(g),  W01_MR_STAR(g),
+                                              W11_MR_STAR(g);
+
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    PartitionUp
+    ( tDiag, tT,
+             tB, 0 );
+    while( ABR.Height() < A.Height() )
     {
-        // Matrix views 
-        DistMatrix<C> 
-            ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-            ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                             A20(g), A21(g), A22(g);
-        DistMatrix<C,MD,STAR> tT(g),  t0(g), 
-                              tB(g),  t1(g),
-                                      t2(g);
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        // Temporary distributions
-        DistMatrix<C> WPan(g);
-        DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
-        DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
-        DistMatrix<C,MC,  STAR> APan_MC_STAR(g),  A01_MC_STAR(g),
-                                                  A11_MC_STAR(g);
-        DistMatrix<C,MR,  STAR> APan_MR_STAR(g),  A01_MR_STAR(g),
-                                                  A11_MR_STAR(g);
-        DistMatrix<C,MC,  STAR> WPan_MC_STAR(g),  W01_MC_STAR(g),
-                                                  W11_MC_STAR(g);
-        DistMatrix<C,MR,  STAR> WPan_MR_STAR(g),  W01_MR_STAR(g),
-                                                  W11_MR_STAR(g);
-
-        PartitionUpDiagonal
-        ( A, ATL, ATR,
-             ABL, ABR, 0 );
-        PartitionUp
-        ( tDiag, tT,
-                 tB, 0 );
-        while( ABR.Height() < A.Height() )
+        RepartitionUp
+        ( tT,  t0,
+               t1,
+         /**/ /**/
+          tB,  t2 );
+        
+        if( A00.Height() > 0 )
         {
-            RepartitionUpDiagonal
-            ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-                   /**/       A10, A11, /**/ A12,
-             /*************/ /******************/
-              ABL, /**/ ABR,  A20, A21, /**/ A22 );
+            WPan.AlignWith( A01 );
+            APan_MC_STAR.AlignWith( A00 );
+            WPan_MC_STAR.AlignWith( A00 );
+            APan_MR_STAR.AlignWith( A00 );
+            WPan_MR_STAR.AlignWith( A00 );
+           //-----------------------------------------------------------------//
+            WPan.ResizeTo( ATL.Height(), A11.Width() );
+            APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
 
-            RepartitionUp
-            ( tT,  t0,
-                   t1,
-             /**/ /**/
-              tB,  t2 );
-            
-            if( A00.Height() > 0 )
-            {
-                WPan.AlignWith( A01 );
-                APan_MC_STAR.AlignWith( A00 );
-                WPan_MC_STAR.AlignWith( A00 );
-                APan_MR_STAR.AlignWith( A00 );
-                WPan_MR_STAR.AlignWith( A00 );
-               //------------------------------------------------------------//
-                WPan.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MC_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                APan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
-                WPan_MR_STAR.ResizeTo( ATL.Height(), A11.Width() );
+            HermitianPanelTridiagU
+            ( ATL, WPan, t1,
+              APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
-                HermitianPanelTridiagU
-                ( ATL, WPan, t1,
-                  APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
+            PartitionUp
+            ( APan_MC_STAR, A01_MC_STAR,
+                            A11_MC_STAR, A11.Height() );
+            PartitionUp
+            ( APan_MR_STAR, A01_MR_STAR,
+                            A11_MR_STAR, A11.Height() );
+            PartitionUp
+            ( WPan_MC_STAR, W01_MC_STAR,
+                            W11_MC_STAR, A11.Height() );
+            PartitionUp
+            ( WPan_MR_STAR, W01_MR_STAR,
+                            W11_MR_STAR, A11.Height() );
 
-                PartitionUp
-                ( APan_MC_STAR, A01_MC_STAR,
-                                A11_MC_STAR, A11.Height() );
-                PartitionUp
-                ( APan_MR_STAR, A01_MR_STAR,
-                                A11_MR_STAR, A11.Height() );
-                PartitionUp
-                ( WPan_MC_STAR, W01_MC_STAR,
-                                W11_MC_STAR, A11.Height() );
-                PartitionUp
-                ( WPan_MR_STAR, W01_MR_STAR,
-                                W11_MR_STAR, A11.Height() );
- 
-                LocalTrr2k
-                ( UPPER, ADJOINT, ADJOINT,
-                  (C)-1, A01_MC_STAR, W01_MR_STAR,
-                         W01_MC_STAR, A01_MR_STAR,
-                  (C)1,  A00 );
-                //------------------------------------------------------------//
-                WPan_MR_STAR.FreeAlignments();
-                APan_MR_STAR.FreeAlignments();
-                WPan_MC_STAR.FreeAlignments();
-                APan_MC_STAR.FreeAlignments();
-                WPan.FreeAlignments();
-            }
-            else
-            {
-                A11_STAR_STAR = A11;
-                t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
-
-                HermitianTridiag
-                ( UPPER, A11_STAR_STAR.LocalMatrix(), 
-                  t1_STAR_STAR.LocalMatrix() );
-
-                A11 = A11_STAR_STAR;
-                t1 = t1_STAR_STAR;
-            }
-
-            SlidePartitionUp
-            ( tT,  t0,
-             /**/ /**/
-                   t1,
-              tB,  t2 );
-
-            SlidePartitionUpDiagonal
-            ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-             /*************/ /******************/
-                   /**/       A10, /**/ A11, A12,
-              ABL, /**/ ABR,  A20, /**/ A21, A22 );
+            LocalTrr2k
+            ( UPPER, ADJOINT, ADJOINT,
+              (C)-1, A01_MC_STAR, W01_MR_STAR,
+                     W01_MC_STAR, A01_MR_STAR,
+              (C)1,  A00 );
+            //----------------------------------------------------------------//
+            WPan_MR_STAR.FreeAlignments();
+            APan_MR_STAR.FreeAlignments();
+            WPan_MC_STAR.FreeAlignments();
+            APan_MC_STAR.FreeAlignments();
+            WPan.FreeAlignments();
         }
+        else
+        {
+            A11_STAR_STAR = A11;
+            t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
+
+            HermitianTridiag
+            ( UPPER, A11_STAR_STAR.LocalMatrix(), 
+              t1_STAR_STAR.LocalMatrix() );
+
+            A11 = A11_STAR_STAR;
+            t1 = t1_STAR_STAR;
+        }
+
+        SlidePartitionUp
+        ( tT,  t0,
+         /**/ /**/
+               t1,
+          tB,  t2 );
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
+
     // Redistribute from matrix-diagonal form to fully replicated
     t = tDiag;
 #ifndef RELEASE

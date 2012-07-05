@@ -42,6 +42,9 @@ namespace elem {
 //
 // No support for column-pivoting or row-sorting yet.
 //
+// The careful calculation of the coefficients is due to a suggestion from
+// Gregorio Quintana Orti.
+//
 
 template<typename F>
 int HermitianQDWH
@@ -81,9 +84,20 @@ int HermitianQDWH
         ++numIts;
         ALast = A;
 
-        const R L2 = lowerBound*lowerBound;
-        const Complex<R> dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-        const Complex<R> sqd = Sqrt( 1+dd );
+        R L2;
+        Complex<R> dd, sqd;
+        if( Abs(1-lowerBound) < tol )
+        {
+            L2 = 1;
+            dd = 0;
+            sqd = 1;
+        }
+        else
+        {
+            L2 = lowerBound*lowerBound;
+            dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
+            sqd = Sqrt( 1+dd );
+        }
         const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
         const R a = (sqd + Sqrt( arg )/2).real;
         const R b = (a-1)*(a-1)/4;
@@ -175,9 +189,20 @@ int HermitianQDWH
         ++numIts;
         ALast = A;
 
-        const R L2 = lowerBound*lowerBound;
-        const Complex<R> dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-        const Complex<R> sqd = Sqrt( 1+dd );
+        R L2;
+        Complex<R> dd, sqd;
+        if( Abs(1-lowerBound) < tol )
+        {
+            L2 = 1;
+            dd = 0;
+            sqd = 1;
+        }
+        else
+        {
+            L2 = lowerBound*lowerBound;
+            dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
+            sqd = Sqrt( 1+dd );
+        }
         const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
         const R a = (sqd + Sqrt( arg )/2).real;
         const R b = (a-1)*(a-1)/4;

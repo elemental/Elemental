@@ -54,6 +54,13 @@ void Axpy
 template<typename T>
 void Axpy( int n, T alpha, const T* x, int incx, T* y, int incy );
 
+void Copy( int n, const float* x, int incx, float* y, int incy );
+void Copy( int n, const double* x, int incx, double* y, int incy );
+void Copy( int n, const scomplex* x, int incx, scomplex* y, int incy );
+void Copy( int n, const dcomplex* x, int incx, dcomplex* y, int incy );
+template<typename T>
+void Copy( int n, const T* x, int incx, T* y, int incy );
+
 float Dot( int n, const float* x, int incx, const float* y, int incy );
 double Dot( int n, const double* x, int incx, const double* y, int incy );
 scomplex Dot( int n, const scomplex* x, int incx, const scomplex* y, int incy );
@@ -551,6 +558,19 @@ void BLAS(zaxpy)
   const elem::dcomplex* x, const int* incx,
         elem::dcomplex* y, const int* incy );
 
+void BLAS(scopy)
+( const int* n, const float* x, const int* incx, 
+                      float* y, const int* incy );
+void BLAS(dcopy)
+( const int* n, const double* x, const int* incx,
+                      double* y, const int* incy );
+void BLAS(ccopy)
+( const int* n, const elem::scomplex* x, const int* incx,
+                      elem::scomplex* y, const int* incy );
+void BLAS(zcopy)
+( const int* n, const elem::dcomplex* x, const int* incx,
+                      elem::dcomplex* y, const int* incy );
+
 float BLAS(sdot)
 ( const int* n, const float* x, const int* incx,
                 const float* y, const int* incy );
@@ -999,6 +1019,14 @@ inline void Axpy
 {
     for( int i=0; i<n; ++i )
         y[i*incy] += alpha*x[i*incx];
+}
+
+template<typename T>
+inline void Copy
+( int n, const T* x, int incx, T* y, int incy )
+{
+    for( int i=0; i<n; ++i )
+        y[i*incy] = x[i*incx];
 }
 
 template<typename T>

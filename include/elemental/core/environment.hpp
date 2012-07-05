@@ -93,6 +93,12 @@ void PopBlocksizeStack();
 template<typename T>
 void MemCopy( T* dest, const T* source, std::size_t numEntries );
 
+// Generalization of std::memcpy so that unit strides are not required
+template<typename T>
+void StridedMemCopy
+(       T* dest,   std::size_t destStride,
+  const T* source, std::size_t sourceStride, std::size_t numEntries );
+
 // Replacement for std::memset, which is likely suboptimal and hard to extend
 // to non-POD datatypes. Notice that sizeof(T) is no longer required.
 template<typename T>
@@ -336,6 +342,16 @@ MemCopy( T* dest, const T* source, std::size_t numEntries )
 {
     // This can be optimized/generalized later
     std::memcpy( dest, source, numEntries*sizeof(T) );
+}
+
+template<typename T>
+inline void
+StridedMemCopy
+(       T* dest,   std::size_t destStride, 
+  const T* source, std::size_t sourceStride, std::size_t numEntries )
+{
+    // For now, use the BLAS wrappers/generalization
+    blas::Copy( numEntries, source, sourceStride, dest, destStride );
 }
 
 template<typename T>

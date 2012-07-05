@@ -144,7 +144,10 @@ DistMatrix<T,MR,STAR,Int>::SetGrid( const elem::Grid& grid )
     this->Empty();
     this->grid_ = &grid;
     this->colAlignment_ = 0;
-    this->colShift_ = grid.Col();
+    if( grid.InGrid() )
+        this->colShift_ = grid.Col();
+    else
+        this->colShift_ = 0;
 }
 
 template<typename T,typename Int>
@@ -167,12 +170,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
+    this->Empty();
     this->colAlignment_ = A.ColAlignment();
-    this->colShift_ = A.ColShift();
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+        this->colShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -188,12 +190,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,MR,STAR,N>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
+    this->Empty();
     this->colAlignment_ = A.ColAlignment();
-    this->colShift_ = A.ColShift();
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+        this->colShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -209,12 +210,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
+    this->Empty();
     this->colAlignment_ = A.RowAlignment();
-    this->colShift_ = A.RowShift();
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+        this->colShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -230,12 +230,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,STAR,MR,N>& A )
     this->AssertFreeColAlignment();
     this->AssertSameGrid( A );
 #endif
+    this->Empty();
     this->colAlignment_ = A.RowAlignment();
-    this->colShift_ = A.RowShift();
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( this->Grid().InGrid() )
+        this->colShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -252,13 +251,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,VR,STAR,N>& A )
     this->AssertSameGrid( A );
 #endif
     const elem::Grid& g = this->Grid();
+    this->Empty();
     this->colAlignment_ = A.ColAlignment();
-    this->colShift_ =
-        Shift( g.Col(), this->ColAlignment(), g.Width() );
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( g.InGrid() )
+        this->colShift_ = Shift( g.Col(), this->ColAlignment(), g.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -275,13 +272,11 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const DistMatrix<S,STAR,VR,N>& A )
     this->AssertSameGrid( A );
 #endif
     const elem::Grid& g = this->Grid();
+    this->Empty();
     this->colAlignment_ = A.RowAlignment();
-    this->colShift_ =
-        Shift( g.Col(), this->ColAlignment(), g.Width() );
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( g.InGrid() )
+        this->colShift_ = Shift( g.Col(), this->ColAlignment(), g.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -341,7 +336,7 @@ DistMatrix<T,MR,STAR,Int>::PrintBase
     const Int c           = g.Width();
     const Int colShift    = this->ColShift();
 
-    if( height == 0 || width == 0 )
+    if( height == 0 || width == 0 || !g.InGrid() )
     {
 #ifndef RELEASE
         PopCallStack();
@@ -356,12 +351,15 @@ DistMatrix<T,MR,STAR,Int>::PrintBase
         const T* thisLocalBuffer = this->LockedLocalBuffer();
         const Int thisLDim = this->LocalLDim();
 #ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for
 #endif
-        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-            for( Int j=0; j<width; ++j )
-                sendBuf[(colShift+iLocal*c)+j*height] = 
-                    thisLocalBuffer[iLocal+j*thisLDim];
+        for( Int j=0; j<width; ++j )
+        {
+            T* destCol = &sendBuf[colShift+j*height];
+            const T* sourceCol = &thisLocalBuffer[j*thisLDim];
+            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+                destCol[iLocal*c] = sourceCol[iLocal];
+        }
 
         // If we are the root, allocate a receive buffer
         std::vector<T> recvBuf;
@@ -413,16 +411,15 @@ DistMatrix<T,MR,STAR,Int>::AlignCols( Int colAlignment )
     this->AssertFreeColAlignment();
 #endif
     const elem::Grid& g = this->Grid();
+    this->Empty();
 #ifndef RELEASE
     if( colAlignment < 0 || colAlignment >= g.Width() )
         throw std::runtime_error("Invalid column alignment for [MR,* ]");
 #endif
     this->colAlignment_ = colAlignment;
-    this->colShift_ = Shift( g.Col(), colAlignment, g.Width() );
     this->constrainedColAlignment_ = true;
-    this->height_ = 0;
-    this->width_ = 0;
-    this->localMatrix_.ResizeTo( 0, 0 );
+    if( g.InGrid() )
+        this->colShift_ = Shift( g.Col(), colAlignment, g.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -441,10 +438,14 @@ DistMatrix<T,MR,STAR,Int>::View( DistMatrix<T,MR,STAR,Int>& A )
     this->height_ = A.Height();
     this->width_ = A.Width();
     this->colAlignment_ = A.ColAlignment();
-    this->colShift_ = A.ColShift();
-    this->localMatrix_.View( A.LocalMatrix() );
     this->viewing_ = true;
-    this->lockedView_ = false;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = A.ColShift();
+        this->localMatrix_.View( A.LocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -454,22 +455,26 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,STAR,Int>::View
 ( Int height, Int width, Int colAlignment,
-  T* buffer, Int ldim, const elem::Grid& grid )
+  T* buffer, Int ldim, const elem::Grid& g )
 {
 #ifndef RELEASE
     PushCallStack("[MR,* ]::View");
 #endif
     this->Empty();
 
-    this->grid_ = &grid;
+    this->grid_ = &g;
     this->height_ = height;
     this->width_ = width;
     this->colAlignment_ = colAlignment;
-    this->colShift_ = Shift(grid.Col(),colAlignment,grid.Width());
-    const Int localHeight = LocalLength(height,this->colShift_,grid.Width());
-    this->localMatrix_.View( localHeight, width, buffer, ldim );
     this->viewing_ = true;
-    this->lockedView_ = false;
+    if( g.InGrid() )
+    {
+        this->colShift_ = Shift(g.Col(),colAlignment,g.Width());
+        const Int localHeight = LocalLength(height,this->colShift_,g.Width());
+        this->localMatrix_.View( localHeight, width, buffer, ldim );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -488,10 +493,15 @@ DistMatrix<T,MR,STAR,Int>::LockedView( const DistMatrix<T,MR,STAR,Int>& A )
     this->height_ = A.Height();
     this->width_ = A.Width();
     this->colAlignment_ = A.ColAlignment();
-    this->colShift_ = A.ColShift();
-    this->localMatrix_.LockedView( A.LockedLocalMatrix() );
     this->viewing_ = true;
     this->lockedView_ = true;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = A.ColShift();
+        this->localMatrix_.LockedView( A.LockedLocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -501,22 +511,27 @@ template<typename T,typename Int>
 inline void
 DistMatrix<T,MR,STAR,Int>::LockedView
 ( Int height, Int width, Int colAlignment,
-  const T* buffer, Int ldim, const elem::Grid& grid )
+  const T* buffer, Int ldim, const elem::Grid& g )
 {
 #ifndef RELEASE
     PushCallStack("[MR,* ]::LockedView");
 #endif
     this->Empty();
 
-    this->grid_ = &grid;
+    this->grid_ = &g;
     this->height_ = height;
     this->width_ = width;
     this->colAlignment_ = colAlignment;
-    this->colShift_ = Shift(grid.Col(),colAlignment,grid.Width());
-    const Int localHeight = LocalLength(height,this->colShift_,grid.Width());
-    this->localMatrix_.LockedView( localHeight, width, buffer, ldim );
     this->viewing_ = true;
     this->lockedView_ = true;
+    if( g.InGrid() )
+    {
+        this->colShift_ = Shift(g.Col(),colAlignment,g.Width());
+        const Int localHeight = LocalLength(height,this->colShift_,g.Width());
+        this->localMatrix_.LockedView( localHeight, width, buffer, ldim );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -536,12 +551,16 @@ DistMatrix<T,MR,STAR,Int>::View
     this->grid_ = A.grid_;
     this->height_ = height;
     this->width_ = width;
-    {
-        const elem::Grid& g = this->Grid();
-        const Int c   = g.Width();
-        const Int col = g.Col();
 
-        this->colAlignment_ = (A.ColAlignment()+i) % c;
+    const elem::Grid& g = this->Grid();
+    const Int c   = g.Width();
+    const Int col = g.Col();
+
+    this->colAlignment_ = (A.ColAlignment()+i) % c;
+    this->viewing_ = true;
+
+    if( g.InGrid() )
+    {
         this->colShift_ = Shift( col, this->ColAlignment(), c );
 
         const Int localHeightBefore = LocalLength( i, A.ColShift(), c );
@@ -550,8 +569,8 @@ DistMatrix<T,MR,STAR,Int>::View
         this->localMatrix_.View
         ( A.LocalMatrix(), localHeightBefore, j, localHeight, width );
     }
-    this->viewing_ = true;
-    this->lockedView_ = false;
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -571,12 +590,17 @@ DistMatrix<T,MR,STAR,Int>::LockedView
     this->grid_ = A.grid_;
     this->height_ = height;
     this->width_ = width;
-    {
-        const elem::Grid& g = this->Grid();
-        const Int c   = g.Width();
-        const Int col = g.Col();
 
-        this->colAlignment_ = (A.ColAlignment()+i) % c;
+    const elem::Grid& g = this->Grid();
+    const Int c   = g.Width();
+    const Int col = g.Col();
+
+    this->colAlignment_ = (A.ColAlignment()+i) % c;
+    this->viewing_ = true;
+    this->lockedView_ = true;
+
+    if( g.InGrid() )
+    {
         this->colShift_ = Shift( col, this->ColAlignment(), c );
 
         const Int localHeightBefore = LocalLength( i, A.ColShift(), c );
@@ -585,8 +609,8 @@ DistMatrix<T,MR,STAR,Int>::LockedView
         this->localMatrix_.LockedView
         ( A.LockedLocalMatrix(), localHeightBefore, j, localHeight, width );
     }
-    this->viewing_ = true;
-    this->lockedView_ = true;
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -608,10 +632,14 @@ DistMatrix<T,MR,STAR,Int>::View1x2
     this->height_ = AL.Height();
     this->width_ = AL.Width() + AR.Width();
     this->colAlignment_ = AL.ColAlignment();
-    this->colShift_ = AL.ColShift();
-    this->localMatrix_.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
     this->viewing_ = true;
-    this->lockedView_ = false;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = AL.ColShift();
+        this->localMatrix_.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -633,11 +661,16 @@ DistMatrix<T,MR,STAR,Int>::LockedView1x2
     this->height_ = AL.Height();
     this->width_ = AL.Width() + AR.Width();
     this->colAlignment_ = AL.ColAlignment();
-    this->colShift_ = AL.ColShift();
-    this->localMatrix_.LockedView1x2
-    ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
     this->viewing_ = true;
     this->lockedView_ = true;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = AL.ColShift();
+        this->localMatrix_.LockedView1x2
+        ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -660,12 +693,16 @@ DistMatrix<T,MR,STAR,Int>::View2x1
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
     this->colAlignment_ = AT.ColAlignment();
-    this->colShift_ = AT.ColShift();
-    this->localMatrix_.View2x1
-    ( AT.LocalMatrix(),
-      AB.LocalMatrix() );
     this->viewing_ = true;
-    this->lockedView_ = false;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = AT.ColShift();
+        this->localMatrix_.View2x1
+        ( AT.LocalMatrix(),
+          AB.LocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -688,12 +725,17 @@ DistMatrix<T,MR,STAR,Int>::LockedView2x1
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
     this->colAlignment_ = AT.ColAlignment();
-    this->colShift_ = AT.ColShift();
-    this->localMatrix_.LockedView2x1
-    ( AT.LockedLocalMatrix(),
-      AB.LockedLocalMatrix() );
     this->viewing_ = true;
     this->lockedView_ = true;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = AT.ColShift();
+        this->localMatrix_.LockedView2x1
+        ( AT.LockedLocalMatrix(),
+          AB.LockedLocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -718,12 +760,16 @@ DistMatrix<T,MR,STAR,Int>::View2x2
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();
     this->colAlignment_ = ATL.ColAlignment();
-    this->colShift_ = ATL.ColShift();
-    this->localMatrix_.View2x2
-    ( ATL.LocalMatrix(), ATR.LocalMatrix(),
-      ABL.LocalMatrix(), ABR.LocalMatrix() );
     this->viewing_ = true;
-    this->lockedView_ = false;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = ATL.ColShift();
+        this->localMatrix_.View2x2
+        ( ATL.LocalMatrix(), ATR.LocalMatrix(),
+          ABL.LocalMatrix(), ABR.LocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -748,12 +794,17 @@ DistMatrix<T,MR,STAR,Int>::LockedView2x2
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();
     this->colAlignment_ = ATL.ColAlignment();
-    this->colShift_ = ATL.ColShift();
-    this->localMatrix_.LockedView2x2
-    ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
-      ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
     this->viewing_ = true;
     this->lockedView_ = true;
+    if( this->Grid().InGrid() )
+    {
+        this->colShift_ = ATL.ColShift();
+        this->localMatrix_.LockedView2x2
+        ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
+          ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
+    }
+    else
+        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -771,8 +822,9 @@ DistMatrix<T,MR,STAR,Int>::ResizeTo( Int height, Int width )
 #endif
     this->height_ = height;
     this->width_ = width;
-    this->localMatrix_.ResizeTo
-    ( LocalLength(height,this->ColShift(),this->Grid().Width()), width );
+    if( this->Grid().InGrid() )
+        this->localMatrix_.ResizeTo
+        ( LocalLength(height,this->ColShift(),this->Grid().Width()), width );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -785,6 +837,8 @@ DistMatrix<T,MR,STAR,Int>::Get( Int i, Int j ) const
 #ifndef RELEASE
     PushCallStack("[MR,* ]::Get");
     this->AssertValidEntry( i, j );
+    if( !this->Grid().InGrid() )
+        throw std::logic_error("Should only be called by grid members");
 #endif
     // We will determine the owner column of entry (i,j) and broadcast from that
     // columns within each process row
@@ -798,7 +852,6 @@ DistMatrix<T,MR,STAR,Int>::Get( Int i, Int j ) const
         u = this->GetLocal(iLoc,j);
     }
     mpi::Broadcast( &u, 1, ownerCol, g.RowComm() );
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -860,6 +913,13 @@ DistMatrix<T,MR,STAR,Int>::SumOverCol()
     this->AssertNotLockedView();
 #endif
     const elem::Grid& g = this->Grid();
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
     
     const Int width = this->Width();
     const Int localHeight = this->LocalHeight();
@@ -920,10 +980,18 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.RowAlignment();
-            this->colShift_ = 
-                Shift( g.Col(), this->ColAlignment(), g.Width() );
+            if( g.InGrid() )
+                this->colShift_ = 
+                    Shift( g.Col(), this->ColAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
+    }
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
     }
 
     if( this->ColAlignment() == A.RowAlignment() )
@@ -948,12 +1016,15 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for 
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
+        {
+            T* destCol = &originalData[jLocal*localHeight];
+            const T* sourceCol = &ALocalBuffer[jLocal];
             for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                originalData[iLocal+jLocal*localHeight] = 
-                    Conj( ALocalBuffer[jLocal+iLocal*ALDim] );
+                destCol[iLocal] = Conj( sourceCol[iLocal*ALDim] );
+        }
 
         // Communicate
         mpi::AllGather
@@ -1022,12 +1093,15 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for 
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
+        {
+            T* destCol = &secondBuffer[jLocal*localWidthOfA];
+            const T* sourceCol = &ALocalBuffer[jLocal];
             for( Int iLocal=0; iLocal<localWidthOfA; ++iLocal )
-                secondBuffer[iLocal+jLocal*localWidthOfA] = 
-                    Conj( ALocalBuffer[jLocal+iLocal*ALDim] );
+                destCol[iLocal] = Conj( sourceCol[iLocal*ALDim] );
+        }
 
         // Perform the SendRecv: puts the new data into the first buffer
         mpi::SendRecv
@@ -1086,10 +1160,18 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.RowAlignment();
-            this->colShift_ = 
-                Shift( g.Col(), this->ColAlignment(), g.Width() );
+            if( g.InGrid() )
+                this->colShift_ = 
+                    Shift( g.Col(), this->ColAlignment(), g.Width() );
         }
         this->ResizeTo( A.Width(), A.Height() );
+    }
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
     }
 
     if( this->ColAlignment() == A.RowAlignment() )
@@ -1114,12 +1196,15 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
+        {
+            T* destCol = &originalData[jLocal*localHeight];
+            const T* sourceCol = &ALocalBuffer[jLocal];
             for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                originalData[iLocal+jLocal*localHeight] = 
-                    ALocalBuffer[jLocal+iLocal*ALDim];
+                destCol[iLocal] = sourceCol[iLocal*ALDim];
+        }
 
         // Communicate
         mpi::AllGather
@@ -1188,12 +1273,15 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
 #ifdef _OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+        #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
+        {
+            T* destCol = &secondBuffer[jLocal*localWidthOfA];
+            const T* sourceCol = &ALocalBuffer[jLocal];
             for( Int iLocal=0; iLocal<localWidthOfA; ++iLocal )
-                secondBuffer[iLocal+jLocal*localWidthOfA] = 
-                    ALocalBuffer[jLocal+iLocal*ALDim];
+                destCol[iLocal] = sourceCol[iLocal*ALDim];
+        }
 
         // Perform the SendRecv: puts the new data into the first buffer
         mpi::SendRecv
@@ -1275,11 +1363,20 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
         this->AssertSameSize( A );
 #endif
     const elem::Grid& g = this->Grid();
+    if( !g.InGrid() )
+    {
+        if( !this->Viewing() )
+            this->ResizeTo( A.Height(), A.Width() );
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return *this;
+    }
+
     if( A.Width() == 1 )
     {
         if( !this->Viewing() )
             this->ResizeTo( A.Height(), 1 );
-
         const Int r = g.Height();
         const Int c = g.Width();
         const Int p = g.Size();
@@ -1454,10 +1551,18 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment();
-            this->colShift_ = 
-                Shift( g.Col(), this->ColAlignment(), g.Width() );
+            if( g.InGrid() )
+                this->colShift_ = 
+                    Shift( g.Col(), this->ColAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
+    }
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return *this;
     }
 
     if( this->ColAlignment() == A.ColAlignment() )
@@ -1625,9 +1730,17 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment();
-            this->colShift_ = A.ColShift();
+            if( g.InGrid() )
+                this->colShift_ = A.ColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
+    }
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return *this;
     }
 
     if( this->ColAlignment() == A.ColAlignment() )
@@ -1794,10 +1907,18 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment() % g.Width();
-            this->colShift_ = 
-                Shift( g.Col(), this->ColAlignment(), g.Width() );
+            if( g.InGrid() )
+                this->colShift_ = 
+                    Shift( g.Col(), this->ColAlignment(), g.Width() );
         }
         this->ResizeTo( A.Height(), A.Width() );
+    }
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return *this;
     }
 
     if( this->ColAlignment() == A.ColAlignment() % g.Width() )
@@ -1856,12 +1977,15 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
             const Int localHeight = RawLocalLength( height, colShiftOfA, p );
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
+            #pragma omp parallel for
 #endif
             for( Int j=0; j<width; ++j )
+            {
+                T* destCol = &thisLocalBuffer[colOffset+j*thisLDim];
+                const T* sourceCol = &data[j*localHeight];
                 for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                    thisLocalBuffer[(colOffset+iLocal*r)+j*thisLDim] = 
-                        data[iLocal+j*localHeight];
+                    destCol[iLocal*r] = sourceCol[iLocal];
+            }
         }
         this->auxMemory_.Release();
     }
@@ -1937,12 +2061,15 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
             const Int localHeight = RawLocalLength( height, colShiftOfA, p );
 
 #if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for COLLAPSE(2)
+            #pragma omp parallel for 
 #endif
             for( Int j=0; j<width; ++j )
+            {
+                T* destCol = &thisLocalBuffer[colOffset+j*thisLDim];
+                const T* sourceCol = &data[j*localHeight];
                 for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-                    thisLocalBuffer[(colOffset+iLocal*r)+j*thisLDim] = 
-                        data[iLocal+j*localHeight];
+                    destCol[iLocal*r] = sourceCol[iLocal];
+            }
         }
         this->auxMemory_.Release();
     }
@@ -2006,12 +2133,15 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     const T* ALocalBuffer = A.LockedLocalBuffer();
     const Int ALDim = A.LocalLDim();
 #ifdef _OPENMP
-    #pragma omp parallel for COLLAPSE(2)
+    #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
+    {
+        T* destCol = &thisLocalBuffer[j*thisLDim];
+        const T* sourceCol = &ALocalBuffer[colShift+j*ALDim];
         for( Int iLocal=0; iLocal<localHeight; ++iLocal )
-            thisLocalBuffer[iLocal+j*thisLDim] = 
-                ALocalBuffer[(colShift+iLocal*c)+j*ALDim];
+            destCol[iLocal] = sourceCol[iLocal*c];
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -2029,6 +2159,8 @@ DistMatrix<T,MR,STAR,Int>::GetRealPart( Int i, Int j ) const
 #ifndef RELEASE
     PushCallStack("[MR,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
+    if( !this->Grid().InGrid() )
+        throw std::logic_error("Should only be called by grid members");
 #endif
     typedef typename Base<T>::type R;
 
@@ -2057,6 +2189,8 @@ DistMatrix<T,MR,STAR,Int>::GetImagPart( Int i, Int j ) const
 #ifndef RELEASE
     PushCallStack("[MR,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
+    if( !this->Grid().InGrid() )
+        throw std::logic_error("Should only be called by grid members");
 #endif
     typedef typename Base<T>::type R;
 

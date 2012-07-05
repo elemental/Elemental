@@ -1,15 +1,15 @@
 Functionality
 =============
-- Explicit expansion of packed Householder reflectors
+- More explicit expansions of packed Householder reflectors
+- Add means of detaching and reattaching the 'viewing' processes for a 
+  DistMatrix so that collective routines like 'Get' can still be called
 
 Documentation
 =============
 - Add BidiagonalQR and DivideAndConquerSVD to list of LAPACK imports
-- Add documentation for QDWH and Halley
 
 Formatting
 ==========
-- Better organize the include/elemental/lapack-like.hpp
 - Make namespacing of internal functions consistent
 - Move FLAME bidiagonal QR algorithm declaration into imports/flame.hpp
 

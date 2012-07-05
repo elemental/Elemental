@@ -82,6 +82,14 @@ HermitianPanelTridiagUSquare
     e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
 
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     // Matrix views 
     DistMatrix<R> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01T(g),
@@ -757,6 +765,14 @@ HermitianPanelTridiagUSquare
     expandedABR.View( A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
     e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
+
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
 
     // Matrix views 
     DistMatrix<C> 

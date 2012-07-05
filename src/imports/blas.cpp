@@ -54,6 +54,18 @@ void Axpy
 ( int n, dcomplex alpha, const dcomplex* x, int incx, dcomplex* y, int incy )
 { BLAS(zaxpy)( &n, &alpha, x, &incx, y, &incy ); }
 
+void Copy( int n, const float* x, int incx, float* y, int incy )
+{ BLAS(scopy)( &n, x, &incx, y, &incy ); }
+
+void Copy( int n, const double* x, int incx, double* y, int incy )
+{ BLAS(dcopy)( &n, x, &incx, y, &incy ); }
+
+void Copy( int n, const scomplex* x, int incx, scomplex* y, int incy )
+{ BLAS(ccopy)( &n, x, &incx, y, &incy ); }
+
+void Copy( int n, const dcomplex* x, int incx, dcomplex* y, int incy )
+{ BLAS(zcopy)( &n, x, &incx, y, &incy ); }
+
 float Dot( int n, const float* x, int incx, const float* y, int incy )
 { return BLAS(sdot)( &n, x, &incx, y, &incy ); }
 
