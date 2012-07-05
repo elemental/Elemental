@@ -59,7 +59,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-void TestCorrectnessDouble
+void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo,
   const DistMatrix<double>& A,
@@ -134,7 +134,7 @@ void TestCorrectnessDouble
     }
 }
 
-void TestCorrectnessDoubleComplex
+void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo,
   const DistMatrix<Complex<double> >& A,
@@ -224,7 +224,7 @@ void TestHermitianEigDouble
     DistMatrix<double,VR,STAR> w(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
         {
@@ -278,9 +278,7 @@ void TestHermitianEigDouble
             Z.Print("eigenvectors:");
     }
     if( testCorrectness && !onlyEigenvalues )
-    {
-        TestCorrectnessDouble( printMatrices, uplo, A, w, Z, AOrig );
-    }
+        TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
 }
     
 void TestHermitianEigDoubleComplex
@@ -293,7 +291,7 @@ void TestHermitianEigDoubleComplex
     DistMatrix<double,VR,STAR> w(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
         {
@@ -347,9 +345,7 @@ void TestHermitianEigDoubleComplex
             Z.Print("eigenvectors:");
     }
     if( testCorrectness && !onlyEigenvalues )
-    {
-        TestCorrectnessDoubleComplex( printMatrices, uplo, A, w, Z, AOrig );
-    }
+        TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
 }
 
 int 

@@ -60,7 +60,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-void TestCorrectnessDouble
+void TestCorrectness
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   UpperOrLower uplo,
@@ -276,7 +276,7 @@ void TestCorrectnessDouble
     }
 }
 
-void TestCorrectnessDoubleComplex
+void TestCorrectness
 ( bool printMatrices,
   HermitianGenDefiniteEigType eigType,
   UpperOrLower uplo,
@@ -542,7 +542,7 @@ void TestHermitianGenDefiniteEigDouble
     else
         HermitianUniformSpectrum( m, B, 1, 10 );
 
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
         {
@@ -601,7 +601,7 @@ void TestHermitianGenDefiniteEigDouble
     }
     if( testCorrectness && !onlyEigenvalues )
     {
-        TestCorrectnessDouble
+        TestCorrectness
         ( printMatrices, eigType, uplo, A, B, w, X, AOrig, BOrig );
     }
 }
@@ -634,7 +634,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
     else
         HermitianUniformSpectrum( m, B, 1, 10 );
 
-    if( testCorrectness )
+    if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
         {
@@ -693,7 +693,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
     }
     if( testCorrectness && !onlyEigenvalues )
     {
-        TestCorrectnessDoubleComplex
+        TestCorrectness
         ( printMatrices, eigType, uplo, A, B, w, X, AOrig, BOrig );
     }
 }
