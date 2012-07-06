@@ -77,10 +77,11 @@ TrsmRUT
                         X0(g), X1(g), X2(g);
 
     // Temporary distributions
-    DistMatrix<F,MR,  STAR> U01_MR_STAR(g);
+    DistMatrix<F,VR,  STAR> U01_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
+    DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     
     // Start the algorithm
     Scale( alpha, X );
@@ -100,28 +101,36 @@ TrsmRUT
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
 
-        X1_MC_STAR.AlignWith( X0 );
-        U01_MR_STAR.AlignWith( X0 );
+        X1_VC_STAR.AlignWith( X0 );
+        X1Trans_STAR_MC.AlignWith( X0 );
+        U01_VR_STAR.AlignWith( X0 );
+        U01AdjOrTrans_STAR_MR.AlignWith( X0 );
         //--------------------------------------------------------------------//
-        U11_STAR_STAR = U11; // U11[*,*] <- U11[MC,MR]
-        X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
+        U11_STAR_STAR = U11;
+        X1_VC_STAR = X1; 
 
-        // X1[VC,*] := X1[VC,*] (U11[*,*])^-(T/H)
         LocalTrsm
         ( RIGHT, UPPER, orientation, diag, 
           (F)1, U11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
-        X1_MC_STAR  = X1_VC_STAR; // X1[MC,*]  <- X1[VC,*]
-        X1          = X1_MC_STAR; // X1[MC,MR] <- X1[MC,*]
-        U01_MR_STAR = U01;        // U01[MR,*] <- U01[MC,MR]
+        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
+        X1.TransposeFrom( X1Trans_STAR_MC );
+        U01_VR_STAR = U01;
+        if( orientation == ADJOINT )
+            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
+        else
+            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
 
-        // X0[MC,MR] -= X1[MC,*] (U01[MR,*])^(T/H)
-        //            = X1[MC,*] (U01^(T/H))[*,MR]
+        // X0[MC,MR] -= X1[MC,* ] (U01[MR,* ])^(T/H)
+        //            = X1^T[* ,MC] (U01^(T/H))[* ,MR]
         LocalGemm
-        ( NORMAL, orientation, (F)-1, X1_MC_STAR, U01_MR_STAR, (F)1, X0 );
+        ( TRANSPOSE, NORMAL, 
+          (F)-1, X1Trans_STAR_MC, U01AdjOrTrans_STAR_MR, (F)1, X0 );
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
-        U01_MR_STAR.FreeAlignments();
+        X1_VC_STAR.FreeAlignments();
+        X1Trans_STAR_MC.FreeAlignments();
+        U01_VR_STAR.FreeAlignments();
+        U01AdjOrTrans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

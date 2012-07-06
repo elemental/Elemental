@@ -72,7 +72,7 @@ TrsmRLN
                         X0(g), X1(g), X2(g);
 
     // Temporary distributions
-    DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
+    DistMatrix<F,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
@@ -96,25 +96,26 @@ TrsmRLN
           X0, X1, /**/ X2 );
 
         X1_MC_STAR.AlignWith( X0 );
-        L10_STAR_MR.AlignWith( X0 );
+        L10Trans_MR_STAR.AlignWith( X0 );
         //--------------------------------------------------------------------//
-        L11_STAR_STAR = L11; // L11[*,*] <- L11[MC,MR]
-        X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
+        L11_STAR_STAR = L11;
+        X1_VC_STAR = X1;
 
-        // X1[VC,*] := X1[VC,*] (L11[*,*])^-1
         LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
-        X1_MC_STAR  = X1_VC_STAR; // X1[MC,*]  <- X1[VC,*]
-        X1          = X1_MC_STAR; // X1[MC,MR] <- X1[MC,*]
-        L10_STAR_MR = L10;        // L10[*,MR] <- L10[MC,MR]
+        X1_MC_STAR  = X1_VC_STAR;
+        X1          = X1_MC_STAR; 
+        L10Trans_MR_STAR.TransposeFrom( L10 );
 
-        // X0[MC,MR] -= X1[MC,*] L10[*,MR]
-        LocalGemm( NORMAL, NORMAL, (F)-1, X1_MC_STAR, L10_STAR_MR, (F)1, X0 );
+        // X0[MC,MR] -= X1[MC,* ] L10[*,MR]
+        //            = X1[MC,* ] L10^T[MR,* ]
+        LocalGemm
+        ( NORMAL, TRANSPOSE, (F)-1, X1_MC_STAR, L10Trans_MR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();
-        L10_STAR_MR.FreeAlignments();
+        L10Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,

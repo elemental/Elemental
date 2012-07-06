@@ -78,9 +78,10 @@ TrsmRLT
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,MR,  STAR> L21_MR_STAR(g);
-    DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
+    DistMatrix<F,VR,  STAR> L21_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > L21AdjOrTrans_STAR_MR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
+    DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
 
     // Start the algorithm
     Scale( alpha, X );
@@ -100,28 +101,36 @@ TrsmRLT
         ( XL, /**/     XR,
           X0, /**/ X1, X2 );
 
-        X1_MC_STAR.AlignWith( X2 );
-        L21_MR_STAR.AlignWith( X2 );
+        X1_VC_STAR.AlignWith( X2 );
+        X1Trans_STAR_MC.AlignWith( X2 );
+        L21_VR_STAR.AlignWith( X2 );
+        L21AdjOrTrans_STAR_MR.AlignWith( X2 );
         //--------------------------------------------------------------------//
-        L11_STAR_STAR = L11; // L11[*,*] <- L11[MC,MR]
-        X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
+        L11_STAR_STAR = L11; 
+        X1_VC_STAR = X1;  
         
-        // X1[VC,*] := X1[VC,*] (L11[*,*])^-(T/H)
         LocalTrsm
         ( RIGHT, LOWER, orientation, diag, 
           (F)1, L11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
-        X1_MC_STAR  = X1_VC_STAR; // X1[MC,*]  <- X1[VC,*]
-        X1          = X1_MC_STAR; // X1[MC,MR] <- X1[MC,*]
-        L21_MR_STAR = L21;        // L21[MR,*] <- L21[MC,MR]
+        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
+        X1.TransposeFrom( X1Trans_STAR_MC );
+        L21_VR_STAR = L21;
+        if( orientation == ADJOINT )
+            L21AdjOrTrans_STAR_MR.AdjointFrom( L21_VR_STAR );
+        else
+            L21AdjOrTrans_STAR_MR.TransposeFrom( L21_VR_STAR );
 
         // X2[MC,MR] -= X1[MC,*] (L21[MR,*])^(T/H)
-        //            = X1[MC,*] (L21^(T/H))[*,MR]
+        //            = X1^T[* ,MC] (L21^(T/H))[*,MR]
         LocalGemm
-        ( NORMAL, orientation, (F)-1, X1_MC_STAR, L21_MR_STAR, (F)1, X2 );
+        ( TRANSPOSE, NORMAL, 
+          (F)-1, X1Trans_STAR_MC, L21AdjOrTrans_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
-        L21_MR_STAR.FreeAlignments();
+        X1_VC_STAR.FreeAlignments();
+        X1Trans_STAR_MC.FreeAlignments();
+        L21_VR_STAR.FreeAlignments();
+        L21AdjOrTrans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

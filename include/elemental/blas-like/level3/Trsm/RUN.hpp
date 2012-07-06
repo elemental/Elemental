@@ -74,8 +74,8 @@ TrsmRUN
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
     DistMatrix<F,STAR,MR  > U12_STAR_MR(g);
-    DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);    
+    DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     
     // Start the algorithm
     Scale( alpha, X );
@@ -95,25 +95,28 @@ TrsmRUN
         ( XL, /**/     XR,
           X0, /**/ X1, X2 ); 
 
-        X1_MC_STAR.AlignWith( X2 );
+        X1_VC_STAR.AlignWith( X2 );
+        X1Trans_STAR_MC.AlignWith( X2 );
         U12_STAR_MR.AlignWith( X2 );
         //--------------------------------------------------------------------//
-        U11_STAR_STAR = U11; // U11[*,*] <- U11[MC,MR]
-        X1_VC_STAR    = X1;  // X1[VC,*] <- X1[MC,MR]
+        U11_STAR_STAR = U11; 
+        X1_VC_STAR = X1;
 
-        // X1[VC,*] := X1[VC,*] (U11[*,*])^-1
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, diag, (F)1, U11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
-        X1_MC_STAR  = X1_VC_STAR; // X1[MC,*]  <- X1[VC,*]
-        X1          = X1_MC_STAR; // X1[MC,MR] <- X1[MC,*]
-        U12_STAR_MR = U12;        // U12[*,MR] <- U12[MC,MR]
+        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
+        X1.TransposeFrom( X1Trans_STAR_MC );
+        U12_STAR_MR = U12; 
 
-        // X2[MC,MR] -= X1[MC,*] U12[*,MR]
-        LocalGemm( NORMAL, NORMAL, (F)-1, X1_MC_STAR, U12_STAR_MR, (F)1, X2 );
+        // X2[MC,MR] -= X1[MC,* ] U12[* ,MR]
+        //            = X1^T[* ,MC] U12[* ,MR]
+        LocalGemm
+        ( TRANSPOSE, NORMAL, (F)-1, X1Trans_STAR_MC, U12_STAR_MR, (F)1, X2 );
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
+        X1_VC_STAR.FreeAlignments();
+        X1Trans_STAR_MC.FreeAlignments();
         U12_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
