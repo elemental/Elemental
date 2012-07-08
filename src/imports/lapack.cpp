@@ -541,6 +541,14 @@ void BidiagQRAlg
 #ifndef RELEASE
     PushCallStack("lapack::BidiagQRAlg");
 #endif
+    if( n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     std::vector<float> work( 4*n );
 
     int info;
@@ -573,6 +581,14 @@ void BidiagQRAlg
 #ifndef RELEASE
     PushCallStack("lapack::BidiagQRAlg");
 #endif
+    if( n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     std::vector<double> work( 4*n );
 
     int info;
@@ -605,6 +621,14 @@ void BidiagQRAlg
 #ifndef RELEASE
     PushCallStack("lapack::BidiagQRAlg");
 #endif
+    if( n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const bool computeVectors = ( numColsVAdj || numRowsU );
     const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
     std::vector<float> work( workSize );
@@ -639,6 +663,14 @@ void BidiagQRAlg
 #ifndef RELEASE
     PushCallStack("lapack::BidiagQRAlg");
 #endif
+    if( n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const bool computeVectors = ( numColsVAdj || numRowsU );
     const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
     std::vector<double> work( workSize );
@@ -677,6 +709,14 @@ void DivideAndConquerSVD
 #ifndef RELEASE
     PushCallStack("lapack::DivideAndConquerSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobz='S';
     int lwork=-1, info;
     float dummyWork;
@@ -714,6 +754,14 @@ void DivideAndConquerSVD
 #ifndef RELEASE
     PushCallStack("lapack::DivideAndConquerSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobz='S';
     int lwork=-1, info;
     double dummyWork;
@@ -751,6 +799,14 @@ void DivideAndConquerSVD
 #ifndef RELEASE
     PushCallStack("lapack::DivideAndConquerSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobz='S';
     int lwork=-1, info;
     const int k = std::min(m,n);
@@ -791,6 +847,14 @@ void DivideAndConquerSVD
 #ifndef RELEASE
     PushCallStack("lapack::DivideAndConquerSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobz='S';
     int lwork=-1, info;
     dcomplex dummyWork;
@@ -835,6 +899,14 @@ void QRSVD
 #ifndef RELEASE
     PushCallStack("lapack::QRSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='S', jobvt='S';
     int lwork=-1, info;
     float dummyWork;
@@ -870,6 +942,14 @@ void QRSVD
 #ifndef RELEASE
     PushCallStack("lapack::QRSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='S', jobvt='S';
     int lwork=-1, info;
     double dummyWork;
@@ -905,6 +985,14 @@ void QRSVD
 #ifndef RELEASE
     PushCallStack("lapack::QRSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='S', jobva='S';
     int lwork=-1, info;
     const int k = std::min(m,n);
@@ -942,6 +1030,14 @@ void QRSVD
 #ifndef RELEASE
     PushCallStack("lapack::QRSVD");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='S', jobva='S';
     int lwork=-1, info;
     dcomplex dummyWork;
@@ -981,6 +1077,14 @@ void SingularValues( int m, int n, float* A, int lda, float* s )
 #ifndef RELEASE
     PushCallStack("lapack::SingularValues");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='N', jobvt='N';
     int fakeLDim=1, lwork=-1, info;
     float dummyWork;
@@ -1014,6 +1118,14 @@ void SingularValues( int m, int n, double* A, int lda, double* s )
 #ifndef RELEASE
     PushCallStack("lapack::SingularValues");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='N', jobvt='N';
     int fakeLDim=1, lwork=-1, info;
     double dummyWork;
@@ -1047,6 +1159,14 @@ void SingularValues( int m, int n, scomplex* A, int lda, float* s )
 #ifndef RELEASE
     PushCallStack("lapack::SingularValues");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='N', jobva='N';
     int fakeLDim=1, lwork=-1, info;
     scomplex dummyWork;
@@ -1082,6 +1202,14 @@ void SingularValues( int m, int n, dcomplex* A, int lda, double* s )
 #ifndef RELEASE
     PushCallStack("lapack::SingularValues");
 #endif
+    if( m==0 || n==0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     const char jobu='N', jobva='N';
     int fakeLDim=1, lwork=-1, info;
     dcomplex dummyWork;
