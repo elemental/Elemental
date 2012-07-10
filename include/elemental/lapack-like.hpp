@@ -370,7 +370,20 @@ void HouseholderSolve
         DistMatrix<Complex<R> >& X );
 
 //
-// LUSolve (solve after having perfored an LU factorization of A):
+// SolveAfterCholesky (solve after having perfored a Cholesky fact. of A):
+//
+
+template<typename F>
+void SolveAfterCholesky
+( UpperOrLower uplo, Orientation orientation, 
+  const Matrix<F>& A, Matrix<F>& B );
+template<typename F>
+void SolveAfterCholesky
+( UpperOrLower uplo, Orientation orientation, 
+  const DistMatrix<F>& A, DistMatrix<F>& B );
+
+//
+// SolveAfterLU (solve after having perfored an LU factorization of A):
 //
 // The strictly lower triangle of A represents an implicitly unit 
 // lower-triangular matrix L, and the upper triangle represents an upper
@@ -378,18 +391,18 @@ void HouseholderSolve
 //
 
 template<typename F>
-void LUSolve
+void SolveAfterLU
 ( Orientation orientation, const Matrix<F>& A, Matrix<F>& B );
 template<typename F>
-void LUSolve
+void SolveAfterLU
 ( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B );
 
 template<typename F>
-void LUSolve
+void SolveAfterLU
 ( Orientation orientation, 
   const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B );
 template<typename F>
-void LUSolve
+void SolveAfterLU
 ( Orientation orientation,
   const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B );
 
@@ -1203,7 +1216,6 @@ GridOrder GetHermitianTridiagGridOrder();
 #include "./lapack-like/LDL.hpp"
 #include "./lapack-like/LQ.hpp"
 #include "./lapack-like/LU.hpp"
-#include "./lapack-like/LUSolve.hpp"
 #include "./lapack-like/Norm.hpp"
 #include "./lapack-like/PivotParity.hpp"
 #include "./lapack-like/Polar.hpp"
@@ -1212,6 +1224,8 @@ GridOrder GetHermitianTridiagGridOrder();
 #include "./lapack-like/QR.hpp"
 #include "./lapack-like/Reflector.hpp"
 #include "./lapack-like/SkewHermitianEig.hpp"
+#include "./lapack-like/SolveAfterCholesky.hpp"
+#include "./lapack-like/SolveAfterLU.hpp"
 #include "./lapack-like/SortEig.hpp"
 #include "./lapack-like/SVD.hpp"
 #include "./lapack-like/Trace.hpp"

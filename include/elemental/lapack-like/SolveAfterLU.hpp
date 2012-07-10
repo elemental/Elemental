@@ -35,10 +35,10 @@ namespace elem {
 
 template<typename F> 
 inline void
-LUSolve( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LUSolve");
+    PushCallStack("SolveAfterLU");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -77,10 +77,10 @@ LUSolve( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 inline void
-LUSolve( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+SolveAfterLU( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LUSolve");
+    PushCallStack("SolveAfterLU");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -121,12 +121,12 @@ LUSolve( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 
 template<typename F> 
 inline void
-LUSolve
+SolveAfterLU
 ( Orientation orientation, 
   const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LUSolve");
+    PushCallStack("SolveAfterLU");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -171,12 +171,12 @@ LUSolve
 
 template<typename F> 
 inline void
-LUSolve
+SolveAfterLU
 ( Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LUSolve");
+    PushCallStack("SolveAfterLU");
     if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )

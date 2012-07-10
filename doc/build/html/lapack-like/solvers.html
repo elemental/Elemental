@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Linear solvers &mdash; Elemental 0.75 documentation</title>
+    <title>Linear solvers &mdash; Elemental 0.76-dev documentation</title>
     
     <link rel="stylesheet" href="../_static/haiku.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -17,7 +17,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.75',
+        VERSION:     '0.76-dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -27,14 +27,14 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <script type="text/javascript" src="../_static/theme_extras.js"></script>
-    <link rel="top" title="Elemental 0.75 documentation" href="../index.html" />
+    <link rel="top" title="Elemental 0.76-dev documentation" href="../index.html" />
     <link rel="up" title="High-level linear algebra" href="../lapack-like.html" />
     <link rel="next" title="Factorization-based inversion" href="inversion.html" />
     <link rel="prev" title="Factorizations" href="factorizations.html" /> 
   </head>
   <body>
       <div class="header"><img class="rightlogo" src="../_static/elemental_90.png" alt="Logo"/><h1 class="heading"><a href="../index.html">
-          <span>Elemental 0.75 documentation</span></a></h1>
+          <span>Elemental 0.76-dev documentation</span></a></h1>
         <h2 class="heading"><span>Linear solvers</span></h2>
       </div>
       <div class="topnav">
@@ -120,31 +120,49 @@ factorization, and <img class="math" src="../_images/math/6a47ca0fe7cb276abc022a
 </dd></dl>
 
 </div>
-<div class="section" id="lu-solve">
-<h2>LU solve<a class="headerlink" href="#lu-solve" title="Permalink to this headline">¶</a></h2>
-<p>Uses an in-place LU factorization (with or without partial pivoting) to
-solve against one or more right-hand sides.</p>
+<div class="section" id="solve-after-cholesky">
+<h2>Solve after Cholesky<a class="headerlink" href="#solve-after-cholesky" title="Permalink to this headline">¶</a></h2>
+<p>Uses an in-place Cholesky factorization to solve against one or more
+right-hand sides.</p>
 <dl class="function">
-<dt id="LUSolve__Orientation.Matrix:F:CR.Matrix:F:R">
-void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SolveAfterCholesky__UpperOrLower.Orientation.Matrix:F:CR.Matrix:F:R">
+void <tt class="descname">SolveAfterCholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterCholesky__UpperOrLower.Orientation.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:F:R">
-void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SolveAfterCholesky__UpperOrLower.Orientation.DistMatrix:F:CR.DistMatrix:F:R">
+void <tt class="descname">SolveAfterCholesky</tt><big>(</big><a class="reference internal" href="../core/environment.html#UpperOrLower" title="UpperOrLower">UpperOrLower</a> <em>uplo</em>, <a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterCholesky__UpperOrLower.Orientation.DistMatrix:F:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update <img class="math" src="../_images/math/a04223ecc9b120b298c555c5fea078ead20336fd.png" alt="B := A^{-1} B"/>, <img class="math" src="../_images/math/2e555dd7150ae735cac02f66cfcc5eb33d750916.png" alt="B := A^{-T} B"/>, or
+<img class="math" src="../_images/math/cb8868372d3d0d10aa794de32b625a89d560206d.png" alt="B := A^{-H} B"/>, where one triangle of <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> has been overwritten
+with its Cholesky factor.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="solve-after-lu">
+<h2>Solve after LU<a class="headerlink" href="#solve-after-lu" title="Permalink to this headline">¶</a></h2>
+<p>Uses an in-place LU factorization (with or without partial pivoting) to
+solve against one or more right-hand sides.</p>
+<dl class="function">
+<dt id="SolveAfterLU__Orientation.Matrix:F:CR.Matrix:F:R">
+void <tt class="descname">SolveAfterLU</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterLU__Orientation.Matrix:F:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="SolveAfterLU__Orientation.DistMatrix:F:CR.DistMatrix:F:R">
+void <tt class="descname">SolveAfterLU</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterLU__Orientation.DistMatrix:F:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update <img class="math" src="../_images/math/a04223ecc9b120b298c555c5fea078ead20336fd.png" alt="B := A^{-1} B"/>, <img class="math" src="../_images/math/2e555dd7150ae735cac02f66cfcc5eb33d750916.png" alt="B := A^{-T} B"/>, or
 <img class="math" src="../_images/math/cb8868372d3d0d10aa794de32b625a89d560206d.png" alt="B := A^{-H} B"/>, where <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> has been overwritten with its LU
 factors (without partial pivoting).</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="LUSolve__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R">
-void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, const Matrix&lt;int&gt;&amp; <em>p</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SolveAfterLU__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R">
+void <tt class="descname">SolveAfterLU</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const Matrix&lt;F&gt;&amp; <em>A</em>, const Matrix&lt;int&gt;&amp; <em>p</em>, Matrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterLU__Orientation.Matrix:F:CR.Matrix:i:CR.Matrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R">
-void <tt class="descname">LUSolve</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, const DistMatrix&lt;int, VC, STAR&gt;&amp; <em>p</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#LUSolve__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
+<dt id="SolveAfterLU__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R">
+void <tt class="descname">SolveAfterLU</tt><big>(</big><a class="reference internal" href="../core/environment.html#Orientation" title="Orientation">Orientation</a> <em>orientation</em>, const DistMatrix&lt;F&gt;&amp; <em>A</em>, const DistMatrix&lt;int, VC, STAR&gt;&amp; <em>p</em>, DistMatrix&lt;F&gt;&amp; <em>B</em><big>)</big><a class="headerlink" href="#SolveAfterLU__Orientation.DistMatrix:F:CR.DistMatrix:i.VC.STAR:CR.DistMatrix:F:R" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update <img class="math" src="../_images/math/a04223ecc9b120b298c555c5fea078ead20336fd.png" alt="B := A^{-1} B"/>, <img class="math" src="../_images/math/2e555dd7150ae735cac02f66cfcc5eb33d750916.png" alt="B := A^{-T} B"/>, or
 <img class="math" src="../_images/math/cb8868372d3d0d10aa794de32b625a89d560206d.png" alt="B := A^{-H} B"/>, where <img class="math" src="../_images/math/019e9892786e493964e145e7c5cf7b700314e53b.png" alt="A"/> has been overwritten with
 its LU factors with partial pivoting, which satisfy <img class="math" src="../_images/math/d76feca2c97d7c86a4de3ef9c086862aee6ef03a.png" alt="P A = L U"/>, where

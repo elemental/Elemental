@@ -53,20 +53,32 @@ If :math:`m \ge n`, then the first step is to form the QR factorization of
    be solved. Upon completion, :math:`A` is overwritten with its QR or LQ 
    factorization, and :math:`X` is overwritten with the solution.
 
-LU solve
---------
+Solve after Cholesky
+--------------------
+Uses an in-place Cholesky factorization to solve against one or more 
+right-hand sides.
+
+.. cpp:function:: void SolveAfterCholesky( UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+.. cpp:function:: void SolveAfterCholesky( UpperOrLower uplo, Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+
+   Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
+   :math:`B := A^{-H} B`, where one triangle of :math:`A` has been overwritten 
+   with its Cholesky factor.
+
+Solve after LU
+--------------
 Uses an in-place LU factorization (with or without partial pivoting) to 
 solve against one or more right-hand sides.
 
-.. cpp:function:: void LUSolve( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
-.. cpp:function:: void LUSolve( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+.. cpp:function:: void SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+.. cpp:function:: void SolveAfterLU( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 
    Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
    :math:`B := A^{-H} B`, where :math:`A` has been overwritten with its LU 
    factors (without partial pivoting).
 
-.. cpp:function:: void LUSolve( Orientation orientation, const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
-.. cpp:function:: void LUSolve( Orientation orientation, const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
+.. cpp:function:: void SolveAfterLU( Orientation orientation, const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
+.. cpp:function:: void SolveAfterLU( Orientation orientation, const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
 
    Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
    :math:`B := A^{-H} B`, where :math:`A` has been overwritten with 
