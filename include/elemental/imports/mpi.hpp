@@ -292,47 +292,47 @@ void IGather
 
 void Gather
 ( const byte* sbuf, int sc,
-        byte* rbuf, int* rcs, int* rds, int root, Comm comm );
+        byte* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 void Gather
 ( const int* sbuf, int sc,
-        int* rbuf, int* rcs, int* rds, int root, Comm comm );
+        int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 void Gather
 ( const float* sbuf, int sc,
-        float* rbuf, int* rcs, int* rds, int root, Comm comm );
+        float* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 void Gather
 ( const double* sbuf, int sc,
-        double* rbuf, int* rcs, int* rds, int root, Comm comm );
+        double* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 void Gather
 ( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int* rcs, int* rds, int root, Comm comm );
+        scomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 void Gather
 ( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int* rcs, int* rds, int root, Comm comm );
+        dcomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
 void IGather
 ( const byte* sbuf, int sc,
-        byte* rbuf, int* rcs, int* rds, 
+        byte* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 void IGather
 ( const int* sbuf, int sc,
-        int* rbuf, int* rcs, int* rds, 
+        int* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 void IGather
 ( const float* sbuf, int sc,
-        float* rbuf, int* rcs, int* rds, 
+        float* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 void IGather
 ( const double* sbuf, int sc,
-        double* rbuf, int* rcs, int* rds, 
+        double* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 void IGather
 ( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int* rcs, int* rds, 
+        scomplex* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 void IGather
 ( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int* rcs, int* rds, 
+        dcomplex* rbuf, const int* rcs, const int* rds, 
         int root, Comm comm, Request& request );
 #endif
 
@@ -354,6 +354,25 @@ void AllGather
 void AllGather
 ( const dcomplex* sbuf, int sc,
         dcomplex* rbuf, int rc, Comm comm );
+
+void AllGather
+( const byte* sbuf, int sc,
+        byte* rbuf, const int* rcs, const int* rds, Comm comm );
+void AllGather
+( const int* sbuf, int sc,
+        int* rbuf, const int* rcs, const int* rds, Comm comm );
+void AllGather
+( const float* sbuf, int sc,
+        float* rbuf, const int* rcs, const int* rds, Comm comm );
+void AllGather
+( const double* sbuf, int sc,
+        double* rbuf, const int* rcs, const int* rds, Comm comm );
+void AllGather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, const int* rcs, const int* rds, Comm comm );
+void AllGather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, const int* rcs, const int* rds, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
 void IAllGather

@@ -1521,15 +1521,22 @@ void IGather
 
 void Gather
 ( const byte* sbuf, int sc,
-        byte* rbuf, int* rcs, int* rds, int root, Comm comm )
+        byte* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<byte*>(sbuf), sc,       MPI_UNSIGNED_CHAR,
-          rbuf,                    rcs, rds, MPI_UNSIGNED_CHAR, root, comm ) 
+        ( const_cast<byte*>(sbuf), 
+          sc,       
+          MPI_UNSIGNED_CHAR,
+          rbuf,                    
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_UNSIGNED_CHAR, 
+          root, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1538,15 +1545,22 @@ void Gather
 
 void Gather
 ( const int* sbuf, int sc,
-        int* rbuf, int* rcs, int* rds, int root, Comm comm )
+        int* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<int*>(sbuf), sc,       MPI_INT,
-          rbuf,                   rcs, rds, MPI_INT, root, comm ) 
+        ( const_cast<int*>(sbuf), 
+          sc,       
+          MPI_INT,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_INT, 
+          root, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1555,15 +1569,22 @@ void Gather
 
 void Gather
 ( const float* sbuf, int sc,
-        float* rbuf, int* rcs, int* rds, int root, Comm comm )
+        float* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<float*>(sbuf), sc,       MPI_FLOAT,
-          rbuf,                     rcs, rds, MPI_FLOAT, root, comm ) 
+        ( const_cast<float*>(sbuf), 
+          sc,       
+          MPI_FLOAT,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_FLOAT, 
+          root, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1572,15 +1593,22 @@ void Gather
 
 void Gather
 ( const double* sbuf, int sc,
-        double* rbuf, int* rcs, int* rds, int root, Comm comm )
+        double* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<double*>(sbuf), sc,       MPI_DOUBLE,
-          rbuf,                      rcs, rds, MPI_DOUBLE, root, comm ) 
+        ( const_cast<double*>(sbuf), 
+          sc,       
+          MPI_DOUBLE,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_DOUBLE, 
+          root, 
+          comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
@@ -1589,7 +1617,7 @@ void Gather
 
 void Gather
 ( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int* rcs, int* rds, int root, Comm comm )
+        scomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
@@ -1617,8 +1645,15 @@ void Gather
 #else
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<scomplex*>(sbuf), sc,       MPI_COMPLEX,
-          rbuf,                        rcs, rds, MPI_COMPLEX, root, comm ) 
+        ( const_cast<scomplex*>(sbuf), 
+          sc,       
+          MPI_COMPLEX,
+          rbuf,  
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_COMPLEX, 
+          root, 
+          comm ) 
     );
 #endif
 #ifndef RELEASE
@@ -1628,7 +1663,7 @@ void Gather
 
 void Gather
 ( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int* rcs, int* rds, int root, Comm comm )
+        dcomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
@@ -1656,9 +1691,15 @@ void Gather
 #else
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<dcomplex*>(sbuf), sc,       MPI_DOUBLE_COMPLEX,
-          rbuf,                        rcs, rds, MPI_DOUBLE_COMPLEX, 
-          root, comm )
+        ( const_cast<dcomplex*>(sbuf), 
+          sc,       
+          MPI_DOUBLE_COMPLEX,
+          rbuf,  
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_DOUBLE_COMPLEX, 
+          root, 
+          comm )
     );
 #endif
 #ifndef RELEASE
@@ -1819,6 +1860,245 @@ void AllGather
         MPI_Allgather
         ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
           rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
+    );
+ #endif
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const byte* sbuf, int sc,
+        byte* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<byte*>(sbuf), 
+          sc,       
+          MPI_UNSIGNED_CHAR, 
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_UNSIGNED_CHAR, 
+          comm ) 
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const int* sbuf, int sc,
+        int* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        byteRcs[i] = sizeof(int)*rcs[i];
+        byteRds[i] = sizeof(int)*rds[i];
+    }
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<int*>(sbuf), sizeof(int)*sc,   MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm ) 
+    );
+#else
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<int*>(sbuf), 
+          sc, 
+          MPI_INT, 
+          rbuf,   
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_INT, 
+          comm ) 
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const float* sbuf, int sc,
+        float* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        byteRcs[i] = sizeof(float)*rcs[i];
+        byteRds[i] = sizeof(float)*rds[i];
+    }
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm ) 
+    );
+#else
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<float*>(sbuf), 
+          sc, 
+          MPI_FLOAT, 
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_FLOAT, 
+          comm ) 
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const double* sbuf, int sc,
+        double* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, 
+          comm ) 
+    );
+#else
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<double*>(sbuf), 
+          sc, 
+          MPI_DOUBLE,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds),
+          MPI_DOUBLE, 
+          comm ) 
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const scomplex* sbuf, int sc,
+        scomplex* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        byteRcs[i] = 2*sizeof(float)*rcs[i];
+        byteRds[i] = 2*sizeof(float)*rds[i];
+    }
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
+    );
+#else
+ #ifdef AVOID_COMPLEX_MPI
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> realRcs( commSize ), realRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        realRcs[i] = 2*rcs[i];
+        realRds[i] = 2*rds[i];
+    }
+    SafeMpi(
+        MPI_Allgatherv
+        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
+          rbuf, &realRcs[0], &realRds[0], MPI_FLOAT, comm )
+    );
+ #else
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<scomplex*>(sbuf), 
+          sc, 
+          MPI_COMPLEX,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_COMPLEX, 
+          comm ) 
+    );
+ #endif
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void AllGather
+( const dcomplex* sbuf, int sc,
+        dcomplex* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        byteRcs[i] = 2*sizeof(double)*rcs[i];
+        byteRds[i] = 2*sizeof(double)*rds[i];
+    }
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
+    );
+#else
+ #ifdef AVOID_COMPLEX_MPI
+    const int commSize = mpi::CommSize( comm );
+    std::vector<int> realRcs( commSize ), realRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        realRcs[i] = 2*rcs[i];
+        realRds[i] = 2*rds[i];
+    }
+    SafeMpi(
+        MPI_Allgatherv
+        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
+          rbuf, &realRcs[0], &realRds[0], MPI_DOUBLE, comm )
+    );
+ #else
+    SafeMpi( 
+        MPI_Allgatherv
+        ( const_cast<dcomplex*>(sbuf), 
+          sc, 
+          MPI_DOUBLE_COMPLEX,
+          rbuf, 
+          const_cast<int*>(rcs), 
+          const_cast<int*>(rds), 
+          MPI_DOUBLE_COMPLEX, 
+          comm ) 
     );
  #endif
 #endif
