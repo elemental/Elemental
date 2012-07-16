@@ -1977,11 +1977,15 @@ void AllGather
 #ifdef USE_BYTE_ALLGATHERS
     const int commSize = mpi::CommSize( comm );
     std::vector<int> byteRcs( commSize ), byteRds( commSize );
+    for( int i=0; i<commSize; ++i )
+    {
+        byteRcs[i] = sizeof(double)*rcs[i];
+        byteRds[i] = sizeof(double)*rds[i];
+    }
     SafeMpi( 
         MPI_Allgatherv
         ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, 
-          comm ) 
+          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
     );
 #else
     SafeMpi( 
