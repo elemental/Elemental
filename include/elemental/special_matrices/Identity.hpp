@@ -87,8 +87,6 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 #endif
     Zero( I.LocalMatrix() );
 
-    const int m = I.Height();
-    const int n = I.Width();
     const int localHeight = I.LocalHeight();
     const int localWidth = I.LocalWidth();
     const int colShift = I.ColShift();

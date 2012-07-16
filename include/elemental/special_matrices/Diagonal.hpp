@@ -62,7 +62,6 @@ Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
     D.ResizeTo( n, n );
     MakeZeros( D );
 
-    const int localHeight = D.LocalHeight();
     const int localWidth = D.LocalWidth();
     const int colShift = D.ColShift();
     const int rowShift = D.RowShift();
