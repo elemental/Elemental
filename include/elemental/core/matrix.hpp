@@ -175,48 +175,52 @@ private:
     template<typename Z>
     struct SetRealPartHelper
     {
-        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
     struct SetRealPartHelper<Complex<Z> >
     {
-        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func
+        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetRealPartHelper;
 
     template<typename Z>
     struct SetImagPartHelper
     {
-        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
     struct SetImagPartHelper<Complex<Z> >
     {
-        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func
+        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct SetImagPartHelper;
 
     template<typename Z>
     struct UpdateRealPartHelper
     {
-        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
     struct UpdateRealPartHelper<Complex<Z> >
     {
-        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func
+        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateRealPartHelper;
 
     template<typename Z>
     struct UpdateImagPartHelper
     {
-        static void Func( Matrix<Z>& parent, Int i, Int j, Z alpha );
+        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z>
     struct UpdateImagPartHelper<Complex<Z> >
     {
-        static void Func( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha );
+        static void Func
+        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagPartHelper;
 };
@@ -641,7 +645,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::SetRealPartHelper<Z>::Func
-( Matrix<Z>& parent, Int i, Int j, Z alpha )
+( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealPartHelper::Func");
@@ -657,7 +661,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
+( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealPartHelper::Func");
@@ -680,7 +684,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::SetImagPartHelper<Z>::Func
-( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
+( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagPartHelper::Func");
@@ -692,7 +696,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha ) 
+( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagPartHelper::Func");
@@ -715,7 +719,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
-( Matrix<Z>& parent, Int i, Int j, Z alpha ) 
+( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealPartHelper::Func");
@@ -731,7 +735,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
+( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealPartHelper::Func");
@@ -754,7 +758,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
-( Matrix<Z>& parent, Int i, Int j, Z alpha )
+( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagPartHelper::Func");
@@ -766,7 +770,7 @@ template<typename T,typename Int>
 template<typename Z>
 inline void
 Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z> >& parent, Int i, Int j, Z alpha )
+( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagPartHelper::Func");
