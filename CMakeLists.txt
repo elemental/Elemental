@@ -62,9 +62,9 @@ option(BUILD_EXPERIMENTAL "Build experimental code" OFF)
 # PMRRR.
 if(WIN32)
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
-else(WIN32)
+else()
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
-endif(WIN32)
+endif()
 
 ################################################################################
 # Advanced build options                                                       #
@@ -155,72 +155,67 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 # source and build directories are different.
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
-endif("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
+endif()
 
 # Set the library type from the 'SHARED_LIBRARIES' option
 if(SHARED_LIBRARIES)
   set(LIBRARY_TYPE SHARED)
-else(SHARED_LIBRARIES)
+else()
   set(LIBRARY_TYPE STATIC)
-endif(SHARED_LIBRARIES)
+endif()
 
 # Ensure that we have a valid build type
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build mode not specified, defaulting to PureRelease build.")
   set(CMAKE_BUILD_TYPE PureRelease)
-else(NOT CMAKE_BUILD_TYPE)
-  if(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
-     NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
-     NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
-     NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-    message(FATAL_ERROR "CMAKE_BUILD_TYPE must be [Hybrid,Pure][Debug,Release]")
-  endif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
-        NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
-        NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
-        NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
-endif(NOT CMAKE_BUILD_TYPE)
+elseif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
+       NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
+       NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
+       NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
+  message(FATAL_ERROR "CMAKE_BUILD_TYPE must be [Hybrid,Pure][Debug,Release]")
+endif()
 
 # Extract a few booleans from the build type
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
   set(HYBRID TRUE)
   set(DEBUG TRUE)
   set(HYBRID_DEBUG TRUE)
-endif(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
+endif()
 if(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
   set(HYBRID TRUE)
   set(RELEASE TRUE)
   set(HYBRID_RELEASE TRUE)
-endif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
+endif()
 if(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
   set(PURE TRUE)
   set(DEBUG TRUE)
   set(PURE_DEBUG TRUE)
-endif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+endif()
 if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
   set(PURE TRUE)
   set(RELEASE TRUE)
   set(PURE_RELEASE TRUE)   
-endif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
+endif()
 
 # Set the basic compile flags from the build type
 if(NOT WIN32)
   if(HYBRID_DEBUG AND NOT CXX_HYBRID_DEBUG_FLAGS)
     set(CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "CXX optimization/debug flags for hybrid OpenMP/MPI debug build")
-  endif(HYBRID_DEBUG AND NOT CXX_HYBRID_DEBUG_FLAGS)
+  endif()
   if(HYBRID_RELEASE AND NOT CXX_HYBRID_RELEASE_FLAGS)
     set(CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
         "CXX optimization flags for hybrid OpenMP/MPI release build")
-  endif(HYBRID_RELEASE AND NOT CXX_HYBRID_RELEASE_FLAGS)
+  endif()
   if(PURE_DEBUG AND NOT CXX_PURE_DEBUG_FLAGS)
     set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "CXX optimization/debugging flags for pure MPI debug build")
-  endif(PURE_DEBUG AND NOT CXX_PURE_DEBUG_FLAGS)
+  endif()
   if(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
     set(CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
         "CXX optimization flags for pure MPI release build")
-  endif(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
-endif(NOT WIN32)
+  endif()
+endif()
 
 # Go ahead and check for Fortran, but keep in mind that CMake's 'OPTIONAL' 
 # argument for enable_language is still completely broken as of 2.8.8
@@ -239,15 +234,15 @@ if(FORTRAN_WORKS)
         MACRO_NAMESPACE "FC_")
       install(FILES ${PROJECT_BINARY_DIR}/include/elemental/FCMangle.h
               DESTINATION include/elemental/)
-    endif(FortranCInterface_VERIFIED_CXX)
-  endif(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
-endif(FORTRAN_WORKS)
+    endif()
+  endif()
+endif()
 
 # Make sure that MPI is available
 find_package(MPI)
 if(NOT MPI_CXX_FOUND)
   message(FATAL_ERROR "MPI C++ compiler was not found and is required")
-endif(NOT MPI_CXX_FOUND)
+endif()
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
 # Search for OpenMP if necessary
@@ -256,19 +251,19 @@ if(HYBRID)
     set(HAVE_OPENMP TRUE)
     set(OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS})
     message(STATUS "Using user-defined OpenMP_CXX_FLAGS=${OpenMP_CXX_FLAGS}")
-  else(OpenMP_CXX_FLAGS)
+  else()
     find_package(OpenMP)
     if(OPENMP_FOUND)
       set(HAVE_OPENMP TRUE)
-    else(OPENMP_FOUND)
+    else()
       set(OpenMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
       message(
         FATAL_ERROR
         "Hybrid build failed because OpenMP support was not detected. Please try specifying OpenMP_CXX_FLAGS."
       )
-    endif(OPENMP_FOUND)
-  endif(OpenMP_CXX_FLAGS)
-endif(HYBRID)
+    endif()
+  endif()
+endif()
 
 # Append MPI and OpenMP compile flags as necessary
 set(CMAKE_CXX_FLAGS_HYBRIDDEBUG 
@@ -280,6 +275,17 @@ set(CMAKE_CXX_FLAGS_PUREDEBUG
 set(CMAKE_CXX_FLAGS_PURERELEASE 
     "${CXX_PURE_RELEASE_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 
+# Extract the flags we are using for this build mode
+if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
+  set(CXX_FLAGS "${CXX_HYBRID_DEBUG_FLAGS}")
+elseif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
+  set(CXX_FLAGS "${CXX_HYBRID_RELEASE_FLAGS}")
+elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+  set(CXX_FLAGS "${CXX_PURE_DEBUG_FLAGS}")
+else()
+  set(CXX_FLAGS "${CXX_PURE_RELEASE_FLAGS}")
+endif()
+
 # Query the size of a void pointer in order to determine whether or not this is
 # a 32-bit system.
 # Unfortunately, CMAKE_SIZEOF_VOID_P seems to be incorrect on some Windows 
@@ -287,54 +293,54 @@ set(CMAKE_CXX_FLAGS_PURERELEASE
 include(CheckTypeSize)
 if(NOT SIZEOF_VOID_P)
   check_type_size("void*" SIZEOF_VOID_P)
-endif(NOT SIZEOF_VOID_P)
+endif()
 set(32_BIT_SYSTEM FALSE)
 if(${SIZEOF_VOID_P} EQUAL 4)
   set(32_BIT_SYSTEM TRUE)
-endif(${SIZEOF_VOID_P} EQUAL 4)
+endif()
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
 if(PURE)
   set(MATH_DESC "Unthreaded BLAS/LAPACK link flags")
-else(PURE)
+else()
   set(MATH_DESC "Threaded BLAS/LAPACK link flags")
-endif(PURE)
+endif()
 if(MATH_LIBS)
   set(MISSING_MATH FALSE)
   message(STATUS "Using user-defined MATH_LIBS=${MATH_LIBS}")
-else(MATH_LIBS)
+else()
   if(APPLE)
     set(MATH_LIBS "-framework vecLib" CACHE STRING ${MATH_DESC})
     message(STATUS "Using Apple vecLib framework.")
     set(MISSING_MATH FALSE)
-  else(APPLE)
+  else()
     set(MISSING_MATH TRUE)
-  endif(APPLE)
-endif(MATH_LIBS)
+  endif()
+endif()
 if(MISSING_MATH)
   # Look for MKL first (no promises that this will work...)
   if(32_BIT_SYSTEM)
     set(INTEL_ARCH_SUBDIRS 32/lib lib/32)
     set(MKL_ARCH_SUBDIRS 32/lib lib/32)
-  else(32_BIT_SYSTEM)
+  else()
     set(INTEL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64)
     set(MKL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64 
         mkl/em64t/lib mkl/intel64/lib mkl/lib/em64t mkl/lib/intel64)
-  endif(32_BIT_SYSTEM)
+  endif()
   if(INTEL_ROOT)
     message(STATUS "Will also search INTEL_ROOT=${INTEL_ROOT} for MKL")
     message(STATUS "INTEL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
-  endif(INTEL_ROOT)
+  endif()
   if(MKL_ROOT)
     message(STATUS "Will also search MKL_ROOT=${MKL_ROOT} for MKL")
     message(STATUS "MKL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
-  endif(MKL_ROOT)
+  endif()
   # There is a cyclic dependency between MKL_CORE and 
   # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
   if(NOT WIN32)
     find_library(PTHREAD_LIB pthread DOC "Pthreads library")
-  endif(NOT WIN32)
+  endif()
   find_library(
     CMATH_LIB
     NAMES m libmmd.lib
@@ -375,7 +381,7 @@ if(MISSING_MATH)
     )
     set(MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL CMATH
                      GUIDE IOMP5)
-  else(PURE)
+  else()
     find_library(
       MKL_INTEL_THREAD_LIB
       NAMES libmkl_intel_thread.a mkl_intel_thread.lib
@@ -384,35 +390,35 @@ if(MISSING_MATH)
     )
     set(MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE MKL_INTEL_THREAD 
                      CMATH GUIDE IOMP5)
-  endif(PURE)
+  endif()
   if(NOT WIN32)
     list(APPEND MKL_REQUIRED PTHREAD)
-  endif(NOT WIN32)
+  endif()
   set(MKL_FOUND TRUE)
   set(MATH_LIBS "")
   foreach(NAME ${MKL_REQUIRED})
     if(${NAME}_LIB)
       message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
       list(APPEND MATH_LIBS ${${NAME}_LIB})
-    else(${NAME}_LIB)
+    else()
       message(STATUS "Could not find ${NAME}_LIB") 
       if(NOT "${NAME}" STREQUAL "GUIDE")
         set(MATH_LIBS "")
         set(MKL_FOUND FALSE)
-      endif(NOT "${NAME}" STREQUAL "GUIDE")
-    endif(${NAME}_LIB)
-  endforeach(NAME)
+      endif()
+    endif()
+  endforeach()
   if(MKL_FOUND)
     message(STATUS "Using MKL math libraries.")
     message(STATUS "MATH_LIBS=${MATH_LIBS}")
     set(MISSING_MATH FALSE)
-  endif(MKL_FOUND)
+  endif()
   if(MISSING_MATH)
     # Look for default BLAS and LAPACK
     if(REFERENCE_ROOT)
       message(STATUS 
         "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
-    endif(REFERENCE_ROOT)
+    endif()
     set(REFERENCE_REQUIRED LAPACK BLAS)
     find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
     find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${REFERENCE_ROOT}) 
@@ -421,20 +427,20 @@ if(MISSING_MATH)
       if(${NAME}_LIB)
         message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
         list(APPEND MATH_LIBS ${${NAME}_LIB})
-      else(${NAME}_LIB)
+      else()
         message(STATUS "Could not find ${NAME}_LIB")
         set(MATH_LIBS "")
         set(REFERENCE_FOUND FALSE)
-      endif(${NAME}_LIB)
-    endforeach(NAME)
+      endif()
+    endforeach()
     if(REFERENCE_FOUND)
       message(WARNING "Using reference BLAS/LAPACK.")
-    else(REFERENCE_FOUND) 
+    else()
       message(FATAL_ERROR 
         "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS")
-    endif(REFERENCE_FOUND)
-  endif(MISSING_MATH)
-endif(MISSING_MATH)
+    endif()
+  endif()
+endif()
 
 # Attempt to detect the BLAS and LAPACK underscore conventions. 
 # We currently only handle whether or not there is an underscore appended.
@@ -444,28 +450,28 @@ check_function_exists(daxpy HAVE_DAXPY)
 if(HAVE_DAXPY)
   set(BLAS_POST FALSE)
   set(BLAS_DEFS "")
-else(HAVE_DAXPY)
+else()
   check_function_exists(daxpy_ HAVE_DAXPY_POST)
   if(HAVE_DAXPY_POST)
     set(BLAS_POST TRUE)
     set(BLAS_DEFS "-DBLAS_POST")
-  else(HAVE_DAXPY_POST)
+  else()
     message(FATAL_ERROR "Could not determine BLAS format.")
-  endif(HAVE_DAXPY_POST)
-endif(HAVE_DAXPY)
+  endif()
+endif()
 check_function_exists(dpotrf HAVE_DPOTRF)
 if(HAVE_DPOTRF)
   set(LAPACK_POST FALSE)
   set(LAPACK_DEFS "")
-else(HAVE_DPOTRF)
+else()
   check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
   if(HAVE_DPOTRF_POST)
     set(LAPACK_POST TRUE)
     set(LAPACK_DEFS "-DLAPACK_POST")
-  else(HAVE_DPOTRF_POST)
+  else()
     message(FATAL_ERROR "Could not determine LAPACK format.")
-  endif(HAVE_DPOTRF_POST)
-endif(HAVE_DPOTRF)
+  endif()
+endif()
 
 # Attempt to detect whether or not we have MKL
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
@@ -483,7 +489,7 @@ check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
 check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
 if(NOT HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
-endif(NOT HAVE_MPI_REDUCE_SCATTER)
+endif()
 
 # Check for nonblocking collectives
 check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
@@ -503,24 +509,24 @@ check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
 if(HAVE___restrict__)
   set(RESTRICT "__restrict__")
   message(STATUS "Using __restrict__ keyword.")
-else(HAVE___restrict__)
+else()
   set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
   check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
   if(HAVE___restrict)
     set(RESTRICT "__restrict")
     message(STATUS "Using __restrict keyword.")
-  else(HAVE___restrict)
+  else()
     set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
     check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
     if(HAVE_restrict)
       set(RESTRICT "restrict")
       message(STATUS "Using restrict keyword.")
-    else(HAVE_restrict)
+    else()
       set(RESTRICT "")
       message(STATUS "Could not find a restrict keyword.")
-    endif(HAVE_restrict)
-  endif(HAVE___restrict)
-endif(HAVE___restrict__)
+    endif()
+  endif()
+endif()
 
 # Add the Parallel Linear Congruential Generator (PLCG) project
 add_subdirectory(external/plcg)
@@ -529,20 +535,37 @@ add_subdirectory(external/plcg)
 # if necessary
 if(BUILD_PMRRR)
   add_subdirectory(external/pmrrr)
-endif(BUILD_PMRRR)
+endif()
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(WITHOUT_PMRRR FALSE)
-else(BUILD_PMRRR AND NOT FAILED_PMRRR)
+else()
   set(WITHOUT_PMRRR TRUE)
-endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+endif()
 
 # Create the Elemental configuration header
 configure_file( 
-  ${PROJECT_SOURCE_DIR}/include/elemental/config.h.cmake
+  ${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
   ${PROJECT_BINARY_DIR}/include/elemental/config.h 
 ) 
 install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
         DESTINATION include/elemental)
+
+# Create a file which can be included in Makefile's.
+# This is meant to be analogous to PETSc's 'conf/petscvariables' file
+set(MATH_LIBS_STRING)
+foreach(LIB ${MATH_LIBS})
+  set(MATH_LIBS_STRING "${MATH_LIBS_STRING} ${LIB}")
+endforeach()
+set(MPI_CXX_LIBS_STRING)
+foreach(LIB ${MPI_CXX_LIBRARIES})
+  set(MPI_CXX_LIBS "${MPI_CXX_LIBS} ${LIB}")
+endforeach()
+configure_file(
+  ${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
+  ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY
+)
+install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables
+        DESTINATION conf)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
@@ -567,12 +590,12 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
   elseif(MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-  endif(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
-else(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  endif()
+else()
   add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
   target_link_libraries(elemental plcg cmake-dummy-lib)
   set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
-endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+endif()
 install(TARGETS elemental DESTINATION lib)
 
 # Define the header-file preparation rules
@@ -588,7 +611,7 @@ foreach(HEADER ${ELEMENTAL_HEADERS})
 
   get_filename_component(HEADER_PATH ${HEADER} PATH)
   install(FILES ${PROJECT_BINARY_DIR}/${HEADER} DESTINATION ${HEADER_PATH})
-endforeach(HEADER)
+endforeach()
 add_custom_target(prepare_elemental_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(elemental prepare_elemental_headers)
 
@@ -607,7 +630,7 @@ if(BUILD_TESTS)
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND LAPACK_TESTS HermitianGenDefiniteEig)
     list(APPEND LAPACK_TESTS HermitianEig)
-  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  endif()
 
   # Build the core tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/core")
@@ -620,9 +643,9 @@ if(BUILD_TESTS)
     if(MPI_LINK_FLAGS)
       set_target_properties(tests-core-${TEST} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS tests-core-${TEST} DESTINATION bin/tests/core)
-  endforeach(TEST)
+  endforeach()
   # Build the BLAS-like tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/blas-like")
   foreach(TEST ${BLAS_TESTS})
@@ -634,9 +657,9 @@ if(BUILD_TESTS)
     if(MPI_LINK_FLAGS)
       set_target_properties(tests-blas-${TEST} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS tests-blas-${TEST} DESTINATION bin/tests/blas-like)
-  endforeach(TEST)
+  endforeach()
   # Build the LAPACK-like tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/lapack-like")
   foreach(TEST ${LAPACK_TESTS})
@@ -648,10 +671,10 @@ if(BUILD_TESTS)
     if(MPI_LINK_FLAGS)
       set_target_properties(tests-lapack-${TEST} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS tests-lapack-${TEST} DESTINATION bin/tests/lapack-like)
-  endforeach(TEST)
-endif(BUILD_TESTS)
+  endforeach()
+endif()
 
 # Build the example drivers if necessary
 if(BUILD_EXAMPLES)
@@ -677,7 +700,7 @@ if(BUILD_EXAMPLES)
                                 HPSDCholesky
                                 HPSDSquareRoot)
     list(APPEND LAPACK_EXAMPLES SymmetricEig RealSymmetricFunction)
-  endif(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  endif()
 
   # Build the core tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/core")
@@ -690,9 +713,9 @@ if(BUILD_EXAMPLES)
     if(MPI_LINK_FLAGS)
       set_target_properties(examples-core-${EXAMPLE} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
-  endforeach(EXAMPLE)
+  endforeach()
 
   # Build the BLAS-like tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/blas-like")
@@ -706,10 +729,10 @@ if(BUILD_EXAMPLES)
     if(MPI_LINK_FLAGS)
       set_target_properties(examples-blas-${EXAMPLE} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS examples-blas-${EXAMPLE} 
             DESTINATION bin/examples/blas-like)
-  endforeach(EXAMPLE)
+  endforeach()
 
   # Build the LAPACK-like tests
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/lapack-like")
@@ -723,10 +746,10 @@ if(BUILD_EXAMPLES)
     if(MPI_LINK_FLAGS)
       set_target_properties(examples-lapack-${EXAMPLE} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS examples-lapack-${EXAMPLE} 
             DESTINATION bin/examples/lapack-like)
-  endforeach(EXAMPLE)
+  endforeach()
 
   # Build the special matrix test(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/special_matrices")
@@ -740,11 +763,11 @@ if(BUILD_EXAMPLES)
     if(MPI_LINK_FLAGS)
       set_target_properties(examples-special-${EXAMPLE} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS examples-special-${EXAMPLE}
             DESTINATION bin/examples/special_matrices)
-  endforeach(EXAMPLE)
-endif(BUILD_EXAMPLES)
+  endforeach()
+endif()
 
 # Build experimental drivers that do not require an eigensolver
 if(BUILD_EXPERIMENTAL)
@@ -764,16 +787,16 @@ if(BUILD_EXPERIMENTAL)
     if(MPI_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
                             LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
-  endforeach(EXPER)
-endif(BUILD_EXPERIMENTAL)
+  endforeach()
+endif()
 
 # Build experimental drivers that DO require an eigensolver
 if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
-  endif(NOT MPI_C_FOUND)
+  endif()
   include_directories(${MPI_C_INCLUDE_PATH})
   set(CMAKE_C_FLAGS_HYBRIDDEBUG "${MPI_C_COMPILE_FLAGS}")
   set(CMAKE_C_FLAGS_HYBRIDRELEASE "${MPI_C_COMPILE_FLAGS}")
@@ -803,7 +826,7 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     set_target_properties(
         experimental-c-interface-test PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
     )
-  endif(MPI_LINK_FLAGS)
+  endif()
   install(TARGETS experimental-c-interface-test 
           DESTINATION bin/experimental/c_interface)  
   add_custom_command(
@@ -819,7 +842,7 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   if(HAVE_F90_INTERFACE)
     if(NOT MPI_Fortran_FOUND)
       message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
-    endif(NOT MPI_Fortran_FOUND)
+    endif()
 
     # We cannot simply use check_function_exists, since MPI_Comm_f2c is 
     # a macro in some MPI implementations
@@ -839,7 +862,7 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     if(NOT HAVE_MPI_COMM_F2C)  
       message(WARNING 
         "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
-    endif(NOT HAVE_MPI_COMM_F2C)
+    endif()
 
     include_directories(${MPI_Fortran_INCLUDE_PATH})
     set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
@@ -871,11 +894,11 @@ if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
           experimental-f90-interface-test 
           PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
       )
-    endif(MPI_LINK_FLAGS)
+    endif()
     install(TARGETS experimental-f90-interface-test 
             DESTINATION bin/experimental/f90_interface)  
-  endif(HAVE_F90_INTERFACE)
-endif(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
+  endif()
+endif()
 
 ################################################################################
 # Uncomment if including Elemental as a subproject in another build system     #

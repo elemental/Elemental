@@ -39,25 +39,25 @@ if(HYBRID_DEBUG)
     C_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
     "C optimization/debug flags for hybrid OpenMP/MPI debug build"
   )
-endif(HYBRID_DEBUG)
+endif()
 if(HYBRID_RELEASE)
   set(
     C_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
     "C optimization flags for hybrid OpenMP/MPI release build"
   )
-endif(HYBRID_RELEASE)
+endif()
 if(PURE_DEBUG)
   set(
     C_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
     "C optimization/debugging flags for pure MPI debug build"
   )
-endif(PURE_DEBUG)
+endif()
 if(PURE_RELEASE)
   set(
     C_PURE_RELEASE_FLAGS "-O3" CACHE STRING
     "C optimization flags for pure MPI release build"
   )
-endif(PURE_RELEASE)
+endif()
 
 # Search the BLAS/LAPACK libs for  to test whether it is a new enough version
 # for our purposes. If the LAPACK library is version 3.1 or later, then 
@@ -80,7 +80,7 @@ if(HAVE_DPOTRF)
 elseif(HAVE_DPOTRF_POST)
   check_function_exists(claqr0_ LAPACK_3_1)
   check_function_exists(cuncsd_ LAPACK_3_3)
-endif(HAVE_DPOTRF)
+endif()
 
 if(PURE)
   if(MATH_HAS_MKL)
@@ -89,10 +89,10 @@ if(PURE)
   elseif(NOT LAPACK_3_1)
     set(MISSING_LAPACK TRUE)
     message(STATUS "Pure Elemental+PMRRR requires LAPACK >= 3.1.")
-  else(MATH_HAS_MKL)
+  else()
     set(MISSING_LAPACK FALSE)
-  endif(MATH_HAS_MKL)
-else(PURE)
+  endif()
+else()
   # We need at least 3.3
   if(MATH_HAS_MKL)
     set(MISSING_LAPACK TRUE)
@@ -100,10 +100,10 @@ else(PURE)
   elseif(NOT LAPACK_3_3)
     set(MISSING_LAPACK TRUE)
     message(STATUS "Hybrid Elemental+PMRRR requires LAPACK >= 3.3.")
-  else(MATH_HAS_MKL)
+  else()
     set(MISSING_LAPACK FALSE)
-  endif(MATH_HAS_MKL)
-endif(PURE)
+  endif()
+endif()
 
 if(MISSING_LAPACK)
   if(CMAKE_Fortran_COMPILER_WORKS)
@@ -114,32 +114,32 @@ if(MISSING_LAPACK)
       )
       set(FAILED_PMRRR TRUE PARENT_SCOPE)
       return()
-    endif(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+    endif()
 
     if(HYBRID_DEBUG)
       set(
         Fortran_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "Fortran optimization/debug flags for hybrid threaded/MPI debug build"
       )
-    endif(HYBRID_DEBUG)
+    endif()
     if(HYBRID_RELEASE)
       set(
         Fortran_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
         "Fortran optimization flags for hybrid threaded/MPI release build"
       )
-    endif(HYBRID_RELEASE)
+    endif()
     if(PURE_DEBUG)
       set(
         Fortran_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
         "Fortran optimization/debugging flags for pure MPI debug build"
       )
-    endif(PURE_DEBUG)
+    endif()
     if(PURE_RELEASE)
       set(
         Fortran_PURE_RELEASE_FLAGS "-O3" CACHE STRING
         "Fortran optimization flags for pure MPI release build"
       )
-    endif(PURE_RELEASE)
+    endif()
 
     set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG ${Fortran_HYBRID_DEBUG_FLAGS})
     set(CMAKE_Fortran_FLAGS_HYBRIDRELEASE ${Fortran_HYBRID_RELEASE_FLAGS})
@@ -157,7 +157,7 @@ if(MISSING_LAPACK)
       if(GFORTRAN_LIB)
         set(LAPACK_ADDONS_LIBS ${GFORTRAN_LIB})
         message(STATUS "Using user-defined GFORTRAN_LIB=${GFORTRAN_LIB}")
-      else(GFORTRAN_LIB)
+      else()
         string(
           REGEX REPLACE "bin/gfortran" "lib" GFORTRAN_LIB_DIR_HINT
           "${CMAKE_Fortran_COMPILER}"
@@ -174,19 +174,19 @@ if(MISSING_LAPACK)
         )
         if(GFORTRAN_LIB)
           message(STATUS "Found gfortran lib at ${GFORTRAN_LIB}")
-        else(GFORTRAN_LIB)
+        else()
           message(
             FATAL_ERROR 
             "Could not find gfortran library. Please specify it by defining GFORTRAN_LIB."
           )
-        endif(GFORTRAN_LIB)
-      endif(GFORTRAN_LIB)
+        endif()
+      endif()
       set(LAPACK_ADDONS_LIBS ${GFORTRAN_LIB})
     elseif(Fortran_COMPILER_NAME STREQUAL "ifort")
       if(IFCORE_LIB)
         message(STATUS "Using user-defined IFCORE_LIB=${IFCORE_LIB}")
         set(LAPACK_ADDONS_LIBS ${IFCORE_LIB})
-      else(IFCORE_LIB)
+      else()
         string(
           REGEX REPLACE "/bin/([^/]*)/?ifort" "/lib/\\1" 
           IFCORE_LIB_DIR_HINT "${CMAKE_Fortran_COMPILER}"
@@ -196,23 +196,23 @@ if(MISSING_LAPACK)
         if(IFCORE_LIB)
           set(LAPACK_ADDONS_LIBS ${IFCORE_LIB})
           message("Found ifcore lib at ${IFCORE_LIB}")
-        else(IFCORE_LIB)
+        else()
           message(FATAL_ERROR "Could not find ifcore library")
-        endif(IFCORE_LIB)
-      endif(IFCORE_LIB)
-    endif(Fortran_COMPILER_NAME STREQUAL "gfortran")
+        endif()
+      endif()
+    endif()
    
     file(
       GLOB_RECURSE LAPACK_ADDON_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.f"
     )
     add_library(lapack-addons ${LIBRARY_TYPE} ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
-  else(CMAKE_Fortran_COMPILER_WORKS)
+  else()
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
     message(WARNING "F90 compiler not found; cannot build PMRRR using the supplied MATH_LIBS")
     return()
-  endif(CMAKE_Fortran_COMPILER_WORKS)
-endif(MISSING_LAPACK)
+  endif()
+endif()
 
 # Add in the preprocessor definitions and fortran name-mangling
 if(MISSING_LAPACK)
@@ -221,19 +221,19 @@ if(MISSING_LAPACK)
   FortranCInterface_VERIFY()
   FortranCInterface_HEADER(${CMAKE_CURRENT_BINARY_DIR}/include/FCMangle.h 
                            MACRO_NAMESPACE "FC_")
-else(MISSING_LAPACK)
+else()
   set(C_BASE_FLAGS "${BLAS_DEFS} ${LAPACK_DEFS}")
-endif(MISSING_LAPACK)
+endif()
 if(NOT HAVE_SPINLOCKS)
   set(C_BASE_FLAGS "${C_BASE_FLAGS} -DNOSPINLOCKS")
-endif(NOT HAVE_SPINLOCKS)
+endif()
 
 # Ensure that an MPI C compiler was found
 if(NOT MPI_C_FOUND)
-    message(WARNING "No MPI C compiler was found, so PMRRR cannot be built")
-    set(FAILED_PMRRR TRUE PARENT_SCOPE)
-    return()
-endif(NOT MPI_C_FOUND)
+  message(WARNING "No MPI C compiler was found, so PMRRR cannot be built")
+  set(FAILED_PMRRR TRUE PARENT_SCOPE)
+  return()
+endif()
 include_directories(${MPI_C_INCLUDE_PATH})
     
 # Set the various build flags
@@ -250,8 +250,8 @@ if(NOT CMAKE_THREAD_LIBS_INIT)
     message(WARNING "Could not find a pthreads library, cannot build PMRRR")
     set(FAILED_PMRRR TRUE PARENT_SCOPE)
     return()
-  endif(NOT CMAKE_USE_PTHREADS_INIT)
-endif(NOT CMAKE_THREAD_LIBS_INIT)
+  endif()
+endif()
 
 # Grab all of the .c and .h files
 file(GLOB_RECURSE PMRRR_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.c")
@@ -265,11 +265,11 @@ if(MISSING_LAPACK)
     pmrrr lapack-addons ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
   )
   install(TARGETS pmrrr lapack-addons DESTINATION lib)
-else(MISSING_LAPACK)
+else()
   add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
   target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   install(TARGETS pmrrr DESTINATION lib)
-endif(MISSING_LAPACK)
+endif()
 
 # Define the header-preparation rules
 set(PREPARED_HEADERS)
@@ -285,7 +285,7 @@ foreach(HEADER ${PMRRR_H})
   get_filename_component(HEADER_PATH ${HEADER} PATH)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${HEADER} 
           DESTINATION ${HEADER_PATH})
-endforeach(HEADER)
+endforeach()
 add_custom_target(prepare_pmrrr_headers DEPENDS ${PREPARED_HEADERS})
 add_dependencies(pmrrr prepare_pmrrr_headers)
 
