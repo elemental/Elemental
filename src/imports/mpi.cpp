@@ -2237,11 +2237,22 @@ void Scatter( byte* buf, int sc, int rc, int root, Comm comm )
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_UNSIGNED_CHAR, 
               MPI_IN_PLACE, rc, MPI_UNSIGNED_CHAR, root, comm )
         );
+#else
+        const int commSize = CommSize( comm );
+        std::vector<byte> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_UNSIGNED_CHAR, 
+              buf,         rc, MPI_UNSIGNED_CHAR, root, comm )
+        );
+#endif
     }
     else
     {
@@ -2264,11 +2275,22 @@ void Scatter( int* buf, int sc, int rc, int root, Comm comm )
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_INT, 
               MPI_IN_PLACE, rc, MPI_INT, root, comm )
         );
+#else
+        const int commSize = CommSize( comm );
+        std::vector<int> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_INT, 
+              buf,         rc, MPI_INT, root, comm )
+        );
+#endif
     }
     else
     {
@@ -2291,11 +2313,22 @@ void Scatter( float* buf, int sc, int rc, int root, Comm comm )
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_FLOAT, 
               MPI_IN_PLACE, rc, MPI_FLOAT, root, comm )
         );
+#else
+        const int commSize = CommSize( comm );
+        std::vector<float> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_FLOAT,          
+              buf,         rc, MPI_FLOAT, root, comm )
+        );
+#endif
     }
     else
     {
@@ -2318,11 +2351,22 @@ void Scatter( double* buf, int sc, int rc, int root, Comm comm )
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_DOUBLE, 
               MPI_IN_PLACE, rc, MPI_DOUBLE, root, comm )
         );
+#else
+        const int commSize = CommSize( comm );
+        std::vector<double> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_DOUBLE,          
+              buf,         rc, MPI_DOUBLE, root, comm )
+        );
+#endif
     }
     else
     {
@@ -2346,17 +2390,39 @@ void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
     if( commRank == root )
     {
 #ifdef AVOID_COMPLEX_MPI
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          2*sc, MPI_FLOAT, 
               MPI_IN_PLACE, 2*rc, MPI_FLOAT, root, comm )
         );
+# else
+        const int commSize = CommSize( comm );
+        std::vector<float> sendBuf( 2*sc*commSize );
+        MemCopy( &sendBuf[0], buf, 2*sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], 2*sc, MPI_FLOAT,          
+              buf,         2*rc, MPI_FLOAT, root, comm )
+        );
+# endif
 #else
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_COMPLEX, 
               MPI_IN_PLACE, rc, MPI_COMPLEX, root, comm )
         );
+# else
+        const int commSize = CommSize( comm );
+        std::vector<scomplex> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_COMPLEX,
+              buf,         rc, MPI_COMPLEX, root, comm )
+        );
+# endif
 #endif
     }
     else
@@ -2389,17 +2455,39 @@ void Scatter( dcomplex* buf, int sc, int rc, int root, Comm comm )
     if( commRank == root )
     {
 #ifdef AVOID_COMPLEX_MPI
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          2*sc, MPI_DOUBLE, 
               MPI_IN_PLACE, 2*rc, MPI_DOUBLE, root, comm )
         );
+# else
+        const int commSize = CommSize( comm );
+        std::vector<double> sendBuf( 2*sc*commSize );
+        MemCopy( &sendBuf[0], buf, 2*sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], 2*sc, MPI_DOUBLE,
+              buf,         2*rc, MPI_DOUBLE, root, comm )
+        );
+# endif
 #else
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, MPI_DOUBLE_COMPLEX, 
               MPI_IN_PLACE, rc, MPI_DOUBLE_COMPLEX, root, comm )
         );
+# else
+        const int commSize = CommSize( comm );
+        std::vector<dcomplex> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
+        SafeMpi(
+            MPI_Scatter
+            ( &sendBuf[0], sc, MPI_DOUBLE_COMPLEX,
+              buf,         rc, MPI_DOUBLE_COMPLEX, root, comm )
+        );
+# endif
 #endif
     }
     else
@@ -2759,10 +2847,21 @@ void Reduce( byte* buf, int count, Op op, int root, Comm comm )
     {
         const int commRank = CommRank( comm );
         if( commRank == root )
+        {
+#ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
             );
+#else
+            std::vector<byte> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce
+                ( &sendBuf[0], buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
+            );
+#endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -2801,10 +2900,20 @@ void Reduce( int* buf, int count, Op op, int root, Comm comm )
     {
         const int commRank = CommRank( comm );
         if( commRank == root )
+        {
+#ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_INT, op, root, comm )
             );
+#else
+            std::vector<int> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce( &sendBuf[0], buf, count, MPI_INT, op, root, comm )
+            );
+#endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -2843,10 +2952,20 @@ void Reduce( float* buf, int count, Op op, int root, Comm comm )
     {
         const int commRank = CommRank( comm );
         if( commRank == root )
+        {
+#ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, root, comm )
             );
+#else
+            std::vector<float> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce( &sendBuf[0], buf, count, MPI_FLOAT, op, root, comm )
+            );
+#endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -2886,10 +3005,21 @@ void Reduce( double* buf, int count, Op op, int root, Comm comm )
     {
         const int commRank = CommRank( comm );
         if( commRank == root )
+        {
+#ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, root, comm )
             );
+#else
+            std::vector<double> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce
+                ( &sendBuf[0], buf, count, MPI_DOUBLE, op, root, comm )
+            );
+#endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -2951,10 +3081,21 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
         if( op == SUM )
         {
             if( commRank == root )
+            {
+# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
                 );
+# else
+                std::vector<float> sendBuf( 2*count );
+                MemCopy( &sendBuf[0], buf, 2*count );
+                SafeMpi(
+                    MPI_Reduce
+                    ( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, root, comm )
+                );
+# endif
+            }
             else
                 SafeMpi(
                     MPI_Reduce
@@ -2964,10 +3105,21 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
         else
         {
             if( commRank == root )
+            {
+# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
                 );
+# else
+                std::vector<scomplex> sendBuf( count );
+                MemCopy( &sendBuf[0], buf, count );
+                SafeMpi(
+                    MPI_Reduce
+                    ( &sendBuf[0], buf, count, MPI_COMPLEX, op, root, comm )
+                );
+# endif
+            }
             else
                 SafeMpi(
                     MPI_Reduce
@@ -2976,10 +3128,21 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
         }
 #else
         if( commRank == root )
+        {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
             );
+# else
+            std::vector<scomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce
+                ( &sendBuf[0], buf, count, MPI_COMPLEX, op, root, comm )
+            );
+# endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -3042,10 +3205,21 @@ void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm )
         if( op == SUM )
         {
             if( commRank == root )
+            {
+# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
                 );
+# else
+                std::vector<double> sendBuf( 2*count );
+                MemCopy( &sendBuf[0], buf, 2*count );
+                SafeMpi(
+                    MPI_Reduce
+                    ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, root, comm )
+                );
+# endif
+            }
             else
                 SafeMpi(
                     MPI_Reduce
@@ -3055,11 +3229,23 @@ void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm )
         else
         {
             if( commRank == root )
+            {
+# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, 
                       op, root, comm )
                 );
+# else
+                std::vector<dcomplex> sendBuf( count );
+                MemCopy( &sendBuf[0], buf, count );
+                SafeMpi(
+                    MPI_Reduce
+                    ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, 
+                      op, root, comm )
+                );
+# endif
+            }
             else
                 SafeMpi(
                     MPI_Reduce
@@ -3068,10 +3254,21 @@ void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm )
         }
 #else
         if( commRank == root )
+        {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce
                 ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
             );
+# else
+            std::vector<dcomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce
+                ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
+            );
+# endif
+        }
         else
             SafeMpi(
                 MPI_Reduce
@@ -3109,10 +3306,19 @@ void AllReduce( byte* buf, int count, Op op, Comm comm )
 #endif
     if( count != 0 )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce
             ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, comm )
         );
+#else
+        std::vector<byte> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi(
+            MPI_Allreduce
+            ( &sendBuf[0], buf, count, MPI_UNSIGNED_CHAR, op, comm )
+        );
+#endif
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3143,9 +3349,17 @@ void AllReduce( int* buf, int count, Op op, Comm comm )
 #endif
     if( count != 0 )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_INT, op, comm )
         );
+#else
+        std::vector<int> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi(
+            MPI_Allreduce( &sendBuf[0], buf, count, MPI_INT, op, comm )
+        );
+#endif
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3176,9 +3390,17 @@ void AllReduce( float* buf, int count, Op op, Comm comm )
 #endif
     if( count != 0 )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, comm )
         );
+#else
+        std::vector<float> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi(
+            MPI_Allreduce( &sendBuf[0], buf, count, MPI_FLOAT, op, comm )
+        );
+#endif
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3209,9 +3431,17 @@ void AllReduce( double* buf, int count, Op op, Comm comm )
 #endif
     if( count != 0 )
     {
+#ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, comm )
         );
+#else
+        std::vector<double> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi(
+            MPI_Allreduce( &sendBuf[0], buf, count, MPI_DOUBLE, op, comm )
+        );
+#endif
     }
 #ifndef RELEASE
     PopCallStack();
@@ -3266,20 +3496,44 @@ void AllReduce( scomplex* buf, int count, Op op, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, comm )
             );
+# else
+            std::vector<float> sendBuf( 2*count );
+            MemCopy( &sendBuf[0], buf, 2*count );
+            SafeMpi(
+                MPI_Allreduce( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, comm )
+            );
+# endif
         }
         else
         {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
             );
+# else
+            std::vector<scomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Allreduce( &sendBuf[0], buf, count, MPI_COMPLEX, op, comm )
+            );
+# endif
         }
 #else
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
         );
+# else
+        std::vector<scomplex> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi( 
+            MPI_Allreduce( &sendBuf[0], buf, count, MPI_COMPLEX, op, comm )
+        );
+# endif
 #endif
     }
 #ifndef RELEASE
@@ -3335,23 +3589,50 @@ void AllReduce( dcomplex* buf, int count, Op op, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce
                 ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, comm )
             );
+# else
+            std::vector<double> sendBuf( 2*count );
+            MemCopy( &sendBuf[0], buf, 2*count );
+            SafeMpi(
+                MPI_Allreduce
+                ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, comm )
+            );
+# endif
         }
         else
         {
+# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce
                 ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
             );
+# else
+            std::vector<dcomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Allreduce
+                ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, comm )
+            );
+# endif
         }
 #else
+# ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce
             ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
         );
+# else
+        std::vector<dcomplex> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi( 
+            MPI_Allreduce
+            ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, comm )
+        );
+# endif
 #endif
     }
 #ifndef RELEASE
@@ -3525,10 +3806,20 @@ void ReduceScatter( byte* buf, int rc, Op op, Comm comm )
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block
         ( MPI_IN_PLACE, buf, rc, MPI_UNSIGNED_CHAR, op, comm )
     );
+# else
+    const int commSize = CommSize( comm );
+    std::vector<byte> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( &sendBuf[0], buf, rc, MPI_UNSIGNED_CHAR, op, comm )
+    );
+# endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
@@ -3551,9 +3842,18 @@ void ReduceScatter( int* buf, int rc, Op op, Comm comm )
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_INT, op, comm )
     );
+# else
+    const int commSize = CommSize( comm );
+    std::vector<int> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_INT, op, comm )
+    );
+# endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
@@ -3576,9 +3876,18 @@ void ReduceScatter( float* buf, int rc, Op op, Comm comm )
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_FLOAT, op, comm )
     );
+# else
+    const int commSize = CommSize( comm );
+    std::vector<float> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_FLOAT, op, comm )
+    );
+# endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
@@ -3601,9 +3910,18 @@ void ReduceScatter( double* buf, int rc, Op op, Comm comm )
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
+# ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_DOUBLE, op, comm )
     );
+# else
+    const int commSize = CommSize( comm );
+    std::vector<double> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_DOUBLE, op, comm )
+    );
+# endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
@@ -3627,15 +3945,33 @@ void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
+#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi(
         MPI_Reduce_scatter_block
         ( MPI_IN_PLACE, buf, 2*rc, MPI_FLOAT, op, comm )
     );
+#  else 
+    const int commSize = CommSize( comm );
+    std::vector<float> sendBuf( 2*rc*commSize );
+    MemCopy( &sendBuf[0], buf, 2*rc*commSize );
+    SafeMpi(
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_FLOAT, op, comm )
+    );
+#  endif
 # else
+#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block
         ( MPI_IN_PLACE, buf, rc, MPI_COMPLEX, op, comm )
     );
+#  else
+    const int commSize = CommSize( comm );
+    std::vector<scomplex> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_COMPLEX, op, comm )
+    );
+#  endif
 # endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
@@ -3660,15 +3996,34 @@ void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm )
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
+#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi(
         MPI_Reduce_scatter_block
         ( MPI_IN_PLACE, buf, 2*rc, MPI_DOUBLE, op, comm )
     );
+#  else
+    const int commSize = CommSize( comm );
+    std::vector<double> sendBuf( 2*rc*commSize );
+    MemCopy( &sendBuf[0], buf, 2*rc*commSize );
+    SafeMpi(
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_DOUBLE, op, comm )
+    );
+#  endif
 # else
+#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block
         ( MPI_IN_PLACE, buf, rc, MPI_DOUBLE_COMPLEX, op, comm )
     );
+#  else
+    const int commSize = CommSize( comm );
+    std::vector<dcomplex> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block
+        ( &sendBuf[0], buf, rc, MPI_DOUBLE_COMPLEX, op, comm )
+    );
+#  endif
 # endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );

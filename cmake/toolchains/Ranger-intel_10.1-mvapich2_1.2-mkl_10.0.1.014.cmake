@@ -4,8 +4,9 @@ set(CMAKE_CXX_COMPILER     /opt/apps/intel/10.1/cc/bin/icpc)
 set(CMAKE_Fortran_COMPILER /opt/apps/intel/10.1/fc/bin/ifort)
 
 # Set the MPI wrappers for the C and C++ compilers
-set(MPI_C_COMPILER   /opt/apps/intel10_1/mvapich2/1.2/bin/mpicc)
-set(MPI_CXX_COMPILER /opt/apps/intel10_1/mvapich2/1.2/bin/mpicxx)
+set(MPI_C_COMPILER       /opt/apps/intel10_1/mvapich2/1.2/bin/mpicc)
+set(MPI_CXX_COMPILER     /opt/apps/intel10_1/mvapich2/1.2/bin/mpicxx)
+set(MPI_Fortran_COMPILER /opt/apps/intel10_1/mvapich2/1.2/bin/mpif90)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-O3")
