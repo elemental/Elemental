@@ -2398,8 +2398,8 @@ void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
         );
 # else
         const int commSize = CommSize( comm );
-        std::vector<float> sendBuf( 2*sc*commSize );
-        MemCopy( &sendBuf[0], buf, 2*sc*commSize );
+        std::vector<scomplex> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
         SafeMpi(
             MPI_Scatter
             ( &sendBuf[0], 2*sc, MPI_FLOAT,          
@@ -2463,8 +2463,8 @@ void Scatter( dcomplex* buf, int sc, int rc, int root, Comm comm )
         );
 # else
         const int commSize = CommSize( comm );
-        std::vector<double> sendBuf( 2*sc*commSize );
-        MemCopy( &sendBuf[0], buf, 2*sc*commSize );
+        std::vector<dcomplex> sendBuf( sc*commSize );
+        MemCopy( &sendBuf[0], buf, sc*commSize );
         SafeMpi(
             MPI_Scatter
             ( &sendBuf[0], 2*sc, MPI_DOUBLE,
@@ -3088,8 +3088,8 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
                     ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
                 );
 # else
-                std::vector<float> sendBuf( 2*count );
-                MemCopy( &sendBuf[0], buf, 2*count );
+                std::vector<scomplex> sendBuf( count );
+                MemCopy( &sendBuf[0], buf, count );
                 SafeMpi(
                     MPI_Reduce
                     ( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, root, comm )
@@ -3212,8 +3212,8 @@ void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm )
                     ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
                 );
 # else
-                std::vector<double> sendBuf( 2*count );
-                MemCopy( &sendBuf[0], buf, 2*count );
+                std::vector<dcomplex> sendBuf( count );
+                MemCopy( &sendBuf[0], buf, count );
                 SafeMpi(
                     MPI_Reduce
                     ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, root, comm )
@@ -3501,8 +3501,8 @@ void AllReduce( scomplex* buf, int count, Op op, Comm comm )
                 MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, comm )
             );
 # else
-            std::vector<float> sendBuf( 2*count );
-            MemCopy( &sendBuf[0], buf, 2*count );
+            std::vector<scomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
                 MPI_Allreduce( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, comm )
             );
@@ -3595,8 +3595,8 @@ void AllReduce( dcomplex* buf, int count, Op op, Comm comm )
                 ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, comm )
             );
 # else
-            std::vector<double> sendBuf( 2*count );
-            MemCopy( &sendBuf[0], buf, 2*count );
+            std::vector<dcomplex> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
                 MPI_Allreduce
                 ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, comm )
@@ -3952,8 +3952,8 @@ void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
     );
 #  else 
     const int commSize = CommSize( comm );
-    std::vector<float> sendBuf( 2*rc*commSize );
-    MemCopy( &sendBuf[0], buf, 2*rc*commSize );
+    std::vector<scomplex> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
     SafeMpi(
         MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_FLOAT, op, comm )
     );
@@ -4003,8 +4003,8 @@ void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm )
     );
 #  else
     const int commSize = CommSize( comm );
-    std::vector<double> sendBuf( 2*rc*commSize );
-    MemCopy( &sendBuf[0], buf, 2*rc*commSize );
+    std::vector<dcomplex> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
     SafeMpi(
         MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_DOUBLE, op, comm )
     );
