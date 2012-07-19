@@ -16,5 +16,12 @@ MPI_CXX_LIBS = @MPI_CXX_LIBS@
 
 ELEM_COMPILE_FLAGS = ${CXX_FLAGS} -I${ELEM_INC} -I${MPI_CXX_INCLUDE_PATH}
 ELEM_LINK_FLAGS = -L${ELEM_LIB} ${MPI_CXX_LINK_FLAGS}
-ELEM_LIBS = -lelemental -lplcg -lpmrrr -lcmake-dummy-lib \
-            ${MATH_LIBS} ${MPI_CXX_LIBS}
+
+HAVE_PMRRR = @HAVE_PMRRR@
+ifdef HAVE_PMRRR
+  ELEM_LIBS = -lelemental -lplcg -lpmrrr -lcmake-dummy-lib \
+              ${MATH_LIBS} ${MPI_CXX_LIBS}
+else
+  ELEM_LIBS = -lelemental -lplcg -lcmake-dummy-lib \
+              ${MATH_LIBS} ${MPI_CXX_LIBS}
+endif
