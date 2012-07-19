@@ -520,8 +520,7 @@ set(RESTRICT_CODE
      {
          int* RESTRICT a;
          return 0;
-     }
-    ")
+     }")
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
 check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
 if(HAVE___restrict__)
