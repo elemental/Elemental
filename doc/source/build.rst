@@ -310,19 +310,18 @@ distributed matrix, sets it to the identity matrix, then prints it:
 
 As you can see, the only required header is ``elemental.hpp``, which must be
 in the include path when compiling this simple driver, say ``Identity.cpp``. 
-If Elemental was installed in ``/usr/local/elemental``, then 
-``/usr/local/elemental/include`` must be in the include path. Supposing that
-the file ``Identity.cpp`` is in the current folder, a typical build would be ::
+If Elemental was installed in ``/usr/local``, then 
+``/usr/local/conf/elemvariables`` can be used to build a simple Makefile::
 
-    mpicxx Identity.cpp -o Identity \
-        -I/usr/local/elemental/include \
-        -L/usr/local/elemental/lib -lelemental -lplcg -llapack -lblas -lm
+    include /usr/local/conf/elemvariables
 
-Of course, ``/usr/local/elemental`` should be replaced with your installation
-prefix and ``-llapack -lblas -lm`` should be replaced with the ``MATH_LIBS`` 
-set during configuration (it is written into the file 
-``include/elemental/config.h`` in the build directory). A slightly modified 
-version of the above driver is available in ``examples/special_matrices/Identity.cpp``.
+    Identity: Identity.cpp
+        ${CXX} ${ELEM_COMPILE_FLAGS} $< -o $@ ${ELEM_LINK_FLAGS} ${ELEM_LIBS}
+
+As long as ``Identity.cpp`` and this ``Makefile`` are in the current directory,
+simply typing ``make`` should build the driver. A slightly modified 
+version of the above driver is available in 
+``examples/special_matrices/Identity.cpp``.
 
 The executable can then typically be run with a single process using ::
 

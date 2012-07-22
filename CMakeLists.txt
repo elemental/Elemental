@@ -46,15 +46,15 @@ set(Elemental_VERSION_MINOR 76-dev)
 option(SHARED_LIBRARIES "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
-option(BUILD_EXAMPLES "A collection of simple examples" ON)
+option(ELEM_EXAMPLES "A collection of simple examples" OFF)
 
 # Whether or not to build a collection of performance and correctness tests
-option(BUILD_TESTS "A collection of performance and correctness tests" OFF)
+option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 
 # Whether or not to build current 'experimental' code, such as:
 # 1) prototype C and F90 interfaces
 # 2) Martin's 3D Gemm code
-option(BUILD_EXPERIMENTAL "Build experimental code" OFF)
+option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 
 # Petschow and Bientinesi's Parallel Multiple Relatively Robust 
 # Representations (PMRRR) is used at the heart of all of Elemental's current 
@@ -636,7 +636,7 @@ add_dependencies(elemental prepare_elemental_headers)
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Build the test drivers if necessary
-if(BUILD_TESTS)
+if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
 
   set(CORE_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
@@ -694,7 +694,7 @@ if(BUILD_TESTS)
 endif()
 
 # Build the example drivers if necessary
-if(BUILD_EXAMPLES)
+if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
 
   set(CORE_EXAMPLES Constructors)
@@ -787,7 +787,7 @@ if(BUILD_EXAMPLES)
 endif()
 
 # Build experimental drivers that do not require an eigensolver
-if(BUILD_EXPERIMENTAL)
+if(ELEM_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
 
   set(G3D_EXPERS G3DGemm)
@@ -810,7 +810,7 @@ if(BUILD_EXPERIMENTAL)
 endif()
 
 # Build experimental drivers that DO require an eigensolver
-if(BUILD_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
+if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
   endif()

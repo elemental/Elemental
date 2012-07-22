@@ -339,18 +339,17 @@ distributed matrix, sets it to the identity matrix, then prints it:</p>
 </div></blockquote>
 <p>As you can see, the only required header is <tt class="docutils literal"><span class="pre">elemental.hpp</span></tt>, which must be
 in the include path when compiling this simple driver, say <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt>.
-If Elemental was installed in <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt>, then
-<tt class="docutils literal"><span class="pre">/usr/local/elemental/include</span></tt> must be in the include path. Supposing that
-the file <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt> is in the current folder, a typical build would be</p>
-<div class="highlight-python"><pre>mpicxx Identity.cpp -o Identity \
-    -I/usr/local/elemental/include \
-    -L/usr/local/elemental/lib -lelemental -lplcg -llapack -lblas -lm</pre>
+If Elemental was installed in <tt class="docutils literal"><span class="pre">/usr/local</span></tt>, then
+<tt class="docutils literal"><span class="pre">/usr/local/conf/elemvariables</span></tt> can be used to build a simple Makefile:</p>
+<div class="highlight-python"><pre>include /usr/local/conf/elemvariables
+
+Identity: Identity.cpp
+    ${CXX} ${ELEM_COMPILE_FLAGS} $&lt; -o $@ ${ELEM_LINK_FLAGS} ${ELEM_LIBS}</pre>
 </div>
-<p>Of course, <tt class="docutils literal"><span class="pre">/usr/local/elemental</span></tt> should be replaced with your installation
-prefix and <tt class="docutils literal"><span class="pre">-llapack</span> <span class="pre">-lblas</span> <span class="pre">-lm</span></tt> should be replaced with the <tt class="docutils literal"><span class="pre">MATH_LIBS</span></tt>
-set during configuration (it is written into the file
-<tt class="docutils literal"><span class="pre">include/elemental/config.h</span></tt> in the build directory). A slightly modified
-version of the above driver is available in <tt class="docutils literal"><span class="pre">examples/special_matrices/Identity.cpp</span></tt>.</p>
+<p>As long as <tt class="docutils literal"><span class="pre">Identity.cpp</span></tt> and this <tt class="docutils literal"><span class="pre">Makefile</span></tt> are in the current directory,
+simply typing <tt class="docutils literal"><span class="pre">make</span></tt> should build the driver. A slightly modified
+version of the above driver is available in
+<tt class="docutils literal"><span class="pre">examples/special_matrices/Identity.cpp</span></tt>.</p>
 <p>The executable can then typically be run with a single process using</p>
 <div class="highlight-python"><pre>./Identity 8</pre>
 </div>

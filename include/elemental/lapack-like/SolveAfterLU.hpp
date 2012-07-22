@@ -77,7 +77,8 @@ SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 inline void
-SolveAfterLU( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
+SolveAfterLU
+( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("SolveAfterLU");
