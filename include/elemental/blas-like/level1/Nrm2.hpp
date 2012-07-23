@@ -34,7 +34,8 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type Nrm2( const DistMatrix<F>& x )
+inline typename Base<F>::type 
+Nrm2( const DistMatrix<F>& x )
 {
 #ifndef RELEASE
     PushCallStack("Nrm2");
@@ -42,38 +43,7 @@ inline typename Base<F>::type Nrm2( const DistMatrix<F>& x )
         throw std::logic_error("x must be a vector");
 #endif
     typedef typename Base<F>::type R;
-
-    R norm;
-    const Grid& g = x.Grid();
-
-    if( x.Width() == 1 )
-    {
-        const int ownerCol = x.RowAlignment();
-        if( g.Col() == ownerCol )
-        {
-            R localNorm = Nrm2( x.LockedLocalMatrix() ); 
-            
-            const int r = g.Height();
-            std::vector<R> localNorms(r);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.ColComm() );
-            norm = blas::Nrm2( r, &localNorms[0], 1 );
-        }
-        mpi::Broadcast( &norm, 1, ownerCol, g.RowComm() );
-    }
-    else
-    {
-        const int ownerRow = x.ColAlignment();
-        if( g.Row() == ownerRow )
-        {
-            R localNorm = Nrm2( x.LockedLocalMatrix() );
-
-            const int c = g.Width();
-            std::vector<R> localNorms(c);
-            mpi::AllGather( &localNorm, 1, &localNorms[0], 1, g.RowComm() );
-            norm = blas::Nrm2( c, &localNorms[0], 1 );
-        }
-        mpi::Broadcast( &norm, 1, ownerRow, g.ColComm() );
-    }
+    const R norm = Norm( x, FROBENIUS_NORM );
 #ifndef RELEASE
     PopCallStack();
 #endif

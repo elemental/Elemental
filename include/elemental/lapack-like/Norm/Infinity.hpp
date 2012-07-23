@@ -44,10 +44,12 @@ InfinityNorm( const Matrix<F>& A )
     typedef typename Base<F>::type R;
 
     R maxRowSum = 0;
-    for( int i=0; i<A.Height(); ++i )
+    const int height = A.Height();
+    const int width = A.Width();
+    for( int i=0; i<height; ++i )
     {
         R rowSum = 0;
-        for( int j=0; j<A.Width(); ++j )
+        for( int j=0; j<width; ++j )
             rowSum += Abs(A.Get(i,j));
         maxRowSum = std::max( maxRowSum, rowSum );
     }
@@ -69,22 +71,24 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     mpi::Comm rowComm = NormRowComm( A );
 
     // Compute the partial row sums defined by our local matrix, A[U,V]
-    std::vector<R> myPartialRowSums(A.LocalHeight());
-    for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    std::vector<R> myPartialRowSums( localHeight );
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
         myPartialRowSums[iLocal] = 0;
-        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
             myPartialRowSums[iLocal] += Abs(A.GetLocal(iLocal,jLocal));
     }
 
     // Sum our partial row sums to get the row sums over A[U,* ]
-    std::vector<R> myRowSums(A.LocalHeight());
+    std::vector<R> myRowSums( localHeight );
     mpi::AllReduce
-    ( &myPartialRowSums[0], &myRowSums[0], A.LocalHeight(), mpi::SUM, rowComm );
+    ( &myPartialRowSums[0], &myRowSums[0], localHeight, mpi::SUM, rowComm );
 
     // Find the maximum out of the row sums
     R myMaxRowSum = 0;
-    for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+    for( int iLocal=0; iLocal<localHeight; ++iLocal )
         myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLocal] );
 
     // Find the global maximum row sum by searching over the U team

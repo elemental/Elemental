@@ -131,6 +131,17 @@ enum Conjugation
 }
 using namespace conjugation_wrapper;
 
+namespace norm_type_wrapper {
+enum NormType
+{
+    FROBENIUS_NORM, // Compute the "vector" L_2 norm of the matrix
+    INFINITY_NORM,  // Compute the L_oo norm of the matrix
+    MAX_NORM,       // Compute the "vector" L_oo norm of the matrix
+    ONE_NORM        // Compute the L_1 norm of the matrix
+};
+}
+using namespace norm_type_wrapper;
+
 namespace distribution_wrapper {
 enum Distribution
 {

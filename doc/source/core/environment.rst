@@ -320,6 +320,46 @@ Custom datatypes
 
    An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
 
+.. cpp:type:: Conjugation
+
+   An enum which can be set to either ``CONJUGATED`` or ``UNCONJUGATED``.
+
+.. cpp:type:: NormType
+
+   An enum that can be set to either
+
+   * ``FROBENIUS_NORM``:
+
+     .. math::
+
+        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
+
+   * ``INFINITY_NORM``:
+
+     .. math:: 
+        :nowrap:
+
+        \[
+        \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
+                       = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
+        \]
+
+   * ``ONE_NORM``:
+
+     .. math:: 
+        :nowrap:
+
+        \[
+        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
+                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
+        \]
+
+   * ``MAX_NORM``:
+
+     .. math::
+     
+        \|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
+  
 .. cpp:type:: Distribution
 
    An enum for specifying the distribution of a row or column of a distributed

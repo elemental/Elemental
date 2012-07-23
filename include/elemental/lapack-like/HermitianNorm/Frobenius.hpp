@@ -48,10 +48,11 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 
     R scale = 0;
     R scaledSquare = 1;
-
+    const int height = A.Height();
+    const int width = A.Width();
     if( uplo == UPPER )
     {
-        for( int j=0; j<A.Width(); ++j )
+        for( int j=0; j<width; ++j )
         {
             for( int i=0; i<j; ++i )
             {
@@ -90,9 +91,9 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( int j=0; j<A.Width(); ++j )
+        for( int j=0; j<width; ++j )
         {
-            for( int i=j+1; i<A.Height(); ++i )
+            for( int i=j+1; i<height; ++i )
             {
                 const R alphaAbs = Abs(A.Get(i,j));
                 if( alphaAbs != 0 )
@@ -155,10 +156,11 @@ HermitianFrobeniusNorm
 
     R localScale = 0;
     R localScaledSquare = 1;
-
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
             int numUpperRows = LocalLength(j+1,colShift,r);
@@ -193,7 +195,7 @@ HermitianFrobeniusNorm
     }
     else
     {
-        for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
             int numStrictlyUpperRows = LocalLength(j,colShift,r);

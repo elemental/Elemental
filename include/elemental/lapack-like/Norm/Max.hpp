@@ -44,9 +44,11 @@ MaxNorm( const Matrix<F>& A )
     typedef typename Base<F>::type R;
 
     R maxAbs = 0;
-    for( int j=0; j<A.Width(); ++j )
+    const int height = A.Height();
+    const int width = A.Width();
+    for( int j=0; j<width; ++j )
     {
-        for( int i=0; i<A.Height(); ++i )
+        for( int i=0; i<height; ++i )
         {
             const R thisAbs = Abs(A.Get(i,j));
             maxAbs = std::max( maxAbs, thisAbs );
@@ -68,9 +70,11 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     typedef typename Base<F>::type R;
 
     R localMaxAbs = 0;
-    for( int jLocal=0; jLocal<A.LocalWidth(); ++jLocal )
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        for( int iLocal=0; iLocal<A.LocalHeight(); ++iLocal )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
