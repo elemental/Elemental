@@ -267,7 +267,7 @@ defaults to the **PureRelease** build mode.
 
 Testing the installation
 ========================
-Once the library has been built, it is a good idea to verify that it is 
+Once Elemental has been installed, it is a good idea to verify that it is 
 functioning properly. The following is a simple example that constructs of a 
 distributed matrix, sets it to the identity matrix, then prints it:
 
@@ -350,12 +350,22 @@ eight processes would be::
 Only the first line of the output should change with respect to when run on 
 a single process.
 
+You can also build a wide variety of example and test drivers 
+(unfortunately the line is a little blurred) by using the CMake options::
+
+    -D ELEM_EXAMPLES=ON
+
+and/or ::
+
+    -D ELEM_TESTS=ON  
+
 Elemental as a subproject
 =========================
-Building your project, say ``Foo``, with Elemental as a dependency is reasonably
-straightforward: simply put an entire copy of the Elemental source tree in a 
-subdirectory of your main project folder, say ``external/elemental``, and uncomment
-out the bottom section of Elemental's ``CMakeLists.txt``, i.e., change ::
+Adding Elemental as a dependency into a project which uses CMake for its build 
+system is relatively straightforward: simply put an entire copy of the 
+Elemental source tree in a subdirectory of your main project folder, say 
+``external/elemental``, and uncomment out the bottom section of Elemental's 
+``CMakeLists.txt``, i.e., change ::
 
     ################################################################################
     # Uncomment if including Elemental as a subproject in another build system     #
@@ -420,6 +430,8 @@ off of the following snippet::
     include_directories("${PROJECT_BINARY_DIR}/external/elemental/include")
     include_directories(${MPI_CXX_INCLUDE_PATH})
 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+
     # Build your project here
     # e.g., 
     #   add_library(foo STATIC ${FOO_SRC})
@@ -429,6 +441,6 @@ Troubleshooting
 ===============
 If you run into build problems, please email 
 `jack.poulson@gmail.com <mailto:jack.poulson@gmail.com>`_ and make sure to 
-attach the file ``include/elemental/config.h`` that should be generated within 
-your build directory. Please only direct general usage questions to 
+attach the file ``include/elemental/config.h``, which should be generated 
+within your build directory. Please only direct general usage questions to 
 `elemental-dev@googlegroups.com <mailto:elemental-dev@googlegroups.com>`_.

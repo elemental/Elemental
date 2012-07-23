@@ -65,7 +65,7 @@ Elemental should successfully build on nearly every platform, as it has been
 verified to build on most major desktop platforms (including Linux, Mac OS X, 
 Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (including Blue Gene/P).
 
-License and Copyright
+License and copyright
 =====================
 All files distributed with Elemental are made available under the 
 `New BSD license <http://www.opensource.org/licenses/bsd-license.php>`_.
