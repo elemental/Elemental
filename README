@@ -1,10 +1,8 @@
-Please look in the doc/ folder for the current documentation. While the 
-documentation is far from complete, it does contain up-to-date build 
-instructions and a general outline of the provided functionality.
+Please go to http://poulson.github.com/Elemental for the current documentation.
 
-While you will need a copy of Sphinx [http://sphinx.pocoo.org/] in order to 
-build the documentation, the ".rst" files in the doc/source directory are 
-human readable. On *nix machines, Sphinx can often be installed with the command
+Elemental's documentation is written using Sphinx [http://sphinx.pocoo.org/],
+and the ".rst" files in the doc/source directory are human readable. On *nix 
+machines, Sphinx can often be installed with the command
 
     easy_install -U Sphinx
 
