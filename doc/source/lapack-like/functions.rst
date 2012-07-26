@@ -31,7 +31,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
    ``RealFunctor`` is any 
    class which has the member function ``R operator()( R omega ) const``.
-   See `examples/lapack-like/RealSymmetricFunction.cpp <../../../../examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
+   See `examples/lapack-like/RealSymmetricFunction.cpp <https://github.com/poulson/Elemental/tree/master/examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
 
 .. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
 
@@ -39,7 +39,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    replacing each eigenvalue :math:`\omega_i` with 
    :math:`f(\omega_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
    which has the member function ``Complex<R> operator()( R omega ) const``.
-   See `examples/lapack-like/ComplexHermitianFunction.cpp <../../../../examples/lapack-like/ComplexHermitianFunction.cpp>`_ for an example usage.
+   See `examples/lapack-like/ComplexHermitianFunction.cpp <https://github.com/poulson/Elemental/tree/master/examples/lapack-like/ComplexHermitianFunction.cpp>`_ for an example usage.
 
 **TODO: A version of ComplexHermitianFunction which begins with a real matrix**
 

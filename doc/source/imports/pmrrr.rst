@@ -5,9 +5,9 @@ the Multiple Relatively Robust Representations (MRRR) algorithm, several
 simplified interfaces have been exposed.
 
 The prototypes can be found in
-`include/elemental/imports/pmrrr.hpp <../../../../include/elemental/imports/pmrrr.hpp>`_,
+`include/elemental/imports/pmrrr.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/imports/pmrrr.hpp>`_,
 while the implementations are in the folder
-`external/pmrrr/ <../../../../external/pmrrr/>`_.
+`external/pmrrr/ <https://github.com/poulson/Elemental/tree/master/external/pmrrr/>`_.
 
 Data structures
 ---------------

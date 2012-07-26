@@ -2,8 +2,8 @@ Level 1
 =======
 
 The prototypes for the following routines can be found at 
-`include/elemental/blas-like.hpp <../../../../include/elemental/blas-like.hpp>`_, while the
-implementations are in `include/elemental/blas-like/level1/ <../../../../include/elemental/blas-like/level1/>`_.
+`include/elemental/blas-like.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/blas-like.hpp>`_, while the
+implementations are in `include/elemental/blas-like/level1/ <https://github.com/poulson/Elemental/tree/master/include/elemental/blas-like/level1>`_.
 
 Adjoint
 -------

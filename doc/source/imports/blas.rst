@@ -7,9 +7,9 @@ the following interfaces are built directly on top of the datatype-specific
 versions.
 
 The prototypes can be found in 
-`include/elemental/imports/blas.hpp <../../../../include/elemental/imports/blas.hpp>`_,
+`include/elemental/imports/blas.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/imports/blas.hpp>`_,
 while the implementations are in 
-`src/imports/blas.cpp <../../../../src/imports/blas.cpp>`_.
+`src/imports/blas.cpp <https://github.com/poulson/Elemental/tree/master/src/imports/blas.cpp>`_.
 
 Level 1
 -------

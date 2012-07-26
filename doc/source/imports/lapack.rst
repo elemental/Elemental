@@ -7,9 +7,9 @@ there are several BLAS-like routines which are technically part of LAPACK
 (e.g., ``csyr``) which were included in the BLAS imports section.
 
 The prototypes can be found in
-`include/elemental/imports/lapack.hpp <../../../../include/elemental/imports/lapack.hpp>`_,
+`include/elemental/imports/lapack.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/imports/lapack.hpp>`_,
 while the implementations are in
-`src/imports/lapack.cpp <../../../../src/imports/lapack.cpp>`_.
+`src/imports/lapack.cpp <https://github.com/poulson/Elemental/tree/master/src/imports/lapack.cpp>`_.
 
 Machine information
 -------------------
