@@ -321,7 +321,7 @@ Custom datatypes
 Scalar manipulation
 -------------------
 
-.. cpp:function:: F Abs( const F& alpha )
+.. cpp:function:: typename Base<F>::type Abs( const F& alpha )
 
    Return the absolute value of the real or complex variable :math:`\alpha`.
 
