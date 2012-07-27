@@ -37,7 +37,7 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
    be inferred since the Householder vectors must be unit length); the scales
    with proper phases are returned in the column vector `t`.
 
-Please see the :ref:`tuning-parameters` section for extensive information on 
+Please see the :ref:`lapack-tuning` section for extensive information on 
 maximizing the performance of Householder tridiagonalization.
 
 General to Hessenberg

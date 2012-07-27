@@ -2,7 +2,7 @@ Special matrices
 ****************
 
 It is frequently useful to test algorithms on well-known, trivial, and random 
-matrices, such as::
+matrices, such as
 
 1. matrices with entries sampled from a uniform distribution,
 2. matrices with spectrum sampled from a uniform distribution,
