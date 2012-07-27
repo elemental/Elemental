@@ -339,20 +339,16 @@ Custom datatypes
      .. math:: 
         :nowrap:
 
-        \[
         \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
                        = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
-        \]
 
    * ``ONE_NORM``:
 
      .. math:: 
         :nowrap:
 
-        \[
         \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
                 = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
-        \]
 
    * ``MAX_NORM``:
 
@@ -365,9 +361,9 @@ Custom datatypes
    An enum for specifying the distribution of a row or column of a distributed
    matrix:
 
-   * ``MC``: Column of a matrix distribution
-   * ``MD``: Diagonal of a matrix distribution
-   * ``MR``: Row of a matrix distribution
+   * ``MC``: Column of a standard matrix distribution
+   * ``MD``: Diagonal of a standard matrix distribution
+   * ``MR``: Row of a standard matrix distribution
    * ``VC``: Column-major vector distribution
    * ``VR``: Row-major vector distribution
    * ``STAR``: Redundantly stored

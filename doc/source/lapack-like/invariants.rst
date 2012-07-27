@@ -10,9 +10,7 @@ the product of the eigenvalues (including multiplicity):
 .. math::
    :nowrap:
 
-   \[
    \mbox{det}(A) = \prod_{i=0}^{n-1} \lambda_i.
-   \]
 
 Since :math:`\mbox{det}(AB)=\mbox{det}(A)\mbox{det}(B)`, we can compute the 
 determinant of an arbitrary matrix in :math:`\mathcal{O}(n^3)` work by 
@@ -23,11 +21,9 @@ recognizing that :math:`\mbox{det}(P)=\pm 1`
 .. math::
    :nowrap:
 
-   \[
    \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U) 
                  = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
                  = \pm \prod_{i=0}^{n-1} \upsilon_{i,i},
-   \]
 
 where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
@@ -81,9 +77,7 @@ The two equally useful definitions of the trace of a square matrix
 .. math::
    :nowrap:
 
-   \[
    \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i} = \sum_{i=0}^{n-1} \lambda_i,
-   \]
 
 where :math:`\alpha_{i,i}` is the i'th diagonal entry of :math:`A` and 
 :math:`\lambda_i` is the i'th eigenvalue (counting multiplicity) of :math:`A`.

@@ -1,3 +1,5 @@
+.. _lapack-tuning:
+
 Tuning parameters
 =================
 
@@ -18,10 +20,10 @@ form:
 
 There is clearly a small penalty associated with the extra redistributions
 necessary for the second approach, but the benefit from using a square process
-grid is usually quite signficant. By default, ``HermitianTridiag`` will run the
-standard algorithm (approach 1) unless the matrix is already distributed over a
-square process grid. The reasoning is that good performance depends upon a
-"good" ordering of the square (say, :math:`\hat p \times \hat p`) subgrid,
+grid is usually quite signficant. By default, :cpp:func:`HermitianTridiag` will
+run the standard algorithm (approach 1) unless the matrix is already distributed
+over a square process grid. The reasoning is that good performance depends upon 
+a "good" ordering of the square (say, :math:`\hat p \times \hat p`) subgrid,
 though usually either a row-major or column-major ordering of the first
 :math:`\hat p^2` processes suffices.
 
@@ -38,14 +40,14 @@ though usually either a row-major or column-major ordering of the first
    .. note::
 
       A properly tuned ``HERMITIAN_TRIDIAG_SQUARE`` approach is almost always 
-      fastest, so it is worthwhile to test it with both the ``COLUMN_MAJOR`` and 
+      fastest, so it is worthwhile to test it with both the ``COLUMN_MAJOR`` and
       ``ROW_MAJOR`` subgrid orderings, as described below.
 
 
    .. note::
    
       The first algorithm heavily depends upon the performance of distributed 
-      ``Symv`` and ``Hemv`` (for real and complex data, 
+      :cpp:func:`Symv` and :cpp:func:`Hemv` (for real and complex data, 
       respectively), so users interested in maximizing the performance of the 
       first algorithm will likely want to investigate different values for the 
       local blocksizes through the routines 
@@ -55,8 +57,7 @@ though usually either a row-major or column-major ordering of the first
 
 .. cpp:function:: void SetHermitianTridiagApproach( HermitianTridiagApproach approach )
 
-   Sets the algorithm used by subsequent calls to
-   ``HermitianTridiag``.
+   Sets the algorithm used by subsequent calls to :cpp:func:`HermitianTridiag`.
 
 .. cpp:function:: HermitianTridiagApproach GetHermitianTridiagApproach()
 

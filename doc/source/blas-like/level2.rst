@@ -37,7 +37,7 @@ interpreted as column vectors.
 
 Gerc
 ----
-This is the same as ``Ger``, but the name is provided because it exists
+This is the same as :cpp:func:`Ger`, but the name is provided because it exists
 in the BLAS.
 
 .. cpp:function:: void Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
@@ -50,9 +50,9 @@ in the BLAS.
 
 Geru
 ----
-General rank-one update (unconjugated): :math:`A := \alpha x y^T + A`. :math:`x` and :math:`y`
-are free to be stored as either row or column vectors, but they will be 
-interpreted as column vectors.
+General rank-one update (unconjugated): :math:`A := \alpha x y^T + A`. :math:`x`
+and :math:`y` are free to be stored as either row or column vectors, but they 
+will be interpreted as column vectors.
 
 .. cpp:function:: void Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 
@@ -75,9 +75,9 @@ Hermitian matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalHemvBlocksize<T>( int blocksize )`` and 
-``int LocalHemvBlocksize<T>()`` in the *Tuning parameters* section for 
-information on tuning the distributed ``Hemv``.
+Please see :cpp:func:`SetLocalHemvBlocksize\<T>` and 
+:cpp:func:`LocalHemvBlocksize\<T>` in the :ref:`blas-tuning` section for 
+information on tuning the distributed :cpp:func:`Hemv`.
 
 Her
 ---
@@ -119,9 +119,9 @@ Symmetric matrix-vector multiply: :math:`y := \alpha A x + \beta y`, where
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalSymvBlocksize<T>( int blocksize )`` and 
-``int LocalSymvBlocksize<T>()`` in the *Tuning parameters* section for 
-information on tuning the distributed ``Symv``.
+Please see :cpp:func:`SetLocalSymvBlocksize\<T>` and 
+:cpp:func:`LocalSymvBlocksize\<T>` in the :ref:`blas-tuning` section for 
+information on tuning the distributed :cpp:func:`Symv`.
 
 Syr
 ---
@@ -152,7 +152,7 @@ where only the triangle of :math:`A` specified by `uplo` is updated.
 
 Trmv
 ----
-Not yet written. Please call Trmm.
+Not yet written. Please call :cpp:func:`Trmm` for now.
 
 Trsv
 ----

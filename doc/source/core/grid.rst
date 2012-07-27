@@ -3,7 +3,7 @@ The Grid class
 
 This class is responsible for converting MPI communicators into a 
 two-dimensional process grid meant for distributing matrices (ala the 
-soon-to-be-discussed ``DistMatrix`` class).
+soon-to-be-discussed :cpp:class:`DistMatrix\<T,U,V>` class).
 
 .. cpp:class:: Grid
 

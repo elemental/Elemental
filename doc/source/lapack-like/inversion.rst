@@ -9,9 +9,7 @@ This routine computes the in-place inverse of a general fully-populated
 .. math::
    :nowrap:
 
-   \[
    A^{-1} = U^{-1} L^{-1} P,
-   \]
 
 where :math:`PA=LU` is the result of LU factorization with partial pivoting.
 The algorithm essentially factors :math:`A`, inverts :math:`U` in place, 
@@ -34,9 +32,7 @@ Hermitian positive-definite matrix :math:`A` as
 .. math::
    :nowrap:
 
-   \[
    A^{-1} = (L L^H)^{-1} = L^{-H} L^{-1}, 
-   \]
 
 where :math:`L` is the lower Cholesky factor of :math:`A` (the upper Cholesky
 factor is computed in the case of upper-triangular storage). Rather than 
@@ -46,7 +42,8 @@ algorithm described in Bientinesi et al.'s "Families of algorithms related to th
 inversion of a symmetric positive definite matrix", in particular, the variant 2
 algorithm from Fig. 9. 
 
-If the matrix is found to not be HPD, then a ``NonHPDMatrixException`` is thrown.
+If the matrix is found to not be HPD, then a :cpp:class:`NonHPDMatrixException`
+is thrown.
 
 .. cpp:function:: void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 

@@ -26,12 +26,12 @@ modes are:
    :math:`\{ (x_i,\omega_i) \;|\; \omega_i \in (a,b] \}`.
 
 As of now, all three approaches start with Householder tridiagonalization 
-(ala ``HermitianTridiag``) and then call Matthias Petschow and 
+(ala :cpp:func:`HermitianTridiag`) and then call Matthias Petschow and 
 Paolo Bientinesi's PMRRR for the tridiagonal eigenvalue problem.
 
 .. note:: 
 
-   Please see the *Tuning parameters* section for information on optimizing 
+   Please see the :ref:`lapack-tuning` section for information on optimizing
    the reduction to tridiagonal form, as it is the dominant cost in all of 
    Elemental's Hermitian eigensolvers.
 
@@ -126,7 +126,7 @@ routine from the following list:
 
 Skew-Hermitian eigensolver
 --------------------------
-Essentially identical to the Hermitian eigensolver, ``HermitianEig``;
+Essentially identical to the Hermitian eigensolver, :cpp:func:`HermitianEig`;
 for any skew-Hermitian matrix :math:`G`, :math:`iG` is Hermitian, as 
 
 .. math::
@@ -140,11 +140,11 @@ This fact implies a fast method for solving skew-Hermitian eigenvalue problems:
 2. Run a Hermitian eigensolve on :math:`iG`, yielding :math:`iG=Z \Omega Z^H`.
 3. Recognize that :math:`G=Z (-i \Omega) Z^H` provides an EVD of :math:`G`.
 
-Please see the ``HermitianEig`` documentation for more details.
+Please see the :cpp:func:`HermitianEig` documentation for more details.
 
 .. note:: 
 
-   Please see the *Tuning parameters* section for information on optimizing 
+   Please see the :ref:`lapack-tuning` section for information on optimizing
    the reduction to tridiagonal form, as it is the dominant cost in all of 
    Elemental's Hermitian eigensolvers.
 
@@ -228,8 +228,8 @@ additionally positive-definite:
 
    ABx = \omega x,
 
-which is denoted with the value ``ABX`` via the ``HermitianGenDefiniteEigType``
-enum,
+which is denoted with the value ``ABX`` via the 
+:cpp:type:`HermitianGenDefiniteEigType` enum,
 
 .. math::
 

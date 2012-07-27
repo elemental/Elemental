@@ -1,7 +1,8 @@
 The DistMatrix class
 ====================
-The ``DistMatrix`` class is meant to provide a distributed-memory analogue of 
-the ``Matrix`` class. Similar to PLAPACK, roughly ten different matrix 
+The :cpp:class:`DistMatrix\<T,U,V>` class is meant to provide a 
+distributed-memory analogue of the :cpp:class:`Matrix\<T>` class. 
+Similarly to PLAPACK, roughly ten different matrix 
 distributions are provided and it is trivial (in the programmability sense) to 
 redistribute from one to another: in PLAPACK, one would simply call 
 ``PLA_Copy``, whereas, in Elemental, it is handled through overloading the 
@@ -10,8 +11,8 @@ redistribute from one to another: in PLAPACK, one would simply call
 Since it is crucial to know not only how many 
 processes to distribute the data over, but *which* processes, and in what 
 manner they should be decomposed into a logical two-dimensional grid, an 
-instance of the ``Grid`` class must be passed into the constructor of 
-the ``DistMatrix`` class.
+instance of the :cpp:class:`Grid` class must be passed into the constructor of 
+the :cpp:class:`DistMatrix\<T,U,V>` class.
 
 .. note:: 
    
@@ -249,6 +250,15 @@ to be available for all matrix distributions.
       Clear the distributed matrix's contents and reconfigure for the new 
       process grid.
 
+DistMatrix
+----------
+
+.. cpp:class:: DistMatrix<T,U,V>
+
+   This templated class for manipulating distributed matrices is only defined
+   for the following choices of the column and row :cpp:type:`Distribution`'s, 
+   ``U`` and ``V`` (``T`` is the datatype).
+
 ``[MC,MR]``
 -----------
 
@@ -261,7 +271,6 @@ column and row alignments are both 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      0 & 2 & 4 & 0 & 2 & 4 & 0 \\
      1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
@@ -271,7 +280,6 @@ column and row alignments are both 0):
      1 & 3 & 5 & 1 & 3 & 5 & 1 \\ 
      0 & 2 & 4 & 0 & 2 & 4 & 0  
    \end{array}\right)
-   \]
 
 Similarly, if the column alignment is kept at 0 and the row alignment is changed
 to 2 (meaning that the third process column owns the first column of the 
@@ -280,7 +288,6 @@ matrix), the individual entries would be owned as follows:
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      4 & 0 & 2 & 4 & 0 & 2 & 4 \\
      5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
@@ -290,7 +297,6 @@ matrix), the individual entries would be owned as follows:
      5 & 1 & 3 & 5 & 1 & 3 & 5 \\ 
      4 & 0 & 2 & 4 & 0 & 2 & 4 
    \end{array}\right)
-   \]
 
 It should also be noted that this is the default distribution format for the 
 ``DistMatrix`` class, as ``DistMatrix<T>`` defaults to ``DistMatrix<T,MC,MR>``.
@@ -714,7 +720,6 @@ column alignment is 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
      \{0,2,4\} & \{0,2,4\} \\
@@ -731,7 +736,6 @@ column alignment is 0):
      \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
      \{0,2,4\} & \{0,2,4\} 
    \end{array}\right)
-   \]
 
 **TODO:** Add the member functions. 
 
@@ -745,7 +749,6 @@ the row alignment is 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
@@ -755,7 +758,6 @@ the row alignment is 0):
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} 
    \end{array}\right)
-   \]
 
 **TODO:** Add the member functions. 
 
@@ -770,7 +772,6 @@ column and row alignments are both 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      0 & 1 & 0 & 1 & 0 & 1 & 0 \\
      2 & 3 & 2 & 3 & 2 & 3 & 2 \\
@@ -780,8 +781,6 @@ column and row alignments are both 0):
      4 & 5 & 4 & 5 & 4 & 5 & 4 \\
      0 & 1 & 0 & 1 & 0 & 1 & 0 
    \end{array}\right)
-   \]
-
 
 ``[MR,* ]``
 -----------
@@ -794,7 +793,6 @@ the column alignment is 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} \\
      \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} & \{2,3\} \\
@@ -804,7 +802,6 @@ the column alignment is 0):
      \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} \\
      \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} 
    \end{array}\right)
-   \]
 
 ``[* ,MC]``
 -----------
@@ -817,7 +814,6 @@ the column alignment is 0):
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
      \{0,2,4\} \\
@@ -834,7 +830,6 @@ the column alignment is 0):
      \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
      \{0,2,4\} 
    \end{array}\right)
-   \]
 
 ``[MD,* ]``
 -----------
@@ -860,7 +855,6 @@ would be owned by the following sets of processes:
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      1 & 1 & 1 & 1 & 1 & 1 & 1 \\
@@ -870,7 +864,6 @@ would be owned by the following sets of processes:
      5 & 5 & 5 & 5 & 5 & 5 & 5 \\
      0 & 0 & 0 & 0 & 0 & 0 & 0
    \end{array}\right)
-   \]
 
 **TODO:** describe the member functions.
 
@@ -883,7 +876,6 @@ This is the transpose of the above ``[VC,* ]`` distribution. On the standard
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
    0 & 1 & 2 & 3 & 4 & 5 & 0 \\
    0 & 1 & 2 & 3 & 4 & 5 & 0 \\
@@ -893,7 +885,6 @@ This is the transpose of the above ``[VC,* ]`` distribution. On the standard
    0 & 1 & 2 & 3 & 4 & 5 & 0 \\
    0 & 1 & 2 & 3 & 4 & 5 & 0 
    \end{array}\right)
-   \]
 
 **TODO:** describe the member functions.
 
@@ -909,7 +900,6 @@ would be owned by the following sets of processes:
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      2 & 2 & 2 & 2 & 2 & 2 & 2 \\
@@ -919,7 +909,6 @@ would be owned by the following sets of processes:
      5 & 5 & 5 & 5 & 5 & 5 & 5 \\
      0 & 0 & 0 & 0 & 0 & 0 & 0
    \end{array}\right)
-   \]
 
 **TODO:** describe the member functions.
 
@@ -932,7 +921,6 @@ This is the transpose of the above ``[VR,* ]`` distribution. On the standard
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
    0 & 2 & 4 & 1 & 3 & 5 & 0 \\
    0 & 2 & 4 & 1 & 3 & 5 & 0 \\
@@ -942,7 +930,6 @@ This is the transpose of the above ``[VR,* ]`` distribution. On the standard
    0 & 2 & 4 & 1 & 3 & 5 & 0 \\
    0 & 2 & 4 & 1 & 3 & 5 & 0 
    \end{array}\right)
-   \]
 
 **TODO:** describe the member functions.
 
@@ -956,7 +943,6 @@ sets of processes:
 .. math::
    :nowrap:
 
-   \[
    \left(\begin{array}{ccccccc}
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} \\
@@ -973,6 +959,5 @@ sets of processes:
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} 
    \end{array}\right)
-   \]
 
 **TODO:** describe the member functions.

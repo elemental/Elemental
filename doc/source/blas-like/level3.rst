@@ -53,10 +53,10 @@ triangle of :math:`C` specified by the `uplo` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalTrr2kBlocksize<T>( int blocksize )`` 
-and ``int LocalTrr2kBlocksize<T>()`` in the 
-*Tuning parameters* section for information on tuning the distributed 
-``Her2k``.
+Please see :cpp:func:`SetLocalTrr2kBlocksize\<T>` 
+and :cpp:func:`LocalTrr2kBlocksize\<T>` in the 
+:ref:`blas-tuning` section for information on tuning the distributed 
+:cpp:func:`Her2k`.
 
 Herk
 ----
@@ -74,9 +74,9 @@ specified by the `uplo` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalTrrkBlocksize<T>( int blocksize )`` 
-and ``int LocalTrrkBlocksize<T>()`` in the *Tuning parameters*
-section for information on tuning the distributed ``Herk``.
+Please see :cpp:func:`SetLocalTrrkBlocksize\<T>` 
+and :cpp:func:`LocalTrrkBlocksize\<T>` in the :ref:`blas-tuning`
+section for information on tuning the distributed :cpp:func:`Herk`.
 
 Symm
 ----
@@ -111,10 +111,10 @@ triangle of :math:`C` specified by the `uplo` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalTrr2kBlocksize<T>( int blocksize )`` 
-and ``int LocalTrr2kBlocksize<T>()`` in the 
-*Tuning parameters* section for information on tuning the distributed 
-``Syr2k``.
+Please see :cpp:func:`SetLocalTrr2kBlocksize\<T>` 
+and :cpp:func:`LocalTrr2kBlocksize\<T>` in the 
+:ref:`blas-tuning` section for information on tuning the distributed 
+:cpp:func:`Syr2k`.
 
 Syrk
 ----
@@ -132,9 +132,9 @@ specified by the `uplo` parameter is modified.
 
    The distributed implementation (templated over the datatype).
 
-Please see ``SetLocalTrrkBlocksize<T>( int blocksize )`` 
-and ``int LocalTrrkBlocksize<T>()`` in the *Tuning parameters*
-section for information on tuning the distributed ``Syrk``.
+Please see :cpp:func:`SetLocalTrrkBlocksize\<T>` 
+and :cpp:func:`LocalTrrkBlocksize\<T>` in the :ref:`blas-tuning`
+section for information on tuning the distributed :cpp:func:`Syrk`.
 
 Trmm
 ----

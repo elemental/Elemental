@@ -3,11 +3,12 @@ Factorizations
 
 Cholesky factorization
 ----------------------
-It is well-known that Hermitian positive-definite (HPD) matrices can be decomposed
-into the form :math:`A = L L^H` or :math:`A = U^H U`, where :math:`L=U^H` is lower
-triangular, and Cholesky factorization provides such an :math:`L` (or :math:`U`) 
-given an HPD :math:`A`. If :math:`A` is found to be numerically indefinite, then 
-a ``NonHPDMatrixException`` will be thrown.
+It is well-known that Hermitian positive-definite (HPD) matrices can be 
+decomposed into the form :math:`A = L L^H` or :math:`A = U^H U`, where 
+:math:`L=U^H` is lower triangular, and Cholesky factorization provides such an 
+:math:`L` (or :math:`U`) given an HPD :math:`A`. If :math:`A` is found to be 
+numerically indefinite, then a :cpp:class:`NonHPDMatrixException` will be 
+thrown.
 
 .. cpp:function:: void Cholesky( UpperOrLower uplo, Matrix<F>& A )
 .. cpp:function:: void Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
@@ -16,8 +17,8 @@ a ``NonHPDMatrixException`` will be thrown.
 
 .. note::
 
-   See HPSDCholesky for a generalization which also works for semi-definite
-   matrices.
+   See :cpp:func:`HPSDCholesky` for a generalization which also works for 
+   semi-definite matrices.
 
 :math:`LDL^H` factorization
 ---------------------------
@@ -26,7 +27,8 @@ many Hermitian matrices whose eigenvalues are not all positive. The
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
 factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
 and diagonal :math:`D` such that :math:`A = L D L^H`. If :math:`A` is found to 
-be numerically singular, then a ``SingularMatrixException`` will be thrown.
+be numerically singular, then a :cpp:class:`SingularMatrixException` will be 
+thrown.
 
    .. warning::
 
@@ -48,7 +50,8 @@ be numerically singular, then a ``SingularMatrixException`` will be thrown.
 ---------------------------
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
 :math:`LDL^T` factorization targets symmetric matrices. If :math:`A` is found to 
-be numerically singular, then a ``SingularMatrixException`` will be thrown.
+be numerically singular, then a :cpp:class:`SingularMatrixException` will be 
+thrown.
 
    .. warning::
 
@@ -76,7 +79,7 @@ Since :math:`L` is required to have its diaganal entries set to one: the upper
 portion of :math:`A` can be overwritten with `U`, and the strictly lower 
 portion of :math:`A` can be overwritten with the strictly lower portion of 
 :math:`L`. If :math:`A` is found to be numerically singular, then a 
-``SingularMatrixException`` will be thrown.
+:cpp:class:`SingularMatrixException` will be thrown.
 
 .. cpp:function:: void LU( Matrix<F>& A )
 .. cpp:function:: void LU( DistMatrix<F>& A )

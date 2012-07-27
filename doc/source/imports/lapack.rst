@@ -68,13 +68,11 @@ Given :math:`\phi, \gamma \in \mathbb{C}^{n \times n}`, carefully compute
 .. math::
    :nowrap:
 
-   \[
    \left[\begin{array}{cc}
      c       & s \\
      -\bar s & c \end{array}\right] 
    \left[ \begin{array}{c} \phi \\ \gamma \end{array} \right] = 
    \left[ \begin{array}{c} \rho \\ 0 \end{array} \right],
-   \]
 
 where :math:`c^2 + |s|^2 = 1` and the mapping from :math:`(\phi,\gamma) \rightarrow (c,s,\rho)` is "as continuous as possible", in the manner described by 
 Kahan and Demmel's "On computing Givens rotations reliably and efficiently".

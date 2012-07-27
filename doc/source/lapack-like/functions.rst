@@ -54,12 +54,10 @@ Pseudoinverse
    .. math::
       :nowrap:
 
-      \[
       f(\sigma) = \left\{\begin{array}{cc} 
         1/\sigma, & \sigma \ge \epsilon \, n \, ||A||_2 \\
             0,      & \mbox{otherwise}
       \end{array}\right.,
-      \]
 
    where :math:`\epsilon` is the relative machine precision,
    :math:`n` is the height of :math:`A`, and :math:`\|A\|_2` is the maximum
@@ -67,17 +65,17 @@ Pseudoinverse
 
 .. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
 
-   Computes the pseudoinverse of a Hermitian matrix through a customized version of ``RealHermitianFunction`` which used the eigenvalue mapping function
+   Computes the pseudoinverse of a Hermitian matrix through a customized version
+   of :cpp:func:`RealHermitianFunction` which used the eigenvalue mapping 
+   function
 
    .. math::
       :nowrap:
 
-      \[
       f(\omega) = \left\{\begin{array}{cc} 
         1/\omega, & |\omega| \ge \epsilon \, n \, ||A||_2 \\
             0,      & \mbox{otherwise}
       \end{array}\right.,
-      \]
 
    where :math:`\epsilon` is the relative machine precision,
    :math:`n` is the height of :math:`A`, and :math:`||A||_2` can be computed
@@ -104,7 +102,10 @@ where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
 
 .. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
-   Hermitian matrices with non-negative eigenvalues have a natural matrix square root which remains Hermitian. This routine attempts to overwrite a matrix with its square root and throws a ``NonHPSDMatrixException`` if any sufficiently negative eigenvalues are computed.
+   Hermitian matrices with non-negative eigenvalues have a natural matrix 
+   square root which remains Hermitian. This routine attempts to overwrite a 
+   matrix with its square root and throws a :cpp:class:`NonHPSDMatrixException`
+   if any sufficiently negative eigenvalues are computed.
 
 **TODO: HermitianSquareRoot**
 
@@ -128,7 +129,7 @@ and
    A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
 
 If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`,
-then a ``NonHPSDMatrixException`` will be thrown.
+then a :cpp:class:`NonHPSDMatrixException` will be thrown.
 
 .. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 

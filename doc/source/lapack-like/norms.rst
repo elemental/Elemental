@@ -19,16 +19,28 @@ For computing norms of fully-populated matrices.
 HermitianNorm
 -------------
 
-Same as ``Norm``, but the (distributed) matrix is implicitly Hermitian 
-with the data stored in the triangle specified by ``UpperOrLower``. Also, 
-while ``Norm`` supports every type of distribution, ``HermitianNorm`` currently
-only supports the standard matrix distribution.
+Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly 
+Hermitian with the data stored in the triangle specified by 
+:cpp:type:`UpperOrLower`. 
+Also, while :cpp:func:`Norm` supports every type of distribution, 
+:cpp:func:`HermitianNorm` currently only supports the standard matrix 
+distribution.
+
+.. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 
 SymmetricNorm
 -------------
 
-Same as ``Norm``, but the (distributed) matrix is implicitly symmetric
-with the data stored in the triangle specified by ``UpperOrLower``.
+Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly 
+symmetric with the data stored in the triangle specified by 
+:cpp:type:`UpperOrLower`. 
+Also, while :cpp:func:`Norm` supports every type of distribution, 
+:cpp:func:`SymmetricNorm` currently only supports the standard matrix 
+distribution.
+
+.. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
+.. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 
 Two-norm estimates
 ------------------
