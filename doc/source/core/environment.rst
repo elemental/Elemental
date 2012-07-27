@@ -56,14 +56,10 @@ Blocksize manipulation
 
    Pops the stack of blocksizes. See above.
 
-Custom datatypes
-----------------
+Complex data
+------------
 
-.. cpp:type:: byte
-
-   ``typedef unsigned char byte;``
-
-.. cpp:class:: Complex<R>
+.. cpp:type:: struct Complex<R>
 
    .. cpp:type:: R BaseType
 
@@ -234,90 +230,6 @@ Custom datatypes
 
    ``typedef Complex<double> dcomplex;``
 
-.. cpp:type:: UnitOrNonUnit
-
-   An enum for specifying either ``UNIT`` or ``NON_UNIT``; typically used for 
-   stating whether or not a triangular matrix's diagonal is explicitly stored
-   (``NON_UNIT``) or is implicitly unit-diagonal (``UNIT``).
-
-.. cpp:type:: Orientation
-
-   An enum for specifying whether a matrix, say :math:`A`, should be implicitly 
-   treated as :math:`A` (``NORMAL``), :math:`A^H` (``ADJOINT``), or :math:`A^T`
-   (``TRANSPOSE``).
-
-.. cpp:type:: LeftOrRight
-
-   An enum for specifying ``LEFT`` or ``RIGHT``.
-
-.. cpp:type:: ForwardOrBackward
-
-   An enum for specifying ``FORWARD`` or ``BACKWARD``.
-
-.. cpp:type:: UpperOrLower
-
-   An enum for specifying ``LOWER`` or ``UPPER`` (triangular).
-
-.. cpp:type:: VerticalOrHorizontal
-
-   An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
-
-.. cpp:type:: Conjugation
-
-   An enum which can be set to either ``CONJUGATED`` or ``UNCONJUGATED``.
-
-.. cpp:type:: NormType
-
-   An enum that can be set to either
-
-   * ``FROBENIUS_NORM``:
-
-     .. math::
-
-        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
-
-   * ``INFINITY_NORM``:
-
-     .. math:: 
-        :nowrap:
-
-        \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
-                       = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
-
-   * ``ONE_NORM``:
-
-     .. math:: 
-        :nowrap:
-
-        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
-                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
-
-   * ``MAX_NORM``:
-
-     .. math::
-     
-        \|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
-  
-.. cpp:type:: Distribution
-
-   An enum for specifying the distribution of a row or column of a distributed
-   matrix:
-
-   * ``MC``: Column of a standard matrix distribution
-   * ``MD``: Diagonal of a standard matrix distribution
-   * ``MR``: Row of a standard matrix distribution
-   * ``VC``: Column-major vector distribution
-   * ``VR``: Row-major vector distribution
-   * ``STAR``: Redundantly stored
-
-.. cpp:type:: GridOrder
-
-   An enum for specifying either a ``ROW_MAJOR`` or ``COLUMN_MAJOR`` ordering;
-   it is used to tune one of the algorithms in ``HermitianTridiag``
-   which requires building a smaller square process grid from a rectangular 
-   process grid, as the ordering of the processes can greatly impact 
-   performance. See ``SetHermitianTridiagGridOrder``.
-
 Scalar manipulation
 -------------------
 
@@ -390,6 +302,97 @@ Scalar manipulation
 .. cpp:function:: F Log( const F& alpha )
 
    Returns the logarithm of the real or complex variable :math:`\alpha`.
+
+Other typedefs and enums
+------------------------
+
+.. cpp:type:: byte
+
+   ``typedef unsigned char byte;``
+
+.. cpp:type:: enum Conjugation
+
+   An enum which can be set to either ``CONJUGATED`` or ``UNCONJUGATED``.
+
+.. cpp:type:: enum Distribution
+
+   An enum for specifying the distribution of a row or column of a distributed
+   matrix:
+
+   * ``MC``: Column of a standard matrix distribution
+   * ``MD``: Diagonal of a standard matrix distribution
+   * ``MR``: Row of a standard matrix distribution
+   * ``VC``: Column-major vector distribution
+   * ``VR``: Row-major vector distribution
+   * ``STAR``: Redundantly stored
+
+.. cpp:type:: enum ForwardOrBackward
+
+   An enum for specifying ``FORWARD`` or ``BACKWARD``.
+
+.. cpp:type:: enum GridOrder
+
+   An enum for specifying either a ``ROW_MAJOR`` or ``COLUMN_MAJOR`` ordering;
+   it is used to tune one of the algorithms in :cpp:func:`HermitianTridiag`
+   which requires building a smaller square process grid from a rectangular 
+   process grid, as the ordering of the processes can greatly impact 
+   performance. See :cpp:func:`SetHermitianTridiagGridOrder`.
+
+.. cpp:type:: enum LeftOrRight
+
+   An enum for specifying ``LEFT`` or ``RIGHT``.
+
+.. cpp:type:: enum NormType
+
+   An enum that can be set to either
+
+   * ``FROBENIUS_NORM``:
+
+     .. math::
+
+        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
+
+   * ``INFINITY_NORM``:
+
+     .. math:: 
+        :nowrap:
+
+        \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
+                       = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
+
+   * ``ONE_NORM``:
+
+     .. math:: 
+        :nowrap:
+
+        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
+                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
+
+   * ``MAX_NORM``:
+
+     .. math::
+     
+        \|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
+  
+.. cpp:type:: enum Orientation
+
+   An enum for specifying whether a matrix, say :math:`A`, should be implicitly 
+   treated as :math:`A` (``NORMAL``), :math:`A^H` (``ADJOINT``), or :math:`A^T`
+   (``TRANSPOSE``).
+
+.. cpp:type:: enum UnitOrNonUnit
+
+   An enum for specifying either ``UNIT`` or ``NON_UNIT``; typically used for 
+   stating whether or not a triangular matrix's diagonal is explicitly stored
+   (``NON_UNIT``) or is implicitly unit-diagonal (``UNIT``).
+
+.. cpp:type:: enum UpperOrLower
+
+   An enum for specifying ``LOWER`` or ``UPPER`` (triangular).
+
+.. cpp:type:: enum VerticalOrHorizontal
+
+   An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
 
 Custom exceptions
 -----------------
