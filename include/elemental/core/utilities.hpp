@@ -45,30 +45,30 @@ template<typename Int>
 Int RawGCD( Int a, Int b ); 
 
 template<typename Int>
-Int LocalLength( Int n, Int shift, Int modulus );
+Int LocalLength( Int n, Int shift, Int numProcs );
 
 template<typename Int>
-Int RawLocalLength( Int n, Int shift, Int modulus );
+Int RawLocalLength( Int n, Int shift, Int numProcs );
 
 template<typename Int>
 Int LocalLength
-( Int n, Int index, Int alignment, Int modulus );
+( Int n, Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
 Int RawLocalLength
-( Int n, Int index, Int alignment, Int modulus );
+( Int n, Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
-Int MaxLocalLength( Int n, Int modulus );
+Int MaxLocalLength( Int n, Int numProcs );
 
 template<typename Int>
-Int RawMaxLocalLength( Int n, Int modulus );
+Int RawMaxLocalLength( Int n, Int numProcs );
 
 template<typename Int>
-Int Shift( Int index, Int alignment, Int modulus );
+Int Shift( Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
-Int RawShift( Int index, Int alignment, Int modulus );
+Int RawShift( Int rank, Int firstRank, Int numProcs );
 
 //----------------------------------------------------------------------------//
 // Implementation begins here                                                 //
@@ -110,41 +110,41 @@ inline Int RawGCD( Int a, Int b )
 }
 
 template<typename Int>
-inline Int LocalLength( Int n, Int shift, Int modulus )
+inline Int LocalLength( Int n, Int shift, Int numProcs )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
-    if( shift < 0 || shift >= modulus )
+    if( shift < 0 || shift >= numProcs )
     {
         std::ostringstream msg;
         msg << "Invalid shift: "
-            << "shift=" << shift << ", modulus=" << modulus;
+            << "shift=" << shift << ", numProcs=" << numProcs;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( modulus <= 0 )
+    if( numProcs <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawLocalLength( n, shift, modulus );
+    return RawLocalLength( n, shift, numProcs );
 }
 
 template<typename Int>
-inline Int RawLocalLength( Int n, Int shift, Int modulus )
+inline Int RawLocalLength( Int n, Int shift, Int numProcs )
 {
-    return ( n > shift ? (n - shift - 1)/modulus + 1 : 0 );
+    return ( n > shift ? (n - shift - 1)/numProcs + 1 : 0 );
 }
 
 template<typename Int>
 inline Int 
-LocalLength( Int n, Int index, Int alignment, Int modulus )
+LocalLength( Int n, Int rank, Int firstRank, Int numProcs )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
 #endif
-    Int shift = Shift( index, alignment, modulus );
-    Int localLength = LocalLength( n, shift, modulus );
+    Int shift = Shift( rank, firstRank, numProcs );
+    Int localLength = LocalLength( n, shift, numProcs );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -153,66 +153,66 @@ LocalLength( Int n, Int index, Int alignment, Int modulus )
 
 template<typename Int>
 inline Int RawLocalLength
-( Int n, Int index, Int alignment, Int modulus )
+( Int n, Int rank, Int firstRank, Int numProcs )
 {
-    Int shift = RawShift( index, alignment, modulus );
-    Int localLength = RawLocalLength( n, shift, modulus );
+    Int shift = RawShift( rank, firstRank, numProcs );
+    Int localLength = RawLocalLength( n, shift, numProcs );
     return localLength;
 }
 
 template<typename Int>
-inline Int MaxLocalLength( Int n, Int modulus )
+inline Int MaxLocalLength( Int n, Int numProcs )
 {
 #ifndef RELEASE
     PushCallStack("MaxLocalLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
-    if( modulus <= 0 )
+    if( numProcs <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawMaxLocalLength( n, modulus );
+    return RawMaxLocalLength( n, numProcs );
 }
 
 template<typename Int>
-inline Int RawMaxLocalLength( Int n, Int modulus )
+inline Int RawMaxLocalLength( Int n, Int numProcs )
 {
-    return ( n > 0 ? (n - 1)/modulus + 1 : 0 );
+    return ( n > 0 ? (n - 1)/numProcs + 1 : 0 );
 }
 
 // For determining the first global element of process row/column 
-// 'index', with distribution alignment 'alignment' and number of process 
-// rows/cols 'modulus'
+// 'rank', with distribution alignment 'firstRank' and number of process 
+// rows/cols 'numProcs'
 template<typename Int>
-inline Int Shift( Int index, Int alignment, Int modulus )
+inline Int Shift( Int rank, Int firstRank, Int numProcs )
 {
 #ifndef RELEASE
     PushCallStack("Shift");
-    if( index < 0 || index >= modulus )
+    if( rank < 0 || rank >= numProcs )
     {
         std::ostringstream msg;
-        msg << "Invalid index: "
-            << "index=" << index << ", modulus=" << modulus;
+        msg << "Invalid rank: "
+            << "rank=" << rank << ", numProcs=" << numProcs;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( alignment < 0 || alignment >= modulus )
+    if( firstRank < 0 || firstRank >= numProcs )
     {
         std::ostringstream msg;
-        msg << "Invalid alignment: "
-            << "alignment=" << alignment << ", modulus=" << modulus;
+        msg << "Invalid first rank: "
+            << "first rank=" << firstRank << ", numProcs=" << numProcs;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( modulus <= 0 )
+    if( numProcs <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawShift( index, alignment, modulus );
+    return RawShift( rank, firstRank, numProcs );
 }
 
 template<typename Int>
-inline Int RawShift( Int index, Int alignment, Int modulus )
+inline Int RawShift( Int rank, Int firstRank, Int numProcs )
 {
-    return (index + modulus - alignment) % modulus;
+    return (rank + numProcs - firstRank) % numProcs;
 }
 
 } // namespace elem

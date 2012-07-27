@@ -462,6 +462,29 @@ Call stack manipulation
 .. cpp:function:: void DumpCallStack()
 
    Print (and empty) the contents of the call stack.
+
+Indexing utilities
+------------------
+
+.. cpp:function:: Int Shift( Int rank, Int firstRank, Int numProcs )
+
+   Given a element-wise cyclic distribution over ``numProcs`` processes, 
+   where the first entry is owned by the process with rank ``firstRank``, 
+   this routine returns the first entry owned by the process with rank
+   ``rank``.
+
+.. cpp:function:: Int LocalLength( Int n, Int shift, Int numProcs )
+
+   Given a vector with :math:`n` entries distributed over ``numProcs`` 
+   processes with shift as defined above, this routine returns the number of 
+   entries of the vector which are owned by this process.
+
+.. cpp:function:: Int LocalLength( Int n, Int rank, Int firstRank, Int numProcs )
+
+   Given a vector with :math:`n` entries distributed over ``numProcs`` 
+   processes, with the first entry owned by process ``firstRank``, this routine
+   returns the number of entries locally owned by the process with rank 
+   ``rank``.
    
 Default process grid
 --------------------
