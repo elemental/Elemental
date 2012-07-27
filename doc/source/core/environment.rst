@@ -30,7 +30,7 @@ Set up and clean up
 
 .. cpp:function:: bool Initialized()
 
-   Return whether or not Elemental is currently initialized.
+   Returns whether or not Elemental is currently initialized.
 
 Blocksize manipulation
 ----------------------
@@ -55,75 +55,6 @@ Blocksize manipulation
 .. cpp:function:: void PopBlocksizeStack() 
 
    Pops the stack of blocksizes. See above.
-
-Scalar manipulation
--------------------
-
-.. cpp:function:: Z Abs( const Z& alpha )
-
-   Return the absolute value of the real variable :math:`\alpha`.
-
-.. cpp:function:: Z Abs( const Complex<Z>& alpha )
-
-   Return the absolute value of complex :math:`\alpha`: 
-
-   .. math::
-
-      |\alpha| = \sqrt{|\mathcal{R}(\alpha)|^2+|\mathcal{I}(\alpha)|^2}
-
-.. cpp:function:: Z FastAbs( const Z& alpha )
-
-   Same as :cpp:function::Abs: for real :math:`\alpha`.
-
-.. cpp:function:: Z FastAbs( const Complex<Z>& alpha )
-
-   Return a cheaper norm of the complex :math:`\alpha`:
-
-   .. math::
-   
-      |\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|
-
-.. cpp:function:: Z RealPart( const Z& alpha )
-
-   Return the real part of the real variable :math:`\alpha`, which is 
-   :math:`\alpha` itself. 
-
-.. cpp:function:: Z RealPart( const Complex<Z>& alpha )
-
-   Return the real part of the complex variable :math:`\alpha`.
-
-.. cpp:function:: Z ImagPart( const Z& alpha )
-
-   Return the imaginary part of the real variable :math:`\alpha`, which is 
-   trivially zero.
-
-.. cpp:function:: Z ImagPart( const Complex<Z>& alpha )
-
-   Return the imaginary part of the complex variable :math:`\alpha`.
-
-.. cpp:function:: Z Conj( const Z& alpha )
-
-   Return the complex conjugate of the real variable :math:`\alpha`,
-   which is simply :math:`\alpha`.
-
-.. cpp:function:: Complex<Z> Conj( const Complex<Z>& alpha )
-
-   Return the complex conjugate of the complex variable :math:`\alpha`,
-
-   .. math::
-
-      \bar \alpha = \mathcal{R}(\alpha) - \mathcal{I}(\alpha) i
-
-.. cpp:class:: Base<F>
-
-   .. cpp:type:: type
-
-      The underlying real datatype of the (potentially complex) datatype ``F``.
-      For example, ``typename Base<Complex<double> >::type`` and 
-      ``typename Base<double>::type`` are both equivalent to ``double``.
-      This is often extremely useful in implementing routines which are 
-      templated over real and complex datatypes but still make use of real 
-      datatypes.
 
 Custom datatypes
 ----------------
@@ -199,6 +130,17 @@ Custom datatypes
    .. cpp:function:: Complex<R>& operator/=( const Complex<R>& alpha )
 
       Divide with a complex value.
+
+.. cpp:type:: struct Base<F>
+
+   .. cpp:type:: type
+
+      The underlying real datatype of the (potentially complex) datatype ``F``.
+      For example, ``typename Base<Complex<double> >::type`` and 
+      ``typename Base<double>::type`` are both equivalent to ``double``.
+      This is often extremely useful in implementing routines which are 
+      templated over real and complex datatypes but still make use of real 
+      datatypes.
 
 .. cpp:function:: Complex<R> operator+( const Complex<R>& alpha, const Complex<R>& beta )
 
@@ -375,6 +317,79 @@ Custom datatypes
    which requires building a smaller square process grid from a rectangular 
    process grid, as the ordering of the processes can greatly impact 
    performance. See ``SetHermitianTridiagGridOrder``.
+
+Scalar manipulation
+-------------------
+
+.. cpp:function:: F Abs( const F& alpha )
+
+   Return the absolute value of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F FastAbs( const F& alpha )
+
+   Return a cheaper norm of the real or complex :math:`\alpha`:
+
+   .. math::
+   
+      |\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|
+
+.. cpp:function:: F RealPart( const F& alpha )
+
+   Return the real part of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F ImagPart( const F& alpha )
+
+   Return the imaginary part of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Conj( const F& alpha )
+
+   Return the complex conjugate of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Sqrt( const F& alpha )
+
+   Returns the square root or the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Cos( const F& alpha )
+
+   Returns the cosine of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Sin( const F& alpha )
+
+   Returns the sine of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Tan( const F& alpha )
+
+   Returns the tangent of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Cosh( const F& alpha )
+
+   Returns the hyperbolic cosine of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Sinh( const F& alpha )
+
+   Returns the hyperbolic sine of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: typename Base<F>::type Arg( const F& alpha )
+
+   Returns the argument of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: Complex<R> Polar( const R& r, const R& theta=0 )
+
+   Returns the complex variable constructed from the polar coordinates
+   :math:`(r,\theta)`.
+
+.. cpp:function:: F Exp( const F& alpha )
+
+   Returns the exponential of the real or complex variable :math:`\alpha`.
+
+.. cpp:function:: F Pow( const F& alpha, const F& beta )
+
+   Returns :math:`\alpha^\beta` for real or complex :math:`\alpha` and 
+   :math:`\beta`.
+
+.. cpp:function:: F Log( const F& alpha )
+
+   Returns the logarithm of the real or complex variable :math:`\alpha`.
 
 Custom exceptions
 -----------------
