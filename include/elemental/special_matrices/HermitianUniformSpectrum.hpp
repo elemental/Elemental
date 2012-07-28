@@ -110,8 +110,8 @@ MakeHermitianUniformSpectrum
     Ger( (F)-2, u, v, A );
     Ger( (F)-2, v, u, A );
 
-    // Form \gamma := 4 u^H (D u) = 4 (u,Du)
-    const F gamma = 4*Dot(u,v);
+    // Form gamma := 4 u^H (D u) = 4 (u,Du)
+    const F gamma = static_cast<F>(4)*Dot(u,v);
 
     // Update A := A + gamma u u^H
     Ger( gamma, u, u, A );
@@ -206,8 +206,8 @@ MakeHermitianUniformSpectrum
         Ger( (F)-2, v, u, ABackup );
     }
 
-    // Form \gamma := 4 u^H (D u) = 4 (u,Du)
-    const F gamma = 4*Dot(u,v);
+    // Form gamma := 4 u^H (D u) = 4 (u,Du)
+    const F gamma = static_cast<F>(4)*Dot(u,v);
 
     // Update A := A + gamma u u^H
     if( standardDist )

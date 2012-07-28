@@ -501,4 +501,3 @@ Default process grid
       // Build a 10 x 10 distributed matrix over mpi::COMM_WORLD
       elem::DistMatrix<T,MC,MR> A( 10, 10 );
 
-

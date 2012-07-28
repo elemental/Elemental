@@ -30,20 +30,76 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
+namespace elem {
+
+template<typename G>
+inline 
+Memory<G>::Memory()
+: size_(0), buffer_(NULL)
+{ }
+
+template<typename G>
+inline 
+Memory<G>::Memory( std::size_t size )
+: size_(size), buffer_(new G[size])
+{ }
+
+template<typename G>
+inline 
+Memory<G>::~Memory()
+{ delete[] buffer_; }
+
+template<typename G>
+inline G* 
+Memory<G>::Buffer() const
+{ return buffer_; }
+
+template<typename G>
+inline std::size_t 
+Memory<G>::Size() const
+{ return size_; }
+
+template<typename G>
+inline void 
+Memory<G>::Require( std::size_t size )
+{
+    if( size > size_ )
+    {
+        delete[] buffer_;
+#ifndef RELEASE
+        try {
 #endif
+        buffer_ = new G[size];
+#ifndef RELEASE
+        } 
+        catch( std::bad_alloc& exception )
+        {
+            std::cerr << "Failed to allocate " << size*sizeof(G) 
+                      << " bytes" << std::endl;
+            throw exception;
+        }
+#endif
+        size_ = size;
+    }
+}
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+template<typename G>
+inline void 
+Memory<G>::Release()
+{
+#ifndef POOL_MEMORY
+    this->Empty();
+#endif
+}
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+template<typename G>
+inline void 
+Memory<G>::Empty()
+{
+    delete[] buffer_;
+    size_ = 0;
+    buffer_ = 0;
+}
 
-#endif // ELEMENTAL_H
+} // namespace elem

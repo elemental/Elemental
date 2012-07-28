@@ -30,20 +30,42 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+namespace elem {
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+template<typename Int>
+Int DiagonalLength( Int height, Int width, Int offset=0 );
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+template<typename Int>
+Int GCD( Int a, Int b ); 
 
-#endif // ELEMENTAL_H
+template<typename Int>
+Int RawGCD( Int a, Int b ); 
+
+template<typename Int>
+Int LocalLength( Int n, Int shift, Int numProcs );
+
+template<typename Int>
+Int RawLocalLength( Int n, Int shift, Int numProcs );
+
+template<typename Int>
+Int LocalLength
+( Int n, Int rank, Int firstRank, Int numProcs );
+
+template<typename Int>
+Int RawLocalLength
+( Int n, Int rank, Int firstRank, Int numProcs );
+
+template<typename Int>
+Int MaxLocalLength( Int n, Int numProcs );
+
+template<typename Int>
+Int RawMaxLocalLength( Int n, Int numProcs );
+
+template<typename Int>
+Int Shift( Int rank, Int firstRank, Int numProcs );
+
+template<typename Int>
+Int RawShift( Int rank, Int firstRank, Int numProcs );
+
+} // namespace elem

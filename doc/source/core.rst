@@ -4,6 +4,7 @@ Core functionality
 .. toctree::
    :maxdepth: 2
 
+   core/imports
    core/environment
    core/matrix
    core/grid

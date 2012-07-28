@@ -30,8 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_SPECIAL_MATRICES_HPP
-#define ELEMENTAL_SPECIAL_MATRICES_HPP 1
 
 namespace elem {
 
@@ -308,5 +306,3 @@ void MakeNormalUniformSpectrum
 #include "./special_matrices/NormalUniformSpectrum.hpp"
 
 // TODO: Gaussian
-
-#endif /* ELEMENTAL_SPECIAL_MATRICES_HPP */

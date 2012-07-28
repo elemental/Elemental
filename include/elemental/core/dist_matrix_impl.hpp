@@ -30,20 +30,18 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
-
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
-
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
-
-#endif // ELEMENTAL_H
+#include "elemental/core/dist_matrix/abstract_impl.hpp"
+#include "elemental/core/dist_matrix/mc_mr_impl.hpp"
+#include "elemental/core/dist_matrix/mc_star_impl.hpp"
+#include "elemental/core/dist_matrix/md_star_impl.hpp"
+#include "elemental/core/dist_matrix/mr_mc_impl.hpp"
+#include "elemental/core/dist_matrix/mr_star_impl.hpp"
+#include "elemental/core/dist_matrix/star_mc_impl.hpp"
+#include "elemental/core/dist_matrix/star_md_impl.hpp"
+#include "elemental/core/dist_matrix/star_mr_impl.hpp"
+#include "elemental/core/dist_matrix/star_star_impl.hpp"
+#include "elemental/core/dist_matrix/star_vc_impl.hpp"
+#include "elemental/core/dist_matrix/star_vr_impl.hpp"
+#include "elemental/core/dist_matrix/vc_star_impl.hpp"
+#include "elemental/core/dist_matrix/vr_star_impl.hpp"

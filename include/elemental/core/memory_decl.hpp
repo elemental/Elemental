@@ -30,20 +30,26 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+namespace elem {
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+template<typename G>
+class Memory
+{
+    std::size_t size_;
+    G*     buffer_;
+public:
+    Memory();
+    Memory( std::size_t size );
+    ~Memory();
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+    G*          Buffer() const;
+    std::size_t Size()   const;
 
-#endif // ELEMENTAL_H
+    void   Require( std::size_t size );
+    void   Release();
+    void   Empty();
+};
+
+} // namespace elem
+

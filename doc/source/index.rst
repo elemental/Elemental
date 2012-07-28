@@ -11,7 +11,6 @@ Welcome to Elemental's documentation!
 
    intro
    build
-   imports
    core
    blas-like
    lapack-like

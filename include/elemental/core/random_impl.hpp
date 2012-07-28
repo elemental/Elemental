@@ -30,20 +30,55 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+namespace elem {
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+const double Pi = 3.141592653589793;
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+template<>
+inline int
+SampleUnitBall<int>()
+{
+    const double u = plcg::ParallelUniform<double>();
+    if( u <= 1./3. )
+        return -1;
+    else if( u <= 2./3. )
+        return 0;
+    else
+        return +1;
+}
 
-#endif // ELEMENTAL_H
+template<>
+inline Complex<int>
+SampleUnitBall<Complex<int> >()
+{ return Complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
+
+template<>
+inline float
+SampleUnitBall<float>()
+{ return 2*plcg::ParallelUniform<float>()-1.0f; }
+
+template<>
+inline double
+SampleUnitBall<double>()
+{ return 2*plcg::ParallelUniform<double>()-1.0; }
+
+template<>
+inline Complex<float>
+SampleUnitBall<Complex<float> >()
+{
+    const float r = plcg::ParallelUniform<float>();
+    const float angle = 2*Pi*plcg::ParallelUniform<float>();
+    return Complex<float>(r*cos(angle),r*sin(angle));
+}
+
+template<>
+inline Complex<double>
+SampleUnitBall<Complex<double> >()
+{
+    const double r = plcg::ParallelUniform<double>();
+    const double angle = 2*Pi*plcg::ParallelUniform<double>();
+    return Complex<double>(r*cos(angle),r*sin(angle));
+}
+
+} // namespace elem

@@ -30,20 +30,68 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
+namespace elem {
+
+inline 
+Timer::Timer()
+: running_(false), time_(0), name_("[blank]")
+{ }
+
+inline 
+Timer::Timer( const std::string name )
+: running_(false), time_(0), name_(name)
+{ }
+
+inline void 
+Timer::Start()
+{
+#ifndef RELEASE
+    PushCallStack("Timer::Start");
+    if( running_ )
+        throw std::logic_error("Forgot to stop timer before restarting");
 #endif
+    lastStartTime_ = mpi::Time();
+    running_ = true;
+    running_ = true;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+inline void 
+Timer::Stop()
+{
+#ifndef RELEASE
+    PushCallStack("Timer::Stop");
+    if( !running_ )
+        throw std::logic_error("Tried to stop a timer before starting it");
+#endif
+    time_ += mpi::Time()-lastStartTime_;
+    running_ = false;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+inline void 
+Timer::Reset()
+{ time_ = 0; }
 
-#endif // ELEMENTAL_H
+inline const std::string 
+Timer::Name() const
+{ return name_; }
+
+inline double 
+Timer::Time() const
+{
+#ifndef RELEASE
+    PushCallStack("Timer::Time");
+    if( running_ )
+        throw std::logic_error("Asked for time while still timing");
+    PopCallStack();
+#endif
+    return time_;
+}
+
+} // namespace elem

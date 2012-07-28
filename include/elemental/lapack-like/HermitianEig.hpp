@@ -33,8 +33,6 @@
 
 #ifndef WITHOUT_PMRRR
 
-#include "elemental/imports/pmrrr.hpp"
-
 namespace elem {
 
 // The targeted number of pieces to break the eigenvectors into during the

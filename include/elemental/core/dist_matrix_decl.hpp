@@ -30,20 +30,29 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+namespace elem {
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+template<typename T,typename Int=int>
+class AbstractDistMatrix;
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+template<typename T,Distribution ColDist=MC,Distribution RowDist=MR,
+         typename Int=int>
+class DistMatrix;
 
-#endif // ELEMENTAL_H
+} // namespace elem
+
+#include "elemental/core/dist_matrix/abstract_decl.hpp"
+#include "elemental/core/dist_matrix/mc_mr_decl.hpp"
+#include "elemental/core/dist_matrix/mc_star_decl.hpp"
+#include "elemental/core/dist_matrix/md_star_decl.hpp"
+#include "elemental/core/dist_matrix/mr_mc_decl.hpp"
+#include "elemental/core/dist_matrix/mr_star_decl.hpp"
+#include "elemental/core/dist_matrix/star_mc_decl.hpp"
+#include "elemental/core/dist_matrix/star_md_decl.hpp"
+#include "elemental/core/dist_matrix/star_mr_decl.hpp"
+#include "elemental/core/dist_matrix/star_star_decl.hpp"
+#include "elemental/core/dist_matrix/star_vc_decl.hpp"
+#include "elemental/core/dist_matrix/star_vr_decl.hpp"
+#include "elemental/core/dist_matrix/vc_star_decl.hpp"
+#include "elemental/core/dist_matrix/vr_star_decl.hpp"

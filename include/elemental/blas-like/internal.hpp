@@ -30,8 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_BLASLIKE_INTERNAL_HPP
-#define ELEMENTAL_BLASLIKE_INTERNAL_HPP 1
 
 namespace elem {
 namespace internal {
@@ -1240,6 +1238,3 @@ TrsmGFlops<dcomplex>
             
 } // internal
 } // elem
-
-#endif /* ELEMENTAL_BLASLIKE_INTERNAL_HPP */
-

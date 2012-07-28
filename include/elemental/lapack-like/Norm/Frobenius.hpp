@@ -46,9 +46,11 @@ FrobeniusNorm( const Matrix<F>& A )
     R scale = 0;
     R scaledSquare = 1;
 
-    for( int j=0; j<A.Width(); ++j )
+    const int width = A.Width();
+    const int height = A.Height();
+    for( int j=0; j<width; ++j )
     {
-        for( int i=0; i<A.Height(); ++i )
+        for( int i=0; i<height; ++i )
         {
             const R alphaAbs = Abs(A.Get(i,j));
             if( alphaAbs != 0 )
@@ -88,9 +90,9 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     R localScaledSquare = 1;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localHeight; ++jLocal )
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        for( int iLocal=0; iLocal<localWidth; ++iLocal )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
             if( alphaAbs != 0 )

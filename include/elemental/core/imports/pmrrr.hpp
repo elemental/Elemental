@@ -30,20 +30,57 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_H
-#define ELEMENTAL_H 1
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
+namespace elem {
+namespace pmrrr {
 
-#include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
+struct Estimate {
+    int numLocalEigenvalues;
+    int numGlobalEigenvalues;
+};
 
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/blas-like_impl.hpp"
-#include "elemental/lapack-like_decl.hpp"
-#include "elemental/lapack-like_impl.hpp"
+// Return an upper bound on the number of (local) eigenvalues in the given range
+Estimate EigEstimate
+( int n, const double* d, const double* e, double* w, 
+  mpi::Comm comm, double lowerBound, double upperBound );
 
-#endif // ELEMENTAL_H
+
+struct Info {
+    int numLocalEigenvalues;
+    int numGlobalEigenvalues;
+
+    int firstLocalEigenvalue;
+};
+
+// Compute all of the eigenvalues
+Info Eig
+( int n, const double* d, const double* e, double* w, mpi::Comm comm );
+
+// Compute all of the eigenpairs
+Info Eig
+( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
+  mpi::Comm comm );
+
+// Compute all of the eigenvalues in [lowerBound,upperBound)
+Info Eig
+( int n, const double* d, const double* e, double* w,  
+  mpi::Comm comm, double lowerBound, double upperBound );
+
+// Compute all of the eigenpairs with eigenvalues in [lowerBound,upperBound)
+Info Eig
+( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
+  mpi::Comm comm, double lowerBound, double upperBound );
+
+// Compute all of the eigenvalues with indices in [lowerBound,upperBound)
+Info Eig
+( int n, const double* d, const double* e, double* w,
+  mpi::Comm comm, int lowerBound, int upperBound );
+
+// Compute all of the eigenpairs with ordered eigenvalue indices in 
+// [lowerBound,upperBound)
+Info Eig
+( int n, const double* d, const double* e, double* w,
+  double* Z, int ldz, mpi::Comm comm, int lowerBound, int upperBound );
+
+} // namespace pmrrr
+} // namespace elem
