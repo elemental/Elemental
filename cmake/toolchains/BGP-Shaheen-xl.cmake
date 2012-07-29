@@ -9,8 +9,9 @@ set(CMAKE_Fortran_COMPILER ${BGXLF_BASE}/bin/bgxlf_r)
 
 # The MPI wrappers for the XL C and C++ compilers
 set(BGMPI_BASE /bgsys/drivers/ppcfloor/comm)
-set(MPI_C_COMPILER   ${BGMPI_BASE}/bin/mpixlc_r)
-set(MPI_CXX_COMPILER ${BGMPI_BASE}/bin/mpixlcxx_r)
+set(MPI_C_COMPILER       ${BGMPI_BASE}/bin/mpixlc_r)
+set(MPI_CXX_COMPILER     ${BGMPI_BASE}/bin/mpixlcxx_r)
+set(MPI_Fortran_COMPILER ${BGMPI_BASE}/bin/mpixlf90_r)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-g -O3")

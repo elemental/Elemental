@@ -1,12 +1,14 @@
 # Set the serial Intel compilers
-set(CMAKE_C_COMPILER       /opt/apps/intel/10.1/cc/bin/icc)
-set(CMAKE_CXX_COMPILER     /opt/apps/intel/10.1/cc/bin/icpc)
-set(CMAKE_Fortran_COMPILER /opt/apps/intel/10.1/fc/bin/ifort)
+set(COMPILER_DIR /opt/apps/intel/10.1)
+set(CMAKE_C_COMPILER       ${COMPILER_DIR}/cc/bin/icc)
+set(CMAKE_CXX_COMPILER     ${COMPILER_DIR}/cc/bin/icpc)
+set(CMAKE_Fortran_COMPILER ${COMPILER_DIR}/fc/bin/ifort)
 
 # Set the MPI wrappers for the C and C++ compilers
-set(MPI_C_COMPILER       /opt/apps/intel10_1/mvapich2/1.2/bin/mpicc)
-set(MPI_CXX_COMPILER     /opt/apps/intel10_1/mvapich2/1.2/bin/mpicxx)
-set(MPI_Fortran_COMPILER /opt/apps/intel10_1/mvapich2/1.2/bin/mpif90)
+set(MPI_COMPILER_DIR /opt/apps/intel10_1/mvapich2/1.2/bin)
+set(MPI_C_COMPILER       ${MPI_COMPILER_DIR}/mpicc)
+set(MPI_CXX_COMPILER     ${MPI_COMPILER_DIR}/mpicxx)
+set(MPI_Fortran_COMPILER ${MPI_COMPILER_DIR}/mpif90)
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-O3")
