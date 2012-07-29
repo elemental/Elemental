@@ -30,8 +30,6 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef ELEMENTAL_LAPACKLIKE_INTERNAL_HPP
-#define ELEMENTAL_LAPACKLIKE_INTERNAL_HPP 1
 
 namespace elem {
 namespace internal {
@@ -823,6 +821,3 @@ ApplyPackedReflectorsGFlops<dcomplex>
 
 } // namespace internal
 } // namespace elem
-
-#endif /* ELEMENTAL_LAPACKLIKE_INTERNAL_HPP */
-

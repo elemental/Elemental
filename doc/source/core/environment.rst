@@ -1,6 +1,12 @@
 Environment
 ===========
 
+This section describes the routines and data structures which help set up 
+Elemental's programming environment: it discusses initialization of Elemental,
+call stack manipulation, a custom data structure for complex data, many routines
+for manipulating real and complex data, a litany of custom enums, and a few 
+useful routines for simplifying index calculations.
+
 Set up and clean up
 -------------------
 
@@ -55,6 +61,90 @@ Blocksize manipulation
 .. cpp:function:: void PopBlocksizeStack() 
 
    Pops the stack of blocksizes. See above.
+
+Default process grid
+--------------------
+
+.. cpp:function:: Grid& DefaultGrid()
+
+   Return a process grid built over :cpp:type:`mpi::COMM_WORLD`. This is 
+   typically used as a means of allowing instances of the 
+   :cpp:class:`DistMatrix\<T,MC,MR>` class to be constructed without having to 
+   manually specify a process grid, e.g., 
+
+   .. code-block:: cpp
+
+      // Build a 10 x 10 distributed matrix over mpi::COMM_WORLD
+      elem::DistMatrix<T,MC,MR> A( 10, 10 );
+
+Call stack manipulation
+-----------------------
+
+.. note::
+
+   The following call stack manipulation routines are only available in 
+   non-release builds (i.e., PureDebug and HybridDebug) and are meant to allow 
+   for the call stack to be printed (via :cpp:func:`DumpCallStack`) when an 
+   exception is caught.
+
+.. cpp:function:: void PushCallStack( std::string s )
+
+   Push the given routine name onto the call stack.
+
+.. cpp:function:: void PopCallStack()
+
+   Remove the routine name at the top of the call stack.
+
+.. cpp:function:: void DumpCallStack()
+
+   Print (and empty) the contents of the call stack.
+
+Custom exceptions
+-----------------
+
+.. cpp:class:: SingularMatrixException
+
+   An extension of ``std::runtime_error`` which is meant to be thrown when 
+   a singular matrix is unexpectedly encountered.
+
+   .. cpp:function:: SingularMatrixException( const char* msg="Matrix was singular" )
+
+      Builds an instance of the exception which allows one to optionally 
+      specify the error message.
+
+   .. code-block:: cpp
+
+      throw elem::SingularMatrixException();
+
+.. cpp:class:: NonHPDMatrixException 
+
+   An extension of ``std::runtime_error`` which is meant to be thrown when
+   a non positive-definite Hermitian matrix is unexpectedly encountered
+   (e.g., during Cholesky factorization).
+
+   .. cpp:function:: NonHPDMatrixException( const char* msg="Matrix was not HPD" )
+
+      Builds an instance of the exception which allows one to optionally 
+      specify the error message.
+
+   .. code-block:: cpp
+
+      throw elem::NonHPDMatrixException();
+
+.. cpp:class:: NonHPSDMatrixException 
+
+   An extension of ``std::runtime_error`` which is meant to be thrown when
+   a non positive semi-definite Hermitian matrix is unexpectedly encountered
+   (e.g., during computation of the square root of a Hermitian matrix).
+
+   .. cpp:function:: NonHPSDMatrixException( const char* msg="Matrix was not HPSD" )
+
+      Builds an instance of the exception which allows one to optionally 
+      specify the error message.
+
+   .. code-block:: cpp
+
+      throw elem::NonHPSDMatrixException();
 
 Complex data
 ------------
@@ -394,75 +484,6 @@ Other typedefs and enums
 
    An enum for specifying ``VERTICAL`` or ``HORIZONTAL``.
 
-Custom exceptions
------------------
-
-.. cpp:class:: SingularMatrixException
-
-   An extension of ``std::runtime_error`` which is meant to be thrown when 
-   a singular matrix is unexpectedly encountered.
-
-   .. cpp:function:: SingularMatrixException( const char* msg="Matrix was singular" )
-
-      Builds an instance of the exception which allows one to optionally 
-      specify the error message.
-
-   .. code-block:: cpp
-
-      throw elem::SingularMatrixException();
-
-.. cpp:class:: NonHPDMatrixException 
-
-   An extension of ``std::runtime_error`` which is meant to be thrown when
-   a non positive-definite Hermitian matrix is unexpectedly encountered
-   (e.g., during Cholesky factorization).
-
-   .. cpp:function:: NonHPDMatrixException( const char* msg="Matrix was not HPD" )
-
-      Builds an instance of the exception which allows one to optionally 
-      specify the error message.
-
-   .. code-block:: cpp
-
-      throw elem::NonHPDMatrixException();
-
-.. cpp:class:: NonHPSDMatrixException 
-
-   An extension of ``std::runtime_error`` which is meant to be thrown when
-   a non positive semi-definite Hermitian matrix is unexpectedly encountered
-   (e.g., during computation of the square root of a Hermitian matrix).
-
-   .. cpp:function:: NonHPSDMatrixException( const char* msg="Matrix was not HPSD" )
-
-      Builds an instance of the exception which allows one to optionally 
-      specify the error message.
-
-   .. code-block:: cpp
-
-      throw elem::NonHPSDMatrixException();
-
-Call stack manipulation
------------------------
-
-.. note::
-
-   The following call stack manipulation routines are only available in 
-   non-release builds (i.e., PureDebug and HybridDebug) and are meant to allow 
-   for the call stack to be printed (ala DumpCallStack) when an 
-   exception is caught.
-
-.. cpp:function:: void PushCallStack( std::string s )
-
-   Push the given routine name onto the call stack.
-
-.. cpp:function:: void PopCallStack()
-
-   Remove the routine name at the top of the call stack.
-
-.. cpp:function:: void DumpCallStack()
-
-   Print (and empty) the contents of the call stack.
-
 Indexing utilities
 ------------------
 
@@ -485,19 +506,3 @@ Indexing utilities
    processes, with the first entry owned by process ``firstRank``, this routine
    returns the number of entries locally owned by the process with rank 
    ``rank``.
-   
-Default process grid
---------------------
-
-.. cpp:function:: Grid& DefaultGrid()
-
-   Return a process grid built over :cpp:type:`mpi::COMM_WORLD`. This is 
-   typically used as a means of allowing instances of the 
-   :cpp:class:`DistMatrix\<T,MC,MR>` class to be constructed without having to 
-   manually specify a process grid, e.g., 
-
-   .. code-block:: cpp
-
-      // Build a 10 x 10 distributed matrix over mpi::COMM_WORLD
-      elem::DistMatrix<T,MC,MR> A( 10, 10 );
-
