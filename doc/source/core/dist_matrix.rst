@@ -1,7 +1,7 @@
 The DistMatrix class
 ====================
-The :cpp:class:`DistMatrix\<T,U,V>` class is meant to provide a 
-distributed-memory analogue of the :cpp:class:`Matrix\<T>` class. 
+The :cpp:type:`DistMatrix\<T,U,V>` class is meant to provide a 
+distributed-memory analogue of the :cpp:type:`Matrix\<T>` class. 
 Similarly to PLAPACK, roughly ten different matrix 
 distributions are provided and it is trivial (in the programmability sense) to 
 redistribute from one to another: in PLAPACK, one would simply call 
@@ -11,16 +11,15 @@ redistribute from one to another: in PLAPACK, one would simply call
 Since it is crucial to know not only how many 
 processes to distribute the data over, but *which* processes, and in what 
 manner they should be decomposed into a logical two-dimensional grid, an 
-instance of the :cpp:class:`Grid` class must be passed into the constructor of 
-the :cpp:class:`DistMatrix\<T,U,V>` class.
+instance of the :cpp:type:`Grid` class must be passed into the constructor of 
+the :cpp:type:`DistMatrix\<T,U,V>` class.
 
 .. note:: 
    
-   Since the ``DistMatrix`` class makes use of MPI for message passing, 
+   Since the :cpp:type:`DistMatrix` class makes use of MPI for message passing, 
    custom interfaces must be written for nonstandard datatypes. As of now, 
-   the following datatypes are fully supported for ``DistMatrix``:
-   ``int``, ``float``, ``double``, ``Complex<float>``, and
-   ``Complex<double>``.
+   the following datatypes are fully supported for :cpp:type:`DistMatrix`:
+   ``int``, ``float``, ``double``, ``Complex<float>``, and ``Complex<double>``.
 
 AbstractDistMatrix
 ------------------
@@ -28,7 +27,24 @@ AbstractDistMatrix
 This abstract class defines the list of member functions that are guaranteed 
 to be available for all matrix distributions.
 
-.. cpp:class:: AbstractDistMatrix<T>
+.. cpp:type:: class AbstractDistMatrix<R>
+
+   Used to denote that the underlying datatype `R` is real.
+
+.. cpp:type:: class AbstractDistMatrix<Complex<R> >
+
+   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is 
+   complex with base type `R`.
+
+.. cpp:type:: class AbstractDistMatrix<F>
+
+   Used to denote that the underlying datatype `F` is a field.
+
+.. cpp:type:: class AbstractDistMatrix<T>
+
+   The most general case, where the underlying datatype `T` is only assumed 
+   to be a ring; that is, it supports multiplication and addition and has the 
+   appropriate identities.
 
    .. rubric:: Basic information
 
@@ -54,7 +70,7 @@ to be available for all matrix distributions.
 
    .. cpp:function:: size_t AllocatedMemory() const
 
-      Return the number of entries of type ``T`` that we have locally allocated
+      Return the number of entries of type `T` that we have locally allocated
       space for.
 
    .. cpp:function:: const elem::Grid& Grid() const
@@ -64,12 +80,12 @@ to be available for all matrix distributions.
    .. cpp:function:: T* LocalBuffer( int iLocal=0, int jLocal=0 )
 
       Return a pointer to the portion of the local buffer that stores entry 
-      ``(iLocal,jLocal)``.
+      `(iLocal,jLocal)`.
 
    .. cpp:function:: const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const
 
       Return a pointer to the portion of the local buffer that stores entry
-      ``(iLocal,jLocal)``, but do not allow for the data to be modified through
+      `(iLocal,jLocal)`, but do not allow for the data to be modified through
       the returned pointer.
 
    .. cpp:function:: Matrix<T>& LocalMatrix()
@@ -88,11 +104,11 @@ to be available for all matrix distributions.
 
    .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
 
-      Print the distributed matrix to the output stream ``os``.
+      Print the distributed matrix to the output stream `os`.
 
    .. cpp:function:: void Write( const std::string filename, const std::string msg="" ) const
 
-      Print the distributed matrix to the file named ``filename``.
+      Print the distributed matrix to the file named `filename`.
 
    .. rubric:: Distribution details
 
@@ -136,30 +152,30 @@ to be available for all matrix distributions.
 
    .. cpp:function:: T Get( int i, int j ) const
 
-      Return the ``(i,j)`` entry of the global matrix. This operation is 
+      Return the `(i,j)` entry of the global matrix. This operation is 
       collective.
 
    .. cpp:function:: void Set( int i, int j, T alpha )
 
-      Set the ``(i,j)`` entry of the global matrix to :math:`\alpha`. This 
+      Set the `(i,j)` entry of the global matrix to :math:`\alpha`. This 
       operation is collective.
 
    .. cpp:function:: void Update( int i, int j, T alpha )
 
-      Add :math:`\alpha` to the ``(i,j)`` entry of the global matrix. This 
+      Add :math:`\alpha` to the `(i,j)` entry of the global matrix. This 
       operation is collective.
 
    .. cpp:function:: T GetLocal( int iLocal, int jLocal ) const
 
-      Return the ``(iLocal,jLocal)`` entry of our local matrix.
+      Return the `(iLocal,jLocal)` entry of our local matrix.
 
    .. cpp:function:: void SetLocal( int iLocal, int jLocal, T alpha )
 
-      Set the ``(iLocal,jLocal)`` entry of our local matrix to :math:`\alpha`.
+      Set the `(iLocal,jLocal)` entry of our local matrix to :math:`\alpha`.
 
    .. cpp:function:: void UpdateLocal( int iLoca, int jLocal, T alpha )
 
-      Add :math:`\alpha` to the ``(iLocal,jLocal)`` entry of our local matrix.
+      Add :math:`\alpha` to the `(iLocal,jLocal)` entry of our local matrix.
 
    .. note::
 
@@ -167,71 +183,71 @@ to be available for all matrix distributions.
 
    .. cpp:function:: typename Base<T>::type GetRealPart( int i, int j ) const
 
-      Return the real part of the ``(i,j)`` entry of the global matrix. This
+      Return the real part of the `(i,j)` entry of the global matrix. This
       operation is collective.
 
    .. cpp:function:: typename Base<T>::type GetImagPart( int i, int j ) const
 
-      Return the imaginary part of the ``(i,j)`` entry of the global matrix. 
+      Return the imaginary part of the `(i,j)` entry of the global matrix. 
       This operation is collective.
 
    .. cpp:function:: void SetRealPart( int i, int j, typename Base<T>::type alpha )
 
-      Set the real part of the ``(i,j)`` entry of the global matrix to 
+      Set the real part of the `(i,j)` entry of the global matrix to 
       :math:`\alpha`.
 
    .. cpp:function:: void SetImagPart( int i, int j, typename Base<T>::type alpha )
 
-      Set the imaginary part of the ``(i,j)`` entry of the global matrix to 
+      Set the imaginary part of the `(i,j)` entry of the global matrix to 
       :math:`\alpha`.
 
    .. cpp:function:: void UpdateRealPart( int i, int j, typename Base<T>::type alpha )
 
-      Add :math:`\alpha` to the real part of the ``(i,j)`` entry of the global 
+      Add :math:`\alpha` to the real part of the `(i,j)` entry of the global 
       matrix.
 
    .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha )
 
-      Add :math:`\alpha` to the imaginary part of the ``(i,j)`` entry of the 
+      Add :math:`\alpha` to the imaginary part of the `(i,j)` entry of the 
       global matrix.
 
    .. cpp:function:: typename Base<T>::type GetRealPartLocal( int iLocal, int jLocal ) const
 
-      Return the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+      Return the real part of the `(iLocal,jLocal)` entry of our local matrix.
 
    .. cpp:function:: typename Base<T>::type GetLocalImagPart( int iLocal, int jLocal ) const
 
-      Return the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
+      Return the imaginary part of the `(iLocal,jLocal)` entry of our local 
       matrix.
 
    .. cpp:function:: void SetLocalRealPart( int iLocal, int jLocal, typename Base<T>::type alpha )
 
-      Set the real part of the ``(iLocal,jLocal)`` entry of our local matrix.
+      Set the real part of the `(iLocal,jLocal)` entry of our local matrix.
 
    .. cpp:function:: void SetLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
 
-      Set the imaginary part of the ``(iLocal,jLocal)`` entry of our local 
+      Set the imaginary part of the `(iLocal,jLocal)` entry of our local 
       matrix.
 
    .. cpp:function:: void UpdateRealPartLocal( int iLocal, int jLocal, typename Base<T>::type alpha )
 
-      Add :math:`\alpha` to the real part of the ``(iLocal,jLocal)`` entry of 
+      Add :math:`\alpha` to the real part of the `(iLocal,jLocal)` entry of 
       our local matrix.
 
    .. cpp:function:: void UpdateLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
 
-      Add :math:`\alpha` to the imaginary part of the ``(iLocal,jLocal)`` entry 
+      Add :math:`\alpha` to the imaginary part of the `(iLocal,jLocal)` entry 
       of our local matrix.
 
    .. rubric:: Viewing
 
    .. cpp:function:: bool Viewing() const
 
-      Return whether or not this ``DistMatrix`` is viewing another.
+      Return whether or not this matrix is viewing another.
 
    .. cpp:function:: bool LockedView() const
 
-      Return whether or not this ``DistMatrix`` is viewing another in a manner
+      Return whether or not this matrix is viewing another in a manner
       that does not allow for modifying the viewed data.
 
    .. rubric:: Utilities
@@ -253,11 +269,24 @@ to be available for all matrix distributions.
 DistMatrix
 ----------
 
-.. cpp:class:: DistMatrix<T,U,V>
+.. cpp:type:: class DistMatrix<R,U,V>
+
+   Denotes that the underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,U,V>
+
+   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex 
+   with base type `R`.
+
+.. cpp:type:: class DistMatrix<F,U,V>
+
+   Denotes that the underlying datatype `F` is a field.
+
+.. cpp:type:: class DistMatrix<T,U,V>
 
    This templated class for manipulating distributed matrices is only defined
    for the following choices of the column and row :cpp:type:`Distribution`'s, 
-   ``U`` and ``V`` (``T`` is the datatype).
+   `U` and `V` (`T` is a ring in this case).
 
 ``[MC,MR]``
 -----------
@@ -299,9 +328,47 @@ matrix), the individual entries would be owned as follows:
    \end{array}\right)
 
 It should also be noted that this is the default distribution format for the 
-``DistMatrix`` class, as ``DistMatrix<T>`` defaults to ``DistMatrix<T,MC,MR>``.
+:cpp:type:`DistMatrix\<T,U,V>` class, as :cpp:type:`DistMatrix\<T>` defaults to
+:cpp:type:`DistMatrix\<T,MC,MR>`.
 
-.. cpp:class:: DistMatrix<T,MC,MR>
+.. cpp:type:: class DistMatrix<R>
+
+   Denotes that the underlying datatype `R` is real.
+   Note that this defaults to :cpp:type:`DistMatrix\<R,MC,MR>`.
+
+.. cpp:type:: class DistMatrix<Complex<R> >
+
+   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex with
+   base type `R`. Note that this defaults to 
+   :cpp:type:`DistMatrix\<Complex\<R>,MC,MR>`.
+
+.. cpp:type:: class DistMatrix<F>
+
+   Denotes that the underlying datatype `F` is a field.
+   Note that this defaults to :cpp:type:`DistMatrix\<F,MC,MR>`.
+
+.. cpp:type:: class DistMatrix<T>
+
+   The most general case, where the underlying datatype `T` is only assumed
+   to be a ring. Note that this defaults to :cpp:type:`DistMatrix\<T,MC,MR>`.
+
+.. cpp:type:: class DistMatrix<R,MC,MR>
+
+   Denotes that the underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,MC,MR>
+
+   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex with
+   base type `R`.
+
+.. cpp:type:: class DistMatrix<F,MC,MR>
+
+   Denotes that the underlying datatype `F` is a field.
+
+.. cpp:type:: class DistMatrix<T,MC,MR>
+
+   The most general case, where the underlying datatype `T` is only assumed 
+   to be a ring.
 
    .. rubric:: Constructors
 
@@ -311,16 +378,16 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: DistMatrix( int height, int width, const elem::Grid& grid=DefaultGrid() )
 
-      Create a ``height`` :math:`\times` ``width`` distributed matrix over the
+      Create a `height` :math:`\times` `width` distributed matrix over the
       specified grid.
 
    .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elem::Grid& grid )
 
-      Create a ``height`` :math:`\times` ``width`` distributed matrix 
+      Create a `height` :math:`\times` `width` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
-      owned by the ``colAlignment`` process row and the ``rowAlignment`` 
+      owned by the `colAlignment` process row and the `rowAlignment` 
       process column. Each of these alignments may be *constrained* to remain
-      constant when redistributing data into this ``DistMatrix``.
+      constant when redistributing data into this :cpp:type:`DistMatrix\<T>`.
 
    .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elem::Grid& grid )
 
@@ -330,7 +397,7 @@ It should also be noted that this is the default distribution format for the
 
       View a constant distributed matrix's buffer; the buffer must correspond 
       to the local portion of an elemental distributed matrix with the 
-      specified row and column alignments and leading dimension, ``ldim``.
+      specified row and column alignments and leading dimension, `ldim`.
 
    .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
 
@@ -338,27 +405,27 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: DistMatrix( const DistMatrix<T,U,V>& A )
 
-      Build a copy of the distributed matrix ``A``, but force it to be in the
+      Build a copy of the distributed matrix `A`, but force it to be in the
       ``[MC,MR]`` distribution.
 
    .. rubric:: Redistribution
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,MR>& A )
 
-      If this matrix can be properly aligned with ``A``, then perform a local
-      copy, otherwise perform an ``mpi::SendRecv`` permutation first.
+      If this matrix can be properly aligned with `A`, then perform a local
+      copy, otherwise perform an :cpp:func:`mpi::SendRecv` permutation first.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,STAR>& A )
 
       Perform a local (filtered) copy to form an ``[MC,MR ]`` distribution and 
       then, if necessary, fix the alignment of the ``MC`` distribution via an 
-      ``mpi::SendRecv`` within process columns.
+      :cpp:func:`mpi::SendRecv` within process columns.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MR>& A )
        
       Perform a local (filtered) copy to form an ``[MC,MR ]`` distribution and 
       then, if necessary, fix the alignment of the ``MR`` distribution via an 
-      ``mpi::SendRecv`` within process rows.
+      :cpp:func:`mpi::SendRecv` within process rows.
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MD,STAR>& A )
 
@@ -384,7 +451,7 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,STAR>& A )
 
-      This is similar to the above routine, but with each row of ``A`` being 
+      This is similar to the above routine, but with each row of `A` being 
       undistributed, and only one approach is needed: 
       :math:`A[M_C,M_R] \leftarrow A[V_C,\star] \leftarrow A[V_R,\star] \leftarrow A[M_R,\star]`.
 
@@ -396,9 +463,10 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VC,STAR>& A )
 
-      Perform an ``mpi::AllToAll`` within process rows in order to redistribute
-      to the ``[MC,MR]`` distribution (an ``mpi::SendRecv`` within process 
-      columns may be required for alignment).
+      Perform an :cpp:func:`mpi::AllToAll` within process rows in order to 
+      redistribute to the ``[MC,MR]`` distribution 
+      (an :cpp:func:`mpi::SendRecv` within process columns may be required for 
+      alignment).
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VC>& A )
 
@@ -412,14 +480,15 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VR>& A )
 
-      Perform an ``mpi::AllToAll`` within process columns in order to 
-      redistribute to the ``[MC,MR]`` distribution (an ``mpi::SendRecv`` within
-      process rows may be required for alignment).
+      Perform an :cpp:func:`mpi::AllToAll` within process columns in order to 
+      redistribute to the ``[MC,MR]`` distribution 
+      (an :cpp:func:`mpi::SendRecv` within process rows may be required for 
+      alignment).
 
    .. cpp:function:: const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,STAR>& A )
 
-      Perform an ``mpi::AllGather`` over the entire grid in order to give every
-      process a full copy of ``A``.
+      Perform an :cpp:func:`mpi::AllGather` over the entire grid in order to 
+      give every process a full copy of `A`.
 
    .. rubric:: Diagonal manipulation
 
@@ -427,21 +496,21 @@ It should also be noted that this is the default distribution format for the
 
       The :math:`[M_D,\star]` distribution is defined such that its columns 
       are distributed like diagonals of the standard matrix distribution, 
-      `[M_C,M_R]`. Thus, ``d`` can be formed locally if the distribution can
-      be aligned with that of the ``offset`` diagonal of :math:`A[M_C,M_R]`. 
+      ``[MC,MR]``. Thus, `d` can be formed locally if the distribution can
+      be aligned with that of the `offset` diagonal of :math:`A[M_C,M_R]`. 
 
    .. cpp:function:: void GetDiagonal( DistMatrix<T,STAR,MD>& d, int offset=0 ) const
 
-      This is the same as above, but ``d`` is a row-vector instead of a 
+      This is the same as above, but `d` is a row-vector instead of a 
       column-vector.
 
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset=0 )
 
-      Same as ``GetDiagonal``, but in reverse.
+      Same as :cpp:func:`DistMatrix\<T>::GetDiagonal`, but in reverse.
 
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 )
 
-      Same as ``GetDiagonal``, but in reverse.
+      Same as :cpp:func:`DistMatrix\<T>::GetDiagonal`, but in reverse.
 
    .. note:: 
 
@@ -472,8 +541,8 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: void Align( int colAlignment, int rowAlignment )
 
-      Specify the process row, ``colAlignment``, and process column,
-      ``rowAlignment``, which own the top-left entry.
+      Specify the process row, `colAlignment`, and process column,
+      `rowAlignment`, which own the top-left entry.
 
    .. cpp:function:: void AlignCols( int colAlignment )
 
@@ -485,99 +554,99 @@ It should also be noted that this is the default distribution format for the
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MC,MR>& A )
 
-      Force the alignments to match those of ``A``.
+      Force the alignments to match those of `A`.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MC,STAR>& A )
 
-      Force the column alignment to match that of ``A``.
+      Force the column alignment to match that of `A`.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MR>& A )
 
-      Force the row alignment to match that of ``A``.
+      Force the row alignment to match that of `A`.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MR,MC>& A )
 
-      Force the column alignment to match the row alignment of ``A`` (and 
+      Force the column alignment to match the row alignment of `A` (and 
       vice-versa).
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,MR,STAR>& A )
 
-      Force the row alignment to match the column alignment of ``A``.
+      Force the row alignment to match the column alignment of `A`.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MC>& A )
 
-      Force the column alignment to match the row alignment of ``A``.
+      Force the column alignment to match the row alignment of `A`.
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,VC,STAR>& A )
 
-      Force the column alignment to be equal to that of ``A`` (modulo 
+      Force the column alignment to be equal to that of `A` (modulo 
       the number of process rows).
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VC>& A )
 
-      Force the column alignment to equal the row alignment of ``A`` (modulo
+      Force the column alignment to equal the row alignment of `A` (modulo
       the number of process rows).
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,VR,STAR>& A )
 
-      Force the row alignment to equal the column alignment of ``A`` (modulo
+      Force the row alignment to equal the column alignment of `A` (modulo
       the number of process columns).
 
    .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VR>& A )
 
-      Force the row alignment to equal the row alignment of ``A`` (modulo
+      Force the row alignment to equal the row alignment of `A` (modulo
       the number of process columns).
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,MR>& A )
 
-      Force the column alignment to match that of ``A``.
+      Force the column alignment to match that of `A`.
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,STAR>& A )
 
-      Force the column alignment to match that of ``A``.
+      Force the column alignment to match that of `A`.
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,MR,MC>& A )
 
-      Force the column alignment to match the row alignment of ``A``.
+      Force the column alignment to match the row alignment of `A`.
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,MC>& A )
 
-      Force the column alignment to match the row alignment of ``A``.
+      Force the column alignment to match the row alignment of `A`.
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,VC,STAR>& A )
 
-      Force the column alignment to match the column alignment of ``A`` 
+      Force the column alignment to match the column alignment of `A` 
       (modulo the number of process rows).
 
    .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,VC>& A )
 
-      Force the column alignment to match the row alignment of ``A`` 
+      Force the column alignment to match the row alignment of `A` 
       (modulo the number of process rows).
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MC,MR>& A )
 
-      Force the row alignment to match that of ``A``.
+      Force the row alignment to match that of `A`.
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,MR>& A )
 
-      Force the row alignment to match that of ``A``.
+      Force the row alignment to match that of `A`.
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,MC>& A )
 
-      Force the row alignment to match the column alignment of ``A``.
+      Force the row alignment to match the column alignment of `A`.
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,STAR>& A )
 
-      Force the row alignment to match the column alignment of ``A``.
+      Force the row alignment to match the column alignment of `A`.
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,VR,STAR>& A )
 
-      Force the row alignment to match the column alignment of ``A`` (modulo
+      Force the row alignment to match the column alignment of `A` (modulo
       the number of process columns).
 
    .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,VR>& A )
 
-      Force the row alignment to match the row alignment of ``A`` (modulo
+      Force the row alignment to match the row alignment of `A` (modulo
       the number of process columns).
 
    .. rubric:: Views
@@ -585,28 +654,28 @@ It should also be noted that this is the default distribution format for the
    .. cpp:function:: void View( DistMatrix<T,MC,MR>& A )
 
       Reconfigure this matrix such that it is essentially a copy of the 
-      distributed matrix ``A``, but the local data buffer simply points to 
-      the one from ``A``.
+      distributed matrix `A`, but the local data buffer simply points to 
+      the one from `A`.
 
    .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A )
 
       Same as above, but this matrix is "locked", meaning that it cannot 
-      change the data from ``A`` that it points to.
+      change the data from `A` that it points to.
 
    .. cpp:function:: void View( DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
 
-      View a subset of ``A`` rather than the entire matrix. In particular, 
+      View a subset of `A` rather than the entire matrix. In particular, 
       reconfigure this matrix to behave like the submatrix defined from the 
-      ``[i,i+height)`` rows and ``[j,j+width)`` columns of ``A``.
+      ``[i,i+height)`` rows and ``[j,j+width)`` columns of `A`.
 
    .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
 
       Same as above, but this matrix is "locked", meaning that it cannot
-      change the data from ``A`` that it points to.
+      change the data from `A` that it points to.
 
    .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
 
-      Reconfigure this distributed matrix around an implicit ``[M_C,M_R]`` 
+      Reconfigure this distributed matrix around an implicit ``[MC,MR]`` 
       distributed matrix of the specified dimensions, alignments, local buffer, 
       local leading dimension, and process grid.
 
@@ -692,22 +761,24 @@ It should also be noted that this is the default distribution format for the
       :math:`A[\star,M_C]`; in particular, 
       :math:`(A[\star,M_C])^H = A^H[M_C,\star]`, so perform an 
       :math:`[M_C,M_R] \leftarrow [M_C,\star]` redistribution on the adjoint of
-      ``A``, which typically just consists of locally copying (and conjugating) 
+      `A`, which typically just consists of locally copying (and conjugating) 
       subsets of the data from :math:`A[\star,M_C]`.
 
    .. cpp:function:: void AdjointFrom( const DistMatrix<T,MR,STAR>& A )
 
       This routine is the dual of the above routine, and performs an
       :math:`[M_C,M_R] \leftarrow [\star,M_R]` redistribution on the adjoint of 
-      ``A``.
+      `A`.
 
    .. cpp:function:: void TransposeFrom( const DistMatrix<T,STAR,MC>& A )
 
-      Same as the corresponding ``AdjointFrom``, but with no conjugation.
+      Same as the corresponding :cpp:func:`DistMatrix\<T>::AdjointFrom`, but 
+      with no conjugation.
 
    .. cpp:function:: void TransposeFrom( const DistMatrix<T,MR,STAR>& A )
 
-      Same as the corresponding ``AdjointFrom``, but with no conjugation.
+      Same as the corresponding :cpp:func:`DistMatrix\<T>::AdjointFrom`, but 
+      with no conjugation.
 
 ``[MC,* ]``
 -----------

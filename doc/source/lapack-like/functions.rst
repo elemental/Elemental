@@ -104,7 +104,7 @@ where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
 
    Hermitian matrices with non-negative eigenvalues have a natural matrix 
    square root which remains Hermitian. This routine attempts to overwrite a 
-   matrix with its square root and throws a :cpp:class:`NonHPSDMatrixException`
+   matrix with its square root and throws a :cpp:type:`NonHPSDMatrixException`
    if any sufficiently negative eigenvalues are computed.
 
 **TODO: HermitianSquareRoot**
@@ -129,7 +129,7 @@ and
    A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
 
 If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`,
-then a :cpp:class:`NonHPSDMatrixException` will be thrown.
+then a :cpp:type:`NonHPSDMatrixException` will be thrown.
 
 .. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 

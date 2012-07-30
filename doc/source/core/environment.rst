@@ -13,7 +13,7 @@ Set up and clean up
 .. cpp:function:: void Initialize( int& argc, char**& argv )
 
    Initializes Elemental and (if necessary) MPI. The usage is very similar to 
-   ``MPI_Init``, but the ``argc`` and ``argv`` can be directly passed in.
+   ``MPI_Init``, but the `argc` and `argv` can be directly passed in.
 
    .. code-block:: cpp
 
@@ -69,7 +69,7 @@ Default process grid
 
    Return a process grid built over :cpp:type:`mpi::COMM_WORLD`. This is 
    typically used as a means of allowing instances of the 
-   :cpp:class:`DistMatrix\<T,MC,MR>` class to be constructed without having to 
+   :cpp:type:`DistMatrix\<T,MC,MR>` class to be constructed without having to 
    manually specify a process grid, e.g., 
 
    .. code-block:: cpp
@@ -102,7 +102,7 @@ Call stack manipulation
 Custom exceptions
 -----------------
 
-.. cpp:class:: SingularMatrixException
+.. cpp:type:: class SingularMatrixException
 
    An extension of ``std::runtime_error`` which is meant to be thrown when 
    a singular matrix is unexpectedly encountered.
@@ -116,7 +116,7 @@ Custom exceptions
 
       throw elem::SingularMatrixException();
 
-.. cpp:class:: NonHPDMatrixException 
+.. cpp:type:: class NonHPDMatrixException 
 
    An extension of ``std::runtime_error`` which is meant to be thrown when
    a non positive-definite Hermitian matrix is unexpectedly encountered
@@ -131,7 +131,7 @@ Custom exceptions
 
       throw elem::NonHPDMatrixException();
 
-.. cpp:class:: NonHPSDMatrixException 
+.. cpp:type:: class NonHPSDMatrixException 
 
    An extension of ``std::runtime_error`` which is meant to be thrown when
    a non positive semi-definite Hermitian matrix is unexpectedly encountered
@@ -149,7 +149,7 @@ Custom exceptions
 Complex data
 ------------
 
-.. cpp:type:: struct Complex<R>
+.. cpp:type:: class struct Complex<R>
 
    .. cpp:type:: R BaseType
 
@@ -221,7 +221,7 @@ Complex data
 
    .. cpp:type:: type
 
-      The underlying real datatype of the (potentially complex) datatype ``F``.
+      The underlying real datatype of the (potentially complex) datatype `F`.
       For example, ``typename Base<Complex<double> >::type`` and 
       ``typename Base<double>::type`` are both equivalent to ``double``.
       This is often extremely useful in implementing routines which are 
@@ -489,20 +489,20 @@ Indexing utilities
 
 .. cpp:function:: Int Shift( Int rank, Int firstRank, Int numProcs )
 
-   Given a element-wise cyclic distribution over ``numProcs`` processes, 
-   where the first entry is owned by the process with rank ``firstRank``, 
+   Given a element-wise cyclic distribution over `numProcs` processes, 
+   where the first entry is owned by the process with rank `firstRank`, 
    this routine returns the first entry owned by the process with rank
-   ``rank``.
+   `rank`.
 
 .. cpp:function:: Int LocalLength( Int n, Int shift, Int numProcs )
 
-   Given a vector with :math:`n` entries distributed over ``numProcs`` 
+   Given a vector with :math:`n` entries distributed over `numProcs` 
    processes with shift as defined above, this routine returns the number of 
    entries of the vector which are owned by this process.
 
 .. cpp:function:: Int LocalLength( Int n, Int rank, Int firstRank, Int numProcs )
 
-   Given a vector with :math:`n` entries distributed over ``numProcs`` 
-   processes, with the first entry owned by process ``firstRank``, this routine
+   Given a vector with :math:`n` entries distributed over `numProcs` 
+   processes, with the first entry owned by process `firstRank`, this routine
    returns the number of entries locally owned by the process with rank 
-   ``rank``.
+   `rank`.

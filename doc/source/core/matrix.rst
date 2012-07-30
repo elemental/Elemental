@@ -21,9 +21,9 @@ numbers where the :math:`(i,j)` entry is equal to :math:`i-j` would be:
      
 The underlying data storage is simply a contiguous buffer that stores entries 
 in a column-major fashion with an arbitrary leading dimension. For modifiable
-instances of the ``Matrix`` class, the routine
-``T* Matrix<T>::Buffer()`` returns a pointer to the underlying 
-buffer, while ``int Matrix<T>::LDim() const`` returns the leading 
+instances of the :cpp:type:`Matrix\<T>` class, the routine
+:cpp:type:`Matrix\<T>::Buffer` returns a pointer to the underlying 
+buffer, while :cpp:type:`Matrix\<T>::LDim` returns the leading 
 dimension; these two routines could be used to directly perform the equivalent
 of the first code sample as follows:
 
@@ -39,14 +39,16 @@ of the first code sample as follows:
          for( int i=0; i<m; ++i )
              buffer[i+j*ldim] = (double)i-j;
 
-For constant instances of the ``Matrix`` class, a ``const`` pointer
+For constant instances of the :cpp:type:`Matrix\<T>` class, a ``const`` pointer
 to the underlying data can similarly be returned with a call to 
-``A.LockedBuffer()``. In addition, a (``const``) pointer to the place in the 
+:cpp:func:`Matrix\<T>::LockedBuffer`.
+In addition, a (``const``) pointer to the place in the 
 (``const``) buffer where entry :math:`(i,j)` resides can be easily retrieved
-with a call to ``A.Buffer(i,j)`` or ``A.LockedBuffer(i,j)``.
+with a call to :cpp:func:`Matrix\<T>::Buffer` or 
+:cpp:func:`Matrix\<T>::LockedBuffer`.
 
 It is also important to be able to create matrices which are simply *views* 
-of existing (sub)matrices. For example, if ``A`` is a :math:`10 \times 10` 
+of existing (sub)matrices. For example, if `A` is a :math:`10 \times 10` 
 matrix of complex doubles, then a matrix :math:`A_{BR}` can easily be created 
 to view the bottom-right :math:`6 \times 7` submatrix using
 
@@ -61,7 +63,24 @@ since the bottom-right :math:`6 \times 7` submatrix beings at index
 :math:`(4,3)`. In general, to view the :math:`M \times N` submatrix starting
 at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
-.. cpp:class:: Matrix<T>
+.. cpp:type:: class Matrix<R>
+
+   Signifies that the underlying datatype `R` is real.
+
+.. cpp:type:: class Matrix<Complex<R> >
+
+   Signifies that the underlying datatype :cpp:type:`Complex\<R>` is complex 
+   with the base type being `R`.
+
+.. cpp:type:: class Matrix<F>
+
+   Signifies that the underlying datatype `F` is a field.
+
+.. cpp:type:: class Matrix<T>
+
+   The most general case, where the underlying datatype `T` is only assumed to 
+   be a ring; that is, it supports multiplication and addition and has the 
+   appropriate identities.
 
    .. rubric:: Constructors
 
@@ -85,14 +104,14 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: Matrix( int height, int width, const T* buffer, int ldim )
 
       A matrix is built around column-major constant buffer ``const T* buffer`` 
-      with the specified dimensions. The memory pointed to by ``buffer`` should
-      not be freed until after the ``Matrix`` object is destructed.
+      with the specified dimensions. The memory pointed to by `buffer` should
+      not be freed until after the :cpp:type:`Matrix\<T>` object is destructed.
 
    .. cpp:function:: Matrix( int height, int width, T* buffer, int ldim )
 
       A matrix is built around the column-major modifiable buffer ``T* buffer``
-      with the specified dimensions. The memory pointed to by ``buffer`` should
-      not be freed until after the ``Matrix`` object is destructed.
+      with the specified dimensions. The memory pointed to by `buffer` should
+      not be freed until after the :cpp:type:`Matrix\<T>` object is destructed.
 
    .. cpp:function:: Matrix( const Matrix<T>& A )
 
@@ -121,8 +140,8 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: int MemorySize() const
 
-      Return the number of entries of type ``T`` that this ``Matrix`` instance 
-      has allocated space for.
+      Return the number of entries of type `T` that this :cpp:type:`Matrix\<T>`
+      instance has allocated space for.
 
    .. cpp:function:: T* Buffer()
 
@@ -148,12 +167,12 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: void Print( const std::string msg="" ) const
 
    The matrix is printed to standard output (``std::cout``) with the preceding
-   message ``msg`` (which is empty if unspecified).
+   message `msg` (which is empty if unspecified).
 
    .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
 
-      The matrix is printed to the output stream ``os`` with the preceding 
-      message ``msg`` (which is empty if unspecified).
+      The matrix is printed to the output stream `os` with the preceding 
+      message `msg` (which is empty if unspecified).
 
    .. rubric:: Entry manipulation
 
@@ -172,18 +191,18 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: void GetDiagonal( Matrix<T>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the entries lying on the 
-      ``offset`` diagonal of our matrix (for instance, the main diagonal has 
+      `offset` diagonal of our matrix (for instance, the main diagonal has 
       offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
       superdiagonal has offset :math:`+1`).
 
    .. cpp:function:: void SetDiagonal( const Matrix<T>& d, int offset=0 )
 
-      Set the entries in the ``offset`` diagonal entries from the contents of 
+      Set the entries in the `offset` diagonal entries from the contents of 
       the column-vector :math:`d`.
 
    .. cpp:function:: void UpdateDiagonal( const Matrix<T>& d, int offset=0 )
 
-      Add the contents of :math:`d` onto the entries in the ``offset`` diagonal.
+      Add the contents of :math:`d` onto the entries in the `offset` diagonal.
 
    .. note::
 
@@ -216,32 +235,32 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: void GetRealPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the real parts of the
-      entries in the ``offset`` diagonal.
+      entries in the `offset` diagonal.
 
    .. cpp:function:: void GetImagPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the imaginary parts of 
-      the entries in the ``offset`` diagonal.
+      the entries in the `offset` diagonal.
 
    .. cpp:function:: void SetRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
-      Set the real parts of the entries in the ``offset`` diagonal from the 
+      Set the real parts of the entries in the `offset` diagonal from the 
       contents of the column-vector :math:`d`.
 
    .. cpp:function:: void SetImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
-      Set the imaginary parts of the entries in the ``offset`` diagonal from 
+      Set the imaginary parts of the entries in the `offset` diagonal from 
       the column-vector :math:`d`.
 
    .. cpp:function:: void UpdateRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Add the contents of the column-vector :math:`d` onto the real parts of the
-      entries in the ``offset`` diagonal.
+      entries in the `offset` diagonal.
 
    .. cpp:function:: void UpdateImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Add the contents of the column-vector :math:`d` onto the imaginary parts 
-      of the entries in the ``offset`` diagonal.
+      of the entries in the `offset` diagonal.
 
    .. rubric:: Views
 
@@ -259,7 +278,7 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: void View( Matrix<T>& A )
 
-      Reconfigure the matrix around the modifiable buffer underlying ``A``.
+      Reconfigure the matrix around the modifiable buffer underlying `A`.
 
    .. cpp:function:: void LockedView( int height, int width, const T* buffer, int ldim )
 
@@ -267,13 +286,13 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
    .. cpp:function:: void LockedView( const Matrix<T>& A )
 
-      Reconfigure the matrix around the unmodifiable buffer underlying ``A``.
+      Reconfigure the matrix around the unmodifiable buffer underlying `A`.
 
    .. cpp:function:: void View( Matrix<T>& A, int i, int j, int height, int width )
 
-      Reconfigure the matrix around the modifiable buffer underlying ``A``, but
+      Reconfigure the matrix around the modifiable buffer underlying `A`, but
       only the portion that holds the `height` :math:`\times` `width` submatrix 
-      starting at entry ``(i,j)``
+      starting at entry `(i,j)`
 
    .. cpp:function:: void LockedView( const Matrix<T>& A, int i, int j, int height, int width )
 
@@ -306,7 +325,8 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
       Reconfigure the matrix to behave like 
       :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`
-      (the buffer requirements are similar to ``View1x2`` and ``View2x1``).
+      (the buffer requirements are similar to :cpp:func:`Matrix\<T>::View1x2` 
+      and :cpp:func:`Matrix\<T>::View2x1`).
 
    .. cpp:function:: void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR, const Matrix<T>& ABL, const Matrix<T>& ABR )
 

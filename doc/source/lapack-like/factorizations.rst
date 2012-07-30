@@ -7,7 +7,7 @@ It is well-known that Hermitian positive-definite (HPD) matrices can be
 decomposed into the form :math:`A = L L^H` or :math:`A = U^H U`, where 
 :math:`L=U^H` is lower triangular, and Cholesky factorization provides such an 
 :math:`L` (or :math:`U`) given an HPD :math:`A`. If :math:`A` is found to be 
-numerically indefinite, then a :cpp:class:`NonHPDMatrixException` will be 
+numerically indefinite, then a :cpp:type:`NonHPDMatrixException` will be 
 thrown.
 
 .. cpp:function:: void Cholesky( UpperOrLower uplo, Matrix<F>& A )
@@ -27,7 +27,7 @@ many Hermitian matrices whose eigenvalues are not all positive. The
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
 factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
 and diagonal :math:`D` such that :math:`A = L D L^H`. If :math:`A` is found to 
-be numerically singular, then a :cpp:class:`SingularMatrixException` will be 
+be numerically singular, then a :cpp:type:`SingularMatrixException` will be 
 thrown.
 
    .. warning::
@@ -44,13 +44,13 @@ thrown.
 .. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& d )
 .. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
-   Same as above, but also return the diagonal in the column vector ``d``.
+   Same as above, but also return the diagonal in the column vector `d`.
 
 :math:`LDL^T` factorization
 ---------------------------
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
 :math:`LDL^T` factorization targets symmetric matrices. If :math:`A` is found to 
-be numerically singular, then a :cpp:class:`SingularMatrixException` will be 
+be numerically singular, then a :cpp:type:`SingularMatrixException` will be 
 thrown.
 
    .. warning::
@@ -67,7 +67,7 @@ thrown.
 .. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& d )
 .. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
-   Same as above, but also return the diagonal in the vector ``d``.
+   Same as above, but also return the diagonal in the vector `d`.
 
 :math:`LU` factorization
 ------------------------
@@ -79,7 +79,7 @@ Since :math:`L` is required to have its diaganal entries set to one: the upper
 portion of :math:`A` can be overwritten with `U`, and the strictly lower 
 portion of :math:`A` can be overwritten with the strictly lower portion of 
 :math:`L`. If :math:`A` is found to be numerically singular, then a 
-:cpp:class:`SingularMatrixException` will be thrown.
+:cpp:type:`SingularMatrixException` will be thrown.
 
 .. cpp:function:: void LU( Matrix<F>& A )
 .. cpp:function:: void LU( DistMatrix<F>& A )
