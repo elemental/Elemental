@@ -63,19 +63,6 @@ since the bottom-right :math:`6 \times 7` submatrix beings at index
 :math:`(4,3)`. In general, to view the :math:`M \times N` submatrix starting
 at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
-.. cpp:type:: class Matrix<R>
-
-   Signifies that the underlying datatype `R` is real.
-
-.. cpp:type:: class Matrix<Complex<R> >
-
-   Signifies that the underlying datatype :cpp:type:`Complex\<R>` is complex 
-   with the base type being `R`.
-
-.. cpp:type:: class Matrix<F>
-
-   Signifies that the underlying datatype `F` is a field.
-
 .. cpp:type:: class Matrix<T>
 
    The most general case, where the underlying datatype `T` is only assumed to 
@@ -351,3 +338,23 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
       Reconfigures the matrix to be `height` :math:`\times` `width`, but with 
       leading dimension equal to `ldim` (which must be greater than or equal to 
       ``std::min(height,1)``).
+
+Special cases used in Elemental
+-------------------------------
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`Matrix\<T>`.
+
+.. cpp:type:: class Matrix<R>
+
+   Used to denote that the underlying datatype `R` is real.
+
+.. cpp:type:: class Matrix<Complex<R> >
+
+   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is
+   complex with base type `R`.
+
+.. cpp:type:: class Matrix<F>
+
+   Used to denote that the underlying datatype `F` is a field.
+

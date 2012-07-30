@@ -16,9 +16,10 @@ the :cpp:type:`DistMatrix\<T,U,V>` class.
 
 .. note:: 
    
-   Since the :cpp:type:`DistMatrix` class makes use of MPI for message passing, 
-   custom interfaces must be written for nonstandard datatypes. As of now, 
-   the following datatypes are fully supported for :cpp:type:`DistMatrix`:
+   Since the :cpp:type:`DistMatrix\<T,U,V>` class makes use of MPI for 
+   message passing, custom interfaces must be written for nonstandard datatypes.
+   As of now, the following datatypes are fully supported for 
+   :cpp:type:`DistMatrix\<T,U,V>`:
    ``int``, ``float``, ``double``, ``Complex<float>``, and ``Complex<double>``.
 
 AbstractDistMatrix
@@ -26,19 +27,6 @@ AbstractDistMatrix
 
 This abstract class defines the list of member functions that are guaranteed 
 to be available for all matrix distributions.
-
-.. cpp:type:: class AbstractDistMatrix<R>
-
-   Used to denote that the underlying datatype `R` is real.
-
-.. cpp:type:: class AbstractDistMatrix<Complex<R> >
-
-   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is 
-   complex with base type `R`.
-
-.. cpp:type:: class AbstractDistMatrix<F>
-
-   Used to denote that the underlying datatype `F` is a field.
 
 .. cpp:type:: class AbstractDistMatrix<T>
 
@@ -266,27 +254,60 @@ to be available for all matrix distributions.
       Clear the distributed matrix's contents and reconfigure for the new 
       process grid.
 
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`AbstractDistMatrix\<T>`.
+
+.. cpp:type:: class AbstractDistMatrix<R>
+
+   Used to denote that the underlying datatype `R` is real.
+
+.. cpp:type:: class AbstractDistMatrix<Complex<R> >
+
+   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is 
+   complex with base type `R`.
+
+.. cpp:type:: class AbstractDistMatrix<F>
+
+   Used to denote that the underlying datatype `F` is a field. 
+
 DistMatrix
 ----------
-
-.. cpp:type:: class DistMatrix<R,U,V>
-
-   Denotes that the underlying datatype `R` is real.
-
-.. cpp:type:: class DistMatrix<Complex<R>,U,V>
-
-   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex 
-   with base type `R`.
-
-.. cpp:type:: class DistMatrix<F,U,V>
-
-   Denotes that the underlying datatype `F` is a field.
 
 .. cpp:type:: class DistMatrix<T,U,V>
 
    This templated class for manipulating distributed matrices is only defined
    for the following choices of the column and row :cpp:type:`Distribution`'s, 
    `U` and `V` (`T` is a ring in this case).
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special 
+cases of :cpp:type:`DistMatrix\<T,U,V>`.
+
+.. cpp:type:: class DistMatrix<double,U,V>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,U,V>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,U,V>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,U,V>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`. 
+
+.. cpp:type:: class DistMatrix<F,U,V>
+
+   The underlying datatype `F` is a field.
 
 ``[MC,MR]``
 -----------
@@ -331,39 +352,7 @@ It should also be noted that this is the default distribution format for the
 :cpp:type:`DistMatrix\<T,U,V>` class, as :cpp:type:`DistMatrix\<T>` defaults to
 :cpp:type:`DistMatrix\<T,MC,MR>`.
 
-.. cpp:type:: class DistMatrix<R>
-
-   Denotes that the underlying datatype `R` is real.
-   Note that this defaults to :cpp:type:`DistMatrix\<R,MC,MR>`.
-
-.. cpp:type:: class DistMatrix<Complex<R> >
-
-   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex with
-   base type `R`. Note that this defaults to 
-   :cpp:type:`DistMatrix\<Complex\<R>,MC,MR>`.
-
-.. cpp:type:: class DistMatrix<F>
-
-   Denotes that the underlying datatype `F` is a field.
-   Note that this defaults to :cpp:type:`DistMatrix\<F,MC,MR>`.
-
 .. cpp:type:: class DistMatrix<T>
-
-   The most general case, where the underlying datatype `T` is only assumed
-   to be a ring. Note that this defaults to :cpp:type:`DistMatrix\<T,MC,MR>`.
-
-.. cpp:type:: class DistMatrix<R,MC,MR>
-
-   Denotes that the underlying datatype `R` is real.
-
-.. cpp:type:: class DistMatrix<Complex<R>,MC,MR>
-
-   Denotes that the underlying datatype :cpp:type:`Complex\<R>` is complex with
-   base type `R`.
-
-.. cpp:type:: class DistMatrix<F,MC,MR>
-
-   Denotes that the underlying datatype `F` is a field.
 
 .. cpp:type:: class DistMatrix<T,MC,MR>
 
@@ -780,6 +769,43 @@ It should also be noted that this is the default distribution format for the
       Same as the corresponding :cpp:func:`DistMatrix\<T>::AdjointFrom`, but 
       with no conjugation.
 
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special 
+cases of :cpp:type:`DistMatrix\<T,MC,MR>` = :cpp:type:`DistMatrix\<T>`.
+
+.. cpp:type:: class DistMatrix<double>
+
+.. cpp:type:: class DistMatrix<double,MC,MR>
+
+   The underlying datatype is the set of double-precision real numbers. 
+
+.. cpp:type:: class DistMatrix<Complex<double>>
+
+.. cpp:type:: class DistMatrix<Complex<double>,MC,MR>
+
+   The underlying datatype is the set of double-precision complex numbers. 
+
+.. cpp:type:: class DistMatrix<R>
+
+.. cpp:type:: class DistMatrix<R,MC,MR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>>
+
+.. cpp:type:: class DistMatrix<Complex<R>,MC,MR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`. 
+
+.. cpp:type:: class DistMatrix<F>
+
+.. cpp:type:: class DistMatrix<F,MC,MR>
+
+   The underlying datatype `F` is a field.
+
 ``[MC,* ]``
 -----------
 
@@ -808,7 +834,36 @@ column alignment is 0):
      \{0,2,4\} & \{0,2,4\} 
    \end{array}\right)
 
-**TODO:** Add the member functions. 
+.. cpp:type:: class DistMatrix<T,MC,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,MC,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,MC,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,MC,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,MC,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,MC,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,MC,STAR>
+
+   The underlying datatype `F` is a field.
 
 ``[* ,MR]``
 -----------
@@ -830,7 +885,36 @@ the row alignment is 0):
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} 
    \end{array}\right)
 
-**TODO:** Add the member functions. 
+.. cpp:type:: class DistMatrix<T,STAR,MR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,MR>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,MR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,MR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,MR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,MR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,MR>
+
+   The underlying datatype `F` is a field.
 
 ``[MR,MC]``
 -----------
@@ -853,6 +937,37 @@ column and row alignments are both 0):
      0 & 1 & 0 & 1 & 0 & 1 & 0 
    \end{array}\right)
 
+.. cpp:type:: class DistMatrix<T,MR,MC>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,MR,MC>`.
+
+.. cpp:type:: class DistMatrix<double,MR,MC>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,MR,MC>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,MR,MC>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,MR,MC>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,MR,MC>
+
+   The underlying datatype `F` is a field.
+ 
 ``[MR,* ]``
 -----------
 This is the transpose of the ``[* ,MR]`` distribution and is, like many of 
@@ -873,6 +988,37 @@ the column alignment is 0):
      \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} & \{4,5\} \\
      \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} 
    \end{array}\right)
+
+.. cpp:type:: class DistMatrix<T,MR,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,MR,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,MR,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,MR,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,MR,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,MR,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,MR,STAR>
+
+   The underlying datatype `F` is a field.
 
 ``[* ,MC]``
 -----------
@@ -902,17 +1048,110 @@ the column alignment is 0):
      \{0,2,4\} 
    \end{array}\right)
 
+.. cpp:type:: class DistMatrix<T,STAR,MC>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,MC>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,MC>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,MC>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,MC>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,MC>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,MC>
+
+   The underlying datatype `F` is a field.
+
 ``[MD,* ]``
 -----------
 **TODO**, but not as high of a priority since the :math:`[M_D,\star]` 
 distribution is not as crucial for end users as many other details that have 
 not yet been documented.
 
+.. cpp:type:: class DistMatrix<T,MD,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,MD,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,MD,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,MD,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,MD,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,MD,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,MD,STAR>
+
+   The underlying datatype `F` is a field.
+
 ``[* ,MD]``
 -----------
 **TODO**, but not as high of a priority since the :math:`[\star,M_D]` 
 distribution is not as crucial for end users as many other details that have 
 not yet been documented.
+
+.. cpp:type:: class DistMatrix<T,STAR,MD>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,MD>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,MD>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,MD>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,MD>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,MD>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,MD>
+
+   The underlying datatype `F` is a field.
 
 ``[VC,* ]``
 -----------
@@ -936,7 +1175,36 @@ would be owned by the following sets of processes:
      0 & 0 & 0 & 0 & 0 & 0 & 0
    \end{array}\right)
 
-**TODO:** describe the member functions.
+.. cpp:type:: class DistMatrix<T,VC,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,VC,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,VC,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,VC,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,VC,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,VC,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,VC,STAR>
+
+   The underlying datatype `F` is a field.
 
 ``[* ,VC]``
 -----------
@@ -957,7 +1225,36 @@ This is the transpose of the above ``[VC,* ]`` distribution. On the standard
    0 & 1 & 2 & 3 & 4 & 5 & 0 
    \end{array}\right)
 
-**TODO:** describe the member functions.
+.. cpp:type:: class DistMatrix<T,STAR,VC>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,VC>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,VC>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,VC>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,VC>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,VC>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,VC>
+
+   The underlying datatype `F` is a field.
 
 ``[VR,* ]``
 -----------
@@ -981,7 +1278,36 @@ would be owned by the following sets of processes:
      0 & 0 & 0 & 0 & 0 & 0 & 0
    \end{array}\right)
 
-**TODO:** describe the member functions.
+.. cpp:type:: class DistMatrix<T,VR,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,VR,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,VR,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,VR,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,VR,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,VR,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,VR,STAR>
+
+   The underlying datatype `F` is a field.
 
 ``[* ,VR]``
 -----------
@@ -1002,7 +1328,36 @@ This is the transpose of the above ``[VR,* ]`` distribution. On the standard
    0 & 2 & 4 & 1 & 3 & 5 & 0 
    \end{array}\right)
 
-**TODO:** describe the member functions.
+.. cpp:type:: class DistMatrix<T,STAR,VR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,VR>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,VR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,VR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,VR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,VR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,VR>
+
+   The underlying datatype `F` is a field.
 
 ``[* ,* ]``
 -----------
@@ -1031,4 +1386,34 @@ sets of processes:
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} 
    \end{array}\right)
 
-**TODO:** describe the member functions.
+.. cpp:type:: class DistMatrix<T,STAR,STAR>
+
+   **TODO:** Add the member functions. 
+
+Special cases used in Elemental
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This list of special cases is here to help clarify the notation used throughout
+Elemental's source (as well as this documentation). These are all special
+cases of :cpp:type:`DistMatrix\<T,STAR,STAR>`.
+
+.. cpp:type:: class DistMatrix<double,STAR,STAR>
+
+   The underlying datatype is the set of double-precision real numbers.
+
+.. cpp:type:: class DistMatrix<Complex<double>,STAR,STAR>
+
+   The underlying datatype is the set of double-precision complex numbers.
+
+.. cpp:type:: class DistMatrix<R,STAR,STAR>
+
+   The underlying datatype `R` is real.
+
+.. cpp:type:: class DistMatrix<Complex<R>,STAR,STAR>
+
+   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
+   `R`.
+
+.. cpp:type:: class DistMatrix<F,STAR,STAR>
+
+   The underlying datatype `F` is a field.
+

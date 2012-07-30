@@ -42,7 +42,7 @@ algorithm described in Bientinesi et al.'s "Families of algorithms related to th
 inversion of a symmetric positive definite matrix", in particular, the variant 2
 algorithm from Fig. 9. 
 
-If the matrix is found to not be HPD, then a :cpp:class:`NonHPDMatrixException`
+If the matrix is found to not be HPD, then a :cpp:type:`NonHPDMatrixException`
 is thrown.
 
 .. cpp:function:: void HPDInverse( UpperOrLower uplo, Matrix<F>& A )

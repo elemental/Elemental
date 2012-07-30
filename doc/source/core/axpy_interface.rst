@@ -116,7 +116,7 @@ The output would be ::
    An enum that can take on the value of either 
    ``LOCAL_TO_GLOBAL`` or ``GLOBAL_TO_LOCAL``, with the meanings described above.
 
-.. cpp:class:: AxpyInterface<T>
+.. cpp:type:: class AxpyInterface<T>
 
    .. cpp:function:: AxpyInterface()
 
