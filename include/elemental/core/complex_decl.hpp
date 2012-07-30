@@ -33,6 +33,13 @@
 
 namespace elem {
 
+// Forward declare this since it is used in Complex
+//
+// TODO: Figure out how to avoid inlining the Complex friend functions so that
+//       this forward declaration is no longer required.
+template<typename R>
+R Abs( const R& alpha );
+
 // TODO: Think about extending to rings instead of just fields.
 template<typename R>
 struct Complex 
@@ -59,6 +66,8 @@ struct Complex
     // Implement these inline so that we do not have to template them
     // (which forfits implicit conversions, so that we would no longer be 
     // able to type 4*alpha when alpha is a Complex instance)
+    //
+    // TODO: Figure out how to avoid this...
 
     friend Complex<R> operator+
     ( const Complex<R>& alpha, const Complex<R>& beta )
