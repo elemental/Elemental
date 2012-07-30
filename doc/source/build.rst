@@ -268,87 +268,47 @@ defaults to the **PureRelease** build mode.
 Testing the installation
 ========================
 Once Elemental has been installed, it is a good idea to verify that it is 
-functioning properly. The following is a simple example that constructs of a 
-distributed matrix, sets it to the identity matrix, then prints it:
-
-   .. code-block:: cpp
-
-      #include "elemental.hpp"
-      using namespace elem;
-
-      void Usage()
-      {
-          std::cout << "Identity <n>\n"
-                    << "  n: size of identity matrix to build\n"
-                    << std::endl;
-      }
-
-      int
-      main( int argc, char* argv[] )
-      {
-          Initialize( argc, argv );
-          mpi::Comm comm = mpi::COMM_WORLD;
-          const int commRank = mpi::CommRank( comm );
-          const int commSize = mpi::CommSize( comm );
-
-          if( argc < 2 )
-          {
-              if( commRank == 0 )
-                  Usage();
-              Finalize();
-              return 0;
-          }
-          const int n = atoi( argv[1] );
-
-          DistMatrix<double> I( n, n );
-          MakeIdentity( I );
-          I.Print("Identity");
-
-          Finalize();
-          return 0;
-      }
+functioning properly. An example of generating a random distributed matrix, 
+computing its Singular Value Decomposition (SVD), and checking for numerical 
+error is available in `examples/lapack-like/SVD.cpp <https://github.com/poulson/Elemental/blob/master/examples/lapack-like/SVD.cpp>`__.
 
 As you can see, the only required header is ``elemental.hpp``, which must be
-in the include path when compiling this simple driver, say ``Identity.cpp``. 
+in the include path when compiling this simple driver, ``SVD.cpp``. 
 If Elemental was installed in ``/usr/local``, then 
 ``/usr/local/conf/elemvariables`` can be used to build a simple Makefile::
 
     include /usr/local/conf/elemvariables
 
-    Identity: Identity.cpp
+    SVD: SVD.cpp
         ${CXX} ${ELEM_COMPILE_FLAGS} $< -o $@ ${ELEM_LINK_FLAGS} ${ELEM_LIBS}
 
-As long as ``Identity.cpp`` and this ``Makefile`` are in the current directory,
-simply typing ``make`` should build the driver. A slightly modified 
-version of the above driver is available in 
-``examples/special_matrices/Identity.cpp``.
+As long as ``SVD.cpp`` and this ``Makefile`` are in the current directory,
+simply typing ``make`` should build the driver. 
 
-The executable can then typically be run with a single process using ::
+The executable can then typically be run with a single process (generating a 
+:math:`300 \times 300` distributed matrix, using ::
 
-    ./Identity 8
+    ./SVD 300 300
 
-and the output should be ::
+and the output should be similar to ::
+    
+    ||A||_max   = 0.999997
+    ||A||_1     = 165.286
+    ||A||_oo    = 164.116
+    ||A||_F     = 173.012
+    ||A||_2     = 19.7823
 
-    Creating a matrix distributed over 1 process.
-
-    Identity
-    1 0 0 0 0 0 0 0 
-    0 1 0 0 0 0 0 0 
-    0 0 1 0 0 0 0 0 
-    0 0 0 1 0 0 0 0 
-    0 0 0 0 1 0 0 0 
-    0 0 0 0 0 1 0 0 
-    0 0 0 0 0 0 1 0 
-    0 0 0 0 0 0 0 1 
+    ||A - U Sigma V^H||_max = 2.20202e-14
+    ||A - U Sigma V^H||_1   = 1.187e-12
+    ||A - U Sigma V^H||_oo  = 1.17365e-12
+    ||A - U Sigma V^H||_F   = 1.10577e-12
+    ||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = 1.67825
 
 The driver can be run with several processes using the MPI launcher provided
-by your MPI implementation; a typical way to run the ``Identity`` driver on 
+by your MPI implementation; a typical way to run the ``SVD`` driver on 
 eight processes would be::
 
-    mpirun -np 8 ./Identity 8
-
-Only the first line of the output should change with respect to when run on 
-a single process.
+    mpirun -np 8 ./SVD 300 300
 
 You can also build a wide variety of example and test drivers 
 (unfortunately the line is a little blurred) by using the CMake options::
