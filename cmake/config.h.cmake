@@ -63,6 +63,7 @@
 #cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
+#cmakedefine HAVE_OPENMP
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine WITHOUT_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI

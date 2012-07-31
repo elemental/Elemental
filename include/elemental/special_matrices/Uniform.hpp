@@ -130,7 +130,7 @@ struct MakeUniformHelper<T,MC,STAR>
             // Unpack
             T* localBuffer = A.LocalBuffer();
             const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<n; ++j )
@@ -198,7 +198,7 @@ struct MakeUniformHelper<T,MR,STAR>
         // Unpack
         T* localBuffer = A.LocalBuffer();
         const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for COLLAPSE(2)
 #endif
         for( int j=0; j<n; ++j )
@@ -231,7 +231,7 @@ struct MakeUniformHelper<T,STAR,MC>
         // Unpack
         T* localBuffer = A.LocalBuffer();
         const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -284,7 +284,7 @@ struct MakeUniformHelper<T,STAR,MR>
         // Unpack
         T* localBuffer = A.LocalBuffer();
         const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -322,7 +322,7 @@ struct MakeUniformHelper<T,STAR,STAR>
             // Unpack
             T* localBuffer = A.LocalBuffer();
             const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<n; ++j )

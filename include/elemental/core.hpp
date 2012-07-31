@@ -49,7 +49,7 @@
 #include <vector>
 
 // If defined, the _OPENMP macro contains the date of the specification
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
 # include <omp.h>
 # if _OPENMP >= 200805
 #  define COLLAPSE(N) collapse(N)

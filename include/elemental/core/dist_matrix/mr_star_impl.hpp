@@ -350,7 +350,7 @@ DistMatrix<T,MR,STAR,Int>::PrintBase
         std::vector<T> sendBuf(height*width,0);
         const T* thisLocalBuffer = this->LockedLocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -933,7 +933,7 @@ DistMatrix<T,MR,STAR,Int>::SumOverCol()
     // Pack
     T* thisLocalBuffer = this->LocalBuffer();
     const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
@@ -948,7 +948,7 @@ DistMatrix<T,MR,STAR,Int>::SumOverCol()
     ( sendBuf, recvBuf, localSize, mpi::SUM, g.ColComm() );
 
     // Unpack
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
@@ -1015,7 +1015,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         // Pack 
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for 
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
@@ -1035,7 +1035,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         const Int colAlignmentOfA = A.ColAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1045,7 +1045,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
             const Int rowShift = RawShift( k, colAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
 
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1092,7 +1092,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         // Pack the currently owned local data of A into the second buffer
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for 
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
@@ -1117,7 +1117,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
         const Int colAlignmentOfA = A.ColAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1126,7 +1126,7 @@ DistMatrix<T,MR,STAR,Int>::AdjointFrom( const DistMatrix<T,MC,MR,Int>& A )
 
             const Int rowShift = RawShift( k, colAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1195,7 +1195,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         // Pack 
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
@@ -1215,7 +1215,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         const Int colAlignmentOfA = A.ColAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1225,7 +1225,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
             const Int rowShift = RawShift( k, colAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
 
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1272,7 +1272,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         // Pack the currently owned local data of A into the second buffer
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localHeightOfA; ++jLocal )
@@ -1297,7 +1297,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
         const Int colAlignmentOfA = A.ColAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1306,7 +1306,7 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom( const DistMatrix<T,MC,MR,Int>& A )
 
             const Int rowShift = RawShift( k, colAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1411,7 +1411,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
             const Int thisLocalHeight = LocalLength(height,shift,p);
 
             const T* ALocalBuffer = A.LockedLocalBuffer();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( Int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
@@ -1430,7 +1430,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1586,7 +1586,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         // Pack 
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidthOfA; ++jLocal )
@@ -1605,7 +1605,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         const Int rowAlignmentOfA = A.RowAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1615,7 +1615,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
             const Int rowShift = RawShift( k, rowAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
 
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1662,7 +1662,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         // Pack the currently owned local data of A into the second buffer
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLocal=0; jLocal<localWidthOfA; ++jLocal )
@@ -1686,7 +1686,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         const Int rowAlignmentOfA = A.RowAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1695,7 +1695,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 
             const Int rowShift = RawShift( k, rowAlignmentOfA, r );
             const Int localWidth = RawLocalLength( width, rowShift, r );
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -1778,7 +1778,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -1796,7 +1796,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -1945,7 +1945,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -1965,7 +1965,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         const Int colAlignmentOfA = A.ColAlignment();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -1976,7 +1976,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
             const Int colOffset = (colShiftOfA-colShift) / c;
             const Int localHeight = RawLocalLength( height, colShiftOfA, p );
 
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int j=0; j<width; ++j )
@@ -2026,7 +2026,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         // Pack
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -2049,7 +2049,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         // Unpack
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#if defined(_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
@@ -2060,7 +2060,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
             const Int colOffset = (colShiftOfA-colShift) / c;
             const Int localHeight = RawLocalLength( height, colShiftOfA, p );
 
-#if defined(_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for 
 #endif
             for( Int j=0; j<width; ++j )
@@ -2132,7 +2132,7 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     const Int thisLDim = this->LocalLDim();
     const T* ALocalBuffer = A.LockedLocalBuffer();
     const Int ALDim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )

@@ -462,7 +462,7 @@ DistMatrix<T,MD,STAR,Int>::PrintBase
         const Int colShift = this->ColShift();
         const T* thisLocalBuffer = this->LockedLocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
@@ -1351,7 +1351,7 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
         const Int ALDim = A.LocalLDim();
         T* thisLocalBuffer = this->LocalBuffer();
         const Int thisLDim = this->LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for 
 #endif
         for( Int j=0; j<width; ++j )

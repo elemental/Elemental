@@ -92,7 +92,7 @@ void Initialize( int& argc, char**& argv )
             throw std::logic_error
             ("Cannot initialize elemental after finalizing MPI");
         }
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         const int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );

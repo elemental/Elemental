@@ -629,7 +629,7 @@ MakeTrapezoidal
     {
         if( side == LEFT )
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=std::max(0,offset+1); j<width; ++j )
@@ -641,7 +641,7 @@ MakeTrapezoidal
         }
         else
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=std::max(0,offset-height+width+1); j<width; ++j )
@@ -656,7 +656,7 @@ MakeTrapezoidal
     {
         if( side == LEFT )
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
@@ -669,7 +669,7 @@ MakeTrapezoidal
         }
         else
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
@@ -815,7 +815,7 @@ ScaleTrapezoid
     {
         if( side == LEFT )
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=std::max(0,offset-1); j<width; ++j )
@@ -827,7 +827,7 @@ ScaleTrapezoid
         }
         else
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=std::max(0,offset-height+width-1); j<width; ++j )
@@ -842,7 +842,7 @@ ScaleTrapezoid
     {
         if( side == LEFT )
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
@@ -854,7 +854,7 @@ ScaleTrapezoid
         }
         else
         {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
@@ -910,7 +910,7 @@ Zero( Matrix<T>& A )
 #endif
     const int height = A.Height();
     const int width = A.Width();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( int j=0; j<width; ++j )
@@ -2019,7 +2019,7 @@ MakeTrapezoidal
     if( uplo == LOWER )
     {
 
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -2039,7 +2039,7 @@ MakeTrapezoidal
     }
     else
     {
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -2084,7 +2084,7 @@ ScaleTrapezoid
     {
         T* localBuffer = A.LocalBuffer();
         const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
@@ -2102,7 +2102,7 @@ ScaleTrapezoid
     {
         T* localBuffer = A.LocalBuffer();
         const int ldim = A.LocalLDim();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( int jLocal=0; jLocal<localWidth; ++jLocal )

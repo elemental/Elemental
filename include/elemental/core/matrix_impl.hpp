@@ -1099,7 +1099,7 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     const Int ldim = LDim();
     const Int ldimOfA = A.LDim();
     const T* data = A.LockedBuffer();
-#ifdef _OPENMP
+#ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
