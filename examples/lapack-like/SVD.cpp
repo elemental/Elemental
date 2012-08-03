@@ -70,11 +70,20 @@ main( int argc, char* argv[] )
         DistMatrix<C> A( g );
         Uniform( m, n, A );
 
-        // Compute the SVD of A (but do not overwrite A)
-        DistMatrix<C> U( g ), V( g );
+        // Compute just the singular values 
+        DistMatrix<R,VR,STAR> sOnly( g );
+        DistMatrix<C> U( A );
+        SingularValues( U, sOnly );
+
+        // Compute the SVD of A 
+        DistMatrix<C> V( g );
         DistMatrix<R,VR,STAR> s( g );
         U = A;
         SVD( U, s, V );
+
+        // Compare the singular values from both methods
+        Axpy( (R)-1, s, sOnly );
+        const R singValDiff = Norm( sOnly, FROBENIUS_NORM );
 
         const R twoNormOfA = Norm( s, MAX_NORM );
         const R maxNormOfA = Norm( A, MAX_NORM );
@@ -104,7 +113,9 @@ main( int argc, char* argv[] )
                  << "||A - U Sigma V^H||_oo  = " << infNormOfE << "\n"
                  << "||A - U Sigma V^H||_F   = " << frobNormOfE << "\n"
                  << "||A - U Sigma V_H||_F / (max(m,n) eps ||A||_2) = " 
-                 << scaledResidual << "\n" << endl;
+                 << scaledResidual << "\n" 
+                 << "\n"
+                 << "|| sError ||_2 = " << singValDiff << std::endl;
         }
     }
     catch( exception& e )

@@ -705,11 +705,10 @@ void BidiagQRAlg
         return;
     }
 
-    std::vector<float> work( 4*n );
-
     int info;
     float* C=0;
     const int numColsC=0, ldC=1;
+    std::vector<float> work( 4*n );
     LAPACK(sbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, &work[0], &info );
@@ -745,11 +744,10 @@ void BidiagQRAlg
         return;
     }
 
-    std::vector<double> work( 4*n );
-
     int info;
     double* C=0;
     const int numColsC=0, ldC=1;
+    std::vector<double> work( 4*n );
     LAPACK(dbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, &work[0], &info );
@@ -785,13 +783,10 @@ void BidiagQRAlg
         return;
     }
 
-    const bool computeVectors = ( numColsVAdj || numRowsU );
-    const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
-    std::vector<float> work( workSize );
-
     int info;
     scomplex* C=0;
     const int numColsC=0, ldC=1;
+    std::vector<float> work( 4*n );
     LAPACK(cbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, &work[0], &info );
@@ -827,13 +822,10 @@ void BidiagQRAlg
         return;
     }
 
-    const bool computeVectors = ( numColsVAdj || numRowsU );
-    const int workSize = ( computeVectors ? std::max(1,4*n-4) : 2*n );
-    std::vector<double> work( workSize );
-
     int info;
     dcomplex* C=0;
     const int numColsC=0, ldC=1;
+    std::vector<double> work( 4*n );
     LAPACK(zbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, &work[0], &info );

@@ -93,9 +93,14 @@ SimpleSVDUpper
     A.GetDiagonal( e_MD_STAR, offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
-    // on each process
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
+    // on each process.
+    //
+    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    e_STAR_STAR.View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VTrans to the appropriate identity matrices.
     DistMatrix<Real,VC,STAR> U_VC_STAR( g );
@@ -196,9 +201,12 @@ SimpleSVDUpper
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
-    // on each process
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
+    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    e_STAR_STAR.View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VAdj to the appropriate identity matrices
     DistMatrix<C,VC,STAR> U_VC_STAR( g );
@@ -417,6 +425,7 @@ SimpleSVDUpper
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
+    // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( e_MD_STAR );
@@ -570,16 +579,22 @@ SimpleSingularValuesUpper
     A.GetDiagonal( d_MD_STAR );
     A.GetDiagonal( e_MD_STAR, offdiagonal );
 
+
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
+    //
+    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    e_STAR_STAR.View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix
     lapack::BidiagQRAlg
     ( uplo, k, 0, 0,
       d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
-      0, 1, 0, 1 );
+      (Real*)0, 1, (Real*)0, 1 );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
@@ -606,7 +621,7 @@ SimpleSingularValuesUpper
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    DistMatrix<C,MD,STAR> tP(g), tQ(g);
+    DistMatrix<C,STAR,STAR> tP(g), tQ(g);
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
@@ -617,14 +632,19 @@ SimpleSingularValuesUpper
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               e_STAR_STAR( e_MD_STAR );
+    //
+    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    e_STAR_STAR.View( eHat_STAR_STAR, 0, 0, k-1, 1 );
+    e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix
     lapack::BidiagQRAlg
     ( uplo, k, 0, 0,
       d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
-      0, 1, 0, 1 );
+      (C*)0, 1, (C*)0, 1 );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
@@ -688,8 +708,8 @@ SingularValuesUpper
     {
         DistMatrix<C,MD,STAR> t(g);
         QR( A, t );
-        DistMatrix<Real> AT(g),
-                         AB(g);
+        DistMatrix<C> AT(g),
+                      AB(g);
         PartitionDown
         ( A, AT,
              AB, n );
