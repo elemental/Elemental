@@ -150,6 +150,7 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
         LocalTrdtrmm( orientation, UPPER, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         //--------------------------------------------------------------------//
+        d1.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
