@@ -148,7 +148,7 @@ AbstractDistMatrix<T,Int>::AssertValidEntry
         std::ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
             << Height() << " x " << Width() << " matrix.";
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 }
 
@@ -169,7 +169,7 @@ AbstractDistMatrix<T,Int>::AssertValidSubmatrix
         msg << "Submatrix is out of bounds: accessing up to (" << i+height-1
             << "," << j+width-1 << ") of " << A.Height() << " x "
             << A.Width() << " matrix.";
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
 }
 
@@ -235,7 +235,7 @@ AbstractDistMatrix<T,Int>::AssertConforming1x2
         msg << "1x2 not conformant. Left is " << AL.Height() << " x " 
             << AL.Width() << ", right is " << AR.Height() << " x " 
             << AR.Width();
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( AL.ColAlignment() != AR.ColAlignment() )
         throw std::logic_error("1x2 is misaligned");
@@ -254,7 +254,7 @@ AbstractDistMatrix<T,Int>::AssertConforming2x1
         msg << "2x1 is not conformant. Top is " << AT.Height() << " x " 
             << AT.Width() << ", bottom is " << AB.Height() << " x " 
             << AB.Width();
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( AT.RowAlignment() != AB.RowAlignment() )
         throw std::logic_error("2x1 is not aligned");
@@ -278,7 +278,7 @@ AbstractDistMatrix<T,Int>::AssertConforming2x2
             << "  TR is " << ATR.Height() << " x " << ATR.Width() << std::endl
             << "  BL is " << ABL.Height() << " x " << ABL.Width() << std::endl
             << "  BR is " << ABR.Height() << " x " << ABR.Width();
-        throw std::logic_error( msg.str() );
+        throw std::logic_error( msg.str().c_str() );
     }
     if( ATL.ColAlignment() != ATR.ColAlignment() ||
         ABL.ColAlignment() != ABR.ColAlignment() ||

@@ -340,7 +340,7 @@ HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -507,7 +507,7 @@ HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(), 
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -655,10 +655,14 @@ HermitianEig
     // then redistribute into Z[MC,MR]
     {
         // Get an estimate of the amount of memory to allocate
-        std::vector<R> wVector(n);
+        std::vector<R> dVector(n), eVector(n), wVector(n);
+        elem::MemCopy( &dVector[0], d_STAR_STAR.LocalBuffer(), n );
+        elem::MemCopy( &eVector[0], e_STAR_STAR.LocalBuffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
-          &wVector[0], g.VRComm(), lowerBound, upperBound );
+        ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
+          lowerBound, upperBound );
+        dVector.clear();
+        eVector.clear();
 
         // Ensure that the paddedZ is sufficiently large
         int k = estimate.numGlobalEigenvalues;
@@ -683,7 +687,7 @@ HermitianEig
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
         k = info.numGlobalEigenvalues;
@@ -814,7 +818,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -898,7 +902,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -978,7 +982,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1095,7 +1099,7 @@ HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
         
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1265,7 +1269,7 @@ HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -1415,10 +1419,15 @@ HermitianEig
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
     // then redistribute into Z[MC,MR]
     {
-        std::vector<R> wVector(n);
+        // Get an estimate of the amount of memory to allocate
+        std::vector<R> dVector(n), eVector(n), wVector(n);
+        elem::MemCopy( &dVector[0], d_STAR_STAR.LocalBuffer(), n );
+        elem::MemCopy( &eVector[0], e_STAR_STAR.LocalBuffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
-          &wVector[0], g.VRComm(), lowerBound, upperBound );
+        ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
+          lowerBound, upperBound );
+        dVector.clear();
+        eVector.clear();
 
         // Ensure that the paddedZ is sufficiently large
         int k = estimate.numGlobalEigenvalues;
@@ -1443,7 +1452,7 @@ HermitianEig
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -1578,7 +1587,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1663,7 +1672,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1744,7 +1753,7 @@ HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LockedLocalBuffer(), e_STAR_STAR.LockedLocalBuffer(),
+        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]

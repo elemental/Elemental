@@ -45,28 +45,28 @@ Data structures
 Compute all eigenvalues
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 
    Compute all of the eigenvalues of the real symmetric tridiagonal matrix with 
    diagonal `d` and subdiagonal `e`: the eigenvalues will be stored in 
    `w` and the work will be divided among the processors in `comm`.
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 
    Same as above, but also compute the corresponding eigenvectors.
 
 Compute eigenvalues within interval
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm, double a, double b )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, mpi::Comm comm, double a, double b )
 
    Only compute the eigenvalues lying within the interval :math:`(a,b]`.
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm, double a, double b )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, double a, double b )
 
    Same as above, but also compute the corresponding eigenvectors.
 
-.. cpp:function:: pmrrr::Estimate pmrrr::EigEstimate( int n, const double* d, const double* w, mpi::Comm comm, double a, double b )
+.. cpp:function:: pmrrr::Estimate pmrrr::EigEstimate( int n, double* d, double* w, mpi::Comm comm, double a, double b )
 
    Return upper bounds on the number of local and global eigenvalues lying 
    within the specified interval.
@@ -74,11 +74,11 @@ Compute eigenvalues within interval
 Compute eigenvalues in index range
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm, int a, int b )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, mpi::Comm comm, int a, int b )
 
    Only compute the eigenvalues with indices ranging from ``a`` to ``b``, where 
    :math:`0 \le a \le b < n`.
 
-.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, const double* d, const double* e, double* w, double* Z, int ldz, mpi::Comm comm, int a, int b )
+.. cpp:function:: pmrrr::Info pmrrr::Eig( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, int a, int b )
 
    Same as above, but also compute the corresponding eigenvectors.

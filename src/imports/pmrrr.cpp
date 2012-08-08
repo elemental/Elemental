@@ -40,8 +40,8 @@ int PMRRR
 ( const char* jobz,  // 'N' ~ only eigenvalues, 'V' ~ also eigenvectors
   const char* range, // 'A'~all eigenpairs, 'V'~interval (vl,vu], 'I'~il-iu
   const int* n,      // size of matrix
-  const double* d,   // full diagonal of tridiagonal matrix [length n]
-  const double* e,   // full subdiagonal in first n-1 entries [length n]
+        double* d,   // full diagonal of tridiagonal matrix [length n]
+        double* e,   // full subdiagonal in first n-1 entries [length n]
   const double* vl,  // if range=='V', compute eigenpairs in (vl,vu]
   const double* vu,
   const int* il, // if range=='I', compute il-iu eigenpairs
@@ -64,8 +64,8 @@ namespace pmrrr {
 // Return upper bounds on the number of (local) eigenvalues in the given range,
 // (lowerBound,upperBound]
 Estimate EigEstimate
-( int n, const double* d, const double* e, double* w, 
-  mpi::Comm comm, double lowerBound, double upperBound )
+( int n, double* d, double* e, double* w, mpi::Comm comm, 
+  double lowerBound, double upperBound )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::EigEstimate");
@@ -90,7 +90,6 @@ Estimate EigEstimate
     Estimate estimate;
     estimate.numLocalEigenvalues = nz;
     mpi::AllReduce( &nz, &estimate.numGlobalEigenvalues, 1, mpi::SUM, comm );
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -98,7 +97,7 @@ Estimate EigEstimate
 }
 
 // Compute all of the eigenvalues
-Info Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm )
+Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
@@ -134,8 +133,7 @@ Info Eig( int n, const double* d, const double* e, double* w, mpi::Comm comm )
 
 // Compute all of the eigenpairs
 Info Eig
-( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
-  mpi::Comm comm )
+( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
@@ -170,8 +168,8 @@ Info Eig
 
 // Compute all of the eigenvalues in (lowerBound,upperBound]
 Info Eig
-( int n, const double* d, const double* e, double* w, 
-  mpi::Comm comm, double lowerBound, double upperBound )
+( int n, double* d, double* e, double* w, mpi::Comm comm, 
+  double lowerBound, double upperBound )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
@@ -206,8 +204,8 @@ Info Eig
 
 // Compute all of the eigenpairs with eigenvalues in (lowerBound,upperBound]
 Info Eig
-( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
-  mpi::Comm comm, double lowerBound, double upperBound )
+( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
+  double lowerBound, double upperBound )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
@@ -241,8 +239,8 @@ Info Eig
 
 // Compute all of the eigenvalues with indices in [lowerBound,upperBound]
 Info Eig
-( int n, const double* d, const double* e, double* w, 
-  mpi::Comm comm, int lowerBound, int upperBound )
+( int n, double* d, double* e, double* w, mpi::Comm comm, 
+  int lowerBound, int upperBound )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
@@ -280,8 +278,8 @@ Info Eig
 // Compute all of the eigenpairs with eigenvalues indices in 
 // [lowerBound,upperBound]
 Info Eig
-( int n, const double* d, const double* e, double* w, double* Z, int ldz, 
-  mpi::Comm comm, int lowerBound, int upperBound )
+( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm, 
+  int lowerBound, int upperBound )
 {
 #ifndef RELEASE
     PushCallStack("pmrrr::Eig");
