@@ -223,6 +223,7 @@ if(MISSING_LAPACK)
     return()
   endif()
 endif()
+set(LAPACK_ADDONS_LIBS ${LAPACK_ADDONS_LIBS} PARENT_SCOPE)
 
 # Add in the preprocessor definitions and fortran name-mangling
 if(MISSING_LAPACK)
@@ -269,6 +270,7 @@ file(GLOB_RECURSE PMRRR_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
 set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 
 # Define the main library and its link libraries
+set(MISSING_LAPACK ${MISSING_LAPACK} PARENT_SCOPE)
 if(MISSING_LAPACK)
   add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
   target_link_libraries(
@@ -280,6 +282,7 @@ else()
   target_link_libraries(pmrrr ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
   install(TARGETS pmrrr DESTINATION lib)
 endif()
+set(CMAKE_THREAD_LIBS_INIT ${CMAKE_THREAD_LIBS_INIT} PARENT_SCOPE)
 
 # Define the header-preparation rules
 set(PREPARED_HEADERS)

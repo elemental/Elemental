@@ -577,6 +577,10 @@ set(MPI_CXX_LIBS_STRING)
 foreach(LIB ${MPI_CXX_LIBRARIES})
   set(MPI_CXX_LIBS "${MPI_CXX_LIBS} ${LIB}")
 endforeach()
+set(LAPACK_ADDONS_STRING)
+foreach(LIB ${LAPACK_ADDONS_LIBS})
+  set(LAPACK_ADDONS_STRING "${LAPACK_ADDONS_STRING} ${LIB}")
+endforeach()
 configure_file(
   ${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
   ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY

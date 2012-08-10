@@ -21,11 +21,18 @@ else
 endif
 ELEM_LINK_FLAGS = -L${ELEM_LIB} ${MPI_CXX_LINK_FLAGS}
 
-HAVE_PMRRR = @HAVE_PMRRR@
-ifdef HAVE_PMRRR
-  ELEM_LIBS = -lelemental -lplcg -lpmrrr -lcmake-dummy-lib \
-              ${MATH_LIBS} ${MPI_CXX_LIBS}
+WITHOUT_PMRRR = @WITHOUT_PMRRR@
+ifeq (${WITHOUT_PMRRR},TRUE)
+  PMRRR_LIBS = 
 else
-  ELEM_LIBS = -lelemental -lplcg -lcmake-dummy-lib \
-              ${MATH_LIBS} ${MPI_CXX_LIBS}
+  MISSING_LAPACK = @MISSING_LAPACK@
+  ifeq (${MISSING_LAPACK},TRUE)
+    LAPACK_ADDONS = -llapack-addons @LAPACK_ADDONS_STRING@
+  else
+    LAPACK_ADDONS = 
+  endif
+  THREAD_INIT = @CMAKE_THREAD_LIBS_INIT@
+  PMRRR_LIBS = -lpmrrr ${LAPACK_ADDONS} ${THREAD_INIT}
 endif
+ELEM_LIBS = -lelemental -lplcg ${PMRRR_LIBS} -lcmake-dummy-lib \
+            ${MATH_LIBS} ${MPI_CXX_LIBS}
