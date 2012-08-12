@@ -40,5 +40,6 @@
 #include "./level2/Symv.hpp"
 #include "./level2/Syr.hpp"
 #include "./level2/Syr2.hpp"
+#include "./level2/Trmv.hpp"
 #include "./level2/Trsv.hpp"
 

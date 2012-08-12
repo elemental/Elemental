@@ -35,6 +35,30 @@ namespace elem {
 
 template<typename T>
 inline void
+Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Syr");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( x.Width() != 1 && x.Height() != 1 )
+        throw std::logic_error("x must be a vector");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    if( xLength != A.Height() )
+        throw std::logic_error("x must conform with A");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const int m = A.Height();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    blas::Syr
+    ( uploChar, m, alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 Syr
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,

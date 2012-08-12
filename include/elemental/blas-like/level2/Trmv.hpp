@@ -31,20 +31,37 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./level1/Adjoint.hpp"
-#include "./level1/Axpy.hpp"
-#include "./level1/Conjugate.hpp"
-#include "./level1/Copy.hpp"
-#include "./level1/DiagonalScale.hpp"
-#include "./level1/DiagonalSolve.hpp"
-#include "./level1/Dot.hpp"
-#include "./level1/Dotu.hpp"
-#include "./level1/MakeHermitian.hpp"
-#include "./level1/MakeReal.hpp"
-#include "./level1/MakeSymmetric.hpp"
-#include "./level1/MakeTrapezoidal.hpp"
-#include "./level1/Nrm2.hpp"
-#include "./level1/Scale.hpp"
-#include "./level1/ScaleTrapezoid.hpp"
-#include "./level1/Transpose.hpp"
-#include "./level1/Zero.hpp"
+// TODO: Implement distributed version
+
+namespace elem {
+
+template<typename T>
+inline void
+Trmv
+( UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
+  const Matrix<T>& A, Matrix<T>& x )
+{
+#ifndef RELEASE
+    PushCallStack("Trmv");
+    if( x.Height() != 1 && x.Width() != 1 )
+        throw std::logic_error("x must be a vector");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    if( xLength != A.Height() )
+        throw std::logic_error("x must conform with A");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
+    const char diagChar = UnitOrNonUnitToChar( diag );
+    const int m = A.Height();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    blas::Trmv
+    ( uploChar, transChar, diagChar, m,
+      A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace elem

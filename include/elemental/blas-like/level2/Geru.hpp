@@ -35,6 +35,32 @@ namespace elem {
 
 template<typename T>
 inline void
+Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Geru");
+    if( ( x.Height() != 1 && x.Width() != 1 ) ||
+        ( y.Height() != 1 && y.Width() != 1 ) )
+        throw std::logic_error("x and y must be vectors");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+    if( xLength != A.Height() || yLength != A.Width() )
+        throw std::logic_error("Nonconformal Geru");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    blas::Geru
+    ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                   A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 Geru
 ( T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,

@@ -37,6 +37,65 @@
 #include "./Gemm/TT.hpp"
 
 namespace elem {
+
+template<typename T>
+inline void
+Gemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("Gemm");
+    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
+    {
+        if( A.Height() != C.Height() ||
+            B.Width()  != C.Width()  ||
+            A.Width()  != B.Height() )
+            throw std::logic_error("Nonconformal GemmNN");
+    }
+    else if( orientationOfA == NORMAL )
+    {
+        if( A.Height() != C.Height() ||
+            B.Height() != C.Width()  ||
+            A.Width()  != B.Width() )
+            throw std::logic_error("Nonconformal GemmN(T/C)");
+    }
+    else if( orientationOfB == NORMAL )
+    {
+        if( A.Width()  != C.Height() ||
+            B.Width()  != C.Width()  ||
+            A.Height() != B.Height() )
+            throw std::logic_error("Nonconformal Gemm(T/C)N");
+    }
+    else
+    {
+        if( A.Width()  != C.Height() ||
+            B.Height() != C.Width()  ||
+            A.Height() != B.Width() )
+            throw std::logic_error("Nonconformal Gemm(T/C)(T/C)");
+    }
+#endif
+    const char transA = OrientationToChar( orientationOfA );
+    const char transB = OrientationToChar( orientationOfB );
+    const int m = C.Height();
+    const int n = C.Width();
+    const int k = ( orientationOfA == NORMAL ? A.Width() : A.Height() );
+    if( k != 0 )
+    {
+        blas::Gemm
+        ( transA, transB, m, n, k,
+          alpha, A.LockedBuffer(), A.LDim(), B.LockedBuffer(), B.LDim(),
+          beta,  C.Buffer(),       C.LDim() );
+    }
+    else
+    {
+        Scale( beta, C );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 namespace internal {
 
 template<typename T>

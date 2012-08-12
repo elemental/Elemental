@@ -37,6 +37,37 @@ template<typename T>
 inline void
 Her2
 ( UpperOrLower uplo,
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Her2");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( (x.Width() != 1 && x.Height() != 1) ||
+        (y.Width() != 1 && y.Height() != 1) )
+        throw std::logic_error("x and y must be vectors");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+    if( xLength != A.Height() || yLength != A.Height() )
+        throw std::logic_error("x and y must conform with A");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const int m = A.Height();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    blas::Her2
+    ( uploChar, m,
+      alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+             A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Her2
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
                  DistMatrix<T>& A )

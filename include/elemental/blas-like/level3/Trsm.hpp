@@ -45,6 +45,48 @@ namespace elem {
 template<typename F>
 inline void
 Trsm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const Matrix<F>& A, Matrix<F>& B,
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("Trsm");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Triangular matrix must be square");
+    if( side == LEFT )
+    {
+        if( A.Height() != B.Height() )
+            throw std::logic_error("Nonconformal Trsm");
+    }
+    else
+    {
+        if( A.Height() != B.Width() )
+            throw std::logic_error("Nonconformal Trsm");
+    }
+#endif
+    const char sideChar = LeftOrRightToChar( side );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
+    const char diagChar = UnitOrNonUnitToChar( diag );
+    if( checkIfSingular && diag != UNIT )
+    {
+        const int n = A.Height();
+        for( int j=0; j<n; ++j )
+            if( A.Get(j,j) == (F)0 )
+                throw SingularMatrixException();
+    }
+    blas::Trsm
+    ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
+      alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+Trsm
 ( LeftOrRight side, 
   UpperOrLower uplo, 
   Orientation orientation, 

@@ -46,6 +46,40 @@ namespace elem {
 template<typename T>
 inline void
 Trmm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  T alpha, const Matrix<T>& A, Matrix<T>& B )
+{
+#ifndef RELEASE
+    PushCallStack("Trmm");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Triangular matrix must be square");
+    if( side == LEFT )
+    {
+        if( A.Height() != B.Height() )
+            throw std::logic_error("Nonconformal Trmm");
+    }
+    else
+    {
+        if( A.Height() != B.Width() )
+            throw std::logic_error("Nonconformal Trmm");
+    }
+#endif
+    const char sideChar = LeftOrRightToChar( side );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
+    const char diagChar = UnitOrNonUnitToChar( diag );
+    blas::Trmm
+    ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
+      alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& X )

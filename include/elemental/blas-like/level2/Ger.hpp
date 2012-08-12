@@ -35,6 +35,44 @@ namespace elem {
 
 template<typename T>
 inline void
+Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Ger");
+    if( ( x.Height() != 1 && x.Width() != 1 ) ||
+        ( y.Height() != 1 && y.Width() != 1 ) )
+        throw std::logic_error("x and y must be vectors");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+    if( xLength != A.Height() || yLength != A.Width() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal Ger:\n"
+            << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
+            << "  y ~ " << y.Height() << " x " << y.Width() << "\n"
+            << "  A ~ " << A.Height() << " x " << A.Width();
+        throw std::logic_error( msg.str().c_str() );
+    }
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    blas::Ger
+    ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                   A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Gerc( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+{ Ger( alpha, x, y, A ); }
+
+template<typename T>
+inline void
 Ger
 ( T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
@@ -145,5 +183,13 @@ Ger
     PopCallStack();
 #endif
 }
+
+template<typename T>
+inline void
+Gerc
+( T alpha, const DistMatrix<T>& x,
+           const DistMatrix<T>& y,
+                 DistMatrix<T>& A )
+{ Ger( alpha, x, y, A ); }
 
 } // namespace elem

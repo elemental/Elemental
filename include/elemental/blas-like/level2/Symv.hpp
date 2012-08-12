@@ -40,6 +40,37 @@ template<typename T>
 inline void
 Symv
 ( UpperOrLower uplo,
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
+{
+#ifndef RELEASE
+    PushCallStack("Symv");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( ( x.Height() != 1 && x.Width() != 1 ) ||
+        ( y.Height() != 1 && y.Width() != 1 ) )
+        throw std::logic_error("x and y must be vectors");
+    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+    if( A.Height() != xLength || A.Height() != yLength )
+        throw std::logic_error("A must conform with x and y");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const int m = A.Height();
+    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    blas::Symv
+    ( uploChar, m,
+      alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
+      beta,  y.Buffer(), incy );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Symv
+( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y )

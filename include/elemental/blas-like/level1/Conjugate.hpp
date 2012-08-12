@@ -31,20 +31,76 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./level1/Adjoint.hpp"
-#include "./level1/Axpy.hpp"
-#include "./level1/Conjugate.hpp"
-#include "./level1/Copy.hpp"
-#include "./level1/DiagonalScale.hpp"
-#include "./level1/DiagonalSolve.hpp"
-#include "./level1/Dot.hpp"
-#include "./level1/Dotu.hpp"
-#include "./level1/MakeHermitian.hpp"
-#include "./level1/MakeReal.hpp"
-#include "./level1/MakeSymmetric.hpp"
-#include "./level1/MakeTrapezoidal.hpp"
-#include "./level1/Nrm2.hpp"
-#include "./level1/Scale.hpp"
-#include "./level1/ScaleTrapezoid.hpp"
-#include "./level1/Transpose.hpp"
-#include "./level1/Zero.hpp"
+namespace elem {
+
+// Default case is for real datatypes
+template<typename Z>
+inline void
+Conjugate( Matrix<Z>& A )
+{ }
+
+// Specialization is to complex datatypes
+template<typename Z>
+inline void
+Conjugate( Matrix<Complex<Z> >& A )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate (in-place)");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            A.Set(i,j,Conj(A.Get(i,j)));
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Conjugate( const Matrix<T>& A, Matrix<T>& B )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    B.ResizeTo( m, n );
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            B.Set(i,j,Conj(A.Get(i,j)));
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Conjugate( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate (in-place)");
+#endif
+    Conjugate( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V,
+                    Distribution W,Distribution Z>
+inline void
+Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+{
+#ifndef RELEASE
+    PushCallStack("Conjugate");
+#endif
+    B = A;
+    Conjugate( B );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace elem

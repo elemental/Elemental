@@ -34,6 +34,28 @@
 namespace elem {
 
 template<typename F>
+inline typename Base<F>::type
+Nrm2( const Matrix<F>& x )
+{
+#ifndef RELEASE
+    PushCallStack("Nrm2");
+    if( x.Height() != 1 && x.Width() != 1 )
+        throw std::logic_error("Expected vector input");
+#endif
+    typedef typename Base<F>::type R;
+
+    R norm;
+    if( x.Width() == 1 )
+        norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
+    else
+        norm = blas::Nrm2( x.Width(), x.LockedBuffer(), x.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
+template<typename F>
 inline typename Base<F>::type 
 Nrm2( const DistMatrix<F>& x )
 {

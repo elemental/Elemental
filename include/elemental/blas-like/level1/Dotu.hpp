@@ -31,6 +31,55 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace elem {
+
+template<typename T>
+inline T
+Dotu( const Matrix<T>& x, const Matrix<T>& y )
+{
+#ifndef RELEASE
+    PushCallStack("Dotu");
+    if( (x.Height() != 1 && x.Width() != 1) ||
+        (y.Height() != 1 && y.Width() != 1) )
+        throw std::logic_error("Expected vector inputs");
+    int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+    int yLength = ( y.Width() == 1 ? y.Height() : y.Width() );
+    if( xLength != yLength )
+        throw std::logic_error("x and y must be the same length");
+#endif
+    T dotProduct;
+    if( x.Width() == 1 && y.Width() == 1 )
+    {
+        dotProduct = blas::Dotu
+                     ( x.Height(), x.LockedBuffer(), 1,
+                                   y.LockedBuffer(), 1 );
+    }
+    else if( x.Width() == 1 )
+    {
+        dotProduct = blas::Dotu
+                     ( x.Height(), x.LockedBuffer(), 1,
+                                   y.LockedBuffer(), y.LDim() );
+    }
+    else if( y.Width() == 1 )
+    {
+        dotProduct = blas::Dotu
+                     ( x.Width(), x.LockedBuffer(), x.LDim(),
+                                  y.LockedBuffer(), 1        );
+    }
+    else
+    {
+        dotProduct = blas::Dotu
+                     ( x.Width(), x.LockedBuffer(), x.LDim(),
+                                  y.LockedBuffer(), y.LDim() );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return dotProduct;
+}
+
+namespace internal {
+
 /* 
    C++ does not (currently) allow for partial function template specialization,
    so implementing Dotu will be unnecessarily obfuscated. Sorry.
@@ -48,10 +97,6 @@
      T internal::DotuHelper
      ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
 */
-namespace elem {
-
-namespace internal {
-
 template<typename T,Distribution U,Distribution V>
 inline T
 DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )

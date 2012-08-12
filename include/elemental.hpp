@@ -39,10 +39,12 @@
 #endif
 
 #include "elemental/core.hpp"
+
 #include "elemental/special_matrices.hpp"
 
 #include "elemental/blas-like_decl.hpp"
 #include "elemental/blas-like_impl.hpp"
+
 #include "elemental/lapack-like_decl.hpp"
 #include "elemental/lapack-like_impl.hpp"
 

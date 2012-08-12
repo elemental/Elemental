@@ -42,6 +42,27 @@ template<typename T>
 inline void
 Hemm
 ( LeftOrRight side, UpperOrLower uplo,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("Hemm");
+#endif
+    const char sideChar = LeftOrRightToChar( side );
+    const char uploChar = UpperOrLowerToChar( uplo );
+    blas::Hemm
+    ( sideChar, uploChar, C.Height(), C.Width(),
+      alpha, A.LockedBuffer(), A.LDim(),
+             B.LockedBuffer(), B.LDim(),
+      beta,  C.Buffer(),       C.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Hemm
+( LeftOrRight side, UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )

@@ -31,20 +31,61 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./level1/Adjoint.hpp"
-#include "./level1/Axpy.hpp"
-#include "./level1/Conjugate.hpp"
-#include "./level1/Copy.hpp"
-#include "./level1/DiagonalScale.hpp"
-#include "./level1/DiagonalSolve.hpp"
-#include "./level1/Dot.hpp"
-#include "./level1/Dotu.hpp"
-#include "./level1/MakeHermitian.hpp"
-#include "./level1/MakeReal.hpp"
-#include "./level1/MakeSymmetric.hpp"
-#include "./level1/MakeTrapezoidal.hpp"
-#include "./level1/Nrm2.hpp"
-#include "./level1/Scale.hpp"
-#include "./level1/ScaleTrapezoid.hpp"
-#include "./level1/Transpose.hpp"
-#include "./level1/Zero.hpp"
+namespace elem {
+
+template<typename T>
+inline void
+MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeSymmetric");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix symmetric");
+
+    Matrix<T> d;
+    A.GetDiagonal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    Matrix<T> ATrans;
+    Transpose( A, ATrans );
+    Axpy( (T)1, ATrans, A );
+
+    A.SetDiagonal( d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("MakeSymmetric");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make non-square matrix symmetric");
+
+    const Grid& g = A.Grid();
+    DistMatrix<T> d(g);
+    A.GetDiagonal( d );
+
+    if( uplo == LOWER )
+        MakeTrapezoidal( LEFT, LOWER, -1, A );
+    else
+        MakeTrapezoidal( LEFT, UPPER, +1, A );
+    DistMatrix<T> ATrans(g);
+    Transpose( A, ATrans );
+    Axpy( (T)1, ATrans, A );
+
+    A.SetDiagonal( d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace elem

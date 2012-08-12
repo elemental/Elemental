@@ -41,6 +41,39 @@ namespace elem {
 template<typename T>
 inline void
 Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("Herk");
+    if( orientation == NORMAL )
+    {
+        if( A.Height() != C.Height() || A.Height() != C.Width() )
+            throw std::logic_error("Nonconformal Herk");
+    }
+    else if( orientation == ADJOINT )
+    {
+        if( A.Width() != C.Height() || A.Width() != C.Width() )
+            throw std::logic_error("Nonconformal Herk");
+    }
+    else
+        throw std::logic_error("Herk only accepts NORMAL and ADJOINT options.");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
+    blas::Herk
+    ( uploChar, transChar, C.Height(), k,
+      alpha, A.LockedBuffer(), A.LDim(),
+      beta,  C.Buffer(),       C.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Herk
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,

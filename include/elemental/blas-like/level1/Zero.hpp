@@ -31,20 +31,38 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./level1/Adjoint.hpp"
-#include "./level1/Axpy.hpp"
-#include "./level1/Conjugate.hpp"
-#include "./level1/Copy.hpp"
-#include "./level1/DiagonalScale.hpp"
-#include "./level1/DiagonalSolve.hpp"
-#include "./level1/Dot.hpp"
-#include "./level1/Dotu.hpp"
-#include "./level1/MakeHermitian.hpp"
-#include "./level1/MakeReal.hpp"
-#include "./level1/MakeSymmetric.hpp"
-#include "./level1/MakeTrapezoidal.hpp"
-#include "./level1/Nrm2.hpp"
-#include "./level1/Scale.hpp"
-#include "./level1/ScaleTrapezoid.hpp"
-#include "./level1/Transpose.hpp"
-#include "./level1/Zero.hpp"
+namespace elem {
+
+template<typename T>
+inline void
+Zero( Matrix<T>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Zero");
+#endif
+    const int height = A.Height();
+    const int width = A.Width();
+#ifdef HAVE_OPENMP
+    #pragma omp parallel for
+#endif
+    for( int j=0; j<width; ++j )
+        MemZero( A.Buffer(0,j), height );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Zero( DistMatrix<T,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Zero");
+#endif
+    Zero( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace elem

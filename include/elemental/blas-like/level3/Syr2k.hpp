@@ -41,6 +41,43 @@ namespace elem {
 template<typename T>
 inline void
 Syr2k
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
+{
+#ifndef RELEASE
+    PushCallStack("Syr2k");
+    if( orientation == NORMAL )
+    {
+        if( A.Height() != C.Height() || A.Height() != C.Width() ||
+            B.Height() != C.Height() ||B.Height() != C.Width()    )
+            throw std::logic_error("Nonconformal Syr2k");
+    }
+    else if( orientation == TRANSPOSE )
+    {
+        if( A.Width() != C.Height() || A.Width() != C.Width() ||
+            B.Width() != C.Height() || B.Width() != C.Width()   )
+            throw std::logic_error("Nonconformal Syr2k");
+    }
+    else
+        throw std::logic_error
+        ("Syr2k only accepts NORMAL and TRANSPOSE options");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char transChar = OrientationToChar( orientation );
+    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
+    blas::Syr2k
+    ( uploChar, transChar, C.Height(), k,
+      alpha, A.LockedBuffer(), A.LDim(),
+             B.LockedBuffer(), B.LDim(),
+      beta,  C.Buffer(),       C.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Syr2k
 ( UpperOrLower uplo, 
   Orientation orientation,
   T alpha, const DistMatrix<T,MC,MR>& A,
