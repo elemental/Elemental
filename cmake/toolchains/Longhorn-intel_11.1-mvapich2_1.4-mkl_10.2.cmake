@@ -33,8 +33,6 @@ set(OpenMP_CXX_FLAGS "-openmp")
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
    CMAKE_BUILD_TYPE MATCHES PureRelease)
   set(MATH_LIBS "-L/opt/apps/intel/mkl/10.2.2.025/lib/em64t -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lm")
-else(CMAKE_BUILD_TYPE MATCHES PureDebug OR 
-     CMAKE_BUILD_TYPE MATCHES PureRelease)
+else()
   set(MATH_LIBS "-L/opt/apps/intel/11.1/mkl/lib/em64t -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lguide -lpthread -lm")
-endif(CMAKE_BUILD_TYPE MATCHES PureDebug OR 
-      CMAKE_BUILD_TYPE MATCHES PureRelease)
+endif()
