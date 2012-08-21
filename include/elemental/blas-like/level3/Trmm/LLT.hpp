@@ -40,8 +40,8 @@ TrmmLLTA
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   T alpha, 
-  const DistMatrix<T,MC,MR>& L,
-        DistMatrix<T,MC,MR>& X )
+  const DistMatrix<T>& L,
+        DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmLLTA");
@@ -63,11 +63,11 @@ TrmmLLTA
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         XL(g), XR(g),
         X0(g), X1(g), X2(g);
 
@@ -107,15 +107,15 @@ TrmmLLTA
    
 template<typename T>
 inline void
-TrmmLLTC
+TrmmLLTCOld
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   T alpha, 
-  const DistMatrix<T,MC,MR>& L,
-        DistMatrix<T,MC,MR>& X )
+  const DistMatrix<T>& L,
+        DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLLTC");
+    PushCallStack("internal::TrmmLLTCOld");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -133,13 +133,13 @@ TrmmLLTC
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-    DistMatrix<T,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<T> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -194,7 +194,7 @@ TrmmLLTC
         else
             Adjoint( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
         Axpy( (T)1, D1, X1 );
-       //--------------------------------------------------------------------//
+        //--------------------------------------------------------------------//
         D1.FreeAlignments();
         D1AdjOrTrans_MR_MC.FreeAlignments();
         D1AdjOrTrans_MR_STAR.FreeAlignments();
@@ -219,9 +219,109 @@ TrmmLLTC
 
 template<typename T>
 inline void
+TrmmLLTC
+( Orientation orientation, 
+  UnitOrNonUnit diag,
+  T alpha, 
+  const DistMatrix<T>& L,
+        DistMatrix<T>& X )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrmmLLTC");
+    if( L.Grid() != X.Grid() )
+        throw std::logic_error
+        ("L and X must be distributed over the same grid");
+    if( orientation == NORMAL )
+        throw std::logic_error("TrmmLLT expects a (Conjugate)Transpose option");
+    if( L.Height() != L.Width() || L.Height() != X.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal TrmmLLTC: \n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
+            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+#endif
+    const Grid& g = L.Grid();
+
+    // Matrix views
+    DistMatrix<T> 
+        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                         L20(g), L21(g), L22(g);
+    DistMatrix<T> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
+
+    // Temporary distributions
+    DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
+    DistMatrix<T,STAR,MC  > L10_STAR_MC(g);
+    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
+
+    // Start the algorithm
+    Scale( alpha, X );
+    LockedPartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    PartitionDown
+    ( X, XT,
+         XB, 0 );
+    while( XB.Height() > 0 )
+    {
+        LockedRepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        RepartitionDown
+        ( XT,  X0,
+         /**/ /**/
+               X1,
+          XB,  X2 ); 
+
+        L10_STAR_MC.AlignWith( X0 );
+        X1Trans_MR_STAR.AlignWith( X0 );
+        X1_STAR_VR.AlignWith( X1 );
+        //--------------------------------------------------------------------//
+        L10_STAR_MC = L10;
+        X1Trans_MR_STAR.TransposeFrom( X1 );
+        LocalGemm
+        ( orientation, TRANSPOSE, 
+          (T)1, L10_STAR_MC, X1Trans_MR_STAR, (T)1, X0 );
+
+        L11_STAR_STAR = L11;
+        X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
+        LocalTrmm( LEFT, LOWER, orientation, NON_UNIT, (T)1, L11_STAR_STAR );
+        X1 = X1_STAR_VR;
+        //--------------------------------------------------------------------//
+        L10_STAR_MC.FreeAlignments();
+        X1Trans_MR_STAR.FreeAlignments();
+        X1_STAR_VR.FreeAlignments();
+
+        SlideLockedPartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+
+        SlidePartitionDown
+        ( XT,  X0,
+               X1,
+         /**/ /**/
+          XB,  X2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
 LocalTrmmAccumulateLLT
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T,MC,MR  >& L,
+  const DistMatrix<T>& L,
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
@@ -251,12 +351,12 @@ LocalTrmmAccumulateLLT
     const Grid& g = L.Grid();
     
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> D11(g);
+    DistMatrix<T> D11(g);
 
     DistMatrix<T,MC,STAR>
         XT_MC_STAR(g),  X0_MC_STAR(g),
@@ -351,8 +451,8 @@ TrmmLLT
 ( Orientation orientation, 
   UnitOrNonUnit diag,
   T alpha, 
-  const DistMatrix<T,MC,MR>& L,
-        DistMatrix<T,MC,MR>& X )
+  const DistMatrix<T>& L,
+        DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmLLT");

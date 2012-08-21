@@ -38,8 +38,8 @@ template<typename T>
 inline void
 TrmmRLTA
 ( Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLTA");
@@ -48,7 +48,7 @@ TrmmRLTA
 #endif
     const Grid& g = L.Grid();
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         XT(g),  X0(g),
         XB(g),  X1(g),
                 X2(g);
@@ -108,8 +108,8 @@ inline void
 TrmmRLTC
 ( Orientation orientation, 
   UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLTC");
@@ -130,13 +130,13 @@ TrmmRLTC
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> XL(g), XR(g),
-                        X0(g), X1(g), X2(g);
+    DistMatrix<T> XL(g), XR(g),
+                  X0(g), X1(g), X2(g);
 
     // Temporary distributions
     DistMatrix<T,STAR,MR  > L10_STAR_MR(g);
@@ -200,7 +200,7 @@ template<typename T>
 inline void
 LocalTrmmAccumulateRLT
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T,MC,MR  >& L,
+  const DistMatrix<T>& L,
   const DistMatrix<T,MR,STAR>& XAdjOrTrans_MR_STAR,
         DistMatrix<T,MC,STAR>& ZAdjOrTrans_MC_STAR )
 {
@@ -231,12 +231,12 @@ LocalTrmmAccumulateRLT
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> D11(g);
+    DistMatrix<T> D11(g);
 
     DistMatrix<T,MR,STAR>
         XTAdjOrTrans_MR_STAR(g),  X0AdjOrTrans_MR_STAR(g),
@@ -331,8 +331,8 @@ inline void
 TrmmRLT
 ( Orientation orientation, 
   UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLT");

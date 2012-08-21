@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename T> 
 void
-SetDiagonalToOne( DistMatrix<T,MC,MR>& D )
+SetDiagonalToOne( DistMatrix<T>& D )
 {
 #ifndef RELEASE
     PushCallStack("SetDiagonalToOne");

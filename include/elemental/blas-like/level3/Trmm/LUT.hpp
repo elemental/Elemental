@@ -40,8 +40,8 @@ TrmmLUTA
 ( Orientation orientation,
   UnitOrNonUnit diag,
   T alpha,
-  const DistMatrix<T,MC,MR>& U,
-        DistMatrix<T,MC,MR>& X )
+  const DistMatrix<T>& U,
+        DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmLUTA");
@@ -63,12 +63,12 @@ TrmmLUTA
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         XL(g), XR(g),
         X0(g), X1(g), X2(g);
 
@@ -111,8 +111,8 @@ inline void
 TrmmLUTC
 ( Orientation orientation, 
   UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& U,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& U,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmLUTC");
@@ -134,14 +134,14 @@ TrmmLUTC
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<T,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<T> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
@@ -223,7 +223,7 @@ template<typename T>
 inline void
 LocalTrmmAccumulateLUT
 ( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T,MC,MR  >& U,
+  const DistMatrix<T>& U,
   const DistMatrix<T,MC,STAR>& X_MC_STAR,
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
@@ -253,12 +253,12 @@ LocalTrmmAccumulateLUT
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<T,MC,MR> D11(g);
+    DistMatrix<T> D11(g);
 
     DistMatrix<T,MC,STAR>
         XT_MC_STAR(g),  X0_MC_STAR(g),
@@ -352,8 +352,8 @@ inline void
 TrmmLUT
 ( Orientation orientation, 
   UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& U,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& U,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmLUT");

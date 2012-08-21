@@ -38,8 +38,8 @@ template<typename T>
 inline void
 TrmmRLNA
 ( UnitOrNonUnit diag, 
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLNA");
@@ -48,7 +48,7 @@ TrmmRLNA
 #endif
     const Grid& g = L.Grid();
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         XT(g),  X0(g),
         XB(g),  X1(g),
                 X2(g);
@@ -101,8 +101,8 @@ template<typename T>
 inline void
 TrmmRLNC
 ( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLNC");
@@ -121,13 +121,13 @@ TrmmRLNC
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> XL(g), XR(g),
-                        X0(g), X1(g), X2(g);
+    DistMatrix<T> XL(g), XR(g),
+                  X0(g), X1(g), X2(g);
 
     // Temporary distributions
     DistMatrix<T,STAR,STAR> L11_STAR_STAR(g);
@@ -220,12 +220,12 @@ LocalTrmmAccumulateRLN
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<T,MC,MR> D11(g);
+    DistMatrix<T> D11(g);
 
     DistMatrix<T,STAR,MC>
         XL_STAR_MC(g), XR_STAR_MC(g),
@@ -309,8 +309,8 @@ template<typename T>
 inline void
 TrmmRLN
 ( UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& L,
-                 DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& L,
+                 DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrmmRLN");

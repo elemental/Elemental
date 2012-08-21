@@ -569,6 +569,10 @@ install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
+set(MPI_CXX_INCLUDE_STRING)
+foreach(INC_PATH ${MPI_CXX_INCLUDE_PATH})
+  set(MPI_CXX_INCLUDE_STRING "${MPI_CXX_INCLUDE_STRING} -I${INC_PATH}")  
+endforeach()
 set(MATH_LIBS_STRING)
 foreach(LIB ${MATH_LIBS})
   set(MATH_LIBS_STRING "${MATH_LIBS_STRING} ${LIB}")
