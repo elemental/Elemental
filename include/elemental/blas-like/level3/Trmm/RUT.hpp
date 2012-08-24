@@ -2,6 +2,9 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
+   Copyright (c) 2012, The University of Texas at Austin
+   All rights reserved.
+
    This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without
@@ -140,7 +143,7 @@ TrmmRUTC
 
     // Temporary distributions
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<T,STAR,MR  > U12_STAR_MR(g);
+    DistMatrix<T,MR,  STAR> U12AdjOrTrans_MR_STAR(g);
     DistMatrix<T,VC,  STAR> X1_VC_STAR(g);
     DistMatrix<T,MC,  STAR> D1_MC_STAR(g);
     
@@ -162,7 +165,7 @@ TrmmRUTC
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        U12_STAR_MR.AlignWith( X2 );
+        U12AdjOrTrans_MR_STAR.AlignWith( X2 );
         D1_MC_STAR.AlignWith( X1 );
         Zeros( X1.Height(), X1.Width(), D1_MC_STAR );
         //--------------------------------------------------------------------//
@@ -173,12 +176,15 @@ TrmmRUTC
           (T)1, U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
-        U12_STAR_MR = U12;
+        if( orientation == ADJOINT )
+            U12AdjOrTrans_MR_STAR.AdjointFrom( U12 );
+        else
+            U12AdjOrTrans_MR_STAR.TransposeFrom( U12 );
         LocalGemm
-        ( NORMAL, orientation, (T)1, X2, U12_STAR_MR, (T)0, D1_MC_STAR );
+        ( NORMAL, NORMAL, (T)1, X2, U12AdjOrTrans_MR_STAR, (T)0, D1_MC_STAR );
         X1.SumScatterUpdate( (T)1, D1_MC_STAR );
-       //--------------------------------------------------------------------//
-        U12_STAR_MR.FreeAlignments();
+        //--------------------------------------------------------------------//
+        U12AdjOrTrans_MR_STAR.FreeAlignments();
         D1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal

@@ -2,6 +2,9 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
+   Copyright (c) 2012, The University of Texas at Austin
+   All rights reserved.
+
    This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without
@@ -74,7 +77,7 @@ TrsmRLN
     // Temporary distributions
     DistMatrix<F,MR,  STAR> L10Trans_MR_STAR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
-    DistMatrix<F,MC,  STAR> X1_MC_STAR(g);
+    DistMatrix<F,STAR,MC  > X1Trans_STAR_MC(g);
     DistMatrix<F,VC,  STAR> X1_VC_STAR(g);
 
     // Start the algorithm
@@ -95,26 +98,25 @@ TrsmRLN
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
 
-        X1_MC_STAR.AlignWith( X0 );
+        X1Trans_STAR_MC.AlignWith( X0 );
         L10Trans_MR_STAR.AlignWith( X0 );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1;
-
         LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, X1_VC_STAR,
           checkIfSingular );
 
-        X1_MC_STAR  = X1_VC_STAR;
-        X1          = X1_MC_STAR; 
+        // X0[MC,MR] -= X1[MC,* ]   L10[*,MR]
+        //            = X1^T[* ,MC] L10^T[MR,* ]
+        X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
+        X1.TransposeFrom( X1Trans_STAR_MC );
         L10Trans_MR_STAR.TransposeFrom( L10 );
-
-        // X0[MC,MR] -= X1[MC,* ] L10[*,MR]
-        //            = X1[MC,* ] L10^T[MR,* ]
         LocalGemm
-        ( NORMAL, TRANSPOSE, (F)-1, X1_MC_STAR, L10Trans_MR_STAR, (F)1, X0 );
+        ( TRANSPOSE, TRANSPOSE, 
+          (F)-1, X1Trans_STAR_MC, L10Trans_MR_STAR, (F)1, X0 );
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
+        X1Trans_STAR_MC.FreeAlignments();
         L10Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal

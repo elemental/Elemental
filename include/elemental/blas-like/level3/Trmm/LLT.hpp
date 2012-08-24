@@ -2,6 +2,9 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
+   Copyright (c) 2012, The University of Texas at Austin
+   All rights reserved.
+
    This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without

@@ -2,6 +2,9 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
+   Copyright (c) 2012, The University of Texas at Austin
+   All rights reserved.
+
    This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without
@@ -98,13 +101,13 @@ TrmmLUNA
 
 template<typename T>
 inline void
-TrmmLUNC
+TrmmLUNCOld
 ( UnitOrNonUnit diag,
   T alpha, const DistMatrix<T>& U,
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLUNC");
+    PushCallStack("internal::TrmmLUNCOld");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -177,11 +180,107 @@ TrmmLUNC
         D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
         Transpose( D1Trans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
         Axpy( (T)1, D1, X1 );
-       //--------------------------------------------------------------------//
+        //--------------------------------------------------------------------//
         D1.FreeAlignments();
         D1Trans_MR_MC.FreeAlignments();
         D1Trans_MR_STAR.FreeAlignments();
         U12_STAR_MC.FreeAlignments();
+
+        SlideLockedPartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+
+        SlidePartitionDown
+        ( XT,  X0,
+               X1,
+         /**/ /**/
+          XB,  X2 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+TrmmLUNC
+( UnitOrNonUnit diag,
+  T alpha, const DistMatrix<T>& U,
+                 DistMatrix<T>& X )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TrmmLUNC");
+    if( U.Grid() != X.Grid() )
+        throw std::logic_error
+        ("U and X must be distributed over the same grid");
+    if( U.Height() != U.Width() || U.Width() != X.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal TrmmLUN: \n"
+            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
+            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+#endif
+    const Grid& g = U.Grid();
+
+    // Matrix views
+    DistMatrix<T> 
+        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
+        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
+                         U20(g), U21(g), U22(g);
+    DistMatrix<T> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
+
+    // Temporary distributions
+    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<T,STAR,VR  > X1_STAR_VR(g);
+    DistMatrix<T,MR,  STAR> X1Trans_MR_STAR(g);
+
+    // Start the algorithm
+    Scale( alpha, X );
+    LockedPartitionDownDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    PartitionDown
+    ( X, XT,
+         XB, 0 );
+    while( XB.Height() > 0 )
+    {
+        LockedRepartitionDownDiagonal
+        ( UTL, /**/ UTR,   U00, /**/ U01, U02,
+         /*************/  /******************/
+               /**/        U10, /**/ U11, U12,
+          UBL, /**/ UBR,   U20, /**/ U21, U22 );
+
+        RepartitionDown
+        ( XT,  X0,
+         /**/ /**/
+               X1,
+          XB,  X2 );
+
+        U01_MC_STAR.AlignWith( X0 );
+        X1Trans_MR_STAR.AlignWith( X0 );
+        X1_STAR_VR.AlignWith( X1 );
+        //--------------------------------------------------------------------//
+        U01_MC_STAR = U01;
+        X1Trans_MR_STAR.TransposeFrom( X1 );
+        LocalGemm
+        ( NORMAL, TRANSPOSE, (T)1, U01_MC_STAR, X1Trans_MR_STAR, (T)1, X0 );
+
+        U11_STAR_STAR = U11;
+        X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
+        LocalTrmm
+        ( LEFT, UPPER, NORMAL, NON_UNIT, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        X1 = X1_STAR_VR;
+        //--------------------------------------------------------------------//
+        U01_MC_STAR.FreeAlignments();
+        X1Trans_MR_STAR.FreeAlignments();
+        X1_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
