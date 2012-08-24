@@ -1,22 +1,27 @@
 Authors of Elemental
 ====================
 
-Jack Poulson <jack.poulson@gmail.com>:
+Jack Poulson:
   Everything but the below exceptions.
 
-Matthias Petschow and Paolo Bientinesi:
+Matthias Petschow, Paolo Bientinesi, and RWTH Aachen University:
   The PMRRR library for hybrid symmetric tridiagonal eigensolutions.
 
-Martin Schatz:
-  The AxpyInterface class for easily filling distributed matrices.
+Univ. of Tennessee, Univ. of California Berkeley, and NAG Ltd.:
+  The serial code for the safe inversion process during the calculation of 
+  Householder reflectors (found in LAPACK's dlarfg.f and zlarfg.f) and the 
+  several of the serial routines used within PMRRR.
 
-Jack Poulson, Lexing Ying, and The University of Texas at Austin:
-  The parallel linear congruential generator.
+Martin Schatz and The University of Texas at Austin:
+  The experimental 3D Gemm and the AxpyInterface class for easily filling 
+  distributed matrices.
 
-Jed Brown:
+Bryan Marker and The University of Texas at Austin (via DxTer):
+  Several significant performance improvements for Trmm and Trsm.
+
+Jed Brown and Argonne National Laboratory:
   Fixed several problems with Elemental installation,
   as well as fixing an MPI_Group leakage in the Grid class.
 
-Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd.:
-  The serial code for the safe inversion process during the calculation of 
-  Householder reflectors (found in LAPACK's dlarfg.f and zlarfg.f).
+Jack Poulson, Lexing Ying, and The University of Texas at Austin:
+  The parallel linear congruential generator.
