@@ -601,14 +601,14 @@ set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
-add_library(cmake-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
-target_link_libraries(cmake-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-install(TARGETS cmake-dummy-lib DESTINATION lib)
+add_library(elem-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
+target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+install(TARGETS elem-dummy-lib DESTINATION lib)
 
 # The main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
-  target_link_libraries(elemental pmrrr plcg cmake-dummy-lib)
+  target_link_libraries(elemental pmrrr plcg elem-dummy-lib)
   if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
   elseif(MPI_CXX_LINK_FLAGS)
@@ -618,7 +618,7 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   endif()
 else()
   add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
-  target_link_libraries(elemental plcg cmake-dummy-lib)
+  target_link_libraries(elemental plcg elem-dummy-lib)
   set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
 endif()
 install(TARGETS elemental DESTINATION lib)
