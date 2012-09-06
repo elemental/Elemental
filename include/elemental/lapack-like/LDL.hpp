@@ -31,37 +31,27 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./LDL/Local.hpp"
+#include "./LDL/Var3.hpp"
 
 namespace elem {
 
 template<typename F>
-inline void LDLT( DistMatrix<F>& A )
+inline void
+LDLH( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LDLT");
+    PushCallStack("LDLH");
 #endif
-    DistMatrix<F,MC,STAR> d( A.Grid() );
-    LDLT( A, d );
+    Matrix<F> d;
+    LDLH( A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 template<typename F>
-inline void LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
-{
-#ifndef RELEASE
-    PushCallStack("LDLT");
-#endif
-    internal::LDLVar3( TRANSPOSE, A, d );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline void LDLH( DistMatrix<F>& A )
+inline void 
+LDLH( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("LDLH");
@@ -74,7 +64,8 @@ inline void LDLH( DistMatrix<F>& A )
 }
 
 template<typename F>
-inline void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+inline void
+LDLH( Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
     PushCallStack("LDLH");
@@ -85,125 +76,71 @@ inline void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 #endif
 }
 
-namespace internal {
-
 template<typename F>
-inline void
-LDLVar3
-( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+inline void 
+LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LDLVar3");
-    if( orientation == NORMAL )
-        throw std::logic_error("Can only perform LDL^T and LDL^H");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-    if( A.Grid() != d.Grid() )
-        throw std::logic_error("A and d must use the same grid");
-    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
-        throw std::logic_error
-        ("d must be a column vector of the same height as A");
-    if( d.Viewing() && d.ColAlignment() != A.ColAlignment() )
-        throw std::logic_error("d must be aligned with A");
+    PushCallStack("LDLH");
 #endif
-    const Grid& g = A.Grid();
-    if( !d.Viewing() )
-    {
-        d.AlignWith( A );
-        d.ResizeTo( A.Height(), 1 );
-    }
-
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MC,STAR>
-        dT(g),  d0(g),
-        dB(g),  d1(g),
-                d2(g);
-
-    // Temporary matrices
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
-    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
-    DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
-    DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
-    DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( d, dT,
-         dB, 0 );
-    while( ABR.Height() > 0 )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        RepartitionDown
-        ( dT,  d0,
-         /**/ /**/
-               d1,
-          dB,  d2 );
-
-        A21_VC_STAR.AlignWith( A22 );
-        A21_VR_STAR.AlignWith( A22 );
-        S21Trans_STAR_MC.AlignWith( A22 );
-        A21AdjOrTrans_STAR_MR.AlignWith( A22 );
-        //--------------------------------------------------------------------//
-        A11_STAR_STAR = A11; 
-        LocalLDL
-        ( orientation, A11_STAR_STAR, d1_STAR_STAR );
-        A11 = A11_STAR_STAR;
-        d1 = d1_STAR_STAR;
-
-        A21_VC_STAR = A21;
-        LocalTrsm
-        ( RIGHT, LOWER, orientation, UNIT, 
-          (F)1, A11_STAR_STAR, A21_VC_STAR );
-
-        S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
-        DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
-        A21_VR_STAR = A21_VC_STAR;
-        if( orientation == ADJOINT )
-            A21AdjOrTrans_STAR_MR.AdjointFrom( A21_VR_STAR );
-        else
-            A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR );
-
-        LocalTrrk
-        ( LOWER, TRANSPOSE,
-          (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
-
-        A21 = A21_VC_STAR;
-        //--------------------------------------------------------------------//
-        A21_VC_STAR.FreeAlignments();
-        A21_VR_STAR.FreeAlignments();
-        S21Trans_STAR_MC.FreeAlignments();
-        A21AdjOrTrans_STAR_MR.FreeAlignments();
-
-        SlidePartitionDown
-        ( dT,  d0,
-               d1,
-         /**/ /**/
-          dB,  d2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-    }
+    internal::LDLVar3( ADJOINT, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-} // namespace internal
+template<typename F>
+inline void
+LDLT( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    Matrix<F> d;
+    LDLT( A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void 
+LDLT( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    DistMatrix<F,MC,STAR> d( A.Grid() );
+    LDLT( A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LDLT( Matrix<F>& A, Matrix<F>& d )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    internal::LDLVar3( TRANSPOSE, A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void 
+LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+{
+#ifndef RELEASE
+    PushCallStack("LDLT");
+#endif
+    internal::LDLVar3( TRANSPOSE, A, d );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 } // namespace elem

@@ -171,6 +171,10 @@ void HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U );
 //----------------------------------------------------------------------------//
 
 template<typename F>
+void LDLVar3Unb
+( Orientation orientation, Matrix<F>& A, Matrix<F>& d );
+
+template<typename F>
 void LDLVar3
 ( Orientation orientation, Matrix<F>& A, Matrix<F>& d );
 
