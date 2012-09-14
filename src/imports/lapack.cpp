@@ -186,6 +186,28 @@ void LAPACK(zgesvd)
   elem::dcomplex* U, const int* ldu, elem::dcomplex* VAdj, const int* ldva,
   elem::dcomplex* work, const int* lwork, double* rwork, int* info );
 
+// Hessenberg QR algorithm
+void LAPACK(shseqr)
+( const char* job, const char* compz, const int* n, 
+  const int* ilo, const int* ihi, float* H, const int* ldh, 
+  float* wr, float* wi, float* Z, const int* ldz, 
+  float* work, const int* lwork, int* info );
+void LAPACK(dhseqr)
+( const char* job, const char* compz, const int* n, 
+  const int* ilo, const int* ihi, double* H, const int* ldh, 
+  double* wr, double* wi, double* Z, const int* ldz, 
+  double* work, const int* lwork, int* info );
+void LAPACK(chseqr)
+( const char* job, const char* compz, const int* n,
+  const int* ilo, const int* ihi, elem::scomplex* H, const int* ldh,
+  elem::scomplex* w, elem::scomplex* Z, const int* ldz,
+  elem::scomplex* work, const int* lwork, int* info );
+void LAPACK(zhseqr)
+( const char* job, const char* compz, const int* n,
+  const int* ilo, const int* ihi, elem::dcomplex* H, const int* ldh,
+  elem::dcomplex* w, elem::dcomplex* Z, const int* ldz,
+  elem::dcomplex* work, const int* lwork, int* info );
+
 } // extern "C"
 
 namespace elem {
@@ -1382,6 +1404,182 @@ void SingularValues( int m, int n, dcomplex* A, int lda, double* s )
     else if( info > 0 )
     {
         throw std::runtime_error("zgesvd's updating process failed");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// 
+// Compute the eigenvalues of an upper Hessenberg matrix
+//
+
+void HessenbergEig( int n, float* H, int ldh, scomplex* w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HessenbergEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const char job='E', compz='N';
+    int ilo=1, ihi=n;
+    int fakeLDim=1, lwork=-1, info;
+    float dummyWork;
+    std::vector<float> wr( n ), wi( n );
+    LAPACK(shseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, &wr[0], &wi[0], 0, &fakeLDim, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<float> work(lwork);
+    LAPACK(shseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, &wr[0], &wi[0], 0, &fakeLDim, 
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("shseqr's failed to compute all eigenvalues");
+    }
+
+    for( int i=0; i<n; ++i )
+        w[i] = elem::Complex<float>(wr[i],wi[i]);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HessenbergEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const char job='E', compz='N';
+    int ilo=1, ihi=n;
+    int fakeLDim=1, lwork=-1, info;
+    double dummyWork;
+    std::vector<double> wr( n ), wi( n );
+    LAPACK(dhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, &wr[0], &wi[0], 0, &fakeLDim,
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork;
+    std::vector<double> work(lwork);
+    LAPACK(dhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, &wr[0], &wi[0], 0, &fakeLDim,
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("dhseqr's failed to compute all eigenvalues");
+    }
+    
+    for( int i=0; i<n; ++i )
+        w[i] = elem::Complex<double>(wr[i],wi[i]);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HessenbergEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const char job='E', compz='N';
+    int ilo=1, ihi=n;
+    int fakeLDim=1, lwork=-1, info;
+    scomplex dummyWork;
+    LAPACK(chseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real;
+    std::vector<scomplex> work(lwork);
+    LAPACK(chseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("chseqr's failed to compute all eigenvalues");
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HessenbergEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    const char job='E', compz='N';
+    int ilo=1, ihi=n;
+    int fakeLDim=1, lwork=-1, info;
+    dcomplex dummyWork;
+    LAPACK(zhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
+      &dummyWork, &lwork, &info );
+
+    lwork = dummyWork.real;
+    std::vector<dcomplex> work(lwork);
+    LAPACK(zhseqr)
+    ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
+      &work[0], &lwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+    {
+        throw std::runtime_error("zhseqr's failed to compute all eigenvalues");
     }
 #ifndef RELEASE
     PopCallStack();

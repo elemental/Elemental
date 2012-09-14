@@ -222,5 +222,14 @@ void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU, 
   double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU );
 
+// 
+// Compute the eigenvalues of an upper Hessenberg matrix
+//
+
+void HessenbergEig( int n, float* H, int ldh, scomplex* w );
+void HessenbergEig( int n, double* H, int ldh, dcomplex* w );
+void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w );
+void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
+
 } // namespace lapack
 } // namespace elem
