@@ -2,6 +2,9 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
+   Copyright (c) 2012, The University of Texas at Austin
+   All rights reserved.
+
    This file is part of Elemental.
 
    Redistribution and use in source and binary forms, with or without
@@ -68,7 +71,7 @@ HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
-    DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
+    DistMatrix<F,MR,  STAR> L10Adj_MR_STAR(g);
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > Y10_STAR_VR(g);
@@ -98,13 +101,14 @@ HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
         A10_STAR_MC.AlignWith( A00 );
         A21_MC_STAR.AlignWith( A20 );
         L10_STAR_VR.AlignWith( A00 );
-        L10_STAR_MR.AlignWith( A00 );
+        L10Adj_MR_STAR.AlignWith( A00 );
         L10_STAR_MC.AlignWith( A00 );
         Y10_STAR_VR.AlignWith( A10 );
         //--------------------------------------------------------------------//
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
-        L10_STAR_VR = L10;
+        L10Adj_MR_STAR.AdjointFrom( L10 );
+        L10_STAR_VR.AdjointFrom( L10Adj_MR_STAR );
         Y10_STAR_VR.ResizeTo( A10.Height(), A10.Width() );
         Zero( Y10_STAR_VR );
         Hemm
@@ -120,11 +124,10 @@ HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
         // A00 := A00 + (A10' L10 + L10' A10)
         A10_STAR_MR = A10_STAR_VR;
         A10_STAR_MC = A10_STAR_VR;
-        L10_STAR_MR = L10_STAR_VR;
         L10_STAR_MC = L10_STAR_VR;
         LocalTrr2k
-        ( LOWER, ADJOINT, ADJOINT,
-          (F)1, A10_STAR_MC, L10_STAR_MR, 
+        ( LOWER, ADJOINT, ADJOINT, ADJOINT,
+          (F)1, A10_STAR_MC, L10Adj_MR_STAR, 
                 L10_STAR_MC, A10_STAR_MR, 
           (F)1, A00 );
 
@@ -140,11 +143,10 @@ HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
         // A20 := A20 + A21 L10
         A21_MC_STAR = A21;
         LocalGemm
-        ( NORMAL, NORMAL, (F)1, A21_MC_STAR, L10_STAR_MR, (F)1, A20 );
+        ( NORMAL, ADJOINT, (F)1, A21_MC_STAR, L10Adj_MR_STAR, (F)1, A20 );
 
         // A11 := L11' A11 L11
-        LocalHegst
-        ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 L11
@@ -158,7 +160,7 @@ HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L )
         A10_STAR_MC.FreeAlignments();
         A21_MC_STAR.FreeAlignments();
         L10_STAR_VR.FreeAlignments();
-        L10_STAR_MR.FreeAlignments();
+        L10Adj_MR_STAR.FreeAlignments();
         L10_STAR_MC.FreeAlignments();
         Y10_STAR_VR.FreeAlignments();
 

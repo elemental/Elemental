@@ -139,8 +139,7 @@ HegstLLVar5( DistMatrix<F>& A, const DistMatrix<F>& L )
         A10 = A10_STAR_VR;
 
         // A11 := L11' A11 L11
-        LocalHegst
-        ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
         //--------------------------------------------------------------------//
         A10_STAR_MC.FreeAlignments();

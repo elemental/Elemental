@@ -17,7 +17,7 @@ Martin Schatz and The University of Texas at Austin:
   distributed matrices.
 
 Bryan Marker and The University of Texas at Austin (via DxTer):
-  Several significant performance improvements for Trmm and Trsm.
+  Several significant performance improvements for Trmm, Trsm, and Hegst.
 
 Jed Brown and Argonne National Laboratory:
   Fixed several problems with Elemental installation,

@@ -120,8 +120,7 @@ HegstLUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
         U12Adj_MR_STAR.AdjointFrom( U12 );
         X01_MC_STAR.ResizeTo( A01.Height(), A01.Width() );
         LocalGemm
-        ( NORMAL, NORMAL,
-          (F)1, A02, U12Adj_MR_STAR, (F)0, X01_MC_STAR );
+        ( NORMAL, NORMAL, (F)1, A02, U12Adj_MR_STAR, (F)0, X01_MC_STAR );
         A01.SumScatterUpdate( (F)1, X01_MC_STAR );
 
         // Y12 := U12 A22

@@ -132,8 +132,7 @@ HegstLLVar1( DistMatrix<F>& A, const DistMatrix<F>& L )
 
         // A11 := L11' A11 L11
         A11_STAR_STAR = A11;
-        LocalHegst
-        ( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalHegst( LEFT, LOWER, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A11 := A11 + (A21' L21 + L21' A21)
