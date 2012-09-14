@@ -95,7 +95,6 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const int rowShift = A.RowShift();
 
     R localMaxAbs = 0;
-    const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {

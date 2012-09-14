@@ -156,7 +156,6 @@ HermitianFrobeniusNorm
 
     R localScale = 0;
     R localScaledSquare = 1;
-    const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
