@@ -1120,28 +1120,6 @@ void ExpandPackedReflectors
   int offset,
   DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,STAR,STAR>& t );
 
-//
-// Hegst (HErmitian GEneralized to STandard eigenvalue problem):  
-//
-// If side==LEFT, 
-//   reduce the problems   
-//                      A B X = X Lambda to A X = X Lambda
-//                      B A X = X Lambda to A X = X Lambda 
-// If side==RIGHT,  
-//   reduce the problem A X = B X Lambda to A X = X Lambda 
-//
-// D contains the Cholesky factor of B in the triangle corresponding to the 
-// parameter 'uplo'.  
-//
-template<typename F>
-void Hegst
-( LeftOrRight side, UpperOrLower uplo, 
-  Matrix<F>& A, const Matrix<F>& B );
-template<typename F>
-void Hegst
-( LeftOrRight side, UpperOrLower uplo, 
-  DistMatrix<F>& A, const DistMatrix<F>& B );
-
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //
 //----------------------------------------------------------------------------//

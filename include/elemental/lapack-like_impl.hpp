@@ -45,7 +45,6 @@
 #include "./lapack-like/ExplicitQR.hpp"
 #include "./lapack-like/GaussianElimination.hpp"
 #include "./lapack-like/Halley.hpp"
-#include "./lapack-like/Hegst.hpp"
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"
@@ -93,29 +92,6 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
     lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline void
-Hegst( LeftOrRight side, UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
-{
-#ifndef RELEASE
-    PushCallStack("Hegst");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-    if( B.Height() != B.Width() )
-        throw std::logic_error("B must be square");
-    if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same size");
-#endif
-    const int itype = ( side==LEFT ? 2 : 1 );
-    const char uploChar = UpperOrLowerToChar( uplo );
-    lapack::Hegst
-    ( itype, uploChar, A.Height(), 
-      A.Buffer(), A.LDim(), B.LockedBuffer(), B.LDim() );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -15,9 +15,3 @@ Applying pivots
 ---------------
 **TODO**
 
-Reduction of Hermitian generalized-definite EVPs
-------------------------------------------------
-**TODO:** Describe the reduction steps of :math:`ABx=\lambda x`, 
-:math:`BAx=\lambda x`, and :math:`Ax=\lambda Bx` using the operations 
-:math:`A := L^H A L` and :math:`A := L^{-1} A L^{-H}`.
-

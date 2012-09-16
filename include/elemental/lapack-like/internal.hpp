@@ -42,11 +42,6 @@ template<typename F>
 void LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 
 template<typename F>
-void LocalHegst
-( LeftOrRight side, UpperOrLower uplo, 
-  DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B );
-
-template<typename F>
 void LocalLDL
 ( Orientation orientation, 
   DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d );
@@ -103,68 +98,6 @@ template<typename F>
 void ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B );
 template<typename F>
 void ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B );
-
-//----------------------------------------------------------------------------//
-// Hegst                                                                      //
-//----------------------------------------------------------------------------//
-
-template<typename F>
-void HegstLLVar1( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstLLVar2( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-// HegstLLVar3 would redundantly compute too much data
-
-template<typename F>
-void HegstLLVar4( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstLLVar5( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstLUVar1( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstLUVar2( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-// HegstLUVar3 would redundantly compute too much data
-
-template<typename F>
-void HegstLUVar4( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstLUVar5( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstRLVar1( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstRLVar2( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstRLVar3( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstRLVar4( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstRLVar5( DistMatrix<F>& A, const DistMatrix<F>& L );
-
-template<typename F>
-void HegstRUVar1( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstRUVar3( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstRUVar4( DistMatrix<F>& A, const DistMatrix<F>& U );
-
-template<typename F>
-void HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U );
 
 //----------------------------------------------------------------------------//
 // LDL                                                                        //
@@ -468,9 +401,6 @@ template<typename F>
 double CholeskyGFlops( int m, double seconds );
 
 template<typename F>
-double HegstGFlops( int m, double seconds );
-
-template<typename F>
 double LDLHGFlops( int m, double seconds );
 
 template<typename F>
@@ -521,21 +451,6 @@ LocalCholesky
 
 template<typename F>
 inline void
-LocalHegst
-( LeftOrRight side, UpperOrLower uplo,
-  DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
-{
-#ifndef RELEASE
-    PushCallStack("internal::LocalHegst");
-#endif
-    Hegst( side, uplo, A.LocalMatrix(), B.LockedLocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline void
 LocalLDL
 ( Orientation orientation, 
   DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
@@ -548,8 +463,7 @@ LocalLDL
 #endif
     if( !d.Viewing() )
         d.ResizeTo( A.Height(), 1 );
-    internal::LDLVar3
-    ( orientation, A.LocalMatrix(), d.LocalMatrix() );
+    LDLVar3( orientation, A.LocalMatrix(), d.LocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -622,30 +536,6 @@ inline double
 CholeskyGFlops<dcomplex>
 ( int m, double seconds )
 { return 4.*CholeskyGFlops<float>(m,seconds); }
-
-template<>
-inline double
-HegstGFlops<float>
-( int m, double seconds )
-{ return (1.*m*m*m)/(1.e9*seconds); }
-
-template<>
-inline double
-HegstGFlops<double>
-( int m, double seconds )
-{ return HegstGFlops<float>(m,seconds); }
-
-template<>
-inline double
-HegstGFlops<scomplex>
-( int m, double seconds )
-{ return 4.*HegstGFlops<float>(m,seconds); }
-
-template<>
-inline double
-HegstGFlops<dcomplex>
-( int m, double seconds )
-{ return 4.*HegstGFlops<float>(m,seconds); }
 
 template<>
 inline double

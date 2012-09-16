@@ -44,4 +44,5 @@
 #include "./level3/Trtrmm.hpp"
 #include "./level3/Trdtrmm.hpp"
 #include "./level3/Trsm.hpp"
-
+#include "./level3/TwoSidedTrmm.hpp"
+#include "./level3/TwoSidedTrsm.hpp"

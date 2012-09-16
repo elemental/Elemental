@@ -51,10 +51,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
@@ -95,10 +96,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -137,10 +139,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -176,10 +179,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
@@ -205,10 +209,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -232,10 +237,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -258,10 +264,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
@@ -302,10 +309,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -344,10 +352,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -383,10 +392,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
@@ -412,10 +422,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -439,10 +450,11 @@ HermitianGenDefiniteEig
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    const LeftOrRight side = ( type==AXBX ? RIGHT : LEFT );
-
     Cholesky( uplo, B );
-    Hegst( side, uplo, A, B );
+    if( type == AXBX )
+        TwoSidedTrsm( uplo, A, B );
+    else
+        TwoSidedTrmm( uplo, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();

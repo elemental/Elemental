@@ -90,23 +90,6 @@ void LAPACK(zgetrf)
 ( const int* m, const int* n,
   elem::dcomplex* A, const int* lda, int* p, int* info );
 
-// For reducing well-conditioned Hermitian generalized EVP to Hermitian 
-// standard form
-void LAPACK(ssygst)
-( const int* itype, const char* uplo, const int* n,
-  float* A, int* lda, const float* B, int* ldb, int* info );
-void LAPACK(dsygst)
-( const int* itype, const char* uplo, const int* n,
-  double* A, int* lda, const double* B, int* ldb, int* info );
-void LAPACK(chegst)
-( const int* itype, const char* uplo, const int* n,
-        elem::scomplex* A, const int* lda,
-  const elem::scomplex* B, const int* ldb, int* info );
-void LAPACK(zhegst)
-( const int* itype, const char* uplo, const int* n,
-        elem::dcomplex* A, const int* lda,
-  const elem::dcomplex* B, const int* ldb, int* info );
-
 // Triangular inversion
 void LAPACK(strtri)
 ( const char* uplo, const char* diag,
@@ -532,91 +515,6 @@ void LU( int m, int n, dcomplex* A, int lda, int* p )
     }
     else if( info > 0 )
         throw SingularMatrixException();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-//
-// Reduced a well-conditioned Hermitian generalized definite EVP to 
-// standard form
-//
-
-void Hegst
-( int itype, char uplo, int n,
-  float* A, int lda, const float* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(ssygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "ssygst returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Hegst
-( int itype, char uplo, int n,
-  double* A, int lda, const double* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(dsygst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "dsygst returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Hegst
-( int itype, char uplo, int n,
-  scomplex* A, int lda, const scomplex* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(chegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "chegst returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Hegst
-( int itype, char uplo, int n,
-  dcomplex* A, int lda, const dcomplex* B, int ldb )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Hegst");
-#endif
-    int info;
-    LAPACK(zhegst)( &itype, &uplo, &n, A, &lda, B, &ldb, &info );
-    if( info != 0 )
-    {
-        std::ostringstream msg;
-        msg << "zhegst returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

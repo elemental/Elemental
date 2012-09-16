@@ -52,13 +52,6 @@ LDLVar3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
     const int n = A.Height();
     if( !d.Viewing() )
         d.ResizeTo( n, 1 );
-    if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
-        return;
-    }
 
     F* ABuffer = A.Buffer();
     F* dBuffer = d.Buffer();
@@ -259,8 +252,7 @@ LDLVar3
         A21AdjOrTrans_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        LocalLDL
-        ( orientation, A11_STAR_STAR, d1_STAR_STAR );
+        LocalLDL( orientation, A11_STAR_STAR, d1_STAR_STAR );
         A11 = A11_STAR_STAR;
         d1 = d1_STAR_STAR;
 

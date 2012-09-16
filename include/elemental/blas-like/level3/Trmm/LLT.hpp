@@ -296,7 +296,8 @@ TrmmLLTC
 
         L11_STAR_STAR = L11;
         X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
-        LocalTrmm( LEFT, LOWER, orientation, NON_UNIT, (T)1, L11_STAR_STAR );
+        LocalTrmm
+        ( LEFT, LOWER, orientation, NON_UNIT, (T)1, L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
         L10_STAR_MC.FreeAlignments();

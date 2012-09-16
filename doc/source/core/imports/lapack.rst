@@ -115,12 +115,39 @@ Triangular inversion
    triangular matrix being treated as unit diagonal (set `diag` to 'N' 
    otherwise).
 
-Hegst
-^^^^^
+Bidiagonal QR
+^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::Hegst( int itype, char uplo, int n, F* A, int lda, const F* B, int ldb )
+.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVTrans, int numRowsU, R* d, R* e, R* VTrans, int ldvt, R* U, int ldu )
+.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVAdj, int numRowsU, R* d, R* e, Complex<R>* VAdj, int ldva, Complex<R>* U, int ldu )
 
-   Reduce a well-conditioned generalized Hermitian-definite eigenvalue problem 
-   to Hermitian standard form. **TODO:** Explain in more detail.
+**TODO**
 
+QR-based SVD
+^^^^^^^^^^^^
 
+.. cpp:function:: void lapack::QRSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
+.. cpp:function:: void lapack::QRSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
+
+**TODO**
+
+.. cpp:function:: void lapack::SingularValues( int m, int n, R* A, int lda, R* s )
+.. cpp:function:: void lapack::SingularValues( int m, int n, Complex<R>* A, int lda, R* s )
+
+**TODO**
+
+Divide-and-conquer SVD
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
+.. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
+
+**TODO**
+
+Hessenberg QR
+^^^^^^^^^^^^^
+
+.. cpp:function:: void lapack::HessenbergEig( int n, R* H, int ldh, Complex<R>* w )
+.. cpp:function:: void lapack::HessenbergEig( int n, Complex<R>* H, int ldh, Complex<R>* w )
+
+**TODO**

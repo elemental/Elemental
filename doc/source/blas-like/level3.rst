@@ -239,10 +239,25 @@ as lower or upper triangular is determined by `uplo`, and :math:`\mbox{op}(A)`
 can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diag` determines
 whether :math:`A` is treated as unit-diagonal or not).
 
-.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, F alpha, const Matrix<F>& A, Matrix<F>& B )
 
-   The serial implementation (templated over the datatype).
+.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, F alpha, const DistMatrix<F>& A, DistMatrix<F>& B )
 
-.. cpp:function:: void Trsm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T>& A, DistMatrix<T>& B )
+Two-sided Trmm
+--------------
+Performs a two-sided triangular multiplication with multiple right-hand sides 
+which preserves the symmetry of the input matrix, 
+either :math:`A := L^H A L` or :math:`A := U A U^H`.
 
-   The distributed implementation (templated over the datatype).
+.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, Matrix<T>& A, const Matrix<T>& B )
+
+.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<T>& B )
+
+Two-sided Trsm
+--------------
+Performs a two-sided triangular solves with multiple right-hand sides which 
+preserves the symmetry of the input matrix, 
+either :math:`A := L^{-1} A L^{-H}` or :math:`A := U^{-H} A U^{-1}`.
+
+.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
+.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<F>& B )

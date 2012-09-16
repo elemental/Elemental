@@ -34,14 +34,104 @@
 namespace elem {
 namespace internal {
 
+template<typename F> 
+inline void
+TwoSidedTrsmUVar2( Matrix<F>& A, const Matrix<F>& U )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TwoSidedTrsmUVar2");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("Triangular matrices must be square");
+    if( A.Height() != U.Height() )
+        throw std::logic_error("A and U must be the same size");
+#endif
+    // Matrix views
+    Matrix<F>
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+    Matrix<F>
+        UTL, UTR,  U00, U01, U02,
+        UBL, UBR,  U10, U11, U12,
+                   U20, U21, U22;
+
+    // Temporary products
+    Matrix<F> Y01;
+
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    LockedPartitionDownDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        LockedRepartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+
+        //--------------------------------------------------------------------//
+        // Y01 := A00 U01
+        Zeros( A01.Height(), A01.Width(), Y01 );
+        Hemm( LEFT, UPPER, (F)1, A00, U01, (F)0, Y01 );
+
+        // A01 := A01 - 1/2 Y01
+        Axpy( (F)-0.5, Y01, A01 );
+        
+        // A11 := A11 - (U01' A01 + A01' U01)
+        Her2k( UPPER, ADJOINT, (F)-1, U01, A01, (F)1, A11 );
+
+        // A11 := inv(U11)' A11 inv(U11)
+        TwoSidedTrsmUUnb( A11, U11 );
+
+        // A12 := A12 - A02' U01
+        Gemm( ADJOINT, NORMAL, (F)-1, A02, U01, (F)1, A12 );
+
+        // A12 := inv(U11)' A12
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11, A12 );
+        
+        // A01 := A01 - 1/2 Y01
+        Axpy( (F)-0.5, Y01, A01 );
+
+        // A01 := A01 inv(U11)
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U11, A01 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlideLockedPartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 // This routine has only partially been optimized. The ReduceScatter operations
 // need to be (conjugate-)transposed in order to play nice with cache.
 template<typename F> 
 inline void
-HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
+TwoSidedTrsmUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HegstRUVar2");
+    PushCallStack("internal::TwoSidedTrsmUVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -56,7 +146,6 @@ HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-
     DistMatrix<F>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
@@ -131,18 +220,14 @@ HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
 
         // X11 := U01' A01
         X11_STAR_MR.ResizeTo( A11.Height(), A11.Width() );
-        LocalGemm
-        ( ADJOINT, NORMAL,
-          (F)1, U01_MC_STAR, A01, (F)0, X11_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, (F)1, U01_MC_STAR, A01, (F)0, X11_STAR_MR );
 
         // A01 := A01 - Y01
         Axpy( (F)-1, Y01, A01 );
         A01_MC_STAR = A01;
         
         // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
-        LocalGemm
-        ( ADJOINT, NORMAL,
-          (F)1, A01_MC_STAR, U01, (F)1, X11_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, (F)1, A01_MC_STAR, U01, (F)1, X11_STAR_MR );
         X11.SumScatterFrom( X11_STAR_MR );
         MakeTrapezoidal( LEFT, UPPER, 0, X11 );
         Axpy( (F)-1, X11, A11 );
@@ -156,14 +241,13 @@ HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
 
         // A11 := inv(U11)' A11 inv(U11)
         A11_STAR_STAR = A11;
-        LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalTwoSidedTrsm( UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - A02' U01
         X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
         LocalGemm
-        ( ADJOINT, NORMAL,
-          (F)1, A02, U01_MC_STAR, (F)0, X12Adj_MR_STAR );
+        ( ADJOINT, NORMAL, (F)1, A02, U01_MC_STAR, (F)0, X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
         Adjoint( X12Adj_MR_MC.LockedLocalMatrix(), X12Local );
         Axpy( (F)-1, X12Local, A12.LocalMatrix() );
@@ -171,8 +255,7 @@ HegstRUVar2( DistMatrix<F>& A, const DistMatrix<F>& U )
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT,
-          (F)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
         A01_MC_STAR.FreeAlignments();

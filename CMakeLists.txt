@@ -648,8 +648,9 @@ if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
 
   set(CORE_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
-  set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm)
-  set(LAPACK_TESTS ApplyPackedReflectors Cholesky Hegst HermitianTridiag LDL 
+  set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm
+                 TwoSidedTrmm TwoSidedTrsm)
+  set(LAPACK_TESTS ApplyPackedReflectors Cholesky HermitianTridiag LDL 
                    LU LQ QR TriangularInverse)
 
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)

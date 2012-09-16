@@ -99,7 +99,7 @@ void TestCorrectness
     }
     // Set X := AZ
     X.AlignWith( Z );
-    X.ResizeTo( n, k );
+    Zeros( n, k, X );
     Hemm( LEFT, uplo, (double)1, AOrig, Z, (double)0, X );
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
@@ -176,7 +176,7 @@ void TestCorrectness
     }
     // X := AZ
     X.AlignWith( Z );
-    X.ResizeTo( n, k );
+    Zeros( n, k, X );
     Hemm
     ( LEFT, uplo, 
       Complex<double>(1), AOrig, Z, 

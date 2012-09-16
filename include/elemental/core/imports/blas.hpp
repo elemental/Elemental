@@ -145,7 +145,7 @@ template<typename T>
 void Ger
 ( char trans, int m, int n,
   T alpha, const T* x, int incx, const T* y, int incy,
-  T beta,        T* A, int lda );
+                 T* A, int lda );
 
 void Gerc
 ( int m, int n,
@@ -167,7 +167,7 @@ template<typename T>
 void Gerc
 ( char trans, int m, int n,
   T alpha, const T* x, int incx, const T* y, int incy,
-  T beta,        T* A, int lda );
+                 T* A, int lda );
 
 void Geru
 ( int m, int n,
@@ -189,7 +189,7 @@ template<typename T>
 void Geru
 ( char trans, int m, int n,
   T alpha, const T* x, int incx, const T* y, int incy,
-  T beta,        T* A, int lda );
+                 T* A, int lda );
 
 void Hemv
 ( char uplo, int m,

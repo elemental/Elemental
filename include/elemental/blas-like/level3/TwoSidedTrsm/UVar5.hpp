@@ -36,10 +36,97 @@ namespace internal {
 
 template<typename F> 
 inline void
-HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
+TwoSidedTrsmUVar5( Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HegstRUVar5");
+    PushCallStack("internal::TwoSidedTrsmUVar5");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("Triangular matrices must be square");
+    if( A.Height() != U.Height() )
+        throw std::logic_error("A and U must be the same size");
+#endif
+    // Matrix views
+    Matrix<F>
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+    Matrix<F>
+        UTL, UTR,  U00, U01, U02,
+        UBL, UBR,  U10, U11, U12,
+                   U20, U21, U22;
+
+    // Temporary products
+    Matrix<F> Y12;
+
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    LockedPartitionDownDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        LockedRepartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+
+        //--------------------------------------------------------------------//
+        // A11 := inv(U11)' A11 inv(U11)
+        TwoSidedTrsmUUnb( A11, U11 );
+
+        // Y12 := A11 U12
+        Zeros( A12.Height(), A12.Width(), Y12 );
+        Hemm( LEFT, UPPER, (F)1, A11, U12, (F)0, Y12 );
+
+        // A12 := inv(U11)' A12
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11, A12 );
+
+        // A12 := A12 - 1/2 Y12
+        Axpy( (F)-0.5, Y12, A12 );
+
+        // A22 := A22 - (A12' U12 + U12' A12)
+        Her2k( UPPER, ADJOINT, (F)-1, A12, U12, (F)1, A22 );
+
+        // A12 := A12 - 1/2 Y12
+        Axpy( (F)-0.5, Y12, A12 );
+
+        // A12 := A12 inv(U22)
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U22, A12 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        SlideLockedPartitionDownDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
+TwoSidedTrsmUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TwoSidedTrsmUVar5");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -54,7 +141,6 @@ HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-
     DistMatrix<F>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
@@ -108,7 +194,7 @@ HegstRUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
         // A11 := inv(U11)' A11 inv(U11)
         U11_STAR_STAR = U11;
         A11_STAR_STAR = A11;
-        LocalHegst( RIGHT, UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalTwoSidedTrsm( UPPER, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // Y12 := A11 U12

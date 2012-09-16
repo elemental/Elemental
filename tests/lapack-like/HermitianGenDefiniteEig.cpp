@@ -93,7 +93,7 @@ void TestCorrectness
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
@@ -153,7 +153,7 @@ void TestCorrectness
         // Set Y := BX
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
         // Set Z := AY = ABX
         DistMatrix<double> Z( n, k, g );
@@ -217,7 +217,7 @@ void TestCorrectness
         // Set Y := AX
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm( LEFT, uplo, (double)1, AOrig, X, (double)0, Y );
         // Set Z := BY = BAX
         DistMatrix<double> Z( n, k, g );
@@ -308,7 +308,7 @@ void TestCorrectness
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), BOrig, X, 
@@ -376,7 +376,7 @@ void TestCorrectness
         // Set Y := BX
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), BOrig, X, 
@@ -449,7 +449,7 @@ void TestCorrectness
         // Set Y := AX
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Y.ResizeTo( n, k );
+        Zeros( n, k, Y );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), AOrig, X, 

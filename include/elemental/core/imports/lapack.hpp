@@ -132,24 +132,6 @@ void LU( int m, int n, scomplex* A, int lda, int* p );
 void LU( int m, int n, dcomplex* A, int lda, int* p );
 
 //
-// For reducing well-conditioned Hermitian generalized-definite EVP's
-// to standard form.
-//
-
-void Hegst
-( int itype, char uplo, 
-  int n, float* A, int lda, const float* B, int ldb );
-void Hegst
-( int itype, char uplo,
-  int n, double* A, int lda, const double* B, int ldb );
-void Hegst
-( int itype, char uplo,
-  int n, scomplex* A, int lda, const scomplex* B, int ldb );
-void Hegst
-( int itype, char uplo,
-  int n, dcomplex* A, int lda, const dcomplex* B, int ldb );
-
-//
 // For computing the inverse of a triangular matrix
 //
 
@@ -211,16 +193,16 @@ void SingularValues( int m, int n, dcomplex* A, int lda, double* s );
 
 void BidiagQRAlg
 ( char uplo, int n, int numColsVTrans, int numRowsU,
-  float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU );
+  float* d, float* e, float* VTrans, int ldvt, float* U, int ldu );
 void BidiagQRAlg
 ( char uplo, int n, int numColsVTrans, int numRowsU, 
-  double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU );
+  double* d, double* e, double* VTrans, int ldvt, double* U, int ldu );
 void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU,
-  float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU );
+  float* d, float* e, scomplex* VAdj, int ldva, scomplex* U, int ldu );
 void BidiagQRAlg
 ( char uplo, int n, int numColsVAdj, int numRowsU, 
-  double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU );
+  double* d, double* e, dcomplex* VAdj, int ldva, dcomplex* U, int ldu );
 
 // 
 // Compute the eigenvalues of an upper Hessenberg matrix
