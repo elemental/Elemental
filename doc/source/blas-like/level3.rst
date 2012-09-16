@@ -249,9 +249,9 @@ Performs a two-sided triangular multiplication with multiple right-hand sides
 which preserves the symmetry of the input matrix, 
 either :math:`A := L^H A L` or :math:`A := U A U^H`.
 
-.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, Matrix<T>& A, const Matrix<T>& B )
+.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
 
-.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<T>& B )
+.. cpp:function:: void TwoSidedTrmm( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<T>& A, const DistMatrix<T>& B )
 
 Two-sided Trsm
 --------------
@@ -259,5 +259,5 @@ Performs a two-sided triangular solves with multiple right-hand sides which
 preserves the symmetry of the input matrix, 
 either :math:`A := L^{-1} A L^{-H}` or :math:`A := U^{-H} A U^{-1}`.
 
-.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
-.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<F>& B )
+.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B )
+.. cpp:function:: void TwoSidedTrsm( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& B )
