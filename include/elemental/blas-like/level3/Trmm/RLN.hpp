@@ -257,7 +257,7 @@ TrmmRLNC
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1_MC_STAR;
         LocalTrmm
-        ( RIGHT, LOWER, NORMAL, NON_UNIT, (T)1, L11_STAR_STAR, X1_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, diag, (T)1, L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();

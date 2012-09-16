@@ -53,9 +53,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
@@ -98,9 +98,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -141,9 +141,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -181,9 +181,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
@@ -211,9 +211,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -239,9 +239,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -266,9 +266,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X );
     if( type == AXBX || type == ABX )
     {
@@ -311,9 +311,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -354,9 +354,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, X, a, b );
     if( type == AXBX || type == ABX )
     {
@@ -394,9 +394,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w );
 #ifndef RELEASE
     PopCallStack();
@@ -424,9 +424,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();
@@ -452,9 +452,9 @@ HermitianGenDefiniteEig
 
     Cholesky( uplo, B );
     if( type == AXBX )
-        TwoSidedTrsm( uplo, A, B );
+        TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
-        TwoSidedTrmm( uplo, A, B );
+        TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 #ifndef RELEASE
     PopCallStack();

@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F> 
 inline void
-TwoSidedTrsmUVar5( Matrix<F>& A, const Matrix<F>& U )
+TwoSidedTrsmUVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmUVar5");
@@ -82,14 +82,14 @@ TwoSidedTrsmUVar5( Matrix<F>& A, const Matrix<F>& U )
 
         //--------------------------------------------------------------------//
         // A11 := inv(U11)' A11 inv(U11)
-        TwoSidedTrsmUUnb( A11, U11 );
+        TwoSidedTrsmUUnb( diag, A11, U11 );
 
         // Y12 := A11 U12
         Zeros( A12.Height(), A12.Width(), Y12 );
         Hemm( LEFT, UPPER, (F)1, A11, U12, (F)0, Y12 );
 
         // A12 := inv(U11)' A12
-        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11, A12 );
+        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, U11, A12 );
 
         // A12 := A12 - 1/2 Y12
         Axpy( (F)-0.5, Y12, A12 );
@@ -101,7 +101,7 @@ TwoSidedTrsmUVar5( Matrix<F>& A, const Matrix<F>& U )
         Axpy( (F)-0.5, Y12, A12 );
 
         // A12 := A12 inv(U22)
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U22, A12 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U22, A12 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -123,7 +123,8 @@ TwoSidedTrsmUVar5( Matrix<F>& A, const Matrix<F>& U )
 
 template<typename F> 
 inline void
-TwoSidedTrsmUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
+TwoSidedTrsmUVar5
+( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmUVar5");
@@ -194,7 +195,7 @@ TwoSidedTrsmUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
         // A11 := inv(U11)' A11 inv(U11)
         U11_STAR_STAR = U11;
         A11_STAR_STAR = A11;
-        LocalTwoSidedTrsm( UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalTwoSidedTrsm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // Y12 := A11 U12
@@ -209,7 +210,7 @@ TwoSidedTrsmUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, diag, (F)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
         // A12 := A12 - 1/2 Y12
@@ -235,7 +236,7 @@ TwoSidedTrsmUVar5( DistMatrix<F>& A, const DistMatrix<F>& U )
         // A12 := A12 inv(U22)
         //
         // This is the bottleneck because A12 only has blocksize rows
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, U22, A12 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U22, A12 );
         //--------------------------------------------------------------------//
         A12_STAR_MC.FreeAlignments();
         A12_STAR_MR.FreeAlignments();

@@ -300,7 +300,7 @@ TrmmLUTC
         U11_STAR_STAR = U11;
         X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
         LocalTrmm
-        ( LEFT, UPPER, orientation, NON_UNIT, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, orientation, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
         U12_STAR_MC.FreeAlignments();

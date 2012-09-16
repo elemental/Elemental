@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename T>
 inline void 
-TwoSidedTrmmLUnb( Matrix<T>& A, const Matrix<T>& L )
+TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmLUnb");
@@ -55,7 +55,7 @@ TwoSidedTrmmLUnb( Matrix<T>& A, const Matrix<T>& L )
 
         // Extract and store the diagonal values of A and L
         const T alpha11 = ABuffer[j+j*lda];
-        const T lambda11 = LBuffer[j+j*ldl];
+        const T lambda11 = ( diag==UNIT ? 1 : LBuffer[j+j*ldl] );
 
         // a10 := a10 + (alpha11/2)l10
         T* a10 = &ABuffer[j];
@@ -76,8 +76,9 @@ TwoSidedTrmmLUnb( Matrix<T>& A, const Matrix<T>& L )
             a10[k*lda] += (alpha11/2)*l10[k*ldl];
 
         // a10 := conj(lambda11) a10
-        for( int k=0; k<j; ++k )
-            a10[k*lda] *= Conj(lambda11);
+        if( diag != UNIT )
+            for( int k=0; k<j; ++k )
+                a10[k*lda] *= Conj(lambda11);
 
         // alpha11 := alpha11 * |lambda11|^2
         ABuffer[j+j*lda] *= Conj(lambda11)*lambda11;
@@ -88,8 +89,9 @@ TwoSidedTrmmLUnb( Matrix<T>& A, const Matrix<T>& L )
         blas::Geru( a21Height, j, (T)1, a21, 1, l10, ldl, A20, lda );
 
         // a21 := lambda11 a21
-        for( int k=0; k<a21Height; ++k )
-            a21[k] *= lambda11;
+        if( diag != UNIT )
+            for( int k=0; k<a21Height; ++k )
+                a21[k] *= lambda11;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -98,7 +100,7 @@ TwoSidedTrmmLUnb( Matrix<T>& A, const Matrix<T>& L )
 
 template<typename T>
 inline void 
-TwoSidedTrmmUUnb( Matrix<T>& A, const Matrix<T>& U )
+TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmUUnb");
@@ -115,7 +117,7 @@ TwoSidedTrmmUUnb( Matrix<T>& A, const Matrix<T>& U )
 
         // Extract and store the diagonal values of A and U
         const T alpha11 = ABuffer[j+j*lda];
-        const T upsilon11 = UBuffer[j+j*ldu];
+        const T upsilon11 = ( diag==UNIT ? 1 : UBuffer[j+j*ldu] );
 
         // a01 := a01 + (alpha11/2)u01
         T* a01 = &ABuffer[j*lda];
@@ -132,8 +134,9 @@ TwoSidedTrmmUUnb( Matrix<T>& A, const Matrix<T>& U )
             a01[k] += (alpha11/2)*u01[k];
 
         // a01 := conj(upsilon11) a01
-        for( int k=0; k<j; ++k )
-            a01[k] *= Conj(upsilon11);
+        if( diag != UNIT )
+            for( int k=0; k<j; ++k )
+                a01[k] *= Conj(upsilon11);
 
         // A02 := A02 + u01 a12
         T* a12 = &ABuffer[j+(j+1)*lda];
@@ -144,8 +147,9 @@ TwoSidedTrmmUUnb( Matrix<T>& A, const Matrix<T>& U )
         ABuffer[j+j*lda] *= Conj(upsilon11)*upsilon11;
 
         // a12 := upsilon11 a12
-        for( int k=0; k<a21Height; ++k )
-            a12[k*lda] *= upsilon11;
+        if( diag != UNIT )
+            for( int k=0; k<a21Height; ++k )
+                a12[k*lda] *= upsilon11;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -155,13 +159,13 @@ TwoSidedTrmmUUnb( Matrix<T>& A, const Matrix<T>& U )
 template<typename T>
 inline void
 LocalTwoSidedTrmm
-( UpperOrLower uplo, 
+( UpperOrLower uplo, UnitOrNonUnit diag,
   DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalTwoSidedTrmm");
 #endif
-    TwoSidedTrmm( uplo, A.LocalMatrix(), B.LockedLocalMatrix() );
+    TwoSidedTrmm( uplo, diag, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -183,15 +187,16 @@ namespace elem {
 
 template<typename T> 
 inline void
-TwoSidedTrmm( UpperOrLower uplo, Matrix<T>& A, const Matrix<T>& B )
+TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
-        internal::TwoSidedTrmmLVar4( A, B );
+        internal::TwoSidedTrmmLVar4( diag, A, B );
     else
-        internal::TwoSidedTrmmUVar4( A, B );
+        internal::TwoSidedTrmmUVar4( diag, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -199,15 +204,17 @@ TwoSidedTrmm( UpperOrLower uplo, Matrix<T>& A, const Matrix<T>& B )
 
 template<typename T> 
 inline void
-TwoSidedTrmm( UpperOrLower uplo, DistMatrix<T>& A, const DistMatrix<T>& B )
+TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag, 
+  DistMatrix<T>& A, const DistMatrix<T>& B )
 {
 #ifndef RELEASE
     PushCallStack("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
-        internal::TwoSidedTrmmLVar4( A, B );
+        internal::TwoSidedTrmmLVar4( diag, A, B );
     else
-        internal::TwoSidedTrmmUVar4( A, B );
+        internal::TwoSidedTrmmUVar4( diag, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif

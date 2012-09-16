@@ -37,10 +37,12 @@ using namespace elem;
 
 void Usage()
 {
-    cout << " TwoSidedTrsm <r> <c> <uplo> <m> <nb> <correctness?> <print?>\n\n"
+    cout << " TwoSidedTrsm <r> <c> <uplo> <diag> <m> <nb> <correctness?> "
+            "<print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  uplo: {L,U}\n"
+         << "  diag: {N,U}\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  test correctness?: false iff 0\n"
@@ -49,7 +51,9 @@ void Usage()
 
 template<typename F> // represents a real or complex field
 void TestCorrectness
-( bool printMatrices, UpperOrLower uplo,
+( bool printMatrices, 
+  UpperOrLower uplo,
+  UnitOrNonUnit diag,
   const DistMatrix<F>& A,
   const DistMatrix<F>& B,
   const DistMatrix<F>& AOrig )
@@ -58,18 +62,20 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const int m = AOrig.Height();
 
-    DistMatrix<F> X(m,100,g), Y(m,100,g), Z(m,100,g);
-    MakeUniform( X );
+    const int k=100;
+    DistMatrix<F> X(g), Y(g), Z(g);
+    Uniform( m, k, X );
     Y = X;
+    Zeros( m, k, Z );
 
     if( uplo == LOWER )
     {
         // Test correctness by comparing the application of A against a 
-        // random set of 100 vectors to the application of 
+        // random set of k vectors to the application of 
         // tril(B)^-1 AOrig tril(B)^-H
-        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, B, Y );
+        Trsm( LEFT, LOWER, ADJOINT, diag, (F)1, B, Y );
         Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
-        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, B, Z );
+        Trsm( LEFT, LOWER, NORMAL, diag, (F)1, B, Z );
         Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
         R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
         R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
@@ -99,11 +105,11 @@ void TestCorrectness
     else
     {
         // Test correctness by comparing the application of A against a 
-        // random set of 100 vectors to the application of 
+        // random set of k vectors to the application of 
         // triu(B)^-H AOrig triu(B)^-1
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, B, Y );
+        Trsm( LEFT, UPPER, NORMAL, diag, (F)1, B, Y );
         Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
-        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, B, Z );
+        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, B, Z );
         Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
         R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
         R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
@@ -134,31 +140,20 @@ void TestCorrectness
 
 template<typename F> // represents a real or complex field
 void TestTwoSidedTrsm
-( bool testCorrectness, bool printMatrices,
-  UpperOrLower uplo, int m, const Grid& g )
+( bool testCorrectness, 
+  bool printMatrices,
+  UpperOrLower uplo, 
+  UnitOrNonUnit diag,
+  int m, 
+  const Grid& g )
 {
     double startTime, endTime, runTime, gFlops;
-    DistMatrix<F> A(g);
-    DistMatrix<F> B(g);
-    DistMatrix<F> AOrig(g);
+    DistMatrix<F> A(g), B(g), AOrig(g);
 
     Zeros( m, m, A );
     Zeros( m, m, B );
-
-    if( testCorrectness )
-    {
-        DistMatrix<F> C(m,m,g);
-        MakeUniform( C );
-        Herk( uplo, NORMAL, (F)1, C, (F)0, A );
-        MakeUniform( C );
-        Herk( uplo, NORMAL, (F)1, C, (F)0, B );
-        Cholesky( uplo, B );
-    }
-    else
-    {
-        MakeHermitianUniformSpectrum( A, 1, 10 );
-        MakeHermitianUniformSpectrum( B, 1, 10 );
-    }
+    MakeHermitianUniformSpectrum( A, 1, 10 );
+    MakeHermitianUniformSpectrum( B, 1, 10 );
     MakeTrapezoidal( LEFT, uplo, 0, B );
     if( testCorrectness )
     {
@@ -184,7 +179,7 @@ void TestTwoSidedTrsm
     }
     mpi::Barrier( g.Comm() );
     startTime = mpi::Time();
-    TwoSidedTrsm( uplo, A, B );
+    TwoSidedTrsm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
     endTime = mpi::Time();
     runTime = endTime - startTime;
@@ -200,7 +195,7 @@ void TestTwoSidedTrsm
     if( printMatrices )
         A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, A, B, AOrig );
+        TestCorrectness( printMatrices, uplo, diag, A, B, AOrig );
 }
 
 int 
@@ -210,7 +205,7 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int rank = mpi::CommRank( comm );
 
-    if( argc < 8 )
+    if( argc < 9 )
     {
         if( rank == 0 )
             Usage();
@@ -224,6 +219,7 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
+        const UnitOrNonUnit diag = CharToUnitOrNonUnit(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
         const bool testCorrectness = atoi(argv[++argNum]);
@@ -251,7 +247,8 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestTwoSidedTrsm<double>( testCorrectness, printMatrices, uplo, m, g );
+        TestTwoSidedTrsm<double>
+        ( testCorrectness, printMatrices, uplo, diag, m, g );
 
         if( rank == 0 )
         {
@@ -260,7 +257,7 @@ main( int argc, char* argv[] )
                  << "--------------------------------------" << endl;
         }
         TestTwoSidedTrsm<Complex<double> >
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, printMatrices, uplo, diag, m, g );
     }
     catch( exception& e )
     {

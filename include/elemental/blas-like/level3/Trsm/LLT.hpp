@@ -361,7 +361,7 @@ TrsmLLTSmall
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
         LocalTrsm
-        ( LEFT, LOWER, orientation, UNIT, (F)1, L11_STAR_STAR, Z1_STAR_STAR );
+        ( LEFT, LOWER, orientation, diag, (F)1, L11_STAR_STAR, Z1_STAR_STAR );
         X1 = Z1_STAR_STAR;
         //--------------------------------------------------------------------//
 

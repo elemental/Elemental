@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F>
 inline void 
-TwoSidedTrsmLUnb( Matrix<F>& A, const Matrix<F>& L )
+TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmLUnb");
@@ -52,12 +52,13 @@ TwoSidedTrsmLUnb( Matrix<F>& A, const Matrix<F>& L )
         const int a21Height = n - (j+1);
 
         // Extract and store the diagonal value of L
-        const F lambda11 = LBuffer[j+j*ldl];
+        const F lambda11 = ( diag==UNIT ? 1 : LBuffer[j+j*ldl] );
 
         // a10 := a10 / lambda11
         F* a10 = &ABuffer[j];
-        for( int k=0; k<j; ++k )
-            a10[k*lda] /= lambda11;
+        if( diag != UNIT )
+            for( int k=0; k<j; ++k )
+                a10[k*lda] /= lambda11;
 
         // A20 := A20 - l21 a10
         F* A20 = &ABuffer[j+1];
@@ -70,8 +71,9 @@ TwoSidedTrsmLUnb( Matrix<F>& A, const Matrix<F>& L )
 
         // a21 := a21 / conj(lambda11)
         F* a21 = &ABuffer[(j+1)+j*lda];
-        for( int k=0; k<a21Height; ++k )
-            a21[k] /= Conj(lambda11);
+        if( diag != UNIT )
+            for( int k=0; k<a21Height; ++k )
+                a21[k] /= Conj(lambda11);
 
         // a21 := a21 - (alpha11/2)l21
         for( int k=0; k<a21Height; ++k )
@@ -92,7 +94,7 @@ TwoSidedTrsmLUnb( Matrix<F>& A, const Matrix<F>& L )
 
 template<typename F>
 inline void 
-TwoSidedTrsmUUnb( Matrix<F>& A, const Matrix<F>& U )
+TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmUUnb");
@@ -110,12 +112,13 @@ TwoSidedTrsmUUnb( Matrix<F>& A, const Matrix<F>& U )
         const int a21Height = n - (j+1);
 
         // Extract and store the diagonal value of U
-        const F upsilon11 = UBuffer[j+j*ldu];
+        const F upsilon11 = ( diag==UNIT ? 1 : UBuffer[j+j*ldu] );
 
         // a01 := a01 / upsilon11
         F* a01 = &ABuffer[j*lda];
-        for( int k=0; k<j; ++k )
-            a01[k] /= upsilon11;
+        if( diag != UNIT )
+            for( int k=0; k<j; ++k )
+                a01[k] /= upsilon11;
 
         // A02 := A02 - a01 u12
         F* A02 = &ABuffer[(j+1)*lda];
@@ -128,8 +131,9 @@ TwoSidedTrsmUUnb( Matrix<F>& A, const Matrix<F>& U )
 
         // a12 := a12 / conj(upsilon11)
         F* a12 = &ABuffer[j+(j+1)*lda];
-        for( int k=0; k<a21Height; ++k )
-            a12[k*lda] /= Conj(upsilon11);
+        if( diag != UNIT )
+            for( int k=0; k<a21Height; ++k )
+                a12[k*lda] /= Conj(upsilon11);
 
         // a12 := a12 - (alpha11/2)u12
         for( int k=0; k<a21Height; ++k )
@@ -156,13 +160,13 @@ TwoSidedTrsmUUnb( Matrix<F>& A, const Matrix<F>& U )
 template<typename F>
 inline void
 LocalTwoSidedTrsm
-( UpperOrLower uplo, 
+( UpperOrLower uplo, UnitOrNonUnit diag, 
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalTwoSidedTrsm");
 #endif
-    TwoSidedTrsm( uplo, A.LocalMatrix(), B.LockedLocalMatrix() );
+    TwoSidedTrsm( uplo, diag, A.LocalMatrix(), B.LockedLocalMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -186,15 +190,16 @@ namespace elem {
 
 template<typename F> 
 inline void
-TwoSidedTrsm( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
+TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("TwoSidedTrsm");
 #endif
     if( uplo == LOWER )
-        internal::TwoSidedTrsmLVar4( A, B );
+        internal::TwoSidedTrsmLVar4( diag, A, B );
     else
-        internal::TwoSidedTrsmUVar4( A, B );
+        internal::TwoSidedTrsmUVar4( diag, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -202,15 +207,17 @@ TwoSidedTrsm( UpperOrLower uplo, Matrix<F>& A, const Matrix<F>& B )
 
 template<typename F> 
 inline void
-TwoSidedTrsm( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<F>& B )
+TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag, 
+  DistMatrix<F>& A, const DistMatrix<F>& B )
 {
 #ifndef RELEASE
     PushCallStack("TwoSidedTrsm");
 #endif
     if( uplo == LOWER )
-        internal::TwoSidedTrsmLVar4( A, B );
+        internal::TwoSidedTrsmLVar4( diag, A, B );
     else
-        internal::TwoSidedTrsmUVar4( A, B );
+        internal::TwoSidedTrsmUVar4( diag, A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif

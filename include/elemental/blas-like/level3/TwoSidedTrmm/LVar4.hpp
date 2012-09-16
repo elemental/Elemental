@@ -39,7 +39,7 @@ namespace internal {
 
 template<typename T>
 inline void
-TwoSidedTrmmLVar4( Matrix<T>& A, const Matrix<T>& L )
+TwoSidedTrmmLVar4( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmLVar4");
@@ -98,16 +98,16 @@ TwoSidedTrmmLVar4( Matrix<T>& A, const Matrix<T>& L )
         Axpy( (T)1, Y10, A10 );
 
         // A10 := L11' A10
-        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11, A10 );
+        Trmm( LEFT, LOWER, ADJOINT, diag, (T)1, L11, A10 );
 
         // A20 := A20 + A21 L10
         Gemm( NORMAL, NORMAL, (T)1, A21, L10, (T)1, A20 );
 
         // A11 := L11' A11 L11
-        TwoSidedTrmmLUnb( A11, L11 );
+        TwoSidedTrmmLUnb( diag, A11, L11 );
 
         // A21 := A21 L11
-        Trmm( RIGHT, LOWER, NORMAL, NON_UNIT, (T)1, L11, A21 );
+        Trmm( RIGHT, LOWER, NORMAL, diag, (T)1, L11, A21 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -129,7 +129,8 @@ TwoSidedTrmmLVar4( Matrix<T>& A, const Matrix<T>& L )
 
 template<typename T>
 inline void
-TwoSidedTrmmLVar4( DistMatrix<T>& A, const DistMatrix<T>& L )
+TwoSidedTrmmLVar4
+( UnitOrNonUnit diag, DistMatrix<T>& A, const DistMatrix<T>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmLVar4");
@@ -226,7 +227,7 @@ TwoSidedTrmmLVar4( DistMatrix<T>& A, const DistMatrix<T>& L )
         // A10 := L11' A10
         L11_STAR_STAR = L11;
         LocalTrmm
-        ( LEFT, LOWER, ADJOINT, NON_UNIT, (T)1, L11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, ADJOINT, diag, (T)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A20 := A20 + A21 L10
@@ -235,13 +236,13 @@ TwoSidedTrmmLVar4( DistMatrix<T>& A, const DistMatrix<T>& L )
         ( NORMAL, ADJOINT, (T)1, A21_MC_STAR, L10Adj_MR_STAR, (T)1, A20 );
 
         // A11 := L11' A11 L11
-        LocalTwoSidedTrmm( LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalTwoSidedTrmm( LOWER, diag, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 L11
         A21_VC_STAR = A21_MC_STAR;
         LocalTrmm
-        ( RIGHT, LOWER, NORMAL, NON_UNIT, (T)1, L11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, diag, (T)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A10_STAR_VR.FreeAlignments();

@@ -970,4 +970,40 @@ void Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A );
 
+// TwoSidedTrmm
+//
+// Either A := L^H A L or A := U A U^H
+//
+// NOTE: This is not a standard BLAS routine and is similar to the LAPACK 
+//       routines ?sygst and ?hegst.
+
+// Serial version
+template<typename F>
+void TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B );
+
+// Parallel version
+template<typename F>
+void TwoSidedTrmm
+( UpperOrLower uplo, UnitOrNonUnit diag, 
+  DistMatrix<F>& A, const DistMatrix<F>& B );
+
+// TwoSidedTrsm
+//
+// Either A := inv(L) A inv(L)^H or A := inv(U)^H A inv(U)
+//
+// NOTE: This is not a standard BLAS routine and is similar to the LAPACK 
+//       routines ?sygst and ?hegst.
+
+// Serial version
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& B );
+
+// Parallel version
+template<typename F>
+void TwoSidedTrsm
+( UpperOrLower uplo, UnitOrNonUnit diag, 
+  DistMatrix<F>& A, const DistMatrix<F>& B );
+
 } // namespace elem

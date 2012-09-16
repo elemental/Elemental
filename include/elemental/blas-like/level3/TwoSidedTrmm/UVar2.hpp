@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename T> 
 inline void
-TwoSidedTrmmUVar2( Matrix<T>& A, const Matrix<T>& U )
+TwoSidedTrmmUVar2( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmUVar2");
@@ -82,7 +82,7 @@ TwoSidedTrmmUVar2( Matrix<T>& A, const Matrix<T>& U )
 
         //--------------------------------------------------------------------//
         // A01 := A01 U11'
-        Trmm( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11, A01 );
+        Trmm( RIGHT, UPPER, ADJOINT, diag, (T)1, U11, A01 );
 
         // A01 := A01 + A02 U12'
         Gemm( NORMAL, ADJOINT, (T)1, A02, U12, (T)1, A01 );
@@ -92,13 +92,13 @@ TwoSidedTrmmUVar2( Matrix<T>& A, const Matrix<T>& U )
         Hemm( RIGHT, UPPER, (T)1, A22, U12, (T)0, Y12 );
 
         // A12 := U11 A12
-        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (T)1, U11, A12 );
+        Trmm( LEFT, UPPER, NORMAL, diag, (T)1, U11, A12 );
 
         // A12 := A12 + 1/2 Y12
         Axpy( (T)0.5, Y12, A12 );
 
         // A11 := U11 A11 U11'
-        TwoSidedTrmmUUnb( A11, U11 );
+        TwoSidedTrmmUUnb( diag, A11, U11 );
 
         // A11 := A11 + (A12 U12' + U12 A12')
         Her2k( UPPER, NORMAL, (T)1, A12, U12, (T)1, A11 );
@@ -126,7 +126,8 @@ TwoSidedTrmmUVar2( Matrix<T>& A, const Matrix<T>& U )
 
 template<typename T> 
 inline void
-TwoSidedTrmmUVar2( DistMatrix<T>& A, const DistMatrix<T>& U )
+TwoSidedTrmmUVar2
+( UnitOrNonUnit diag, DistMatrix<T>& A, const DistMatrix<T>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmUVar2");
@@ -202,7 +203,7 @@ TwoSidedTrmmUVar2( DistMatrix<T>& A, const DistMatrix<T>& U )
         U11_STAR_STAR = U11;
         A01_VC_STAR = A01;
         LocalTrmm
-        ( RIGHT, UPPER, ADJOINT, NON_UNIT, (T)1, U11_STAR_STAR, A01_VC_STAR );
+        ( RIGHT, UPPER, ADJOINT, diag, (T)1, U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A01 := A01 + A02 U12'
@@ -233,7 +234,7 @@ TwoSidedTrmmUVar2( DistMatrix<T>& A, const DistMatrix<T>& U )
         A12_STAR_VR = A12;
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, (T)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, NORMAL, diag, (T)1, U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
         // A12 := A12 + 1/2 Y12
@@ -241,7 +242,7 @@ TwoSidedTrmmUVar2( DistMatrix<T>& A, const DistMatrix<T>& U )
 
         // A11 := U11 A11 U11'
         A11_STAR_STAR = A11;
-        LocalTwoSidedTrmm( UPPER, A11_STAR_STAR, U11_STAR_STAR );
+        LocalTwoSidedTrmm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A11 := A11 + (A12 U12' + U12 A12')

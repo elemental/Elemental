@@ -274,8 +274,7 @@ TrmmLUNC
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
-        LocalTrmm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        LocalTrmm( LEFT, UPPER, NORMAL, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();

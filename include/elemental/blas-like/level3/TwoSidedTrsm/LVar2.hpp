@@ -36,7 +36,7 @@ namespace internal {
 
 template<typename F>
 inline void
-TwoSidedTrsmLVar2( Matrix<F>& A, const Matrix<F>& L )
+TwoSidedTrsmLVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmLVar2");
@@ -93,19 +93,19 @@ TwoSidedTrsmLVar2( Matrix<F>& A, const Matrix<F>& L )
         Her2k( LOWER, NORMAL, (F)-1, A10, L10, (F)1, A11 );
 
         // A11 := inv(L11) A11 inv(L11)'
-        TwoSidedTrsmLUnb( A11, L11 );
+        TwoSidedTrsmLUnb( diag, A11, L11 );
 
         // A21 := A21 - A20 L10'
         Gemm( NORMAL, ADJOINT, (F)-1, A20, L10, (F)1, A21 );
 
         // A21 := A21 inv(L11)'
-        Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L11, A21 );
+        Trsm( RIGHT, LOWER, ADJOINT, diag, (F)1, L11, A21 );
 
         // A10 := A10 - 1/2 Y10
         Axpy( (F)-0.5, Y10, A10 );
 
         // A10 := inv(L11) A10
-        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, L11, A10 );
+        Trsm( LEFT, LOWER, NORMAL, diag, (F)1, L11, A10 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -129,7 +129,8 @@ TwoSidedTrsmLVar2( Matrix<F>& A, const Matrix<F>& L )
 // need to be (conjugate-)transposed in order to play nice with cache.
 template<typename F>
 inline void
-TwoSidedTrsmLVar2( DistMatrix<F>& A, const DistMatrix<F>& L )
+TwoSidedTrsmLVar2
+( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrsmLVar2");
@@ -240,12 +241,12 @@ TwoSidedTrsmLVar2( DistMatrix<F>& A, const DistMatrix<F>& L )
         L11_STAR_STAR = L11;
         A10_STAR_VR.AdjointFrom( A10Adj_MR_STAR );
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, L11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;
-        LocalTwoSidedTrsm( LOWER, A11_STAR_STAR, L11_STAR_STAR );
+        LocalTwoSidedTrsm( LOWER, diag, A11_STAR_STAR, L11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         // A21 := A21 - A20 L10'
@@ -257,7 +258,7 @@ TwoSidedTrsmLVar2( DistMatrix<F>& A, const DistMatrix<F>& L )
         // A21 := A21 inv(L11)'
         A21_VC_STAR =  A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, L11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, diag, (F)1, L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A10Adj_MR_STAR.FreeAlignments();
