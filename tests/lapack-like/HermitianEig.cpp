@@ -38,9 +38,9 @@ using namespace elem;
 void Usage()
 {
     cout << "Generates random Hermitian matrix then solves for its eigenpairs."
-	     << "\n\n"
+         << "\n\n"
          << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
-            "<uplo> <m> <nb> <local nb symv/hemv> "
+            "<clustered?> <uplo> <m> <nb> <local nb symv/hemv> "
             "<correctness?> <print?>\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
@@ -51,7 +51,8 @@ void Usage()
             "     if range=='V', lower-bound on eigenvalues\n"
          << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
             "     if range=='V', upper-bound on eigenvalues\n"
-         << "  uplo: L/U\n"
+         << "  clustered: uniform spectrum if 0, clustered spectrum otherwise\n"
+         << "  uplo: 'L' for lower-triangular storage, 'U' for upper\n"
          << "  m: height of matrix\n"
          << "  nb: algorithmic blocksize\n"
          << "  local nb symv/hemv: local blocksize for symv/hemv\n"
@@ -216,14 +217,17 @@ void TestCorrectness
 
 void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, UpperOrLower uplo, int m, 
+  bool onlyEigenvalues, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<double> A(g), AOrig(g), Z(g);
     DistMatrix<double,VR,STAR> w(g);
 
-    HermitianUniformSpectrum( m, A, -10, 10 );
+    if( clustered )
+        Wilkinson( m/2, A );
+    else
+        HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
@@ -283,14 +287,17 @@ void TestHermitianEigDouble
     
 void TestHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, UpperOrLower uplo, int m, 
+  bool onlyEigenvalues, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     double startTime, endTime, runTime;
     DistMatrix<Complex<double> > A(g), AOrig(g), Z(g);
     DistMatrix<double,VR,STAR> w(g);
 
-    HermitianUniformSpectrum( m, A, -10, 10 );
+    if( clustered )
+        Wilkinson( m/2, A );
+    else
+        HermitianUniformSpectrum( m, A, -10, 10 );
     if( testCorrectness && !onlyEigenvalues )
     {
         if( g.Rank() == 0 )
@@ -355,7 +362,7 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int rank = mpi::CommRank( comm );
 
-    if( argc < 13 )
+    if( argc < 14 )
     {
         if( rank == 0 )
             Usage();
@@ -388,6 +395,7 @@ main( int argc, char* argv[] )
         {
             argNum += 2;
         }
+        const bool clustered = atoi(argv[++argNum]);
         const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
         const int m = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
@@ -429,7 +437,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -442,7 +450,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
  
         if( rank == 0 )
         {
@@ -455,7 +463,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -467,7 +475,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -481,7 +489,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( rank == 0 )
         {
@@ -495,7 +503,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, uplo, m, vl, vu, il, iu, g );
+          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
     }
     catch( exception& e )
     {
