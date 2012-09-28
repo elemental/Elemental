@@ -2,7 +2,7 @@ Authors of Elemental
 ====================
 
 Jack Poulson:
-  Everything but the below exceptions.
+  The complement of the following contributions.
 
 Matthias Petschow, Paolo Bientinesi, and RWTH Aachen University:
   The PMRRR library for hybrid symmetric tridiagonal eigensolutions.
@@ -22,6 +22,9 @@ Bryan Marker and The University of Texas at Austin (via DxTer):
 Jed Brown and Argonne National Laboratory:
   Fixed several problems with Elemental installation,
   as well as fixing an MPI_Group leakage in the Grid class.
+
+Jeff Hammond:
+  Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q.
 
 Jack Poulson, Lexing Ying, and The University of Texas at Austin:
   The parallel linear congruential generator.
