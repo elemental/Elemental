@@ -86,10 +86,10 @@ Inverse( Matrix<F>& A )
         Zero( A21 );
 
         // Perform the lazy update of A1
-        Gemm( NORMAL, NORMAL, (F)-1, A2, L21, (F)1, A1 );
+        Gemm( NORMAL, NORMAL, F(-1), A2, L21, F(1), A1 );
 
         // Solve against this diagonal block of L11
-        Trsm( RIGHT, LOWER, NORMAL, UNIT, (F)1, L11, A1 );
+        Trsm( RIGHT, LOWER, NORMAL, UNIT, F(1), L11, A1 );
         //--------------------------------------------------------------------//
 
         SlidePartitionUpDiagonal
@@ -163,13 +163,13 @@ Inverse( DistMatrix<F>& A )
         // Perform the lazy update of A1
         internal::LocalGemm
         ( NORMAL, TRANSPOSE, 
-          (F)-1, A2, L21Trans_STAR_MR, (F)0, Z1 );
-        A1.SumScatterUpdate( (F)1, Z1 );
+          F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
+        A1.SumScatterUpdate( F(1), Z1 );
 
         // Solve against this diagonal block of L11
         A1_VC_STAR = A1;
         internal::LocalTrsm
-        ( RIGHT, LOWER, NORMAL, UNIT, (F)1, L11_STAR_STAR, A1_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, UNIT, F(1), L11_STAR_STAR, A1_VC_STAR );
         A1 = A1_VC_STAR;
         //--------------------------------------------------------------------//
         Z1.FreeAlignments();

@@ -102,7 +102,7 @@ RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (R)2;
+        return R(2);
     }
 
     R alpha;
@@ -191,14 +191,14 @@ RowReflector
         alpha = chi.GetLocal(0,0);
     mpi::Broadcast( &alpha, 1, rowAlignment, rowComm );
 
-    if( norm == (R)0 && alpha.imag == (R)0 )
+    if( norm == R(0) && alpha.imag == R(0) )
     {
         if( gridCol == rowAlignment )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (C)2;
+        return C(2);
     }
 
     R beta;

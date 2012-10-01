@@ -61,13 +61,13 @@ SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
     {
         if( orientation == NORMAL )
         {
-            Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
         }
         else
         {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
         }
     }
 #ifndef RELEASE
@@ -106,13 +106,13 @@ SolveAfterLU
     {
         if( orientation == NORMAL )
         {
-            Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
         }
         else
         {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
         }
     }
 #ifndef RELEASE
@@ -155,13 +155,13 @@ SolveAfterLU
         if( orientation == NORMAL )
         {
             ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
         }
         else
         {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
             ApplyInverseRowPivots( B, p );
         }
     }
@@ -207,13 +207,13 @@ SolveAfterLU
         if( orientation == NORMAL )
         {
             ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
         }
         else
         {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
             ApplyInverseRowPivots( B, p );
         }
     }

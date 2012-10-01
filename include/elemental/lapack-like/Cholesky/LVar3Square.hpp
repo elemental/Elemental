@@ -124,7 +124,7 @@ CholeskyLVar3Square( DistMatrix<F>& A )
 
         A21_VC_STAR = A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
 
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         // SendRecv to form A21^T[* ,MR] from A21^T[* ,MC], then conjugate
@@ -156,7 +156,7 @@ CholeskyLVar3Square( DistMatrix<F>& A )
         //                               = (A21 A21^H)[MC,MR]
         LocalTrrk
         ( LOWER, TRANSPOSE, 
-          (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
+          F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
         A21.TransposeFrom( A21Trans_STAR_MC );
         //--------------------------------------------------------------------//

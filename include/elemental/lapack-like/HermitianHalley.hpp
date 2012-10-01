@@ -51,8 +51,8 @@ int HermitianHalley
         throw std::logic_error("Height must equal width");
     typedef typename Base<F>::type R;
     const int height = A.Height();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -92,7 +92,7 @@ int HermitianHalley
             MakeIdentity( QB );
             ExplicitQR( Q );
             Trrk
-            ( uplo, NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            ( uplo, NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else
         {
@@ -101,16 +101,16 @@ int HermitianHalley
             //
             MakeHermitian( uplo, A );
             Identity( height, height, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );
@@ -134,8 +134,8 @@ int HermitianHalley
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int height = A.Height();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -175,7 +175,7 @@ int HermitianHalley
             MakeIdentity( QB );
             ExplicitQR( Q );
             Trrk
-            ( uplo, NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            ( uplo, NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else
         {
@@ -184,16 +184,16 @@ int HermitianHalley
             //
             MakeHermitian( uplo, A );
             Identity( height, height, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );

@@ -75,11 +75,12 @@ MakeOneTwoOne( Matrix<T>& A )
     const int n = A.Width();
     for( int j=0; j<n; ++j )
     {
-        A.Set( j, j, (T)2 );
-        if( j > 0 )
-            A.Set( j-1, j, (T)1 );
+        A.Set( j, j, T(2) );
         if( j < n-1 )
-            A.Set( j+1, j, (T)1 );
+        {
+            A.Set( j+1, j, T(1) );
+            A.Set( j, j+1, T(1) );
+        }
     }
 #ifndef RELEASE
     PopCallStack();
@@ -91,7 +92,7 @@ inline void
 MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeOnes");
+    PushCallStack("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix 1-2-1");
@@ -110,9 +111,9 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
         {
             const int i = colShift + iLocal*colStride;
             if( i == j )
-                A.SetLocal( iLocal, jLocal, (T)2 );
+                A.SetLocal( iLocal, jLocal, T(2) );
             else if( i == j-1 || i == j+1 )
-                A.SetLocal( iLocal, jLocal, (T)1 );
+                A.SetLocal( iLocal, jLocal, T(1) );
         }
     }
 #ifndef RELEASE

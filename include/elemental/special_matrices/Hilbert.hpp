@@ -73,7 +73,7 @@ MakeHilbert( Matrix<F>& A )
     if( m != n )
         throw std::logic_error("Cannot make a non-square matrix Hilbert");
 
-    const F one = static_cast<F>(1);
+    const F one = F(1);
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set( i, j, one/(i+j+1) );
@@ -94,7 +94,7 @@ MakeHilbert( DistMatrix<F,U,V>& A )
     if( m != n )
         throw std::logic_error("Cannot make a non-square matrix Hilbert");
 
-    const F one = static_cast<F>(1);
+    const F one = F(1);
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();

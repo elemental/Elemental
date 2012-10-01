@@ -78,8 +78,8 @@ inline void BidiagL( Matrix<R>& A )
 
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
-        alpha11.Set(0,0,(R)1);
-        Gemv( NORMAL, (R)1, A2R, a1R, (R)0, w21 );
+        alpha11.Set(0,0,R(1));
+        Gemv( NORMAL, R(1), A2R, a1R, R(0), w21 );
 
         // A2R := A2R - tauP w21 a1R
         //      = A2R - tauP A2R a1R^T a1R
@@ -104,8 +104,8 @@ inline void BidiagL( Matrix<R>& A )
 
             // Set a21 = | 1 | and form x12^T = (a21^T A22)^T = A22^T a21
             //           | u |
-            alpha21T.Set(0,0,(R)1);
-            Gemv( TRANSPOSE, (R)1, A22, a21, (R)0, x12Trans );
+            alpha21T.Set(0,0,R(1));
+            Gemv( TRANSPOSE, R(1), A22, a21, R(0), x12Trans );
 
             // A22 := A22 - tauQ a21 x12
             //      = A22 - tauQ a21 a21^T A22
@@ -177,8 +177,8 @@ inline void BidiagU( Matrix<R>& A )
 
         // Set aB1 = | 1 | and form x12^T := (aB1^T AB2)^T = AB2^T aB1
         //           | u |
-        alpha11.Set(0,0,(R)1);
-        Gemv( TRANSPOSE, (R)1, AB2, aB1, (R)0, x12Trans );
+        alpha11.Set(0,0,R(1));
+        Gemv( TRANSPOSE, R(1), AB2, aB1, R(0), x12Trans );
 
         // Update AB2 := AB2 - tauQ aB1 x12
         //             = AB2 - tauQ aB1 aB1^T AB2
@@ -201,8 +201,8 @@ inline void BidiagU( Matrix<R>& A )
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
-            alpha12L.Set(0,0,(R)1);
-            Gemv( NORMAL, (R)1, A22, a12, (R)0, w21 );
+            alpha12L.Set(0,0,R(1));
+            Gemv( NORMAL, R(1), A22, a12, R(0), w21 );
 
             // A22 := A22 - tauP w21 a12
             //      = A22 - tauP A22 a12^T a12
@@ -293,8 +293,8 @@ inline void BidiagL
 
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
-        alpha11.Set(0,0,(C)1);
-        Gemv( NORMAL, (C)1, A2R, a1R, (C)0, w21 );
+        alpha11.Set(0,0,C(1));
+        Gemv( NORMAL, C(1), A2R, a1R, C(0), w21 );
 
         // A2R := A2R - tauP w21 conj(a1R)
         //      = A2R - tauP A2R a1R^T conj(a1R)
@@ -326,8 +326,8 @@ inline void BidiagL
 
             // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
             //           | u |
-            alpha21T.Set(0,0,(C)1);
-            Gemv( ADJOINT, (C)1, A22, a21, (C)0, x12Adj );
+            alpha21T.Set(0,0,C(1));
+            Gemv( ADJOINT, C(1), A22, a21, C(0), x12Adj );
 
             // A22 := A22 - conj(tauQ) a21 x12 
             //      = A22 - conj(tauQ) a21 a21^H A22
@@ -418,8 +418,8 @@ inline void BidiagU
 
         // Set aB1 = | 1 | and form x12^H := (aB1^H AB2)^H = AB2^H aB1
         //           | u |
-        alpha11.Set(0,0,(C)1);
-        Gemv( ADJOINT, (C)1, AB2, aB1, (C)0, x12Adj );
+        alpha11.Set(0,0,C(1));
+        Gemv( ADJOINT, C(1), AB2, aB1, C(0), x12Adj );
 
         // Update AB2 := AB2 - conj(tauQ) aB1 x12
         //             = AB2 - conj(tauQ) aB1 aB1^H AB2 
@@ -447,8 +447,8 @@ inline void BidiagU
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
-            alpha12L.Set(0,0,(C)1);
-            Gemv( NORMAL, (C)1, A22, a12, (C)0, w21 );
+            alpha12L.Set(0,0,C(1));
+            Gemv( NORMAL, C(1), A22, a12, C(0), w21 );
 
             // A22 := A22 - tauP w21 conj(a12)
             //      = A22 - tauP A22 a12^T conj(a12)

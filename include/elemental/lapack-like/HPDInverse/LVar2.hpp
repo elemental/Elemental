@@ -92,33 +92,33 @@ HPDInverseLVar2( DistMatrix<F>& A )
 
         A10_STAR_VR = A10;
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A10_STAR_VR );
 
         A21_VC_STAR = A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
 
         A10_STAR_MC = A10_STAR_VR;
         A10_STAR_MR = A10_STAR_VR;
         LocalTrrk
         ( LOWER, ADJOINT,
-          (F)1, A10_STAR_MC, A10_STAR_MR, (F)1, A00 );
+          F(1), A10_STAR_MC, A10_STAR_MR, F(1), A00 );
 
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         LocalGemm
-        ( TRANSPOSE, NORMAL, (F)-1, A21Trans_STAR_MC, A10_STAR_MR, (F)1, A20 );
+        ( TRANSPOSE, NORMAL, F(-1), A21Trans_STAR_MC, A10_STAR_MR, F(1), A20 );
 
         A21_VR_STAR = A21_VC_STAR;
         A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
         LocalTrrk
         ( LOWER, TRANSPOSE,
-          (F)-1, A21Trans_STAR_MC, A21Adj_STAR_MR, (F)1, A22 );
+          F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
         LocalTrsm
-        ( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A10_STAR_VR );
 
         LocalTrsm
-        ( RIGHT, LOWER, NORMAL, NON_UNIT, (F)-1, A11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11_STAR_STAR, A21_VC_STAR );
 
         LocalTriangularInverse( LOWER, NON_UNIT, A11_STAR_STAR );
 

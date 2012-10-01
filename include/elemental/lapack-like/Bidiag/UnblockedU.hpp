@@ -96,10 +96,10 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
 
         // Set aB1 = | 1 | and form x12^T := (aB1^T AB2)^T = AB2^T aB1
         //           | u |
-        alpha11.Set(0,0,(R)1);
+        alpha11.Set(0,0,R(1));
         aB1_MC_STAR = aB1;
         internal::LocalGemv
-        ( TRANSPOSE, (R)1, AB2, aB1_MC_STAR, (R)0, x12Trans_MR_STAR );
+        ( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), x12Trans_MR_STAR );
         x12Trans_MR_STAR.SumOverCol();
 
         // Update AB2 := AB2 - tauQ aB1 x12
@@ -126,10 +126,10 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
-            alpha12L.Set(0,0,(R)1);
+            alpha12L.Set(0,0,R(1));
             a12_STAR_MR = a12;
             internal::LocalGemv
-            ( NORMAL, (R)1, A22, a12_STAR_MR, (R)0, w21_MC_STAR );
+            ( NORMAL, R(1), A22, a12_STAR_MR, R(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
             // A22 := A22 - tauP w21 a12
@@ -241,10 +241,10 @@ inline void UnblockedBidiagU
 
         // Set aB1 = | 1 | and form x12^H := (aB1^H AB2)^H = AB2^H aB1
         //           | u |
-        alpha11.Set(0,0,(C)1);
+        alpha11.Set(0,0,C(1));
         aB1_MC_STAR = aB1;
         internal::LocalGemv
-        ( ADJOINT, (C)1, AB2, aB1_MC_STAR, (C)0, x12Adj_MR_STAR );
+        ( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), x12Adj_MR_STAR );
         x12Adj_MR_STAR.SumOverCol();
 
         // Update AB2 := AB2 - conj(tauQ) aB1 x12
@@ -276,10 +276,10 @@ inline void UnblockedBidiagU
 
             // Set a12^T = | 1 | and form w21 := A22 a12^T = A22 | 1 |
             //             | v |                                 | v |
-            alpha12L.Set(0,0,(C)1);
+            alpha12L.Set(0,0,C(1));
             a12_STAR_MR = a12;
             internal::LocalGemv
-            ( NORMAL, (C)1, A22, a12_STAR_MR, (C)0, w21_MC_STAR );
+            ( NORMAL, C(1), A22, a12_STAR_MR, C(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
             // A22 := A22 - tauP w21 conj(a12)

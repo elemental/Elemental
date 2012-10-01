@@ -109,8 +109,8 @@ MakeNormalUniformSpectrum
         w.Set( i, 0, Conj(d[i])*u.Get(i,0) );
 
     // Update A := A - 2(u w^H + v u^H)
-    Ger( (C)-2, u, w, A );
-    Ger( (C)-2, v, u, A );
+    Ger( C(-2), u, w, A );
+    Ger( C(-2), v, u, A );
 
     // Form \gamma := 4 u^H (D u) = 4 (u,Du)
     const C gamma = 4*Dot(u,v);
@@ -208,13 +208,13 @@ MakeNormalUniformSpectrum
     // Update A := A - 2(u w^H + v u^H)
     if( standardDist )
     {
-        Ger( (C)-2, u, w, A );
-        Ger( (C)-2, v, u, A );
+        Ger( C(-2), u, w, A );
+        Ger( C(-2), v, u, A );
     }
     else
     {
-        Ger( (C)-2, u, w, ABackup );
-        Ger( (C)-2, v, u, ABackup );
+        Ger( C(-2), u, w, ABackup );
+        Ger( C(-2), v, u, ABackup );
     }
 
     // Form \gamma := 4 u^H (D u) = 4 (u,Du)

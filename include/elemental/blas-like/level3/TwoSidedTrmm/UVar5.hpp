@@ -34,9 +34,11 @@
 namespace elem {
 namespace internal {
 
-template<typename T> 
+// The only requirement that this is a field comes from the necessity for 
+// the existence of 1/2, which is artifact of the algorithm...
+template<typename F> 
 inline void
-TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
+TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmUVar5");
@@ -48,17 +50,17 @@ TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
         throw std::logic_error("A and U must be the same size");
 #endif
     // Matrix views
-    Matrix<T>
+    Matrix<F>
         ATL, ATR,  A00, A01, A02,
         ABL, ABR,  A10, A11, A12,
                    A20, A21, A22;
-    Matrix<T>
+    Matrix<F>
         UTL, UTR,  U00, U01, U02,
         UBL, UBR,  U10, U11, U12,
                    U20, U21, U22;
 
     // Temporary products
-    Matrix<T> Y01;
+    Matrix<F> Y01;
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -83,22 +85,22 @@ TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
         //--------------------------------------------------------------------//
         // Y01 := U01 A11
         Zeros( A01.Height(), A01.Width(), Y01 );
-        Hemm( RIGHT, UPPER, (T)1, A11, U01, (T)0, Y01 );
+        Hemm( RIGHT, UPPER, F(1), A11, U01, F(0), Y01 );
 
         // A01 := U00 A01
-        Trmm( LEFT, UPPER, NORMAL, diag, (T)1, U00, A01 );
+        Trmm( LEFT, UPPER, NORMAL, diag, F(1), U00, A01 );
 
         // A01 := A01 + 1/2 Y01
-        Axpy( (T)0.5, Y01, A01 );
+        Axpy( F(1)/F(2), Y01, A01 );
 
         // A00 := A00 + (U01 A01' + A01 U01')
-        Her2k( UPPER, NORMAL, (T)1, U01, A01, (T)1, A00 );
+        Her2k( UPPER, NORMAL, F(1), U01, A01, F(1), A00 );
 
         // A01 := A01 + 1/2 Y01
-        Axpy( (T)0.5, Y01, A01 );
+        Axpy( F(1)/F(2), Y01, A01 );
 
         // A01 := A01 U11'
-        Trmm( RIGHT, UPPER, ADJOINT, diag, (T)1, U11, A01 );
+        Trmm( RIGHT, UPPER, ADJOINT, diag, F(1), U11, A01 );
 
         // A11 := U11 A11 U11'
         TwoSidedTrmmUUnb( diag, A11, U11 );
@@ -121,10 +123,10 @@ TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 #endif
 }
 
-template<typename T> 
+template<typename F> 
 inline void
 TwoSidedTrmmUVar5
-( UnitOrNonUnit diag, DistMatrix<T>& A, const DistMatrix<T>& U )
+( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TwoSidedTrmmUVar5");
@@ -138,26 +140,26 @@ TwoSidedTrmmUVar5
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<T>
+    DistMatrix<F>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
     // Temporary distributions
-    DistMatrix<T,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<T,MC,  STAR> A01_MC_STAR(g);
-    DistMatrix<T,MR,  STAR> A01_MR_STAR(g);
-    DistMatrix<T,VC,  STAR> A01_VC_STAR(g);
-    DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
-    DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
-    DistMatrix<T,MR,  STAR> U01_MR_STAR(g);
-    DistMatrix<T,VC,  STAR> U01_VC_STAR(g);
-    DistMatrix<T,VC,  STAR> Y01_VC_STAR(g);
-    DistMatrix<T> Y01(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> A01_MR_STAR(g);
+    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
+    DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> U01_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> U01_MR_STAR(g);
+    DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
+    DistMatrix<F,VC,  STAR> Y01_VC_STAR(g);
+    DistMatrix<F> Y01(g);
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -194,15 +196,15 @@ TwoSidedTrmmUVar5
         Y01_VC_STAR.ResizeTo( A01.Height(), A01.Width() );
         Hemm
         ( RIGHT, UPPER,
-          (T)1, A11_STAR_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
-          (T)0, Y01_VC_STAR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
+          F(0), Y01_VC_STAR.LocalMatrix() );
         Y01 = Y01_VC_STAR;
 
         // A01 := U00 A01
-        Trmm( LEFT, UPPER, NORMAL, diag, (T)1, U00, A01 );
+        Trmm( LEFT, UPPER, NORMAL, diag, F(1), U00, A01 );
 
         // A01 := A01 + 1/2 Y01
-        Axpy( (T)0.5, Y01, A01 );
+        Axpy( F(1)/F(2), Y01, A01 );
 
         // A00 := A00 + (U01 A01' + A01 U01')
         A01_MC_STAR = A01;
@@ -212,17 +214,17 @@ TwoSidedTrmmUVar5
         U01_MR_STAR = U01_MC_STAR;
         LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
-          (T)1, U01_MC_STAR, A01_MR_STAR, 
+          F(1), U01_MC_STAR, A01_MR_STAR, 
                 A01_MC_STAR, U01_MR_STAR,
-          (T)1, A00 );
+          F(1), A00 );
 
         // A01 := A01 + 1/2 Y01
-        Axpy( (T)0.5, Y01_VC_STAR, A01_VC_STAR );
+        Axpy( F(1)/F(2), Y01_VC_STAR, A01_VC_STAR );
 
         // A01 := A01 U11'
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( RIGHT, UPPER, ADJOINT, diag, (T)1, U11_STAR_STAR, A01_VC_STAR );
+        ( RIGHT, UPPER, ADJOINT, diag, F(1), U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A11 := U11 A11 U11'

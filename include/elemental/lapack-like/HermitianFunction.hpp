@@ -80,7 +80,7 @@ ReformHermitianMatrix
         //--------------------------------------------------------------------//
         Y1 = Z1Copy = Z1;
         DiagonalScale( RIGHT, NORMAL, w1, Y1 );
-        Trrk( uplo, NORMAL, ADJOINT, (F)1, Z1Copy, Y1, (F)1, A );
+        Trrk( uplo, NORMAL, ADJOINT, F(1), Z1Copy, Y1, F(1), A );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown
@@ -152,7 +152,7 @@ ReformHermitianMatrix
         DiagonalScale( RIGHT, NORMAL, w1_STAR_STAR, Z1_VR_STAR );
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
-        internal::LocalTrrk( uplo, (F)1, Z1_MC_STAR, Z1Adj_STAR_MR, (F)1, A );
+        internal::LocalTrrk( uplo, F(1), Z1_MC_STAR, Z1Adj_STAR_MR, F(1), A );
         //--------------------------------------------------------------------//
         Z1Adj_STAR_MR.FreeAlignments();
         Z1_VR_STAR.FreeAlignments();
@@ -213,7 +213,7 @@ ReformNormalMatrix
         //--------------------------------------------------------------------//
         Y1 = Z1Copy = Z1;
         DiagonalScale( RIGHT, ADJOINT, w1, Y1 );
-        Gemm( NORMAL, NORMAL, (C)1, Z1Copy, Y1, (C)1, A );
+        Gemm( NORMAL, NORMAL, C(1), Z1Copy, Y1, C(1), A );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown
@@ -282,7 +282,7 @@ ReformNormalMatrix
 
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
         internal::LocalGemm
-        ( NORMAL, NORMAL, (C)1, Z1_MC_STAR, Z1Adj_STAR_MR, (C)1, A );
+        ( NORMAL, NORMAL, C(1), Z1_MC_STAR, Z1Adj_STAR_MR, C(1), A );
         //--------------------------------------------------------------------//
         Z1Adj_STAR_MR.FreeAlignments();
         Z1_VR_STAR.FreeAlignments();

@@ -46,14 +46,14 @@ CholeskySolve( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B )
     if( uplo == LOWER )
     {
         // B := inv(L L^H) B = inv(L)^H inv(L) B
-        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
-        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
     }
     else // uplo == UPPER
     {
         // B := inv(U^H U) B = inv(U) inv(U)^H B
-        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -73,14 +73,14 @@ CholeskySolve( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B )
     if( uplo == LOWER )
     {
         // B := inv(L L^H) B = inv(L)^H inv(L) B
-        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
-        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
     }
     else // uplo == UPPER
     {
         // B := inv(U^H U) B = inv(U) inv(U)^H B
-        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
 #ifndef RELEASE
     PopCallStack();

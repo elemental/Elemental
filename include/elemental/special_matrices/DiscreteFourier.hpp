@@ -75,8 +75,8 @@ MakeDiscreteFourier( Matrix<Complex<R> >& A )
     if( m != n )
         throw std::logic_error("Cannot make a non-square DFT matrix");
 
-    const R pi = 4*Atan( (R)1 );
-    const F nSqrt = Sqrt( (R)n );
+    const R pi = 4*Atan( R(1) );
+    const F nSqrt = Sqrt( R(n) );
     for( int j=0; j<n; ++j )
     {
         for( int i=0; i<m; ++i )
@@ -104,8 +104,8 @@ MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
     if( m != n )
         throw std::logic_error("Cannot make a non-square DFT matrix");
 
-    const R pi = 4*Atan( (R)1 );
-    const F nSqrt = Sqrt( (R)n );
+    const R pi = 4*Atan( R(1) );
+    const F nSqrt = Sqrt( R(n) );
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();

@@ -228,12 +228,12 @@ PanelBidiagU
             y10_STAR_MR = y10;
             a01_MR_STAR = a01;
             // uB1[MC,* ] := ABL[MC,MR] y10^T[MR,* ]
-            LocalGemv( NORMAL, (R)1, ABL, y10_STAR_MR, (R)0, uB1_MC_STAR );
+            LocalGemv( NORMAL, R(1), ABL, y10_STAR_MR, R(0), uB1_MC_STAR );
             // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
             //             = ABL[MC,MR] y10^T[MR,* ] + XBL[MC,MR] a01[MR,* ]
-            LocalGemv( NORMAL, (R)1, XBL, a01_MR_STAR, (R)1, uB1_MC_STAR );
+            LocalGemv( NORMAL, R(1), XBL, a01_MR_STAR, R(1), uB1_MC_STAR );
             // Sum the partial contributions and subtract from aB1
-            aB1.SumScatterUpdate( (R)-1, uB1_MC_STAR );
+            aB1.SumScatterUpdate( R(-1), uB1_MC_STAR );
         }
 
         // Find tauQ, u, and delta such that
@@ -248,7 +248,7 @@ PanelBidiagU
                 // Store delta and force | alpha11 | = | 1 |
                 //                       |   a21   |   | u |
                 delta1.SetLocal(0,0,alpha11.GetLocal(0,0));
-                alpha11.SetLocal(0,0,(R)1);
+                alpha11.SetLocal(0,0,R(1));
             }
         }
 
@@ -257,15 +257,15 @@ PanelBidiagU
         //
         aB1_MC_STAR = aB1;
         // z01[MR,* ] := ABL^T[MR,MC] aB1[MC,* ]
-        LocalGemv( TRANSPOSE, (R)1, ABL, aB1_MC_STAR, (R)0, z01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), ABL, aB1_MC_STAR, R(0), z01_MR_STAR );
         // z21[MR,* ] := AB2^T[MR,MC] aB1[MC,* ]
-        LocalGemv( TRANSPOSE, (R)1, AB2, aB1_MC_STAR, (R)0, z21_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), z21_MR_STAR );
         // Sum the partial contributions to z01[MR,* ]
         z01_MR_STAR.SumOverCol();
         // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^T aB1)[MR,* ]
-        LocalGemv( NORMAL, (R)1, Y20, z01_MR_STAR, (R)0, z21_MC_STAR );
+        LocalGemv( NORMAL, R(1), Y20, z01_MR_STAR, R(0), z21_MC_STAR );
         // z01[MR,* ] := XBL^T[MR,MC] aB1[MC,* ]
-        LocalGemv( TRANSPOSE, (R)1, XBL, aB1_MC_STAR, (R)0, z01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), XBL, aB1_MC_STAR, R(0), z01_MR_STAR );
         // Sum the partial contributions to z01[MR,* ] and scatter the result
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         // Redistribute the scattered summation 
@@ -273,13 +273,13 @@ PanelBidiagU
         // z21[MR,* ] := z21[MR,* ] - A02^T[MR,MC] z01[MC,* ] 
         //             = AB2^T[MR,MC] aB1[MC,* ] - 
         //               A02^T[MR,MC] (XBL^T aB1)[MC,* ]
-        LocalGemv( TRANSPOSE, (R)-1, A02, z01_MC_STAR, (R)1, z21_MR_STAR );
+        LocalGemv( TRANSPOSE, R(-1), A02, z01_MC_STAR, R(1), z21_MR_STAR );
         // Sum the partial contributions to z21[MR,* ] and scatter the result
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         // Redistribute (and rename) the scattered summation
         y21 = z21_MR_MC;
         // Substract z21 = Y20 ABL^T aB1 from y21
-        y21.SumScatterUpdate( (R)-1, z21_MC_STAR );
+        y21.SumScatterUpdate( R(-1), z21_MC_STAR );
         if( thisIsMyCol )
             Scale( tauQ, y21 );
 
@@ -289,20 +289,20 @@ PanelBidiagU
         a10_STAR_MR = a10;
         x10_STAR_MC = x10;
         // q21[MC,* ] := Y20[MC,MR] a10^T[MR,* ]
-        LocalGemv( NORMAL, (R)1, Y20, a10_STAR_MR, (R)0, q21_MC_STAR );
+        LocalGemv( NORMAL, R(1), Y20, a10_STAR_MR, R(0), q21_MC_STAR );
         // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            Axpy( (R)1, y21, q21 );
+            Axpy( R(1), y21, q21 );
 
         //
         // a12 := a12 - a10 Y20^T - x10 A02
         //
         q21_MR_MC = q21;
         // q21[MR,* ] := A02^T[MR,MC] x10^T[MC,* ]
-        LocalGemv( TRANSPOSE, (R)1, A02, x10_STAR_MC, (R)0, q21_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), A02, x10_STAR_MC, R(0), q21_MR_STAR );
         // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^T)[MR,MC]
-        q21_MR_MC.SumScatterUpdate( (R)1, q21_MR_STAR );
+        q21_MR_MC.SumScatterUpdate( R(1), q21_MR_STAR );
         // a12 := a12 - q21^T
         if( thisIsMyRow )
         {
@@ -326,7 +326,7 @@ PanelBidiagU
                 // Store epsilon and force | alpha12L | = | 1 |
                 //                         |  a21R^T  |   | v |
                 epsilon1.SetLocal(0,0,alpha12L.GetLocal(0,0));
-                alpha12L.SetLocal(0,0,(R)1);
+                alpha12L.SetLocal(0,0,R(1));
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
@@ -337,24 +337,24 @@ PanelBidiagU
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
         // s21[MC,* ] := A22[MC,MR] a12^T[MR,* ]
-        LocalGemv( NORMAL, (R)1, A22, a12_STAR_MR, (R)0, s21_MC_STAR );
+        LocalGemv( NORMAL, R(1), A22, a12_STAR_MR, R(0), s21_MC_STAR );
         // sB1[MR,* ] := Y2L^T[MR,MC] a12^T[MC,* ]
-        LocalGemv( TRANSPOSE, (R)1, Y2L, a12_STAR_MC, (R)0, sB1_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), Y2L, a12_STAR_MC, R(0), sB1_MR_STAR );
         // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
         // s21[MC,* ] := s21[MC,* ] - A2L[MC,MR] sB1[MR,* ]
         //             = A22[MC,MR] a12^T[MR,* ] - A2L[MC,MR] sB1[MR,* ]
         // (still needs to be summed within each process row)
-        LocalGemv( NORMAL, (R)-1, A2L, sB1_MR_STAR, (R)1, s21_MC_STAR );
+        LocalGemv( NORMAL, R(-1), A2L, sB1_MR_STAR, R(1), s21_MC_STAR );
         // s01[MC,* ] := A02[MC,MR] a12^T[MR,* ]
-        LocalGemv( NORMAL, (R)1, A02, a12_STAR_MR, (R)0, s01_MC_STAR );
+        LocalGemv( NORMAL, R(1), A02, a12_STAR_MR, R(0), s01_MC_STAR );
         // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
         // s21[MC,* ] := s21[MC,* ] - X20[MC,MR] s01[MR,* ]
         //             = A22[MC,MR] a12^T[MR,* ] - A2L[MC,MR] sB1[MR,* ]
         //                                       - X20[MC,MR] s01[MR,* ]
-        LocalGemv( NORMAL, (R)-1, X20, s01_MR_STAR, (R)1, s21_MC_STAR );
+        LocalGemv( NORMAL, R(-1), X20, s01_MR_STAR, R(1), s21_MC_STAR );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
         Scale( tauP, x21.LocalMatrix() );
@@ -650,12 +650,12 @@ PanelBidiagU
             y10_STAR_MR = y10;
             // uB1[MC,* ] := ABL[MC,MR] y10^H[MR,* ]
             a01_MR_STAR = a01;
-            LocalGemv( NORMAL, (C)1, ABL, y10_STAR_MR, (C)0, uB1_MC_STAR );
+            LocalGemv( NORMAL, C(1), ABL, y10_STAR_MR, C(0), uB1_MC_STAR );
             // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
             //             = ABL[MC,MR] y10^H[MR,* ] + XBL[MC,MR] a01[MR,* ]
-            LocalGemv( NORMAL, (C)1, XBL, a01_MR_STAR, (C)1, uB1_MC_STAR );
+            LocalGemv( NORMAL, C(1), XBL, a01_MR_STAR, C(1), uB1_MC_STAR );
             // Sum the partial contributions and subtract from aB1
-            aB1.SumScatterUpdate( (C)-1, uB1_MC_STAR );
+            aB1.SumScatterUpdate( C(-1), uB1_MC_STAR );
         }
 
         // Find tauQ, u, and delta such that
@@ -671,7 +671,7 @@ PanelBidiagU
                 // Store delta and force | alpha11 | = | 1 |
                 //                       |   a21   |   | u |
                 delta1.SetLocal(0,0,alpha11.GetLocalRealPart(0,0));
-                alpha11.SetLocal(0,0,(C)1);
+                alpha11.SetLocal(0,0,C(1));
             }
         }
 
@@ -680,15 +680,15 @@ PanelBidiagU
         //
         aB1_MC_STAR = aB1;
         // z01[MR,* ] := ABL^H[MR,MC] aB1[MC,* ]
-        LocalGemv( ADJOINT, (C)1, ABL, aB1_MC_STAR, (C)0, z01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), ABL, aB1_MC_STAR, C(0), z01_MR_STAR );
         // z21[MR,* ] := AB2^H[MR,MC] aB1[MC,* ]
-        LocalGemv( ADJOINT, (C)1, AB2, aB1_MC_STAR, (C)0, z21_MR_STAR );
+        LocalGemv( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), z21_MR_STAR );
         // Sum the partial contributions
         z01_MR_STAR.SumOverCol();
         // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^H aB1)[MR,* ]
-        LocalGemv( NORMAL, (C)1, Y20, z01_MR_STAR, (C)0, z21_MC_STAR );
+        LocalGemv( NORMAL, C(1), Y20, z01_MR_STAR, C(0), z21_MC_STAR );
         // z01[MR,* ] := XBL^H[MR,MC] aB1[MC,* ]
-        LocalGemv( ADJOINT, (C)1, XBL, aB1_MC_STAR, (C)0, z01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), XBL, aB1_MC_STAR, C(0), z01_MR_STAR );
         // Sum the partial contributions to z01[MR,* ] and scatter the result
         z01_MR_MC.SumScatterFrom( z01_MR_STAR );
         // Redistribute the scattered summation
@@ -696,13 +696,13 @@ PanelBidiagU
         // z21[MR,* ] := z21[MR,* ] - A02^H[MR,MC] z01[MC,* ]
         //             = AB2^H[MR,MC] aB1[MC,* ] - 
         //               A02^H[MR,MC] (XBL^H aB1)[MC,* ]
-        LocalGemv( ADJOINT, (C)-1, A02, z01_MC_STAR, (C)1, z21_MR_STAR );
+        LocalGemv( ADJOINT, C(-1), A02, z01_MC_STAR, C(1), z21_MR_STAR );
         // Sum the partial contributions to z21[MR,* ] and scatter the result
         z21_MR_MC.SumScatterFrom( z21_MR_STAR );
         // Redistribute (and rename) the scattered summation
         y21 = z21_MR_MC;
         // Subtract z21 = Y20 ABL^H aB1 from y21
-        y21.SumScatterUpdate( (C)-1, z21_MC_STAR );
+        y21.SumScatterUpdate( C(-1), z21_MC_STAR );
         if( thisIsMyCol )
             Scale( tauQ, y21 );
 
@@ -713,11 +713,11 @@ PanelBidiagU
         a10_STAR_MR = a10;
         Conjugate( a10 );
         // q21[MC,* ] := Y20[MC,MR] a10^H[MR,* ]
-        LocalGemv( NORMAL, (C)1, Y20, a10_STAR_MR, (C)0, q21_MC_STAR );
+        LocalGemv( NORMAL, C(1), Y20, a10_STAR_MR, C(0), q21_MC_STAR );
         // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
         if( thisIsMyCol )
-            Axpy( (C)1, y21, q21 );
+            Axpy( C(1), y21, q21 );
 
         //
         // a12 := conj(a12 - a10 Y20^H - x10 A02)
@@ -727,9 +727,9 @@ PanelBidiagU
         Conjugate( x10 );
         q21_MR_MC = q21;
         // q21[MR,* ] := A02^H[MR,MC] x10^H[MC,* ]
-        LocalGemv( ADJOINT, (C)1, A02, x10_STAR_MC, (C)0, q21_MR_STAR );
+        LocalGemv( ADJOINT, C(1), A02, x10_STAR_MC, C(0), q21_MR_STAR );
         // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^H)[MR,MC]
-        q21_MR_MC.SumScatterUpdate( (C)1, q21_MR_STAR );
+        q21_MR_MC.SumScatterUpdate( C(1), q21_MR_STAR );
         // a12 := conj(a12) - q21^T = conj(a12 - a10 Y20^H - x10 A02)
         Conjugate( a12 );
         if( thisIsMyRow )
@@ -755,7 +755,7 @@ PanelBidiagU
                 // Store epsilon and force | alpha12L | = | 1 |
                 //                         |  a12R^T  |   | v |
                 epsilon1.SetLocal(0,0,alpha12L.GetLocalRealPart(0,0));
-                alpha12L.SetLocal(0,0,(C)1);
+                alpha12L.SetLocal(0,0,C(1));
             }
         }
         mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
@@ -769,24 +769,24 @@ PanelBidiagU
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
         // s21[MC,* ] := A22[MC,MR] a12^H[MR,* ]
-        LocalGemv( NORMAL, (C)1, A22, a12_STAR_MR, (C)0, s21_MC_STAR );
+        LocalGemv( NORMAL, C(1), A22, a12_STAR_MR, C(0), s21_MC_STAR );
         // sB1[MR,* ] := Y2L^H[MR,MC] a12^H[MC,* ]
-        LocalGemv( ADJOINT, (C)1, Y2L, a12_STAR_MC, (C)0, sB1_MR_STAR );
+        LocalGemv( ADJOINT, C(1), Y2L, a12_STAR_MC, C(0), sB1_MR_STAR );
         // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
         // s21[MC,* ] := s21[MC,* ] - A2L[MC,MR] sB1[MR,* ]
         //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
         // (still needs to be summed within each process row)
-        LocalGemv( NORMAL, (C)-1, A2L, sB1_MR_STAR, (C)1, s21_MC_STAR );
+        LocalGemv( NORMAL, C(-1), A2L, sB1_MR_STAR, C(1), s21_MC_STAR );
         // s01[MC,* ] := A02[MC,MR] a12^H[MR,* ]
-        LocalGemv( NORMAL, (C)1, A02, a12_STAR_MR, (C)0, s01_MC_STAR );
+        LocalGemv( NORMAL, C(1), A02, a12_STAR_MR, C(0), s01_MC_STAR );
         // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
         s01_MR_STAR = s01;
         // s21[MC,* ] := s21[MC,* ] - X20[MC,MR] s01[MR,* ]
         //             = A22[MC,MR] a12^H[MR,* ] - A2L[MC,MR] sB1[MR,* ]
         //                                       - X20[MC,MR] s01[MR,* ]
-        LocalGemv( NORMAL, (C)-1, X20, s01_MR_STAR, (C)1, s21_MC_STAR );
+        LocalGemv( NORMAL, C(-1), X20, s01_MR_STAR, C(1), s21_MC_STAR );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
         Scale( tauP, x21.LocalMatrix() );

@@ -73,7 +73,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (R)2;
+        return R(2);
     }
 
     R beta;
@@ -132,7 +132,7 @@ Reflector( R& chi, int m, R* x, int incx )
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (R)2;
+        return R(2);
     }
 
     R beta;
@@ -208,13 +208,13 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     R norm = Nrm2( x );
     C alpha = chi.Get(0,0);
 
-    if( norm == 0 && alpha.imag == (R)0 )
+    if( norm == 0 && alpha.imag == R(0) )
     {
         chi.Set(0,0,-chi.Get(0,0));
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (C)2;
+        return C(2);
     }
 
     R beta;
@@ -270,13 +270,13 @@ Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
     R norm = blas::Nrm2( m, x, incx );
     C alpha = chi;
 
-    if( norm == 0 && alpha.imag == (R)0 )
+    if( norm == 0 && alpha.imag == R(0) )
     {
         chi = -chi;
 #ifndef RELEASE
         PopCallStack();
 #endif
-        return (C)2;
+        return C(2);
     }
 
     R beta;

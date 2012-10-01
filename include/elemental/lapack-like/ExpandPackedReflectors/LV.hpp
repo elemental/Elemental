@@ -118,17 +118,17 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
         MakeZeros( ZOld );
         Zeros( HPanWidth, HPanWidth, SInv );
         //--------------------------------------------------------------------//
-        Syrk( UPPER, TRANSPOSE, (R)1, HPan, (R)0, SInv );
+        Syrk( UPPER, TRANSPOSE, R(1), HPan, R(0), SInv );
         HalveMainDiagonal( SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Transpose( HPanT, ZNew );
-        Gemm( TRANSPOSE, NORMAL, (R)1, HPanB, HEffectedOldB, (R)0, ZOld );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, SInv, Z );
+        Gemm( TRANSPOSE, NORMAL, R(1), HPanB, HEffectedOldB, R(0), ZOld );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), SInv, Z );
         HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, (R)-1, HPanCopy, Z, (R)1, HEffected );
+        Gemm( NORMAL, NORMAL, R(-1), HPanCopy, Z, R(1), HEffected );
         //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
@@ -236,8 +236,8 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
         HPan_VC_STAR = HPan;
         Syrk
         ( UPPER, TRANSPOSE, 
-          (R)1, HPan_VC_STAR.LockedLocalMatrix(), 
-          (R)0, SInv_STAR_STAR.LocalMatrix() );
+          R(1), HPan_VC_STAR.LockedLocalMatrix(), 
+          R(0), SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
         HalveMainDiagonal( SInv_STAR_STAR );
 
@@ -252,14 +252,14 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
         Transpose( HPanT_MC_STAR, ZNew_STAR_VR );
         LocalGemm
         ( TRANSPOSE, NORMAL, 
-          (R)1, HPanB_MC_STAR, HEffectedOldB, (R)0, ZOld_STAR_MR );
+          R(1), HPanB_MC_STAR, HEffectedOldB, R(0), ZOld_STAR_MR );
         ZOld_STAR_VR.SumScatterFrom( ZOld_STAR_MR );
         LocalTrsm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, R(1), SInv_STAR_STAR, Z_STAR_VR );
         Z_STAR_MR = Z_STAR_VR;
         MakeIdentity( HEffectedNew );
         LocalGemm
-        ( NORMAL, NORMAL, (R)-1, HPan_MC_STAR, Z_STAR_MR, (R)1, HEffected );
+        ( NORMAL, NORMAL, R(-1), HPan_MC_STAR, Z_STAR_MR, R(1), HEffected );
         //--------------------------------------------------------------------//
         HPan_MC_STAR.FreeAlignments();
         Z_STAR_VR.FreeAlignments();
@@ -373,17 +373,17 @@ ExpandPackedReflectorsLV
         MakeZeros( ZOld );
         Zeros( HPanWidth, HPanWidth, SInv );
         //--------------------------------------------------------------------//
-        Herk( UPPER, ADJOINT, (C)1, HPan, (C)0, SInv );
+        Herk( UPPER, ADJOINT, C(1), HPan, C(0), SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Adjoint( HPanT, ZNew );
-        Gemm( ADJOINT, NORMAL, (C)1, HPanB, HEffectedOldB, (C)0, ZOld );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, SInv, Z );
+        Gemm( ADJOINT, NORMAL, C(1), HPanB, HEffectedOldB, C(0), ZOld );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), SInv, Z );
         HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, (C)-1, HPanCopy, Z, (C)1, HEffected );
+        Gemm( NORMAL, NORMAL, C(-1), HPanCopy, Z, C(1), HEffected );
         //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
@@ -521,8 +521,8 @@ ExpandPackedReflectorsLV
         HPan_VC_STAR = HPan;
         Herk
         ( UPPER, ADJOINT, 
-          (C)1, HPan_VC_STAR.LockedLocalMatrix(), 
-          (C)0, SInv_STAR_STAR.LocalMatrix() );
+          C(1), HPan_VC_STAR.LockedLocalMatrix(), 
+          C(0), SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
@@ -538,14 +538,14 @@ ExpandPackedReflectorsLV
         Adjoint( HPanT_MC_STAR, ZNew_STAR_VR );
         LocalGemm
         ( ADJOINT, NORMAL, 
-          (C)1, HPanB_MC_STAR, HEffectedOldB, (C)0, ZOld_STAR_MR );
+          C(1), HPanB_MC_STAR, HEffectedOldB, C(0), ZOld_STAR_MR );
         ZOld_STAR_VR.SumScatterFrom( ZOld_STAR_MR );
         LocalTrsm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, (C)1, SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, C(1), SInv_STAR_STAR, Z_STAR_VR );
         Z_STAR_MR = Z_STAR_VR;
         MakeIdentity( HEffectedNew );
         LocalGemm
-        ( NORMAL, NORMAL, (C)-1, HPan_MC_STAR, Z_STAR_MR, (C)1, HEffected );
+        ( NORMAL, NORMAL, C(-1), HPan_MC_STAR, Z_STAR_MR, C(1), HEffected );
         //--------------------------------------------------------------------//
         HPan_MC_STAR.FreeAlignments();
         Z_STAR_VR.FreeAlignments();

@@ -67,7 +67,7 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
     {
         // Drop down to a square mesh
         const int p = g.Size();
-        const int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+        const int pSqrt = int(sqrt(double(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( order == COLUMN_MAJOR )
@@ -153,7 +153,7 @@ HermitianTridiag
     {
         // Drop down to a square mesh 
         const int p = g.Size();
-        const int pSqrt = static_cast<int>(sqrt(static_cast<double>(p)));
+        const int pSqrt = int(sqrt(double(p)));
 
         std::vector<int> squareRanks(pSqrt*pSqrt);
         if( order == COLUMN_MAJOR )

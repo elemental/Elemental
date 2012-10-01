@@ -76,17 +76,17 @@ TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
         L10_STAR_VR = L10;
         L11_STAR_STAR = L11;
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, diag, (F)-1, L11_STAR_STAR, L10_STAR_VR );
+        ( LEFT, LOWER, NORMAL, diag, F(-1), L11_STAR_STAR, L10_STAR_VR );
 
         L21_MC_STAR = L21;
         L10_STAR_MR = L10_STAR_VR;
         LocalGemm
-        ( NORMAL, NORMAL, (F)1, L21_MC_STAR, L10_STAR_MR, (F)1, L20 );
+        ( NORMAL, NORMAL, F(1), L21_MC_STAR, L10_STAR_MR, F(1), L20 );
         L10 = L10_STAR_MR;
 
         L21_VC_STAR = L21_MC_STAR;
         LocalTrsm
-        ( RIGHT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, L21_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, L21_VC_STAR );
         LocalTriangularInverse( LOWER, diag, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         L21 = L21_VC_STAR;

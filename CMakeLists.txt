@@ -712,7 +712,7 @@ if(ELEM_EXAMPLES)
                       HPDInverse LDL LDLInverse Polar Pseudoinverse QDWH 
                       SequentialQR QR SequentialSVD SimpleSVD SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
-                       Hankel HermitianUniformSpectrum Hilbert Identity 
+                       Hankel HermitianUniformSpectrum Hilbert Identity Legendre
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform
                        Walsh Wilkinson Zeros)
 

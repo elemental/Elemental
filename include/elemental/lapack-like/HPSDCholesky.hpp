@@ -71,7 +71,7 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F>& A )
         if( uplo == LOWER )
         {
             MakeTrapezoidal( LEFT, UPPER, 1, A11Adj );
-            Axpy( (F)1, A11Adj, A11 );
+            Axpy( F(1), A11Adj, A11 );
 
             A21_MR_MC = A21;
             Adjoint( A21_MR_MC.LocalMatrix(), A12.LocalMatrix() ); 
@@ -79,7 +79,7 @@ void MakeExplicitlyHermitian( UpperOrLower uplo, DistMatrix<F>& A )
         else
         {
             MakeTrapezoidal( LEFT, LOWER, -1, A11Adj );
-            Axpy( (F)1, A11Adj, A11 );
+            Axpy( F(1), A11Adj, A11 );
 
             A12_MR_MC = A12;
             Adjoint( A12_MR_MC.LocalMatrix(), A21.LocalMatrix() );

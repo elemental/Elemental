@@ -86,22 +86,22 @@ TwoSidedTrsmUVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         // Y12 := A11 U12
         Zeros( A12.Height(), A12.Width(), Y12 );
-        Hemm( LEFT, UPPER, (F)1, A11, U12, (F)0, Y12 );
+        Hemm( LEFT, UPPER, F(1), A11, U12, F(0), Y12 );
 
         // A12 := inv(U11)' A12
-        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, U11, A12 );
+        Trsm( LEFT, UPPER, ADJOINT, diag, F(1), U11, A12 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
 
         // A22 := A22 - (A12' U12 + U12' A12)
-        Her2k( UPPER, ADJOINT, (F)-1, A12, U12, (F)1, A22 );
+        Her2k( UPPER, ADJOINT, F(-1), A12, U12, F(1), A22 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
 
         // A12 := A12 inv(U22)
-        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U22, A12 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U22, A12 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -203,18 +203,18 @@ TwoSidedTrsmUVar5
         Y12_STAR_VR.ResizeTo( A12.Height(), A12.Width() );
         Hemm
         ( LEFT, UPPER,
-          (F)1, A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),
-          (F)0, Y12_STAR_VR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),
+          F(0), Y12_STAR_VR.LocalMatrix() );
         Y12 = Y12_STAR_VR;
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, diag, (F)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
 
         // A22 := A22 - (A12' U12 + U12' A12)
         A12_STAR_VR = A12;
@@ -226,17 +226,17 @@ TwoSidedTrsmUVar5
         U12_STAR_MR = U12_STAR_VR;
         LocalTrr2k
         ( UPPER, ADJOINT, ADJOINT,
-          (F)-1, U12_STAR_MC, A12_STAR_MR,
+          F(-1), U12_STAR_MC, A12_STAR_MR,
                  A12_STAR_MC, U12_STAR_MR,
-          (F)1, A22 );
+          F(1), A22 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
 
         // A12 := A12 inv(U22)
         //
         // This is the bottleneck because A12 only has blocksize rows
-        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U22, A12 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U22, A12 );
         //--------------------------------------------------------------------//
         A12_STAR_MC.FreeAlignments();
         A12_STAR_MR.FreeAlignments();

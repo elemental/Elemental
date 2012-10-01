@@ -106,9 +106,9 @@ BidiagU( DistMatrix<R>& A )
             Y21_MR_STAR = Y21;
 
             LocalGemm
-            ( NORMAL, TRANSPOSE, (R)-1, A21_MC_STAR, Y21_MR_STAR, (R)1, A22 );
+            ( NORMAL, TRANSPOSE, R(-1), A21_MC_STAR, Y21_MR_STAR, R(1), A22 );
             LocalGemm
-            ( NORMAL, NORMAL, (R)-1, X21_MC_STAR, A12_STAR_MR, (R)1, A22 );
+            ( NORMAL, NORMAL, R(-1), X21_MC_STAR, A12_STAR_MR, R(1), A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
             AColPan_MC_STAR.FreeAlignments();
@@ -246,9 +246,9 @@ BidiagU
             Y21_MR_STAR = Y21;
 
             LocalGemm
-            ( NORMAL, ADJOINT, (C)-1, A21_MC_STAR, Y21_MR_STAR, (C)1, A22 );
+            ( NORMAL, ADJOINT, C(-1), A21_MC_STAR, Y21_MR_STAR, C(1), A22 );
             LocalGemm
-            ( NORMAL, NORMAL, (C)-1, X21_MC_STAR, A12_STAR_MR, (C)1, A22 );
+            ( NORMAL, NORMAL, C(-1), X21_MC_STAR, A12_STAR_MR, C(1), A22 );
             //----------------------------------------------------------------//
             ARowPan_STAR_MR.FreeAlignments();
             AColPan_MC_STAR.FreeAlignments();

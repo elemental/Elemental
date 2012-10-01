@@ -64,10 +64,10 @@ UnblockedLU_FLAME( Matrix<F>& A )
 
         //--------------------------------------------------------------------//
         F alpha = alpha11.Get(0,0);
-        if( alpha == static_cast<F>(0) )
+        if( alpha == F(0) )
             throw SingularMatrixException();
         Scale( 1/alpha, a21 );
-        Geru( (F)-1, a21, a12, A22 );
+        Geru( F(-1), a21, a12, A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -94,13 +94,13 @@ UnblockedLU( Matrix<F>& A )
     for( int j=0; j<std::min(m,n); ++j )
     {
         const F alpha = A.Get(j,j);
-        if( alpha == (F)0 )
+        if( alpha == F(0) )
             throw SingularMatrixException();
 
         blas::Scal( m-(j+1), 1/alpha, A.Buffer(j+1,j), 1 );
         blas::Geru
         ( m-(j+1), n-(j+1),
-          (F)-1, A.LockedBuffer(j+1,j), 1, A.LockedBuffer(j,j+1), A.LDim(),
+          F(-1), A.LockedBuffer(j+1,j), 1, A.LockedBuffer(j,j+1), A.LDim(),
                  A.Buffer(j+1,j+1), A.LDim() );
     }
 #ifndef RELEASE

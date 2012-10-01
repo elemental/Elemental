@@ -112,12 +112,12 @@ CholeskyUVar3Naive( DistMatrix<F>& A )
 
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MC = A12_STAR_VR;
         A12_STAR_MR = A12_STAR_VR;
         LocalTrrk
-        ( UPPER, ADJOINT, (F)-1, A12_STAR_MC, A12_STAR_MR, (F)1, A22 );
+        ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
         A12_STAR_MC.FreeAlignments();

@@ -92,10 +92,10 @@ inline void UnblockedBidiagL( DistMatrix<R>& A )
 
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
-        alpha11.Set(0,0,(R)1);
+        alpha11.Set(0,0,R(1));
         a1R_STAR_MR = a1R;
         internal::LocalGemv
-        ( NORMAL, (R)1, A2R, a1R_STAR_MR, (R)0, w21_MC_STAR );
+        ( NORMAL, R(1), A2R, a1R_STAR_MR, R(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
 
         // A2R := A2R - tauP w21 a1R
@@ -124,10 +124,10 @@ inline void UnblockedBidiagL( DistMatrix<R>& A )
 
             // Set a21 = | 1 | and form x12^T = (a21^T A22)^T = A22^T a21
             //           | u |  
-            alpha21T.Set(0,0,(R)1);
+            alpha21T.Set(0,0,R(1));
             a21_MC_STAR = a21;
             internal::LocalGemv
-            ( TRANSPOSE, (R)1, A22, a21_MC_STAR, (R)0, x12Trans_MR_STAR );
+            ( TRANSPOSE, R(1), A22, a21_MC_STAR, R(0), x12Trans_MR_STAR );
             x12Trans_MR_STAR.SumOverCol();
 
             // A22 := A22 - tauQ a21 x12
@@ -239,10 +239,10 @@ inline void UnblockedBidiagL
 
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
-        alpha11.Set(0,0,(C)1);
+        alpha11.Set(0,0,C(1));
         a1R_STAR_MR = a1R;
         internal::LocalGemv
-        ( NORMAL, (C)1, A2R, a1R_STAR_MR, (C)0, w21_MC_STAR );
+        ( NORMAL, C(1), A2R, a1R_STAR_MR, C(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
 
         // A2R := A2R - tauP w21 conj(a1R)
@@ -277,10 +277,10 @@ inline void UnblockedBidiagL
 
             // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
             //           | u |  
-            alpha21T.Set(0,0,(C)1);
+            alpha21T.Set(0,0,C(1));
             a21_MC_STAR = a21;
             internal::LocalGemv
-            ( ADJOINT, (C)1, A22, a21_MC_STAR, (C)0, x12Adj_MR_STAR );
+            ( ADJOINT, C(1), A22, a21_MC_STAR, C(0), x12Adj_MR_STAR );
             x12Adj_MR_STAR.SumOverCol();
 
             // A22 := A22 - conj(tauQ) a21 x12

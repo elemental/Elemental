@@ -215,7 +215,7 @@ HermitianPanelTridiagL
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry
         alpha21T.GetDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (R)1 );
+        alpha21T.Set( 0, 0, R(1) );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a21 within its process row. 
@@ -460,11 +460,11 @@ HermitianPanelTridiagL
         Zero( p21_MC_STAR );
         Zero( q21_MR_STAR );
         LocalSymvColAccumulateL
-        ( (R)1, A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
+        ( R(1), A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
         PushBlocksizeStack( 1 );
 
-        LocalGemv( TRANSPOSE, (R)1, W20B, a21B_MC_STAR, (R)0, x01_MR_STAR );
-        LocalGemv( TRANSPOSE, (R)1, A20B, a21B_MC_STAR, (R)0, y01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), W20B, a21B_MC_STAR, R(0), x01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), A20B, a21B_MC_STAR, R(0), y01_MR_STAR );
 
         // Combine the AllReduce column summations of x01[MR,* ], y01[MR,* ],
         // and q21[MR,* ]
@@ -496,8 +496,8 @@ HermitianPanelTridiagL
               &colSumRecvBuffer[2*x01LocalHeight], q21LocalHeight );
         }
 
-        LocalGemv( NORMAL, (R)-1, A20B, x01_MR_STAR, (R)1, p21B_MC_STAR );
-        LocalGemv( NORMAL, (R)-1, W20B, y01_MR_STAR, (R)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, R(-1), A20B, x01_MR_STAR, R(1), p21B_MC_STAR );
+        LocalGemv( NORMAL, R(-1), W20B, y01_MR_STAR, R(1), p21B_MC_STAR );
 
         if( W22.Width() > 0 )
         {
@@ -961,7 +961,7 @@ HermitianPanelTridiagL
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
         alpha21T.GetRealPartOfDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (C)1 );
+        alpha21T.Set( 0, 0, C(1) );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a21 within its process row. 
@@ -1208,11 +1208,11 @@ HermitianPanelTridiagL
         Zero( p21_MC_STAR );
         Zero( q21_MR_STAR );
         LocalHemvColAccumulateL
-        ( (C)1, A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
+        ( C(1), A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
         PushBlocksizeStack( 1 );
 
-        LocalGemv( ADJOINT, (C)1, W20B, a21B_MC_STAR, (C)0, x01_MR_STAR );
-        LocalGemv( ADJOINT, (C)1, A20B, a21B_MC_STAR, (C)0, y01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), W20B, a21B_MC_STAR, C(0), x01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), A20B, a21B_MC_STAR, C(0), y01_MR_STAR );
 
         // Combine the AllReduce column summations of x01[MR,* ], y01[MR,* ],
         // and q21[MR,* ]
@@ -1245,8 +1245,8 @@ HermitianPanelTridiagL
               &colSumRecvBuffer[2*x01LocalHeight], q21LocalHeight );
         }
 
-        LocalGemv( NORMAL, (C)-1, A20B, x01_MR_STAR, (C)1, p21B_MC_STAR );
-        LocalGemv( NORMAL, (C)-1, W20B, y01_MR_STAR, (C)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, C(-1), A20B, x01_MR_STAR, C(1), p21B_MC_STAR );
+        LocalGemv( NORMAL, C(-1), W20B, y01_MR_STAR, C(1), p21B_MC_STAR );
 
         if( W22.Width() > 0 )
         {
@@ -1350,7 +1350,7 @@ HermitianPanelTridiagL
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
-                C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
+                C scale = dotProduct*Conj(tau)/C(2);
                 for( int i=0; i<localHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
@@ -1455,7 +1455,7 @@ HermitianPanelTridiagL
             ( W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
-            C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
+            C scale = dotProduct*Conj(tau)/C(2);
             C* w21_MC_STAR_LocalBuffer = w21_MC_STAR.LocalBuffer();
             for( int i=0; i<localHeight; ++i )
                 w21_MC_STAR_LocalBuffer[i] = tau*

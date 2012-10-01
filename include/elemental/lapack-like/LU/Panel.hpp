@@ -92,11 +92,11 @@ PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset )
 
         // Now we can perform the update of the current panel
         const F alpha = alpha11.Get(0,0);
-        if( alpha == (F)0 )
+        if( alpha == F(0) )
             throw SingularMatrixException();
-        const F alpha11Inv = ((F)1) / alpha;
+        const F alpha11Inv = F(1) / alpha;
         Scale( alpha11Inv, a21 );
-        Geru( (F)-1, a21, a12, A22 );
+        Geru( F(-1), a21, a12, A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -267,13 +267,13 @@ PanelLU
 
         // Now we can perform the update of the current panel
         const F alpha = alpha11.GetLocal(0,0);
-        if( alpha == (F)0 )
+        if( alpha == F(0) )
             throw SingularMatrixException();
-        const F alpha11Inv = ((F)1) / alpha;
+        const F alpha11Inv = F(1) / alpha;
         Scale( alpha11Inv, a21.LocalMatrix() );
         Scale( alpha11Inv, b1.LocalMatrix()  );
-        Geru( (F)-1, a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
-        Geru( (F)-1, b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
+        Geru( F(-1), a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
+        Geru( F(-1), b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal

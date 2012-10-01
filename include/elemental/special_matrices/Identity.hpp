@@ -72,7 +72,7 @@ MakeIdentity( Matrix<T>& I )
     const int m = I.Height();
     const int n = I.Width();
     for( int j=0; j<std::min(m,n); ++j )
-        I.Set( j, j, (T)1 );
+        I.Set( j, j, T(1) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -100,7 +100,7 @@ MakeIdentity( DistMatrix<T,U,V>& I )
         {
             const int i = colShift + iLocal*colStride;
             if( i == j )
-                I.SetLocal( iLocal, jLocal, (T)1 );
+                I.SetLocal( iLocal, jLocal, T(1) );
         }
     }
 #ifndef RELEASE

@@ -60,8 +60,8 @@ int HermitianQDWH
 
     typedef typename Base<F>::type R;
     const int height = A.Height();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -129,16 +129,16 @@ int HermitianQDWH
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( height, height, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( beta, A );
             Axpy( alpha, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
@@ -165,8 +165,8 @@ int HermitianQDWH
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
     const int height = A.Height();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -234,16 +234,16 @@ int HermitianQDWH
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
             Identity( height, height, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( beta, A );
             Axpy( alpha, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianNorm( uplo, ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );

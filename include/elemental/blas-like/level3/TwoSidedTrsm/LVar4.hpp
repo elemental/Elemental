@@ -82,29 +82,29 @@ TwoSidedTrsmLVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         //--------------------------------------------------------------------//
         // A10 := inv(L11) A10
-        Trsm( LEFT, LOWER, NORMAL, diag, (F)1, L11, A10 );
+        Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, A10 );
 
         // A11 := inv(L11) A11 inv(L11)'
         TwoSidedTrsmLUnb( diag, A11, L11 );
 
         // A20 := A20 - L21 A10
-        Gemm( NORMAL, NORMAL, (F)-1, L21, A10, (F)1, A20 );
+        Gemm( NORMAL, NORMAL, F(-1), L21, A10, F(1), A20 );
 
         // Y21 := L21 A11
         Zeros( A21.Height(), A21.Width(), Y21 );
-        Hemm( RIGHT, LOWER, (F)1, A11, L21, (F)0, Y21 );
+        Hemm( RIGHT, LOWER, F(1), A11, L21, F(0), Y21 );
 
         // A21 := A21 inv(L11)'
-        Trsm( RIGHT, LOWER, ADJOINT, diag, (F)1, L11, A21 );
+        Trsm( RIGHT, LOWER, ADJOINT, diag, F(1), L11, A21 );
 
         // A21 := A21 - 1/2 Y21
-        Axpy( (F)-0.5, Y21, A21 );
+        Axpy( F(-1)/F(2), Y21, A21 );
 
         // A22 := A22 - (L21 A21' + A21 L21')
-        Her2k( LOWER, NORMAL, (F)-1, L21, A21, (F)1, A22 );
+        Her2k( LOWER, NORMAL, F(-1), L21, A21, F(1), A22 );
 
         // A21 := A21 - 1/2 Y21
-        Axpy( (F)-0.5, Y21, A21 );
+        Axpy( F(-1)/F(2), Y21, A21 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -201,7 +201,7 @@ TwoSidedTrsmLVar4
         L11_STAR_STAR = L11;
         A10_STAR_VR = A10;
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, A10_STAR_VR );
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11; 
@@ -211,7 +211,7 @@ TwoSidedTrsmLVar4
         // A20 := A20 - L21 A10
         L21_MC_STAR = L21;
         A10_STAR_MR = A10_STAR_VR;
-        LocalGemm( NORMAL, NORMAL, (F)-1, L21_MC_STAR, A10_STAR_MR, (F)1, A20 );
+        LocalGemm( NORMAL, NORMAL, F(-1), L21_MC_STAR, A10_STAR_MR, F(1), A20 );
         A10 = A10_STAR_MR; // delayed write from  A10 := inv(L11) A10
 
         // Y21 := L21 A11
@@ -219,16 +219,16 @@ TwoSidedTrsmLVar4
         Y21_VC_STAR.ResizeTo( A21.Height(), A21.Width() );
         Hemm
         ( RIGHT, LOWER, 
-          (F)1, A11_STAR_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(), 
-          (F)0, Y21_VC_STAR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(), 
+          F(0), Y21_VC_STAR.LocalMatrix() );
 
         // A21 := A21 inv(L11)'
         A21_VC_STAR = A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, diag, (F)1, L11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, diag, F(1), L11_STAR_STAR, A21_VC_STAR );
 
         // A21 := A21 - 1/2 Y21
-        Axpy( (F)-0.5, Y21_VC_STAR, A21_VC_STAR );
+        Axpy( F(-1)/F(2), Y21_VC_STAR, A21_VC_STAR );
 
         // A22 := A22 - (L21 A21' + A21 L21')
         A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
@@ -238,12 +238,12 @@ TwoSidedTrsmLVar4
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
         LocalTrr2k
         ( LOWER, TRANSPOSE,
-          (F)-1, L21_MC_STAR,      A21Adj_STAR_MR, 
+          F(-1), L21_MC_STAR,      A21Adj_STAR_MR, 
                  A21Trans_STAR_MC, L21Adj_STAR_MR,
-          (F)1,  A22 );
+          F(1),  A22 );
 
         // A21 := A21 - 1/2 Y21
-        Axpy( (F)-0.5, Y21_VC_STAR, A21_VC_STAR );
+        Axpy( F(-1)/F(2), Y21_VC_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A10_STAR_MR.FreeAlignments();

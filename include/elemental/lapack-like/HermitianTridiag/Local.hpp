@@ -72,12 +72,12 @@ inline void HermitianTridiagL( Matrix<R>& A )
         //--------------------------------------------------------------------//
         const R tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.Get(0,0);
-        alpha21T.Set(0,0,(R)1);
+        alpha21T.Set(0,0,R(1));
 
-        Symv( LOWER, tau, A22, a21, (R)0, w21 );
-        const R alpha = -static_cast<R>(0.5)*tau*Dot( w21, a21 );
+        Symv( LOWER, tau, A22, a21, R(0), w21 );
+        const R alpha = -tau*Dot( w21, a21 )/R(2);
         Axpy( alpha, a21, w21 );
-        Syr2( LOWER, (R)-1, a21, w21, A22 );
+        Syr2( LOWER, R(-1), a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -130,12 +130,12 @@ inline void HermitianTridiagU( Matrix<R>& A )
         //--------------------------------------------------------------------//
         const R tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.Get(0,0);
-        alpha01B.Set(0,0,(R)1);
+        alpha01B.Set(0,0,R(1));
 
-        Symv( UPPER, tau, A00, a01, (R)0, w01 );
-        const R alpha = -static_cast<R>(0.5)*tau*Dot( w01, a01 );
+        Symv( UPPER, tau, A00, a01, R(0), w01 );
+        const R alpha = -tau*Dot( w01, a01 )/R(2);
         Axpy( alpha, a01, w01 );
-        Syr2( UPPER, (R)-1, a01, w01, A00 );
+        Syr2( UPPER, R(-1), a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -200,12 +200,12 @@ inline void HermitianTridiagL
         const C tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.GetRealPart(0,0);
         t.Set(A00.Height(),0,tau);
-        alpha21T.Set(0,0,(C)1);
+        alpha21T.Set(0,0,C(1));
 
-        Hemv( LOWER, tau, A22, a21, (C)0, w21 );
-        const C alpha = -static_cast<C>(0.5)*tau*Dot( w21, a21 );
+        Hemv( LOWER, tau, A22, a21, C(0), w21 );
+        const C alpha = -tau*Dot( w21, a21 )/C(2);
         Axpy( alpha, a21, w21 );
-        Her2( LOWER, (C)-1, a21, w21, A22 );
+        Her2( LOWER, C(-1), a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 
@@ -270,12 +270,12 @@ inline void HermitianTridiagU
         const C tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.GetRealPart(0,0);
         t.Set(t.Height()-1-A22.Height(),0,tau);
-        alpha01B.Set(0,0,(C)1);
+        alpha01B.Set(0,0,C(1));
 
-        Hemv( UPPER, tau, A00, a01, (C)0, w01 );
-        const C alpha = -static_cast<C>(0.5)*tau*Dot( w01, a01 );
+        Hemv( UPPER, tau, A00, a01, C(0), w01 );
+        const C alpha = -tau*Dot( w01, a01 )/C(2);
         Axpy( alpha, a01, w01 );
-        Her2( UPPER, (C)-1, a01, w01, A00 );
+        Her2( UPPER, C(-1), a01, w01, A00 );
         alpha01B.Set(0,0,epsilon1);
         //--------------------------------------------------------------------//
 

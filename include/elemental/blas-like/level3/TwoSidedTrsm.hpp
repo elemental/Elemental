@@ -63,7 +63,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         // A20 := A20 - l21 a10
         F* A20 = &ABuffer[j+1];
         const F* l21 = &LBuffer[(j+1)+j*ldl];
-        blas::Geru( a21Height, j, (F)-1, l21, 1, a10, lda, A20, lda );
+        blas::Geru( a21Height, j, F(-1), l21, 1, a10, lda, A20, lda );
 
         // alpha11 := alpha11 / |lambda11|^2
         ABuffer[j+j*lda] /= lambda11*Conj(lambda11);
@@ -81,7 +81,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // A22 := A22 - (l21 a21' + a21 l21')
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
-        blas::Her2( 'L', a21Height, (F)-1, l21, 1, a21, 1, A22, lda );
+        blas::Her2( 'L', a21Height, F(-1), l21, 1, a21, 1, A22, lda );
 
         // a21 := a21 - (alpha11/2)l21
         for( int k=0; k<a21Height; ++k )
@@ -123,7 +123,7 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         // A02 := A02 - a01 u12
         F* A02 = &ABuffer[(j+1)*lda];
         const F* u12 = &UBuffer[j+(j+1)*ldu];
-        blas::Geru( j, a21Height, (F)-1, a01, 1, u12, ldu, A02, lda );
+        blas::Geru( j, a21Height, F(-1), a01, 1, u12, ldu, A02, lda );
 
         // alpha11 := alpha11 / |upsilon11|^2
         ABuffer[j+j*lda] /= upsilon11*Conj(upsilon11);
@@ -146,7 +146,7 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         for( int k=0; k<a21Height; ++k )
             u12Conj[k] = Conj(u12[k*ldu]);
         blas::Her2
-        ( 'U', a21Height, (F)-1, &u12Conj[0], 1, &a12Conj[0], 1, A22, lda );
+        ( 'U', a21Height, F(-1), &u12Conj[0], 1, &a12Conj[0], 1, A22, lda );
 
         // a12 := a12 - (alpha11/2)u12
         for( int k=0; k<a21Height; ++k )

@@ -65,9 +65,9 @@ LU( Matrix<F>& A )
 
         //--------------------------------------------------------------------//
         internal::UnblockedLU( A11 );
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11, A21 );
-        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
-        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -125,18 +125,18 @@ LU( DistMatrix<F>& A )
 
         A21_MC_STAR = A21;
         internal::LocalTrsm
-        ( RIGHT, UPPER, NORMAL, NON_UNIT, (F)1, A11_STAR_STAR, A21_MC_STAR );
+        ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A21_MC_STAR );
         A21 = A21_MC_STAR;
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
         internal::LocalGemm
-        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
+        ( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
         A12_STAR_VR.FreeAlignments();
@@ -214,8 +214,8 @@ LU( Matrix<F>& A, Matrix<int>& p )
         ApplyRowPivots( ABL, image, preimage );
         ApplyRowPivots( ABRR, image, preimage );
 
-        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
-        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -315,11 +315,11 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
         internal::LocalGemm
-        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
+        ( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
 
         A11 = A11_STAR_STAR;
         A12 = A12_STAR_MR;

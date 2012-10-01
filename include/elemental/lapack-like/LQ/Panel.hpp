@@ -225,7 +225,7 @@ PanelLQ
         alpha11.Set(0,0,1);
 
         Conjugate( aTopRow, aTopRowConj );
-        Gemv( NORMAL, (C)1, ABottomPan, aTopRowConj, (C)0, z );
+        Gemv( NORMAL, C(1), ABottomPan, aTopRowConj, C(0), z );
         Ger( -Conj(tau), z, aTopRowConj, ABottomPan );
 
         alpha11.Set(0,0,alpha);
@@ -328,9 +328,9 @@ PanelLQ
 
         Gemv
         ( NORMAL,
-          (C)1, ABottomPan.LockedLocalMatrix(),
+          C(1), ABottomPan.LockedLocalMatrix(),
                 aTopRowConj_STAR_MR.LockedLocalMatrix(),
-          (C)0, z_MC_STAR.LocalMatrix() );
+          C(0), z_MC_STAR.LocalMatrix() );
         z_MC_STAR.SumOverRow();
 
         Ger

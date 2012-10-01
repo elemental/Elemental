@@ -82,29 +82,29 @@ TwoSidedTrsmUVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         //--------------------------------------------------------------------//
         // A01 := A01 inv(U11)
-        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U11, A01 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U11, A01 );
 
         // A11 := inv(U11)' A11 inv(U11)
         TwoSidedTrsmUUnb( diag, A11, U11 );
 
         // A02 := A02 - A01 U12
-        Gemm( NORMAL, NORMAL, (F)-1, A01, U12, (F)1, A02 );
+        Gemm( NORMAL, NORMAL, F(-1), A01, U12, F(1), A02 );
 
         // Y12 := A11 U12
         Zeros( A12.Height(), A12.Width(), Y12 );
-        Hemm( LEFT, UPPER, (F)1, A11, U12, (F)0, Y12 );
+        Hemm( LEFT, UPPER, F(1), A11, U12, F(0), Y12 );
 
         // A12 := inv(U11)' A12
-        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, U11, A12 );
+        Trsm( LEFT, UPPER, ADJOINT, diag, F(1), U11, A12 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
 
         // A22 := A22 - (A12' U12 + U12' A12)
-        Her2k( UPPER, ADJOINT, (F)-1, A12, U12, (F)1, A22 );
+        Her2k( UPPER, ADJOINT, F(-1), A12, U12, F(1), A22 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12, A12 );
+        Axpy( F(-1)/F(2), Y12, A12 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -203,7 +203,7 @@ TwoSidedTrsmUVar4
         A01_VC_STAR = A01;
         U11_STAR_STAR = U11;
         LocalTrsm
-        ( RIGHT, UPPER, NORMAL, diag, (F)1, U11_STAR_STAR, A01_VC_STAR );
+        ( RIGHT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A11 := inv(U11)' A11 inv(U11)
@@ -216,7 +216,7 @@ TwoSidedTrsmUVar4
         U12Trans_MR_STAR.TransposeFrom( U12 );
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
-          (F)-1, A01Trans_STAR_MC, U12Trans_MR_STAR, (F)1, A02 );
+          F(-1), A01Trans_STAR_MC, U12Trans_MR_STAR, F(1), A02 );
 
         // Y12 := A11 U12
         U12Trans_VR_STAR = U12Trans_MR_STAR;
@@ -225,16 +225,16 @@ TwoSidedTrsmUVar4
         Y12_STAR_VR.ResizeTo( A12.Height(), A12.Width() );
         Hemm
         ( LEFT, UPPER, 
-          (F)1, A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(), 
-          (F)0, Y12_STAR_VR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(), 
+          F(0), Y12_STAR_VR.LocalMatrix() );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, diag, (F)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12_STAR_VR, A12_STAR_VR );
+        Axpy( F(-1)/F(2), Y12_STAR_VR, A12_STAR_VR );
 
         // A22 := A22 - (A12' U12 + U12' A12)
         A12_STAR_MR = A12_STAR_VR;
@@ -244,12 +244,12 @@ TwoSidedTrsmUVar4
         U12_STAR_MC = U12_STAR_VC;
         LocalTrr2k
         ( UPPER, ADJOINT, TRANSPOSE, ADJOINT,
-          (F)-1, A12_STAR_MC, U12Trans_MR_STAR,
+          F(-1), A12_STAR_MC, U12Trans_MR_STAR,
                  U12_STAR_MC, A12_STAR_MR,
-          (F)1, A22 );
+          F(1), A22 );
 
         // A12 := A12 - 1/2 Y12
-        Axpy( (F)-0.5, Y12_STAR_VR, A12_STAR_VR );
+        Axpy( F(-1)/F(2), Y12_STAR_VR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
         A01_VC_STAR.FreeAlignments();

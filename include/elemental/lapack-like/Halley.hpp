@@ -49,8 +49,8 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
     typedef typename Base<F>::type R;
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     if( height < width )
         throw std::logic_error("Height cannot be less than width");
@@ -91,7 +91,7 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Gemm( NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else
         {
@@ -99,16 +99,16 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );
@@ -129,8 +129,8 @@ int Halley
     const Grid& g = A.Grid();
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     if( height < width )
         throw std::logic_error("Height cannot be less than width");
@@ -171,7 +171,7 @@ int Halley
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
             ExplicitQR( Q );
-            Gemm( NORMAL, ADJOINT, (F)(a-b/c)/Sqrt(c), QT, QB, (F)b/c, A );
+            Gemm( NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else
         {
@@ -179,16 +179,16 @@ int Halley
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( b/c, A );
             Axpy( a-b/c, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol );

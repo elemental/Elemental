@@ -56,7 +56,7 @@ Polar( Matrix<F>& A, Matrix<F>& P )
 
     // Form Q := U V^H in A
     MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, (F)1, U, V, (F)0, A );
+    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
     // Form P := V Sigma V^H in P
     Zeros( n, n, P );
@@ -85,7 +85,7 @@ Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 
     // Form Q := U V^H in A
     MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, (F)1, U, V, (F)0, A );
+    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
     // Form P := V Sigma V^H in P
     Zeros( n, n, P );

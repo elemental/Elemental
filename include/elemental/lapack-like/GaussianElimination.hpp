@@ -48,7 +48,7 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
     if( B.Width() == 1 )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -71,7 +71,7 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
     if( B.Width() == 1 )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -132,11 +132,11 @@ internal::ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
         internal::ComposePanelPivots( p1, A00.Height(), image, preimage );
         ApplyRowPivots( BB, image, preimage );
 
-        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, A12 );
-        Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A11, B1 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, B1 );
 
-        Gemm( NORMAL, NORMAL, (F)-1, A21, A12, (F)1, A22 );
-        Gemm( NORMAL, NORMAL, (F)-1, A21, B1,  (F)1, B2 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, B1,  F(1), B2 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -243,24 +243,24 @@ internal::ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A12_STAR_VR = A12;
         B1_STAR_VR = B1;
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
         internal::LocalTrsm
-        ( LEFT, LOWER, NORMAL, UNIT, (F)1, A11_STAR_STAR, B1_STAR_VR );
+        ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, B1_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
         B1_STAR_MR = B1_STAR_VR;
         internal::LocalGemm
-        ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, A12_STAR_MR, (F)1, A22 );
+        ( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         if( BAligned )
         {
             internal::LocalGemm
-            ( NORMAL, NORMAL, (F)-1, A21_MC_STAR, B1_STAR_MR, (F)1, B2 );
+            ( NORMAL, NORMAL, F(-1), A21_MC_STAR, B1_STAR_MR, F(1), B2 );
         }
         else
         {
             A21_MC_STAR_B = A21_MC_STAR;
             internal::LocalGemm
-            ( NORMAL, NORMAL, (F)-1, A21_MC_STAR_B, B1_STAR_MR, (F)1, B2 );
+            ( NORMAL, NORMAL, F(-1), A21_MC_STAR_B, B1_STAR_MR, F(1), B2 );
         }
 
         A11 = A11_STAR_STAR;

@@ -107,9 +107,9 @@ HermitianTridiagL( DistMatrix<R>& A )
 
             LocalTrr2k
             ( LOWER, TRANSPOSE, TRANSPOSE,
-              (R)-1, A21_MC_STAR, W21_MR_STAR,
+              R(-1), A21_MC_STAR, W21_MR_STAR,
                      W21_MC_STAR, A21_MR_STAR,
-              (R)1,  A22 );
+              R(1),  A22 );
             //----------------------------------------------------------------//
             WPan_MR_STAR.FreeAlignments();
             APan_MR_STAR.FreeAlignments();
@@ -232,9 +232,9 @@ HermitianTridiagL
 
             LocalTrr2k
             ( LOWER, ADJOINT, ADJOINT,
-              (C)-1, A21_MC_STAR, W21_MR_STAR,
+              C(-1), A21_MC_STAR, W21_MR_STAR,
                      W21_MC_STAR, A21_MR_STAR,
-              (C)1,  A22 );
+              C(1),  A22 );
             //----------------------------------------------------------------//
             WPan_MR_STAR.FreeAlignments();
             APan_MR_STAR.FreeAlignments();

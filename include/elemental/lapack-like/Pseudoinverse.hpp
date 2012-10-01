@@ -85,7 +85,7 @@ Pseudoinverse( DistMatrix<F>& A )
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Zeros( n, m, A );
-    Gemm( NORMAL, ADJOINT, (F)1, V, U, (F)0, A );
+    Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -83,28 +83,28 @@ TwoSidedTrsmUVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         //--------------------------------------------------------------------//
         // Y01 := A00 U01
         Zeros( A01.Height(), A01.Width(), Y01 );
-        Hemm( LEFT, UPPER, (F)1, A00, U01, (F)0, Y01 );
+        Hemm( LEFT, UPPER, F(1), A00, U01, F(0), Y01 );
 
         // A01 := A01 - 1/2 Y01
-        Axpy( (F)-0.5, Y01, A01 );
+        Axpy( F(-1)/F(2), Y01, A01 );
         
         // A11 := A11 - (U01' A01 + A01' U01)
-        Her2k( UPPER, ADJOINT, (F)-1, U01, A01, (F)1, A11 );
+        Her2k( UPPER, ADJOINT, F(-1), U01, A01, F(1), A11 );
 
         // A11 := inv(U11)' A11 inv(U11)
         TwoSidedTrsmUUnb( diag, A11, U11 );
 
         // A12 := A12 - A02' U01
-        Gemm( ADJOINT, NORMAL, (F)-1, A02, U01, (F)1, A12 );
+        Gemm( ADJOINT, NORMAL, F(-1), A02, U01, F(1), A12 );
 
         // A12 := inv(U11)' A12
-        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, U11, A12 );
+        Trsm( LEFT, UPPER, ADJOINT, diag, F(1), U11, A12 );
         
         // A01 := A01 - 1/2 Y01
-        Axpy( (F)-0.5, Y01, A01 );
+        Axpy( F(-1)/F(2), Y01, A01 );
 
         // A01 := A01 inv(U11)
-        Trsm( RIGHT, UPPER, NORMAL, diag, (F)1, U11, A01 );
+        Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U11, A01 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -214,30 +214,30 @@ TwoSidedTrsmUVar2
         Zero( F01_MC_STAR );
         LocalSymmetricAccumulateLU
         ( ADJOINT, 
-          (F)1, A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
+          F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
         Y01_MR_MC.SumScatterFrom( Y01_MR_STAR );
         Y01 = Y01_MR_MC;
-        Y01.SumScatterUpdate( (F)1, F01_MC_STAR );
+        Y01.SumScatterUpdate( F(1), F01_MC_STAR );
 
         // X11 := U01' A01
         X11_STAR_MR.ResizeTo( A11.Height(), A11.Width() );
-        LocalGemm( ADJOINT, NORMAL, (F)1, U01_MC_STAR, A01, (F)0, X11_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, F(0), X11_STAR_MR );
 
         // A01 := A01 - Y01
-        Axpy( (F)-1, Y01, A01 );
+        Axpy( F(-1), Y01, A01 );
         A01_MC_STAR = A01;
         
         // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
-        LocalGemm( ADJOINT, NORMAL, (F)1, A01_MC_STAR, U01, (F)1, X11_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U01, F(1), X11_STAR_MR );
         X11.SumScatterFrom( X11_STAR_MR );
         MakeTrapezoidal( LEFT, UPPER, 0, X11 );
-        Axpy( (F)-1, X11, A11 );
+        Axpy( F(-1), X11, A11 );
 
         // A01 := A01 inv(U11)
         U11_STAR_STAR = U11;
         A01_VC_STAR = A01_MC_STAR;
         LocalTrsm
-        ( RIGHT, UPPER, NORMAL, diag, (F)1, U11_STAR_STAR, A01_VC_STAR );
+        ( RIGHT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, A01_VC_STAR );
         A01 = A01_VC_STAR;
 
         // A11 := inv(U11)' A11 inv(U11)
@@ -248,15 +248,15 @@ TwoSidedTrsmUVar2
         // A12 := A12 - A02' U01
         X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
         LocalGemm
-        ( ADJOINT, NORMAL, (F)1, A02, U01_MC_STAR, (F)0, X12Adj_MR_STAR );
+        ( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, F(0), X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
         Adjoint( X12Adj_MR_MC.LockedLocalMatrix(), X12Local );
-        Axpy( (F)-1, X12Local, A12.LocalMatrix() );
+        Axpy( F(-1), X12Local, A12.LocalMatrix() );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, diag, (F)1, U11_STAR_STAR, A12_STAR_VR );
+        ( LEFT, UPPER, ADJOINT, diag, F(1), U11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
         A01_MC_STAR.FreeAlignments();

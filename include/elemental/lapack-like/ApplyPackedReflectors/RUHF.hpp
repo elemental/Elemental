@@ -103,12 +103,12 @@ ApplyPackedReflectorsRUHF
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
         SetDiagonalToOne( LEFT, offset, HPanCopy );
 
-        Syrk( UPPER, NORMAL, (R)1, HPanCopy, (R)0, SInv );
+        Syrk( UPPER, NORMAL, R(1), HPanCopy, R(0), SInv );
         HalveMainDiagonal( SInv );
 
-        Gemm( NORMAL, TRANSPOSE, (R)1, AR, HPanCopy, (R)0, Z );
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (R)1, SInv, Z );
-        Gemm( NORMAL, NORMAL, (R)-1, Z, HPanCopy, (R)1, AR );
+        Gemm( NORMAL, TRANSPOSE, R(1), AR, HPanCopy, R(0), Z );
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, R(1), SInv, Z );
+        Gemm( NORMAL, NORMAL, R(-1), Z, HPanCopy, R(1), AR );
         //--------------------------------------------------------------------//
 
         SlidePartitionRight
@@ -193,25 +193,23 @@ ApplyPackedReflectorsRUHF
         HPan_STAR_VR = HPanCopy;
         Syrk
         ( UPPER, NORMAL,
-          (R)1, HPan_STAR_VR.LockedLocalMatrix(),
-          (R)0, SInv_STAR_STAR.LocalMatrix() );
+          R(1), HPan_STAR_VR.LockedLocalMatrix(),
+          R(0), SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
         HalveMainDiagonal( SInv_STAR_STAR );
 
         HPan_STAR_MR = HPan_STAR_VR;
         LocalGemm
-        ( NORMAL, TRANSPOSE,
-          (R)1, HPan_STAR_MR, AR, (R)0, ZTrans_STAR_MC );
+        ( NORMAL, TRANSPOSE, R(1), HPan_STAR_MR, AR, R(0), ZTrans_STAR_MC );
         ZTrans_STAR_VC.SumScatterFrom( ZTrans_STAR_MC );
 
         LocalTrsm
         ( LEFT, UPPER, TRANSPOSE, NON_UNIT,
-          (R)1, SInv_STAR_STAR, ZTrans_STAR_VC );
+          R(1), SInv_STAR_STAR, ZTrans_STAR_VC );
 
         ZTrans_STAR_MC = ZTrans_STAR_VC;
         LocalGemm
-        ( TRANSPOSE, NORMAL,
-          (R)-1, ZTrans_STAR_MC, HPan_STAR_MR, (R)1, AR );
+        ( TRANSPOSE, NORMAL, R(-1), ZTrans_STAR_MC, HPan_STAR_MR, R(1), AR );
         //--------------------------------------------------------------------//
         HPan_STAR_MR.FreeAlignments();
         ZTrans_STAR_MC.FreeAlignments();
@@ -304,12 +302,12 @@ ApplyPackedReflectorsRUHF
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
         SetDiagonalToOne( LEFT, offset, HPanCopy );
 
-        Herk( UPPER, NORMAL, (C)1, HPanCopy, (C)0, SInv );
+        Herk( UPPER, NORMAL, C(1), HPanCopy, C(0), SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( NORMAL, ADJOINT, (C)1, AR, HPanCopy, (C)0, Z );
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, (C)1, SInv, Z );
-        Gemm( NORMAL, NORMAL, (C)-1, Z, HPanCopy, (C)1, AR );
+        Gemm( NORMAL, ADJOINT, C(1), AR, HPanCopy, C(0), Z );
+        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, C(1), SInv, Z );
+        Gemm( NORMAL, NORMAL, C(-1), Z, HPanCopy, C(1), AR );
         //--------------------------------------------------------------------//
 
         SlidePartitionRight
@@ -422,24 +420,23 @@ ApplyPackedReflectorsRUHF
         HPan_STAR_VR = HPanCopy;
         Herk
         ( UPPER, NORMAL,
-          (C)1, HPan_STAR_VR.LockedLocalMatrix(),
-          (C)0, SInv_STAR_STAR.LocalMatrix() );
+          C(1), HPan_STAR_VR.LockedLocalMatrix(),
+          C(0), SInv_STAR_STAR.LocalMatrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_STAR_MR = HPan_STAR_VR;
         LocalGemm
-        ( NORMAL, ADJOINT, (C)1, HPan_STAR_MR, AR, (C)0, ZAdj_STAR_MC );
+        ( NORMAL, ADJOINT, C(1), HPan_STAR_MR, AR, C(0), ZAdj_STAR_MC );
         ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
 
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT,
-          (C)1, SInv_STAR_STAR, ZAdj_STAR_VC );
+        ( LEFT, UPPER, ADJOINT, NON_UNIT, C(1), SInv_STAR_STAR, ZAdj_STAR_VC );
 
         ZAdj_STAR_MC = ZAdj_STAR_VC;
         LocalGemm
-        ( ADJOINT, NORMAL, (C)-1, ZAdj_STAR_MC, HPan_STAR_MR, (C)1, AR );
+        ( ADJOINT, NORMAL, C(-1), ZAdj_STAR_MC, HPan_STAR_MR, C(1), AR );
         //--------------------------------------------------------------------//
         HPan_STAR_MR.FreeAlignments();
         ZAdj_STAR_MC.FreeAlignments();

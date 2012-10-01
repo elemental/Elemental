@@ -33,63 +33,90 @@
 
 namespace elem {
 
-template<typename T>
+template<typename F> 
 inline void
-Ones( int m, int n, Matrix<T>& A )
+Legendre( int n, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Ones");
+    PushCallStack("Legendre");
 #endif
-    A.ResizeTo( m, n );
-    MakeOnes( A );
+    A.ResizeTo( n, n );
+    MakeLegendre( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V> 
 inline void
-Ones( int m, int n, DistMatrix<T,U,V>& A )
+Legendre( int n, DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Ones");
+    PushCallStack("Legendre");
 #endif
-    A.ResizeTo( m, n );
-    MakeOnes( A );
+    A.ResizeTo( n, n );
+    MakeLegendre( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T> 
+template<typename F> 
 inline void
-MakeOnes( Matrix<T>& A )
+MakeLegendre( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeOnes");
+    PushCallStack("MakeLegendre");
 #endif
-    const int m = A.Height();
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix Legendre");
+    MakeZeros( A );
+
     const int n = A.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
-            A.Set( i, j, T(1) );
+    for( int j=0; j<n-1; ++j )
+    {
+        const F gamma = F(1) / Pow( F(2)*(j+1), F(2) );
+        const F beta = F(1) / (2*Sqrt(F(1)-gamma));
+        A.Set( j+1, j, beta );
+        A.Set( j, j+1, beta );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V>
 inline void
-MakeOnes( DistMatrix<T,U,V>& A )
+MakeLegendre( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeOnes");
+    PushCallStack("MakeLegendre");
 #endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot make a non-square matrix Legendre");
+    MakeZeros( A );
+
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+    const int colStride = A.ColStride();
+    const int rowStride = A.RowStride();
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        const int j = rowShift + jLocal*rowStride;
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            A.SetLocal( iLocal, jLocal, T(1) );
+        {
+            const int i = colShift + iLocal*colStride;
+            if( j == i+1 || j == i-1 )
+            {
+                const int k = std::max( i, j );
+                const F gamma = F(1) / Pow( F(2)*k, F(2) );
+                const F beta = F(1) / (2*Sqrt(F(1)-gamma));
+                A.SetLocal( iLocal, jLocal, beta );
+            }
+        }
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

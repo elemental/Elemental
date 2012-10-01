@@ -45,7 +45,7 @@ Cauchy
     const int n = y.size();
     A.ResizeTo( m, n );
 
-    const F one = static_cast<F>(1);
+    const F one = F(1);
     for( int j=0; j<n; ++j )
     {
         for( int i=0; i<m; ++i )
@@ -80,7 +80,7 @@ Cauchy
     const int n = y.size();
     A.ResizeTo( m, n );
 
-    const F one = static_cast<F>(1);
+    const F one = F(1);
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();

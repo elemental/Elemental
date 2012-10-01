@@ -234,7 +234,7 @@ PanelQR
         const C alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
-        Gemv( ADJOINT, (C)1, ARightPan, aLeftCol, (C)0, z );
+        Gemv( ADJOINT, C(1), ARightPan, aLeftCol, C(0), z );
         Ger( -Conj(tau), aLeftCol, z, ARightPan );
 
         alpha11.Set(0,0,alpha);
@@ -338,9 +338,9 @@ PanelQR
 
         Gemv
         ( ADJOINT, 
-          (C)1, ARightPan.LockedLocalMatrix(), 
+          C(1), ARightPan.LockedLocalMatrix(), 
                 aLeftCol_MC_STAR.LockedLocalMatrix(),
-          (C)0, z_MR_STAR.LocalMatrix() );
+          C(0), z_MR_STAR.LocalMatrix() );
         z_MR_STAR.SumOverCol(); 
 
         Ger

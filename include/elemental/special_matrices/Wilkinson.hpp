@@ -47,14 +47,14 @@ Wilkinson( int k, Matrix<T>& A )
     for( int j=0; j<n; ++j )
     {
         if( j <= k )
-            A.Set( j, j, (T)k-j );
+            A.Set( j, j, T(k-j) );
         else
-            A.Set( j, j, (T)j-k );
+            A.Set( j, j, T(j-k) );
 
         if( j > 0 )
-            A.Set( j-1, j, (T)1 );
+            A.Set( j-1, j, T(1) );
         if( j < n-1 )
-            A.Set( j+1, j, (T)1 );
+            A.Set( j+1, j, T(1) );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -87,12 +87,12 @@ Wilkinson( int k, DistMatrix<T,U,V>& A )
             if( i == j )
             {
                 if( j <= k )
-                    A.SetLocal( iLocal, jLocal, (T)k-j );
+                    A.SetLocal( iLocal, jLocal, T(k-j) );
                 else
-                    A.SetLocal( iLocal, jLocal, (T)j-k );
+                    A.SetLocal( iLocal, jLocal, T(j-k) );
             }
             else if( i == j-1 || i == j+1 )
-                A.SetLocal( iLocal, jLocal, (T)1 );
+                A.SetLocal( iLocal, jLocal, T(1) );
         }
     }
 #ifndef RELEASE

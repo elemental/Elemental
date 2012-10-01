@@ -290,6 +290,7 @@ void MakeNormalUniformSpectrum
 #include "./special_matrices/Hankel.hpp"
 #include "./special_matrices/Hilbert.hpp"
 #include "./special_matrices/Identity.hpp"
+#include "./special_matrices/Legendre.hpp"
 #include "./special_matrices/Ones.hpp"
 #include "./special_matrices/OneTwoOne.hpp"
 #include "./special_matrices/Toeplitz.hpp"

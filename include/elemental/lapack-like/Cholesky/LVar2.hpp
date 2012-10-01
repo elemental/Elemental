@@ -108,22 +108,20 @@ CholeskyLVar2( DistMatrix<F>& A )
         //--------------------------------------------------------------------//
         A10Adj_MR_STAR.AdjointFrom( A10 );
         LocalGemm
-        ( NORMAL, NORMAL, 
-          (F)1, A10, A10Adj_MR_STAR, (F)0, X11_MC_STAR );
-        A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
+        ( NORMAL, NORMAL, F(1), A10, A10Adj_MR_STAR, F(0), X11_MC_STAR );
+        A11.SumScatterUpdate( F(-1), X11_MC_STAR );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         LocalGemm
-        ( NORMAL, NORMAL,
-          (F)1, A20, A10Adj_MR_STAR, (F)0, X21_MC_STAR );
-        A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
+        ( NORMAL, NORMAL, F(1), A20, A10Adj_MR_STAR, F(0), X21_MC_STAR );
+        A21.SumScatterUpdate( F(-1), X21_MC_STAR );
 
         A21_VC_STAR = A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A10Adj_MR_STAR.FreeAlignments();
@@ -220,21 +218,19 @@ CholeskyLVar2Naive( DistMatrix<F>& A )
         X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
         //--------------------------------------------------------------------//
         A10_STAR_MR = A10;
-        LocalGemm
-        ( NORMAL, ADJOINT, (F)1, A10, A10_STAR_MR, (F)0, X11_MC_STAR );
-        A11.SumScatterUpdate( (F)-1, X11_MC_STAR );
+        LocalGemm( NORMAL, ADJOINT, F(1), A10, A10_STAR_MR, F(0), X11_MC_STAR );
+        A11.SumScatterUpdate( F(-1), X11_MC_STAR );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
-        LocalGemm
-        ( NORMAL, ADJOINT, (F)1, A20, A10_STAR_MR, (F)0, X21_MC_STAR );
-        A21.SumScatterUpdate( (F)-1, X21_MC_STAR );
+        LocalGemm( NORMAL, ADJOINT, F(1), A20, A10_STAR_MR, F(0), X21_MC_STAR );
+        A21.SumScatterUpdate( F(-1), X21_MC_STAR );
 
         A21_VC_STAR = A21;
         LocalTrsm
-        ( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, A11_STAR_STAR, A21_VC_STAR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
         A10_STAR_MR.FreeAlignments();

@@ -226,7 +226,7 @@ HermitianPanelTridiagLSquare
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry
         alpha21T.GetDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (R)1 );
+        alpha21T.Set( 0, 0, R(1) );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a21 within its process row. 
@@ -535,8 +535,8 @@ HermitianPanelTridiagLSquare
             }
         }
 
-        LocalGemv( TRANSPOSE, (R)1, W20B, a21B_MC_STAR, (R)0, x01_MR_STAR );
-        LocalGemv( TRANSPOSE, (R)1, A20B, a21B_MC_STAR, (R)0, y01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), W20B, a21B_MC_STAR, R(0), x01_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), A20B, a21B_MC_STAR, R(0), y01_MR_STAR );
 
         // Combine the AllReduce column summations of x01[MR,* ] and y01[MR,* ]
         {
@@ -561,8 +561,8 @@ HermitianPanelTridiagLSquare
               &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
         }
 
-        LocalGemv( NORMAL, (R)-1, A20B, x01_MR_STAR, (R)1, p21B_MC_STAR );
-        LocalGemv( NORMAL, (R)-1, W20B, y01_MR_STAR, (R)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, R(-1), A20B, x01_MR_STAR, R(1), p21B_MC_STAR );
+        LocalGemv( NORMAL, R(-1), W20B, y01_MR_STAR, R(1), p21B_MC_STAR );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
         // it needs to be summed over process rows instead of process 
@@ -947,7 +947,7 @@ HermitianPanelTridiagLSquare
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
         alpha21T.GetRealPartOfDiagonal( epsilon1 );
-        alpha21T.Set( 0, 0, (C)1 );
+        alpha21T.Set( 0, 0, C(1) );
 
         // If this is the first iteration, have each member of the owning 
         // process column broadcast tau and a21 within its process row. 
@@ -1260,8 +1260,8 @@ HermitianPanelTridiagLSquare
             }
         }
 
-        LocalGemv( ADJOINT, (C)1, W20B, a21B_MC_STAR, (C)0, x01_MR_STAR );
-        LocalGemv( ADJOINT, (C)1, A20B, a21B_MC_STAR, (C)0, y01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), W20B, a21B_MC_STAR, C(0), x01_MR_STAR );
+        LocalGemv( ADJOINT, C(1), A20B, a21B_MC_STAR, C(0), y01_MR_STAR );
 
         // Combine the AllReduce column summations of x01[MR,* ] and 
         // y01[MR,* ]
@@ -1287,8 +1287,8 @@ HermitianPanelTridiagLSquare
               &colSumRecvBuffer[x01LocalHeight], x01LocalHeight );
         }
 
-        LocalGemv( NORMAL, (C)-1, A20B, x01_MR_STAR, (C)1, p21B_MC_STAR );
-        LocalGemv( NORMAL, (C)-1, W20B, y01_MR_STAR, (C)1, p21B_MC_STAR );
+        LocalGemv( NORMAL, C(-1), A20B, x01_MR_STAR, C(1), p21B_MC_STAR );
+        LocalGemv( NORMAL, C(-1), W20B, y01_MR_STAR, C(1), p21B_MC_STAR );
 
         // Fast transpose the unsummed q21[MR,* ] -> q21[MC,* ], so that
         // it needs to be summed over process rows instead of process 
@@ -1354,7 +1354,7 @@ HermitianPanelTridiagLSquare
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
-                C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
+                C scale = dotProduct*Conj(tau)/C(2);
                 for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
@@ -1392,7 +1392,7 @@ HermitianPanelTridiagLSquare
             ( W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
-            C scale = static_cast<C>(0.5)*dotProduct*Conj(tau);
+            C scale = dotProduct*Conj(tau)/C(2);
             C* w21_MC_STAR_LocalBuffer = w21_MC_STAR.LocalBuffer();
             const C* a21_MC_STAR_LocalBuffer = a21_MC_STAR.LocalBuffer();
             for( int i=0; i<a21LocalHeight; ++i )

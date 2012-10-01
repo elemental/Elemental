@@ -83,25 +83,25 @@ TwoSidedTrsmLVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         //--------------------------------------------------------------------//
         // Y10 := L10 A00
         Zeros( L10.Height(), A00.Width(), L10 );
-        Hemm( RIGHT, LOWER, (F)1, A00, L10, (F)0, Y10 );
+        Hemm( RIGHT, LOWER, F(1), A00, L10, F(0), Y10 );
 
         // A10 := A10 inv(L00)'
-        Trsm( RIGHT, LOWER, ADJOINT, diag, (F)1, L00, A10 );
+        Trsm( RIGHT, LOWER, ADJOINT, diag, F(1), L00, A10 );
 
         // A10 := A10 - 1/2 Y10
-        Axpy( (F)-0.5, Y10, A10 );
+        Axpy( F(-1)/F(2), Y10, A10 );
 
         // A11 := A11 - (A10 L10' + L10 A10')
-        Her2k( LOWER, NORMAL, (F)-1, A10, L10, (F)1, A11 );
+        Her2k( LOWER, NORMAL, F(-1), A10, L10, F(1), A11 );
 
         // A11 := inv(L11) A11 inv(L11)'
         TwoSidedTrsmLUnb( diag, A11, L11 );
 
         // A10 := A10 - 1/2 Y10
-        Axpy( (F)-0.5, Y10, A10 );
+        Axpy( F(-1)/F(2), Y10, A10 );
 
         // A10 := inv(L11) A10
-        Trsm( LEFT, LOWER, NORMAL, diag, (F)1, L11, A10 );
+        Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, A10 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -203,20 +203,20 @@ TwoSidedTrsmLVar1
         Zero( Z10Adj_MR_STAR );
         LocalSymmetricAccumulateRL
         ( ADJOINT,
-          (F)1, A00, L10_STAR_MC, L10Adj_MR_STAR, 
+          F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
           Z10Adj_MC_STAR, Z10Adj_MR_STAR );
         Z10Adj.SumScatterFrom( Z10Adj_MC_STAR );
         Z10Adj_MR_MC = Z10Adj;
-        Z10Adj_MR_MC.SumScatterUpdate( (F)1, Z10Adj_MR_STAR );
+        Z10Adj_MR_MC.SumScatterUpdate( F(1), Z10Adj_MR_STAR );
         Y10.ResizeTo( A10.Height(), A10.Width() );
         Adjoint( Z10Adj_MR_MC.LocalMatrix(), Y10.LocalMatrix() );
 
         // A10 := A10 inv(L00)'
         // This is the bottleneck because A10 only has blocksize rows
-        Trsm( RIGHT, LOWER, ADJOINT, diag, (F)1, L00, A10 );
+        Trsm( RIGHT, LOWER, ADJOINT, diag, F(1), L00, A10 );
 
         // A10 := A10 - 1/2 Y10
-        Axpy( (F)-0.5, Y10, A10 );
+        Axpy( F(-1)/F(2), Y10, A10 );
 
         // A11 := A11 - (A10 L10' + L10 A10')
         A10_STAR_VR = A10;
@@ -224,9 +224,9 @@ TwoSidedTrsmLVar1
         X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
         Her2k
         ( LOWER, NORMAL,
-          (F)-1, A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(), 
-          (F)0, X11_STAR_STAR.LocalMatrix() );
-        A11.SumScatterUpdate( (F)1, X11_STAR_STAR );
+          F(-1), A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(), 
+          F(0), X11_STAR_STAR.LocalMatrix() );
+        A11.SumScatterUpdate( F(1), X11_STAR_STAR );
 
         // A11 := inv(L11) A11 inv(L11)'
         A11_STAR_STAR = A11;
@@ -235,12 +235,12 @@ TwoSidedTrsmLVar1
         A11 = A11_STAR_STAR;
 
         // A10 := A10 - 1/2 Y10
-        Axpy( (F)-0.5, Y10, A10 );
+        Axpy( F(-1)/F(2), Y10, A10 );
 
         // A10 := inv(L11) A10
         A10_STAR_VR = A10;
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, A10_STAR_VR );
+        ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, A10_STAR_VR );
         A10 = A10_STAR_VR;
         //--------------------------------------------------------------------//
         A10_STAR_VR.FreeAlignments();

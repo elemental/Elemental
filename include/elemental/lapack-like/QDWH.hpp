@@ -58,8 +58,8 @@ int QDWH
     typedef typename Base<F>::type R;
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     if( height < width )
         throw std::logic_error("Height cannot be less than width");
@@ -125,16 +125,16 @@ int QDWH
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( beta, A );
             Axpy( alpha, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
@@ -157,8 +157,8 @@ int QDWH
     const Grid& g = A.Grid();
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = ((R)1)/((R)2);
-    const R oneThird = ((R)1)/((R)3);
+    const R oneHalf = R(1)/R(2);
+    const R oneThird = R(1)/R(3);
 
     if( height < width )
         throw std::logic_error("Height cannot be less than width");
@@ -224,16 +224,16 @@ int QDWH
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             Identity( width, width, C );
-            Herk( LOWER, ADJOINT, (F)c, A, (F)1, C );
+            Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
-            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, (F)1, C, ATemp );
-            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, (F)1, C, ATemp );
+            Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), C, ATemp );
+            Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), C, ATemp );
             Scale( beta, A );
             Axpy( alpha, ATemp, A );
         }
 
-        Axpy( (F)-1, A, ALast );
+        Axpy( F(-1), A, ALast );
         frobNormADiff = Norm( ALast, FROBENIUS_NORM );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );

@@ -62,7 +62,7 @@ LDLVar3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 
         // Extract and store the diagonal of D
         const F alpha11 = ABuffer[j+j*ldim];
-        if( alpha11 == (F)0 )
+        if( alpha11 == F(0) )
             throw SingularMatrixException();
         dBuffer[j] = alpha11; 
 
@@ -158,10 +158,10 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 
         //--------------------------------------------------------------------//
         LDLVar3Unb( orientation, A11, d1 );
-        Trsm( RIGHT, LOWER, orientation, UNIT, (F)1, A11, A21 );
+        Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
-        TrrkNT( LOWER, orientation, (F)-1, S21, A21, (F)1, A22 );
+        TrrkNT( LOWER, orientation, F(-1), S21, A21, F(1), A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
@@ -259,7 +259,7 @@ LDLVar3
         A21_VC_STAR = A21;
         LocalTrsm
         ( RIGHT, LOWER, orientation, UNIT,
-          (F)1, A11_STAR_STAR, A21_VC_STAR );
+          F(1), A11_STAR_STAR, A21_VC_STAR );
 
         S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
@@ -271,7 +271,7 @@ LDLVar3
 
         LocalTrrk
         ( LOWER, TRANSPOSE,
-          (F)-1, S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, (F)1, A22 );
+          F(-1), S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, F(1), A22 );
 
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//

@@ -60,16 +60,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -105,16 +105,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -148,16 +148,16 @@ HermitianGenDefiniteEig
     if( type == AXBX || type == ABX )
     {
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), B, X );
         else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), B, X );
     }
     else /* type == BAX */
     {
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), B, X );
         else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (R)1, B, X );
+            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), B, X );
     }
 #ifndef RELEASE
     PopCallStack();

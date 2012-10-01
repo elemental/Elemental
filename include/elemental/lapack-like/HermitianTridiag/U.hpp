@@ -107,9 +107,9 @@ HermitianTridiagU( DistMatrix<R>& A )
 
             LocalTrr2k
             ( UPPER, TRANSPOSE, TRANSPOSE,
-              (R)-1, A01_MC_STAR, W01_MR_STAR,
+              R(-1), A01_MC_STAR, W01_MR_STAR,
                      W01_MC_STAR, A01_MR_STAR,
-              (R)1,  A00 );
+              R(1),  A00 );
             //----------------------------------------------------------------//
             WPan_MR_STAR.FreeAlignments();
             APan_MR_STAR.FreeAlignments();
@@ -232,9 +232,9 @@ HermitianTridiagU
 
             LocalTrr2k
             ( UPPER, ADJOINT, ADJOINT,
-              (C)-1, A01_MC_STAR, W01_MR_STAR,
+              C(-1), A01_MC_STAR, W01_MR_STAR,
                      W01_MC_STAR, A01_MR_STAR,
-              (C)1,  A00 );
+              C(1),  A00 );
             //----------------------------------------------------------------//
             WPan_MR_STAR.FreeAlignments();
             APan_MR_STAR.FreeAlignments();

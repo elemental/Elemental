@@ -90,7 +90,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
         const R omega = w.GetLocal(iLocal,0);
-        if( omega > (R)0 )
+        if( omega > R(0) )
             w.SetLocal(iLocal,0,Sqrt(omega));
         else
             w.SetLocal(iLocal,0,0);

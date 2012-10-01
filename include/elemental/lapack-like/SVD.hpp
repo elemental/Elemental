@@ -543,7 +543,7 @@ SVDUpper
         //
         // Perhaps this should be broken into pieces.
         DistMatrix<F> ACopy( A );
-        Gemm( NORMAL, NORMAL, (F)1, ACopy, R, (F)0, A );
+        Gemm( NORMAL, NORMAL, F(1), ACopy, R, F(0), A );
     }
     else
     {

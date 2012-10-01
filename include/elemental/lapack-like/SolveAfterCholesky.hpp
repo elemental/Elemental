@@ -73,8 +73,8 @@ SolveAfterCholesky
         {
             if( orientation == TRANSPOSE )
                 Conj( B );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
                 Conj( B );
         }
@@ -82,8 +82,8 @@ SolveAfterCholesky
         {
             if( orientation == TRANSPOSE )
                 Conj( B );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
                 Conj( B );
         }
@@ -135,8 +135,8 @@ SolveAfterCholesky
         {
             if( orientation == TRANSPOSE )
                 Conj( B );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
                 Conj( B );
         }
@@ -144,8 +144,8 @@ SolveAfterCholesky
         {
             if( orientation == TRANSPOSE )
                 Conj( B );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, B );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
                 Conj( B );
         }
