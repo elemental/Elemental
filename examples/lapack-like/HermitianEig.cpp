@@ -113,12 +113,12 @@ main( int argc, char* argv[] )
         const R frobH = HermitianNorm( LOWER, HCopy, FROBENIUS_NORM );
         DistMatrix<C> E( X );
         DiagonalScale( RIGHT, NORMAL, w, E );
-        Hemm( LEFT, LOWER, (C)-1, HCopy, X, (C)1, E );
+        Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
         const R frobResid = HermitianNorm( LOWER, E, FROBENIUS_NORM );
 
         // Check the orthogonality of X
         Identity( n, n, E );
-        Herk( LOWER, NORMAL, (C)-1, X, (C)1, E );
+        Herk( LOWER, NORMAL, C(-1), X, C(1), E );
         const R frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM );
 
         if( g.Rank() == 0 )

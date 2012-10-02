@@ -72,7 +72,7 @@ Abs( const Complex<R>& alpha )
     const R xMag=Abs(x), yMag=Abs(y);
     const R minMag = std::min(xMag,yMag);
     const R maxMag = std::max(xMag,yMag);
-    if( minMag == (R)0 )
+    if( minMag == R(0) )
         return maxMag;
     else
         return maxMag*Sqrt(1+(minMag/maxMag)*(minMag/maxMag));
@@ -336,7 +336,7 @@ template<typename R>
 inline Complex<R>
 Pow( const Complex<R>& alpha, const Complex<R>& beta )
 {
-    if( alpha.real == (R)0 && alpha.imag == (R)0 )
+    if( alpha.real == R(0) && alpha.imag == R(0) )
         return Complex<R>(0,0);
     else
         return Exp( beta*Log(alpha) );

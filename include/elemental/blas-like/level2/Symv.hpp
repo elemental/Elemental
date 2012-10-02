@@ -136,8 +136,8 @@ Symv
 
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
-        z.SumScatterUpdate( (T)1, z_MC_STAR );
-        Axpy( (T)1, z, y );
+        z.SumScatterUpdate( T(1), z_MC_STAR );
+        Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         x_MR_STAR.FreeAlignments();
@@ -183,9 +183,9 @@ Symv
 
         z.SumScatterFrom( z_MC_STAR );
         z_MR_MC = z;
-        z_MR_MC.SumScatterUpdate( (T)1, z_MR_STAR );
+        z_MR_MC.SumScatterUpdate( T(1), z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
-        Axpy( (T)1, zTrans, y );
+        Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         x_MR_STAR.FreeAlignments();
@@ -232,9 +232,9 @@ Symv
 
         z.SumScatterFrom( z_STAR_MR );
         z_MR_MC = z;
-        z_MR_MC.SumScatterUpdate( (T)1, z_STAR_MC );
+        z_MR_MC.SumScatterUpdate( T(1), z_STAR_MC );
         Transpose( z_MR_MC, zTrans );
-        Axpy( (T)1, zTrans, y );
+        Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         x_STAR_MR.FreeAlignments();
@@ -281,8 +281,8 @@ Symv
 
         z_MR_MC.SumScatterFrom( z_STAR_MC );
         z = z_MR_MC;
-        z.SumScatterUpdate( (T)1, z_STAR_MR );
-        Axpy( (T)1, z, y );
+        z.SumScatterUpdate( T(1), z_STAR_MR );
+        Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         x_STAR_MR.FreeAlignments();

@@ -84,14 +84,14 @@ main( int argc, char* argv[] )
         Q = A;
         const int numItsQDWH = QDWH( Q, lowerBound, upperBound );
         Zeros( n, n, P );
-        Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
+        Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
-        Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
+        Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
         const R frobQDWH = Norm( B, FROBENIUS_NORM );
         Identity( n, n, B );
-        Herk( LOWER, NORMAL, (C)1, Q, (C)-1, B );
+        Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobQDWHOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
@@ -108,14 +108,14 @@ main( int argc, char* argv[] )
         Q = A;
         const int numItsHalley = Halley( Q, upperBound );
         Zeros( n, n, P );
-        Gemm( ADJOINT, NORMAL, (C)1, Q, A, (C)0, P );
+        Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
         // Check and report the overall and orthogonality error
         B = A; 
-        Gemm( NORMAL, NORMAL, (C)-1, Q, P, (C)1, B );
+        Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
         const R frobHalley = Norm( B, FROBENIUS_NORM );
         Identity( n, n, B );
-        Herk( LOWER, NORMAL, (C)1, Q, (C)-1, B );
+        Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobHalleyOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {

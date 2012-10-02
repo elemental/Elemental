@@ -107,7 +107,7 @@ TrsmLUNLarge
         
         // X1[* ,VR] := U11^-1[* ,* ] X1[* ,VR]
         LocalTrsm
-        ( LEFT, UPPER, NORMAL, diag, (F)1, U11_STAR_STAR, X1_STAR_VR,
+        ( LEFT, UPPER, NORMAL, diag, F(1), U11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
@@ -115,8 +115,7 @@ TrsmLUNLarge
         U01_MC_STAR = U01;        // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
-        LocalGemm
-        ( NORMAL, NORMAL, (F)-1, U01_MC_STAR, X1_STAR_MR, (F)1, X0 );
+        LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();
         X1_STAR_MR.FreeAlignments();
@@ -209,14 +208,14 @@ TrsmLUNMedium
         // X1^T[MR,* ] := X1^T[MR,* ] U11^-T[* ,* ]
         LocalTrsm
         ( RIGHT, UPPER, TRANSPOSE, diag, 
-          (F)1, U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
+          F(1), U11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
         X1.TransposeFrom( X1Trans_MR_STAR );
 
         U01_MC_STAR = U01;  // U01[MC,* ] <- U01[MC,MR]
 
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm
-        ( NORMAL, TRANSPOSE, (F)-1, U01_MC_STAR, X1Trans_MR_STAR, (F)1, X0 );
+        ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();
         X1Trans_MR_STAR.FreeAlignments();
@@ -306,12 +305,11 @@ TrsmLUNSmall
         // X1[* ,* ] := U11^-1[* ,* ] X1[* ,* ]
         LocalTrsm
         ( LEFT, UPPER, NORMAL, diag,
-          (F)1, U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
+          F(1), U11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
         X1 = X1_STAR_STAR;
 
         // X0[VC,* ] -= U01[VC,* ] X1[* ,* ]
-        LocalGemm
-        ( NORMAL, NORMAL, (F)-1, U01, X1_STAR_STAR, (F)1, X0 );
+        LocalGemm( NORMAL, NORMAL, F(-1), U01, X1_STAR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

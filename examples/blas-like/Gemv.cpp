@@ -96,7 +96,7 @@ main( int argc, char* argv[] )
         }
 
         // Run the matrix-vector product
-        Gemv( orientation, (C)3, A, x, (C)4, y );
+        Gemv( orientation, C(3), A, x, C(4), y );
 
         if( print )
         {

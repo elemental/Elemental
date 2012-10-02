@@ -98,7 +98,7 @@ void TestCorrectness
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<R> X(m,m,g);
     MakeIdentity( X );
-    Axpy( (R)-1, Z, X );
+    Axpy( R(-1), Z, X );
     if( printMatrices )
     {
         if( order == FORWARD )
@@ -172,12 +172,12 @@ void TestCorrectness
     }
     DistMatrix<C> Z(m,m,g);
     MakeZeros( Z );
-    Herk( uplo, NORMAL, (C)1, Y, (C)0, Z );
+    Herk( uplo, NORMAL, C(1), Y, C(0), Z );
     
     // Form X := I - Q^H Q or Q Q^H
     DistMatrix<C> X(m,m,g);
     MakeIdentity( X );
-    Axpy( (C)-1, Z, X );
+    Axpy( C(-1), Z, X );
     if( printMatrices )
     {
         if( order == FORWARD )

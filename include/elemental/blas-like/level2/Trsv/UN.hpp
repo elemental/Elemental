@@ -109,11 +109,11 @@ TrsvUN
 
             x1_MR_STAR = x1_STAR_STAR;
             Gemv
-            ( NORMAL, (F)-1, 
+            ( NORMAL, F(-1), 
               U01.LockedLocalMatrix(), 
               x1_MR_STAR.LockedLocalMatrix(),
-              (F)0, z0_MC_STAR.LocalMatrix() );
-            x0.SumScatterUpdate( (F)1, z0_MC_STAR );
+              F(0), z0_MC_STAR.LocalMatrix() );
+            x0.SumScatterUpdate( F(1), z0_MC_STAR );
             //----------------------------------------------------------------//
             x1_MR_STAR.FreeAlignments();
             z0_MC_STAR.FreeAlignments();
@@ -183,13 +183,13 @@ TrsvUN
 
             x1_STAR_MR = x1_STAR_STAR;
             Gemv
-            ( NORMAL, (F)-1, 
+            ( NORMAL, F(-1), 
               U01.LockedLocalMatrix(), 
               x1_STAR_MR.LockedLocalMatrix(),
-              (F)0, z0_STAR_MC.LocalMatrix() );
+              F(0), z0_STAR_MC.LocalMatrix() );
             z0_MR_MC.SumScatterFrom( z0_STAR_MC );
             z0 = z0_MR_MC;
-            Axpy( (F)1, z0, x0 );
+            Axpy( F(1), z0, x0 );
             //----------------------------------------------------------------//
             x1_STAR_MR.FreeAlignments();
             z0_STAR_MC.FreeAlignments();

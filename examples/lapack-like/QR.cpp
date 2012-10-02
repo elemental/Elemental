@@ -76,13 +76,13 @@ main( int argc, char* argv[] )
 
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
         DistMatrix<C> E( A );
-        Gemm( NORMAL, NORMAL, (C)-1, Q, R, (C)1, E );
+        Gemm( NORMAL, NORMAL, C(-1), Q, R, C(1), E );
         const Real frobQR = Norm( E, FROBENIUS_NORM );
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
         const int k = std::min(m,n);
         Identity( k, k, E );
-        Herk( LOWER, ADJOINT, (C)-1, Q, (C)1, E );
+        Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
         const Real frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM ); 
 
         if( g.Rank() == 0 )

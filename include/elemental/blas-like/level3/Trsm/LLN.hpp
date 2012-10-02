@@ -108,7 +108,7 @@ TrsmLLNLarge
 
         // X1[* ,VR] := L11^-1[* ,* ] X1[* ,VR]
         LocalTrsm
-        ( LEFT, LOWER, NORMAL, diag, (F)1, L11_STAR_STAR, X1_STAR_VR,
+        ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR]  <- X1[* ,VR]
@@ -117,7 +117,7 @@ TrsmLLNLarge
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
         LocalGemm
-        ( NORMAL, NORMAL, (F)-1, L21_MC_STAR, X1_STAR_MR, (F)1, X2 );
+        ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
         X1_STAR_MR.FreeAlignments();
@@ -210,14 +210,14 @@ TrsmLLNMedium
         // X1^T[MR,* ] := X1^T[MR,* ] L11^-T[* ,* ]
         LocalTrsm
         ( RIGHT, LOWER, TRANSPOSE, diag, 
-          (F)1, L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, X1Trans_MR_STAR, checkIfSingular );
 
         X1.TransposeFrom( X1Trans_MR_STAR ); // X1[MC,MR]  <- X1[* ,MR]
         L21_MC_STAR = L21;                   // L21[MC,* ] <- L21[MC,MR]
         
         // X2[MC,MR] -= L21[MC,* ] X1[* ,MR]
         LocalGemm
-        ( NORMAL, TRANSPOSE, (F)-1, L21_MC_STAR, X1Trans_MR_STAR, (F)1, X2 );
+        ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
         X1Trans_MR_STAR.FreeAlignments();
@@ -308,10 +308,10 @@ TrsmLLNSmall
         // X1[* ,* ] := (L11[* ,* ])^-1 X1[* ,* ]
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, 
-          (F)1, L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         // X2[VC,* ] -= L21[VC,* ] X1[* ,* ]
-        LocalGemm( NORMAL, NORMAL, (F)-1, L21, X1_STAR_STAR, (F)1, X2 );
+        LocalGemm( NORMAL, NORMAL, F(-1), L21, X1_STAR_STAR, F(1), X2 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal

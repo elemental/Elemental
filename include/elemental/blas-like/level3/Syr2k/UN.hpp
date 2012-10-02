@@ -106,7 +106,7 @@ Syr2kUN
         ( UPPER, 
           alpha, A1_MC_STAR, B1Trans_STAR_MR,
                  B1_MC_STAR, A1Trans_STAR_MR,
-          (T)1,  C );
+          T(1),  C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

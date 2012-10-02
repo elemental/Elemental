@@ -318,17 +318,17 @@ TrrkNNKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        Gemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
+        Gemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
     else
-        Gemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
+        Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
-    Gemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
+    Gemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    Gemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
+    Gemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -373,19 +373,19 @@ LocalTrrkKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, CBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
     else
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, CTR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, DTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, DBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -429,19 +429,19 @@ TrrkNTKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        Gemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, CBL );
+        Gemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
     else
-        Gemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, CTR );
+        Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
-    Gemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
+    Gemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
     // TODO: AxpyTrapezoidal?
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    Gemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
+    Gemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
     // TODO: AxpyTrapezoidal?
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -490,21 +490,21 @@ LocalTrrkKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, CBL );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
     else
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, CTR );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, DTL );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
 
     // TODO: AxpyTrapezoidal?
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, DBR );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
 
     // TODO: AxpyTrapezoidal?
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -542,17 +542,17 @@ TrrkTNKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        Gemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
+        Gemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
     else
-        Gemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
+        Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
-    Gemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
+    Gemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    Gemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
+    Gemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -595,19 +595,19 @@ LocalTrrkKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, CBL );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
     else
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, CTR );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, DTL );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, DBR );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -649,17 +649,17 @@ TrrkTTKernel
     DBR.ResizeTo( CBR.Height(), CBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        Gemm( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, CBL );
+        Gemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
     else
-        Gemm( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, CTR );
+        Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
-    Gemm( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
+    Gemm( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
-    Gemm( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
+    Gemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -707,22 +707,22 @@ LocalTrrkKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, CBL );
+        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
     else
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, CTR );
+        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, DTL );
+    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, DTL );
-    Axpy( (T)1, DTL, CTL );
+    Axpy( T(1), DTL, CTL );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, DBR );
+    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, DBR );
-    Axpy( (T)1, DBR, CBR );
+    Axpy( T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();

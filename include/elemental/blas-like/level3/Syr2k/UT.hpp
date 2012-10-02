@@ -118,7 +118,7 @@ Syr2kUT
         ( UPPER, TRANSPOSE, TRANSPOSE, TRANSPOSE, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR,
                  B1_STAR_MC, A1Trans_MR_STAR,
-          (T)1,  C );
+          T(1),  C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

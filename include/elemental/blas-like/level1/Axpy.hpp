@@ -104,7 +104,7 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 template<typename T>
 inline void
 Axpy( typename Base<T>::type alpha, const Matrix<T>& X, Matrix<T>& Y )
-{ Axpy( (T)alpha, X, Y ); }
+{ Axpy( T(alpha), X, Y ); }
 
 template<typename T,Distribution U,Distribution V>
 inline void
@@ -138,6 +138,6 @@ inline void
 Axpy
 ( typename Base<T>::type alpha,
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
-{ Axpy( (T)alpha, X, Y ); }
+{ Axpy( T(alpha), X, Y ); }
 
 } // namespace elem

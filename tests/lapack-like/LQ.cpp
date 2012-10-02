@@ -78,7 +78,7 @@ void TestCorrectness
     MakeIdentity( X );
 
     // Form X := I - Q Q^H
-    Axpy( (R)-1, ZUpper, X );
+    Axpy( R(-1), ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
@@ -102,7 +102,7 @@ void TestCorrectness
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, L );
 
     // Form L Q - A
-    Axpy( (R)-1, AOrig, L );
+    Axpy( R(-1), AOrig, L );
     
     R oneNormOfA = Norm( AOrig, ONE_NORM );
     R infNormOfA = Norm( AOrig, INFINITY_NORM );
@@ -154,7 +154,7 @@ void TestCorrectness
     MakeIdentity( X );
 
     // Form X := I - Q Q^H
-    Axpy( (C)-1, ZUpper, X );
+    Axpy( C(-1), ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
@@ -176,7 +176,7 @@ void TestCorrectness
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, L );
 
     // Form L Q - A
-    Axpy( (C)-1, AOrig, L );
+    Axpy( C(-1), AOrig, L );
     
     R oneNormOfA = Norm( AOrig, ONE_NORM );
     R infNormOfA = Norm( AOrig, INFINITY_NORM );

@@ -66,7 +66,7 @@ main( int argc, char* argv[] )
     {
         Grid g( comm );
         DistMatrix<C> A( g );
-        HermitianUniformSpectrum( n, A, (R)1, (R)20 );
+        HermitianUniformSpectrum( n, A, R(1), R(20) );
 
         // Make a copy of A and then overwrite it with its inverse
         DistMatrix<C> invA( A );
@@ -75,7 +75,7 @@ main( int argc, char* argv[] )
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E( g );
         Identity( n, n, E );
-        Hemm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
+        Hemm( LEFT, LOWER, C(-1), invA, A, C(1), E );
 
         const R frobNormA = HermitianNorm( LOWER, A, FROBENIUS_NORM );
         const R frobNormInvA = HermitianNorm( LOWER, invA, FROBENIUS_NORM );

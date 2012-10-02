@@ -73,7 +73,7 @@ Trsm
     {
         const int n = A.Height();
         for( int j=0; j<n; ++j )
-            if( A.Get(j,j) == (F)0 )
+            if( A.Get(j,j) == F(0) )
                 throw SingularMatrixException();
     }
     blas::Trsm

@@ -84,7 +84,7 @@ main( int argc, char* argv[] )
 
             // Form B in the range of op(A)
             Uniform( N, numRhs, Z );
-            Gemm( orientation, NORMAL, (F)1, A, Z, (F)0, B );
+            Gemm( orientation, NORMAL, F(1), A, Z, F(0), B );
 
             // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
@@ -102,7 +102,7 @@ main( int argc, char* argv[] )
 
             // Form R := op(A) X - B
             DistMatrix<F> R( B );
-            Gemm( orientation, NORMAL, (F)1, ACopy, X, (F)-1, R );
+            Gemm( orientation, NORMAL, F(1), ACopy, X, F(-1), R );
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();

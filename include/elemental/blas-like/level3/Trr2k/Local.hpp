@@ -911,26 +911,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -985,26 +985,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), ETR );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1055,26 +1055,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), ETR );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1128,30 +1128,30 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+        ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), ETR );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+        ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, (T)0, FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
+    ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, (T)0, FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
+    ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1206,26 +1206,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1282,26 +1282,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), ETR );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1355,26 +1355,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), ETR );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1433,30 +1433,30 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+        ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
+        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), ETR );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+        ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, (T)0, FTL );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
+    ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, (T)0, FBR );
+    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
+    ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1507,26 +1507,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1580,26 +1580,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), ETR );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1648,26 +1648,26 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), ETR );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1720,30 +1720,30 @@ LocalTrr2kKernel
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, (T)1, EBL );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), EBL );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+        ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
     }
     else
     {
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, (T)1, ETR );
+        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), ETR );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+        ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, (T)0, FTL );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
+    ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, (T)0, FBR );
+    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
+    ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1798,29 +1798,29 @@ LocalTrr2kKernel
     if( uplo == LOWER )
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
     }
     else
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), ETR );
+        internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, (T)1, FTL );
+    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, (T)1, FBR );
+    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
+    internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1880,29 +1880,29 @@ LocalTrr2kKernel
     if( uplo == LOWER )
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
     }
     else
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), ETR );
+        internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, (T)1, FTL );
+    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, (T)1, FBR );
+    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
+    internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1956,29 +1956,29 @@ LocalTrr2kKernel
     if( uplo == LOWER )
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
     }
     else
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
-        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), ETR );
+        internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, (T)1, FTL );
+    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
-    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, (T)1, FBR );
+    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
+    internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -2034,33 +2034,33 @@ LocalTrr2kKernel
     if( uplo == LOWER )
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, (T)1, EBL );
+        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), EBL );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+        ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
     }
     else
     {
         internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, (T)1, ETR );
+        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), ETR );
         internal::LocalGemm
-        ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+        ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, (T)0, FTL );
+    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CL, DT, (T)1, FTL );
+    ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
 
     MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( (T)1, FTL, ETL );
+    Axpy( T(1), FTL, ETL );
 
     internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, (T)0, FBR );
+    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm
-    ( orientationOfC, orientationOfD, alpha, CR, DB, (T)1, FBR );
+    ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
 
     MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( (T)1, FBR, EBR );
+    Axpy( T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -2118,12 +2118,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
         }
 
         // Recurse
@@ -2185,12 +2185,12 @@ LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), EBL );
             LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, beta, EBL );
         }
         else
         {
-            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), ETR );
             LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, beta, ETR );
         }
 
@@ -2250,12 +2250,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
-            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
-            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
         }
 
         // Recurse
@@ -2320,13 +2320,13 @@ LocalTrr2k
         { 
             LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, EBL );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+            ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, ETR );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+            ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
         }
 
         // Recurse
@@ -2392,12 +2392,12 @@ LocalTrr2k
 
         if( uplo == LOWER )
         { 
-            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), EBL );
             LocalGemm( NORMAL, NORMAL, alpha, CB, DL, beta, EBL );
         }
         else
         {
-            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), ETR );
             LocalGemm( NORMAL, NORMAL, alpha, CT, DR, beta, ETR );
         }
 
@@ -2464,12 +2464,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
         }
 
         // Recurse
@@ -2537,12 +2537,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
-            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
-            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
         }
 
         // Recurse
@@ -2614,13 +2614,13 @@ LocalTrr2k
         { 
             LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, EBL );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+            ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
         }
         else
         {
             LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, ETR );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+            ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
         }
 
         // Recurse
@@ -2683,12 +2683,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
         }
         else
         {
             LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
         }
 
         // Recurse
@@ -2752,12 +2752,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+            LocalGemm( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
         }
         else
         {
             LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
         }
 
         // Recurse
@@ -2819,12 +2819,12 @@ LocalTrr2k
         if( uplo == LOWER )
         { 
             LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
-            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
         }
         else
         {
             LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
-            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
         }
 
         // Recurse
@@ -2892,13 +2892,13 @@ LocalTrr2k
         { 
             LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, EBL );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+            ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
         }
         else
         {
             LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, ETR );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+            ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
         }
 
         // Recurse
@@ -2967,13 +2967,13 @@ LocalTrr2k
         { 
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, (T)1, EBL );
+            LocalGemm( NORMAL, NORMAL, alpha, CB, DL, T(1), EBL );
         }
         else
         {
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, (T)1, ETR );
+            LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
         }
 
         // Recurse
@@ -3046,13 +3046,13 @@ LocalTrr2k
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
             LocalGemm
-            ( NORMAL, orientationOfD, alpha, CB, DT, (T)1, EBL );
+            ( NORMAL, orientationOfD, alpha, CB, DT, T(1), EBL );
         }
         else
         {
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, (T)1, ETR );
+            LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
         }
 
         // Recurse
@@ -3120,13 +3120,13 @@ LocalTrr2k
         { 
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
-            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, (T)1, EBL );
+            LocalGemm( orientationOfC, NORMAL, alpha, CR, DL, T(1), EBL );
         }
         else
         {
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
-            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, (T)1, ETR );
+            LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
         }
 
         // Recurse
@@ -3199,14 +3199,14 @@ LocalTrr2k
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AR, BT, beta, EBL );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CR, DT, (T)1, EBL );
+            ( orientationOfC, orientationOfD, alpha, CR, DT, T(1), EBL );
         }
         else
         {
             LocalGemm
             ( orientationOfA, orientationOfB, alpha, AL, BB, beta, ETR );
             LocalGemm
-            ( orientationOfC, orientationOfD, alpha, CL, DB, (T)1, ETR );
+            ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
         }
 
         // Recurse

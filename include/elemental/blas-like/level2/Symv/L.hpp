@@ -169,26 +169,26 @@ LocalSymvColAccumulateL
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_MR_STAR.LockedLocalMatrix(),
-          (T)1,  z1_MC_STAR.LocalMatrix() );
+          T(1),  z1_MC_STAR.LocalMatrix() );
         MakeTrapezoidal( LEFT, LOWER, -1, D11 );
 
         Gemv
         ( TRANSPOSE,
           alpha, D11.LockedLocalMatrix(),
                  x1_MC_STAR.LockedLocalMatrix(),
-          (T)1,  z1_MR_STAR.LocalMatrix() );
+          T(1),  z1_MR_STAR.LocalMatrix() );
 
         Gemv
         ( NORMAL,
           alpha, A21.LockedLocalMatrix(),
                  x1_MR_STAR.LockedLocalMatrix(),
-          (T)1,  z2_MC_STAR.LocalMatrix() );
+          T(1),  z2_MC_STAR.LocalMatrix() );
 
         Gemv
         ( TRANSPOSE,
           alpha, A21.LockedLocalMatrix(),
                  x2_MC_STAR.LockedLocalMatrix(),
-          (T)1,  z1_MR_STAR.LocalMatrix() );
+          T(1),  z1_MR_STAR.LocalMatrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -344,26 +344,26 @@ LocalSymvRowAccumulateL
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_STAR_MR.LockedLocalMatrix(),
-          (T)1,  z1_STAR_MC.LocalMatrix() );
+          T(1),  z1_STAR_MC.LocalMatrix() );
         MakeTrapezoidal( LEFT, LOWER, -1, D11 );
 
         Gemv
         ( TRANSPOSE,
           alpha, D11.LockedLocalMatrix(),
                  x1_STAR_MC.LockedLocalMatrix(),
-          (T)1,  z1_STAR_MR.LocalMatrix() );
+          T(1),  z1_STAR_MR.LocalMatrix() );
 
         Gemv
         ( NORMAL,
           alpha, A21.LockedLocalMatrix(),
                  x1_STAR_MR.LockedLocalMatrix(),
-          (T)1,  z2_STAR_MC.LocalMatrix() );
+          T(1),  z2_STAR_MC.LocalMatrix() );
 
         Gemv
         ( TRANSPOSE,
           alpha, A21.LockedLocalMatrix(),
                  x2_STAR_MC.LockedLocalMatrix(),
-          (T)1,  z1_STAR_MR.LocalMatrix() );
+          T(1),  z1_STAR_MR.LocalMatrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

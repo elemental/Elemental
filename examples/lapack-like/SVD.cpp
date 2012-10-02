@@ -82,7 +82,7 @@ main( int argc, char* argv[] )
         SVD( U, s, V );
 
         // Compare the singular values from both methods
-        Axpy( (R)-1, s, sOnly );
+        Axpy( R(-1), s, sOnly );
         const R singValDiff = Norm( sOnly, FROBENIUS_NORM );
 
         const R twoNormOfA = Norm( s, MAX_NORM );
@@ -92,7 +92,7 @@ main( int argc, char* argv[] )
         const R frobNormOfA = Norm( A, FROBENIUS_NORM );
 
         DiagonalScale( RIGHT, NORMAL, s, U );
-        Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
+        Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
         const R maxNormOfE = Norm( A, MAX_NORM );
         const R oneNormOfE = Norm( A, ONE_NORM );
         const R infNormOfE = Norm( A, INFINITY_NORM );

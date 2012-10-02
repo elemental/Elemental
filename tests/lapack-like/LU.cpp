@@ -70,14 +70,14 @@ void TestCorrectness
         ApplyRowPivots( Y, p );
 
     // Solve against the (pivoted) right-hand sides
-    Trsm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
-    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
+    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
+    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     R oneNormOfX = Norm( X, ONE_NORM );
     R infNormOfX = Norm( X, INFINITY_NORM );
     R frobNormOfX = Norm( X, FROBENIUS_NORM );
-    Gemm( NORMAL, NORMAL, (F)-1, AOrig, Y, (F)1, X );
+    Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
     R frobNormOfError = Norm( X, FROBENIUS_NORM );

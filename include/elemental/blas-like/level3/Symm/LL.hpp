@@ -99,8 +99,8 @@ SymmLLA
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
         Z1 = Z1_MR_MC;
-        Z1.SumScatterUpdate( (T)1, Z1_MC_STAR );
-        Axpy( (T)1, Z1, C1 );
+        Z1.SumScatterUpdate( T(1), Z1_MC_STAR );
+        Axpy( T(1), Z1, C1 );
         //--------------------------------------------------------------------//
         Z1.FreeAlignments();
 
@@ -208,11 +208,11 @@ SymmLLC
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 
-          alpha, AColPan_MC_STAR, B1Trans_MR_STAR, (T)1, CBelow );
+          alpha, AColPan_MC_STAR, B1Trans_MR_STAR, T(1), CBelow );
 
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, 
-          alpha, ARowPan_STAR_MC, B1Trans_MR_STAR, (T)1, CAbove );
+          alpha, ARowPan_STAR_MC, B1Trans_MR_STAR, T(1), CAbove );
         //--------------------------------------------------------------------//
         AColPan_MC_STAR.FreeAlignments();
         ARowPan_STAR_MC.FreeAlignments();

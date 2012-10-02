@@ -52,7 +52,7 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
     for( int j=0; j<n; ++j )
     {
         const F delta11 = LBuffer[j+j*ldim];
-        if( delta11 == (F)0 )
+        if( delta11 == F(0) )
             throw SingularMatrixException();
 
         F* RESTRICT l10 = &LBuffer[j];
@@ -109,7 +109,7 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
     for( int j=0; j<n; ++j )
     {
         const F delta11 = UBuffer[j+j*ldim];
-        if( delta11 == (F)0 )
+        if( delta11 == F(0) )
             throw SingularMatrixException();
 
         F* RESTRICT u01 = &UBuffer[j*ldim];

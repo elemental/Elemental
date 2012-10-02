@@ -66,8 +66,8 @@ TrdtrmmLVar1( Orientation orientation, Matrix<F>& L )
         L11.GetDiagonal( d1 );
         S10 = L10;
         DiagonalSolve( LEFT, NORMAL, d1, L10, true );
-        Trrk( LOWER, orientation, NORMAL, (F)1, S10, L10, (F)1, L00 );
-        Trmm( LEFT, LOWER, orientation, UNIT, (F)1, L11, L10 );
+        Trrk( LOWER, orientation, NORMAL, F(1), S10, L10, F(1), L00 );
+        Trmm( LEFT, LOWER, orientation, UNIT, F(1), L11, L10 );
         TrdtrmmLUnblocked( orientation, L11 );
         //--------------------------------------------------------------------/
 
@@ -134,11 +134,11 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F,MC,MR>& L )
         DiagonalSolve( LEFT, NORMAL, d1, L10_STAR_VR, true );
         L10_STAR_MR = L10_STAR_VR;
         LocalTrrk
-        ( LOWER, orientation, (F)1, S10_STAR_MC, L10_STAR_MR, (F)1, L00 );
+        ( LOWER, orientation, F(1), S10_STAR_MC, L10_STAR_MR, F(1), L00 );
 
         L11_STAR_STAR = L11;
         LocalTrmm
-        ( LEFT, LOWER, orientation, UNIT, (F)1, L11_STAR_STAR, L10_STAR_VR );
+        ( LEFT, LOWER, orientation, UNIT, F(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
         LocalTrdtrmm( orientation, LOWER, L11_STAR_STAR );

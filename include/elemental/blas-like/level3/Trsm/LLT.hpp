@@ -114,7 +114,7 @@ TrsmLLTLarge
 
         // X1[* ,VR] := L11^-[T/H][* ,* ] X1[* ,VR]
         LocalTrsm
-        ( LEFT, LOWER, orientation, diag, (F)1, L11_STAR_STAR, X1_STAR_VR,
+        ( LEFT, LOWER, orientation, diag, F(1), L11_STAR_STAR, X1_STAR_VR,
           checkIfSingular );
 
         X1_STAR_MR  = X1_STAR_VR; // X1[* ,MR] <- X1[* ,VR]
@@ -124,7 +124,7 @@ TrsmLLTLarge
         // X0[MC,MR] -= (L10[* ,MC])^(T/H) X1[* ,MR]
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
-        ( orientation, NORMAL, (F)-1, L10_STAR_MC, X1_STAR_MR, (F)1, X0 );
+        ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
         L10_STAR_MC.FreeAlignments();
         X1_STAR_MR.FreeAlignments();
@@ -226,7 +226,7 @@ TrsmLLTMedium
         // X1^[T/H][MR,* ] := X1^[T/H][MR,* ] L11^-1[* ,* ]
         LocalTrsm
         ( RIGHT, LOWER, NORMAL, diag, 
-          (F)1, L11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, X1AdjOrTrans_MR_STAR, checkIfSingular );
 
         if( orientation == TRANSPOSE )
             X1.TransposeFrom( X1AdjOrTrans_MR_STAR );
@@ -238,7 +238,7 @@ TrsmLLTMedium
         //            = L10^[T/H][MC,* ] X1[* ,MR]
         LocalGemm
         ( orientation, orientation, 
-          (F)-1, L10_STAR_MC, X1AdjOrTrans_MR_STAR, (F)1, X0 );
+          F(-1), L10_STAR_MC, X1AdjOrTrans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
         L10_STAR_MC.FreeAlignments();
         X1AdjOrTrans_MR_STAR.FreeAlignments();
@@ -354,14 +354,14 @@ TrsmLLTSmall
         //--------------------------------------------------------------------//
         // X1 -= L21' X2
         Z1_STAR_STAR.ResizeTo( X1.Height(), X1.Width() );
-        LocalGemm( orientation, NORMAL, (F)-1, L21, X2, (F)0, Z1_STAR_STAR );
+        LocalGemm( orientation, NORMAL, F(-1), L21, X2, F(0), Z1_STAR_STAR );
         AddInLocalData( X1, Z1_STAR_STAR );
         Z1_STAR_STAR.SumOverGrid();
 
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
         LocalTrsm
-        ( LEFT, LOWER, orientation, diag, (F)1, L11_STAR_STAR, Z1_STAR_STAR );
+        ( LEFT, LOWER, orientation, diag, F(1), L11_STAR_STAR, Z1_STAR_STAR );
         X1 = Z1_STAR_STAR;
         //--------------------------------------------------------------------//
 
@@ -455,12 +455,12 @@ TrsmLLTSmall
         // X1[* ,* ] := L11^-[T/H][* ,* ] X1[* ,* ]
         LocalTrsm
         ( LEFT, LOWER, orientation, diag,
-          (F)1, L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
+          F(1), L11_STAR_STAR, X1_STAR_STAR, checkIfSingular );
 
         X1 = X1_STAR_STAR;
 
         // X0[VR,* ] -= L10[* ,VR]^(T/H) X1[* ,* ]
-        LocalGemm( orientation, NORMAL, (F)-1, L10, X1_STAR_STAR, (F)1, X0 );
+        LocalGemm( orientation, NORMAL, F(-1), L10, X1_STAR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionUpDiagonal

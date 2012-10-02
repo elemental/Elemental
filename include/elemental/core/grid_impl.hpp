@@ -54,7 +54,7 @@ Grid::Grid( mpi::Comm comm )
     owningRank_ = viewingRank_;
 
     // Factor p
-    height_ = static_cast<int>(sqrt(static_cast<double>(size_)));
+    height_ = int(sqrt(double(size_)));
     while( size_ % height_ != 0 )
         ++height_;
     width_ = size_ / height_;
@@ -349,7 +349,7 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners )
     mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
 
     // Factor the grid size
-    height_ = static_cast<int>(sqrt(static_cast<double>(size_)));
+    height_ = int(sqrt(double(size_)));
     while( size_ % height_ != 0 )
         ++height_;
     width_ = size_ / height_;

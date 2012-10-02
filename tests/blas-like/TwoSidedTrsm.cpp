@@ -73,10 +73,10 @@ void TestCorrectness
         // Test correctness by comparing the application of A against a 
         // random set of k vectors to the application of 
         // tril(B)^-1 AOrig tril(B)^-H
-        Trsm( LEFT, LOWER, ADJOINT, diag, (F)1, B, Y );
-        Hemm( LEFT, LOWER, (F)1, AOrig, Y, (F)0, Z );
-        Trsm( LEFT, LOWER, NORMAL, diag, (F)1, B, Z );
-        Hemm( LEFT, LOWER, (F)-1, A, X, (F)1, Z );
+        Trsm( LEFT, LOWER, ADJOINT, diag, F(1), B, Y );
+        Hemm( LEFT, LOWER, F(1), AOrig, Y, F(0), Z );
+        Trsm( LEFT, LOWER, NORMAL, diag, F(1), B, Z );
+        Hemm( LEFT, LOWER, F(-1), A, X, F(1), Z );
         R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
         R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         R infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );
@@ -107,10 +107,10 @@ void TestCorrectness
         // Test correctness by comparing the application of A against a 
         // random set of k vectors to the application of 
         // triu(B)^-H AOrig triu(B)^-1
-        Trsm( LEFT, UPPER, NORMAL, diag, (F)1, B, Y );
-        Hemm( LEFT, UPPER, (F)1, AOrig, Y, (F)0, Z );
-        Trsm( LEFT, UPPER, ADJOINT, diag, (F)1, B, Z );
-        Hemm( LEFT, UPPER, (F)-1, A, X, (F)1, Z );
+        Trsm( LEFT, UPPER, NORMAL, diag, F(1), B, Y );
+        Hemm( LEFT, UPPER, F(1), AOrig, Y, F(0), Z );
+        Trsm( LEFT, UPPER, ADJOINT, diag, F(1), B, Z );
+        Hemm( LEFT, UPPER, F(-1), A, X, F(1), Z );
         R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
         R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
         R infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );

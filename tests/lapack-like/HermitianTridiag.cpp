@@ -107,7 +107,7 @@ void TestCorrectness
     // Compare the appropriate triangle of AOrig and B
     MakeTrapezoidal( LEFT, uplo, 0, AOrig );
     MakeTrapezoidal( LEFT, uplo, 0, B );
-    Axpy( (R)-1, AOrig, B );
+    Axpy( R(-1), AOrig, B );
 
     R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
     R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
@@ -183,7 +183,7 @@ void TestCorrectness
     // Compare the appropriate triangle of AOrig and B
     MakeTrapezoidal( LEFT, uplo, 0, AOrig );
     MakeTrapezoidal( LEFT, uplo, 0, B );
-    Axpy( (C)-1, AOrig, B );
+    Axpy( C(-1), AOrig, B );
 
     R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
     R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );

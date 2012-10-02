@@ -53,7 +53,7 @@ MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
         MakeTrapezoidal( LEFT, UPPER, +1, A );
     Matrix<T> AAdj;
     Adjoint( A, AAdj );
-    Axpy( (T)1, AAdj, A );
+    Axpy( T(1), AAdj, A );
 
     A.SetDiagonal( d );
 #ifndef RELEASE
@@ -82,7 +82,7 @@ MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
         MakeTrapezoidal( LEFT, UPPER, +1, A );
     DistMatrix<T> AAdj(g);
     Adjoint( A, AAdj );
-    Axpy( (T)1, AAdj, A );
+    Axpy( T(1), AAdj, A );
 
     A.SetDiagonal( d );
 #ifndef RELEASE

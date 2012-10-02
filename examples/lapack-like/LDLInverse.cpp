@@ -80,7 +80,7 @@ main( int argc, char* argv[] )
             Uniform( n, n, A );
             DistMatrix<C> ATrans( g );
             Transpose( A, ATrans );
-            Axpy( (C)1, ATrans, A );
+            Axpy( C(1), ATrans, A );
         }
 
         // Make a copy of A and then overwrite it with its inverse
@@ -97,9 +97,9 @@ main( int argc, char* argv[] )
         DistMatrix<C> E( g );
         Identity( n, n, E );
         if( conjugate )
-            Hemm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
+            Hemm( LEFT, LOWER, C(-1), invA, A, C(1), E );
         else
-            Symm( LEFT, LOWER, (C)-1, invA, A, (C)1, E );
+            Symm( LEFT, LOWER, C(-1), invA, A, C(1), E );
 
         const R frobNormA = Norm( A, FROBENIUS_NORM );
         const R frobNormInvA = 

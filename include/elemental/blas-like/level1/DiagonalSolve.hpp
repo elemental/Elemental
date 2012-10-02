@@ -50,9 +50,9 @@ DiagonalSolve
         for( int i=0; i<m; ++i )
         {
             const F delta = d.Get(i,0);
-            if( checkIfSingular && delta == (F)0 )
+            if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
-            const F deltaInv = static_cast<F>(1)/delta;
+            const F deltaInv = F(1)/delta;
             F* XBuffer = X.Buffer(i,0);
             if( orientation == ADJOINT )
                 for( int j=0; j<n; ++j )
@@ -67,9 +67,9 @@ DiagonalSolve
         for( int j=0; j<n; ++j )
         {
             const F delta = d.Get(j,0);
-            if( checkIfSingular && delta == (F)0 )
+            if( checkIfSingular && delta == F(0) )
                 throw SingularMatrixException();
-            const F deltaInv = static_cast<F>(1)/delta;
+            const F deltaInv = F(1)/delta;
             F* XBuffer = X.Buffer(0,j);
             if( orientation == ADJOINT )
                 for( int i=0; i<m; ++i )
@@ -104,9 +104,9 @@ DiagonalSolve
         for( int i=0; i<m; ++i )
         {
             const R delta = d.Get(i,0);
-            if( checkIfSingular && delta == (R)0 )
+            if( checkIfSingular && delta == R(0) )
                 throw SingularMatrixException();
-            const R deltaInv = static_cast<R>(1)/delta;
+            const R deltaInv = R(1)/delta;
             F* XBuffer = X.Buffer(i,0);
             for( int j=0; j<n; ++j )
                 XBuffer[j*ldim] *= deltaInv;
@@ -117,9 +117,9 @@ DiagonalSolve
         for( int j=0; j<n; ++j )
         {
             const R delta = d.Get(j,0);
-            if( checkIfSingular && delta == (R)0 )
+            if( checkIfSingular && delta == R(0) )
                 throw SingularMatrixException();
-            const R deltaInv = static_cast<R>(1)/delta;
+            const R deltaInv = R(1)/delta;
             F* XBuffer = X.Buffer(0,j);
             for( int i=0; i<m; ++i )
                 XBuffer[i] *= deltaInv;

@@ -76,8 +76,7 @@ main( int argc, char* argv[] )
 #endif
 
         // Drop down to a square grid, change the matrix, and redistribute back
-        const int commSqrt = 
-            static_cast<int>(sqrt(static_cast<double>(commSize)));
+        const int commSqrt = int(sqrt(double(commSize)));
 
         std::vector<int> sqrtRanks(commSqrt*commSqrt);
         for( int i=0; i<commSqrt*commSqrt; ++i )

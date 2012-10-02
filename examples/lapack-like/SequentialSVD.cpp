@@ -73,7 +73,7 @@ main( int argc, char* argv[] )
         for( int test=0; test<16; ++test )
         {
             int n;
-            const TestType testType = static_cast<TestType>(test/2);
+            const TestType testType = TestType(test/2);
             const bool useQR = test % 2;
             const std::string qrString = ( useQR ? "with QR:" : "with D&C:" );
             switch( testType )
@@ -143,7 +143,7 @@ main( int argc, char* argv[] )
             const R upperBound = TwoNormUpperBound( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
-            Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
+            Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
             const R maxNormOfE = Norm( A, MAX_NORM );
             const R oneNormOfE = Norm( A, ONE_NORM );
             const R infNormOfE = Norm( A, INFINITY_NORM );

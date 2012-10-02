@@ -89,7 +89,7 @@ HerkLC
 
         LocalTrrk
         ( LOWER, ADJOINT, TRANSPOSE,
-          alpha, A1_STAR_MC, A1Trans_MR_STAR, (T)1, C );
+          alpha, A1_STAR_MC, A1Trans_MR_STAR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

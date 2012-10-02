@@ -68,9 +68,9 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of tril(A) tril(A)^H
-        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (F)1, A, Y );
-        Trmm( LEFT, LOWER, NORMAL, NON_UNIT, (F)1, A, Y );
-        Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+        Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
+        Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
+        Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
         R oneNormOfError = Norm( Y, ONE_NORM );
         R infNormOfError = Norm( Y, INFINITY_NORM );
         R frobNormOfError = Norm( Y, FROBENIUS_NORM );
@@ -95,9 +95,9 @@ void TestCorrectness
     {
         // Test correctness by comparing the application of AOrig against a 
         // random set of 100 vectors to the application of triu(A)^H triu(A)
-        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (F)1, A, Y );
-        Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, (F)1, A, Y );
-        Hemm( LEFT, UPPER, (F)-1, AOrig, X, (F)1, Y );
+        Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
+        Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
+        Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
         R oneNormOfError = Norm( Y, ONE_NORM );
         R infNormOfError = Norm( Y, INFINITY_NORM );
         R frobNormOfError = Norm( Y, FROBENIUS_NORM );

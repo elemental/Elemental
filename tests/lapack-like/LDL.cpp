@@ -69,15 +69,15 @@ void TestCorrectness
     // Test correctness by comparing the application of AOrig against a 
     // random set of 100 vectors to the application of tril(A) tril(A)^H
     if( conjugated )
-        Trmm( LEFT, LOWER, ADJOINT, UNIT, (F)1, A, Y );
+        Trmm( LEFT, LOWER, ADJOINT, UNIT, F(1), A, Y );
     else
-        Trmm( LEFT, LOWER, TRANSPOSE, UNIT, (F)1, A, Y );
+        Trmm( LEFT, LOWER, TRANSPOSE, UNIT, F(1), A, Y );
     DiagonalScale( LEFT, NORMAL, d, Y );
-    Trmm( LEFT, LOWER, NORMAL, UNIT, (F)1, A, Y );
+    Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
     if( conjugated )
-        Hemm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+        Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
     else
-        Symm( LEFT, LOWER, (F)-1, AOrig, X, (F)1, Y );
+        Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
     R oneNormOfError = Norm( Y, ONE_NORM );
     R infNormOfError = Norm( Y, INFINITY_NORM );
     R frobNormOfError = Norm( Y, FROBENIUS_NORM );

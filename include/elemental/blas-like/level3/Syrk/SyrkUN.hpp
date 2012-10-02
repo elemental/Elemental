@@ -81,8 +81,7 @@ SyrkUN
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
         A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
-
-        LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, (T)1, C ); 
+        LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C ); 
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

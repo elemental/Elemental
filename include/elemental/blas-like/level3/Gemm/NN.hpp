@@ -97,10 +97,10 @@ GemmNNA
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
         LocalGemm
-        ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, (T)0, D1_MC_STAR );
+        ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, T(0), D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
-        C1.SumScatterUpdate( (T)1, D1_MC_STAR );
+        C1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight
@@ -186,9 +186,9 @@ GemmNNB
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, (T)0, D1Trans_MR_STAR );
+        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, T(0), D1Trans_MR_STAR );
 
-        C1.TransposeSumScatterUpdate( (T)1, D1Trans_MR_STAR );
+        C1.TransposeSumScatterUpdate( T(1), D1Trans_MR_STAR );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown
@@ -272,7 +272,7 @@ GemmNNC
         // C[MC,MR] += alpha A1[MC,*] (B1^T[MR,*])^T
         //           = alpha A1[MC,*] B1[*,MR]
         LocalGemm
-        ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, (T)1, C );
+        ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight( AL,     /**/ AR,
@@ -374,8 +374,8 @@ GemmNNDot
                 B1_VC_STAR = B1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VC, B1_VC_STAR, (T)0, C11_STAR_STAR );
-                C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
+                  alpha, A1_STAR_VC, B1_VC_STAR, T(0), C11_STAR_STAR );
+                C11.SumScatterUpdate( T(1), C11_STAR_STAR );
                 //------------------------------------------------------------//
 
                 SlideLockedPartitionRight
@@ -461,8 +461,8 @@ GemmNNDot
                 A1_STAR_VR = A1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VR, B1_VR_STAR, (T)0, C11_STAR_STAR );
-                C11.SumScatterUpdate( (T)1, C11_STAR_STAR );
+                  alpha, A1_STAR_VR, B1_VR_STAR, T(0), C11_STAR_STAR );
+                C11.SumScatterUpdate( T(1), C11_STAR_STAR );
                 //------------------------------------------------------------//
 
                 SlideLockedPartitionDown

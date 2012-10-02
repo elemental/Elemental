@@ -111,7 +111,7 @@ TrsmRUT
 
         LocalTrsm
         ( RIGHT, UPPER, orientation, diag, 
-          (F)1, U11_STAR_STAR, X1_VC_STAR, checkIfSingular );
+          F(1), U11_STAR_STAR, X1_VC_STAR, checkIfSingular );
 
         X1Trans_STAR_MC.TransposeFrom( X1_VC_STAR );
         X1.TransposeFrom( X1Trans_STAR_MC );
@@ -125,7 +125,7 @@ TrsmRUT
         //            = X1^T[* ,MC] (U01^(T/H))[* ,MR]
         LocalGemm
         ( TRANSPOSE, NORMAL, 
-          (F)-1, X1Trans_STAR_MC, U01AdjOrTrans_STAR_MR, (F)1, X0 );
+          F(-1), X1Trans_STAR_MC, U01AdjOrTrans_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
         X1_VC_STAR.FreeAlignments();
         X1Trans_STAR_MC.FreeAlignments();

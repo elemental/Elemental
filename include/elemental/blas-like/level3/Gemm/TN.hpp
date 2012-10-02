@@ -101,12 +101,12 @@ GemmTNA
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
         LocalGemm
-        ( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, (T)0, D1_MR_STAR );
+        ( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, T(0), D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_STAR );
         D1 = D1_MR_MC; 
-        Axpy( (T)1, D1, C1 );
+        Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//
         D1.FreeAlignments();
 
@@ -195,15 +195,15 @@ GemmTNB
         {
             LocalGemm
             ( ADJOINT, NORMAL, 
-              Conj(alpha), B, A1_MC_STAR, (T)0, D1AdjOrTrans_MR_STAR );
-            C1.AdjointSumScatterUpdate( (T)1, D1AdjOrTrans_MR_STAR );
+              Conj(alpha), B, A1_MC_STAR, T(0), D1AdjOrTrans_MR_STAR );
+            C1.AdjointSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
         }
         else
         {
             LocalGemm
             ( TRANSPOSE, NORMAL,
-              alpha, B, A1_MC_STAR, (T)0, D1AdjOrTrans_MR_STAR );
-            C1.TransposeSumScatterUpdate( (T)1, D1AdjOrTrans_MR_STAR );
+              alpha, B, A1_MC_STAR, T(0), D1AdjOrTrans_MR_STAR );
+            C1.TransposeSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
         }
         //--------------------------------------------------------------------//
 
@@ -297,7 +297,7 @@ GemmTNC
         //           = alpha (A1^T)[MC,*] B1[*,MR]
         LocalGemm
         ( orientationOfA, TRANSPOSE, 
-          alpha, A1_STAR_MC, B1Trans_MR_STAR, (T)1, C );
+          alpha, A1_STAR_MC, B1Trans_MR_STAR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDown

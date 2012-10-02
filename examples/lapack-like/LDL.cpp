@@ -79,7 +79,7 @@ main( int argc, char* argv[] )
             Uniform( n, n, A );
             DistMatrix<C> ATrans( g );
             Transpose( A, ATrans );
-            Axpy( (C)1, ATrans, A );
+            Axpy( C(1), ATrans, A );
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization
@@ -97,7 +97,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
-        Gemm( NORMAL, orientation, (C)-1, LD, L, (C)1, A );
+        Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
         const R frobNormOfError = Norm( A, FROBENIUS_NORM );
         if( g.Rank() == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"

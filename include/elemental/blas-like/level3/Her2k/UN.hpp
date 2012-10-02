@@ -108,7 +108,7 @@ Her2kUN
         ( UPPER, 
           alpha, A1_MC_STAR, B1Adj_STAR_MR,
                  B1_MC_STAR, A1Adj_STAR_MR,
-          (T)1,  C );
+          T(1),  C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

@@ -186,19 +186,19 @@ TrmmLUTCOld
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( LEFT, UPPER, orientation, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         
         U01_MC_STAR = U01;
         LocalGemm
         ( orientation, NORMAL, 
-          (T)1, X0, U01_MC_STAR, (T)0, D1AdjOrTrans_MR_STAR );
+          T(1), X0, U01_MC_STAR, T(0), D1AdjOrTrans_MR_STAR );
         D1AdjOrTrans_MR_MC.SumScatterFrom( D1AdjOrTrans_MR_STAR );
         if( orientation == TRANSPOSE )
             Transpose( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
         else
             Adjoint( D1AdjOrTrans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
-        Axpy( (T)1, D1, X1 );
+        Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//
         D1.FreeAlignments();
         D1AdjOrTrans_MR_MC.FreeAlignments();
@@ -295,12 +295,12 @@ TrmmLUTC
         X1Trans_MR_STAR.TransposeFrom( X1 );
         LocalGemm
         ( orientation, TRANSPOSE, 
-          (T)1, U12_STAR_MC, X1Trans_MR_STAR, (T)1, X2 );
+          T(1), U12_STAR_MC, X1Trans_MR_STAR, T(1), X2 );
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
         LocalTrmm
-        ( LEFT, UPPER, orientation, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
         U12_STAR_MC.FreeAlignments();
@@ -414,12 +414,10 @@ LocalTrmmAccumulateLUT
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
         LocalGemm
-        ( orientation, NORMAL,
-          alpha, D11, X1_MC_STAR, (T)1, Z1_MR_STAR );
+        ( orientation, NORMAL, alpha, D11, X1_MC_STAR, T(1), Z1_MR_STAR );
 
         LocalGemm
-        ( orientation, NORMAL,
-          alpha, U01, X0_MC_STAR, (T)1, Z1_MR_STAR );
+        ( orientation, NORMAL, alpha, U01, X0_MC_STAR, T(1), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

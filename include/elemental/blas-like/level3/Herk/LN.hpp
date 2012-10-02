@@ -83,7 +83,7 @@ HerkLN
         A1Adj_STAR_MR.AdjointFrom( A1_VR_STAR );
 
         LocalTrrk
-        ( LOWER, alpha, A1_MC_STAR, A1Adj_STAR_MR, (T)1, C );
+        ( LOWER, alpha, A1_MC_STAR, A1Adj_STAR_MR, T(1), C );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionRight

@@ -76,7 +76,7 @@ void TestCorrectness
     Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
-    Axpy( (R)-1, ZUpper, X );
+    Axpy( R(-1), ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
@@ -99,7 +99,7 @@ void TestCorrectness
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, U );
 
     // Form Q R - A
-    Axpy( (R)-1, AOrig, U );
+    Axpy( R(-1), AOrig, U );
     
     R oneNormOfA = Norm( AOrig, ONE_NORM );
     R infNormOfA = Norm( AOrig, INFINITY_NORM );
@@ -151,7 +151,7 @@ void TestCorrectness
     Identity( minDim, minDim, X );
 
     // Form X := I - Q^H Q
-    Axpy( (C)-1, ZUpper, X );
+    Axpy( C(-1), ZUpper, X );
 
     R oneNormOfError = Norm( X, ONE_NORM );
     R infNormOfError = Norm( X, INFINITY_NORM );
@@ -173,7 +173,7 @@ void TestCorrectness
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, U );
 
     // Form Q R - A
-    Axpy( (C)-1, AOrig, U );
+    Axpy( C(-1), AOrig, U );
     
     R oneNormOfA = Norm( AOrig, ONE_NORM );
     R infNormOfA = Norm( AOrig, INFINITY_NORM );

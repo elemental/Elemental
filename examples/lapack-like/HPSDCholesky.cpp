@@ -55,7 +55,7 @@ main( int argc, char* argv[] )
         Uniform( n, n, L );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
         Zeros( n, n, A );
-        Herk( LOWER, NORMAL, (C)1, L, (C)0, A );
+        Herk( LOWER, NORMAL, C(1), L, C(0), A );
 
         // Print our matrix.
         A.Print("A");

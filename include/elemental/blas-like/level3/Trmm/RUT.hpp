@@ -172,8 +172,7 @@ TrmmRUTC
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( RIGHT, UPPER, orientation, diag, 
-          (T)1, U11_STAR_STAR, X1_VC_STAR );
+        ( RIGHT, UPPER, orientation, diag, T(1), U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         if( orientation == ADJOINT )
@@ -181,8 +180,8 @@ TrmmRUTC
         else
             U12AdjOrTrans_MR_STAR.TransposeFrom( U12 );
         LocalGemm
-        ( NORMAL, NORMAL, (T)1, X2, U12AdjOrTrans_MR_STAR, (T)0, D1_MC_STAR );
-        X1.SumScatterUpdate( (T)1, D1_MC_STAR );
+        ( NORMAL, NORMAL, T(1), X2, U12AdjOrTrans_MR_STAR, T(0), D1_MC_STAR );
+        X1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
         U12AdjOrTrans_MR_STAR.FreeAlignments();
         D1_MC_STAR.FreeAlignments();
@@ -295,11 +294,11 @@ LocalTrmmAccumulateRUT
 
         LocalGemm
         ( NORMAL, NORMAL, alpha, D11, X1AdjOrTrans_MR_STAR,
-          (T)1, Z1AdjOrTrans_MC_STAR );
+          T(1), Z1AdjOrTrans_MC_STAR );
 
         LocalGemm
         ( NORMAL, NORMAL, alpha, U01, X1AdjOrTrans_MR_STAR,
-          (T)1, Z0AdjOrTrans_MC_STAR );
+          T(1), Z0AdjOrTrans_MC_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

@@ -171,15 +171,15 @@ TrmmLUNCOld
         X1_STAR_VR = X1;
         U11_STAR_STAR = U11;
         LocalTrmm
-        ( LEFT, UPPER, NORMAL, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        ( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
  
         U12_STAR_MC = U12;
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, (T)1, X2, U12_STAR_MC, (T)0, D1Trans_MR_STAR );
+        ( TRANSPOSE, TRANSPOSE, T(1), X2, U12_STAR_MC, T(0), D1Trans_MR_STAR );
         D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
         Transpose( D1Trans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
-        Axpy( (T)1, D1, X1 );
+        Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//
         D1.FreeAlignments();
         D1Trans_MR_MC.FreeAlignments();
@@ -270,11 +270,11 @@ TrmmLUNC
         U01_MC_STAR = U01;
         X1Trans_MR_STAR.TransposeFrom( X1 );
         LocalGemm
-        ( NORMAL, TRANSPOSE, (T)1, U01_MC_STAR, X1Trans_MR_STAR, (T)1, X0 );
+        ( NORMAL, TRANSPOSE, T(1), U01_MC_STAR, X1Trans_MR_STAR, T(1), X0 );
 
         U11_STAR_STAR = U11;
         X1_STAR_VR.TransposeFrom( X1Trans_MR_STAR );
-        LocalTrmm( LEFT, UPPER, NORMAL, diag, (T)1, U11_STAR_STAR, X1_STAR_VR );
+        LocalTrmm( LEFT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
         U01_MC_STAR.FreeAlignments();
@@ -387,12 +387,12 @@ LocalTrmmAccumulateLUN
         if( diag == UNIT )
             SetDiagonalToOne( D11 );
         LocalGemm
-        ( NORMAL, orientation, alpha, D11, X1AdjOrTrans_STAR_MR,
-          (T)1, Z1_MC_STAR );
+        ( NORMAL, orientation, 
+          alpha, D11, X1AdjOrTrans_STAR_MR, T(1), Z1_MC_STAR );
 
         LocalGemm
-        ( NORMAL, orientation, alpha, U01, X1AdjOrTrans_STAR_MR,
-          (T)1, Z0_MC_STAR );
+        ( NORMAL, orientation, 
+          alpha, U01, X1AdjOrTrans_STAR_MR, T(1), Z0_MC_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

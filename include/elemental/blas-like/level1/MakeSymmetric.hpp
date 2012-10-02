@@ -52,7 +52,7 @@ MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
         MakeTrapezoidal( LEFT, UPPER, +1, A );
     Matrix<T> ATrans;
     Transpose( A, ATrans );
-    Axpy( (T)1, ATrans, A );
+    Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );
 #ifndef RELEASE
@@ -80,7 +80,7 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
         MakeTrapezoidal( LEFT, UPPER, +1, A );
     DistMatrix<T> ATrans(g);
     Transpose( A, ATrans );
-    Axpy( (T)1, ATrans, A );
+    Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );
 #ifndef RELEASE

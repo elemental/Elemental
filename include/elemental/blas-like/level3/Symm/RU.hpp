@@ -108,9 +108,9 @@ SymmRUA
 
         Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
-        Z1Trans_MR_MC.SumScatterUpdate( (T)1, Z1Trans_MR_STAR );
+        Z1Trans_MR_MC.SumScatterUpdate( T(1), Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.LockedLocalMatrix(), Z1Local );
-        Axpy( (T)1, Z1Local, C1.LocalMatrix() );
+        Axpy( T(1), Z1Local, C1.LocalMatrix() );
         //--------------------------------------------------------------------//
         Z1Trans_MR_MC.FreeAlignments();
 
@@ -209,11 +209,11 @@ SymmRUC
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 
-          alpha, B1_MC_STAR, ARowPanTrans_MR_STAR, (T)1, CRight );
+          alpha, B1_MC_STAR, ARowPanTrans_MR_STAR, T(1), CRight );
 
         LocalGemm
         ( NORMAL, NORMAL,
-          alpha, B1_MC_STAR, AColPanTrans_STAR_MR, (T)1, CLeft );
+          alpha, B1_MC_STAR, AColPanTrans_STAR_MR, T(1), CLeft );
         //--------------------------------------------------------------------//
         AColPan_VR_STAR.FreeAlignments();
         AColPanTrans_STAR_MR.FreeAlignments();

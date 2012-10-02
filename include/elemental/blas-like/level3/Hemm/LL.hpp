@@ -98,8 +98,8 @@ HemmLLA
 
         Z1_MR_MC.SumScatterFrom( Z1_MR_STAR );
         Z1 = Z1_MR_MC;
-        Z1.SumScatterUpdate( (T)1, Z1_MC_STAR );
-        Axpy( (T)1, Z1, C1 );
+        Z1.SumScatterUpdate( T(1), Z1_MC_STAR );
+        Axpy( T(1), Z1, C1 );
         //--------------------------------------------------------------------//
         Z1.FreeAlignments();
 
@@ -207,11 +207,11 @@ HemmLLC
 
         LocalGemm
         ( NORMAL, ADJOINT, 
-          alpha, AColPan_MC_STAR, B1Adj_MR_STAR, (T)1, CBelow );
+          alpha, AColPan_MC_STAR, B1Adj_MR_STAR, T(1), CBelow );
 
         LocalGemm
         ( ADJOINT, ADJOINT, 
-          alpha, ARowPan_STAR_MC, B1Adj_MR_STAR, (T)1, CAbove );
+          alpha, ARowPan_STAR_MC, B1Adj_MR_STAR, T(1), CAbove );
         //--------------------------------------------------------------------//
         AColPan_MC_STAR.FreeAlignments();
         ARowPan_STAR_MC.FreeAlignments();
@@ -369,19 +369,18 @@ LocalSymmetricAccumulateLL
         MakeTrapezoidal( LEFT, LOWER, 0, D11 );
         LocalGemm
         ( NORMAL, orientation, 
-          alpha, D11, B1AdjOrTrans_STAR_MR, (T)1, Z1_MC_STAR );
+          alpha, D11, B1AdjOrTrans_STAR_MR, T(1), Z1_MC_STAR );
         MakeTrapezoidal( LEFT, LOWER, -1, D11 );
 
         LocalGemm
-        ( orientation, NORMAL, alpha, D11, B1_MC_STAR, (T)1, Z1_MR_STAR );
+        ( orientation, NORMAL, alpha, D11, B1_MC_STAR, T(1), Z1_MR_STAR );
 
         LocalGemm
         ( NORMAL, orientation, 
-          alpha, A21, B1AdjOrTrans_STAR_MR, (T)1, Z2_MC_STAR );
+          alpha, A21, B1AdjOrTrans_STAR_MR, T(1), Z2_MC_STAR );
 
         LocalGemm
-        ( orientation, NORMAL, 
-          alpha, A21, B2_MC_STAR, (T)1, Z1_MR_STAR );
+        ( orientation, NORMAL, alpha, A21, B2_MC_STAR, T(1), Z1_MR_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

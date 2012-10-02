@@ -58,8 +58,8 @@ TrtrmmUVar1( Orientation orientation, Matrix<T>& U )
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
         //--------------------------------------------------------------------/
-        Trrk( UPPER, NORMAL, orientation, (T)1, U01, U01, (T)1, U00 );
-        Trmm( RIGHT, UPPER, orientation, NON_UNIT, (T)1, U11, U01 );
+        Trrk( UPPER, NORMAL, orientation, T(1), U01, U01, T(1), U00 );
+        Trmm( RIGHT, UPPER, orientation, NON_UNIT, T(1), U11, U01 );
         TrtrmmUUnblocked( orientation, U11 );
         //--------------------------------------------------------------------/
 
@@ -122,12 +122,12 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T,MC,MR>& U )
             U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
         else
             U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
-        LocalTrrk( UPPER, (T)1, U01_MC_STAR, U01AdjOrTrans_STAR_MR, (T)1, U00 );
+        LocalTrrk( UPPER, T(1), U01_MC_STAR, U01AdjOrTrans_STAR_MR, T(1), U00 );
 
         U11_STAR_STAR = U11;
         LocalTrmm
         ( RIGHT, UPPER, orientation, NON_UNIT, 
-          (T)1, U11_STAR_STAR, U01_VC_STAR );
+          T(1), U11_STAR_STAR, U01_VC_STAR );
         U01 = U01_VC_STAR;
 
         LocalTrtrmm( orientation, UPPER, U11_STAR_STAR );

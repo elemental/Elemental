@@ -60,8 +60,8 @@ TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
           LBL, /**/ LBR,  L20, /**/ L21, L22 );
 
         //--------------------------------------------------------------------/
-        Trrk( LOWER, orientation, NORMAL, (T)1, L10, L10, (T)1, L00 );
-        Trmm( LEFT, LOWER, orientation, NON_UNIT, (T)1, L11, L10 );
+        Trrk( LOWER, orientation, NORMAL, T(1), L10, L10, T(1), L00 );
+        Trmm( LEFT, LOWER, orientation, NON_UNIT, T(1), L11, L10 );
         TrtrmmLUnblocked( orientation, L11 );
         //--------------------------------------------------------------------/
 
@@ -124,12 +124,12 @@ TrtrmmLVar1( Orientation orientation, DistMatrix<T,MC,MR>& L )
         L10_STAR_MC = L10_STAR_VC;
         L10_STAR_MR = L10_STAR_VR;
         LocalTrrk
-        ( LOWER, orientation, (T)1, L10_STAR_MC, L10_STAR_MR, (T)1, L00 );
+        ( LOWER, orientation, T(1), L10_STAR_MC, L10_STAR_MR, T(1), L00 );
 
         L11_STAR_STAR = L11;
         LocalTrmm
         ( LEFT, LOWER, orientation, NON_UNIT, 
-          (T)1, L11_STAR_STAR, L10_STAR_VR );
+          T(1), L11_STAR_STAR, L10_STAR_VR );
         L10 = L10_STAR_VR;
 
         LocalTrtrmm( orientation, LOWER, L11_STAR_STAR );

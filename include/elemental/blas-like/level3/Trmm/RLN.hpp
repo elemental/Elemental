@@ -163,13 +163,12 @@ TrmmRLNCOld
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;
         LocalTrmm
-        ( RIGHT, LOWER, NORMAL, diag, (T)1, L11_STAR_STAR, X1_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
  
         L21_MR_STAR = L21;
-        LocalGemm
-        ( NORMAL, NORMAL, (T)1, X2, L21_MR_STAR, (T)0, D1_MC_STAR );
-        X1.SumScatterUpdate( (T)1, D1_MC_STAR );
+        LocalGemm( NORMAL, NORMAL, T(1), X2, L21_MR_STAR, T(0), D1_MC_STAR );
+        X1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
         L21_MR_STAR.FreeAlignments();
         D1_MC_STAR.FreeAlignments();
@@ -252,12 +251,12 @@ TrmmRLNC
         X1_MC_STAR = X1;
         L10Trans_MR_STAR.TransposeFrom( L10 );
         LocalGemm
-        ( NORMAL, TRANSPOSE, (T)1, X1_MC_STAR, L10Trans_MR_STAR, (T)1, X0 );
+        ( NORMAL, TRANSPOSE, T(1), X1_MC_STAR, L10Trans_MR_STAR, T(1), X0 );
 
         L11_STAR_STAR = L11;
         X1_VC_STAR = X1_MC_STAR;
         LocalTrmm
-        ( RIGHT, LOWER, NORMAL, diag, (T)1, L11_STAR_STAR, X1_VC_STAR );
+        ( RIGHT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
         //--------------------------------------------------------------------//
         X1_MC_STAR.FreeAlignments();
@@ -365,11 +364,11 @@ LocalTrmmAccumulateRLN
             SetDiagonalToOne( D11 );
         LocalGemm
         ( orientation, orientation,
-          alpha, D11, X1_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
+          alpha, D11, X1_STAR_MC, T(1), Z1AdjOrTrans_MR_STAR );
 
         LocalGemm
         ( orientation, orientation,
-          alpha, L21, X2_STAR_MC, (T)1, Z1AdjOrTrans_MR_STAR );
+          alpha, L21, X2_STAR_MC, T(1), Z1AdjOrTrans_MR_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

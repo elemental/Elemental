@@ -19,7 +19,7 @@ main( int argc, char* argv[] )
     const R twoNormOfA = Norm( s, MAX_NORM );
 
     DiagonalScale( RIGHT, NORMAL, s, U );
-    Gemm( NORMAL, ADJOINT, (C)-1, U, V, (C)1, A );
+    Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
     const R frobNormOfE = Norm( A, FROBENIUS_NORM );
     const R eps = lapack::MachineEpsilon<R>();
     const R scaledResidual = frobNormOfE / (std::max(m,n)*eps*twoNormOfA);
