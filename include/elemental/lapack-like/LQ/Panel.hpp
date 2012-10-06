@@ -69,7 +69,7 @@ PanelLQ( Matrix<Real>& A )
         const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
-        Gemv( NORMAL, (Real)1, ABottomPan, aTopRow, (Real)0, z );
+        Gemv( NORMAL, Real(1), ABottomPan, aTopRow, Real(0), z );
         Ger( -tau, z, aTopRow, ABottomPan );
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
@@ -139,9 +139,9 @@ PanelLQ( DistMatrix<Real>& A )
 
         Gemv
         ( NORMAL,
-          (Real)1, ABottomPan.LockedLocalMatrix(),
+          Real(1), ABottomPan.LockedLocalMatrix(),
                    aTopRow_STAR_MR.LockedLocalMatrix(),
-          (Real)0, z_MC_STAR.LocalMatrix() );
+          Real(0), z_MC_STAR.LocalMatrix() );
         z_MC_STAR.SumOverRow();
 
         Ger
