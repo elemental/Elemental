@@ -39,6 +39,25 @@ namespace elem {
 template<typename F>
 inline void
 TriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("TriangularInverse");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+#endif
+    const char uploChar = UpperOrLowerToChar( uplo );
+    const char diagChar = UnitOrNonUnitToChar( diag );
+    lapack::TriangularInverse
+    ( uploChar, diagChar, A.Height(), A.Buffer(), A.LDim() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+TriangularInverse
 ( UpperOrLower uplo, 
   UnitOrNonUnit diag, 
   DistMatrix<F>& A  )

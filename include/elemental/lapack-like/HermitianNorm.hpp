@@ -31,10 +31,13 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./HermitianNorm/Frobenius.hpp"
+#include "./HermitianNorm/One.hpp"
 #include "./HermitianNorm/Infinity.hpp"
 #include "./HermitianNorm/Max.hpp"
-#include "./HermitianNorm/One.hpp"
+
+#include "./HermitianNorm/Nuclear.hpp"
+#include "./HermitianNorm/Frobenius.hpp"
+#include "./HermitianNorm/Two.hpp"
 
 namespace elem {
 
@@ -45,22 +48,26 @@ HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 #ifndef RELEASE
     PushCallStack("HermitianNorm");
 #endif
-    typedef typename Base<F>::type R;
-
-    R norm = 0;
+    typename Base<F>::type norm = 0;
     switch( type )
     {
+    case ONE_NORM:
+        norm = internal::HermitianOneNorm( uplo, A );
+        break;
     case INFINITY_NORM:
         norm = internal::HermitianInfinityNorm( uplo, A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
         norm = internal::HermitianMaxNorm( uplo, A );
         break;
-    case ONE_NORM:
-        norm = internal::HermitianOneNorm( uplo, A );
+    case NUCLEAR_NORM:
+        norm = internal::HermitianNuclearNorm( uplo, A );
+        break;
+    case FROBENIUS_NORM: 
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = internal::HermitianTwoNorm( uplo, A );
         break;
     }
 #ifndef RELEASE
@@ -76,22 +83,26 @@ HermitianNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
 #ifndef RELEASE
     PushCallStack("HermitianNorm");
 #endif
-    typedef typename Base<F>::type R;
-
-    R norm = 0;
+    typename Base<F>::type norm = 0;
     switch( type )
     {
+    case ONE_NORM:
+        norm = internal::HermitianOneNorm( uplo, A );
+        break;
     case INFINITY_NORM:
         norm = internal::HermitianInfinityNorm( uplo, A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::HermitianFrobeniusNorm( uplo, A );
         break;
     case MAX_NORM:
         norm = internal::HermitianMaxNorm( uplo, A );
         break;
-    case ONE_NORM:
-        norm = internal::HermitianOneNorm( uplo, A );
+    case NUCLEAR_NORM:
+        norm = internal::HermitianNuclearNorm( uplo, A );
+        break;
+    case FROBENIUS_NORM: 
+        norm = internal::HermitianFrobeniusNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = internal::HermitianTwoNorm( uplo, A );
         break;
     }
 #ifndef RELEASE

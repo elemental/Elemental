@@ -73,78 +73,9 @@
 #include "./lapack-like/SolveAfterCholesky.hpp"
 #include "./lapack-like/SolveAfterLU.hpp"
 #include "./lapack-like/SortEig.hpp"
+#include "./lapack-like/SymmetricNorm.hpp"
 #include "./lapack-like/SVD.hpp"
 #include "./lapack-like/Trace.hpp"
 #include "./lapack-like/TriangularInverse.hpp"
 #include "./lapack-like/TwoNormLowerBound.hpp"
 #include "./lapack-like/TwoNormUpperBound.hpp"
-
-namespace elem {
-
-template<typename F>
-inline void
-Cholesky( UpperOrLower uplo, Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Cholesky");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-#endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline typename Base<F>::type
-SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
-{ 
-#ifndef RELEASE
-    PushCallStack("SymmetricNorm");
-#endif
-    typedef typename Base<F>::type R;
-    const R norm = HermitianNorm( uplo, A, type );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename F>
-inline typename Base<F>::type
-SymmetricNorm
-( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
-{ 
-#ifndef RELEASE
-    PushCallStack("SymmetricNorm");
-#endif
-    typedef typename Base<F>::type R;
-    const R norm = HermitianNorm( uplo, A, type );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
-}
-
-template<typename F>
-inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("TriangularInverse");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-#endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    const char diagChar = UnitOrNonUnitToChar( diag );
-    lapack::TriangularInverse
-    ( uploChar, diagChar, A.Height(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-} // namespace elem

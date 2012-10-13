@@ -3,10 +3,9 @@ Norms
 
 Several matrix norm routines are provided for general, Hermitian, and symmetric 
 (distributed) matrices; each of the following routines can return either
-:math:`\|A\|_1`, :math:`\|A\|_\infty`, :math:`\|A\|_F` (the Frobenius norm), or 
-the maximum entrywise norm. The matrix two-norm is quite expensive to directly 
-compute, so a probabilistic algorithm (based upon Dixon's approach) will be 
-added in the near future.
+:math:`\|A\|_1`, :math:`\|A\|_\infty`, :math:`\|A\|_F` (the Frobenius norm),
+the maximum entrywise norm, :math:`\|A\|_2`, or :math:`\|A\|_*` 
+(the nuclear/trace norm). 
 
 Norm
 ----

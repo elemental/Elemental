@@ -71,7 +71,7 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
         throw std::logic_error("Cannot make non-square matrix symmetric");
 
     const Grid& g = A.Grid();
-    DistMatrix<T> d(g);
+    DistMatrix<T,MD,STAR> d(g);
     A.GetDiagonal( d );
 
     if( uplo == LOWER )

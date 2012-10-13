@@ -31,58 +31,49 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Cholesky/LVar2.hpp"
-#include "./Cholesky/LVar3.hpp"
-#include "./Cholesky/LVar3Square.hpp"
-#include "./Cholesky/UVar2.hpp"
-#include "./Cholesky/UVar3.hpp"
-#include "./Cholesky/UVar3Square.hpp"
+#include "./SymmetricNorm/Nuclear.hpp"
+#include "./SymmetricNorm/Two.hpp"
 
 namespace elem {
 
 template<typename F>
-inline void
-Cholesky( UpperOrLower uplo, Matrix<F>& A )
+inline typename Base<F>::type
+SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+    PushCallStack("SymmetricNorm");
 #endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
+    typename Base<F>::type norm = 0;
+    if( type == NUCLEAR_NORM )
+        norm = internal::SymmetricNuclearNorm( uplo, A );
+    else if( type == TWO_NORM )
+        norm = internal::SymmetricTwoNorm( uplo, A );
+    else
+        norm = HermitianNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return norm;
 }
 
-template<typename F> 
-inline void
-Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
+template<typename F>
+inline typename Base<F>::type
+SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("SymmetricNorm");
 #endif
-    const Grid& g = A.Grid();
-
-    // TODO: Come up with a better routing mechanism
-    if( g.Height() == g.Width() )
-    {
-        if( uplo == LOWER )
-            internal::CholeskyLVar3Square( A );
-        else
-            internal::CholeskyUVar3Square( A );
-    }
+    typename Base<F>::type norm = 0;
+    if( type == NUCLEAR_NORM )
+        norm = internal::SymmetricNuclearNorm( uplo, A );
+    else if( type == TWO_NORM )
+        norm = internal::SymmetricTwoNorm( uplo, A );
     else
-    {
-        if( uplo == LOWER )
-            internal::CholeskyLVar3( A );
-        else
-            internal::CholeskyUVar3( A );
-    }
+        norm = HermitianNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return norm;
 }
 
 } // namespace elem

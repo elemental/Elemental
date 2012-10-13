@@ -32,10 +32,14 @@
 */
 
 #include "./Norm/Util.hpp"
-#include "./Norm/Frobenius.hpp"
+
+#include "./Norm/One.hpp"
 #include "./Norm/Infinity.hpp"
 #include "./Norm/Max.hpp"
-#include "./Norm/One.hpp"
+
+#include "./Norm/Nuclear.hpp"
+#include "./Norm/Frobenius.hpp"
+#include "./Norm/Two.hpp"
 
 namespace elem {
 
@@ -46,22 +50,26 @@ Norm( const Matrix<F>& A, NormType type )
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
-    typedef typename Base<F>::type R;
-
-    R norm = 0;
+    typename Base<F>::type norm = 0;
     switch( type )
     {
+    case ONE_NORM:
+        norm = internal::OneNorm( A );
+        break;
     case INFINITY_NORM:
         norm = internal::InfinityNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
         norm = internal::MaxNorm( A );
         break;
-    case ONE_NORM:
-        norm = internal::OneNorm( A );
+    case NUCLEAR_NORM:
+        norm = internal::NuclearNorm( A );
+        break;
+    case FROBENIUS_NORM: 
+        norm = internal::FrobeniusNorm( A );
+        break;
+    case TWO_NORM:
+        norm = internal::TwoNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -77,22 +85,26 @@ Norm( const DistMatrix<F,U,V>& A, NormType type )
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
-    typedef typename Base<F>::type R;
-
-    R norm = 0;
+    typename Base<F>::type norm = 0;
     switch( type )
     {
+    case ONE_NORM:
+        norm = internal::OneNorm( A );
+        break;
     case INFINITY_NORM:
         norm = internal::InfinityNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
         break;
     case MAX_NORM:
         norm = internal::MaxNorm( A );
         break;
-    case ONE_NORM:
-        norm = internal::OneNorm( A );
+    case NUCLEAR_NORM:
+        norm = internal::NuclearNorm( A );
+        break;
+    case FROBENIUS_NORM: 
+        norm = internal::FrobeniusNorm( A );
+        break;
+    case TWO_NORM:
+        norm = internal::TwoNorm( A );
         break;
     }
 #ifndef RELEASE

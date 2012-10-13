@@ -27,19 +27,14 @@ recognizing that :math:`\mbox{det}(P)=\pm 1`
 
 where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
-.. note:: 
+.. cpp:function:: F Determinant( const Matrix<F>& A )
+.. cpp:function:: F Determinant( const DistMatrix<F>& A )
+.. cpp:function:: F Determinant( Matrix<F>& A, bool canOverwrite=false )
+.. cpp:function:: F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 
-   The following functions overwrite the input matrix with its LU factorization
-   in order to efficiently compute the determinant.
-
-.. cpp:function:: F Determinant( Matrix<F>& A )
-
-   Returns the determinant of the (fully populated) square matrix `A`, which is 
-   overwritten during the computation.
-
-.. cpp:function:: F Determinant( DistMatrix<F>& A )
-
-   Same as above, but for a distributed matrix.
+   Returns the determinant of the (fully populated) square matrix `A`.
+   Some of the variants allow for overwriting the input matrix in order to 
+   avoid forming another temporary matrix.
 
 .. cpp:type:: struct SafeProduct<F>
 
@@ -60,14 +55,13 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 
       The number of values in the product.
 
-.. cpp:function:: SafeProduct<F> SafeDeterminant( Matrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( const Matrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( const DistMatrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
+.. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 
    Returns the determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
-
-.. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F>& A )
-
-   Same as above, but for a distributed matrix.
 
 Trace
 -----
@@ -86,10 +80,6 @@ Clearly the former equation is easier to compute, but the latter is an
 important characterization.
 
 .. cpp:function:: F Trace( const Matrix<F>& A )
-
-   Return the trace of the square matrix `A`.
-
 .. cpp:function:: F Trace( const DistMatrix<F>& A )
 
-   Same as above, but for a distributed matrix.
-
+   Return the trace of the square matrix `A`.

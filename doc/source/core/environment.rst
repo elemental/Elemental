@@ -149,7 +149,7 @@ Custom exceptions
 Complex data
 ------------
 
-.. cpp:type:: class struct Complex<R>
+.. cpp:type:: struct Complex<R>
 
    .. cpp:type:: R BaseType
 
@@ -436,11 +436,13 @@ Other typedefs and enums
 
    An enum that can be set to either
 
-   * ``FROBENIUS_NORM``:
+   * ``ONE_NORM``:
 
-     .. math::
+     .. math:: 
+        :nowrap:
 
-        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
+        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
+                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
 
    * ``INFINITY_NORM``:
 
@@ -450,19 +452,31 @@ Other typedefs and enums
         \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
                        = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
 
-   * ``ONE_NORM``:
-
-     .. math:: 
-        :nowrap:
-
-        \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
-                = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
-
    * ``MAX_NORM``:
 
      .. math::
      
         \|A\|_{\mbox{max}} = \max_{i,j} |\alpha_{i,j}|
+
+   * ``NUCLEAR_NORM``:
+
+     .. math::
+
+        \|A\|_* = \sum_{i=0}^{\min(m,n)} \sigma_i(A)
+
+   * ``FROBENIUS_NORM``:
+
+     .. math::
+        :nowrap:
+
+        \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
+                = \sum_{i=0}^{\min(m,n)} \sigma_i(A)^2
+
+   * ``TWO_NORM``:
+
+     .. math::
+
+        \|A\|_2 = \max_i \sigma_i(A)
   
 .. cpp:type:: enum Orientation
 

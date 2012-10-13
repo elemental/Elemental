@@ -31,58 +31,50 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "./Cholesky/LVar2.hpp"
-#include "./Cholesky/LVar3.hpp"
-#include "./Cholesky/LVar3Square.hpp"
-#include "./Cholesky/UVar2.hpp"
-#include "./Cholesky/UVar3.hpp"
-#include "./Cholesky/UVar3Square.hpp"
-
 namespace elem {
-
-template<typename F>
-inline void
-Cholesky( UpperOrLower uplo, Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Cholesky");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-#endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+namespace internal {
 
 template<typename F> 
-inline void
-Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
+inline typename Base<F>::type
+SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    PushCallStack("internal::SymmetricTwoNorm");
 #endif
-    const Grid& g = A.Grid();
+    typedef typename Base<F>::type R;
 
-    // TODO: Come up with a better routing mechanism
-    if( g.Height() == g.Width() )
-    {
-        if( uplo == LOWER )
-            internal::CholeskyLVar3Square( A );
-        else
-            internal::CholeskyUVar3Square( A );
-    }
-    else
-    {
-        if( uplo == LOWER )
-            internal::CholeskyLVar3( A );
-        else
-            internal::CholeskyUVar3( A );
-    }
+    Matrix<F> B( A );
+    Matrix<R> s;
+    MakeSymmetric( uplo, B );
+    SingularValues( B, s );
+
+    const R norm = Norm( s, INFINITY_NORM );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return norm;
 }
 
+template<typename F,Distribution U,Distribution V> 
+inline typename Base<F>::type
+SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::SymmetricTwoNorm");
+#endif
+    typedef typename Base<F>::type R;
+
+    DistMatrix<F,U,V> B( A );
+    DistMatrix<R,VR,STAR> s( A.Grid() );
+    MakeSymmetric( uplo, B );
+    SingularValues( B, s );
+
+    const R norm = Norm( s, INFINITY_NORM );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
+} // namespace internal
 } // namespace elem

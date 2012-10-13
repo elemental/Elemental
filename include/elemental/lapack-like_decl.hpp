@@ -47,8 +47,9 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 template<typename F,Distribution U,Distribution V>
 typename Base<F>::type 
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM );
+// TODO: Allow for destructive versions for cases which require computing 
+//       singular values in case the extra memory usage is unacceptable (rare)
 
-// TODO: provide an option to compute more accurate estimates
 template<typename F>
 typename Base<F>::type TwoNormLowerBound( const Matrix<F>& A );
 template<typename F>
@@ -92,9 +93,13 @@ SymmetricNorm
 // Return the determinant of the matrix A.
 //
 template<typename F>
-F Determinant( Matrix<F>& A );
+F Determinant( const Matrix<F>& A );
 template<typename F>
-F Determinant( DistMatrix<F>& A );
+F Determinant( Matrix<F>& A, bool canOverwrite=false );
+template<typename F>
+F Determinant( const DistMatrix<F>& A );
+template<typename F>
+F Determinant( DistMatrix<F>& A, bool canOverwrite=false );
 
 //
 // SafeDeterminant:
@@ -104,9 +109,13 @@ F Determinant( DistMatrix<F>& A );
 // possibility of (under/over)flow. 
 //
 template<typename F>
-SafeProduct<F> SafeDeterminant( Matrix<F>& A );
+SafeProduct<F> SafeDeterminant( const Matrix<F>& A );
 template<typename F>
-SafeProduct<F> SafeDeterminant( DistMatrix<F>& A );
+SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite=false );
+template<typename F>
+SafeProduct<F> SafeDeterminant( const DistMatrix<F>& A );
+template<typename F>
+SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false );
 
 // TODO
 /*
