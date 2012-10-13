@@ -10,7 +10,6 @@ eigensolvers, are placed here.
 .. toctree::
    :maxdepth: 2
 
-   lapack-like/norms
    lapack-like/invariants
    lapack-like/factorizations
    lapack-like/solvers

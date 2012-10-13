@@ -46,6 +46,7 @@ matrix and the latter in a normal (in fact, unitary) matrix.
 Pseudoinverse
 -------------
 
+.. cpp:function:: Pseudoinverse( Matrix<F>& A )
 .. cpp:function:: Pseudoinverse( DistMatrix<F>& A )
 
    Computes the pseudoinverse of a general matrix through computing its SVD,

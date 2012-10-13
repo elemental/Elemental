@@ -34,6 +34,20 @@
 namespace elem {
 
 //----------------------------------------------------------------------------//
+// Condition number                                                           //
+//----------------------------------------------------------------------------//
+
+template<typename F>
+typename Base<F>::type ConditionNumber( const Matrix<F>& A );
+template<typename F,Distribution U,Distribution V>
+typename Base<F>::type ConditionNumber( const DistMatrix<F,U,V>& A );
+
+// TODO: Allow for destructive versions which overwrite the input matrix but
+//       do not require a temporary matrix
+
+// TODO: Generalize to condition number with respect to various norms
+
+//----------------------------------------------------------------------------//
 // Norms                                                                      //
 //----------------------------------------------------------------------------//
 
@@ -47,6 +61,7 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM );
 template<typename F,Distribution U,Distribution V>
 typename Base<F>::type 
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM );
+
 // TODO: Allow for destructive versions for cases which require computing 
 //       singular values in case the extra memory usage is unacceptable (rare)
 
@@ -921,7 +936,8 @@ void SingularValues
 //
 // Uses a Singular Value Decomposition to form the pseudoinverse of A. 
 //
-// TODO: Serial version
+template<typename F>
+void PseudoInverse( Matrix<F>& A );
 template<typename F>
 void Pseudoinverse( DistMatrix<F>& A );
 

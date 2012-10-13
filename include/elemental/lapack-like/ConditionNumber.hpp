@@ -30,66 +30,53 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include "elemental.hpp"
-using namespace elem;
 
-void Usage()
+namespace elem {
+
+template<typename F> 
+inline typename Base<F>::type
+ConditionNumber( const Matrix<F>& A )
 {
-    std::cout << "Hilbert <n>\n"
-              << "  n: Generate a Hilbert matrix of size n x n, n >= 1"
-              << std::endl;
-}
-
-int 
-main( int argc, char* argv[] )
-{
-    Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
-
-    try
-    {
-        DistMatrix<double> H;
-        Hilbert( n, H );
-        H.Print("Hilbert matrix:");
-
-
-        // This is grossly inefficient due to recomputing the singular values
-        // for each call, but it serves as an example of each function's usage
-        const double twoNorm = Norm( H, TWO_NORM );
-        const double frobNorm = Norm( H, FROBENIUS_NORM );
-        const double nuclearNorm = Norm( H, NUCLEAR_NORM );
-        const double cond = ConditionNumber( H );
-
-        if( commRank == 0 )
-        {
-            std::cout << "|| H ||_2 = " << twoNorm << "\n"
-                      << "|| H ||_F = " << frobNorm << "\n"
-                      << "|| H ||_* = " << nuclearNorm << "\n"
-                      << "kappa_2(H) = " << cond << "\n"
-                      << std::endl;
-        }
-    }
-    catch( std::exception& e )
-    {
 #ifndef RELEASE
-        DumpCallStack();
+    PushCallStack("ConditionNumber");
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
-    }
+    typedef typename Base<F>::type R;
 
-    Finalize();
-    return 0;
+    Matrix<F> B( A );
+    Matrix<R> s;
+    SingularValues( B, s );
+
+    R cond = 1;
+    const int numVals = s.Height();
+    if( numVals > 0 )
+        cond = s.Get(0,0) / s.Get(numVals-1,0);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return cond;
 }
 
+template<typename F,Distribution U,Distribution V> 
+inline typename Base<F>::type
+ConditionNumber( const DistMatrix<F,U,V>& A )
+{
+#ifndef RELEASE
+    PushCallStack("ConditionNumber");
+#endif
+    typedef typename Base<F>::type R;
+
+    DistMatrix<F> B( A );
+    DistMatrix<R,VR,STAR> s( A.Grid() );
+    SingularValues( B, s );
+
+    R cond = 1;
+    const int numVals = s.Height();
+    if( numVals > 0 )
+        cond = s.Get(0,0) / s.Get(numVals-1,0);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return cond;
+}
+
+} // namespace elem

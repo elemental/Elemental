@@ -39,6 +39,7 @@
 #include "./lapack-like/Cholesky.hpp"
 #include "./lapack-like/CholeskySolve.hpp"
 #include "./lapack-like/ComposePivots.hpp"
+#include "./lapack-like/ConditionNumber.hpp"
 #include "./lapack-like/Determinant.hpp"
 #include "./lapack-like/ExpandPackedReflectors.hpp"
 #include "./lapack-like/ExplicitLQ.hpp"
