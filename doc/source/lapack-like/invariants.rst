@@ -74,6 +74,41 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
    Returns the determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
 
+HPDDeterminant
+--------------
+A version of the above determinant specialized for Hermitian positive-definite
+matrices (which will therefore have all positive eigenvalues and a positive 
+determinant).
+
+.. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
+.. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+.. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
+
+   Returns the determinant of the (fully populated) Hermitian positive-definite
+   matrix `A`.
+   Some of the variants allow for overwriting the input matrix in order to 
+   avoid forming another temporary matrix.
+
+.. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
+.. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+.. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
+
+   Returns the determinant of the Hermitian positive-definite matrix `A` in an 
+   expanded form which is less likely to over/under-flow.
+
+LogBarrier
+----------
+Uses a careful calculation of the log of the determinant in order to return
+the *log barrier* of a Hermitian positive-definite matrix `A`, 
+:math:`-\log(\mbox{det}(A))`.
+
+.. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
+.. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
+.. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
+
 Norm
 ----
 The following routines can return either
