@@ -55,6 +55,7 @@
 #include "./lapack-like/HermitianQDWH.hpp"
 #include "./lapack-like/HermitianSVD.hpp"
 #include "./lapack-like/HermitianTridiag.hpp"
+#include "./lapack-like/HilbertSchmidt.hpp"
 #include "./lapack-like/HouseholderSolve.hpp"
 #include "./lapack-like/HPDDeterminant.hpp"
 #include "./lapack-like/HPDInverse.hpp"

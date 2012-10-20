@@ -35,7 +35,7 @@ namespace elem {
 namespace internal {
 
 template<typename F,Distribution U,Distribution V>
-mpi::Comm 
+inline mpi::Comm 
 NormComm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
@@ -78,7 +78,7 @@ NormComm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-mpi::Comm 
+inline mpi::Comm 
 NormColComm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
@@ -102,7 +102,7 @@ NormColComm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-mpi::Comm 
+inline mpi::Comm 
 NormRowComm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE

@@ -34,7 +34,7 @@
 namespace elem {
 
 //----------------------------------------------------------------------------//
-// Invariants                                                                 //
+// Invariants and inner products                                              //
 //----------------------------------------------------------------------------//
 
 //
@@ -191,6 +191,16 @@ template<typename F>
 typename Base<F>::type 
 SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM );
+
+//
+// HilbertSchmidt
+//
+// Returns trace(A^H B)
+//
+template<typename F>
+F HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B );
+template<typename F,Distribution U,Distribution V>
+F HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B );
 
 //----------------------------------------------------------------------------//
 // Factorizations                                                             //
