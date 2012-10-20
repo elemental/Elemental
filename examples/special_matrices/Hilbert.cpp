@@ -69,6 +69,7 @@ main( int argc, char* argv[] )
         const double cond = ConditionNumber( H );
         const double det = HPDDeterminant( LOWER, H );
         const double logBarrier = LogBarrier( LOWER, H );
+        const double hilbertSchmidt = HilbertSchmidt( H, H );
         const double twoNorm = HermitianNorm( LOWER, H, TWO_NORM );
         const double frobNorm = HermitianNorm( LOWER, H, FROBENIUS_NORM );
         const double nuclearNorm = HermitianNorm( LOWER, H, NUCLEAR_NORM );
@@ -78,6 +79,7 @@ main( int argc, char* argv[] )
             std::cout << "kappa_2(H)   = " << cond << "\n"
                       << "det(H)       = " << det << "\n"
                       << "-log(det(H)) = " << logBarrier << "\n"
+                      << "Tr(H' H)     = " << hilbertSchmidt << "\n"
                       << "|| H ||_F    = " << frobNorm << "\n"
                       << "|| H ||_*    = " << nuclearNorm << "\n"
                       << "|| H ||_2    = " << twoNorm << "\n"

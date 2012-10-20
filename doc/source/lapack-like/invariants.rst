@@ -1,5 +1,5 @@
-Invariants
-==========
+Invariants and inner products
+=============================
 
 Condition number
 ----------------
@@ -212,3 +212,11 @@ important characterization.
 .. cpp:function:: F Trace( const DistMatrix<F>& A )
 
    Return the trace of the square matrix `A`.
+
+HilbertSchmidt
+--------------
+The Hilbert-Schmidt inner-product of two :math:`m \times n` matrices :math:`A`
+and :math:`B` is :math:`\mbox{tr}(A^H B)`.
+
+.. cpp:function:: F HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
+.. cpp:function:: F HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
