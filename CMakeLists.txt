@@ -709,8 +709,9 @@ if(ELEM_EXAMPLES)
   set(CORE_EXAMPLES Constructors)
   set(BLAS_EXAMPLES Gemv)
   set(LAPACK_EXAMPLES GaussianElimination HermitianQDWH HouseholderSolve 
-                      HPDInverse LDL LDLInverse Polar Pseudoinverse QDWH 
-                      SequentialQR QR SequentialSVD SimpleSVD SVD)
+                      HPDInverse LDL LDLInverse LogDetDivergence Polar 
+                      Pseudoinverse QDWH SequentialQR QR SequentialSVD SimpleSVD
+                      SVD)
   set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
                        Hankel HermitianUniformSpectrum Hilbert Identity Legendre
                        NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform

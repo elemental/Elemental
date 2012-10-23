@@ -44,40 +44,26 @@ namespace internal {
 template<typename F>
 inline void
 TrsmLUTLarge
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,MC,MR>& U,
-        DistMatrix<F,MC,MR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLUTLarge");
-    if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLUT: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
 #endif
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<F,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
@@ -151,40 +137,26 @@ TrsmLUTLarge
 template<typename F>
 inline void
 TrsmLUTMedium
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,MC,MR>& U,
-        DistMatrix<F,MC,MR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& U, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLUTMedium");
-    if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
-    if( U.Height() != U.Width() || U.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLUT: \n"
-            << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
 #endif
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);
 
-    DistMatrix<F,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g); 
@@ -267,11 +239,8 @@ TrsmLUTMedium
 template<typename F>
 inline void
 TrsmLUTSmall
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,STAR,VR  >& U,
-        DistMatrix<F,VR,  STAR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,VR>& U, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE

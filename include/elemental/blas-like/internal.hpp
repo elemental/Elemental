@@ -92,6 +92,14 @@ void LocalTrsm
                  DistMatrix<F,XColDist,XRowDist>& X,
   bool checkIfSingular=false );
 
+template<typename F>
+void LocalTrtrsm
+( LeftOrRight side, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, 
+                 DistMatrix<F,STAR,STAR>& X,
+  bool checkIfSingular=false );
+
 // TODO: Finish adding wrappers for Local BLAS-like routines
 
 //----------------------------------------------------------------------------//
@@ -961,6 +969,26 @@ LocalTrsm
         ("Distribution of RHS must conform with that of triangle");
 #endif
     Trsm
+    ( side, uplo, orientation, diag,
+      alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LocalTrtrsm
+( LeftOrRight side, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,STAR>& A, 
+                 DistMatrix<F,STAR,STAR>& X,
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalTrtrsm");
+#endif
+    Trtrsm
     ( side, uplo, orientation, diag,
       alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
 #ifndef RELEASE

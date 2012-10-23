@@ -34,7 +34,7 @@
 namespace elem {
 
 //----------------------------------------------------------------------------//
-// Invariants and inner products                                              //
+// Invariants, inner products, and divergences                                //
 //----------------------------------------------------------------------------//
 
 //
@@ -137,6 +137,23 @@ LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A );
 template<typename F>
 typename Base<F>::type 
 LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false );
+
+//
+// LogDetDivergence
+//
+// Returns 
+//     D_{ld}(A,B) = tr(A inv(B)) - log(det(A inv(B))) - n,
+// where A and B are n x n HPD matrices.
+//
+template<typename F>
+typename Base<F>::type 
+LogDetDivergence
+( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B );
+template<typename F>
+typename Base<F>::type 
+LogDetDivergence
+( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B );
+// TODO: versions which can be overwritten
 
 //
 // Trace

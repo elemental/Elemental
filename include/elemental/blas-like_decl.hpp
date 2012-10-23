@@ -938,6 +938,34 @@ void Trsm
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
   bool checkIfSingular=false );
 
+//
+// Trtrsm (TRiangular TRiangular Solve with Multiple right-hand sides):
+//
+// Performs the update
+//   B := alpha orientation( A )^-1 B,  { side = LEFT }
+// or
+//   B := alpha B orientation( A )^-1,  { side = RIGHT }
+// where 'uplo' determines whether A and B are assumed to be upper or lower
+// triangular and 'diag' determines whether A has an implicit unit
+// diagonal.
+//
+
+// Serial version
+template<typename F>
+void Trtrsm
+( LeftOrRight side, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const Matrix<F>& A, Matrix<F>& B, 
+  bool checkIfSingular=false ); 
+        
+// Parallel version
+template<typename F>
+void Trtrsm
+( LeftOrRight side, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
+  bool checkIfSingular=false );
+
 // Trtrmm (TRiangular TRiangular Matrix-Matrix multiply):
 //
 // Either L := tril(L^[T/H] L) or U := triu(U U^[T/H])

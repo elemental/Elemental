@@ -30,20 +30,58 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
+#include "elemental.hpp"
+using namespace elem;
 
-#include "./level3/Gemm.hpp"
-#include "./level3/Hemm.hpp"
-#include "./level3/Her2k.hpp"
-#include "./level3/Herk.hpp"
-#include "./level3/Symm.hpp"
-#include "./level3/Syr2k.hpp"
-#include "./level3/Syrk.hpp"
-#include "./level3/Trmm.hpp"
-#include "./level3/Trtrmm.hpp"
-#include "./level3/Trdtrmm.hpp"
-#include "./level3/Trr2k.hpp"
-#include "./level3/Trrk.hpp"
-#include "./level3/Trsm.hpp"
-#include "./level3/Trtrsm.hpp"
-#include "./level3/TwoSidedTrmm.hpp"
-#include "./level3/TwoSidedTrsm.hpp"
+void Usage()
+{
+    std::cout << "LogDetDivergence <n> <lower> <upper>\n"
+              << "  n: height of random Hermitian matrix\n"
+              << "  lower: (non-inclusive) lower bound on spectrum\n"
+              << "  upper: (inclusive) upper bound on spectrum\n"
+              << std::endl;
+}
+
+int 
+main( int argc, char* argv[] )
+{
+    Initialize( argc, argv );
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
+
+    if( argc < 4 )
+    {
+        if( commRank == 0 )
+            Usage();
+        Finalize();
+        return 0;
+    }
+    const int n = atoi( argv[1] );
+    const double lower = atof( argv[2] );
+    const double upper = atof( argv[3] );
+
+    try
+    {
+        DistMatrix<double> A, B;
+        HermitianUniformSpectrum( n, A, lower, upper );
+        HermitianUniformSpectrum( n, B, lower, upper );
+        A.Print("A");
+        B.Print("B");
+        const double logDetDiv = LogDetDivergence( LOWER, A, B );
+        if( commRank == 0 )
+            std::cout << "LogDetDiv(A,B) = " << logDetDiv << std::endl;
+    }
+    catch( std::exception& e )
+    {
+#ifndef RELEASE
+        DumpCallStack();
+#endif
+        std::cerr << "Process " << commRank << " caught error message:\n"
+                  << e.what() << std::endl;
+    }
+
+    Finalize();
+    return 0;
+}
+

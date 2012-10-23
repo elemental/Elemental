@@ -43,34 +43,22 @@ template<typename F>
 inline void
 TrsmLLNLarge
 ( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& L,
-                 DistMatrix<F,MC,MR>& X,
+  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLLNLarge");
-    if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
-    if( L.Height() != L.Width() || L.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLN: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
 #endif
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-    DistMatrix<F,MC,MR> XT(g),  X0(g), 
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g), 
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -144,34 +132,22 @@ template<typename F>
 inline void
 TrsmLLNMedium
 ( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,MC,MR>& L,
-                 DistMatrix<F,MC,MR>& X,
+  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLLNMedium");
-    if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
-    if( L.Height() != L.Width() || L.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLN: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str() );
-    }
 #endif
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-    DistMatrix<F,MC,MR> XT(g),  X0(g), 
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g), 
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
@@ -244,23 +220,11 @@ template<typename F>
 inline void
 TrsmLLNSmall
 ( UnitOrNonUnit diag,
-  F alpha, const DistMatrix<F,VC,STAR>& L,
-                 DistMatrix<F,VC,STAR>& X,
+  F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLLNSmall");
-    if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
-    if( L.Height() != L.Width() || L.Width() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLN: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
     if( L.ColAlignment() != X.ColAlignment() )
         throw std::logic_error("L and X are assumed to be aligned");
 #endif

@@ -87,72 +87,82 @@ Trsm
 template<typename F>
 inline void
 Trsm
-( LeftOrRight side, 
-  UpperOrLower uplo, 
-  Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,MC,MR>& A,
-        DistMatrix<F,MC,MR>& X,
+( LeftOrRight side, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("Trsm");
+    if( A.Grid() != B.Grid() )
+        throw std::logic_error("A and B must use the same grid");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+    if( side == LEFT )
+    {
+        if( A.Height() != B.Height() )
+            throw std::logic_error("Nonconformal Trsm");
+    }
+    else
+    {
+        if( A.Height() != B.Width() )
+            throw std::logic_error("Nonconformal Trsm");
+    }
 #endif
-    const int p = X.Grid().Size();
+    const int p = B.Grid().Size();
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
         {
-            if( X.Width() > 5*p )
-                internal::TrsmLLNLarge( diag, alpha, A, X, checkIfSingular );
+            if( B.Width() > 5*p )
+                internal::TrsmLLNLarge( diag, alpha, A, B, checkIfSingular );
             else
-                internal::TrsmLLNMedium( diag, alpha, A, X, checkIfSingular );
+                internal::TrsmLLNMedium( diag, alpha, A, B, checkIfSingular );
         }
         else
         {
-            if( X.Width() > 5*p )
+            if( B.Width() > 5*p )
                 internal::TrsmLLTLarge
-                ( orientation, diag, alpha, A, X, checkIfSingular );
+                ( orientation, diag, alpha, A, B, checkIfSingular );
             else
                 internal::TrsmLLTMedium
-                ( orientation, diag, alpha, A, X, checkIfSingular );
+                ( orientation, diag, alpha, A, B, checkIfSingular );
         }
     }
     else if( side == LEFT && uplo == UPPER )
     {
         if( orientation == NORMAL )
         {
-            if( X.Width() > 5*p )
-                internal::TrsmLUNLarge( diag, alpha, A, X, checkIfSingular );
+            if( B.Width() > 5*p )
+                internal::TrsmLUNLarge( diag, alpha, A, B, checkIfSingular );
             else
-                internal::TrsmLUNMedium( diag, alpha, A, X, checkIfSingular );
+                internal::TrsmLUNMedium( diag, alpha, A, B, checkIfSingular );
         }
         else
         {
-            if( X.Width() > 5*p )
+            if( B.Width() > 5*p )
                 internal::TrsmLUTLarge
-                ( orientation, diag, alpha, A, X, checkIfSingular );
+                ( orientation, diag, alpha, A, B, checkIfSingular );
             else
                 internal::TrsmLUTMedium
-                ( orientation, diag, alpha, A, X, checkIfSingular );
+                ( orientation, diag, alpha, A, B, checkIfSingular );
         }
     }
     else if( side == RIGHT && uplo == LOWER )
     {
         if( orientation == NORMAL )
-            internal::TrsmRLN( diag, alpha, A, X, checkIfSingular );
+            internal::TrsmRLN( diag, alpha, A, B, checkIfSingular );
         else
             internal::TrsmRLT
-            ( orientation, diag, alpha, A, X, checkIfSingular );
+            ( orientation, diag, alpha, A, B, checkIfSingular );
     }
     else if( side == RIGHT && uplo == UPPER )
     {
         if( orientation == NORMAL )
-            internal::TrsmRUN( diag, alpha, A, X, checkIfSingular );
+            internal::TrsmRUN( diag, alpha, A, B, checkIfSingular );
         else
             internal::TrsmRUT
-            ( orientation, diag, alpha, A, X, checkIfSingular );
+            ( orientation, diag, alpha, A, B, checkIfSingular );
     }
 #ifndef RELEASE
     PopCallStack();

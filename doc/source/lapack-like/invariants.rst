@@ -1,5 +1,5 @@
-Invariants and inner products
-=============================
+Invariants, inner products, and divergences
+===========================================
 
 Condition number
 ----------------
@@ -108,6 +108,26 @@ the *log barrier* of a Hermitian positive-definite matrix `A`,
 .. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 .. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 .. cpp:function:: typename Base<F>::type LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
+
+LogDetDivergence
+----------------
+The *log-det divergence* of a pair of :math:`n \times n` Hermitian 
+positive-definite matrices :math:`A` and :math:`B` is 
+
+.. math::
+
+   D_{ld}(A,B) = \mbox{tr}(A B^{-1}) -\log(\mbox{det}(A B^{-1})) - n,
+
+which can be greatly simplified using the Cholesky factors of :math:`A` and :math:`B`.
+In particular, if we set :math:`Z = L_B^{-1} L_A`, where :math:`A=L_A L_A^H` and 
+:math:`B=L_B L_B^H` are Cholesky factorizations, then 
+
+.. math::
+
+   D_{ld}(A,B) = \| Z \|_F^2 - 2 \log(\mbox{det}(Z)) - n.
+
+.. cpp:function:: typename Base<F>::type LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
+.. cpp:function:: typename Base<F>::type LogDetDivergence( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 
 Norm
 ----

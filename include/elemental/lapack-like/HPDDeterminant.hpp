@@ -64,7 +64,7 @@ SafeHPDDeterminantWithOverwrite( UpperOrLower uplo, Matrix<F>& A )
             det.kappa += Log(delta)/scale;
         }
     }
-    catch( SingularMatrixException& e )
+    catch( NonHPDMatrixException& e )
     {
         det.rho = 0;
         det.kappa = 0;
@@ -110,7 +110,7 @@ SafeHPDDeterminantWithOverwrite( UpperOrLower uplo, DistMatrix<F>& A )
         mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
         det.rho = F(1);
     }
-    catch( SingularMatrixException& e )
+    catch( NonHPDMatrixException& e )
     {
         det.rho = 0;
         det.kappa = 0;

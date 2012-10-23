@@ -44,39 +44,25 @@ namespace internal {
 template<typename F>
 inline void
 TrsmLLTLarge
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,MC,MR>& L,
-        DistMatrix<F,MC,MR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLLTLarge");
-    if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLT: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
 #endif
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
-    DistMatrix<F,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
@@ -150,40 +136,26 @@ TrsmLLTLarge
 template<typename F>
 inline void
 TrsmLLTMedium
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,MC,MR>& L,
-        DistMatrix<F,MC,MR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F>& L, DistMatrix<F>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsmLLTMedium");
-    if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
-    if( L.Height() != L.Width() || L.Height() != X.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal TrsmLLT: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
 #endif
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR> 
+    DistMatrix<F> 
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);
 
-    DistMatrix<F,MC,MR> XT(g),  X0(g),
-                        XB(g),  X1(g),
-                                X2(g);
+    DistMatrix<F> XT(g),  X0(g),
+                  XB(g),  X1(g),
+                          X2(g);
 
     // Temporary distributions
     DistMatrix<F,STAR,MC  > L10_STAR_MC(g);
@@ -288,11 +260,8 @@ inline void AddInLocalData
 template<typename F>
 inline void
 TrsmLLTSmall
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,VC,STAR>& L,
-        DistMatrix<F,VC,STAR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,VC,STAR>& L, DistMatrix<F,VC,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
@@ -385,11 +354,8 @@ TrsmLLTSmall
 template<typename F>
 inline void
 TrsmLLTSmall
-( Orientation orientation, 
-  UnitOrNonUnit diag,
-  F alpha, 
-  const DistMatrix<F,STAR,VR  >& L,
-        DistMatrix<F,VR,  STAR>& X,
+( Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,VR>& L, DistMatrix<F,VR,STAR>& X,
   bool checkIfSingular )
 {
 #ifndef RELEASE
