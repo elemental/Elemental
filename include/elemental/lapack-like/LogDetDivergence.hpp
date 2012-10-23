@@ -54,11 +54,11 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     Cholesky( uplo, ACopy );
     Cholesky( uplo, BCopy );
 
-    //Trtrsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
-    MakeTrapezoidal( LEFT, LOWER, 0, ACopy );
-    Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+    //Trtrsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+    Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
 
-    MakeTrapezoidal( LEFT, LOWER, 0, ACopy );
+    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
     const R frobNorm = Norm( ACopy, FROBENIUS_NORM );
 
     Matrix<F> d;
@@ -99,11 +99,11 @@ LogDetDivergence
     Cholesky( uplo, ACopy );
     Cholesky( uplo, BCopy );
 
-    //Trtrsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
-    MakeTrapezoidal( LEFT, LOWER, 0, ACopy );
-    Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+    //Trtrsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
+    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+    Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
 
-    MakeTrapezoidal( LEFT, LOWER, 0, ACopy );
+    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
     const R frobNorm = Norm( ACopy, FROBENIUS_NORM );
 
     R logDet;
