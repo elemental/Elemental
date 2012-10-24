@@ -66,9 +66,9 @@ TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 
         const int l21Height = n - (i+1);
         const F* l21 = &LBuffer[(i+1)+i*LLDim];
-        const F* x10 = &XBuffer[i];
-        F* X20 = &XBuffer[i+1];
-        blas::Geru( l21Height, i, F(-1), l21, 1, x10, XLDim, X20, XLDim );
+        const F* x1L = &XBuffer[i];
+        F* X2L = &XBuffer[i+1];
+        blas::Geru( l21Height, i+1, F(-1), l21, 1, x1L, XLDim, X2L, XLDim );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -93,6 +93,8 @@ TrtrsmLLN
         XTL, XTR,  X00, X01, X02,
         XBL, XBR,  X10, X11, X12,
                    X20, X21, X22;
+
+    Matrix<F> Z11;
 
     // Start the algorithm
     ScaleTrapezoid( alpha, LEFT, LOWER, 0, X );
@@ -120,6 +122,9 @@ TrtrsmLLN
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), L11, X10, checkIfSingular );
         TrtrsmLLNUnb( diag, F(1), L11, X11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, X10, F(1), X20 );
+        Z11 = X11;
+        MakeTrapezoidal( LEFT, LOWER, 0, Z11 );
+        Gemm( NORMAL, NORMAL, F(-1), L21, Z11, F(1), X21 );
         //--------------------------------------------------------------------//
 
         SlideLockedPartitionDownDiagonal
@@ -165,6 +170,7 @@ TrtrsmLLN
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > X10_STAR_MR(g);
     DistMatrix<F,STAR,VR  > X10_STAR_VR(g);
+    DistMatrix<F,STAR,MR  > X11_STAR_MR(g);
     DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
 
     // Start the algorithm
@@ -191,6 +197,7 @@ TrtrsmLLN
 
         L21_MC_STAR.AlignWith( X20 );
         X10_STAR_MR.AlignWith( X20 );
+        X11_STAR_MR.AlignWith( X21 );
         //--------------------------------------------------------------------//
         L11_STAR_STAR = L11; 
         X11_STAR_STAR = X11; 
@@ -202,6 +209,9 @@ TrtrsmLLN
         LocalTrtrsm
         ( LEFT, LOWER, NORMAL, diag, F(1), L11_STAR_STAR, X11_STAR_STAR,
           checkIfSingular );
+        X11 = X11_STAR_STAR;
+        X11_STAR_MR = X11_STAR_STAR;
+        MakeTrapezoidal( LEFT, LOWER, 0, X11_STAR_MR );
 
         X10_STAR_MR = X10_STAR_VR;
         X10 = X10_STAR_MR;
@@ -209,9 +219,12 @@ TrtrsmLLN
         
         LocalGemm
         ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X10_STAR_MR, F(1), X20 );
+        LocalGemm
+        ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X11_STAR_MR, F(1), X21 );
         //--------------------------------------------------------------------//
         L21_MC_STAR.FreeAlignments();
         X10_STAR_MR.FreeAlignments();
+        X11_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,
