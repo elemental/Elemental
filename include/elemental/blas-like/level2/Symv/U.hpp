@@ -83,87 +83,47 @@ LocalSymvColAccumulateU
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
+    DistMatrix<T> A11(g), A12(g);
     DistMatrix<T> D11(g);
 
-    DistMatrix<T,MC,STAR> 
-        xT_MC_STAR(g),  x0_MC_STAR(g),
-        xB_MC_STAR(g),  x1_MC_STAR(g),
-                        x2_MC_STAR(g);
-
+    DistMatrix<T,MC,STAR> x1_MC_STAR(g);
     DistMatrix<T,MR,STAR> 
         xT_MR_STAR(g),  x0_MR_STAR(g),
         xB_MR_STAR(g),  x1_MR_STAR(g),
                         x2_MR_STAR(g);
-
-    DistMatrix<T,MC,STAR> 
-        zT_MC_STAR(g),  z0_MC_STAR(g),
-        zB_MC_STAR(g),  z1_MC_STAR(g),
-                        z2_MC_STAR(g);
-
-    DistMatrix<T,MR,STAR> 
-        zT_MR_STAR(g),  z0_MR_STAR(g),
-        zB_MR_STAR(g),  z1_MR_STAR(g),
-                        z2_MR_STAR(g);
+    DistMatrix<T,MC,STAR> z1_MC_STAR(g);
+    DistMatrix<T,MR,STAR> z1_MR_STAR(g),
+                          z2_MR_STAR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
     const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
-    LockedPartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionDown
-    ( x_MC_STAR, xT_MC_STAR,
-                 xB_MC_STAR, 0 );
     LockedPartitionDown
     ( x_MR_STAR, xT_MR_STAR,
                  xB_MR_STAR, 0 );
-    PartitionDown
-    ( z_MC_STAR, zT_MC_STAR,
-                 zB_MC_STAR, 0 );
-    PartitionDown
-    ( z_MR_STAR, zT_MR_STAR,
-                 zB_MR_STAR, 0 );
-    while( ATL.Height() < A.Height() )
+    while( xT_MR_STAR.Height() < x_MR_STAR.Height() )
     {
-        LockedRepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        LockedRepartitionDown
-        ( xT_MC_STAR,  x0_MC_STAR,
-         /**********/ /**********/
-                       x1_MC_STAR,
-          xB_MC_STAR,  x2_MC_STAR );
-
         LockedRepartitionDown
         ( xT_MR_STAR,  x0_MR_STAR,
          /**********/ /**********/
                        x1_MR_STAR,
           xB_MR_STAR,  x2_MR_STAR );
 
-        RepartitionDown
-        ( zT_MC_STAR,  z0_MC_STAR,
-         /**********/ /**********/
-                       z1_MC_STAR,
-          zB_MC_STAR,  z2_MC_STAR );
-
-        RepartitionDown
-        ( zT_MR_STAR,  z0_MR_STAR,
-         /**********/ /**********/
-                       z1_MR_STAR,
-          zB_MR_STAR,  z2_MR_STAR );
+        const int n0 = x0_MR_STAR.Height();
+        const int n1 = x1_MR_STAR.Height();
+        const int n2 = x2_MR_STAR.Height();
+        A11.LockedView( A, n0, n0,    n1, n1 );
+        A12.LockedView( A, n0, n0+n1, n1, n2 );
+        x1_MC_STAR.LockedView( x_MC_STAR, n0, 0, n1, 1 );
+        z1_MC_STAR.View( z_MC_STAR, n0,    0, n1, 1 );
+        z1_MR_STAR.View( z_MR_STAR, n0,    0, n1, 1 );
+        z2_MR_STAR.View( z_MR_STAR, n0+n1, 0, n2, 1 );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
+        // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         Gemv
@@ -172,7 +132,6 @@ LocalSymvColAccumulateU
                  x1_MR_STAR.LockedLocalMatrix(),
           T(1),  z1_MC_STAR.LocalMatrix() );
         MakeTrapezoidal( LEFT, UPPER, 1, D11 );
-
         Gemv
         ( TRANSPOSE,
           alpha, D11.LockedLocalMatrix(),
@@ -184,7 +143,6 @@ LocalSymvColAccumulateU
           alpha, A12.LockedLocalMatrix(),
                  x2_MR_STAR.LockedLocalMatrix(),
           T(1),  z1_MC_STAR.LocalMatrix() );
-
         Gemv
         ( TRANSPOSE,
           alpha, A12.LockedLocalMatrix(),
@@ -193,39 +151,13 @@ LocalSymvColAccumulateU
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionDown
-        ( xT_MC_STAR,  x0_MC_STAR,
-                       x1_MC_STAR,
-         /**********/ /**********/
-          xB_MC_STAR,  x2_MC_STAR );
-
         SlideLockedPartitionDown
         ( xT_MR_STAR,  x0_MR_STAR,
                        x1_MR_STAR,
          /**********/ /**********/
           xB_MR_STAR,  x2_MR_STAR );
-        
-        SlidePartitionDown
-        ( zT_MC_STAR,  z0_MC_STAR,
-                       z1_MC_STAR,
-         /**********/ /**********/
-          zB_MC_STAR,  z2_MC_STAR );
-
-        SlidePartitionDown
-        ( zT_MR_STAR,  z0_MR_STAR,
-                       z1_MR_STAR,
-         /**********/ /**********/
-          zB_MR_STAR,  z2_MR_STAR );
     }
-
     PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -280,67 +212,41 @@ LocalSymvRowAccumulateU
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
+    DistMatrix<T> A11(g), A12(g);
     DistMatrix<T> D11(g);
 
-    DistMatrix<T,STAR,MC> 
-        xL_STAR_MC(g), xR_STAR_MC(g),
-        x0_STAR_MC(g), x1_STAR_MC(g), x2_STAR_MC(g);
-
+    DistMatrix<T,STAR,MC> x1_STAR_MC(g);
     DistMatrix<T,STAR,MR> 
         xL_STAR_MR(g), xR_STAR_MR(g),
         x0_STAR_MR(g), x1_STAR_MR(g), x2_STAR_MR(g);
-
-    DistMatrix<T,STAR,MC> 
-        zL_STAR_MC(g), zR_STAR_MC(g),
-        z0_STAR_MC(g), z1_STAR_MC(g), z2_STAR_MC(g);
-
-    DistMatrix<T,STAR,MR> 
-        zL_STAR_MR(g), zR_STAR_MR(g),
-        z0_STAR_MR(g), z1_STAR_MR(g), z2_STAR_MR(g);
+    DistMatrix<T,STAR,MC> z1_STAR_MC(g);
+    DistMatrix<T,STAR,MR> z1_STAR_MR(g), z2_STAR_MR(g);
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
     const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
-    LockedPartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    LockedPartitionRight( x_STAR_MC,  xL_STAR_MC, xR_STAR_MC, 0 );
     LockedPartitionRight( x_STAR_MR,  xL_STAR_MR, xR_STAR_MR, 0 );
-    PartitionRight( z_STAR_MC,  zL_STAR_MC, zR_STAR_MC, 0 );
-    PartitionRight( z_STAR_MR,  zL_STAR_MR, zR_STAR_MR, 0 );
-    while( ATL.Height() < A.Height() )
+    while( xL_STAR_MR.Width() < x_STAR_MR.Width() )
     {
-        LockedRepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        LockedRepartitionRight
-        ( xL_STAR_MC, /**/ xR_STAR_MC, 
-          x0_STAR_MC, /**/ x1_STAR_MC, x2_STAR_MC );
-
         LockedRepartitionRight
         ( xL_STAR_MR, /**/ xR_STAR_MR, 
           x0_STAR_MR, /**/ x1_STAR_MR, x2_STAR_MR );
 
-        RepartitionRight
-        ( zL_STAR_MC, /**/ zR_STAR_MC,
-          z0_STAR_MC, /**/ z1_STAR_MC, z2_STAR_MC );
-
-        RepartitionRight
-        ( zL_STAR_MR, /**/ zR_STAR_MR,
-          z0_STAR_MR, /**/ z1_STAR_MR, z2_STAR_MR );
+        const int n0 = x0_STAR_MR.Width();
+        const int n1 = x1_STAR_MR.Width();
+        const int n2 = x2_STAR_MR.Width();
+        A11.LockedView( A, n0, n0,    n1, n1 );
+        A12.LockedView( A, n0, n0+n1, n1, n2 );
+        x1_STAR_MC.LockedView( x_STAR_MC, 0, n0, 1, n1 );
+        z1_STAR_MC.View( z_STAR_MC, 0, n0,    1, n1 );
+        z1_STAR_MR.View( z_STAR_MR, 0, n0,    1, n1 );
+        z2_STAR_MR.View( z_STAR_MR, 0, n0+n1, 1, n2 );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
+        // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTrapezoidal( LEFT, UPPER, 0, D11 );
         Gemv
@@ -349,7 +255,6 @@ LocalSymvRowAccumulateU
                  x1_STAR_MR.LockedLocalMatrix(),
           T(1),  z1_STAR_MC.LocalMatrix() );
         MakeTrapezoidal( LEFT, UPPER, 1, D11 );
-
         Gemv
         ( TRANSPOSE,
           alpha, D11.LockedLocalMatrix(),
@@ -369,27 +274,9 @@ LocalSymvRowAccumulateU
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
-        SlideLockedPartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlideLockedPartitionRight
-        ( xL_STAR_MC,             /**/ xR_STAR_MC,
-          x0_STAR_MC, x1_STAR_MC, /**/ x2_STAR_MC );
-        
         SlideLockedPartitionRight
         ( xL_STAR_MR,             /**/ xR_STAR_MR,
           x0_STAR_MR, x1_STAR_MR, /**/ x2_STAR_MR );
-
-        SlidePartitionRight
-        ( zL_STAR_MC,             /**/ zR_STAR_MC,
-          z0_STAR_MC, z1_STAR_MC, /**/ z2_STAR_MC );
-
-        SlidePartitionRight
-        ( zL_STAR_MR,             /**/ zR_STAR_MR,
-          z0_STAR_MR, z1_STAR_MR, /**/ z2_STAR_MR );
     }
     PopBlocksizeStack();
 #ifndef RELEASE
