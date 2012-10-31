@@ -48,7 +48,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestCorrectness
 ( bool pivoted, bool printMatrices, 
   const DistMatrix<F>& A,
@@ -74,16 +74,16 @@ void TestCorrectness
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    R oneNormOfX = Norm( X, ONE_NORM );
-    R infNormOfX = Norm( X, INFINITY_NORM );
-    R frobNormOfX = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfX = Norm( X, ONE_NORM );
+    const R infNormOfX = Norm( X, INFINITY_NORM );
+    const R frobNormOfX = Norm( X, FROBENIUS_NORM );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    R oneNormOfError = Norm( X, ONE_NORM );
-    R infNormOfError = Norm( X, INFINITY_NORM );
-    R frobNormOfError = Norm( X, FROBENIUS_NORM );
-    R oneNormOfA = Norm( AOrig, ONE_NORM );
-    R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfError = Norm( X, ONE_NORM );
+    const R infNormOfError = Norm( X, INFINITY_NORM );
+    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfA = Norm( AOrig, ONE_NORM );
+    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
 
     if( g.Rank() == 0 )
     {
@@ -99,12 +99,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestLU
 ( bool pivot, bool testCorrectness, bool printMatrices, 
   int m, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<F> A(g), ARef(g);
     DistMatrix<int,VC,STAR> p(g);
 
@@ -129,15 +128,15 @@ void TestLU
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     if( pivot )
         LU( A, p );
     else
         LU( A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::LUGFlops<F>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

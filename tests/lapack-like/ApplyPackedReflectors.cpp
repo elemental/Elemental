@@ -53,14 +53,10 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
-( LeftOrRight side, 
-  UpperOrLower uplo,
-  ForwardOrBackward order,
-  int offset,
-  bool printMatrices,
-  const DistMatrix<R>& H )
+( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
+  int offset, bool printMatrices, const DistMatrix<R>& H )
 {
     const Grid& g = H.Grid();
     const int m = H.Height();
@@ -107,9 +103,9 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    R oneNormOfError = Norm( X, ONE_NORM );
-    R infNormOfError = Norm( X, INFINITY_NORM );
-    R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = Norm( X, ONE_NORM );
+    const R infNormOfError = Norm( X, INFINITY_NORM );
+    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -127,14 +123,10 @@ void TestCorrectness
     }
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
-( LeftOrRight side,
-  UpperOrLower uplo,
-  ForwardOrBackward order,
-  Conjugation conjugation,
-  int offset,
-  bool printMatrices,
+( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
+  Conjugation conjugation, int offset, bool printMatrices,
   const DistMatrix<Complex<R> >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t )
 {
@@ -187,9 +179,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    R oneNormOfError = Norm( X, ONE_NORM );
-    R infNormOfError = Norm( X, INFINITY_NORM );
-    R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = Norm( X, ONE_NORM );
+    const R infNormOfError = Norm( X, INFINITY_NORM );
+    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -207,23 +199,13 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex number
-void TestUT
-( LeftOrRight side, UpperOrLower uplo, 
-  ForwardOrBackward order, Conjugation conjugation,
-  int m, int offset, bool testCorrectness, bool printMatrices,
-  const Grid& g );
-
-template<>
-void TestUT<double>
+template<typename R>
+void TestRealUT
 ( LeftOrRight side, UpperOrLower uplo, 
   ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    typedef double R;
-
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<R> H(g), A(g);
     Uniform( m, m, H );
     Uniform( m, m, A );
@@ -239,13 +221,11 @@ void TestUT<double>
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
-    ApplyPackedReflectors
-    ( side, uplo, VERTICAL, order, offset, H, A );
+    const double startTime = mpi::Time();
+    ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::ApplyPackedReflectorsGFlops<R>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double gFlops = 2.*Pow(double(m),3.)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -258,16 +238,15 @@ void TestUT<double>
         TestCorrectness( side, uplo, order, offset, printMatrices, H );
 }
 
-template<>
-void TestUT<Complex<double> >
+template<typename R>
+void TestComplexUT
 ( LeftOrRight side, UpperOrLower uplo, 
   ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    typedef Complex<double> C;
+    typedef Complex<R> C;
 
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<C> H(g), A(g);
     Uniform( m, m, H );
     Uniform( m, m, A );
@@ -314,13 +293,12 @@ void TestUT<Complex<double> >
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::ApplyPackedReflectorsGFlops<C>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double gFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -393,7 +371,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestUT<double>
+        TestRealUT<double>
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
@@ -403,7 +381,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestUT<Complex<double> >
+        TestComplexUT<double>
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }

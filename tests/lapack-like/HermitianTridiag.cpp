@@ -50,7 +50,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R> // represents a real number
+template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, 
@@ -109,10 +109,10 @@ void TestCorrectness
     MakeTrapezoidal( LEFT, uplo, 0, B );
     Axpy( R(-1), AOrig, B );
 
-    R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
-    R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
+    const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    const R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    const R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
+    const R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -122,7 +122,7 @@ void TestCorrectness
     }
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo, 
@@ -185,10 +185,10 @@ void TestCorrectness
     MakeTrapezoidal( LEFT, uplo, 0, B );
     Axpy( C(-1), AOrig, B );
 
-    R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
-    R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
+    const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+    const R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+    const R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
+    const R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -198,19 +198,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex number
-void TestHermitianTridiag
-( bool testCorrectness, bool printMatrices,
-  UpperOrLower uplo, int m, const Grid& g );
-
-template<>
-void TestHermitianTridiag<double>
+template<typename R>
+void TestRealHermitianTridiag
 ( bool testCorrectness, bool printMatrices,
   UpperOrLower uplo, int m, const Grid& g )
 {
-    typedef double R;
-
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<R> A(g), AOrig(g);
 
     HermitianUniformSpectrum( m, A, -10, 10 );
@@ -234,12 +226,11 @@ void TestHermitianTridiag<double>
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     HermitianTridiag( uplo, A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::HermitianTridiagGFlops<R>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double gFlops = 4./3.*Pow(double(m),3.)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -252,15 +243,12 @@ void TestHermitianTridiag<double>
         TestCorrectness( printMatrices, uplo, A, AOrig );
 }
 
-template<>
-void TestHermitianTridiag<Complex<double> >
+template<typename R>
+void TestComplexHermitianTridiag
 ( bool testCorrectness, bool printMatrices,
   UpperOrLower uplo, int m, const Grid& g )
 {
-    typedef double R;
     typedef Complex<R> C;
-
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,STAR,STAR> t(g);
 
@@ -285,12 +273,11 @@ void TestHermitianTridiag<Complex<double> >
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     HermitianTridiag( uplo, A, t );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::HermitianTridiagGFlops<Complex<R> >( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double gFlops = 16./3.*Pow(double(m),3.)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -356,7 +343,7 @@ main( int argc, char* argv[] )
                  << "----------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<double>
+        TestRealHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -368,7 +355,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<double>
+        TestRealHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -380,7 +367,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<double>
+        TestRealHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -390,7 +377,7 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<Complex<double> >
+        TestComplexHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -403,7 +390,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<Complex<double> >
+        TestComplexHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
         if( rank == 0 )
@@ -416,7 +403,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<Complex<double> >
+        TestComplexHermitianTridiag<double>
         ( testCorrectness, printMatrices, uplo, m, g );
     }
     catch( exception& e )

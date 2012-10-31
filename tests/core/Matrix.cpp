@@ -42,7 +42,7 @@ void Usage()
               << "    ldim: leading dimension of matrix" << std::endl;
 }
 
-template<typename T> // represents an a real or complex ring
+template<typename T> 
 void TestMatrix( int m, int n, int ldim )
 {
     if( m > ldim || ldim == 0 )

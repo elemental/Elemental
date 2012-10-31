@@ -169,7 +169,6 @@ public:
     void LockedView( const DistMatrix<T,STAR,STAR,Int>& A );
 
     // (Immutable) view of a distributed matrix's buffer
-    // Create a 0 x 0 distributed matrix using the default grid
     void View
     ( Int height, Int width,
       T* buffer, Int ldim, const elem::Grid& grid );

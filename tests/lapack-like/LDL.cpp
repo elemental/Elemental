@@ -51,7 +51,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestCorrectness
 ( bool conjugated, bool printMatrices, 
   const DistMatrix<F>& A,
@@ -78,14 +78,14 @@ void TestCorrectness
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
     else
         Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-    R oneNormOfError = Norm( Y, ONE_NORM );
-    R infNormOfError = Norm( Y, INFINITY_NORM );
-    R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-    R infNormOfA = HermitianNorm( LOWER, AOrig, INFINITY_NORM );
-    R frobNormOfA = HermitianNorm( LOWER, AOrig, FROBENIUS_NORM );
-    R oneNormOfX = Norm( X, ONE_NORM );
-    R infNormOfX = Norm( X, INFINITY_NORM );
-    R frobNormOfX = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = Norm( Y, ONE_NORM );
+    const R infNormOfError = Norm( Y, INFINITY_NORM );
+    const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+    const R infNormOfA = HermitianNorm( LOWER, AOrig, INFINITY_NORM );
+    const R frobNormOfA = HermitianNorm( LOWER, AOrig, FROBENIUS_NORM );
+    const R oneNormOfX = Norm( X, ONE_NORM );
+    const R infNormOfX = Norm( X, INFINITY_NORM );
+    const R frobNormOfX = Norm( X, FROBENIUS_NORM );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -99,13 +99,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestLDL
 ( bool conjugated, bool testCorrectness, bool printMatrices, 
   int m, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
-
     DistMatrix<F> A(g), AOrig(g);
     if( conjugated )
         HermitianUniformSpectrum( m, A, -100, 100 );
@@ -132,18 +130,15 @@ void TestLDL
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     if( !conjugated )
         LDLT( A, d );
     else
         LDLH( A, d );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    if( conjugated )
-        gFlops = internal::LDLHGFlops<F>( m, runTime );
-    else
-        gFlops = internal::LDLTGFlops<F>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE.\n"

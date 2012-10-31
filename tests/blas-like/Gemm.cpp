@@ -50,12 +50,12 @@ void Usage()
          << "  print?: [0/1]\n" << endl; 
 }
 
-template<typename T> // represents a real or complex ring
+template<typename T> 
 void TestGemm
 ( bool printMatrices, Orientation orientationOfA, Orientation orientationOfB,
   int m, int n, int k, T alpha, T beta, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
+    double startTime, endTime, runTime, realGFlops, gFlops;
     DistMatrix<T> A(g), B(g), C(g);
 
     if( orientationOfA == NORMAL )
@@ -90,9 +90,9 @@ void TestGemm
     internal::GemmA
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
+    runTime = mpi::Time() - startTime;
+    realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
+    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -128,9 +128,9 @@ void TestGemm
     internal::GemmB
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
+    runTime = mpi::Time() - startTime;
+    realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
+    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl 
@@ -166,9 +166,9 @@ void TestGemm
     internal::GemmC
     ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
+    runTime = mpi::Time() - startTime;
+    realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
+    gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -206,9 +206,9 @@ void TestGemm
         internal::GemmDot
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
         mpi::Barrier( g.Comm() );
-        endTime = mpi::Time();
-        runTime = endTime - startTime;
-        gFlops = internal::GemmGFlops<T>(m,n,k,runTime);
+        runTime = mpi::Time() - startTime;
+        realGFlops = 2.*double(m)*double(n)*double(k)/(1.e9*runTime);
+        gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
         if( g.Rank() == 0 )
         {
             cout << "DONE. " << endl

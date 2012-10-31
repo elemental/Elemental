@@ -49,7 +49,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestCorrectness
 ( bool printMatrices, 
   UpperOrLower uplo,
@@ -138,7 +138,7 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestTwoSidedTrsm
 ( bool testCorrectness, 
   bool printMatrices,
@@ -147,7 +147,6 @@ void TestTwoSidedTrsm
   int m, 
   const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<F> A(g), B(g), AOrig(g);
 
     Zeros( m, m, A );
@@ -178,12 +177,11 @@ void TestTwoSidedTrsm
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     TwoSidedTrsm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = (1.*m*m*m) / (runTime*1.e9);
+    const double runTime = mpi::Time() - startTime;
+    double gFlops = Pow(double(m),3.)/(runTime*1.e9);
     if( IsComplex<F>::val )
         gFlops *= 4.;
     if( g.Rank() == 0 )

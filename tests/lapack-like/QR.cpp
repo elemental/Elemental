@@ -48,7 +48,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<R>& A,
@@ -89,9 +89,7 @@ void TestCorrectness
     }
 
     if( g.Rank() == 0 )
-    {
         cout << "  Testing if A = QR..." << endl;
-    }
 
     // Form Q R
     DistMatrix<R> U( A );
@@ -101,9 +99,9 @@ void TestCorrectness
     // Form Q R - A
     Axpy( R(-1), AOrig, U );
     
-    R oneNormOfA = Norm( AOrig, ONE_NORM );
-    R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfA = Norm( AOrig, ONE_NORM );
+    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
     oneNormOfError = Norm( U, ONE_NORM );
     infNormOfError = Norm( U, INFINITY_NORM );
     frobNormOfError = Norm( U, FROBENIUS_NORM );
@@ -118,7 +116,7 @@ void TestCorrectness
     }
 }
 
-template<typename R> // represents a real number
+template<typename R>
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<Complex<R> >& A,
@@ -175,9 +173,9 @@ void TestCorrectness
     // Form Q R - A
     Axpy( C(-1), AOrig, U );
     
-    R oneNormOfA = Norm( AOrig, ONE_NORM );
-    R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfA = Norm( AOrig, ONE_NORM );
+    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
     oneNormOfError = Norm( U, ONE_NORM );
     infNormOfError = Norm( U, INFINITY_NORM );
     frobNormOfError = Norm( U, FROBENIUS_NORM );
@@ -192,19 +190,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
-void TestQR
-( bool testCorrectness, bool printMatrices,
-  int m, int n, const Grid& g );
-
-template<>
-void TestQR<double>
+template<typename R>
+void TestRealQR
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
-    typedef double R;
-
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<R> A(g), AOrig(g);
 
     Uniform( m, n, A );
@@ -228,12 +218,13 @@ void TestQR<double>
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     QR( A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::QRGFlops<R>( m, n, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double gFlops = (2.*mD*nD*nD - 2./3.*nD*nD*nD)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -246,14 +237,12 @@ void TestQR<double>
         TestCorrectness( printMatrices, A, AOrig );
 }
 
-template<>
-void TestQR<Complex<double> >
+template<typename R>
+void TestComplexQR
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
-    typedef Complex<double> C;
-
-    double startTime, endTime, runTime, gFlops;
+    typedef Complex<R> C;
     DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,MD,STAR> t(g);
 
@@ -278,12 +267,13 @@ void TestQR<Complex<double> >
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     QR( A, t );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::QRGFlops<C>( m, n, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double gFlops = (8.*mD*nD*nD - 8./3.*nD*nD*nD)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -341,7 +331,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestQR<double>( testCorrectness, printMatrices, m, n, g );
+        TestRealQR<double>( testCorrectness, printMatrices, m, n, g );
 
         if( rank == 0 )
         {
@@ -349,7 +339,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestQR<Complex<double> >( testCorrectness, printMatrices, m, n, g );
+        TestComplexQR<double>( testCorrectness, printMatrices, m, n, g );
     }
     catch( exception& e )
     {

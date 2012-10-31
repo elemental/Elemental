@@ -49,12 +49,11 @@ void Usage()
          << "  print?: [0/1]\n" << endl;
 }
 
-template<typename T> // represents a real or complex ring
+template<typename T> 
 void TestHemm
 ( bool printMatrices, LeftOrRight side, UpperOrLower uplo,
   int m, int n, T alpha, T beta, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
@@ -76,12 +75,15 @@ void TestHemm
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     Hemm( side, uplo, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::HemmGFlops<T>(side,m,n,runTime);
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double realGFlops = 
+        ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
+    const double gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

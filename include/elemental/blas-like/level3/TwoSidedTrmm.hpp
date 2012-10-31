@@ -84,7 +84,7 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
         ABuffer[j+j*lda] *= Conj(lambda11)*lambda11;
 
         // A20 := A20 + a21 l10
-        const T* a21 = &ABuffer[(j+1)+j*lda];
+        T* a21 = &ABuffer[(j+1)+j*lda];
         T* A20 = &ABuffer[j+1];
         blas::Geru( a21Height, j, T(1), a21, 1, l10, ldl, A20, lda );
 
@@ -139,7 +139,7 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
                 a01[k] *= Conj(upsilon11);
 
         // A02 := A02 + u01 a12
-        const T* a12 = &ABuffer[j+(j+1)*lda];
+        T* a12 = &ABuffer[j+(j+1)*lda];
         T* A02 = &ABuffer[(j+1)*lda];
         blas::Geru( j, a21Height, T(1), u01, 1, a12, lda, A02, lda );
 

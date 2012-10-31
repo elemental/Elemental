@@ -48,13 +48,12 @@ void Usage()
          << "  print?: [0/1]\n" << endl;
 }
 
-template<typename T> // represents a real or complex ring
+template<typename T>
 void TestSymm
 ( const LeftOrRight side, const UpperOrLower uplo,
   const int m, const int n, const T alpha, const T beta,
   const bool printMatrices, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
@@ -77,12 +76,15 @@ void TestSymm
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     Symm( side, uplo, alpha, A, B, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::SymmGFlops<T>(side,m,n,runTime);
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double realGFlops = 
+        ( side==LEFT ? 2.*mD*mD*nD : 2.*mD*nD*nD ) / (1.e9*runTime);
+    const double gFlops = ( IsComplex<T>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

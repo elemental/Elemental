@@ -50,12 +50,11 @@ void Usage()
          << "  print?: false iff 0\n" << endl;
 }
 
-template<typename T> // represents a real or complex ring
+template<typename T> 
 void TestHerk
 ( bool printMatrices, UpperOrLower uplo, Orientation orientation,
   int m, int k, T alpha, T beta, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<T> A(g), C(g);
 
     if( orientation == NORMAL )
@@ -75,12 +74,12 @@ void TestHerk
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     Herk( uplo, orientation, alpha, A, beta, C );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::HerkGFlops<T>(m,k,runTime);
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = double(m)*double(m)*double(k)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<T>::val ? 4*realGFlops : gFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

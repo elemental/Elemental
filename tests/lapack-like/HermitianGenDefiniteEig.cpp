@@ -523,7 +523,6 @@ void TestHermitianGenDefiniteEigDouble
   bool onlyEigenvalues, UpperOrLower uplo, 
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
-    double startTime, endTime, runTime;
     DistMatrix<double> A(g), AOrig(g);
     DistMatrix<double> B(g), BOrig(g);
     DistMatrix<double,VR,STAR> w(g);
@@ -566,7 +565,7 @@ void TestHermitianGenDefiniteEigDouble
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     if( onlyEigenvalues )
     {
         if( range == 'A' )
@@ -586,8 +585,7 @@ void TestHermitianGenDefiniteEigDouble
             HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
+    const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -612,7 +610,6 @@ void TestHermitianGenDefiniteEigDoubleComplex
   bool onlyEigenvalues, UpperOrLower uplo, 
   int m, char range, double vl, double vu, int il, int iu, const Grid& g )
 {
-    double startTime, endTime, runTime;
     DistMatrix<Complex<double> > A(g), AOrig(g);
     DistMatrix<Complex<double> > B(g), BOrig(g);
     DistMatrix<double,VR,STAR> w(g);
@@ -658,7 +655,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     if( onlyEigenvalues )
     {
         if( range == 'A' )
@@ -678,8 +675,7 @@ void TestHermitianGenDefiniteEigDoubleComplex
             HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, vl, vu );
     }
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
+    const double runTime = mpi::Time() - startTime;
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

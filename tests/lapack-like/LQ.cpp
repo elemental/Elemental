@@ -48,7 +48,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<R>& A,
@@ -91,9 +91,7 @@ void TestCorrectness
     }
 
     if( g.Rank() == 0 )
-    {
         cout << "  Testing if A = LQ..." << endl;
-    }
 
     // Form L Q
     DistMatrix<R> L( A );
@@ -104,9 +102,9 @@ void TestCorrectness
     // Form L Q - A
     Axpy( R(-1), AOrig, L );
     
-    R oneNormOfA = Norm( AOrig, ONE_NORM );
-    R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfA = Norm( AOrig, ONE_NORM );
+    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
     oneNormOfError = Norm( L, ONE_NORM );
     infNormOfError = Norm( L, INFINITY_NORM );
     frobNormOfError = Norm( L, FROBENIUS_NORM );
@@ -121,7 +119,7 @@ void TestCorrectness
     }
 }
 
-template<typename R> // represents a real number
+template<typename R> 
 void TestCorrectness
 ( bool printMatrices,
   const DistMatrix<Complex<R> >& A,
@@ -178,9 +176,9 @@ void TestCorrectness
     // Form L Q - A
     Axpy( C(-1), AOrig, L );
     
-    R oneNormOfA = Norm( AOrig, ONE_NORM );
-    R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfA = Norm( AOrig, ONE_NORM );
+    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
+    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
     oneNormOfError = Norm( L, ONE_NORM );
     infNormOfError = Norm( L, INFINITY_NORM );
     frobNormOfError = Norm( L, FROBENIUS_NORM );
@@ -195,19 +193,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
-void TestLQ
-( bool testCorrectness, bool printMatrices,
-  int m, int n, const Grid& g );
-
-template<>
-void TestLQ<double>
+template<typename R>
+void TestRealLQ
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
-    typedef double R;
-
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<R> A(g), AOrig(g);
     Uniform( m, n, A );
 
@@ -231,12 +221,13 @@ void TestLQ<double>
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     LQ( A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::LQGFlops<R>( m, n, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double gFlops = (2.*mD*mD*nD - 2./3.*mD*mD*mD)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -249,14 +240,12 @@ void TestLQ<double>
         TestCorrectness( printMatrices, A, AOrig );
 }
 
-template<>
-void TestLQ<Complex<double> >
+template<typename R>
+void TestComplexLQ
 ( bool testCorrectness, bool printMatrices,
   int m, int n, const Grid& g )
 {
-    typedef Complex<double> C;
-
-    double startTime, endTime, runTime, gFlops;
+    typedef Complex<R> C;
     DistMatrix<C> A(g), AOrig(g);
     Uniform( m, n, A );
 
@@ -281,12 +270,13 @@ void TestLQ<Complex<double> >
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     LQ( A, t );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::LQGFlops<C>( m, n, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double mD = double(m);
+    const double nD = double(n);
+    const double gFlops = (8.*mD*mD*nD - 8./3.*mD*mD*mD)/(1.e9*runTime);
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -344,7 +334,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestLQ<double>( testCorrectness, printMatrices, m, n, g );
+        TestRealLQ<double>( testCorrectness, printMatrices, m, n, g );
 
         if( rank == 0 )
         {
@@ -352,7 +342,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLQ<Complex<double> >( testCorrectness, printMatrices, m, n, g );
+        TestComplexLQ<double>( testCorrectness, printMatrices, m, n, g );
     }
     catch( exception& e )
     {

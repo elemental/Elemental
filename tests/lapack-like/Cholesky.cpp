@@ -50,7 +50,7 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename F> // represents a real or complex field
+template<typename F>
 void TestCorrectness
 ( bool printMatrices, UpperOrLower uplo,
   const DistMatrix<F>& A,
@@ -71,14 +71,14 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-        R oneNormOfError = Norm( Y, ONE_NORM );
-        R infNormOfError = Norm( Y, INFINITY_NORM );
-        R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        R oneNormOfX = Norm( X, ONE_NORM );
-        R infNormOfX = Norm( X, INFINITY_NORM );
-        R frobNormOfX = Norm( X, FROBENIUS_NORM );
+        const R oneNormOfError = Norm( Y, ONE_NORM );
+        const R infNormOfError = Norm( Y, INFINITY_NORM );
+        const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        const R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        const R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        const R oneNormOfX = Norm( X, ONE_NORM );
+        const R infNormOfX = Norm( X, INFINITY_NORM );
+        const R frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -98,14 +98,14 @@ void TestCorrectness
         Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
-        R oneNormOfError = Norm( Y, ONE_NORM );
-        R infNormOfError = Norm( Y, INFINITY_NORM );
-        R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        R oneNormOfX = Norm( X, ONE_NORM );
-        R infNormOfX = Norm( X, INFINITY_NORM );
-        R frobNormOfX = Norm( X, FROBENIUS_NORM );
+        const R oneNormOfError = Norm( Y, ONE_NORM );
+        const R infNormOfError = Norm( Y, INFINITY_NORM );
+        const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        const R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
+        const R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
+        const R oneNormOfX = Norm( X, ONE_NORM );
+        const R infNormOfX = Norm( X, INFINITY_NORM );
+        const R frobNormOfX = Norm( X, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -120,12 +120,11 @@ void TestCorrectness
     }
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestCholesky
 ( bool testCorrectness, bool printMatrices, 
   UpperOrLower uplo, int m, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<F> A(g), AOrig(g);
 
     HermitianUniformSpectrum( m, A, 1, 10 );
@@ -149,12 +148,12 @@ void TestCholesky
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     Cholesky( uplo, A );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::CholeskyGFlops<F>( m, runTime );
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE.\n"

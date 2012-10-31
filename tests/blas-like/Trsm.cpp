@@ -51,14 +51,13 @@ void Usage()
          << "  print matrices?: false iff 0\n" << endl;
 }
 
-template<typename F> // represents a real or complex field
+template<typename F> 
 void TestTrsm
 ( bool printMatrices,
   LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   int m, int n, F alpha, const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<F> A(g), X(g);
 
     if( side == LEFT )
@@ -78,12 +77,14 @@ void TestTrsm
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     Trsm( side, uplo, orientation, diag, alpha, A, X );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = internal::TrsmGFlops<F>(side,m,n,runTime);
+    const double runTime = mpi::Time() - startTime;
+    const double realGFlops = 
+        ( side==LEFT ? double(m)*double(m)*double(n)
+                     : double(m)*double(n)*double(n) ) /(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl

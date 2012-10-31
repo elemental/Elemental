@@ -147,7 +147,6 @@ void TestTwoSidedTrmm
   int m, 
   const Grid& g )
 {
-    double startTime, endTime, runTime, gFlops;
     DistMatrix<F> A(g), B(g), AOrig(g);
 
     Zeros( m, m, A );
@@ -178,12 +177,11 @@ void TestTwoSidedTrmm
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
-    startTime = mpi::Time();
+    const double startTime = mpi::Time();
     TwoSidedTrmm( uplo, diag, A, B );
     mpi::Barrier( g.Comm() );
-    endTime = mpi::Time();
-    runTime = endTime - startTime;
-    gFlops = (1.*m*m*m) / (runTime*1.e9);
+    const double runTime = mpi::Time() - startTime;
+    double gFlops = Pow(double(m),3.)/(runTime*1.e9);
     if( IsComplex<F>::val )
         gFlops *= 4.;
     if( g.Rank() == 0 )

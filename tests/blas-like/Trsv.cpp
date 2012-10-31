@@ -30,102 +30,58 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <ctime>
 #include "elemental.hpp"
 using namespace std;
 using namespace elem;
 
 void Usage()
 {
-    cout << "Inverts a triangular matrix.\n\n"
-         << "  TriangularInverse <r> <c> <uplo> <diag> <m> <nb> "
-            "<correctness?> <print?>\n\n"
+    cout << "TRiangular Solve with Vector\n\n"
+         << "  Trsv <r> <c> <uplo> <orientation> <unit diag?> <n> <nb> <print?>"
+            "\n\n"
          << "  r: number of process rows\n"
          << "  c: number of process cols\n"
          << "  uplo: {L,U}\n"
-         << "  diag: {N,U}\n"
-         << "  m: height of matrix\n"
+         << "  orientation: {N,T,C}\n"
+         << "  diag?: {N,U}\n"
+         << "  n: size of triangular matrix\n"
          << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
          << "  print matrices?: false iff 0\n" << endl;
 }
 
 template<typename F> 
-void TestCorrectness
-( bool printMatrices,
-  UpperOrLower uplo, UnitOrNonUnit diag,
-  const DistMatrix<F>& A,
-  const DistMatrix<F>& AOrig )
+void TestTrsv
+( bool printMatrices, UpperOrLower uplo, 
+  Orientation orientation, UnitOrNonUnit diag,
+  int n, const Grid& g )
 {
     typedef typename Base<F>::type R;
-    const Grid& g = A.Grid();
-    const int m = AOrig.Height();
+    DistMatrix<F> A(g), x(g), y(g);
 
-    DistMatrix<F> X(g), Y(g);
-    Uniform( m, 100, X );
-    Y = X;
+    // Generate random A and x
+    HermitianUniformSpectrum( n, A, 1, 10 );
+    Uniform( n, 1, x );
+    // Either y := op(L) x or y := op(U) x
+    y = x;
+    Trmm( LEFT, uplo, orientation, diag, F(1), A, y );
 
-    // Since A o A^-1 = I, test the change introduced by the approximate comp.
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), A,     Y );
-    Trmm( LEFT, uplo, NORMAL, diag, F(1), AOrig, Y );
-    Axpy( F(-1), X, Y );
-
-    const R oneNormOrig = Norm( AOrig, ONE_NORM );
-    const R infNormOrig = Norm( AOrig, INFINITY_NORM );
-    const R frobNormOrig = Norm( AOrig, FROBENIUS_NORM );
-    const R oneNormFinal = Norm( A, ONE_NORM );
-    const R infNormFinal = Norm( A, INFINITY_NORM );
-    const R frobNormFinal = Norm( A, FROBENIUS_NORM );
-    const R oneNormOfError = Norm( Y, ONE_NORM );
-    const R infNormOfError = Norm( Y, INFINITY_NORM );
-    const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-    if( g.Rank() == 0 )
-    {
-        cout << "||A||_1           = " << oneNormOrig << "\n"
-             << "||A||_oo          = " << infNormOrig << "\n"
-             << "||A||_F           = " << frobNormOrig << "\n"
-             << "||A^-1||_1        = " << oneNormFinal << "\n"
-             << "||A^-1||_oo       = " << infNormFinal << "\n"
-             << "||A^-1||_F        = " << frobNormFinal << "\n"
-             << "||A A^-1 - I||_1  = " << oneNormOfError << "\n"
-             << "||A A^-1 - I||_oo = " << infNormOfError << "\n"
-             << "||A A^-1 - I||_F  = " << frobNormOfError << endl;
-    }
-}
-
-template<typename F> 
-void TestTriangularInverse
-( bool testCorrectness, bool printMatrices,
-  UpperOrLower uplo, UnitOrNonUnit diag, int m, const Grid& g )
-{
-    DistMatrix<F> A(g), AOrig(g);
-    HermitianUniformSpectrum( m, A, 1, 10 );
-    MakeTrapezoidal( LEFT, uplo, 0, A );
-    if( testCorrectness )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
-        AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
     if( printMatrices )
+    {
         A.Print("A");
-
+        x.Print("x");
+        y.Print("y");
+    }
     if( g.Rank() == 0 )
     {
-        cout << "  Starting triangular inversion...";
+        cout << "  Starting Trsv...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    TriangularInverse( uplo, diag, A );
+    Trsv( uplo, orientation, diag, A, y );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
-    const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
+    const double realGFlops = Pow(double(n),2.)/(1.e9*runTime);
     const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
@@ -134,9 +90,18 @@ void TestTriangularInverse
              << gFlops << endl;
     }
     if( printMatrices )
-        A.Print("A after inversion");
-    if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, diag, A, AOrig );
+        y.Print("y after solve");
+
+    Axpy( F(-1), x, y );
+    const R xNorm = Norm( x );
+    const R yNorm = Norm( y );
+    if( g.Rank() == 0 )
+    {
+        std::cout << "|| x - y ||_2 = " << yNorm << "\n"
+                  << "|| x ||_2     = " << xNorm << "\n"
+                  << "|| x - y ||_2 / || x ||_2 = " << yNorm/xNorm << "\n"
+                  << std::endl;
+    }
 }
 
 int 
@@ -160,10 +125,10 @@ main( int argc, char* argv[] )
         const int r = atoi(argv[++argNum]);
         const int c = atoi(argv[++argNum]);
         const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
+        const Orientation orientation = CharToOrientation(*argv[++argNum]);
         const UnitOrNonUnit diag = CharToUnitOrNonUnit(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
+        const int n = atoi(argv[++argNum]);
         const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
         const bool printMatrices = atoi(argv[++argNum]);
 #ifndef RELEASE
         if( rank == 0 )
@@ -177,8 +142,11 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         if( rank == 0 )
-            cout << "Will test TriangularInverse" << UpperOrLowerToChar(uplo) 
-                 << UnitOrNonUnitToChar(diag) << endl;
+        {
+            cout << "Will test Trsv" << UpperOrLowerToChar(uplo)
+                                     << OrientationToChar(orientation) 
+                                     << UnitOrNonUnitToChar(diag) << endl;
+        }
 
         if( rank == 0 )
         {
@@ -186,8 +154,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestTriangularInverse<double>
-        ( testCorrectness, printMatrices, uplo, diag, m, g );
+        TestTrsv<double>( printMatrices, uplo, orientation, diag, n, g );
 
         if( rank == 0 )
         {
@@ -195,8 +162,8 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTriangularInverse<Complex<double> >
-        ( testCorrectness, printMatrices, uplo, diag, m, g );
+        TestTrsv<Complex<double> >
+        ( printMatrices, uplo, orientation, diag, n, g );
     }
     catch( exception& e )
     {
