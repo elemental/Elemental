@@ -43,7 +43,6 @@ PanelBidiagL
   DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR )
 {
-    const int panelSize = X.Width();
 #ifndef RELEASE
     PushCallStack("internal::PanelBidiagL");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
@@ -56,6 +55,7 @@ PanelBidiagL
         throw std::logic_error("A and X must be the same height");
     if( A.Width() != Y.Height() )
         throw std::logic_error("Y must be the same height as A's width");
+    const int panelSize = X.Width();
     if( X.Height() < panelSize )
         throw std::logic_error("X must be a column panel");
     if( Y.Width() != panelSize )
@@ -67,11 +67,6 @@ PanelBidiagL
         A.RowAlignment() != Y.RowAlignment() )
         throw std::logic_error("A and Y must be aligned");
 #endif
-    const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
-
     throw std::logic_error("This routine is not yet written");
 #ifndef RELEASE
     PopCallStack();
@@ -89,7 +84,7 @@ PanelBidiagL
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {
-    const int panelSize = X.Width();
+
 #ifndef RELEASE
     PushCallStack("internal::BidiagL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
@@ -97,6 +92,7 @@ PanelBidiagL
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
         throw std::logic_error("Grids must match");
+    const int panelSize = X.Width();
     if( tP.Height() != panelSize || tP.Width() != 1 )
         throw std::logic_error("tP was not the right size");
     if( tQ.Height() != panelSize || tQ.Width() != 1 )

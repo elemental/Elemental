@@ -33,6 +33,7 @@
 
 #include "./level1/Adjoint.hpp"
 #include "./level1/Axpy.hpp"
+#include "./level1/AxpyTriangle.hpp"
 #include "./level1/Conjugate.hpp"
 #include "./level1/Copy.hpp"
 #include "./level1/DiagonalScale.hpp"

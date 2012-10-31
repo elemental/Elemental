@@ -112,6 +112,33 @@ void Axpy
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
 
 //
+// AxpyTriangle (Alpha X Plus Y):
+//
+// Y := alpha X + Y,
+//
+// where X and Y are triangular.
+//
+
+// Serial version
+template<typename T>
+void AxpyTriangle
+( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y );
+template<typename T>
+void AxpyTriangle
+( UpperOrLower uplo, typename Base<T>::type alpha, 
+  const Matrix<T>& X, Matrix<T>& Y );
+
+// Parallel version
+template<typename T, Distribution U, Distribution V>
+void AxpyTriangle
+( UpperOrLower uplo, T alpha, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
+template<typename T, Distribution U, Distribution V>
+void AxpyTriangle
+( UpperOrLower uplo, typename Base<T>::type alpha, 
+  const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y );
+
+//
 // Copy:
 //
 // Y := X
@@ -356,6 +383,8 @@ template<typename T,Distribution U,Distribution V>
 void MakeTrapezoidal
 ( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A );
 
+// TODO: MakeTriangular
+
 //
 // MakeHermitian:
 //
@@ -407,6 +436,8 @@ template<typename T,Distribution U,Distribution V>
 void ScaleTrapezoid
 ( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, 
   DistMatrix<T,U,V>& A );
+
+// TODO: ScaleTriangle
 
 //
 // Transpose:

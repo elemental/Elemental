@@ -69,41 +69,41 @@ inline Int RawGCD( Int a, Int b )
 }
 
 template<typename Int>
-inline Int LocalLength( Int n, Int shift, Int numProcs )
+inline Int LocalLength( Int n, Int shift, Int stride )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
-    if( shift < 0 || shift >= numProcs )
+    if( shift < 0 || shift >= stride )
     {
         std::ostringstream msg;
         msg << "Invalid shift: "
-            << "shift=" << shift << ", numProcs=" << numProcs;
+            << "shift=" << shift << ", stride=" << stride;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( numProcs <= 0 )
+    if( stride <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawLocalLength( n, shift, numProcs );
+    return RawLocalLength( n, shift, stride );
 }
 
 template<typename Int>
-inline Int RawLocalLength( Int n, Int shift, Int numProcs )
+inline Int RawLocalLength( Int n, Int shift, Int stride )
 {
-    return ( n > shift ? (n - shift - 1)/numProcs + 1 : 0 );
+    return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
 }
 
 template<typename Int>
 inline Int 
-LocalLength( Int n, Int rank, Int firstRank, Int numProcs )
+LocalLength( Int n, Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
     PushCallStack("LocalLength");
 #endif
-    Int shift = Shift( rank, firstRank, numProcs );
-    Int localLength = LocalLength( n, shift, numProcs );
+    Int shift = Shift( rank, alignment, stride );
+    Int localLength = LocalLength( n, shift, stride );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -112,66 +112,64 @@ LocalLength( Int n, Int rank, Int firstRank, Int numProcs )
 
 template<typename Int>
 inline Int RawLocalLength
-( Int n, Int rank, Int firstRank, Int numProcs )
+( Int n, Int rank, Int alignment, Int stride )
 {
-    Int shift = RawShift( rank, firstRank, numProcs );
-    Int localLength = RawLocalLength( n, shift, numProcs );
+    Int shift = RawShift( rank, alignment, stride );
+    Int localLength = RawLocalLength( n, shift, stride );
     return localLength;
 }
 
 template<typename Int>
-inline Int MaxLocalLength( Int n, Int numProcs )
+inline Int MaxLocalLength( Int n, Int stride )
 {
 #ifndef RELEASE
     PushCallStack("MaxLocalLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
-    if( numProcs <= 0 )
+    if( stride <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawMaxLocalLength( n, numProcs );
+    return RawMaxLocalLength( n, stride );
 }
 
 template<typename Int>
-inline Int RawMaxLocalLength( Int n, Int numProcs )
+inline Int RawMaxLocalLength( Int n, Int stride )
 {
-    return ( n > 0 ? (n - 1)/numProcs + 1 : 0 );
+    return ( n > 0 ? (n - 1)/stride + 1 : 0 );
 }
 
-// For determining the first global element of process row/column 
-// 'rank', with distribution alignment 'firstRank' and number of process 
-// rows/cols 'numProcs'
+// For determining the first index assigned to a given rank
 template<typename Int>
-inline Int Shift( Int rank, Int firstRank, Int numProcs )
+inline Int Shift( Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
     PushCallStack("Shift");
-    if( rank < 0 || rank >= numProcs )
+    if( rank < 0 || rank >= stride )
     {
         std::ostringstream msg;
         msg << "Invalid rank: "
-            << "rank=" << rank << ", numProcs=" << numProcs;
+            << "rank=" << rank << ", stride=" << stride;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( firstRank < 0 || firstRank >= numProcs )
+    if( alignment < 0 || alignment >= stride )
     {
         std::ostringstream msg;
-        msg << "Invalid first rank: "
-            << "first rank=" << firstRank << ", numProcs=" << numProcs;
+        msg << "Invalid alignment: "
+            << "alignment=" << alignment << ", stride=" << stride;
         throw std::logic_error( msg.str().c_str() );
     }
-    if( numProcs <= 0 )
-        throw std::logic_error("Modulus must be positive");
+    if( stride <= 0 )
+        throw std::logic_error("Stride must be positive");
     PopCallStack();
 #endif
-    return RawShift( rank, firstRank, numProcs );
+    return RawShift( rank, alignment, stride );
 }
 
 template<typename Int>
-inline Int RawShift( Int rank, Int firstRank, Int numProcs )
+inline Int RawShift( Int rank, Int alignment, Int stride )
 {
-    return (rank + numProcs - firstRank) % numProcs;
+    return (rank + stride - alignment) % stride;
 }
 
 } // namespace elem

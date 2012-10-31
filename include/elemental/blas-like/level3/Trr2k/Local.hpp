@@ -922,15 +922,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -996,15 +992,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1066,15 +1058,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1142,16 +1130,12 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1217,15 +1201,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1293,15 +1273,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1366,15 +1342,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1447,16 +1419,12 @@ LocalTrr2kKernel
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1518,15 +1486,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1591,15 +1555,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1659,15 +1619,11 @@ LocalTrr2kKernel
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1734,16 +1690,12 @@ LocalTrr2kKernel
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1811,16 +1763,12 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1893,16 +1841,12 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -1969,16 +1913,12 @@ LocalTrr2kKernel
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();
@@ -2050,17 +1990,13 @@ LocalTrr2kKernel
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FTL );
-    Axpy( T(1), FTL, ETL );
+    AxpyTriangle( uplo, T(1), FTL, ETL );
 
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
-
-    MakeTrapezoidal( LEFT, uplo, 0, FBR );
-    Axpy( T(1), FBR, EBR );
+    AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
     PopCallStack();

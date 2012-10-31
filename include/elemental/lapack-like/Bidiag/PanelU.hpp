@@ -68,9 +68,6 @@ PanelBidiagU
         throw std::logic_error("A and Y must be aligned");
 #endif
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
 
     // Matrix views 
     DistMatrix<R> 
@@ -464,11 +461,7 @@ PanelBidiagU
         throw std::logic_error("A and Y must be aligned");
 #endif
     typedef Complex<R> C;
-
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
 
     // Matrix views 
     DistMatrix<C> 
