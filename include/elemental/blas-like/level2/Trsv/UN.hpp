@@ -36,10 +36,7 @@ namespace internal {
 
 template<typename F>
 inline void
-TrsvUN
-( UnitOrNonUnit diag, 
-  const DistMatrix<F>& U, 
-        DistMatrix<F>& x )
+TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrsvUN");
@@ -58,11 +55,8 @@ TrsvUN
     if( x.Width() == 1 )
     {
         // Matrix views 
-        DistMatrix<F> 
-            UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-            UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                             U20(g), U21(g), U22(g);
-
+        DistMatrix<F> U01(g),
+                      U11(g);
         DistMatrix<F> 
             xT(g),  x0(g),
             xB(g),  x1(g),
@@ -72,33 +66,39 @@ TrsvUN
         DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
         DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
         DistMatrix<F,MR,  STAR> x1_MR_STAR(g);
-        DistMatrix<F,MC,  STAR> z0_MC_STAR(g);
+        DistMatrix<F,MC,  STAR> z_MC_STAR(g);
+
+        // Views of z[MC,* ], which will store updates to x
+        DistMatrix<F,MC,STAR> z0_MC_STAR(g),
+                              z1_MC_STAR(g);
+
+        z_MC_STAR.AlignWith( U );
+        Zeros( x.Height(), 1, z_MC_STAR );
 
         // Start the algorithm
-        LockedPartitionUpDiagonal
-        ( U, UTL, UTR,
-             UBL, UBR, 0 );
         PartitionUp
         ( x, xT,
              xB, 0 );
         while( xT.Height() > 0 )
         {
-            LockedRepartitionUpDiagonal
-            ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-                   /**/       U10, U11, /**/ U12,
-             /*************/ /******************/
-              UBL, /**/ UBR,  U20, U21, /**/ U22 );
-
             RepartitionUp
             ( xT,  x0,
                    x1,
              /**/ /**/
               xB,  x2 );
 
+            const int n0 = x0.Height();
+            const int n1 = x1.Height();
+            U01.LockedView( U, 0,  n0, n0, n1 );
+            U11.LockedView( U, n0, n0, n1, n1 );
+            z0_MC_STAR.View( z_MC_STAR, 0,  0, n0, 1 );
+            z1_MC_STAR.View( z_MC_STAR, n0, 0, n1, 1 );
+
             x1_MR_STAR.AlignWith( U01 );
-            z0_MC_STAR.AlignWith( U01 );
-            z0_MC_STAR.ResizeTo( x0.Height(), 1 );
             //----------------------------------------------------------------//
+            if( x2.Height() != 0 )
+                x1.SumScatterUpdate( F(1), z1_MC_STAR );
+
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
             Trsv
@@ -112,17 +112,9 @@ TrsvUN
             ( NORMAL, F(-1), 
               U01.LockedLocalMatrix(), 
               x1_MR_STAR.LockedLocalMatrix(),
-              F(0), z0_MC_STAR.LocalMatrix() );
-            x0.SumScatterUpdate( F(1), z0_MC_STAR );
+              F(1), z0_MC_STAR.LocalMatrix() );
             //----------------------------------------------------------------//
             x1_MR_STAR.FreeAlignments();
-            z0_MC_STAR.FreeAlignments();
-
-            SlideLockedPartitionUpDiagonal
-            ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-             /*************/ /******************/
-                   /**/       U10, /**/ U11, U12,
-              UBL, /**/ UBR,  U20, /**/ U21, U22 );
 
             SlidePartitionUp
             ( xT,  x0,
@@ -134,11 +126,8 @@ TrsvUN
     else
     {
         // Matrix views 
-        DistMatrix<F> 
-            UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-            UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                             U20(g), U21(g), U22(g);
-
+        DistMatrix<F> U01(g),
+                      U11(g);
         DistMatrix<F> 
             xL(g), xR(g),
             x0(g), x1(g), x2(g);
@@ -147,32 +136,42 @@ TrsvUN
         DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
         DistMatrix<F,STAR,STAR> x1_STAR_STAR(g);
         DistMatrix<F,STAR,MR  > x1_STAR_MR(g);
-        DistMatrix<F,STAR,MC  > z0_STAR_MC(g);
-        DistMatrix<F,MR,  MC  > z0_MR_MC(g);
-        DistMatrix<F> z0(g);
+        DistMatrix<F,MC,  MR  > z1(g);
+        DistMatrix<F,MR,  MC  > z1_MR_MC(g);
+        DistMatrix<F,STAR,MC  > z_STAR_MC(g);
+
+        // Views of z[* ,MC]
+        DistMatrix<F,STAR,MC>  z0_STAR_MC(g),
+                               z1_STAR_MC(g);
+
+        z_STAR_MC.AlignWith( U );
+        Zeros( 1, x.Width(), z_STAR_MC );
 
         // Start the algorithm
-        LockedPartitionUpDiagonal
-        ( U, UTL, UTR,
-             UBL, UBR, 0 );
         PartitionLeft( x,  xL, xR, 0 );
         while( xL.Width() > 0 )
         {
-            LockedRepartitionUpDiagonal
-            ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-                   /**/       U10, U11, /**/ U12,
-             /*************/ /******************/
-              UBL, /**/ UBR,  U20, U21, /**/ U22 );
-
             RepartitionLeft
             ( xL,     /**/ xR,
               x0, x1, /**/ x2 );
 
+            const int n0 = x0.Width();
+            const int n1 = x1.Width();
+            U01.LockedView( U, 0,  n0, n0, n1 );
+            U11.LockedView( U, n0, n0, n1, n1 );
+            z0_STAR_MC.View( z_STAR_MC, 0, 0,  1, n0 );
+            z1_STAR_MC.View( z_STAR_MC, 0, n0, 1, n1 );
+
             x1_STAR_MR.AlignWith( U01 );
-            z0_STAR_MC.AlignWith( U01 );
-            z0.AlignWith( x0 );
-            z0_STAR_MC.ResizeTo( 1, x0.Width() );
+            z1.AlignWith( x1 );
             //----------------------------------------------------------------//
+            if( x2.Width() != 0 )
+            {
+                z1_MR_MC.SumScatterFrom( z1_STAR_MC );
+                z1 = z1_MR_MC;
+                Axpy( F(1), z1, x1 );
+            }
+
             x1_STAR_STAR = x1;
             U11_STAR_STAR = U11;
             Trsv
@@ -186,20 +185,10 @@ TrsvUN
             ( NORMAL, F(-1), 
               U01.LockedLocalMatrix(), 
               x1_STAR_MR.LockedLocalMatrix(),
-              F(0), z0_STAR_MC.LocalMatrix() );
-            z0_MR_MC.SumScatterFrom( z0_STAR_MC );
-            z0 = z0_MR_MC;
-            Axpy( F(1), z0, x0 );
+              F(1), z0_STAR_MC.LocalMatrix() );
             //----------------------------------------------------------------//
             x1_STAR_MR.FreeAlignments();
-            z0_STAR_MC.FreeAlignments();
-            z0.FreeAlignments(); 
-
-            SlideLockedPartitionUpDiagonal
-            ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-             /*************/ /******************/
-                   /**/       U10, /**/ U11, U12,
-              UBL, /**/ UBR,  U20, /**/ U21, U22 );
+            z1.FreeAlignments(); 
 
             SlidePartitionLeft
             ( xL, /**/ xR,
