@@ -33,46 +33,40 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "Identity <n>:\n"
-              << "  n: size of identity matrix to build\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",10,"size of identity matrix");
+        const bool print = args.Optional("--print",true,"print matrix?");
+        args.Process();
+
         DistMatrix<double> I;
         Identity( n, n, I );
-        I.Print("Identity");
+        if( print )
+            I.Print("Identity");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-

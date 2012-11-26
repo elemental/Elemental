@@ -33,54 +33,47 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "NormalUniformSpectrum <n> <real center> <imag center>"
-                 " <radius>\n"
-              << "  n: height of random Hermitian matrix\n"
-              << "  real center: real coordinate of center of spectrum dist\n"
-              << "  imag center: imag coordinate of center of spectrum dist\n"
-              << "  radius: radius of spectrum distribution\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 5 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
-    const double realCenter = atof( argv[2] );
-    const double imagCenter = atof( argv[3] );
-    const double radius = atof( argv[4] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",10,"size of matrix");
+        const double realCenter = args.Optional
+            ("--realCenter",3.,"real center of uniform eigval distribution");
+        const double imagCenter = args.Optional
+            ("--imagCenter",-4.,"imag center of uniform eigval distribution");
+        const double radius = args.Optional
+            ("--radius",2.,"radius of uniform eigval distribution");
+        const bool print = args.Optional("--print",true,"print matrix?");
+        args.Process();
+
         const Complex<double> center( realCenter, imagCenter );
         DistMatrix<Complex<double> > X;
         NormalUniformSpectrum( n, X, center, radius );
-        X.Print("X");
+        if( print )
+            X.Print("X");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-
