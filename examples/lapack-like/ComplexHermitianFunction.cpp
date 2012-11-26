@@ -41,12 +41,7 @@ typedef Complex<R> C;
 // A functor for returning the imaginary exponential of a real number
 class ImagExpFunctor {
 public:
-    C operator()( R alpha ) const 
-    { 
-        const std::complex<R> imagAlpha = std::complex<R>(0,alpha);
-        const std::complex<R> imagExpAlpha = std::exp(imagAlpha);
-        return imagExpAlpha;
-    }
+    C operator()( R alpha ) const { return Exp(Complex<R>(0,alpha)); } 
 };
 
 int
@@ -59,9 +54,12 @@ main( int argc, char* argv[] )
 
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of matrix");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
         DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
@@ -80,27 +78,33 @@ main( int argc, char* argv[] )
         {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
             {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
+                // Our process owns the rows colShift:colStride:n-1,
+                //           and the columns rowShift:rowStride:n-1
                 const int i = colShift + iLocal*colStride;
                 const int j = rowShift + jLocal*rowStride;
                 H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
             }
         }
 
-        // Print our matrix.
-        H.Print("H");
+        if( print )
+            H.Print("H");
 
         // Reform H with the exponentials of the original eigenvalues
         ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
 
-        // Print the imaginary exponential of the matrix
-        H.Print("exp(i*H)");
+        if( print )
+            H.Print("exp(i*H)");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

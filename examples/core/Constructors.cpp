@@ -33,55 +33,44 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "Constructors <n>\n"
-              << "  n: the height and width of the matrices to build\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
 
     try
     {
-        const Grid grid( comm );
-        const int gridHeight = grid.Height();
-        const int gridWidth = grid.Width();
-        const int gridRow = grid.Row();
-        const int gridCol = grid.Col();
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Required<int>("--size","size of matrices to test");
+        const bool print = args.Optional("--print",true,"print matrices?");
+        args.Process();
 
         if( commRank == 0 )
         {
+            const int commSize = mpi::CommSize( comm );
             std::cout << "Will create matrices distributed over " 
                       << commSize << " process(es) in various ways" 
                       << std::endl;
         }
 
         // Built-in
+        const Grid grid( comm );
         {
             DistMatrix<double> X(grid);
             Identity( n, n, X );
-            X.Print("Built-in identity");
+            if( print )
+                X.Print("Built-in identity");
         }
 
         // Local buffers
         {
             // Allocate local data
+            const int gridHeight = grid.Height();
+            const int gridWidth = grid.Width();
+            const int gridRow = grid.Row();
+            const int gridCol = grid.Col();
             const int localHeight = LocalLength( n, gridRow, gridHeight );
             const int localWidth = LocalLength( n, gridCol, gridWidth );
             std::vector<double> localData( localHeight*localWidth );
@@ -106,25 +95,31 @@ main( int argc, char* argv[] )
 
             DistMatrix<double> 
                 X( n, n, 0, 0, &localData[0], localHeight, grid );
-            X.Print("Identity constructed from local buffers");
+            if( print )
+                X.Print("Identity constructed from local buffers");
 
             // Build another set of local buffers and attach it to X.
             // This time, make it all two's.
             std::vector<double> localTwos( localHeight*localWidth, 2 ); 
             X.View( n, n, 0, 0, &localTwos[0], localHeight, grid );
-            X.Print("After viewing local buffers of all two's");
+            if( print )
+                X.Print("After viewing local buffers of all two's");
         }
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n"
+           << e.what() << std::endl;
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-

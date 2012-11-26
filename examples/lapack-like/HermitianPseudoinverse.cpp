@@ -88,8 +88,10 @@ main( int argc, char* argv[] )
     }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

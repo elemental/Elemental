@@ -33,45 +33,35 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "Circulant <n>\n"
-              << "  n: Height and width of matrix, n >= 1\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of matrix");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
         // Create a circulant matrix
         DistMatrix<Complex<double> > A;
         std::vector<Complex<double> > a( n );
         for( int j=0; j<n; ++j )
             a[j] = j;
         Circulant( a, A );
-        A.Print("Circulant matrix:");
+        if( print )
+            A.Print("Circulant matrix:");
 
         // Create a discrete Fourier matrix, which can be used to diagonalize
         // circulant matrices
         DistMatrix<Complex<double> > F;
         DiscreteFourier( n, F );
-        F.Print("DFT matrix (F):");
+        if( print )
+            F.Print("DFT matrix (F):");
         
         // Form B := A F
         DistMatrix<Complex<double> > B;
@@ -82,7 +72,8 @@ main( int argc, char* argv[] )
         // Form A := F^H B = F^H \hat A F
         Gemm( ADJOINT, NORMAL,
               Complex<double>(1), F, B, Complex<double>(0), A );
-        A.Print("A := F^H A F");
+        if( print )
+            A.Print("A := F^H A F");
 
         // Form the thresholded result
         const int localHeight = A.LocalHeight();
@@ -96,18 +87,24 @@ main( int argc, char* argv[] )
                     A.SetLocal(iLocal,jLocal,0);
             }
         }
-        A.Print("A with values below 1e-13 removed");
+        if( print )
+            A.Print("A with values below 1e-13 removed");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-

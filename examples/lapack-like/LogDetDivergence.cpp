@@ -33,52 +33,49 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "LogDetDivergence <n> <lower> <upper>\n"
-              << "  n: height of random Hermitian matrix\n"
-              << "  lower: (non-inclusive) lower bound on spectrum\n"
-              << "  upper: (inclusive) upper bound on spectrum\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 4 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
-    const double lower = atof( argv[2] );
-    const double upper = atof( argv[3] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Required<int>("--size","size of HPD matrix");
+        const double lower = args.Optional
+            ("--lower",1.0,"lower bound on spectrum");
+        const double upper = args.Optional
+            ("--upper",10.0,"upper bound on spectrum");
+        const bool print = args.Optional("--print",false,"print matrices");
+        args.Process();
+
         DistMatrix<double> A, B;
         HermitianUniformSpectrum( n, A, lower, upper );
         HermitianUniformSpectrum( n, B, lower, upper );
-        A.Print("A");
-        B.Print("B");
+        if( print )
+        {
+            A.Print("A");
+            B.Print("B");
+        }
         const double logDetDiv = LogDetDivergence( LOWER, A, B );
         if( commRank == 0 )
             std::cout << "LogDetDiv(A,B) = " << logDetDiv << std::endl;
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();

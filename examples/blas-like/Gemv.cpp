@@ -38,16 +38,6 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
-void Usage()
-{
-    cout << "Gemv <adjoint?> <m> <n> <print?>\n"
-         << "  <adjoint?>: form A^H x if nonzero, A x otherwise\n"
-         << "  <m>: height of matrix\n"
-         << "  <n>: width of matrix\n"
-         << "  <print?>: print matrices for verifying correctness\n"
-         << endl;
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -55,21 +45,17 @@ main( int argc, char* argv[] )
 
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-
-    if( argc < 5 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const Orientation orientation = ( atoi(argv[1]) ? ADJOINT : NORMAL );
-    const int m = atoi( argv[2] );
-    const int n = atoi( argv[3] );
-    const bool print = atoi( argv[4] );
-
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int m = args.Required<int>("--height","height of matrix");
+        const int n = args.Required<int>("--width","width of matrix");
+        const bool adjoint = args.Optional("--adjoint",false,"apply adjoint?");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
+        const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
+
         Grid g( comm );
         DistMatrix<C> A( g );
         Uniform( m, n, A );
@@ -106,10 +92,16 @@ main( int argc, char* argv[] )
                 y.Print("y := 3 A^H x + 4 y");
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        std::ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

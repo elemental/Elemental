@@ -5,60 +5,39 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    const int commRank = mpi::CommRank( mpi::COMM_WORLD );
-    const int commSize = mpi::CommSize( mpi::COMM_WORLD );
-
-    int n = 100;
-    int numRhs = 1;
-    int blocksize = 64;
-    int gridHeight=1, gridWidth=1;
-    bool specifiedGrid = false;
-    for( int i=1; i<argc; ++i )
-    {
-        if( strcmp( argv[i], "-n" ) == 0 ) 
-        {
-            n = atoi(argv[i+1]);
-            ++i;
-        }
-        if( strcmp( argv[i], "-numRhs" ) == 0 ) 
-        {
-            numRhs = atoi(argv[i+1]);
-            ++i;
-        }
-        if( strcmp( argv[i], "-gridHeight" ) == 0 ) 
-        {
-            gridHeight = atoi(argv[i+1]);
-            specifiedGrid = true;
-            ++i;
-        }
-        if( strcmp( argv[i], "-gridWidth" ) == 0 ) 
-        {
-            gridWidth = atoi(argv[i+1]);
-            specifiedGrid = true;
-            ++i;
-        }
-        if( strcmp( argv[i], "-blocksize" ) == 0 ) 
-        {
-            blocksize = atoi(argv[i+1]);
-            ++i;
-	}
-    }
-    if( !specifiedGrid )
-    {
-        const int sqrtSize = (int)sqrt((double)commSize);
-        gridHeight = sqrtSize;
-        while( commSize % gridHeight != 0 )
-            ++gridHeight;
-        gridWidth = commSize / gridHeight;
-    }
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
 
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of matrix");
+        const int numRhs = args.Optional("--numRhs",1,"# of right-hand sides"); 
+        const int blocksize = args.Optional
+            ("--blocksize",64,"algorithmic blocksize");
+        int gridHeight = args.Optional("--gridHeight",0,"grid height");
+        const bool details = args.Optional
+            ("--details",false,"print norm details?");
+        args.Process();
+
+        // If the grid height wasn't specified, then we should attempt to build
+        // a nearly-square process grid
+        int gridWidth;
+        if( gridHeight == 0 )
+        {
+            const int commSize = mpi::CommSize( comm );
+            const int sqrtSize = (int)sqrt((double)commSize);
+            gridHeight = sqrtSize;
+            while( commSize % gridHeight != 0 )
+                ++gridHeight;
+            gridWidth = commSize / gridHeight;
+        }
+
         // Set the algorithmic blocksize
         SetBlocksize( blocksize );
 
         // Build our gridHeight x gridWidth process grid
-        Grid grid( mpi::COMM_WORLD, gridHeight, gridWidth );
+        Grid grid( comm, gridHeight, gridWidth );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
         DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
@@ -75,10 +54,10 @@ main( int argc, char* argv[] )
                 std::cout << "Starting GaussianElimination...";
                 std::cout.flush();
             }
-            mpi::Barrier( mpi::COMM_WORLD );
+            mpi::Barrier( comm );
             double startTime = mpi::Time();
             GaussianElimination( A, X );
-            mpi::Barrier( mpi::COMM_WORLD );
+            mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
                 std::cout << stopTime-startTime << " seconds." << std::endl;
@@ -96,12 +75,15 @@ main( int argc, char* argv[] )
             const double frobResidual = 
                 RFrobNorm / (AFrobNorm*XFrobNorm*epsilon*n);
             if( commRank == 0 )
-                std::cout << "||A||_F       = " << AFrobNorm << "\n"
-                          << "||B||_F       = " << BFrobNorm << "\n"
-                          << "||X||_F       = " << XFrobNorm << "\n"
-                          << "||A X - B||_F = " << RFrobNorm << "\n"
-                          << "||A X - B||_F / (||A||_F ||X||_F epsilon n) = " 
-                          << frobResidual << "\n" << std::endl;
+            {
+                if( details )
+                    std::cout << "||A||_F       = " << AFrobNorm << "\n"
+                              << "||B||_F       = " << BFrobNorm << "\n"
+                              << "||X||_F       = " << XFrobNorm << "\n"
+                              << "||A X - B||_F = " << RFrobNorm << "\n";
+                std::cout << "||A X - B||_F / (||A||_F ||X||_F epsilon n) = " 
+                          << frobResidual << "\n";
+            }
 
             // Compute the relevant infinity norms and a relative residual
             const double AInfNorm = Norm( ACopy, INFINITY_NORM );
@@ -110,12 +92,16 @@ main( int argc, char* argv[] )
             const double RInfNorm = Norm( R,     INFINITY_NORM );
             const double infResidual = RInfNorm / (AInfNorm*XInfNorm*epsilon*n);
             if( commRank == 0 )
-                std::cout << "||A||_oo       = " << AInfNorm << "\n"
-                          << "||B||_oo       = " << BInfNorm << "\n"
-                          << "||X||_oo       = " << XInfNorm << "\n"
-                          << "||A X - B||_oo = " << RInfNorm << "\n"
-                          << "||A X - B||_oo / (||A||_oo ||X||_oo epsilon n) = "
-                          << infResidual << "\n" << std::endl;
+            {
+                if( details )
+                    std::cout << "\n"
+                              << "||A||_oo       = " << AInfNorm << "\n"
+                              << "||B||_oo       = " << BInfNorm << "\n"
+                              << "||X||_oo       = " << XInfNorm << "\n"
+                              << "||A X - B||_oo = " << RInfNorm << "\n";
+                std::cout << "||A X - B||_oo / (||A||_oo ||X||_oo epsilon n) = "
+                          << infResidual << "\n";
+            }
 
             // Compute the relevant one norms and a relative residual
             const double AOneNorm = Norm( ACopy, ONE_NORM );
@@ -124,21 +110,28 @@ main( int argc, char* argv[] )
             const double ROneNorm = Norm( R,     ONE_NORM );
             const double oneResidual = ROneNorm / (AOneNorm*XOneNorm*epsilon*n);
             if( commRank == 0 )
-                std::cout << "||A||_1       = " << AOneNorm << "\n"
-                          << "||B||_1       = " << BOneNorm << "\n"
-                          << "||X||_1       = " << XOneNorm << "\n"
-                          << "||A X - B||_1 = " << ROneNorm << "\n"
-                          << "||A X - B||_1 / (||A||_1 ||X||_1 epsilon n) = " 
+            {
+                if( details )
+                    std::cout << "\n"
+                              << "||A||_1       = " << AOneNorm << "\n"
+                              << "||B||_1       = " << BOneNorm << "\n"
+                              << "||X||_1       = " << XOneNorm << "\n"
+                              << "||A X - B||_1 = " << ROneNorm << "\n";
+                std::cout << "||A X - B||_1 / (||A||_1 ||X||_1 epsilon n) = " 
                           << oneResidual << "\n" << std::endl;
-            
-            if( commRank == 0 )
-                std::cout << std::endl;
+            }
         }
+    }
+    catch( ArgException& e )
+    {
+        // There is no reason to do anything
     }
     catch( std::exception& e )
     {
-        std::cout << "Process " << commRank << " caught exception: "
-                  << e.what() << std::endl;
+        std::ostringstream os;
+        os << "Process " << commRank << " caught exception: " << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

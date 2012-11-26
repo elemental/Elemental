@@ -38,14 +38,6 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
-void Usage()
-{
-    cout << "QDWH <m> <n>\n"
-         << "  <m>: height of random matrix to test polar decomp. on\n"
-         << "  <n>: width of random matrix to test polar decomp. on\n"
-         << endl;
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -54,18 +46,13 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
-    if( argc < 3 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int m = atoi( argv[1] );
-    const int n = atoi( argv[2] );
-
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int m = args.Optional("--height",100,"height of matrix");
+        const int n = args.Optional("--width",100,"width of matrix");
+        args.Process();
+
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
@@ -127,10 +114,16 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

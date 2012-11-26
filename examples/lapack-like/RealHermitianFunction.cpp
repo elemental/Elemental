@@ -41,7 +41,7 @@ typedef Complex<R> C;
 // A functor for returning the exponential of a real number
 class ExpFunctor {
 public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
+    R operator()( R alpha ) const { return Exp(alpha); }
 };
 
 int
@@ -54,9 +54,12 @@ main( int argc, char* argv[] )
 
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of Hermitian matrix");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
         DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
@@ -83,19 +86,25 @@ main( int argc, char* argv[] )
             }
         }
 
-        // Print our matrix.
-        H.Print("H");
+        if( print )
+            H.Print("H");
 
         // Reform H with the exponentials of the original eigenvalues
         RealHermitianFunction( LOWER, H, ExpFunctor() );
 
-        // Print the exponential of the matrix
-        H.Print("exp(H)");
+        if( print )
+            H.Print("exp(H)");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
@@ -104,4 +113,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

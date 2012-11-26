@@ -38,13 +38,6 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
-void Usage()
-{
-    cout << "HPDInverse <n>\n"
-         << "  <n>: size of random matrix to test HPDInverse on\n"
-         << endl;
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -53,17 +46,12 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
-
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Required<int>("--size","size of HPD matrix");
+        args.Process();
+
         Grid g( comm );
         DistMatrix<C> A( g );
         HermitianUniformSpectrum( n, A, R(1), R(20) );
@@ -88,10 +76,16 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

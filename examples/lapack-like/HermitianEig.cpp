@@ -38,8 +38,6 @@ using namespace elem;
 typedef double R;
 typedef Complex<R> C;
 
-const int n = 300;
-
 int
 main( int argc, char* argv[] )
 {
@@ -55,6 +53,11 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of matrix");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
@@ -109,6 +112,13 @@ main( int argc, char* argv[] )
         // Optional: sort the eigenpairs
         SortEig( w, X );
 
+        if( print )
+        {
+            HCopy.Print("H");
+            X.Print("X");
+            w.Print("w");
+        }
+
         // Check the residual, || H X - Omega X ||_F
         const R frobH = HermitianNorm( LOWER, HCopy, FROBENIUS_NORM );
         DistMatrix<C> E( X );
@@ -130,10 +140,16 @@ main( int argc, char* argv[] )
                       << "\n" << std::endl;
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
@@ -142,4 +158,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

@@ -88,6 +88,8 @@
 #ifndef WITHOUT_PMRRR
   #include "elemental/core/imports/pmrrr.hpp"
 #endif
+#include "elemental/core/imports/choice.hpp"
+#include "elemental/core/imports/mpi_choice.hpp"
 
 // Implement the intertwined parts of the library
 #include "elemental/core/timer_impl.hpp"

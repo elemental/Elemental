@@ -33,34 +33,21 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "CauchyLike <m> <n>\n"
-              << "  m: Height of matrix, m >= 1\n"
-              << "  n: Width of matrix, n >= 1\n"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 3 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int m = atoi( argv[1] );
-    const int n = atoi( argv[2] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int m = args.Optional("--height",100,"height of matrix");
+        const int n = args.Optional("--width",100,"width of matrix");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
         std::vector<double> r(m), s(n), x(m), y(n);
         for( int j=0; j<m; ++j )
             r[j] = 1./(j+1);
@@ -73,18 +60,23 @@ main( int argc, char* argv[] )
 
         DistMatrix<double> A;
         CauchyLike( r, s, x, y, A );
-        A.Print("CauchyLike matrix:");
+        if( print )
+            A.Print("CauchyLike matrix:");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n"
+           << e.what() << std::endl;
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-

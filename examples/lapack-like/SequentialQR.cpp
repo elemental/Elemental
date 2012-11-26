@@ -37,14 +37,6 @@ using namespace elem;
 typedef double Real;
 typedef Complex<Real> C;
 
-void Usage()
-{
-    cout << "SequentialQR <m> <n>\n"
-         << "  <m>: height of random matrix to test QR on\n"
-         << "  <n>: width of random matrix to test QR on\n"
-         << endl;
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -53,19 +45,12 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
-    if( argc < 3 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int m = atoi( argv[1] );
-    const int n = atoi( argv[2] );
-
     try 
     {
-        const Grid g( comm );
+        MpiArgs args( argc, argv, comm );
+        const int m = args.Optional("--height",100,"height of matrix");
+        const int n = args.Optional("--width",100,"width of matrix");
+        args.Process();
 
         Matrix<C> A;
         Uniform( m, n, A );
@@ -86,7 +71,7 @@ main( int argc, char* argv[] )
         Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
         const Real frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM );
 
-        if( g.Rank() == 0 )
+        if( commRank == 0 )
         {
             std::cout << "|| A ||_F = " << frobA << "\n"
                       << "|| A - Q R ||_F / || A ||_F   = "
@@ -96,10 +81,16 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( exception& e )
     {
-        cerr << "Process " << commRank << " caught exception with message: "
-             << e.what() << endl;
+        ostringstream os;
+        os << "Process " << commRank << " caught exception with message: "
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
@@ -108,4 +99,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

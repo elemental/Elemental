@@ -5,66 +5,36 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    const int commRank = mpi::CommRank( mpi::COMM_WORLD );
-    const int commSize = mpi::CommSize( mpi::COMM_WORLD );
-
-    Orientation orientation = NORMAL;
-    int m = 100;
-    int n = 100;
-    int numRhs = 1;
-    int blocksize = 64;
-    int gridHeight=1, gridWidth=1;
-    bool specifiedGrid = false;
-    for( int i=1; i<argc; ++i )
-    {
-        if( strcmp( argv[i], "-adjoint" ) == 0 )
-        {
-            orientation = ADJOINT; 
-        }
-        if( strcmp( argv[i], "-m" ) == 0 )
-        {
-            m = atoi(argv[i+1]);
-            ++i;
-        }
-        if( strcmp( argv[i], "-n" ) == 0 ) 
-        {
-            n = atoi(argv[i+1]);
-            ++i;
-        }
-        if( strcmp( argv[i], "-numRhs" ) == 0 ) 
-        {
-            numRhs = atoi(argv[i+1]);
-            ++i;
-        }
-        if( strcmp( argv[i], "-gridHeight" ) == 0 ) 
-        {
-            gridHeight = atoi(argv[i+1]);
-            specifiedGrid = true;
-            ++i;
-        }
-        if( strcmp( argv[i], "-gridWidth" ) == 0 ) 
-        {
-            gridWidth = atoi(argv[i+1]);
-            specifiedGrid = true;
-            ++i;
-        }
-        if( strcmp( argv[i], "-blocksize" ) == 0 ) 
-        {
-            blocksize = atoi(argv[i+1]);
-            ++i;
-	}
-    }
-    if( !specifiedGrid )
-    {
-        const int sqrtSize = (int)sqrt((double)commSize);
-        gridHeight = sqrtSize;
-        while( commSize % gridHeight != 0 )
-            ++gridHeight;
-        gridWidth = commSize / gridHeight;
-    }
+    mpi::Comm comm = mpi::COMM_WORLD;
+    const int commRank = mpi::CommRank( comm );
 
     try 
     {
+        MpiArgs args( argc, argv, comm );
+        const bool adjoint = args.Optional("--adjoint",false,"adjoint solve?");
+        const int m = args.Optional("--height",100,"height of matrix");
+        const int n = args.Optional("--width",100,"width of matrix");
+        const int numRhs = args.Optional("--numRhs",1,"# of right-hand sides");
+        const int blocksize = args.Optional
+            ("--blocksize",64,"algorithmic blocksize");
+        int gridHeight = args.Optional("--gridHeight",0,"grid height");
+        args.Process();
+
+        // If the grid height wasn't specified, then we should attempt to build
+        // a nearly-square process grid
+        int gridWidth;
+        if( gridHeight == 0 )
+        {
+            const int commSize = mpi::CommSize( comm );
+            const int sqrtSize = (int)sqrt((double)commSize);
+            gridHeight = sqrtSize;
+            while( commSize % gridHeight != 0 )
+                ++gridHeight;
+            gridWidth = commSize / gridHeight;
+        }
+
+        const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
+
         // Set the algorithmic blocksize
         SetBlocksize( blocksize );
 
@@ -152,10 +122,16 @@ main( int argc, char* argv[] )
                 std::cout << std::endl;
         }
     }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
+    }
     catch( std::exception& e )
     {
-        std::cout << "Process " << commRank << " caught exception: "
-                  << e.what() << std::endl;
+        std::ostringstream os;
+        os << "Process " << commRank << " caught exception: " << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif

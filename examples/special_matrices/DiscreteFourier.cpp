@@ -33,46 +33,40 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "DiscreteFourier <n>\n"
-              << "  n: Generate a DFT matrix of size n x n, n >= 1"
-              << std::endl;
-}
-
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
-
-    if( argc < 2 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-    const int n = atoi( argv[1] );
 
     try
     {
+        MpiArgs args( argc, argv, comm );
+        const int n = args.Optional("--size",100,"size of matrix");
+        const bool print = args.Optional("--print",false,"print matrix?");
+        args.Process();
+
         DistMatrix<Complex<double> > A;
         DiscreteFourier( n, A );
-        A.Print("DFT matrix:");
+        if( print )
+            A.Print("DFT matrix:");
+    }
+    catch( ArgException& e )
+    {
+        // There is nothing to do
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n"
+           << e.what() << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-
