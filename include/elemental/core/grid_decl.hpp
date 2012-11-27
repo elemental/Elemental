@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2009-2012, Jack Poulson
-                      2012, Jed Brown (fixing viewingGroup_ leakage)
+                      2012, Jed Brown 
    All rights reserved.
 
    This file is part of Elemental.
@@ -82,6 +82,8 @@ public:
     int DiagPath( int vectorColRank ) const;
     int DiagPathRank() const;
     int DiagPathRank( int vectorColRank ) const;
+
+    static int FindFactor( int p );
 
 private:
     int height_, width_, size_, gcd_;

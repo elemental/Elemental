@@ -34,25 +34,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "HErmitian Rank-2K update.\n\n"
-         << "  Her2k <r> <c> <uplo> <trans?> <m> <k> <nb> <rank2K local nb> "
-            "<print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  uplo: {L,U}\n"
-         << "  trans: {N,C}\n"
-         << "  m: height of C\n"
-         << "  k: inner dimension\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  rank2K local nb: local blocksize for rank-2k update\n"
-         << "  print?: false iff 0\n" << endl;
-}
-
 template<typename T> 
 void TestHer2k
-( bool printMatrices, UpperOrLower uplo, Orientation orientation,
+( bool print, UpperOrLower uplo, Orientation orientation,
   int m, int k, T alpha, T beta, const Grid& g )
 {
     DistMatrix<T> A(g), B(g), C(g);
@@ -68,7 +52,7 @@ void TestHer2k
         Uniform( k, m, B );
     }
     HermitianUniformSpectrum( m, C, 1, 10 );
-    if( printMatrices )
+    if( print )
     {
         A.Print("A");
         B.Print("B");
@@ -93,7 +77,7 @@ void TestHer2k
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         ostringstream msg;
         if( orientation == NORMAL )
@@ -109,28 +93,36 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
     
-    if( argc < 10 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const Orientation orientation = CharToOrientation(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int k = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocal = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        MpiArgs args( argc, argv, comm );
+        int r = args.Optional("--r",0,"height of process grid");
+        const char uploChar = args.Optional
+            ("--uplo",'L',"upper/lower storage: L/U");
+        const char transChar = args.Optional
+            ("--trans",'N',"orientation: N/T/C");
+        const int m = args.Optional("--m",100,"height of result");
+        const int k = args.Optional("--k",100,"inner dimension");
+        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
+        const int nbLocal = args.Optional("--nbLocal",32,"local blocksize");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        if( commSize % r != 0 )
+            throw std::logic_error("Invalid process grid height");
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        const Orientation orientation = CharToOrientation( transChar );
+        SetBlocksize( nb );
+        SetLocalTrr2kBlocksize<double>( nbLocal );
+        SetLocalTrr2kBlocksize<Complex<double> >( nbLocal );
+
 #ifndef RELEASE
         if( rank == 0 )
         {
@@ -139,46 +131,39 @@ main( int argc, char* argv[] )
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalTrr2kBlocksize<double>( nbLocal );
-        SetLocalTrr2kBlocksize<Complex<double> >( nbLocal );
+        if( commRank == 0 )
+            cout << "Will test Her2k" << uploChar << transChar << endl;
 
-        if( rank == 0 )
-        {
-            cout << "Will test Her2k" << UpperOrLowerToChar(uplo) 
-                                      << OrientationToChar(orientation) << endl;
-        }
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with doubles:                 \n"
                  << "--------------------------------------" << endl;
         }
         TestHer2k<double>
-        ( printMatrices, uplo, orientation, 
-          m, k, (double)3, (double)4, g );
+        ( print, uplo, orientation, m, k, (double)3, (double)4, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
         TestHer2k<Complex<double> >
-        ( printMatrices, uplo, orientation, 
-          m, k, Complex<double>(3), Complex<double>(4), g );
+        ( print, uplo, orientation, m, k, 
+          Complex<double>(3), Complex<double>(4), g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:" << endl 
+           << e.what() << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
-             << e.what() << endl;
     }
     Finalize();
     return 0;
 }
-

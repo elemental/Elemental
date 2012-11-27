@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2009-2012, Jack Poulson
-                      2012, Jed Brown (fixing viewingGroup_ leakage)
+                      2012, Jed Brown 
    All rights reserved.
 
    This file is part of Elemental.
@@ -34,6 +34,15 @@
 
 namespace elem {
 
+inline int
+Grid::FindFactor( int p )
+{
+    int factor = int(sqrt(double(p)));
+    while( factor % p != 0 )
+        ++factor;
+    return factor;
+}
+
 inline 
 Grid::Grid( mpi::Comm comm )
 {
@@ -54,9 +63,7 @@ Grid::Grid( mpi::Comm comm )
     owningRank_ = viewingRank_;
 
     // Factor p
-    height_ = int(sqrt(double(size_)));
-    while( size_ % height_ != 0 )
-        ++height_;
+    height_ = FindFactor( size_ );
     width_ = size_ / height_;
 
     SetUpGrid();
@@ -349,9 +356,7 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners )
     mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
 
     // Factor the grid size
-    height_ = int(sqrt(double(size_)));
-    while( size_ % height_ != 0 )
-        ++height_;
+    height_ = FindFactor( size_ );
     width_ = size_ / height_;
 
     SetUpGrid();

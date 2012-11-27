@@ -247,8 +247,11 @@ MpiArgs::PrintReport( std::ostream& output ) const
         output << "  " << reqArg.name << "\n"
                << "    description: " << reqArg.desc << "\n"
                << "    type string: " << reqArg.typeInfo << "\n"
-               << "    used value:  " << reqArg.usedVal << "\n"
-               << "    found:       " << reqArg.found << "\n\n";
+               << "    used value:  " << reqArg.usedVal << "\n";
+        if( reqArg.found )
+            output << "    found\n\n";
+        else
+            output << "    NOT found\n\n";
     }
 
     if( numOptional > 0 )
@@ -263,8 +266,11 @@ MpiArgs::PrintReport( std::ostream& output ) const
                << "    description:   " << optArg.desc << "\n"
                << "    type string:   " << optArg.typeInfo << "\n"
                << "    default value: " << optArg.defaultVal << "\n"
-               << "    used value:    " << optArg.usedVal << "\n"
-               << "    found:         " << optArg.found << "\n\n";
+               << "    used value:    " << optArg.usedVal << "\n";
+        if( optArg.found )
+            output << "    found\n\n";
+        else
+            output << "    NOT found\n\n";
     }
 
     output << "Out of " << numRequired << " required arguments, " 
