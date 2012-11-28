@@ -35,28 +35,10 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << " TwoSidedTrmm <r> <c> <uplo> <diag> <m> <nb> <correctness?> "
-            "<print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  uplo: {L,U}\n"
-         << "  diag: {N,U}\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename F> 
 void TestCorrectness
-( bool printMatrices, 
-  UpperOrLower uplo,
-  UnitOrNonUnit diag,
-  const DistMatrix<F>& A,
-  const DistMatrix<F>& B,
-  const DistMatrix<F>& AOrig )
+( bool print, UpperOrLower uplo, UnitOrNonUnit diag,
+  const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& AOrig )
 {
     typedef typename Base<F>::type R;
     const Grid& g = A.Grid();
@@ -140,12 +122,8 @@ void TestCorrectness
 
 template<typename F> 
 void TestTwoSidedTrmm
-( bool testCorrectness, 
-  bool printMatrices,
-  UpperOrLower uplo, 
-  UnitOrNonUnit diag, 
-  int m, 
-  const Grid& g )
+( bool testCorrectness, bool print, UpperOrLower uplo, UnitOrNonUnit diag, 
+  int m, const Grid& g )
 {
     DistMatrix<F> A(g), B(g), AOrig(g);
 
@@ -165,7 +143,7 @@ void TestTwoSidedTrmm
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         A.Print("A");
         B.Print("B");
@@ -190,10 +168,10 @@ void TestTwoSidedTrmm
              << "  Time = " << runTime << " seconds. GFlops = "
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after reduction");
     if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, diag, A, B, AOrig );
+        TestCorrectness( print, uplo, diag, A, B, AOrig );
 }
 
 int 
@@ -201,70 +179,72 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const UnitOrNonUnit diag = CharToUnitOrNonUnit(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        MpiArgs args( argc, argv, comm );
+        int r = args.Optional("--r",0,"height of process grid");
+        const char uploChar = args.Optional
+            ("--uplo",'L',"lower or upper triangular storage: L/U");
+        const char diagChar = args.Optional
+            ("--unit",'N',"(non-)unit diagonal: N/U");
+        const int m = args.Optional("--m",100,"height of matrix");
+        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
+        const bool testCorrectness = args.Optional
+            ("--correctness",false,"test correctness?");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        if( commSize % r != 0 )
+            throw std::logic_error("Invalid process grid height");
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
+        SetBlocksize( nb );
+
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
+        if( commRank == 0 )
+            cout << "Will test TwoSidedTrmm" << uploChar << diagChar << endl;
 
-        if( rank == 0 )
-        {
-            cout << "Will test TwoSidedTrmm" 
-                << UpperOrLowerToChar(uplo) << UnitOrNonUnitToChar(diag) 
-                << endl;
-        }
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestTwoSidedTrmm<double>
-        ( testCorrectness, printMatrices, uplo, diag, m, g );
+        TestTwoSidedTrmm<double>( testCorrectness, print, uplo, diag, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
         TestTwoSidedTrmm<Complex<double> >
-        ( testCorrectness, printMatrices, uplo, diag, m, g );
+        ( testCorrectness, print, uplo, diag, m, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl; 
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl; 
     }
     Finalize();
     return 0;

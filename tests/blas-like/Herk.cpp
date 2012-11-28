@@ -95,8 +95,7 @@ main( int argc, char* argv[] )
         int r = args.Optional("--r",0,"height of process grid");
         const char uploChar = args.Optional
             ("--uplo",'L',"upper/lower storage: L/U");
-        const char transChar = args.Optional
-            ("--trans",'N',"orientation: N/T/C");
+        const char transChar = args.Optional("--trans",'N',"orientation: N/C");
         const int m = args.Optional("--m",100,"height of result");
         const int k = args.Optional("--k",100,"inner dimension");
         const int nb = args.Optional("--nb",96,"algorithmic blocksize");

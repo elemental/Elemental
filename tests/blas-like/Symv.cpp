@@ -34,32 +34,17 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "SYmmetric Matrix vector multiplication.\n\n"
-         << "  Symv <r> <c> <Shape> <m> <nb> <local nb double> "
-         << "<local nb complex double> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  Shape: {L,U}\n"
-         << "  m: height of C\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  local nb double: local algorithmic blocksize for double-prec.\n"
-         << "  local nb complex double: \" \" complex double-precision\n"
-         << "  print?: [0/1]\n" << endl;
-}
-
 template<typename T> 
 void TestSymv
 ( const UpperOrLower uplo, const int m, const T alpha, const T beta, 
-  const bool printMatrices, const Grid& g )
+  const bool print, const Grid& g )
 {
     DistMatrix<T> A(g), x(g), y(g);
 
     Uniform( m, m, A );
     Uniform( m, 1, x );
     Uniform( m, 1, y ); 
-    if( printMatrices )
+    if( print )
     {
         A.Print("A");
         x.Print("x");
@@ -85,7 +70,7 @@ void TestSymv
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         ostringstream msg;
         msg << "y := " << alpha << " Symm(A) x + " << beta << " y";
@@ -98,70 +83,74 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocalDouble = atoi(argv[++argNum]);
-        const int nbLocalComplexDouble = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        MpiArgs args( argc, argv, comm );
+        int r = args.Optional("--r",0,"height of process grid");
+        const char uploChar = args.Optional
+            ("--uplo",'L',"upper or lower storage: L/U");
+        const int m = args.Optional("--m",100,"height of matrix");
+        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
+        const int nbLocalDouble = args.Optional
+            ("--nbLocalDouble",32,"local blocksize for real doubles");
+        const int nbLocalComplexDouble = args.Optional
+            ("--nbLocalComplexDouble",32,"local blocksize for complex doubles");
+        const bool print = args.Optional("--print",false,"print matrices?");
+        args.Process();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        if( commSize % r != 0 )
+            throw std::logic_error("Invalid process grid height");
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        SetBlocksize( nb );
+        SetLocalSymvBlocksize<double>( nbLocalDouble );
+        SetLocalSymvBlocksize<Complex<double> >( nbLocalComplexDouble );
+
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalSymvBlocksize<double>( nbLocalDouble );
-        SetLocalSymvBlocksize<Complex<double> >( nbLocalComplexDouble );
+        if( commRank == 0 )
+            cout << "Will test Symv" << uploChar << endl;
 
-        if( rank == 0 )
-            cout << "Will test Symv" << UpperOrLowerToChar(uplo) << endl;
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestSymv<double>
-        ( uplo, m, (double)3, (double)4, printMatrices, g );
+        TestSymv<double>( uplo, m, (double)3, (double)4, print, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
         TestSymv<Complex<double> >
-        ( uplo, m, Complex<double>(3), Complex<double>(4), printMatrices, g );
+        ( uplo, m, Complex<double>(3), Complex<double>(4), print, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:" << endl 
-             << e.what() << endl;
     }
     Finalize();
     return 0;
 }
-
