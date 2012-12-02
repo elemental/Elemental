@@ -35,24 +35,6 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Tests UT transform application.\n\n"
-         << "  ApplyPackedReflectors <r> <c> <side> <uplo> <order> "
-            "<conjugation> <m> <offset> <nb> <correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  side: {L/R}\n"
-         << "  uplo: {L/U}\n"
-         << "  order: {0/1} for {forward/backward}\n"
-         << "  conjugation: {0/1} for {Unconjugated/Conjugated}\n"
-         << "  m: height of matrix\n"
-         << "  offset: diagonal transforms are stored above/below\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename R> 
 void TestCorrectness
 ( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
@@ -319,53 +301,52 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 12 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const LeftOrRight side = CharToLeftOrRight(*argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const ForwardOrBackward order = 
-            ( atoi(argv[++argNum]) ? FORWARD : BACKWARD );
+        int r = Input("--gridHeight","height of process grid",0);
+        const char sideChar = Input("--side","side to apply from: L/R",'L');
+        const char uploChar = Input("--uplo","store in triangle: L/U",'L');
+        const bool forward = Input("--forward","forward application?",true);
+        const bool conjugate = Input("--conjugate","conjugate?",false);
+        const int m = Input("--height","height of matrix",100);
+        const int offset = Input("--offset","diagonal offset for storage",0);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool testCorrectness  = Input
+            ("--correctness","test correctness?",false);
+        const bool printMatrices = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const LeftOrRight side = CharToLeftOrRight( sideChar );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        const ForwardOrBackward order = ( forward ? FORWARD : BACKWARD );
         const Conjugation conjugation = 
-            ( atoi(argv[++argNum]) ? CONJUGATED : UNCONJUGATED );
-        const int m = atoi(argv[++argNum]);
-        const int offset = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+            ( conjugate ? CONJUGATED : UNCONJUGATED );
+        SetBlocksize( nb );
         if( uplo == LOWER && offset > 0 )
-            throw runtime_error
+            throw logic_error
             ("Offset cannot be positive if transforms are in lower triangle");
         else if( uplo == UPPER && offset < 0 )
-            throw runtime_error
+            throw logic_error
             ("Offset cannot be negative if transforms are in upper triangle");
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-
-        if( rank == 0 )
+        if( commRank == 0 )
             cout << "Will test UT transform" << endl;
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
@@ -375,7 +356,7 @@ main( int argc, char* argv[] )
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
@@ -385,15 +366,17 @@ main( int argc, char* argv[] )
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

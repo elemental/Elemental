@@ -101,8 +101,6 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        if( commSize % r != 0 )
-            throw std::logic_error("Invalid process grid height");
         const int c = commSize / r;
         const Grid g( comm, r, c );
         const LeftOrRight side = CharToLeftOrRight( sideChar );

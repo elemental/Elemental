@@ -43,10 +43,11 @@ main( int argc, char* argv[] )
     try 
     {
         Complex<double> w( 0, 0 );
-        std::cout << "sqrt of " << w << " is " << Sqrt(w) << std::endl;
+        if( commRank == 0 )
+            std::cout << "sqrt of " << w << " is " << Sqrt(w) << std::endl;
 
-        double maxError = 0;
-        double maxRelError = 0;
+        double maxLocalError = 0;
+        double maxLocalRelError = 0;
         const int numTests = 1000;
         for( int j=0; j<numTests; ++j )
         {
@@ -55,24 +56,27 @@ main( int argc, char* argv[] )
             const double error = Abs(sqrtW*sqrtW-w);
             const double relError = error/Abs(w);
 
-            std::cout << "Error and relError of sqrt of " << w << " = " 
-                      << sqrtW << " is " << error << " and " << relError
-                      << std::endl;
-
-            maxError = std::max( maxError, error );
-            maxRelError = std::max( maxRelError, relError );
+            maxLocalError = std::max( maxLocalError, error );
+            maxLocalRelError = std::max( maxLocalRelError, relError );
         }
-        std::cout << "Maximum error and relative error from " << numTests 
-                  << " tests was " << maxError << " and " << maxRelError
-                  << std::endl;
+
+        double maxError, maxRelError;
+        mpi::Reduce( &maxLocalError, &maxError, 1, mpi::SUM, 0, comm );
+        mpi::Reduce( &maxLocalRelError, &maxRelError, 1, mpi::SUM, 0, comm );
+        if( commRank == 0 )
+            std::cout << "Maximum error and relative error from " << numTests 
+                      << " tests was " << maxError << " and " << maxRelError
+                      << std::endl;
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n" 
-                  << e.what() << std::endl;
     }   
     Finalize();
     return 0;

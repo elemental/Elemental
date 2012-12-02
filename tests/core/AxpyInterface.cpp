@@ -34,11 +34,6 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "AxpyInterface\n" << std::endl;
-}
-
 int
 main( int argc, char* argv[] )
 {
@@ -94,14 +89,15 @@ main( int argc, char* argv[] )
     }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
 
     Finalize();
     return 0;
 }
-

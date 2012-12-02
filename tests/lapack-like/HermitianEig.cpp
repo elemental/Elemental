@@ -35,31 +35,6 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates random Hermitian matrix then solves for its eigenpairs."
-         << "\n\n"
-         << "  HermitianEig <r> <c> <only eigenvalues?> <range> <a> <b> "
-            "<clustered?> <uplo> <m> <nb> <local nb symv/hemv> "
-            "<correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  only eigenvalues?: 0/1\n"
-         << "  range: 'A' for all, 'I' for index range, "
-            "'V' for floating-point range\n"
-         << "  a: if range=='I', 0-indexed first eigenpair to compute\n"
-            "     if range=='V', lower-bound on eigenvalues\n"
-         << "  b: if range=='I', 0-indexed last eigenpair to compute\n"
-            "     if range=='V', upper-bound on eigenvalues\n"
-         << "  clustered: uniform spectrum if 0, clustered spectrum otherwise\n"
-         << "  uplo: 'L' for lower-triangular storage, 'U' for upper\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  local nb symv/hemv: local blocksize for symv/hemv\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 void TestCorrectness
 ( bool printMatrices,
   UpperOrLower uplo,
@@ -217,7 +192,7 @@ void TestCorrectness
 
 void TestHermitianEigDouble
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, bool clustered, UpperOrLower uplo, int m, 
+  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     DistMatrix<double> A(g), AOrig(g), Z(g);
@@ -227,7 +202,7 @@ void TestHermitianEigDouble
         Wilkinson( m/2, A );
     else
         HermitianUniformSpectrum( m, A, -10, 10 );
-    if( testCorrectness && !onlyEigenvalues )
+    if( testCorrectness && !onlyEigvals )
     {
         if( g.Rank() == 0 )
         {
@@ -248,7 +223,7 @@ void TestHermitianEigDouble
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    if( onlyEigenvalues )
+    if( onlyEigvals )
     {
         if( range == 'A' )
             HermitianEig( uplo, A, w );
@@ -276,16 +251,16 @@ void TestHermitianEigDouble
     if( printMatrices )
     {
         w.Print("eigenvalues:");
-        if( !onlyEigenvalues )
+        if( !onlyEigvals )
             Z.Print("eigenvectors:");
     }
-    if( testCorrectness && !onlyEigenvalues )
+    if( testCorrectness && !onlyEigvals )
         TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
 }
     
 void TestHermitianEigDoubleComplex
 ( bool testCorrectness, bool printMatrices,
-  bool onlyEigenvalues, char range, bool clustered, UpperOrLower uplo, int m, 
+  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
     DistMatrix<Complex<double> > A(g), AOrig(g), Z(g);
@@ -295,7 +270,7 @@ void TestHermitianEigDoubleComplex
         Wilkinson( m/2, A );
     else
         HermitianUniformSpectrum( m, A, -10, 10 );
-    if( testCorrectness && !onlyEigenvalues )
+    if( testCorrectness && !onlyEigvals )
     {
         if( g.Rank() == 0 )
         {
@@ -316,7 +291,7 @@ void TestHermitianEigDoubleComplex
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    if( onlyEigenvalues )
+    if( onlyEigvals )
     {
         if( range == 'A' )
             HermitianEig( uplo, A, w );
@@ -344,10 +319,10 @@ void TestHermitianEigDoubleComplex
     if( printMatrices )
     {
         w.Print("eigenvalues:");
-        if( !onlyEigenvalues )
+        if( !onlyEigvals )
             Z.Print("eigenvectors:");
     }
-    if( testCorrectness && !onlyEigenvalues )
+    if( testCorrectness && !onlyEigvals )
         TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
 }
 
@@ -356,75 +331,60 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 14 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const bool onlyEigenvalues = atoi(argv[++argNum]);
-        const char range = *argv[++argNum];
-        if( range != 'A' && range != 'I' && range != 'V' )
-            throw runtime_error("'range' must be 'A', 'I', or 'V'");
-        double vl = 0, vu = 0;
-        int il = 0, iu = 0;
-        if( range == 'I' )
-        {
-            il = atoi(argv[++argNum]);
-            iu = atoi(argv[++argNum]);
-        }
-        else if( range == 'V' )
-        {
-            vl = atof(argv[++argNum]);
-            vu = atof(argv[++argNum]);
-        }
-        else
-        {
-            argNum += 2;
-        }
-        const bool clustered = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocalSymv = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","height of process grid",0);
+        const bool onlyEigvals = Input
+            ("--onlyEigvals","only compute eigenvalues?",false);
+        const char range = Input
+            ("--range",
+             "range of eigenpairs: 'A' for all, 'I' for index range, "
+             "'V' for value range",'A');
+        const int il = Input("--il","lower bound of index range",0);
+        const int iu = Input("--iu","upper bound of index range",100);
+        const double vl = Input("--vl","lower bound of value range",0.);
+        const double vu = Input("--vu","upper bound of value range",100.);
+        const bool clustered = Input
+            ("--cluster","force clustered eigenvalues?",false);
+        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
+        const int m = Input("--height","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool printMatrices = Input("--print","print matrices?",false);
+        ProcessInput();
 
-        if( onlyEigenvalues && testCorrectness && rank==0 )
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        SetBlocksize( nb );
+        SetLocalSymvBlocksize<double>( nbLocal );
+        SetLocalHemvBlocksize<Complex<double> >( nbLocal );
+        if( range != 'A' && range != 'I' && range != 'V' )
+            throw logic_error("'range' must be 'A', 'I', or 'V'");
+        if( onlyEigvals && testCorrectness && commRank==0 )
         {
             cout << "Cannot test correctness with only the eigenvalues." 
                  << endl;
         }
-
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalSymvBlocksize<double>( nbLocalSymv );
-        SetLocalHemvBlocksize<Complex<double> >( nbLocalSymv );
+        if( commRank == 0 )
+            cout << "Will test HermitianEig " << uploChar << endl;
 
-        if( rank == 0 )
-        {
-            cout << "Will test " << ( uplo==LOWER ? "lower" : "upper" )
-                 << " HermitianEig." << endl;
-        }
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "------------------------------------------\n"
                  << "Double-precision normal tridiag algorithm:\n"
@@ -433,9 +393,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "------------------------------------------\n"
                  << "Double-precision square tridiag algorithm,\n"
@@ -446,9 +406,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
  
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "------------------------------------------\n"
                  << "Double-precision square tridiag algorithm,\n"
@@ -459,9 +419,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDouble
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------------------\n"
                  << "Double-precision complex normal tridiag algorithm:\n"
@@ -471,9 +431,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------------------------------------\n"
                  << "Double-precision complex square tridiag algorithm, \n"
@@ -485,9 +445,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------------------------------------\n"
                  << "Double-precision complex square tridiag algorithm, \n"
@@ -499,17 +459,19 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDoubleComplex
         ( testCorrectness, printMatrices, 
-          onlyEigenvalues, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

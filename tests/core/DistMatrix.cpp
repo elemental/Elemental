@@ -30,21 +30,9 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <cstdlib>
 #include <ctime>
 #include "elemental.hpp"
 using namespace elem;
-
-void Usage()
-{
-    std::cout 
-        << "Test all of the aligned redistributions of DistMatrix class.\n\n"
-        << "  DistMatrix <r> <c> <m> <n>\n\n"
-        << "  r: number of process rows\n"
-        << "  c: number of process cols\n"
-        << "  m: height of matrices\n"
-        << "  n: width of matrices\n" << std::endl;
-}
 
 template<typename T, Distribution AColDist, Distribution ARowDist,
                      Distribution BColDist, Distribution BRowDist>
@@ -57,13 +45,13 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #endif
     const Grid& g = A.Grid();
 
-    const int rank = g.Rank();
+    const int commRank = g.Rank();
     const int height = B.Height();
     const int width = B.Width();
     DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
     DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
 
-    if( rank == 0 )
+    if( commRank == 0 )
     {
         std::cout << "Testing [" << DistToString(AColDist) << ","
                                  << DistToString(ARowDist) << "]"
@@ -95,7 +83,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.Comm() );
 
     if( summedErrorFlag == 0 )
-        if( rank == 0 )
+        if( commRank == 0 )
             std::cout << "PASSED" << std::endl;
     else
         throw std::logic_error("Redistribution failed");
@@ -276,31 +264,18 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-
-    if( argc < 5 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int n = atoi(argv[++argNum]);
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            std::cout << "==========================================\n"
-                      << " In debug mode! Performance will be poor! \n"
-                      << "==========================================" 
-                      << std::endl;
-        }
-#endif
+        int r = Input("--gridHeight","height of process grid",0);
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
         const Grid g( comm, r, c );
 
         if( commRank == 0 )
@@ -335,15 +310,17 @@ main( int argc, char* argv[] )
         }
         DistMatrixTest<Complex<double> >( m, n, g );
     }
+    catch( ArgException& e ) { }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
     Finalize();
     return 0;
 }
-

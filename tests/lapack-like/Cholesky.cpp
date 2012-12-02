@@ -35,21 +35,6 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates SPD matrix then solves for its Cholesky factor.\n\n"
-         << "  Cholesky <r> <c> <uplo> <m> <nb> <rankK local nb> "
-            "<correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  uplo: {L,U}\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  rankK local nb: local blocksize for triangular rank-k update\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename F>
 void TestCorrectness
 ( bool printMatrices, UpperOrLower uplo,
@@ -171,44 +156,41 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocal = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","process grid height",0);
+        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
+        const int m = Input("--height","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",false);
+        const bool printMatrices = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        SetBlocksize( nb );
+        SetLocalTrrkBlocksize<double>( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
+        if( commRank == 0 )
+            cout << "Will test Cholesky" << uploChar << endl;
 
-        if( rank == 0 )
-            cout << "Will test Cholesky" << UpperOrLowerToChar(uplo) << endl;
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
@@ -217,7 +199,7 @@ main( int argc, char* argv[] )
         TestCholesky<double>
         ( testCorrectness, printMatrices, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
@@ -226,16 +208,18 @@ main( int argc, char* argv[] )
         TestCholesky<Complex<double> >
         ( testCorrectness, printMatrices, uplo, m, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
 
     Finalize();
     return 0;
 }
-

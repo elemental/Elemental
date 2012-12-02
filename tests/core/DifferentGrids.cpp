@@ -30,19 +30,9 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 */
-#include <cstdlib>
 #include <ctime>
 #include "elemental.hpp"
 using namespace elem;
-
-void Usage()
-{
-    std::cout 
-        << "Run some tests for creating matrices with different grids.\n\n"
-        << "  DifferentGrids <m> <n>\n\n"
-        << "  m: height of matrices\n"
-        << "  n: width of matrices\n" << std::endl;
-}
 
 int 
 main( int argc, char* argv[] )
@@ -52,28 +42,12 @@ main( int argc, char* argv[] )
     const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
     
-    if( argc < 3 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-
     try
     {
-        int argNum = 0;
-        const int m = atoi(argv[++argNum]);
-        const int n = atoi(argv[++argNum]);
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            std::cout 
-                << "==========================================\n"
-                << " In debug mode! Performance will be poor! \n"
-                << "==========================================" << std::endl;
-        }
-#endif
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         // Drop down to a square grid, change the matrix, and redistribute back
         const int commSqrt = int(sqrt(double(commSize)));
@@ -93,26 +67,32 @@ main( int argc, char* argv[] )
         DistMatrix<double> A(grid), ASqrt(sqrtGrid);
 
         Identity( m, n, A );
-        A.Print("A");
+        if( print )
+            A.Print("A");
 
         ASqrt = A;
-        ASqrt.Print("ASqrt := A");
+        if( print )
+            ASqrt.Print("ASqrt := A");
 
         Scal( 2.0, ASqrt );
-        ASqrt.Print("ASqrt := 2 ASqrt");
+        if( print )
+            ASqrt.Print("ASqrt := 2 ASqrt");
 
         A = ASqrt;
-        A.Print("A := ASqrt");
+        if( print )
+            A.Print("A := ASqrt");
     }
+    catch( ArgException& e ) { }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n"
-                  << e.what() << std::endl;
     }
     Finalize();
     return 0;
 }
-

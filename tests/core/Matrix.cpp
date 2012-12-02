@@ -33,15 +33,6 @@
 #include "elemental.hpp"
 using namespace elem;
 
-void Usage()
-{
-    std::cout << "Basic tests of the elem::Matrix class.\n"
-              << "  Matrix <m> <n> <ldim>\n"
-              << "    m: height of matrix\n"
-              << "    n: width of matrix\n"
-              << "    ldim: leading dimension of matrix" << std::endl;
-}
-
 template<typename T> 
 void TestMatrix( int m, int n, int ldim )
 {
@@ -80,20 +71,12 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
-    if( argc < 4 )
-    {
-        if( commRank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
-
     try 
     {
-        int argNum = 0;
-        const int m = atoi(argv[++argNum]);
-        const int n = atoi(argv[++argNum]);
-        const int ldim = atoi(argv[++argNum]);
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const int ldim = Input("--ldim","leading dimension",100);
+        ProcessInput();
 
         if( commRank == 0 )
         {
@@ -109,15 +92,17 @@ main( int argc, char* argv[] )
         }
         TestMatrix<Complex<double> >( m, n, ldim );
     }
+    catch( ArgException& e ) { }
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << commRank << " caught error message:\n" 
-                  << e.what() << std::endl;
     }   
     Finalize();
     return 0;
 }
-
