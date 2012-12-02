@@ -42,10 +42,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",10,"size of matrix");
-        const bool print = args.Optional("--print",true,"print matrix?");
-        args.Process();
+        const int n = Input("--size","size of matrix",10);
+        const bool print = Input("--print","print matrix?",true);
+        ProcessInput();
 
         DistMatrix<double> A;
         OneTwoOne( n, A );

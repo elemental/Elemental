@@ -87,21 +87,17 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        int r = args.Optional("--r",0,"height of process grid");
-        const char sideChar = args.Optional
-            ("--side",'L',"side to apply from: L/R");
-        const char uploChar = args.Optional
-            ("--uplo",'L',"lower or upper storage: L/U");
-        const char transChar = args.Optional
-            ("--trans",'N',"orientation of matrix: N/T/C");
-        const char diagChar = args.Optional
-            ("--diag",false,"(non-)unit diagonal: N/U");
-        const int m = args.Optional("--m",100,"height of result");
-        const int n = args.Optional("--n",100,"width of result");
-        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        int r = Input("--r","height of process grid",0);
+        const char sideChar = Input("--side","side to apply from: L/R",'L');
+        const char uploChar = Input("--uplo","lower or upper storage: L/U",'L');
+        const char transChar = Input
+            ("--trans","orientation of matrix: N/T/C",'N');
+        const char diagChar = Input("--diag","(non-)unit diagonal: N/U",false);
+        const int m = Input("--m","height of result",100);
+        const int n = Input("--n","width of result",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

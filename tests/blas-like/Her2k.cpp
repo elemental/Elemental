@@ -98,17 +98,15 @@ main( int argc, char* argv[] )
     
     try
     {
-        MpiArgs args( argc, argv, comm );
-        int r = args.Optional("--r",0,"height of process grid");
-        const char uploChar = args.Optional
-            ("--uplo",'L',"upper/lower storage: L/U");
-        const char transChar = args.Optional("--trans",'N',"orientation: N/C");
-        const int m = args.Optional("--m",100,"height of result");
-        const int k = args.Optional("--k",100,"inner dimension");
-        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
-        const int nbLocal = args.Optional("--nbLocal",32,"local blocksize");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        int r = Input("--r","height of process grid",0);
+        const char uploChar = Input("--uplo","upper/lower storage: L/U",'L');
+        const char transChar = Input("--trans","orientation: N/C",'N');
+        const int m = Input("--m","height of result",100);
+        const int k = Input("--k","inner dimension",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -123,7 +121,7 @@ main( int argc, char* argv[] )
         SetLocalTrr2kBlocksize<Complex<double> >( nbLocal );
 
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"

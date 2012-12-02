@@ -42,11 +42,10 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int m = args.Optional("--height",10,"height of matrix");
-        const int n = args.Optional("--width",10,"width of matrix");
-        const bool print = args.Optional("--print",true,"print matrix?");
-        args.Process();
+        const int m = Input("--height","height of matrix",10);
+        const int n = Input("--width","width of matrix",10);
+        const bool print = Input("--print","print matrix?",true);
+        ProcessInput();
 
         DistMatrix<double> X;
         Uniform( m, n, X );

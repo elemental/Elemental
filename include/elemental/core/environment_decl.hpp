@@ -38,6 +38,17 @@ void Initialize( int& argc, char**& argv );
 void Finalize();
 bool Initialized();
 
+// For getting the MPI argument instance (for internal usage)
+class MpiArgs;
+MpiArgs& GetArgs();
+
+// For processing command-line arguments
+template<typename T>
+T Input( std::string name, std::string desc );
+template<typename T>
+T Input( std::string name, std::string desc, T defaultVal );
+void ProcessInput();
+
 // For getting and setting the algorithmic blocksize
 int Blocksize();
 void SetBlocksize( int blocksize );

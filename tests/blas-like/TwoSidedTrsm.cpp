@@ -184,18 +184,16 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        int r = args.Optional("--r",0,"height of process grid");
-        const char uploChar = args.Optional
-            ("--uplo",'L',"lower or upper triangular storage: L/U");
-        const char diagChar = args.Optional
-            ("--unit",'N',"(non-)unit diagonal: N/U");
-        const int m = args.Optional("--m",100,"height of matrix");
-        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
-        const bool testCorrectness = args.Optional
-            ("--correctness",false,"test correctness?");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        int r = Input("--r","height of process grid",0);
+        const char uploChar = Input
+            ("--uplo","lower or upper triangular storage: L/U",'L');
+        const char diagChar = Input("--unit","(non-)unit diagonal: N/U",'N');
+        const int m = Input("--m","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",false);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

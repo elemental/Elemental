@@ -53,10 +53,9 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",100,"matrix size");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        const int n = Input("--size","matrix size",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 

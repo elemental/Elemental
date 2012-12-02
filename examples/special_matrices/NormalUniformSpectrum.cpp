@@ -42,16 +42,15 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",10,"size of matrix");
-        const double realCenter = args.Optional
-            ("--realCenter",3.,"real center of uniform eigval distribution");
-        const double imagCenter = args.Optional
-            ("--imagCenter",-4.,"imag center of uniform eigval distribution");
-        const double radius = args.Optional
-            ("--radius",2.,"radius of uniform eigval distribution");
-        const bool print = args.Optional("--print",true,"print matrix?");
-        args.Process();
+        const int n = Input("--size","size of matrix",10);
+        const double realCenter = Input
+            ("--realCenter","real center of uniform eigval distribution",3.);
+        const double imagCenter = Input
+            ("--imagCenter","imag center of uniform eigval distribution",-4.);
+        const double radius = Input
+            ("--radius","radius of uniform eigval distribution",2.);
+        const bool print = Input("--print","print matrix?",true);
+        ProcessInput();
 
         const Complex<double> center( realCenter, imagCenter );
         DistMatrix<Complex<double> > X;

@@ -10,15 +10,13 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const bool adjoint = args.Optional("--adjoint",false,"adjoint solve?");
-        const int m = args.Optional("--height",100,"height of matrix");
-        const int n = args.Optional("--width",100,"width of matrix");
-        const int numRhs = args.Optional("--numRhs",1,"# of right-hand sides");
-        const int blocksize = args.Optional
-            ("--blocksize",64,"algorithmic blocksize");
-        int gridHeight = args.Optional("--gridHeight",0,"grid height");
-        args.Process();
+        const bool adjoint = Input("--adjoint","adjoint solve?",false);
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const int numRhs = Input("--numRhs","# of right-hand sides",1);
+        const int blocksize = Input("--blocksize","algorithmic blocksize",64);
+        int gridHeight = Input("--gridHeight","grid height",0);
+        ProcessInput();
 
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
@@ -39,7 +37,7 @@ main( int argc, char* argv[] )
         SetBlocksize( blocksize );
 
         // Build our gridHeight x gridWidth process grid
-        Grid grid( mpi::COMM_WORLD, gridHeight, gridWidth );
+        Grid grid( comm, gridHeight, gridWidth );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
         typedef Complex<double> F;
@@ -62,10 +60,10 @@ main( int argc, char* argv[] )
                 std::cout << "Starting HouseholderSolve...";
                 std::cout.flush();
             }
-            mpi::Barrier( mpi::COMM_WORLD );
+            mpi::Barrier( comm );
             double startTime = mpi::Time();
             HouseholderSolve( orientation, A, B, X );
-            mpi::Barrier( mpi::COMM_WORLD );
+            mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
                 std::cout << stopTime-startTime << " seconds." << std::endl;

@@ -38,6 +38,7 @@ int numElemInits = 0;
 bool elemInitializedMpi;
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
+elem::MpiArgs* args = 0;
 
 // Debugging
 #ifndef RELEASE
@@ -83,6 +84,8 @@ void Initialize( int& argc, char**& argv )
         ++::numElemInits;
         return;
     }
+
+    ::args = new MpiArgs( argc, argv );
 
     ::numElemInits = 1;
     if( !mpi::Initialized() )
@@ -153,6 +156,9 @@ void Finalize()
     }
     if( ::numElemInits == 0 )
     {
+        delete ::args;
+        ::args = 0;
+
         if( ::elemInitializedMpi )
         {
             // Destroy the pivot ops needed by the distributed LU
@@ -176,6 +182,13 @@ void Finalize()
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+MpiArgs& GetArgs()
+{ 
+    if( args == 0 )
+        throw std::runtime_error("No available instance of MpiArgs");
+    return *::args; 
 }
 
 int Blocksize()

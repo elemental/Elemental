@@ -367,6 +367,18 @@ template<typename T,
 void Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
 
 //
+// MakeTriangular:
+//
+// Force the matrix to be either lower or upper triangular
+//
+template<typename T>
+void MakeTriangular( UpperOrLower uplo, Matrix<T>& A );
+template<typename T,Distribution U,Distribution V>
+void MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A );
+
+// MakeUnitTriangular?
+
+//
 // MakeTrapezoidal:
 //
 // Force the matrix to be lower or upper trapezoidal, with the diagonal

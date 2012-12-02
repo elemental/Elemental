@@ -48,9 +48,8 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of Hermitian matrix");
-        args.Process();
+        const int n = Input("--size","size of Hermitian matrix",100);
+        ProcessInput();
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );

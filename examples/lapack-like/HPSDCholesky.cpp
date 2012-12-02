@@ -48,23 +48,28 @@ main( int argc, char* argv[] )
 
     try 
     {
+        const int n = Input("--size","size of HPSD matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
         DistMatrix<C> L(g), A(g);
         Uniform( n, n, L );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
         Zeros( n, n, A );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
 
-        // Print our matrix.
-        A.Print("A");
+        if( print )
+            A.Print("A");
 
         // Replace A with its Cholesky factor
         HPSDCholesky( LOWER, A );
 
-        // Print the pseudoinverse
-        A.Print("chol(A)");
+        if( print )
+        {
+            MakeTriangular( LOWER, A );
+            A.Print("chol(A)");
+        }
     }
     catch( exception& e )
     {

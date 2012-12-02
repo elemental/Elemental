@@ -42,10 +42,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of matrices to test");
-        const bool print = args.Optional("--print",true,"print matrices?");
-        args.Process();
+        const int n = Input("--size","size of matrices to test",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         if( commRank == 0 )
         {

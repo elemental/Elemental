@@ -42,10 +42,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int k = args.Optional("--order",5,"generate 2k+1 x 2k+1 matrix");
-        const bool print = args.Optional("--print",true,"print matrix?");
-        args.Process();
+        const int k = Input("--order","generate 2k+1 x 2k+1 matrix",5);
+        const bool print = Input("--print","print matrix?",true);
+        ProcessInput();
 
         DistMatrix<double> W;
         Wilkinson( k, W );

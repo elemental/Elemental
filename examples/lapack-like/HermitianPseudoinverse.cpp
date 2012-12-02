@@ -48,9 +48,11 @@ main( int argc, char* argv[] )
 
     try 
     {
+        const int n = Input("--size","size of matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
         Grid g( comm );
-    
-        const int n = 6; // choose a small problem size since we will print
         DistMatrix<C> H( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
@@ -77,14 +79,15 @@ main( int argc, char* argv[] )
             }
         }
 
-        // Print our matrix.
-        H.Print("H");
+        if( print )
+            H.Print("H");
 
         // Replace H with its pseudoinverse
         HermitianPseudoinverse( LOWER, H );
+        MakeHermitian( LOWER, H );
 
-        // Print the pseudoinverse
-        H.Print("pinv(H)");
+        if( print )
+            H.Print("pinv(H)");
     }
     catch( exception& e )
     {
@@ -100,4 +103,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

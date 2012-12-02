@@ -44,6 +44,7 @@
 #include "./level1/MakeReal.hpp"
 #include "./level1/MakeSymmetric.hpp"
 #include "./level1/MakeTrapezoidal.hpp"
+#include "./level1/MakeTriangular.hpp"
 #include "./level1/Nrm2.hpp"
 #include "./level1/Scale.hpp"
 #include "./level1/ScaleTrapezoid.hpp"

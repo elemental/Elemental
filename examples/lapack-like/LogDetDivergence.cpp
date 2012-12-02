@@ -42,14 +42,11 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of HPD matrix");
-        const double lower = args.Optional
-            ("--lower",1.0,"lower bound on spectrum");
-        const double upper = args.Optional
-            ("--upper",10.0,"upper bound on spectrum");
-        const bool print = args.Optional("--print",false,"print matrices");
-        args.Process();
+        const int n = Input("--size","size of HPD matrix",100);
+        const double lower = Input("--lower","lower bound on spectrum",1.);
+        const double upper = Input("--upper","upper bound on spectrum",10.);
+        const bool print = Input("--print","print matrices",false);
+        ProcessInput();
 
         DistMatrix<double> A, B;
         HermitianUniformSpectrum( n, A, lower, upper );

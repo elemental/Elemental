@@ -48,11 +48,10 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int m = args.Optional("--height",100,"matrix height");
-        const int n = args.Optional("--width",100,"matrix width");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        const int m = Input("--height","matrix height",100);
+        const int n = Input("--width","matrix width",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );

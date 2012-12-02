@@ -54,10 +54,9 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",100,"size of Hermitian matrix");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        const int n = Input("--size","size of Hermitian matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         Grid g( comm );
         DistMatrix<C> H( n, n, g );
@@ -93,7 +92,10 @@ main( int argc, char* argv[] )
         RealHermitianFunction( LOWER, H, ExpFunctor() );
 
         if( print )
+        {
+            MakeHermitian( LOWER, H );
             H.Print("exp(H)");
+        }
     }
     catch( ArgException& e )
     {

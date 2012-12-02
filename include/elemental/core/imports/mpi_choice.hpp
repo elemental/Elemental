@@ -39,13 +39,13 @@ class MpiArgs
 {
 public:
     MpiArgs
-    ( int argc, char** argv, mpi::Comm comm, std::ostream& error=std::cerr );
+    ( int argc, char** argv, 
+      mpi::Comm comm=mpi::COMM_WORLD, std::ostream& error=std::cerr );
 
     template<typename T>
-    T Required( std::string name, std::string desc="N/A" );
-
+    T Input( std::string name, std::string desc );
     template<typename T>
-    T Optional( std::string name, T defaultVal, std::string desc="N/A" );
+    T Input( std::string name, std::string desc, T defaultVal );
 
     void Process( std::ostream& output=std::cout ) const;
     void PrintReport( std::ostream& output=std::cout ) const;
@@ -102,7 +102,7 @@ MpiArgs::MpiArgs( int argc, char** argv, mpi::Comm comm, std::ostream& error )
 
 template<typename T>
 inline T
-MpiArgs::Required( std::string name, std::string desc )
+MpiArgs::Input( std::string name, std::string desc )
 {
     const int commRank = mpi::CommRank( comm_ );
 
@@ -152,7 +152,7 @@ MpiArgs::Required( std::string name, std::string desc )
 
 template<typename T>
 inline T
-MpiArgs::Optional( std::string name, T defaultVal, std::string desc )
+MpiArgs::Input( std::string name, std::string desc, T defaultVal )
 {
     const int commRank = mpi::CommRank( comm_ );
 

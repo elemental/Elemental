@@ -48,17 +48,26 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of HPD matrix");
-        args.Process();
+        const int n = Input("--size","size of HPD matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         Grid g( comm );
         DistMatrix<C> A( g );
         HermitianUniformSpectrum( n, A, R(1), R(20) );
 
+        if( print )
+            A.Print("A");
+
         // Make a copy of A and then overwrite it with its inverse
         DistMatrix<C> invA( A );
         HPDInverse( LOWER, invA );
+
+        if( print )
+        {
+            MakeHermitian( LOWER, invA );
+            invA.Print("inv(A)");
+        }
 
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E( g );

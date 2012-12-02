@@ -50,10 +50,9 @@ public:
     Args( int argc, char** argv, std::ostream& error=std::cerr );
 
     template<typename T>
-    T Required( std::string name, std::string desc="N/A" );
-
+    T Input( std::string name, std::string desc );
     template<typename T>
-    T Optional( std::string name, T defaultVal, std::string desc="N/A" );
+    T Input( std::string name, std::string desc, T defaultVal );
 
     void Process( std::ostream& output=std::cout ) const;
     void PrintReport( std::ostream& output=std::cout ) const;
@@ -109,7 +108,7 @@ Args::Args( int argc, char** argv, std::ostream& error )
 
 template<typename T>
 inline T
-Args::Required( std::string name, std::string desc )
+Args::Input( std::string name, std::string desc )
 {
     char** arg = std::find( argv_, argv_+argc_, name );
     const bool found = ( arg != argv_+argc_ );
@@ -155,7 +154,7 @@ Args::Required( std::string name, std::string desc )
 
 template<typename T>
 inline T
-Args::Optional( std::string name, T defaultVal, std::string desc )
+Args::Input( std::string name, std::string desc, T defaultVal )
 {
     char** arg = std::find( argv_, argv_+argc_, name );
     const bool found = ( arg != argv_+argc_ );

@@ -48,12 +48,10 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of matrix to factor");
-        const bool conjugate = args.Optional
-            ("--conjugate",false,"LDL^H instead of LDL^T?");
+        const int n = Input("--size","size of matrix to factor",100);
+        const bool conjugate = Input("--conjugate","LDL^H?",false);
+        ProcessInput();
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        args.Process();
 
         Grid g( comm );
         DistMatrix<C> A( g );
@@ -79,14 +77,14 @@ main( int argc, char* argv[] )
             LDLT( factA, d );
 
         DistMatrix<C> L( factA );
-        MakeTrapezoidal( LEFT, LOWER, 0, L );
+        MakeTriangular( LOWER, L );
         internal::SetDiagonalToOne( LEFT, 0, L );
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
         const R frobNormOfError = Norm( A, FROBENIUS_NORM );
-        if( g.Rank() == 0 )
+        if( commRank == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
                       << std::endl;
     }

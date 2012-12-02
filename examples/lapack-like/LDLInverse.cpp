@@ -48,12 +48,10 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Required<int>("--size","size of matrix to factor");
-        const bool conjugate = args.Optional
-            ("--conjugate",false,"LDL^H instead of LDL^T?");
+        const int n = Input("--size","size of matrix to factor",100);
+        const bool conjugate = Input("--conjugate","LDL^H?",false);
+        ProcessInput();
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        args.Process();
 
         Grid g( comm );
         DistMatrix<C> A( g );

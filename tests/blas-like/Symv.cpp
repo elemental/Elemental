@@ -88,18 +88,16 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        int r = args.Optional("--r",0,"height of process grid");
-        const char uploChar = args.Optional
-            ("--uplo",'L',"upper or lower storage: L/U");
-        const int m = args.Optional("--m",100,"height of matrix");
-        const int nb = args.Optional("--nb",96,"algorithmic blocksize");
-        const int nbLocalDouble = args.Optional
-            ("--nbLocalDouble",32,"local blocksize for real doubles");
-        const int nbLocalComplexDouble = args.Optional
-            ("--nbLocalComplexDouble",32,"local blocksize for complex doubles");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        int r = Input("--r","height of process grid",0);
+        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
+        const int m = Input("--m","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocalDouble = Input
+            ("--nbLocalDouble","local blocksize for real doubles",32);
+        const int nbLocalComplexDouble = Input
+            ("--nbLocalComplexDouble","local blocksize for complex doubles",32);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

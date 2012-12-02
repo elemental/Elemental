@@ -51,9 +51,8 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int k = args.Optional("--size",100,"problem size");
-        args.Process();
+        const int k = Input("--size","problem size",100);
+        ProcessInput();
 
         Matrix<C> A, U, V;
         Matrix<R> s;

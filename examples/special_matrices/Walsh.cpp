@@ -42,10 +42,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int k = args.Optional("--order",4,"generate 2^k x 2^k matrix");
-        const bool print = args.Optional("--print",true,"print matrix?");
-        args.Process();
+        const int k = Input("--order","generate 2^k x 2^k matrix",4);
+        const bool print = Input("--print","print matrix?",true);
+        ProcessInput();
 
         // Generate a binary Walsh matrix of order k (a 2^k x 2^k matrix)
         DistMatrix<double> W;

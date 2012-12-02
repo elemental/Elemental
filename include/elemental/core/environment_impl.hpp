@@ -34,6 +34,20 @@
 namespace elem {
 
 template<typename T>
+inline T
+Input( std::string name, std::string desc )
+{ return GetArgs().Input<T>( name, desc ); }
+
+template<typename T>
+inline T
+Input( std::string name, std::string desc, T defaultVal )
+{ return GetArgs().Input( name, desc, defaultVal ); }
+
+inline void
+ProcessInput()
+{ GetArgs().Process(); }
+
+template<typename T>
 inline void 
 MemCopy( T* dest, const T* source, std::size_t numEntries )
 {

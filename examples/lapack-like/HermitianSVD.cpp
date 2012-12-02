@@ -53,6 +53,9 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
@@ -100,8 +103,8 @@ main( int argc, char* argv[] )
         // More convenient interfaces are being investigated.
         //
 
-        // Print our matrix.
-        H.Print("H");
+        if( print )
+            H.Print("H");
 
         // Print its trace
         const C trace = Trace( H );
@@ -117,10 +120,12 @@ main( int argc, char* argv[] )
         DistMatrix<C> U( g ), V( g );
         HermitianSVD( LOWER, H, s, U, V ); // only use lower half of H
 
-        // Print the singular value decomposition
-        s.Print("Singular values of H");
-        U.Print("Left singular vectors of H");
-        V.Print("Right singular vectors of H");
+        if( print )
+        {
+            s.Print("Singular values of H");
+            U.Print("Left singular vectors of H");
+            V.Print("Right singular vectors of H");
+        }
     }
     catch( exception& e )
     {

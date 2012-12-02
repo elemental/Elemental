@@ -48,14 +48,17 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int m = args.Optional("--height",100,"height of matrix");
-        const int n = args.Optional("--width",100,"width of matrix");
-        args.Process();
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         Grid g( comm );
         DistMatrix<C> A( g );
         Uniform( m, n, A );
+
+        if( print )
+            A.Print("A");
 
         // Compute just the singular values 
         DistMatrix<R,VR,STAR> sOnly( g );
@@ -67,6 +70,13 @@ main( int argc, char* argv[] )
         DistMatrix<R,VR,STAR> s( g );
         U = A;
         SVD( U, s, V );
+
+        if( print )
+        {
+            U.Print("U");
+            V.Print("V");
+            s.Print("s");
+        }
 
         // Compare the singular values from both methods
         Axpy( R(-1), s, sOnly );

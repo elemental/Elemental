@@ -42,10 +42,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",100,"size of matrix");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        const int n = Input("--size","size of matrix",10);
+        const bool print = Input("--print","print matrices?",true);
+        ProcessInput();
 
         // Create a circulant matrix
         DistMatrix<Complex<double> > A;

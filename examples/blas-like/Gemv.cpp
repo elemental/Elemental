@@ -47,12 +47,11 @@ main( int argc, char* argv[] )
     const int commRank = mpi::CommRank( comm );
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int m = args.Required<int>("--height","height of matrix");
-        const int n = args.Required<int>("--width","width of matrix");
-        const bool adjoint = args.Optional("--adjoint",false,"apply adjoint?");
-        const bool print = args.Optional("--print",false,"print matrices?");
-        args.Process();
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const bool adjoint = Input("--adjoint","apply adjoint?",false);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
 
         const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
 

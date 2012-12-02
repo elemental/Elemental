@@ -53,6 +53,10 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
+        const int n = Input("--size","size of matrix",100);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
@@ -60,7 +64,6 @@ main( int argc, char* argv[] )
         Grid grid( comm );
     
         // Create an n x n complex matrix residing on a single process.
-        const int n = 6; // choose a small problem size since we will print
         Matrix<C> HRoot;
         if( commRank == 0 )
         {
@@ -82,16 +85,15 @@ main( int argc, char* argv[] )
             MemCopy( H_STAR_STAR.LocalBuffer(), HRoot.Buffer(), n*n );
         }
         else
-        {
             mpi::Broadcast( H_STAR_STAR.LocalBuffer(), n*n, 0, comm );
-        }
-        mpi::Barrier( comm );
-        H_STAR_STAR.Print("H[* ,* ]");
+        if( print )
+            H_STAR_STAR.Print("H[* ,* ]");
 
         // Now that we have a valid DistMatrix (in a [* ,* ] distribution), 
         // we can trivially redistribute into the usual matrix distribution
         DistMatrix<C> H( H_STAR_STAR );
-        H.Print("H");
+        if( print )
+            H.Print("H");
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X, and an eigenvalue column vector, w[VR,* ]
@@ -101,10 +103,13 @@ main( int argc, char* argv[] )
         //           'Tuning' section of the README for details.
         HermitianEig( LOWER, H, w_VR_STAR, X );
 
-        // Sort the eigensolution, then print
+        // Sort the eigensolution
         SortEig( w_VR_STAR, X );
-        w_VR_STAR.Print("Eigenvalues of H");
-        X.Print("Eigenvectors of H");
+        if( print )
+        {
+            w_VR_STAR.Print("Eigenvalues of H");
+            X.Print("Eigenvectors of H");
+        }
 
         // Store a complete copy of w and X on the root
         Matrix<R> wLocal;
@@ -119,8 +124,11 @@ main( int argc, char* argv[] )
             {
                 wLocal = w_STAR_STAR.LocalMatrix();
                 XLocal = X_STAR_STAR.LocalMatrix();
-                wLocal.Print("Eigenvalues on root process");
-                XLocal.Print("Eigenvectors on root process");
+                if( print )
+                {
+                    wLocal.Print("Eigenvalues on root process");
+                    XLocal.Print("Eigenvectors on root process");
+                }
             }
         }
     }

@@ -10,15 +10,12 @@ main( int argc, char* argv[] )
 
     try 
     {
-        MpiArgs args( argc, argv, comm );
-        const int n = args.Optional("--size",100,"size of matrix");
-        const int numRhs = args.Optional("--numRhs",1,"# of right-hand sides"); 
-        const int blocksize = args.Optional
-            ("--blocksize",64,"algorithmic blocksize");
-        int gridHeight = args.Optional("--gridHeight",0,"grid height");
-        const bool details = args.Optional
-            ("--details",false,"print norm details?");
-        args.Process();
+        const int n = Input("--size","size of matrix",100);
+        const int numRhs = Input("--numRhs","# of right-hand sides",1); 
+        const int blocksize = Input("--blocksize","algorithmic blocksize",64);
+        int gridHeight = Input("--gridHeight","grid height",0);
+        const bool details = Input("--details","print norm details?",false);
+        ProcessInput();
 
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid
