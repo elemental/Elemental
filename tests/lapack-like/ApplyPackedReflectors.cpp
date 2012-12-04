@@ -315,7 +315,7 @@ main( int argc, char* argv[] )
         const int offset = Input("--offset","diagonal offset for storage",0);
         const int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness  = Input
-            ("--correctness","test correctness?",false);
+            ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);
         ProcessInput();
 

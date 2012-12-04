@@ -52,7 +52,7 @@ void TestSyr2k
         Uniform( k, m, B );
     }
     Uniform( m, m, C );
-    MakeTrapezoidal( LEFT, uplo, 0, C );
+    MakeTriangular( uplo, C );
     if( print )
     {
         A.Print("A");

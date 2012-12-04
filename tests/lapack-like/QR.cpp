@@ -35,22 +35,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates random matrix then solves for its QR factorization.\n\n"
-         << "  QR <r> <c> <m> <n> <nb> <correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  m: height of matrix\n"
-         << "  n: width of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename R> 
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   const DistMatrix<R>& A,
         DistMatrix<R>& AOrig )
 {
@@ -93,7 +80,7 @@ void TestCorrectness
 
     // Form Q R
     DistMatrix<R> U( A );
-    MakeTrapezoidal( LEFT, UPPER, 0, U );
+    MakeTriangular( UPPER, U );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, U );
 
     // Form Q R - A
@@ -118,7 +105,7 @@ void TestCorrectness
 
 template<typename R>
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   const DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,MD,STAR>& t,
         DistMatrix<Complex<R> >& AOrig )
@@ -166,7 +153,7 @@ void TestCorrectness
 
     // Form Q R
     DistMatrix<C> U( A );
-    MakeTrapezoidal( LEFT, UPPER, 0, U );
+    MakeTriangular( UPPER, U );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, U );
 
@@ -192,7 +179,7 @@ void TestCorrectness
 
 template<typename R>
 void TestRealQR
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   int m, int n, const Grid& g )
 {
     DistMatrix<R> A(g), AOrig(g);
@@ -209,7 +196,7 @@ void TestRealQR
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -231,15 +218,15 @@ void TestRealQR
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, AOrig );
+        TestCorrectness( print, A, AOrig );
 }
 
 template<typename R>
 void TestComplexQR
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   int m, int n, const Grid& g )
 {
     typedef Complex<R> C;
@@ -258,7 +245,7 @@ void TestComplexQR
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -280,10 +267,10 @@ void TestComplexQR
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, t, AOrig );
+        TestCorrectness( print, A, t, AOrig );
 }
 
 int 
@@ -291,65 +278,63 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 8 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int n = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","height of process grid",0);
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        SetBlocksize( nb );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-
-        if( rank == 0 )
+        if( commRank == 0 )
             cout << "Will test QR" << endl;
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestRealQR<double>( testCorrectness, printMatrices, m, n, g );
+        TestRealQR<double>( testCorrectness, print, m, n, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestComplexQR<double>( testCorrectness, printMatrices, m, n, g );
+        TestComplexQR<double>( testCorrectness, print, m, n, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

@@ -36,7 +36,7 @@ using namespace std;
 using namespace elem;
 
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   UpperOrLower uplo,
   const DistMatrix<double>& A,
   const DistMatrix<double,VR,STAR>& w,
@@ -111,7 +111,7 @@ void TestCorrectness
 }
 
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   UpperOrLower uplo,
   const DistMatrix<Complex<double> >& A,
   const DistMatrix<double,VR,STAR>& w,
@@ -191,7 +191,7 @@ void TestCorrectness
 }
 
 void TestHermitianEigDouble
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
@@ -213,7 +213,7 @@ void TestHermitianEigDouble
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -248,18 +248,18 @@ void TestHermitianEigDouble
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         w.Print("eigenvalues:");
         if( !onlyEigvals )
             Z.Print("eigenvectors:");
     }
     if( testCorrectness && !onlyEigvals )
-        TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
+        TestCorrectness( print, uplo, A, w, Z, AOrig );
 }
     
 void TestHermitianEigDoubleComplex
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
   double vl, double vu, int il, int iu, const Grid& g )
 {
@@ -281,7 +281,7 @@ void TestHermitianEigDoubleComplex
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -316,14 +316,14 @@ void TestHermitianEigDoubleComplex
         cout << "DONE. " << endl
              << "  Time = " << runTime << " seconds." << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         w.Print("eigenvalues:");
         if( !onlyEigvals )
             Z.Print("eigenvectors:");
     }
     if( testCorrectness && !onlyEigvals )
-        TestCorrectness( printMatrices, uplo, A, w, Z, AOrig );
+        TestCorrectness( print, uplo, A, w, Z, AOrig );
 }
 
 int 
@@ -355,7 +355,7 @@ main( int argc, char* argv[] )
         const int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
-        const bool printMatrices = Input("--print","print matrices?",false);
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
 
         if( r == 0 )
@@ -369,10 +369,7 @@ main( int argc, char* argv[] )
         if( range != 'A' && range != 'I' && range != 'V' )
             throw logic_error("'range' must be 'A', 'I', or 'V'");
         if( onlyEigvals && testCorrectness && commRank==0 )
-        {
-            cout << "Cannot test correctness with only the eigenvalues." 
-                 << endl;
-        }
+            cout << "Cannot test correctness with only eigenvalues." << endl;
 #ifndef RELEASE
         if( commRank == 0 )
         {
@@ -392,7 +389,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDouble
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( commRank == 0 )
@@ -405,7 +402,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDouble
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
  
         if( commRank == 0 )
@@ -418,7 +415,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDouble
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( commRank == 0 )
@@ -430,7 +427,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( commRank == 0 )
@@ -444,7 +441,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
         if( commRank == 0 )
@@ -458,7 +455,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEigDoubleComplex
-        ( testCorrectness, printMatrices, 
+        ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
     }
     catch( ArgException& e ) { }

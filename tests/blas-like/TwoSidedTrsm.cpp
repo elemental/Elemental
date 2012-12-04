@@ -131,7 +131,7 @@ void TestTwoSidedTrsm
     Zeros( m, m, B );
     MakeHermitianUniformSpectrum( A, 1, 10 );
     MakeHermitianUniformSpectrum( B, 1, 10 );
-    MakeTrapezoidal( LEFT, uplo, 0, B );
+    MakeTriangular( uplo, B );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -191,7 +191,7 @@ main( int argc, char* argv[] )
         const int m = Input("--m","height of matrix",100);
         const int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
-            ("--correctness","test correctness?",false);
+            ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
 

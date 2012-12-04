@@ -35,24 +35,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates random matrix then solves for its LQ factorization.\n\n"
-         << "  LQ <r> <c> <m> <n> <nb> <correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  m: height of matrix\n"
-         << "  n: width of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename R> 
 void TestCorrectness
-( bool printMatrices,
-  const DistMatrix<R>& A,
-        DistMatrix<R>& AOrig )
+( bool print, const DistMatrix<R>& A, DistMatrix<R>& AOrig )
 {
     const Grid& g = A.Grid();
     const int m = A.Height();
@@ -95,7 +80,7 @@ void TestCorrectness
 
     // Form L Q
     DistMatrix<R> L( A );
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, L );
 
@@ -121,7 +106,7 @@ void TestCorrectness
 
 template<typename R> 
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   const DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,MD,STAR>& t,
         DistMatrix<Complex<R> >& AOrig )
@@ -169,7 +154,7 @@ void TestCorrectness
 
     // Form L Q
     DistMatrix<C> L( A );
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, L );
 
@@ -195,8 +180,7 @@ void TestCorrectness
 
 template<typename R>
 void TestRealLQ
-( bool testCorrectness, bool printMatrices,
-  int m, int n, const Grid& g )
+( bool testCorrectness, bool print, int m, int n, const Grid& g )
 {
     DistMatrix<R> A(g), AOrig(g);
     Uniform( m, n, A );
@@ -212,7 +196,7 @@ void TestRealLQ
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -234,16 +218,15 @@ void TestRealLQ
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, AOrig );
+        TestCorrectness( print, A, AOrig );
 }
 
 template<typename R>
 void TestComplexLQ
-( bool testCorrectness, bool printMatrices,
-  int m, int n, const Grid& g )
+( bool testCorrectness, bool print, int m, int n, const Grid& g )
 {
     typedef Complex<R> C;
     DistMatrix<C> A(g), AOrig(g);
@@ -260,7 +243,7 @@ void TestComplexLQ
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
     DistMatrix<C,MD,STAR> t(g);
 
@@ -283,10 +266,10 @@ void TestComplexLQ
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( printMatrices, A, t, AOrig );
+        TestCorrectness( print, A, t, AOrig );
 }
 
 int 
@@ -294,65 +277,63 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 8 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int n = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","height of process grid",0);
+        const int m = Input("--height","height of matrix",100);
+        const int n = Input("--width","width of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        SetBlocksize( nb );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-
-        if( rank == 0 )
+        if( commRank == 0 )
             cout << "Will test LQ" << endl;
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestRealLQ<double>( testCorrectness, printMatrices, m, n, g );
+        TestRealLQ<double>( testCorrectness, print, m, n, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestComplexLQ<double>( testCorrectness, printMatrices, m, n, g );
+        TestComplexLQ<double>( testCorrectness, print, m, n, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

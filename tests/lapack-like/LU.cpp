@@ -35,22 +35,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates random matrix then solves for its LU factors.\n\n"
-         << "  LU <r> <c> <m> <nb> <pivot?> <correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  pivot: no partial pivoting iff 0\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename F> 
 void TestCorrectness
-( bool pivoted, bool printMatrices, 
+( bool pivoted, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<int,VC,STAR>& p,
   const DistMatrix<F>& AOrig )
@@ -101,7 +88,7 @@ void TestCorrectness
 
 template<typename F> 
 void TestLU
-( bool pivot, bool testCorrectness, bool printMatrices, 
+( bool pivot, bool testCorrectness, bool print, 
   int m, const Grid& g )
 {
     DistMatrix<F> A(g), ARef(g);
@@ -119,7 +106,7 @@ void TestLU
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -143,14 +130,14 @@ void TestLU
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         A.Print("A after factorization");
         if( pivot )
             p.Print("p after factorization");
     }
     if( testCorrectness )
-        TestCorrectness( pivot, printMatrices, A, p, ARef );
+        TestCorrectness( pivot, print, A, p, ARef );
 }
 
 int 
@@ -158,66 +145,64 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 8 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const bool pivot = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","height of process grid",0);
+        const int m = Input("--height","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const bool pivot = Input("--pivot","pivoted LU?",true);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        SetBlocksize( nb );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-
-        if( rank == 0 )
+        if( commRank == 0 )
             cout << "Will test LU" 
                  << ( pivot ? " with partial pivoting" : " " ) << endl;
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestLU<double>( pivot, testCorrectness, printMatrices, m, g );
+        TestLU<double>( pivot, testCorrectness, print, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLU<Complex<double> >( pivot, testCorrectness, printMatrices, m, g );
+        TestLU<Complex<double> >( pivot, testCorrectness, print, m, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

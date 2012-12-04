@@ -35,24 +35,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Tridiagonalizes a symmetric matrix.\n\n"
-         << "  HermitianTridiag <r> <c> <uplo> <m> <nb> <local nb symv/hemv> "
-            "<correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  uplo: {L,U}\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  local nb symv/hemv: local blocksize for symv/hemv\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename R>
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   UpperOrLower uplo, 
   const DistMatrix<R>& A, 
         DistMatrix<R>& AOrig )
@@ -105,8 +90,8 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    MakeTrapezoidal( LEFT, uplo, 0, AOrig );
-    MakeTrapezoidal( LEFT, uplo, 0, B );
+    MakeTriangular( uplo, AOrig );
+    MakeTriangular( uplo, B );
     Axpy( R(-1), AOrig, B );
 
     const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
@@ -124,7 +109,7 @@ void TestCorrectness
 
 template<typename R> 
 void TestCorrectness
-( bool printMatrices,
+( bool print,
   UpperOrLower uplo, 
   const DistMatrix<Complex<R> >& A, 
   const DistMatrix<Complex<R>,STAR,STAR>& t,
@@ -181,8 +166,8 @@ void TestCorrectness
     }
 
     // Compare the appropriate triangle of AOrig and B
-    MakeTrapezoidal( LEFT, uplo, 0, AOrig );
-    MakeTrapezoidal( LEFT, uplo, 0, B );
+    MakeTriangular( uplo, AOrig );
+    MakeTriangular( uplo, B );
     Axpy( C(-1), AOrig, B );
 
     const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
@@ -200,7 +185,7 @@ void TestCorrectness
 
 template<typename R>
 void TestRealHermitianTridiag
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   UpperOrLower uplo, int m, const Grid& g )
 {
     DistMatrix<R> A(g), AOrig(g);
@@ -217,7 +202,7 @@ void TestRealHermitianTridiag
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -237,15 +222,15 @@ void TestRealHermitianTridiag
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after HermitianTridiag");
     if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, A, AOrig );
+        TestCorrectness( print, uplo, A, AOrig );
 }
 
 template<typename R>
 void TestComplexHermitianTridiag
-( bool testCorrectness, bool printMatrices,
+( bool testCorrectness, bool print,
   UpperOrLower uplo, int m, const Grid& g )
 {
     typedef Complex<R> C;
@@ -264,7 +249,7 @@ void TestComplexHermitianTridiag
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
 
     if( g.Rank() == 0 )
@@ -284,13 +269,13 @@ void TestComplexHermitianTridiag
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
     {
         A.Print("A after HermitianTridiag");
         t.Print("t after HermitianTridiag");
     }
     if( testCorrectness )
-        TestCorrectness( printMatrices, uplo, A, t, AOrig );
+        TestCorrectness( print, uplo, A, t, AOrig );
 }
 
 int 
@@ -298,45 +283,41 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const UpperOrLower uplo = CharToUpperOrLower(*argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocalSymv = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","height of process grid",0);
+        const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
+        const int m = Input("--height","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        const UpperOrLower uplo = CharToUpperOrLower( uploChar );
+        SetBlocksize( nb );
+        SetLocalSymvBlocksize<double>( nbLocal );
+        SetLocalHemvBlocksize<Complex<double> >( nbLocal );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalSymvBlocksize<double>( nbLocalSymv );
-        SetLocalHemvBlocksize<Complex<double> >( nbLocalSymv );
+        if( commRank == 0 )
+            cout << "Will test HermitianTridiag" << uploChar << endl;
 
-        if( rank == 0 )
-            cout << "Will test HermitianTridiag" << UpperOrLowerToChar(uplo) 
-                 << endl;
-
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "----------------------------------\n"
                  << "Double-precision normal algorithm:\n"
@@ -344,9 +325,9 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestRealHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, print, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------------------\n"
                  << "Double-precision square algorithm, row-major grid:\n"
@@ -355,10 +336,9 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestRealHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        TestRealHermitianTridiag<double>( testCorrectness, print, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------------------\n"
                  << "Double-precision square algorithm, col-major grid:\n"
@@ -367,10 +347,9 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestRealHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        TestRealHermitianTridiag<double>( testCorrectness, print, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "------------------------------------------\n"
                  << "Double-precision complex normal algorithm:\n"
@@ -378,9 +357,9 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestComplexHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, print, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "-------------------------------------------\n"
                  << "Double-precision complex square algorithm, \n"
@@ -391,9 +370,9 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestComplexHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, print, uplo, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "-------------------------------------------\n"
                  << "Double-precision complex square algorithm, \n"
@@ -404,17 +383,19 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestComplexHermitianTridiag<double>
-        ( testCorrectness, printMatrices, uplo, m, g );
+        ( testCorrectness, print, uplo, m, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
     Finalize();
     return 0;
 }
-

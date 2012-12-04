@@ -288,7 +288,7 @@ simply typing ``make`` should build the driver.
 The executable can then typically be run with a single process (generating a 
 :math:`300 \times 300` distributed matrix, using ::
 
-    ./SVD 300 300
+    ./SVD --height 300 --width 300
 
 and the output should be similar to ::
     
@@ -308,7 +308,7 @@ The driver can be run with several processes using the MPI launcher provided
 by your MPI implementation; a typical way to run the ``SVD`` driver on 
 eight processes would be::
 
-    mpirun -np 8 ./SVD 300 300
+    mpirun -np 8 ./SVD --height 300 --width 300
 
 You can also build a wide variety of example and test drivers 
 (unfortunately the line is a little blurred) by using the CMake options::

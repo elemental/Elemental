@@ -35,25 +35,9 @@
 using namespace std;
 using namespace elem;
 
-void Usage()
-{
-    cout << "Generates symmetric matrix then solves for its LDL^T or LDL^H "
-            "factorization.\n\n"
-         << "  LDL <r> <c> <m> <nb> <rankK local nb> <conjugated?> "
-            "<correctness?> <print?>\n\n"
-         << "  r: number of process rows\n"
-         << "  c: number of process cols\n"
-         << "  m: height of matrix\n"
-         << "  nb: algorithmic blocksize\n"
-         << "  rankK local nb: local blocksize for triangular rank-k update\n"
-         << "  conjugated?: false iff 0\n"
-         << "  test correctness?: false iff 0\n"
-         << "  print matrices?: false iff 0\n" << endl;
-}
-
 template<typename F> 
 void TestCorrectness
-( bool conjugated, bool printMatrices, 
+( bool conjugated, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<F,MC,STAR>& d,
   const DistMatrix<F>& AOrig )
@@ -101,7 +85,7 @@ void TestCorrectness
 
 template<typename F> 
 void TestLDL
-( bool conjugated, bool testCorrectness, bool printMatrices, 
+( bool conjugated, bool testCorrectness, bool print, 
   int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
@@ -120,7 +104,7 @@ void TestLDL
         if( g.Rank() == 0 )
             cout << "DONE" << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A");
     DistMatrix<F,MC,STAR> d(g);
 
@@ -145,10 +129,10 @@ void TestLDL
              << "  Time = " << runTime << " seconds. GFlops = " 
              << gFlops << endl;
     }
-    if( printMatrices )
+    if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( conjugated, printMatrices, A, d, AOrig );
+        TestCorrectness( conjugated, print, A, d, AOrig );
 }
 
 int 
@@ -156,71 +140,67 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try
     {
-        int argNum = 0;
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int m = atoi(argv[++argNum]);
-        const int nb = atoi(argv[++argNum]);
-        const int nbLocal = atoi(argv[++argNum]);
-        const bool conjugated = atoi(argv[++argNum]);
-        const bool testCorrectness = atoi(argv[++argNum]);
-        const bool printMatrices = atoi(argv[++argNum]);
+        int r = Input("--gridHeight","process grid height",0);
+        const int m = Input("--height","height of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const bool conjugated = Input("--conjugate","conjugate LDL?",false);
+        const bool testCorrectness = Input
+            ("--correctness","test correctness?",true);
+        const bool print = Input("--print","print matrices?",false);
+        ProcessInput();
+
+        if( r == 0 )
+            r = Grid::FindFactor( commSize );
+        const int c = commSize / r;
+        const Grid g( comm, r, c );
+        SetBlocksize( nb );
+        SetLocalTrrkBlocksize<double>( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "==========================================\n"
                  << " In debug mode! Performance will be poor! \n"
                  << "==========================================" << endl;
         }
 #endif
-        const Grid g( comm, r, c );
-        SetBlocksize( nb );
-        SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
-
-        if( rank == 0 )
+        if( commRank == 0 )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "---------------------\n"
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestLDL<double>
-        ( conjugated, testCorrectness, printMatrices, m, g );
+        TestLDL<double>( conjugated, testCorrectness, print, m, g );
 
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             cout << "--------------------------------------\n"
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLDL<Complex<double> >
-        ( conjugated, testCorrectness, printMatrices, m, g );
+        TestLDL<Complex<double> >( conjugated, testCorrectness, print, m, g );
     }
+    catch( ArgException& e ) { }
     catch( exception& e )
     {
+        ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << endl;
+        cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        cerr << "Process " << rank << " caught error message:\n"
-             << e.what() << endl;
     }   
 
     Finalize();
     return 0;
 }
-
