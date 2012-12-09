@@ -1,4 +1,4 @@
-set(CMAKE_SYSTEM_NAME BlueGeneQ-static)
+#set(CMAKE_SYSTEM_NAME BlueGeneQ-static)
 
 set(GCC_ROOT  "/bgsys/drivers/ppcfloor/gnu-linux")
 set(GCC_NAME  "powerpc64-bgq-linux")
@@ -24,10 +24,8 @@ set(MPI_C_INCLUDE_PATH   "${MPI_ROOT}/include")
 set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
 set(MPI_C_LINK_FLAGS   "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
 set(MPI_CXX_LINK_FLAGS "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
-set(MPI_C_LIBRARIES              "-lmpich -lopa -lmpl -lrt -ldl -lpami
--lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
-set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami
--lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 
 set(CXX_PURE_DEBUG_FLAGS "-g")
 set(CXX_PURE_RELEASE_FLAGS "-g -O2")
@@ -64,7 +62,4 @@ set(IBMCMP_ROOT "/soft/compilers/ibmcmp-feb2012")
 set(XLF_LIB "${IBMCMP_ROOT}/xlf/bg/14.1/bglib64")
 set(XLSMP_LIB "${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64")
 
-set(MATH_LIBS "-L${ESSL_LIB} -lesslsmpbg -L${LAPACK_LIB} -llapack
--L${ESSL_LIB} -lesslsmpbg -L${XLF_LIB} -lxlf90_r -L${XLSMP_LIB}
--lxlsmp -lxlopt -lxlfmath -lxl -lm -lgfortran -lpthread -ldl
--Wl,--allow-multiple-definition")
+set(MATH_LIBS "-L${ESSL_LIB} -lesslsmpbg -L${LAPACK_LIB} -llapack -L${ESSL_LIB} -lesslsmpbg -L${XLF_LIB} -lxlf90_r -L${XLSMP_LIB} -lxlsmp -lxlopt -lxlfmath -lxl -lm -lgfortran -lpthread -ldl -Wl,--allow-multiple-definition")
