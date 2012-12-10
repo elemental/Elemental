@@ -1,7 +1,7 @@
 #set(CMAKE_SYSTEM_NAME BlueGeneQ-static)
 
-set(GCC_ROOT  "/bgsys/drivers/ppcfloor/gnu-linux")
-set(GCC_NAME  "powerpc64-bgq-linux")
+set(GCC_ROOT   "/bgsys/drivers/ppcfloor/gnu-linux")
+set(GCC_NAME   "powerpc64-bgq-linux")
 set(CLANG_ROOT "/home/projects/llvm")
 set(MPI_ROOT   "/bgsys/drivers/ppcfloor/comm/gcc")
 set(PAMI_ROOT  "/bgsys/drivers/ppcfloor/comm/sys")
@@ -22,6 +22,7 @@ set(MPI_C_INCLUDE_PATH   "${MPI_ROOT}/include")
 set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
 set(MPI_C_LINK_FLAGS   "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
 set(MPI_CXX_LINK_FLAGS "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
+# -lstdc++ can probably be removed from MPI_C_LIBRARIES...
 set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 
@@ -55,7 +56,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 ##############################################################
 
 set(LAPACK_LIB "/soft/libraries/alcf/current/gcc/LAPACK/lib")
-set(ESSL_LIB "/soft/libraries/essl/5.1.1-0.beta/essl/5.1/lib64")
+set(ESSL_LIB "/soft/libraries/essl/current/essl/5.1/lib64")
+# TODO: Update from February 2012
 set(IBMCMP_ROOT "/soft/compilers/ibmcmp-feb2012")
 set(XLF_LIB "${IBMCMP_ROOT}/xlf/bg/14.1/bglib64")
 set(XLSMP_LIB "${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64")

@@ -25,6 +25,7 @@ set(MPI_C_INCLUDE_PATH   "${MPI_ROOT}/include")
 set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
 set(MPI_C_LINK_FLAGS   "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
 set(MPI_CXX_LINK_FLAGS "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
+# -lstdc++ can probably be removed from MPI_C_LIBRARIES...
 set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 

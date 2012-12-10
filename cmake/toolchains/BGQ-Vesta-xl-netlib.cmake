@@ -23,17 +23,14 @@ set(MPI_C_INCLUDE_PATH   "${MPI_ROOT}/include")
 set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
 set(MPI_C_LINK_FLAGS   "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
 set(MPI_CXX_LINK_FLAGS "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
-set(MPI_C_LIBRARIES              "-lmpich -lopa -lmpl -lrt -ldl -lpami
--lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
-set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami
--lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+# -lstdc++ can probably be removed from MPI_C_LIBRARIES...
+set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+set(MPI_CXX_LIBRARIES "-lcxxmpich -lmpich -lopa -lmpl -lrt -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 
 set(CXX_PURE_DEBUG_FLAGS "-g -O0 -qstrict -qnoipa")
-set(CXX_PURE_RELEASE_FLAGS "-g -O3 -qarch=qp -qtune=qp -qsimd=auto
--qhot=level=1 -qprefetch -qunroll=yes -qreport -qnoipa")
+set(CXX_PURE_RELEASE_FLAGS "-g -O3 -qarch=qp -qtune=qp -qsimd=auto -qhot=level=1 -qprefetch -qunroll=yes -qreport -qnoipa")
 set(CXX_HYBRID_DEBUG_FLAGS "-g -O0 -qstrict -qnoipa")
-set(CXX_HYBRID_RELEASE_FLAGS "-g -O3 -qarch=qp -qtune=qp -qsimd=auto
--qhot=level=2 -qprefetch -qunroll=yes -qreport -qnoipa -qsmp=omp")
+set(CXX_HYBRID_RELEASE_FLAGS "-g -O3 -qarch=qp -qtune=qp -qsimd=auto -qhot=level=2 -qprefetch -qunroll=yes -qreport -qnoipa -qsmp=omp")
 
 set(CMAKE_THREAD_LIBS_INIT "-qsmp=omp -qnoipa")
 set(OpenMP_CXX_FLAGS "-qsmp=omp -qnoipa")
@@ -63,6 +60,4 @@ set(BLAS_LIB "/soft/libraries/alcf/current/xl/BLAS/lib")
 set(LAPACK_LIB "/soft/libraries/alcf/current/xl/LAPACK/lib")
 set(XLF_LIB "${IBMCMP_ROOT}/xlf/bg/14.1/bglib64")
 set(XLSMP_LIB "${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64")
-set(MATH_LIBS "-L${LAPACK_LIB} -llapack -L${BLAS_LIB} -lblas
--L${XLF_LIB} -lxlf90_r -L${XLSMP_LIB} -lxlsmp -lxlopt -lxlfmath -lxl
--lgfortran -lpthread -ldl")
+set(MATH_LIBS "-L${LAPACK_LIB} -llapack -L${BLAS_LIB} -lblas -L${XLF_LIB} -lxlf90_r -L${XLSMP_LIB} -lxlsmp -lxlopt -lxlfmath -lxl -lgfortran -lpthread -ldl")
