@@ -50,6 +50,7 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of Hermitian matrix",100);
         ProcessInput();
+        PrintInputReport();
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );

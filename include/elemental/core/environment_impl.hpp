@@ -47,6 +47,10 @@ inline void
 ProcessInput()
 { GetArgs().Process(); }
 
+inline void
+PrintInputReport()
+{ GetArgs().PrintReport(); }
+
 template<typename T>
 inline void 
 MemCopy( T* dest, const T* source, std::size_t numEntries )

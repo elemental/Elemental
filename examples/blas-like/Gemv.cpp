@@ -52,6 +52,7 @@ main( int argc, char* argv[] )
         const bool adjoint = Input("--adjoint","apply adjoint?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
 

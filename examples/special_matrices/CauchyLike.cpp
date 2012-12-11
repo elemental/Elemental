@@ -46,6 +46,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrices?",true);
         ProcessInput();
+        PrintInputReport();
 
         std::vector<double> r(m), s(n), x(m), y(n);
         for( int j=0; j<m; ++j )

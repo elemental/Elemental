@@ -51,6 +51,7 @@ main( int argc, char* argv[] )
             ("--radius","radius of uniform eigval distribution",2.);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         const Complex<double> center( realCenter, imagCenter );
         DistMatrix<Complex<double> > X;

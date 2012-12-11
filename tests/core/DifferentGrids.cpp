@@ -48,6 +48,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","width of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         // Drop down to a square grid, change the matrix, and redistribute back
         const int commSqrt = int(sqrt(double(commSize)));

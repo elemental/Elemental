@@ -46,6 +46,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         DistMatrix<double> A;
         Ones( m, n, A );

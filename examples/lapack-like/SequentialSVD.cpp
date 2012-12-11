@@ -53,6 +53,7 @@ main( int argc, char* argv[] )
     {
         const int k = Input("--size","problem size",100);
         ProcessInput();
+        PrintInputReport();
 
         Matrix<C> A, U, V;
         Matrix<R> s;

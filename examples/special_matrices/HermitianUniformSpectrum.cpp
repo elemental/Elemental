@@ -47,6 +47,7 @@ main( int argc, char* argv[] )
         const double upper = Input("--upper","upper bound on spectrum",10.);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         DistMatrix<double> X;
         HermitianUniformSpectrum( n, X, lower, upper );

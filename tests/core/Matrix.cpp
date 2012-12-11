@@ -77,6 +77,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","width of matrix",100);
         const int ldim = Input("--ldim","leading dimension",100);
         ProcessInput();
+        PrintInputReport();
 
         if( commRank == 0 )
         {

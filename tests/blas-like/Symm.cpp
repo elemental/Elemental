@@ -106,6 +106,7 @@ main( int argc, char* argv[] )
         const int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

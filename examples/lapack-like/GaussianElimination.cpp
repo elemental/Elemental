@@ -16,6 +16,7 @@ main( int argc, char* argv[] )
         int gridHeight = Input("--gridHeight","grid height",0);
         const bool details = Input("--details","print norm details?",false);
         ProcessInput();
+        PrintInputReport();
 
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid

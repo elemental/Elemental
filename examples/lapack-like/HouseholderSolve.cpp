@@ -17,6 +17,7 @@ main( int argc, char* argv[] )
         const int blocksize = Input("--blocksize","algorithmic blocksize",64);
         int gridHeight = Input("--gridHeight","grid height",0);
         ProcessInput();
+        PrintInputReport();
 
         // If the grid height wasn't specified, then we should attempt to build
         // a nearly-square process grid

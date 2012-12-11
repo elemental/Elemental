@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrices?",true);
         ProcessInput();
+        PrintInputReport();
 
         std::vector<double> d( n );
         for( int j=0; j<n; ++j )

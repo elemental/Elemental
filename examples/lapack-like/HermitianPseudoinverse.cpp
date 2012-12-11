@@ -51,6 +51,7 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         Grid g( comm );
         DistMatrix<C> H( n, n, g );

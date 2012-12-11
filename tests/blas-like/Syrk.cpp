@@ -102,6 +102,7 @@ main( int argc, char* argv[] )
         const int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

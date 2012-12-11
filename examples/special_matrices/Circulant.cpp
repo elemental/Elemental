@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrices?",true);
         ProcessInput();
+        PrintInputReport();
 
         // Create a circulant matrix
         DistMatrix<Complex<double> > A;

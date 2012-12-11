@@ -52,6 +52,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","matrix width",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );

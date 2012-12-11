@@ -55,6 +55,7 @@ main( int argc, char* argv[] )
     {
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 

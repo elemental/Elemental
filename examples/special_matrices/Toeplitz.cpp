@@ -46,6 +46,7 @@ main( int argc, char* argv[] )
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         const int length = m+n-1;
         std::vector<double> a( length );

@@ -51,6 +51,7 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
         ProcessInput();
+        PrintInputReport();
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );

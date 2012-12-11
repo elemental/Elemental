@@ -50,6 +50,7 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
         ProcessInput();
+        PrintInputReport();
 
         Matrix<C> A;
         Uniform( m, n, A );

@@ -98,6 +98,7 @@ main( int argc, char* argv[] )
             ("--nbLocalComplexDouble","local blocksize for complex doubles",32);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

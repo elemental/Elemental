@@ -48,6 +48,7 @@ T Input( std::string name, std::string desc );
 template<typename T>
 T Input( std::string name, std::string desc, T defaultVal );
 void ProcessInput();
+void PrintInputReport();
 
 // For getting and setting the algorithmic blocksize
 int Blocksize();

@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of identity matrix",10);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         DistMatrix<double> I;
         Identity( n, n, I );

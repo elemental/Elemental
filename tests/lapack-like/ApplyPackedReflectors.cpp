@@ -318,6 +318,7 @@ main( int argc, char* argv[] )
             ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);
         ProcessInput();
+        PrintInputReport();
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );

@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
         const int k = Input("--order","generate 2^k x 2^k matrix",4);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         // Generate a binary Walsh matrix of order k (a 2^k x 2^k matrix)
         DistMatrix<double> W;

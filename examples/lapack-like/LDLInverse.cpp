@@ -51,8 +51,9 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of matrix to factor",100);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
-        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+        PrintInputReport();
 
+        const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
         Grid g( comm );
         DistMatrix<C> A( g );
 

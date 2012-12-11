@@ -45,6 +45,7 @@ main( int argc, char* argv[] )
         const int k = Input("--order","generate 2k+1 x 2k+1 matrix",5);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
+        PrintInputReport();
 
         DistMatrix<double> W;
         Wilkinson( k, W );
