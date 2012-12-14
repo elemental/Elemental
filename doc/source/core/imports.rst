@@ -17,3 +17,4 @@ works.
    imports/mpi
    imports/plcg
    imports/pmrrr
+   imports/flame

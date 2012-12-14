@@ -26,9 +26,11 @@ why ScaLAPACK or PLAPACK might be more appropriate:
 * Elemental does not yet support non-Hermitian eigenvalue problems, but 
   ScaLAPACK does.
 * Elemental does not yet provide routines for narrowly banded linear systems,
-  though ScaLAPACK does.
-* Some applications exploit the block distribution format used by PLAPACK 
-  and ScaLAPACK in order to increase the efficiency of matrix 
+  though ScaLAPACK does (though you may want to consider the sparse-direct 
+  solver, `Clique <http://github.com/poulson/Clique>`__, which is built on 
+  top of Elemental.
+* Some applications exploit the block distribution format used by ScaLAPACK 
+  and PLAPACK in order to increase the efficiency of matrix 
   construction. Though it is clearly possible to redistribute the matrix into
   an element-wise distribution format after construction, this might add 
   an unnecessary level of complexity.
@@ -68,13 +70,8 @@ Microsoft Windows, and Cygwin), as well as a wide variety of Linux clusters (inc
 License and copyright
 =====================
 All files distributed with Elemental are made available under the 
-`New BSD license <http://www.opensource.org/licenses/bsd-license.php>`_.
-The vast majority of source files contain the following copyright notice::
-
-    Copyright (c) 2009-2012, Jack Poulson
-    All rights reserved.
-
-    This file is part of Elemental.
+`New BSD license <http://www.opensource.org/licenses/bsd-license.php>`_,
+which states::
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -102,5 +99,10 @@ The vast majority of source files contain the following copyright notice::
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
-For an up-to-date list of exceptions, please see the 
+Most source files contain the copyright notice::
+
+    Copyright (c) 2009-2012, Jack Poulson
+    All rights reserved.
+
+For an up-to-date list of contributing authors, please see the 
 `AUTHORS file <https://github.com/poulson/Elemental/blob/master/AUTHORS>`__.

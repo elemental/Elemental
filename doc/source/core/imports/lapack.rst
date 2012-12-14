@@ -115,26 +115,20 @@ Triangular inversion
    triangular matrix being treated as unit diagonal (set `diag` to 'N' 
    otherwise).
 
-Bidiagonal QR
-^^^^^^^^^^^^^
-
-.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVTrans, int numRowsU, R* d, R* e, R* VTrans, int ldvt, R* U, int ldu )
-.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVAdj, int numRowsU, R* d, R* e, Complex<R>* VAdj, int ldva, Complex<R>* U, int ldu )
-
-**TODO**
-
 QR-based SVD
 ^^^^^^^^^^^^
 
 .. cpp:function:: void lapack::QRSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
 .. cpp:function:: void lapack::QRSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
 
-**TODO**
+Computes the singular value decomposition of a general matrix by running the 
+QR algorithm on the condensed bidiagonal matrix.
 
 .. cpp:function:: void lapack::SingularValues( int m, int n, R* A, int lda, R* s )
 .. cpp:function:: void lapack::SingularValues( int m, int n, Complex<R>* A, int lda, R* s )
 
-**TODO**
+Computes the singular values of a general matrix by running the QR algorithm
+on the condensed bidiagonal matrix.
 
 Divide-and-conquer SVD
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -142,7 +136,16 @@ Divide-and-conquer SVD
 .. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
 .. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
 
-**TODO**
+Computes the SVD of a general matrix using a divide-and-conquer algorithm on
+the condensed bidiagonal matrix.
+
+Bidiagonal QR
+^^^^^^^^^^^^^
+
+.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVTrans, int numRowsU, R* d, R* e, R* VTrans, int ldvt, R* U, int ldu )
+.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVAdj, int numRowsU, R* d, R* e, Complex<R>* VAdj, int ldva, Complex<R>* U, int ldu )
+
+Computes the SVD of a bidiagonal matrix using the QR algorithm.
 
 Hessenberg QR
 ^^^^^^^^^^^^^
@@ -150,4 +153,4 @@ Hessenberg QR
 .. cpp:function:: void lapack::HessenbergEig( int n, R* H, int ldh, Complex<R>* w )
 .. cpp:function:: void lapack::HessenbergEig( int n, Complex<R>* H, int ldh, Complex<R>* w )
 
-**TODO**
+Computes the eigenvalues of an upper Hessenberg matrix using the QR algorithm.

@@ -1,20 +1,16 @@
 /*
-   TODO: Proper copyright notice
+   Copyright (c) The University of Texas at Austin, 2012.
+   Copyright (c) Jack Poulson, 2012.
+
+   Authors: Martin Schatz (primary) and Jack Poulson (maintenance)
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
 */
 #include <cstdio>
 #include "elemental.hpp"
 using namespace elem;
-
-void Usage()
-{
-    std::cout << "3-D Elemental Matrix multiply.\n\n"
-              << "  G3DGemm <type> <r> <c> <h> <Am> <An> <Bm> <Bn>\n\n"
-              << "  type: Stationary \'A\', \'B\', \'C\' matrix\n"
-              << "  r: height of grid mesh\n" << "  d: width of grid mesh\n"
-              << "  h: depth of grid mesh\n" << "  Am: height of matrix A\n"
-              << "  An: width of matrix A\n" << "  Bm: height of matrix B\n"
-              << "  Bn: width of matrix B\n" << std::endl;
-}
 
 // Initialize auxiliary communicators for depth dimension
 void InitDepthComms( int meshSize, mpi::Comm& depthComm, mpi::Comm& meshComm )
@@ -271,17 +267,18 @@ void DistributeRows
 // Initialize all matrices in order to set up for the G3D GEMM
 void InitializeMatrices
 ( int type, mpi::Comm& depthComm,
-  int Am, int An, DistMatrix<double,MC,MR>& AOut,
-  int Bm, int Bn, DistMatrix<double,MC,MR>& BOut,
-                  DistMatrix<double,MC,MR>& COut )
+  int m, int n, int k,
+  DistMatrix<double,MC,MR>& AOut,
+  DistMatrix<double,MC,MR>& BOut,
+  DistMatrix<double,MC,MR>& COut )
 {
     const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& meshGrid = AOut.Grid();
     const int meshSize = meshGrid.Size();
 
-    DistMatrix<double,MC,MR> A( Am, An, meshGrid );
-    DistMatrix<double,MC,MR> B( Bm, Bn, meshGrid );
-    DistMatrix<double,MC,MR> C( Am, Bn, meshGrid );
+    DistMatrix<double,MC,MR> A( m, k, meshGrid );
+    DistMatrix<double,MC,MR> B( k, n, meshGrid );
+    DistMatrix<double,MC,MR> C( m, n, meshGrid );
 
     //Initialize top layer with desired matrices
     InitA( A );
@@ -340,67 +337,41 @@ int main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int rank = mpi::CommRank( comm );
-
-    if( argc < 9 )
-    {
-        if( rank == 0 )
-            Usage();
-        Finalize();
-        return 0;
-    }
+    const int commRank = mpi::CommRank( comm );
 
     try
     {
-        int argNum = 0;
-        const int type = toupper(argv[++argNum][0]);
-        const int r = atoi(argv[++argNum]);
-        const int c = atoi(argv[++argNum]);
-        const int depthSize = atoi(argv[++argNum]);
-        const int Am = atoi(argv[++argNum]);
-        const int An = atoi(argv[++argNum]);
-        const int Bm = atoi(argv[++argNum]);
-        const int Bn = atoi(argv[++argNum]);
+        const char type = Input("--type","'A', 'B', or 'C' algorithm",'C');
+        const int r = Input<int>("--gridHeight","height of process grid");
+        const int c = Input<int>("--gridWidth","width of process grid");
+        const int depth = Input<int>("--depth","amount of redundancy");
+        const int m = Input("--m","height of result",500);
+        const int n = Input("--n","width of result",500);
+        const int k = Input("--k","inner dimension",500);
+        ProcessInput();
+        PrintInputReport();
 
         // Sanity check on inputs
-        if( An != Bm )
+        if( m % r != 0 || m % c != 0 || m % depth != 0 || 
+            k % r != 0 || k % c != 0 || k % depth != 0 ||
+            n % r != 0 || n % c != 0 || n % depth != 0 )
         {
-            if( rank == 0 )
-            {
-                std::cout << "Dimension mismatch: (" << Am << "," << An << ") *"
-                          << "(" << Bm << "," << Bn << ")" << std::endl;
-                Usage();
-            }
-            Finalize();
-            return 0;
-        }
-        if( Am % r != 0 || Am % c != 0 || Am % depthSize != 0 || An % r != 0 ||
-            An % c != 0 || An % depthSize != 0 || Bm % r != 0 || Bm % c != 0 ||
-            Bm % depthSize != 0 || Bn % r != 0 || Bn % c != 0 || Bn % depthSize != 0 )
-        {
-            if( rank == 0 )
-            {
+            if( commRank == 0 )
                 std::cout << "Dimensions of matrices must be multiples of "
                              "grid dimensions (for now)" << std::endl;
-                Usage();
-            }
             Finalize();
             return 0;
         }
-        if( !(type >= 'A' && type <= 'C') )
+        if( type < 'A' || type > 'C' )
         {
-            if( rank == 0 )
-            {
-                std::cout << "Stationary matrix must be A, B, or C" 
-                          << std::endl;
-                Usage();
-            }
+            if( commRank == 0 )
+                std::cout << "Algorithm must be 'A', 'B', or 'C'" << std::endl;
             Finalize();
             return 0;
         }
 
 #ifndef RELEASE
-        if( rank == 0 )
+        if( commRank == 0 )
         {
             std::cout 
                  << "==========================================\n"
@@ -411,16 +382,15 @@ int main( int argc, char* argv[] )
 
         mpi::Comm depthComm, meshComm;
         InitDepthComms( r*c, depthComm, meshComm );
-
         const int depthRank = mpi::CommRank( depthComm );
         const Grid meshGrid( meshComm, r, c );
 
-        DistMatrix<double,MC,MR> A( Am, An, meshGrid );
-        DistMatrix<double,MC,MR> B( Bm, Bn, meshGrid );
-        DistMatrix<double,MC,MR> CPartial( Am, Bn, meshGrid );
-        DistMatrix<double,MC,MR> C( Am, Bn, meshGrid );
+        DistMatrix<double,MC,MR> A( m, k, meshGrid );
+        DistMatrix<double,MC,MR> B( k, n, meshGrid );
+        DistMatrix<double,MC,MR> CPartial( m, n, meshGrid );
+        DistMatrix<double,MC,MR> C( m, n, meshGrid );
 
-        InitializeMatrices( type, depthComm, Am, An, A, Bm, Bn, B, CPartial );
+        InitializeMatrices( type, depthComm, m, n, k, A, B, CPartial );
 
         // Compute within our mesh
         Gemm( NORMAL, NORMAL, 1.0, A, B, 1.0, CPartial );
@@ -431,11 +401,13 @@ int main( int argc, char* argv[] )
     } 
     catch( std::exception& e )
     {
+        std::ostringstream os;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
+        std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();
 #endif
-        std::cerr << "Process " << rank << " caught error message:\n" 
-                  << e.what() << std::endl;
     }
     Finalize();
     return 0;

@@ -2,65 +2,10 @@
    Copyright (c) 2009-2012, Jack Poulson
    All rights reserved.
 
-   This file is part of Elemental.
-
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are met:
-
-    - Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-
-    - Redistributions in binary form must reproduce the above copyright notice,
-      this list of conditions and the following disclaimer in the documentation
-      and/or other materials provided with the distribution.
-
-    - Neither the name of the owner nor the names of its contributors
-      may be used to endorse or promote products derived from this software
-      without specific prior written permission.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
 */
-
-#ifdef HAVE_FLA_BSVD
-// TODO: Move this into a file at include/elemental/imports/flame.hpp
-extern "C" {
-typedef int FLA_Error;
-FLA_Error FLA_Bsvd_v_opd_var1( int       min_m_n,
-                               int       m_U,
-                               int       m_V,
-                               int       n_GH,
-                               int       n_iter_max,
-                               double*   buff_d, int inc_d,
-                               double*   buff_e, int inc_e,
-                               elem::dcomplex* buff_G, int rs_G, int cs_G,
-                               elem::dcomplex* buff_H, int rs_H, int cs_H,
-                               double*   buff_U, int rs_U, int cs_U,
-                               double*   buff_V, int rs_V, int cs_V,
-                               int       b_alg );
-FLA_Error FLA_Bsvd_v_opz_var1( int       min_m_n,
-                               int       m_U,
-                               int       m_V,
-                               int       n_GH,
-                               int       n_iter_max,
-                               double*   buff_d, int inc_d,
-                               double*   buff_e, int inc_e,
-                               elem::dcomplex* buff_G, int rs_G, int cs_G,
-                               elem::dcomplex* buff_H, int rs_H, int cs_H,
-                               elem::dcomplex* buff_U, int rs_U, int cs_U,
-                               elem::dcomplex* buff_V, int rs_V, int cs_V,
-                               int       b_alg );
-}
-#endif // HAVE_FLA_BSVD
 
 namespace elem {
 

@@ -1,15 +1,14 @@
 Functionality
 =============
+- Pivoted QR decompositions 
+- Nonsymmetric eigensolver
+- Nonsymmetric generalized eigensolver
 - More explicit expansions of packed Householder reflectors
+- More TwoSidedTrmm/TwoSidedTrsm routines
 - Add means of detaching and reattaching the 'viewing' processes for a 
   DistMatrix so that collective routines like 'Get' can still be called
-
-Documentation
-=============
-- Add BidiagonalQR and DivideAndConquerSVD to list of LAPACK imports
 
 Formatting
 ==========
 - Make namespacing of internal functions consistent
-- Move FLAME bidiagonal QR algorithm declaration into imports/flame.hpp
-
+- Standardize on impl/decl pairs
