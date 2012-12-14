@@ -195,10 +195,22 @@ const Grid& DefaultGrid()
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 #ifndef RELEASE
 void PushCallStack( std::string s )
-{ ::callStack.push(s); }
+{ 
+#ifdef HAVE_OPENMP
+    if( omp_get_thread_num() != 0 )
+        return;
+#endif // HAVE_OPENMP
+    ::callStack.push(s); 
+}
 
 void PopCallStack()
-{ ::callStack.pop(); }
+{ 
+#ifdef HAVE_OPENMP
+    if( omp_get_thread_num() != 0 )
+        return;
+#endif // HAVE_OPENMP
+    ::callStack.pop(); 
+}
 
 void DumpCallStack()
 {
