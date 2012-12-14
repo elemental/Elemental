@@ -7,7 +7,6 @@ This routine computes the in-place inverse of a general fully-populated
 (invertible) matrix :math:`A` as
 
 .. math::
-   :nowrap:
 
    A^{-1} = U^{-1} L^{-1} P,
 
@@ -30,7 +29,6 @@ This routine uses a custom algorithm for computing the inverse of a
 Hermitian positive-definite matrix :math:`A` as
 
 .. math::
-   :nowrap:
 
    A^{-1} = (L L^H)^{-1} = L^{-H} L^{-1}, 
 

@@ -53,7 +53,6 @@ Pseudoinverse
    modifying the singular values with the function
 
    .. math::
-      :nowrap:
 
       f(\sigma) = \left\{\begin{array}{cc} 
         1/\sigma, & \sigma \ge \epsilon \, n \, ||A||_2 \\
@@ -71,7 +70,6 @@ Pseudoinverse
    function
 
    .. math::
-      :nowrap:
 
       f(\omega) = \left\{\begin{array}{cc} 
         1/\omega, & |\omega| \ge \epsilon \, n \, ||A||_2 \\

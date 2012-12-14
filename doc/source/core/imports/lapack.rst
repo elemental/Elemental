@@ -66,7 +66,6 @@ Given :math:`\phi, \gamma \in \mathbb{C}^{n \times n}`, carefully compute
 :math:`c \in \mathbb{R}` and :math:`s, \rho \in \mathbb{C}` such that 
 
 .. math::
-   :nowrap:
 
    \left[\begin{array}{cc}
      c       & s \\

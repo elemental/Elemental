@@ -319,7 +319,6 @@ individual entries would be owned by the following processes (assuming the
 column and row alignments are both 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      0 & 2 & 4 & 0 & 2 & 4 & 0 \\
@@ -336,7 +335,6 @@ to 2 (meaning that the third process column owns the first column of the
 matrix), the individual entries would be owned as follows:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      4 & 0 & 2 & 4 & 0 & 2 & 4 \\
@@ -815,7 +813,6 @@ individual entries would be owned by the following processes (assuming the
 column alignment is 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & \{0,2,4\} & 
@@ -873,7 +870,6 @@ grid, individual entries would be owned by the following processes (assuming
 the row alignment is 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} & \{2,3\} & \{4,5\} & \{0,1\} \\
@@ -925,7 +921,6 @@ individual entries would be owned by the following processes (assuming the
 column and row alignments are both 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      0 & 1 & 0 & 1 & 0 & 1 & 0 \\
@@ -977,7 +972,6 @@ grid, individual entries would be owned by the following processes (assuming
 the column alignment is 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} & \{0,1\} \\
@@ -1029,7 +1023,6 @@ grid, individual entries would be owned by the following processes (assuming
 the column alignment is 0):
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & \{0,2,4\} & \{1,3,5\} & 
@@ -1163,7 +1156,6 @@ with a zero column alignment, each entry of a :math:`7 \times 7` matrix
 would be owned by the following sets of processes:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -1213,7 +1205,6 @@ This is the transpose of the above ``[VC,* ]`` distribution. On the standard
 :math:`7 \times 7` matrix would be distributed as:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
    0 & 1 & 2 & 3 & 4 & 5 & 0 \\
@@ -1266,7 +1257,6 @@ with a zero column alignment, each entry of a :math:`7 \times 7` matrix
 would be owned by the following sets of processes:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -1316,7 +1306,6 @@ This is the transpose of the above ``[VR,* ]`` distribution. On the standard
 :math:`7 \times 7` matrix would be distributed as:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
    0 & 2 & 4 & 1 & 3 & 5 & 0 \\
@@ -1367,7 +1356,6 @@ the entries of a :math:`7 \times 7` matrix would be owned by the following
 sets of processes:
 
 .. math::
-   :nowrap:
 
    \left(\begin{array}{ccccccc}
    \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & \{0,1,...,5\} & 

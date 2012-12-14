@@ -439,7 +439,6 @@ Other typedefs and enums
    * ``ONE_NORM``:
 
      .. math:: 
-        :nowrap:
 
         \|A\|_1 = \max_{\|x\|_1=1} \|Ax\|_1 
                 = \max_j \sum_{i=0}^{m-1} |\alpha_{i,j}|
@@ -447,7 +446,6 @@ Other typedefs and enums
    * ``INFINITY_NORM``:
 
      .. math:: 
-        :nowrap:
 
         \|A\|_{\infty} = \max_{\|x\|_{\infty}=1} \|Ax\|_{\infty} 
                        = \max_i \sum_{j=0}^{n-1} |\alpha_{i,j}|
@@ -467,7 +465,6 @@ Other typedefs and enums
    * ``FROBENIUS_NORM``:
 
      .. math::
-        :nowrap:
 
         \|A\|_F = \sqrt{\sum_{i=0}^{m-1} \sum_{j=0}^{n-1} |\alpha_{i,j}|^2}
                 = \sum_{i=0}^{\min(m,n)} \sigma_i(A)^2

@@ -19,7 +19,6 @@ matrix :math:`A \in \mathbb{F}^{n \times n}`, the simplest one is in terms of
 the product of the eigenvalues (including multiplicity):
 
 .. math::
-   :nowrap:
 
    \mbox{det}(A) = \prod_{i=0}^{n-1} \lambda_i.
 
@@ -30,7 +29,6 @@ recognizing that :math:`\mbox{det}(P)=\pm 1`
 (the *signature* of the permutation), and computing
 
 .. math::
-   :nowrap:
 
    \mbox{det}(A) = \mbox{det}(P)\mbox{det}(L)\mbox{det}(U) 
                  = \mbox{det}(P) \prod_{i=0}^{n-1} \upsilon_{i,i}
@@ -218,7 +216,6 @@ The two equally useful definitions of the trace of a square matrix
 :math:`A \in \mathbb{F}^{n \times n}` are
 
 .. math::
-   :nowrap:
 
    \mbox{tr}(A) = \sum_{i=0}^{n-1} \alpha_{i,i} = \sum_{i=0}^{n-1} \lambda_i,
 
