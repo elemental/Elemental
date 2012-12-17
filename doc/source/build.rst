@@ -331,6 +331,7 @@ Elemental source tree in a subdirectory of your main project folder, say
     # Uncomment if including Elemental as a subproject in another build system     #
     ################################################################################
     #set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
+    #set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}} PARENT_SCOPE)
     #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
     #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
     #set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
@@ -341,6 +342,7 @@ Elemental source tree in a subdirectory of your main project folder, say
     #set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
     #set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
     #set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
+    #set(MPI_LINK_FLAGS ${MPI_LINK_FLAGS} PARENT_SCOPE)
     #set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
     #set(RESTRICT ${RESTRICT} PARENT_SCOPE)
     #set(RELEASE ${RELEASE} PARENT_SCOPE)
@@ -358,6 +360,8 @@ to ::
     ################################################################################
     # Uncomment if including Elemental as a subproject in another build system     #
     ################################################################################
+    set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
+    set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}} PARENT_SCOPE)
     set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
     set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
     set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
@@ -368,6 +372,7 @@ to ::
     set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
     set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
     set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
+    set(MPI_LINK_FLAGS ${MPI_LINK_FLAGS} PARENT_SCOPE)
     set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
     set(RESTRICT ${RESTRICT} PARENT_SCOPE)
     set(RELEASE ${RELEASE} PARENT_SCOPE)

@@ -106,16 +106,14 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 #     4. "HybridRelease": MPI+OpenMP build meant for production runs
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
 
-# "CXX_PURE_DEBUG_FLAGS"/"CXX_PURE_RELEASE_FLAGS"/
-# "CXX_HYBRID_DEBUG_FLAGS"/"CXX_HYBRID_RELEASE_FLAGS"
+# "CXX_FLAGS_PUREDEBUG"/"CXX_FLAGS_PURERELEASE"/
+# "CXX_FLAGS_HYBRIDDEBUG"/"CXX_FLAGS_HYBRIDRELEASE"
 #   Override the default optimization (and debugging/symbol) flags
 
 # "OpenMP_CXX_FLAGS"
 #   Overrides the default compile flags for adding OpenMP support to CXX code
 
 # TODO: Add list of MPI variables here, such as "MPI_CXX_COMPILE_FLAGS"
-
-# TODO: Add list of MKL-specific optional variables, "INTEL_ROOT" and "MKL_ROOT"
 
 # TODO: Add discussion of "MATH_LIBS"
 
@@ -155,41 +153,33 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
   set(HYBRID TRUE)
   set(DEBUG TRUE)
-  set(HYBRID_DEBUG TRUE)
+  set(HYBRIDDEBUG TRUE)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
   set(HYBRID TRUE)
   set(RELEASE TRUE)
-  set(HYBRID_RELEASE TRUE)
+  set(HYBRIDRELEASE TRUE)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
   set(PURE TRUE)
   set(DEBUG TRUE)
-  set(PURE_DEBUG TRUE)
+  set(PUREDEBUG TRUE)
 endif()
 if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
   set(PURE TRUE)
   set(RELEASE TRUE)
-  set(PURE_RELEASE TRUE)   
+  set(PURERELEASE TRUE)   
 endif()
+string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
 # Set the basic compile flags from the build type
-if(NOT WIN32)
-  if(HYBRID_DEBUG AND NOT CXX_HYBRID_DEBUG_FLAGS)
-    set(CXX_HYBRID_DEBUG_FLAGS "-O2 -g" CACHE STRING
-        "CXX optimization/debug flags for hybrid OpenMP/MPI debug build")
-  endif()
-  if(HYBRID_RELEASE AND NOT CXX_HYBRID_RELEASE_FLAGS)
-    set(CXX_HYBRID_RELEASE_FLAGS "-O3" CACHE STRING
-        "CXX optimization flags for hybrid OpenMP/MPI release build")
-  endif()
-  if(PURE_DEBUG AND NOT CXX_PURE_DEBUG_FLAGS)
-    set(CXX_PURE_DEBUG_FLAGS "-O2 -g" CACHE STRING
-        "CXX optimization/debugging flags for pure MPI debug build")
-  endif()
-  if(PURE_RELEASE AND NOT CXX_PURE_RELEASE_FLAGS)
-    set(CXX_PURE_RELEASE_FLAGS "-O3" CACHE STRING
-        "CXX optimization flags for pure MPI release build")
+if(NOT WIN32 AND NOT CXX_FLAGS_${UPPER_BUILD_TYPE})
+  if(DEBUG)
+    set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
+        "CXX optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+  else()
+    set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
+        "CXX optimization flags for ${UPPER_BUILD_TYPE} mode")
   endif()
 endif()
 
@@ -242,25 +232,12 @@ if(HYBRID)
 endif()
 
 # Append MPI and OpenMP compile flags as necessary
-set(CMAKE_CXX_FLAGS_HYBRIDDEBUG 
-    "${CXX_HYBRID_DEBUG_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS_HYBRIDRELEASE 
-    "${CXX_HYBRID_RELEASE_FLAGS} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS_PUREDEBUG 
-    "${CXX_PURE_DEBUG_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS_PURERELEASE 
-    "${CXX_PURE_RELEASE_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-
-# Extract the flags we are using for this build mode
-if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
-  set(CXX_FLAGS "${CXX_HYBRID_DEBUG_FLAGS}")
-elseif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
-  set(CXX_FLAGS "${CXX_HYBRID_RELEASE_FLAGS}")
-elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
-  set(CXX_FLAGS "${CXX_PURE_DEBUG_FLAGS}")
+if(HYBRID)
+  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 else()
-  set(CXX_FLAGS "${CXX_PURE_RELEASE_FLAGS}")
+  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${MPI_CXX_COMPILE_FLAGS}")
 endif()
+set(CXX_FLAGS ${CXX_FLAGS_${UPPER_BUILD_TYPE}})
 
 # Query the size of a void pointer in order to determine whether or not this is
 # a 32-bit system.
@@ -295,126 +272,30 @@ else()
   endif()
 endif()
 if(MISSING_MATH)
-  # Look for MKL first (no promises that this will work...)
-  if(32_BIT_SYSTEM)
-    set(INTEL_ARCH_SUBDIRS 32/lib lib/32)
-    set(MKL_ARCH_SUBDIRS 32/lib lib/32)
-  else()
-    set(INTEL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64)
-    set(MKL_ARCH_SUBDIRS em64t/lib intel64/lib lib/em64t lib/intel64 
-        mkl/em64t/lib mkl/intel64/lib mkl/lib/em64t mkl/lib/intel64)
+  # Look for default BLAS and LAPACK
+  if(REFERENCE_ROOT)
+    message(STATUS 
+      "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
   endif()
-  if(INTEL_ROOT)
-    message(STATUS "Will also search INTEL_ROOT=${INTEL_ROOT} for MKL")
-    message(STATUS "INTEL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
-  endif()
-  if(MKL_ROOT)
-    message(STATUS "Will also search MKL_ROOT=${MKL_ROOT} for MKL")
-    message(STATUS "MKL_ARCH_SUBDIRS=${INTEL_ARCH_SUBDIRS}")
-  endif()
-  # There is a cyclic dependency between MKL_CORE and 
-  # MKL_SEQUENTIAL/MKL_INTEL_THREAD with some versions of MKL
-  if(NOT WIN32)
-    find_library(PTHREAD_LIB pthread DOC "Pthreads library")
-  endif()
-  find_library(
-    CMATH_LIB
-    NAMES m libmmd.lib
-    PATHS ${INTEL_ROOT} 
-    PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
-    DOC "C math library"
-  )
-  find_library(
-    IOMP5_LIB
-    NAMES libiomp5.a libiomp5md.lib
-    PATHS ${INTEL_ROOT} 
-    PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
-  )
-  find_library(
-    GUIDE_LIB
-    NAMES libguide.a libguide.lib
-    PATHS ${INTEL_ROOT}
-    PATH_SUFFIXES ${INTEL_ARCH_SUBDIRS}
-  )
-  find_library(
-    MKL_CORE_LIB
-    NAMES libmkl_core.a mkl_core.lib 
-    PATHS ${MKL_ROOT}
-    PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
-  )
-  find_library(
-    MKL_INTEL_LIB
-    NAMES libmkl_intel_lp64.a mkl_intel_lp64.lib 
-    PATHS ${MKL_ROOT}
-    PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
-  )
-  if(PURE)
-    find_library(
-      MKL_SEQUENTIAL_LIB
-      NAMES libmkl_sequential.a mkl_sequential.lib
-      PATHS ${MKL_ROOT}
-      PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
-    )
-    set(MKL_REQUIRED MKL_INTEL MKL_SEQUENTIAL MKL_CORE MKL_SEQUENTIAL CMATH
-                     GUIDE IOMP5)
-  else()
-    find_library(
-      MKL_INTEL_THREAD_LIB
-      NAMES libmkl_intel_thread.a mkl_intel_thread.lib
-      PATHS ${MKL_ROOT}
-      PATH_SUFFIXES ${MKL_ARCH_SUBDIRS}
-    )
-    set(MKL_REQUIRED MKL_INTEL MKL_INTEL_THREAD MKL_CORE MKL_INTEL_THREAD 
-                     CMATH GUIDE IOMP5)
-  endif()
-  if(NOT WIN32)
-    list(APPEND MKL_REQUIRED PTHREAD)
-  endif()
-  set(MKL_FOUND TRUE)
-  set(MATH_LIBS "")
-  foreach(NAME ${MKL_REQUIRED})
+  set(REFERENCE_REQUIRED LAPACK BLAS)
+  find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
+  find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${REFERENCE_ROOT}) 
+  set(REFERENCE_FOUND TRUE)
+  foreach(NAME ${REFERENCE_REQUIRED})
     if(${NAME}_LIB)
       message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
       list(APPEND MATH_LIBS ${${NAME}_LIB})
     else()
-      message(STATUS "Could not find ${NAME}_LIB") 
-      if(NOT "${NAME}" STREQUAL "GUIDE")
-        set(MATH_LIBS "")
-        set(MKL_FOUND FALSE)
-      endif()
+      message(STATUS "Could not find ${NAME}_LIB")
+      set(MATH_LIBS "")
+      set(REFERENCE_FOUND FALSE)
     endif()
   endforeach()
-  if(MKL_FOUND)
-    message(STATUS "Using MKL math libraries.")
-    message(STATUS "MATH_LIBS=${MATH_LIBS}")
-    set(MISSING_MATH FALSE)
-  endif()
-  if(MISSING_MATH)
-    # Look for default BLAS and LAPACK
-    if(REFERENCE_ROOT)
-      message(STATUS 
-        "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
-    endif()
-    set(REFERENCE_REQUIRED LAPACK BLAS)
-    find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
-    find_library(LAPACK_LIB NAMES lapack reflapack PATHS ${REFERENCE_ROOT}) 
-    set(REFERENCE_FOUND TRUE)
-    foreach(NAME ${REFERENCE_REQUIRED})
-      if(${NAME}_LIB)
-        message(STATUS "Found ${NAME}_LIB: ${${NAME}_LIB}")
-        list(APPEND MATH_LIBS ${${NAME}_LIB})
-      else()
-        message(STATUS "Could not find ${NAME}_LIB")
-        set(MATH_LIBS "")
-        set(REFERENCE_FOUND FALSE)
-      endif()
-    endforeach()
-    if(REFERENCE_FOUND)
-      message(WARNING "Using reference BLAS/LAPACK.")
-    else()
-      message(FATAL_ERROR 
-        "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS")
-    endif()
+  if(REFERENCE_FOUND)
+    message(WARNING "Using reference BLAS/LAPACK.")
+  else()
+    message(FATAL_ERROR 
+      "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS")
   endif()
 endif()
 
@@ -801,10 +682,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     message(FATAL_ERROR "Could not build C interface without C MPI")
   endif()
   include_directories(${MPI_C_INCLUDE_PATH})
-  set(CMAKE_C_FLAGS_HYBRIDDEBUG "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_C_FLAGS_HYBRIDRELEASE "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_C_FLAGS_PUREDEBUG "${MPI_C_COMPILE_FLAGS}")
-  set(CMAKE_C_FLAGS_PURERELEASE "${MPI_C_COMPILE_FLAGS}")
+  set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
 
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
@@ -868,11 +746,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     endif()
 
     include_directories(${MPI_Fortran_INCLUDE_PATH})
-    set(CMAKE_Fortran_FLAGS_HYBRIDDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
-    set(CMAKE_Fortran_FLAGS_HYBRIDRELEASE "${MPI_Fortran_COMPILE_FLAGS}")
-    set(CMAKE_Fortran_FLAGS_PUREDEBUG "${MPI_Fortran_COMPILE_FLAGS}")
-    set(CMAKE_Fortran_FLAGS_PURERELEASE "${MPI_Fortran_COMPILE_FLAGS}")
-
+    set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90_interface")
 
     # Build the experimental F90 interface
@@ -907,6 +781,7 @@ endif()
 # Uncomment if including Elemental as a subproject in another build system     #
 ################################################################################
 #set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
+#set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}} PARENT_SCOPE)
 #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
 #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
 #set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
@@ -917,6 +792,7 @@ endif()
 #set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
 #set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
 #set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
+#set(MPI_LINK_FLAGS ${MPI_LINK_FLAGS} PARENT_SCOPE)
 #set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
 #set(RESTRICT ${RESTRICT} PARENT_SCOPE)
 #set(RELEASE ${RELEASE} PARENT_SCOPE)
