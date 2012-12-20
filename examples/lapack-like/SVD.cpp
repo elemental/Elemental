@@ -26,9 +26,12 @@ main( int argc, char* argv[] )
     {
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        SetBlocksize( nb );
 
         Grid g( comm );
         DistMatrix<C> A( g );
