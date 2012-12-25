@@ -29,7 +29,7 @@ void InitDepthComms( int meshSize, mpi::Comm& depthComm, mpi::Comm& meshComm )
 }
 
 // Have the top layer initialize the distributed matrix, A
-void InitA( DistMatrix<double,MC,MR>& A )
+void InitA( DistMatrix<double,MC,MR>& A, bool print )
 {
     const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& g = A.Grid();
@@ -40,12 +40,13 @@ void InitA( DistMatrix<double,MC,MR>& A )
     {
         MakeIdentity( A );
         Scal( 10.0, A );
-        A.Print("A");
+        if( print )
+            A.Print("A");
     }
 }
 
 // Have the top layer initialize the distributed matrix, B
-void InitB( DistMatrix<double,MC,MR>& B )
+void InitB( DistMatrix<double,MC,MR>& B, bool print )
 {
     const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& g = B.Grid();
@@ -62,12 +63,13 @@ void InitB( DistMatrix<double,MC,MR>& B )
         for( int iLocal=0; iLocal<localSize; ++iLocal )
             localBuffer[iLocal] = iLocal*meshSize + rank;
 
-        B.Print("B");
+        if( print )
+            B.Print("B");
     }
 }
 
 // Have the top layer initialize the distributed matrix, C
-void InitC( DistMatrix<double,MC,MR>& C )
+void InitC( DistMatrix<double,MC,MR>& C, bool print )
 {
     const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& g = C.Grid();
@@ -270,7 +272,8 @@ void InitializeMatrices
   int m, int n, int k,
   DistMatrix<double,MC,MR>& AOut,
   DistMatrix<double,MC,MR>& BOut,
-  DistMatrix<double,MC,MR>& COut )
+  DistMatrix<double,MC,MR>& COut,
+  bool print )
 {
     const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& meshGrid = AOut.Grid();
@@ -281,9 +284,9 @@ void InitializeMatrices
     DistMatrix<double,MC,MR> C( m, n, meshGrid );
 
     //Initialize top layer with desired matrices
-    InitA( A );
-    InitB( B );
-    InitC( C );
+    InitA( A, print );
+    InitB( B, print );
+    InitC( C, print );
 
     //Distribute matrices according to which matrix is stationary
     switch (type)
@@ -348,6 +351,7 @@ int main( int argc, char* argv[] )
         const int m = Input("--m","height of result",500);
         const int n = Input("--n","width of result",500);
         const int k = Input("--k","inner dimension",500);
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -390,13 +394,20 @@ int main( int argc, char* argv[] )
         DistMatrix<double,MC,MR> CPartial( m, n, meshGrid );
         DistMatrix<double,MC,MR> C( m, n, meshGrid );
 
-        InitializeMatrices( type, depthComm, m, n, k, A, B, CPartial );
+        InitializeMatrices( type, depthComm, m, n, k, A, B, CPartial, print );
 
         // Compute within our mesh
+        mpi::Barrier( comm );
+        const double startTime = mpi::Time();
         Gemm( NORMAL, NORMAL, 1.0, A, B, 1.0, CPartial );
         SumContributions( depthComm, CPartial, C );
+        mpi::Barrier( comm );
+        const double stopTime = mpi::Time();
+        if( commRank == 0 )
+            std::cout << "Runtime: " << stopTime-startTime << " seconds" 
+                      << std::endl;
 
-        if( depthRank == 0 )
+        if( depthRank == 0 && print )
             C.Print("C");
     } 
     catch( std::exception& e )

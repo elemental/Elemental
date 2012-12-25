@@ -138,37 +138,24 @@ else()
   set(LIBRARY_TYPE STATIC)
 endif()
 
-# Ensure that we have a valid build type
+# Extract a few booleans from the build type and default to PureRelease
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build mode not specified, defaulting to PureRelease build.")
   set(CMAKE_BUILD_TYPE PureRelease)
-elseif(NOT (CMAKE_BUILD_TYPE MATCHES HybridDebug) AND
-       NOT (CMAKE_BUILD_TYPE MATCHES HybridRelease) AND 
-       NOT (CMAKE_BUILD_TYPE MATCHES PureDebug) AND
-       NOT (CMAKE_BUILD_TYPE MATCHES PureRelease))
+elseif(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
+  set(HYBRID TRUE)
+  set(DEBUG TRUE)
+elseif(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
+  set(HYBRID TRUE)
+  set(RELEASE TRUE)
+elseif(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
+  set(PURE TRUE)
+  set(DEBUG TRUE)
+elseif(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
+  set(PURE TRUE)
+  set(RELEASE TRUE)
+else()
   message(FATAL_ERROR "CMAKE_BUILD_TYPE must be [Hybrid,Pure][Debug,Release]")
-endif()
-
-# Extract a few booleans from the build type
-if(CMAKE_BUILD_TYPE STREQUAL "HybridDebug")
-  set(HYBRID TRUE)
-  set(DEBUG TRUE)
-  set(HYBRIDDEBUG TRUE)
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "HybridRelease")
-  set(HYBRID TRUE)
-  set(RELEASE TRUE)
-  set(HYBRIDRELEASE TRUE)
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "PureDebug")
-  set(PURE TRUE)
-  set(DEBUG TRUE)
-  set(PUREDEBUG TRUE)
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "PureRelease")
-  set(PURE TRUE)
-  set(RELEASE TRUE)
-  set(PURERELEASE TRUE)   
 endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
@@ -176,10 +163,10 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 if(NOT WIN32 AND NOT CXX_FLAGS_${UPPER_BUILD_TYPE})
   if(DEBUG)
     set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
-        "CXX optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+      "CXX optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
   else()
     set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
-        "CXX optimization flags for ${UPPER_BUILD_TYPE} mode")
+      "CXX optimization flags for ${UPPER_BUILD_TYPE} mode")
   endif()
 endif()
 
@@ -233,24 +220,13 @@ endif()
 
 # Append MPI and OpenMP compile flags as necessary
 if(HYBRID)
-  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
+  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
+    "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
 else()
-  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${MPI_CXX_COMPILE_FLAGS}")
+  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
+    "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${MPI_CXX_COMPILE_FLAGS}")
 endif()
 set(CXX_FLAGS ${CXX_FLAGS_${UPPER_BUILD_TYPE}})
-
-# Query the size of a void pointer in order to determine whether or not this is
-# a 32-bit system.
-# Unfortunately, CMAKE_SIZEOF_VOID_P seems to be incorrect on some Windows 
-# platforms, so I am switching to directly checking the size of void*
-include(CheckTypeSize)
-if(NOT SIZEOF_VOID_P)
-  check_type_size("void*" SIZEOF_VOID_P)
-endif()
-set(32_BIT_SYSTEM FALSE)
-if(${SIZEOF_VOID_P} EQUAL 4)
-  set(32_BIT_SYSTEM TRUE)
-endif()
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
@@ -260,18 +236,11 @@ else()
   set(MATH_DESC "Threaded BLAS/LAPACK link flags")
 endif()
 if(MATH_LIBS)
-  set(MISSING_MATH FALSE)
   message(STATUS "Using user-defined MATH_LIBS=${MATH_LIBS}")
+elseif(APPLE)
+  set(MATH_LIBS "-framework vecLib" CACHE STRING ${MATH_DESC})
+  message(STATUS "Using Apple vecLib framework.")
 else()
-  if(APPLE)
-    set(MATH_LIBS "-framework vecLib" CACHE STRING ${MATH_DESC})
-    message(STATUS "Using Apple vecLib framework.")
-    set(MISSING_MATH FALSE)
-  else()
-    set(MISSING_MATH TRUE)
-  endif()
-endif()
-if(MISSING_MATH)
   # Look for default BLAS and LAPACK
   if(REFERENCE_ROOT)
     message(STATUS 
@@ -329,10 +298,6 @@ else()
     message(FATAL_ERROR "Could not determine LAPACK format.")
   endif()
 endif()
-
-# Attempt to detect whether or not we have MKL
-set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
-check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
 # Check whether or not the FLAME bidiagonal QR routines are available
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
@@ -419,10 +384,9 @@ endif()
 # Create the Elemental configuration header
 configure_file( 
   ${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
-  ${PROJECT_BINARY_DIR}/include/elemental/config.h 
-) 
+  ${PROJECT_BINARY_DIR}/include/elemental/config.h)
 install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
-        DESTINATION include/elemental)
+  DESTINATION include/elemental)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -444,16 +408,14 @@ foreach(LIB ${LAPACK_ADDONS_LIBS})
 endforeach()
 configure_file(
   ${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
-  ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY
-)
-install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables
-        DESTINATION conf)
+  ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-     "src/*.c" "src/*.cpp")
+  "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
-     "include/*.h" "include/*.hpp")
+  "include/*.h" "include/*.hpp")
 set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
 
 # Create a dummy library in order to be able to force the math (and potentially
@@ -483,12 +445,10 @@ install(TARGETS elemental DESTINATION lib)
 # Define the header-file preparation rules
 set(PREPARED_HEADERS)
 foreach(HEADER ${ELEMENTAL_HEADERS})
-  add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
+  add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
             ${PROJECT_BINARY_DIR}/${HEADER}
-    DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}"
-  )
+    DEPENDS "${PROJECT_SOURCE_DIR}/${HEADER}")
   list(APPEND PREPARED_HEADERS ${PROJECT_BINARY_DIR}/${HEADER})
 
   get_filename_component(HEADER_PATH ${HEADER} PATH)
@@ -503,174 +463,91 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 # Build the test drivers if necessary
 if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
+  set(TEST_TYPES core blas-like lapack-like)
 
   set(CORE_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
-  set(BLAS_TESTS Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv
-                 TwoSidedTrmm TwoSidedTrsm)
-  set(LAPACK_TESTS ApplyPackedReflectors Cholesky HermitianTridiag LDL 
-                   LU LQ QR TriangularInverse)
-
+  set(blas-like_TESTS 
+    Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
+    TwoSidedTrsm)
+  set(lapack-like_TESTS 
+    ApplyPackedReflectors Cholesky HermitianTridiag LDL LU LQ QR
+    TriangularInverse)
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    list(APPEND LAPACK_TESTS HermitianGenDefiniteEig)
-    list(APPEND LAPACK_TESTS HermitianEig)
+    list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
   endif()
 
-  # Build the core tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/core")
-  foreach(TEST ${CORE_TESTS})
-    add_executable(tests-core-${TEST} ${TEST_DIR}/core/${TEST}.cpp)
-    target_link_libraries(tests-core-${TEST} elemental)
-    set_target_properties(tests-core-${TEST} PROPERTIES
-                          OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(tests-core-${TEST} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS tests-core-${TEST} DESTINATION bin/tests/core)
-  endforeach()
-  # Build the BLAS-like tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/blas-like")
-  foreach(TEST ${BLAS_TESTS})
-    add_executable(tests-blas-${TEST} ${TEST_DIR}/blas-like/${TEST}.cpp)
-    target_link_libraries(tests-blas-${TEST} elemental)
-    set_target_properties(tests-blas-${TEST} PROPERTIES
-                          OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(tests-blas-${TEST} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS tests-blas-${TEST} DESTINATION bin/tests/blas-like)
-  endforeach()
-  # Build the LAPACK-like tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/lapack-like")
-  foreach(TEST ${LAPACK_TESTS})
-    add_executable(tests-lapack-${TEST} ${TEST_DIR}/lapack-like/${TEST}.cpp)
-    target_link_libraries(tests-lapack-${TEST} elemental)
-    set_target_properties(tests-lapack-${TEST} PROPERTIES
-                          OUTPUT_NAME ${TEST}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(tests-lapack-${TEST} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS tests-lapack-${TEST} DESTINATION bin/tests/lapack-like)
+  foreach(TYPE ${TEST_TYPES})
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/tests/${TYPE}")
+    foreach(TEST ${${TYPE}_TESTS})
+      add_executable(tests-${TYPE}-${TEST} ${TEST_DIR}/${TYPE}/${TEST}.cpp)
+      target_link_libraries(tests-${TYPE}-${TEST} elemental)
+      set_target_properties(tests-${TYPE}-${TEST} PROPERTIES
+        OUTPUT_NAME ${TEST} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      if(MPI_LINK_FLAGS)
+        set_target_properties(tests-${TYPE}-${TEST} PROPERTIES
+          LINK_FLAGS ${MPI_LINK_FLAGS})
+      endif()
+      install(TARGETS tests-${TYPE}-${TEST} DESTINATION bin/tests/${TYPE})
+    endforeach()
   endforeach()
 endif()
 
 # Build the example drivers if necessary
 if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
+  set(EXAMPLE_TYPES core blas-like lapack-like special_matrices)
 
-  set(CORE_EXAMPLES Constructors)
-  set(BLAS_EXAMPLES Gemv)
-  set(LAPACK_EXAMPLES GaussianElimination HermitianQDWH HouseholderSolve 
-                      HPDInverse LDL LDLInverse LogDetDivergence Polar 
-                      Pseudoinverse QDWH SequentialQR QR SequentialSVD SimpleSVD
-                      SVD)
-  set(SPECIAL_EXAMPLES Cauchy CauchyLike Circulant Diagonal DiscreteFourier 
-                       Hankel HermitianUniformSpectrum Hilbert Identity Legendre
-                       NormalUniformSpectrum Ones OneTwoOne Toeplitz Uniform
-                       Walsh Wilkinson Zeros)
-
+  set(core_EXAMPLES Constructors)
+  set(blas-like_EXAMPLES Gemv)
+  set(lapack-like_EXAMPLES 
+    GaussianElimination HermitianQDWH HouseholderSolve HPDInverse LDL LDLInverse
+    LogDetDivergence Polar Pseudoinverse QDWH SequentialQR QR SequentialSVD
+    SimpleSVD SVD)
+  set(SPECIAL_EXAMPLES 
+    Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
+    HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum
+    Ones OneTwoOne Toeplitz Uniform Walsh Wilkinson Zeros)
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-    list(APPEND LAPACK_EXAMPLES HermitianEig 
-                                HermitianEigFromSequential
-                                HermitianSVD
-                                ComplexHermitianFunction 
-                                RealHermitianFunction
-                                HermitianPseudoinverse
-                                HPSDCholesky
-                                HPSDSquareRoot)
-    list(APPEND LAPACK_EXAMPLES SymmetricEig RealSymmetricFunction)
+    list(APPEND lapack-like_EXAMPLES
+      HermitianEig HermitianEigFromSequential HermitianSVD 
+      ComplexHermitianFunction RealHermitianFunction HermitianPseudoinverse
+      HPSDCholesky HPSDSquareRoot SymmetricEig RealSymmetricFunction)
   endif()
 
-  # Build the core tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/core")
-  foreach(EXAMPLE ${CORE_EXAMPLES})
-    add_executable(examples-core-${EXAMPLE} ${EXAMPLE_DIR}/core/${EXAMPLE}.cpp)
-    target_link_libraries(examples-core-${EXAMPLE} elemental)
-    set_target_properties(examples-core-${EXAMPLE} PROPERTIES 
-                          OUTPUT_NAME ${EXAMPLE} 
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(examples-core-${EXAMPLE} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS examples-core-${EXAMPLE} DESTINATION bin/examples/core)
-  endforeach()
-
-  # Build the BLAS-like tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/blas-like")
-  foreach(EXAMPLE ${BLAS_EXAMPLES})
-    add_executable(examples-blas-${EXAMPLE} 
-                   ${EXAMPLE_DIR}/blas-like/${EXAMPLE}.cpp)
-    target_link_libraries(examples-blas-${EXAMPLE} elemental)
-    set_target_properties(examples-blas-${EXAMPLE} PROPERTIES
-                          OUTPUT_NAME ${EXAMPLE}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(examples-blas-${EXAMPLE} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS examples-blas-${EXAMPLE} 
-            DESTINATION bin/examples/blas-like)
-  endforeach()
-
-  # Build the LAPACK-like tests
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/lapack-like")
-  foreach(EXAMPLE ${LAPACK_EXAMPLES})
-    add_executable(examples-lapack-${EXAMPLE} 
-                   ${EXAMPLE_DIR}/lapack-like/${EXAMPLE}.cpp)
-    target_link_libraries(examples-lapack-${EXAMPLE} elemental)
-    set_target_properties(examples-lapack-${EXAMPLE} PROPERTIES
-                          OUTPUT_NAME ${EXAMPLE}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(examples-lapack-${EXAMPLE} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS examples-lapack-${EXAMPLE} 
-            DESTINATION bin/examples/lapack-like)
-  endforeach()
-
-  # Build the special matrix test(s)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/special_matrices")
-  foreach(EXAMPLE ${SPECIAL_EXAMPLES})
-    add_executable(examples-special-${EXAMPLE}
-                   ${EXAMPLE_DIR}/special_matrices/${EXAMPLE}.cpp)
-    target_link_libraries(examples-special-${EXAMPLE} elemental)
-    set_target_properties(examples-special-${EXAMPLE} PROPERTIES
-                          OUTPUT_NAME ${EXAMPLE}
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
-    if(MPI_LINK_FLAGS)
-      set_target_properties(examples-special-${EXAMPLE} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
-    endif()
-    install(TARGETS examples-special-${EXAMPLE}
-            DESTINATION bin/examples/special_matrices)
+  foreach(TYPE ${EXAMPLE_TYPES})
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/examples/${TYPE}")
+    foreach(EXAMPLE ${${TYPE}_EXAMPLES})
+      add_executable(examples-${TYPE}-${EXAMPLE} 
+        ${EXAMPLE_DIR}/${TYPE}/${EXAMPLE}.cpp)
+      target_link_libraries(examples-${TYPE}-${EXAMPLE} elemental)
+      set_target_properties(examples-${TYPE}-${EXAMPLE} PROPERTIES 
+        OUTPUT_NAME ${EXAMPLE} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      if(MPI_LINK_FLAGS)
+        set_target_properties(examples-${TYPE}-${EXAMPLE} PROPERTIES
+          LINK_FLAGS ${MPI_LINK_FLAGS})
+      endif()
+      install(TARGETS examples-${TYPE}-${EXAMPLE} 
+        DESTINATION bin/examples/${TYPE})
+    endforeach()
   endforeach()
 endif()
 
 # Build experimental drivers that do not require an eigensolver
 if(ELEM_EXPERIMENTAL)
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-
   set(G3D_EXPERS G3DGemm)
 
   # Build the G3D example(s)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/g3d")
   foreach(EXPER ${G3D_EXPERS})
     add_executable(experimental-g3d-${EXPER} 
-                   ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
+      ${EXPERIMENTAL_DIR}/g3d/${EXPER}.cpp)
     target_link_libraries(experimental-g3d-${EXPER} elemental)
     set_target_properties(experimental-g3d-${EXPER} PROPERTIES 
-                          OUTPUT_NAME ${EXPER} 
-                          RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+      OUTPUT_NAME ${EXPER} RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
       set_target_properties(experimental-g3d-${EXPER} PROPERTIES
-                            LINK_FLAGS ${MPI_LINK_FLAGS})
+        LINK_FLAGS ${MPI_LINK_FLAGS})
     endif()
     install(TARGETS experimental-g3d-${EXPER} DESTINATION bin/experimental/g3d)
   endforeach()
@@ -689,27 +566,22 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
   # Build the experimental C interface
   file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-       "experimental/c_interface/c_interface.cpp")
+    "experimental/c_interface/c_interface.cpp")
   add_library(experimental-c-interface ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
 
-  add_executable(
-      experimental-c-interface-test
-      ${EXPERIMENTAL_DIR}/c_interface/test.c
-  )
-  target_link_libraries(
-      experimental-c-interface-test experimental-c-interface elemental
-  )
-  set_target_properties(
-      experimental-c-interface-test PROPERTIES OUTPUT_NAME c_interface_test
-                                    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-  )
+  add_executable(experimental-c-interface-test 
+    ${EXPERIMENTAL_DIR}/c_interface/test.c)
+  target_link_libraries(experimental-c-interface-test 
+    experimental-c-interface elemental)
+  set_target_properties(experimental-c-interface-test 
+    PROPERTIES OUTPUT_NAME c_interface_test 
+    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(MPI_LINK_FLAGS)
-    set_target_properties(
-        experimental-c-interface-test PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
-    )
+    set_target_properties(experimental-c-interface-test 
+      PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
   endif()
   install(TARGETS experimental-c-interface-test 
-          DESTINATION bin/experimental/c_interface)  
+    DESTINATION bin/experimental/c_interface)  
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
     COMMAND ${CMAKE_COMMAND} -E copy 
@@ -718,7 +590,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c_interface/elemental.h"
   )
   install(FILES ${PROJECT_BINARY_DIR}/include/elemental.h 
-          DESTINATION include/elemental.h)
+    DESTINATION include/elemental.h)
 
   if(HAVE_F90_INTERFACE)
     if(NOT MPI_Fortran_FOUND)
@@ -751,29 +623,23 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
     # Build the experimental F90 interface
     file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-         "experimental/f90_interface/f90_interface.cpp")
-    add_library(experimental-f90-interface ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
+      "experimental/f90_interface/f90_interface.cpp")
+    add_library(experimental-f90-interface 
+      ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
 
-    add_executable(
-        experimental-f90-interface-test
-        ${EXPERIMENTAL_DIR}/f90_interface/test.f90
-    )
-    target_link_libraries(
-        experimental-f90-interface-test experimental-f90-interface elemental
-    )
-    set_target_properties(
-        experimental-f90-interface-test 
-        PROPERTIES OUTPUT_NAME f90_interface_test
-        RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}
-    )
+    add_executable(experimental-f90-interface-test 
+      ${EXPERIMENTAL_DIR}/f90_interface/test.f90)
+    target_link_libraries(experimental-f90-interface-test 
+      experimental-f90-interface elemental)
+    set_target_properties(experimental-f90-interface-test 
+      PROPERTIES OUTPUT_NAME f90_interface_test 
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(
-          experimental-f90-interface-test 
-          PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS}
-      )
+      set_target_properties(experimental-f90-interface-test 
+        PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif()
     install(TARGETS experimental-f90-interface-test 
-            DESTINATION bin/experimental/f90_interface)  
+      DESTINATION bin/experimental/f90_interface)  
   endif()
 endif()
 
