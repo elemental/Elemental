@@ -324,69 +324,8 @@ Elemental as a subproject
 Adding Elemental as a dependency into a project which uses CMake for its build 
 system is relatively straightforward: simply put an entire copy of the 
 Elemental source tree in a subdirectory of your main project folder, say 
-``external/elemental``, and uncomment out the bottom section of Elemental's 
-``CMakeLists.txt``, i.e., change ::
-
-    ################################################################################
-    # Uncomment if including Elemental as a subproject in another build system     #
-    ################################################################################
-    #set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
-    #set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}} PARENT_SCOPE)
-    #set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
-    #set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
-    #set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
-    #set(MPI_C_LINK_FLAGS ${MPI_C_LINK_FLAGS} PARENT_SCOPE)
-    #set(MPI_C_LIBRARIES ${MPI_C_LIBRARIES} PARENT_SCOPE)
-    #set(MPI_CXX_COMPILER ${MPI_CXX_COMPILER} PARENT_SCOPE)
-    #set(MPI_CXX_INCLUDE_PATH ${MPI_CXX_INCLUDE_PATH} PARENT_SCOPE)
-    #set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
-    #set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
-    #set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
-    #set(MPI_LINK_FLAGS ${MPI_LINK_FLAGS} PARENT_SCOPE)
-    #set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
-    #set(RESTRICT ${RESTRICT} PARENT_SCOPE)
-    #set(RELEASE ${RELEASE} PARENT_SCOPE)
-    #set(BLAS_POST ${BLAS_POST} PARENT_SCOPE)
-    #set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
-    #set(HAVE_F90_INTERFACE ${HAVE_F90_INTERFACE} PARENT_SCOPE)
-    #set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
-    #set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
-    #set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)
-    #set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)
-    #set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)
-
-to ::
-
-    ################################################################################
-    # Uncomment if including Elemental as a subproject in another build system     #
-    ################################################################################
-    set(LIBRARY_TYPE ${LIBRARY_TYPE} PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} ${CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE}} PARENT_SCOPE)
-    set(MPI_C_COMPILER ${MPI_C_COMPILER} PARENT_SCOPE)
-    set(MPI_C_INCLUDE_PATH ${MPI_C_INCLUDE_PATH} PARENT_SCOPE)
-    set(MPI_C_COMPILE_FLAGS ${MPI_C_COMPILE_FLAGS} PARENT_SCOPE)
-    set(MPI_C_LINK_FLAGS ${MPI_C_LINK_FLAGS} PARENT_SCOPE)
-    set(MPI_C_LIBRARIES ${MPI_C_LIBRARIES} PARENT_SCOPE)
-    set(MPI_CXX_COMPILER ${MPI_CXX_COMPILER} PARENT_SCOPE)
-    set(MPI_CXX_INCLUDE_PATH ${MPI_CXX_INCLUDE_PATH} PARENT_SCOPE)
-    set(MPI_CXX_COMPILE_FLAGS ${MPI_CXX_COMPILE_FLAGS} PARENT_SCOPE)
-    set(MPI_CXX_LINK_FLAGS ${MPI_CXX_LINK_FLAGS} PARENT_SCOPE)
-    set(MPI_CXX_LIBRARIES ${MPI_CXX_LIBRARIES} PARENT_SCOPE)
-    set(MPI_LINK_FLAGS ${MPI_LINK_FLAGS} PARENT_SCOPE)
-    set(MATH_LIBS ${MATH_LIBS} PARENT_SCOPE)
-    set(RESTRICT ${RESTRICT} PARENT_SCOPE)
-    set(RELEASE ${RELEASE} PARENT_SCOPE)
-    set(BLAS_POST ${BLAS_POST} PARENT_SCOPE)
-    set(LAPACK_POST ${LAPACK_POST} PARENT_SCOPE)
-    set(HAVE_F90_INTERFACE ${HAVE_F90_INTERFACE} PARENT_SCOPE)
-    set(WITHOUT_PMRRR ${WITHOUT_PMRRR} PARENT_SCOPE)
-    set(AVOID_COMPLEX_MPI ${AVOID_COMPLEX_MPI} PARENT_SCOPE)
-    set(HAVE_REDUCE_SCATTER_BLOCK ${HAVE_REDUCE_SCATTER_BLOCK} PARENT_SCOPE)
-    set(REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE ${REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE} PARENT_SCOPE)
-    set(USE_BYTE_ALLGATHERS ${USE_BYTE_ALLGATHERS} PARENT_SCOPE)
-           
-Afterwards, create a ``CMakeLists.txt`` in your main project folder that builds 
-off of the following snippet::
+``external/elemental``, and then create a ``CMakeLists.txt`` file in your main 
+project folder that builds off of the following snippet::
 
     cmake_minimum_required(VERSION 2.8.5) 
     project(Foo)
@@ -397,13 +336,16 @@ off of the following snippet::
 
     # Build your project here
     # e.g., 
-    #   add_library(foo STATIC ${FOO_SRC})
+    #   add_library(foo ${LIBRARY_TYPE} ${FOO_SRC})
     #   target_link_libraries(foo elemental)
 
 Troubleshooting
 ===============
 If you run into build problems, please email 
-`jack.poulson@gmail.com <mailto:jack.poulson@gmail.com>`_ and make sure to 
-attach the file ``include/elemental/config.h``, which should be generated 
-within your build directory. Please only direct general usage questions to 
+`elemental-maint@googlegroups.com <mailto:elemental-maint@googlegroups.com>`_ 
+and make sure to attach the file ``include/elemental/config.h``, which should 
+be generated within your build directory. 
+Please only direct usage questions to 
+`elemental-user@googlegroups.com <mailto:elemental-user@googlegroups.com>`_, 
+and development questions to 
 `elemental-dev@googlegroups.com <mailto:elemental-dev@googlegroups.com>`_.
