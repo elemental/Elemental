@@ -96,7 +96,7 @@ template<Distribution U,Distribution V>
 inline
 DistMatrix<T,STAR,VR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 : AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  0,(A.Grid().InGrid() ? A.VRRank() : 0),
+  0,(A.Grid().InGrid() ? A.Grid().VRRank() : 0),
   0,0,A.Grid())
 {
 #ifndef RELEASE

@@ -155,40 +155,28 @@ public:
     // of the argument DistMatrix.
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,MR,MC,N>& A );
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,MC,N>& A );
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,MC,MR,N>& A );
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,MC,STAR,N>& A );
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,VC,STAR,N>& A );
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,VC,N>& A ); 
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,MD,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,MR,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,VR,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,STAR,STAR,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,MD,STAR,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,MR,STAR,N>& A ) {}
-
     template<typename S,typename N> 
     void AlignWith( const DistMatrix<S,VR,STAR,N>& A ) {}
 

@@ -223,6 +223,48 @@ DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,MC,STAR,N>& A )
 template<typename T,typename Int>
 template<typename S,typename N>
 inline void
+DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,VC,STAR,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MC]::AlignWith([VC,* ])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elem::Grid& g = this->Grid();
+    this->Empty();
+    this->rowAlignment_ = A.ColAlignment() % g.Height();
+    this->constrainedRowAlignment_ = true;
+    if( g.InGrid() )
+        this->rowShift_ = Shift( g.Row(), this->RowAlignment(), g.Height() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
+DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,STAR,VC,N>& A )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,MC]::AlignWith([* ,VC])");
+    this->AssertFreeRowAlignment();
+    this->AssertSameGrid( A );
+#endif
+    const elem::Grid& g = this->Grid();
+    this->Empty();
+    this->rowAlignment_ = A.RowAlignment() % g.Height();
+    this->constrainedRowAlignment_ = true;
+    if( g.InGrid() )
+        this->rowShift_ = Shift( g.Row(), this->RowAlignment(), g.Height() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+template<typename S,typename N>
+inline void
 DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,MC,MR,N>& A )
 { AlignWith( A ); }
 
@@ -242,6 +284,18 @@ template<typename T,typename Int>
 template<typename S,typename N>
 inline void
 DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,MR,MC,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+void
+DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,VC,STAR,N>& A )
+{ AlignWith( A ); }
+
+template<typename T,typename Int>
+template<typename S,typename N>
+void
+DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,STAR,VC,N>& A )
 { AlignWith( A ); }
 
 template<typename T,typename Int>

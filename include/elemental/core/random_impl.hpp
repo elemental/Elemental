@@ -9,8 +9,6 @@
 
 namespace elem {
 
-const double Pi = 3.141592653589793;
-
 template<>
 inline int
 SampleUnitBall<int>()

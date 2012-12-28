@@ -9,6 +9,8 @@
 
 namespace elem {
 
+const double Pi = 3.141592653589793;
+
 // Generate a sample from a uniform PDF over the (closed) unit ball about the 
 // origin of the ring implied by the type T using the most natural metric.
 template<typename T> T SampleUnitBall();
