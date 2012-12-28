@@ -18,6 +18,57 @@ namespace internal {
 
 template<typename F> 
 inline void
+HPDInverseLVar2( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::HPDInverseLVar2");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Nonsquare matrices cannot be triangular");
+#endif
+    // Matrix views
+    Matrix<F> 
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        //--------------------------------------------------------------------//
+        Cholesky( LOWER, A11 );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
+        Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
+        Herk( LOWER, ADJOINT, F(1), A10, F(1), A00 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, A10, F(1), A20 );
+        Herk( LOWER, NORMAL, F(-1), A21, F(1), A22 );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A10 );
+        Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11, A21 );
+        TriangularInverse( LOWER, NON_UNIT, A11 );
+        Trtrmm( ADJOINT, LOWER, A11 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
 HPDInverseLVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE

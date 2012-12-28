@@ -16,12 +16,9 @@ solves against :math:`L` one block column at a time, and then applies the
 row pivots in reverse order to the columns of the result.
 
 .. cpp:function:: void Inverse( Matrix<F>& A )
-
-   Overwrites the general matrix `A` with its inverse.
-
 .. cpp:function:: void Inverse( DistMatrix<F>& A )
 
-   The same as above, but for distributed matrices.
+   Overwrites the general matrix `A` with its inverse.
 
 HPD inversion
 -------------
@@ -44,23 +41,17 @@ If the matrix is found to not be HPD, then a :cpp:type:`NonHPDMatrixException`
 is thrown.
 
 .. cpp:function:: void HPDInverse( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with the same 
    triangle of the inverse of `A`.
-
-.. cpp:function:: void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
-
-   Same as above, but for a distributed matrix.
 
 Triangular inversion
 --------------------
 Inverts a (possibly unit-diagonal) triangular matrix in-place.
 
 .. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A )
 
    Inverts the triangle of `A` specified by the parameter `uplo`; 
    if `diag` is set to `UNIT`, then `A` is treated as unit-diagonal.
-
-.. cpp:function:: void TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A )
-
-   Same as above, but for a distributed matrix.

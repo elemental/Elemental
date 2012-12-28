@@ -14,6 +14,22 @@ namespace elem {
 
 template<typename F>
 inline void
+HPDInverse( UpperOrLower uplo, Matrix<F>& A  )
+{
+#ifndef RELEASE
+    PushCallStack("HPDInverse");
+#endif
+    if( uplo == LOWER )
+        internal::HPDInverseLVar2( A );
+    else
+        internal::HPDInverseUVar2( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
 HPDInverse( UpperOrLower uplo, DistMatrix<F>& A  )
 {
 #ifndef RELEASE

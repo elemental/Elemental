@@ -14,8 +14,7 @@ namespace elem {
 
 template<typename F>
 inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("TriangularInverse");
@@ -34,9 +33,7 @@ TriangularInverse
 template<typename F>
 inline void
 TriangularInverse
-( UpperOrLower uplo, 
-  UnitOrNonUnit diag, 
-  DistMatrix<F>& A  )
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("TriangularInverse");
@@ -52,9 +49,7 @@ namespace internal {
 template<typename F>
 inline void
 TriangularInverseVar3
-( UpperOrLower uplo, 
-  UnitOrNonUnit diag, 
-  DistMatrix<F>& A  )
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("internal::TriangularInverseVar3");

@@ -467,7 +467,8 @@ void SolveAfterLU
 //
 // Inverts a Hermitian positive-definite matrix. 
 //
-// TODO: Serial version
+template<typename F>
+void HPDInverse( UpperOrLower uplo, Matrix<F>& A );
 template<typename F>
 void HPDInverse( UpperOrLower uplo, DistMatrix<F>& A );
 
