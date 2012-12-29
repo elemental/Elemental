@@ -35,6 +35,21 @@ struct IndexValuePair<Complex<R> > {
 
 template<typename R>
 inline void
+SortEig( Matrix<R>& w )
+{
+#ifndef RELEASE
+    PushCallStack("SortEig");
+#endif
+    R* wBuffer = w.Buffer();
+    const int k = w.Height();
+    std::sort( &wBuffer[0], &wBuffer[k] );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
 SortEig( DistMatrix<R,VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -49,6 +64,42 @@ SortEig( DistMatrix<R,VR,STAR>& w )
 
     // Refill the distributed w with the sorted values
     w = w_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
+SortEig( Matrix<R>& w, Matrix<R>& Z )
+{
+#ifndef RELEASE
+    PushCallStack("SortEig");
+#endif
+    const int n = Z.Height();
+    const int k = Z.Width();
+
+    // Initialize the pairs of indices and eigenvalues
+    std::vector<internal::IndexValuePair<R> > pairs( k );
+    for( int i=0; i<k; ++i )
+    {
+        pairs[i].index = i;
+        pairs[i].value = w.Get(i,0);
+    }
+
+    // Sort the eigenvalues and simultaneously form the permutation
+    std::sort
+    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+
+    // Reorder the eigenvectors and eigenvalues using the new ordering
+    Matrix<R> ZPerm( n, k );
+    for( int j=0; j<k; ++j )
+    {
+        const int source = pairs[j].index;
+        MemCopy( ZPerm.Buffer(0,j), Z.LockedBuffer(0,source), n );
+        w.Set(j,0,pairs[j].value);
+    }
+    Z = ZPerm;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -81,20 +132,56 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
     ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
-    const int mLocal = Z_VC_STAR.LocalHeight();
+    const int nLocal = Z_VC_STAR.LocalHeight();
     DistMatrix<R,VC,STAR> ZPerm_VC_STAR( n, k, g );
     for( int j=0; j<k; ++j )
     {
         const int source = pairs[j].index;
         MemCopy
         ( ZPerm_VC_STAR.LocalBuffer(0,j), 
-          Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
+          Z_VC_STAR.LockedLocalBuffer(0,source), nLocal );
         w_STAR_STAR.SetLocal(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();
 
     Z = ZPerm_VC_STAR;
     w = w_STAR_STAR;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R> 
+inline void
+SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z )
+{
+#ifndef RELEASE
+    PushCallStack("SortEig");
+#endif
+    const int n = Z.Height();
+    const int k = Z.Width();
+
+    // Initialize the pairs of indices and eigenvalues
+    std::vector<internal::IndexValuePair<R> > pairs( k );
+    for( int i=0; i<k; ++i )
+    {
+        pairs[i].index = i;
+        pairs[i].value = w.Get(i,0);
+    }
+
+    // Sort the eigenvalues and simultaneously form the permutation
+    std::sort
+    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+
+    // Reorder the eigenvectors and eigenvalues using the new ordering
+    Matrix<Complex<R> > ZPerm( n, k );
+    for( int j=0; j<k; ++j )
+    {
+        const int source = pairs[j].index;
+        MemCopy( ZPerm.Buffer(0,j), Z.LockedBuffer(0,source), n );
+        w.Set(j,0,pairs[j].value);
+    }
+    Z = ZPerm;
 #ifndef RELEASE
     PopCallStack();
 #endif

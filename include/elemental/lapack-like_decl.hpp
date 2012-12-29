@@ -638,11 +638,16 @@ void HermitianEig
 //
 // SortEig
 //
-// TODO: Serial versions
+template<typename R>
+void SortEig( Matrix<R>& w );
 template<typename R>
 void SortEig( DistMatrix<R,VR,STAR>& w );
 template<typename R>
+void SortEig( Matrix<R>& w, Matrix<R>& Z );
+template<typename R>
 void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z );
+template<typename R>
+void SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z );
 template<typename R>
 void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z );
 

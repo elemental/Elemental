@@ -86,8 +86,7 @@ SimpleSVDUpper
     {
         DistMatrix<Real> VT( g ), 
                          VB( g );
-        DistMatrix<Real,STAR,VC> 
-            VTransL_STAR_VC( g ), VTransR_STAR_VC( g );
+        DistMatrix<Real,STAR,VC> VTransL_STAR_VC( g ), VTransR_STAR_VC( g );
         PartitionDown( V, VT, 
                           VB, m );
         PartitionRight( VTrans_STAR_VC, VTransL_STAR_VC, VTransR_STAR_VC, m );
@@ -98,17 +97,13 @@ SimpleSVDUpper
     // Backtransform U and V
     if( m >= n )
     {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
+        ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
+        ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
     }
     else
     {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
+        ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
+        ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
     }
 
     // Copy out the appropriate subset of the singular values
@@ -320,17 +315,13 @@ SimpleSVDUpper
     // Backtransform U and V
     if( m >= n )
     {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
+        ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, B, A );
+        ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 1, B, V );
     }
     else
     {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
+        ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, -1, B, A );
+        ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, B, V );
     }
 
     // Copy out the appropriate subset of the singular values

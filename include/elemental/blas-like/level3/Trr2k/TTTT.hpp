@@ -17,9 +17,9 @@ Trr2kTTTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD, 
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E )
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+           const DistMatrix<T>& C, const DistMatrix<T>& D,
+  T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
     PushCallStack("internal::Trr2kTTTT");
@@ -31,17 +31,17 @@ Trr2kTTTT
 #endif
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,MR> AT(g),  A0(g),
-                        AB(g),  A1(g),
-                                A2(g);
-    DistMatrix<T,MC,MR> BL(g), BR(g),
-                        B0(g), B1(g), B2(g);
+    DistMatrix<T> AT(g),  A0(g),
+                  AB(g),  A1(g),
+                          A2(g);
+    DistMatrix<T> BL(g), BR(g),
+                  B0(g), B1(g), B2(g);
 
-    DistMatrix<T,MC,MR> CT(g),  C0(g),
-                        CB(g),  C1(g),
-                                C2(g);
-    DistMatrix<T,MC,MR> DL(g), DR(g),
-                        D0(g), D1(g), D2(g);
+    DistMatrix<T> CT(g),  C0(g),
+                  CB(g),  C1(g),
+                          C2(g);
+    DistMatrix<T> DL(g), DR(g),
+                  D0(g), D1(g), D2(g);
 
     DistMatrix<T,STAR,MC  > A1_STAR_MC(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);

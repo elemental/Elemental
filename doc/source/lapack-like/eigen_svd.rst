@@ -110,15 +110,18 @@ Since extra time is required in order to sort the eigenvalues/eigenpairs,
 they are not sorted by default. However, this can be remedied by the appropriate
 routine from the following list:
 
+.. cpp:function:: void SortEig( Matrix<R>& w )
 .. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w )
 
    Sort a column-vector of real eigenvalues into non-decreasing order.
 
+.. cpp:function:: void SortEig( Matrix<R>& w, Matrix<R>& Z )
 .. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
 
    Sort a set of real eigenpairs into non-decreasing order (based on the 
    eigenvalues).
 
+.. cpp:function:: void SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z )
 .. cpp:function:: void SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
 
    Sort a set of real eigenvalues and complex eigenvectors into non-decreasing

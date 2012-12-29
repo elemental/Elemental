@@ -16,9 +16,9 @@ inline void
 Trr2kNTNT
 ( UpperOrLower uplo,
   Orientation orientationOfB, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E )
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+           const DistMatrix<T>& C, const DistMatrix<T>& D,
+  T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
     PushCallStack("internal::Trr2kNTNT");
@@ -30,15 +30,15 @@ Trr2kNTNT
 #endif
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,MR> AL(g), AR(g),
-                        A0(g), A1(g), A2(g);
-    DistMatrix<T,MC,MR> BL(g), BR(g),
-                        B0(g), B1(g), B2(g);
+    DistMatrix<T> AL(g), AR(g),
+                  A0(g), A1(g), A2(g);
+    DistMatrix<T> BL(g), BR(g),
+                  B0(g), B1(g), B2(g);
 
-    DistMatrix<T,MC,MR> CL(g), CR(g),
-                        C0(g), C1(g), C2(g);
-    DistMatrix<T,MC,MR> DL(g), DR(g),
-                        D0(g), D1(g), D2(g);
+    DistMatrix<T> CL(g), CR(g),
+                  C0(g), C1(g), C2(g);
+    DistMatrix<T> DL(g), DR(g),
+                  D0(g), D1(g), D2(g);
 
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);
     DistMatrix<T,VR,  STAR> B1_VR_STAR(g);

@@ -15,9 +15,9 @@ template<typename T>
 inline void
 Trr2kNNNN
 ( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,MR>& A, const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C, const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E )
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+           const DistMatrix<T>& C, const DistMatrix<T>& D,
+  T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
     PushCallStack("internal::Trr2kNNNN");
@@ -29,17 +29,17 @@ Trr2kNNNN
 #endif
     const Grid& g = E.Grid();
 
-    DistMatrix<T,MC,MR> AL(g), AR(g),
-                        A0(g), A1(g), A2(g);
-    DistMatrix<T,MC,MR> BT(g),  B0(g),
-                        BB(g),  B1(g),
-                                B2(g);
+    DistMatrix<T> AL(g), AR(g),
+                  A0(g), A1(g), A2(g);
+    DistMatrix<T> BT(g),  B0(g),
+                  BB(g),  B1(g),
+                          B2(g);
 
-    DistMatrix<T,MC,MR> CL(g), CR(g),
-                        C0(g), C1(g), C2(g);
-    DistMatrix<T,MC,MR> DT(g),  D0(g),
-                        DB(g),  D1(g),
-                                D2(g);
+    DistMatrix<T> CL(g), CR(g),
+                  C0(g), C1(g), C2(g);
+    DistMatrix<T> DT(g),  D0(g),
+                  DB(g),  D1(g),
+                          D2(g);
 
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);

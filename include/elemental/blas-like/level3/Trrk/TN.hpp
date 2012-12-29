@@ -16,9 +16,9 @@ inline void
 TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+  T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrrkTN");
@@ -32,12 +32,12 @@ TrrkTN
 #endif
     const Grid& g = C.Grid();
 
-    DistMatrix<T,MC,MR> AT(g),  A0(g),
-                        AB(g),  A1(g),
-                                A2(g);
-    DistMatrix<T,MC,MR> BT(g),  B0(g),
-                        BB(g),  B1(g),
-                                B2(g);
+    DistMatrix<T> AT(g),  A0(g),
+                  AB(g),  A1(g),
+                          A2(g);
+    DistMatrix<T> BT(g),  B0(g),
+                  BB(g),  B1(g),
+                          B2(g);
 
     DistMatrix<T,STAR,MC> A1_STAR_MC(g);
     DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);

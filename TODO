@@ -1,14 +1,17 @@
 Functionality
 =============
 - Pivoted QR decompositions 
-- Nonsymmetric eigensolver
-- Nonsymmetric generalized eigensolver
+- Lower version of reduction to bidiagonal form
+- Implement sequential versions of Trrk/Trr2k
 - More explicit expansions of packed Householder reflectors
 - More TwoSidedTrmm/TwoSidedTrsm routines
+- Nonsymmetric eigensolver
+- Nonsymmetric generalized eigensolver
 - Add means of detaching and reattaching the 'viewing' processes for a 
   DistMatrix so that collective routines like 'Get' can still be called
 
-Formatting
-==========
+Maintenance
+===========
+- Finding a way to accelerate the build process
 - Make namespacing of internal functions consistent
 - Standardize on impl/decl pairs
