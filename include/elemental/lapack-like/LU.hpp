@@ -12,6 +12,23 @@
 
 namespace elem {
 
+namespace internal {
+
+template<typename F>
+inline void
+LocalLU( DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalLU");
+#endif
+    LU( A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
+
 // Performs LU factorization without pivoting
 
 template<typename F> 
@@ -40,7 +57,7 @@ LU( Matrix<F>& A )
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         //--------------------------------------------------------------------//
-        internal::UnblockedLU( A11 );
+        internal::LUUnb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );

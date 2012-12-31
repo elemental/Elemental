@@ -15,10 +15,10 @@ namespace internal {
 
 template<typename F> 
 inline void
-UnblockedLU_FLAME( Matrix<F>& A )
+LUUnb_FLAME( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::UnblockedLU_FLAME");
+    PushCallStack("internal::LUUnb_FLAME");
 #endif
     // Matrix views 
     Matrix<F>
@@ -60,10 +60,10 @@ UnblockedLU_FLAME( Matrix<F>& A )
 
 template<typename F>
 inline void
-UnblockedLU( Matrix<F>& A )
+LUUnb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::UnblockedLU");
+    PushCallStack("internal::LUUnb");
 #endif
     const int m = A.Height();
     const int n = A.Width();

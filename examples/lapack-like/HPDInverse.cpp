@@ -25,6 +25,7 @@ main( int argc, char* argv[] )
     try 
     {
         const int n = Input("--size","size of HPD matrix",100);
+        const bool upper = Input("--upper","upper storage?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -37,22 +38,23 @@ main( int argc, char* argv[] )
             A.Print("A");
 
         // Make a copy of A and then overwrite it with its inverse
+        const UpperOrLower uplo = ( upper ? UPPER : LOWER );
         DistMatrix<C> invA( A );
-        HPDInverse( LOWER, invA );
+        HPDInverse( uplo, invA );
 
         if( print )
         {
-            MakeHermitian( LOWER, invA );
+            MakeHermitian( uplo, invA );
             invA.Print("inv(A)");
         }
 
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E( g );
         Identity( n, n, E );
-        Hemm( LEFT, LOWER, C(-1), invA, A, C(1), E );
+        Hemm( LEFT, uplo, C(-1), invA, A, C(1), E );
 
-        const R frobNormA = HermitianNorm( LOWER, A, FROBENIUS_NORM );
-        const R frobNormInvA = HermitianNorm( LOWER, invA, FROBENIUS_NORM );
+        const R frobNormA = HermitianNorm( uplo, A, FROBENIUS_NORM );
+        const R frobNormInvA = HermitianNorm( uplo, invA, FROBENIUS_NORM );
         const R frobNormError = Norm( E, FROBENIUS_NORM );
         if( g.Rank() == 0 )
         {

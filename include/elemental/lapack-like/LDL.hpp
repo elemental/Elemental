@@ -11,6 +11,30 @@
 
 namespace elem {
 
+namespace internal {
+
+template<typename F>
+inline void
+LocalLDL
+( Orientation orientation,
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalLDL");
+    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
+        throw std::logic_error
+        ("d must be a column vector of the same height as A");
+#endif
+    if( !d.Viewing() )
+        d.ResizeTo( A.Height(), 1 );
+    LDLVar3( orientation, A.LocalMatrix(), d.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
+
 template<typename F>
 inline void
 LDLH( Matrix<F>& A )

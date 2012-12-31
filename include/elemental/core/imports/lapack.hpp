@@ -99,28 +99,6 @@ void Cholesky( char uplo, int n, const scomplex* A, int lda );
 void Cholesky( char uplo, int n, const dcomplex* A, int lda );
 
 //
-// LU factorization (with partial pivoting)
-//
-
-void LU( int m, int n, float* A, int lda, int* p );
-void LU( int m, int n, double* A, int lda, int* p );
-void LU( int m, int n, scomplex* A, int lda, int* p );
-void LU( int m, int n, dcomplex* A, int lda, int* p );
-
-//
-// For computing the inverse of a triangular matrix
-//
-
-void TriangularInverse
-( char uplo, char diag, int n, const float* A, int lda );
-void TriangularInverse
-( char uplo, char diag, int n, const double* A, int lda );
-void TriangularInverse
-( char uplo, char diag, int n, const scomplex* A, int lda );
-void TriangularInverse
-( char uplo, char diag, int n, const dcomplex* A, int lda );
-
-//
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 //
 

@@ -92,7 +92,7 @@ TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
             {
                 const T gamma = Conj(u01[k]);
                 T* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( int i=0; i<k; ++i )
+                for( int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }
         }
@@ -103,7 +103,7 @@ TrtrmmUUnblocked( Orientation orientation, Matrix<T>& U )
             {
                 const T gamma = u01[k];
                 T* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( int i=0; i<k; ++i )
+                for( int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }
         }

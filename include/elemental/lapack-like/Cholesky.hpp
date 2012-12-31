@@ -16,6 +16,24 @@
 
 namespace elem {
 
+namespace internal {
+
+template<typename F>
+inline void
+LocalCholesky
+( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalCholesky");
+#endif
+    Cholesky( uplo, A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
+
 template<typename F>
 inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )

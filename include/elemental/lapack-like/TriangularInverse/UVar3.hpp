@@ -12,8 +12,85 @@ namespace internal {
 
 template<typename F>
 inline void
-TriangularInverseUVar3
-( UnitOrNonUnit diag, DistMatrix<F>& U )
+TriangularInverseUVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TriangularInverseUVar3Unb");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("Nonsquare matrices cannot be triangular");
+#endif
+    const int n = U.Height();
+    const int ldu = U.LDim();
+    F* UBuffer = U.Buffer();
+    for( int j=n-1; j>=0; --j )
+    {
+        const F upsilon = ( diag==NON_UNIT ? UBuffer[j+j*ldu] : F(1) );
+        for( int k=0; k<j; ++k )
+            UBuffer[k+j*ldu] /= -upsilon;
+        blas::Geru
+        ( j, n-(j+1), F(1),
+          &UBuffer[j*ldu], 1, &UBuffer[j+(j+1)*ldu], ldu, 
+          &UBuffer[(j+1)*ldu], ldu );
+        if( diag == NON_UNIT )
+        {
+            for( int k=j+1; k<n; ++k )
+                UBuffer[j+k*ldu] /= upsilon;
+            UBuffer[j+j*ldu] = F(1) / UBuffer[j+j*ldu];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+TriangularInverseUVar3( UnitOrNonUnit diag, Matrix<F>& U )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TriangularInverseUVar3");
+    if( U.Height() != U.Width() )
+        throw std::logic_error("Nonsquare matrices cannot be triangular");
+#endif
+    // Matrix views
+    Matrix<F> 
+        UTL, UTR,  U00, U01, U02,
+        UBL, UBR,  U10, U11, U12,
+                   U20, U21, U22;
+
+    // Start the algorithm
+    PartitionUpDiagonal
+    ( U, UTL, UTR,
+         UBL, UBR, 0 );
+    while( UBR.Height() < U.Height() )
+    {
+        RepartitionUpDiagonal
+        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
+               /**/       U10, U11, /**/ U12,
+         /*************/ /******************/
+          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+
+        //--------------------------------------------------------------------//
+        Trsm( RIGHT, UPPER, NORMAL, diag, F(-1), U11, U01 );
+        Gemm( NORMAL, NORMAL, F(1), U01, U12, F(1), U02 );
+        Trsm( LEFT, UPPER, NORMAL, diag, F(1), U11, U12 );
+        TriangularInverseUVar3Unb( diag, U11 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionUpDiagonal
+        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
+         /*************/ /******************/
+               /**/       U10, /**/ U11, U12,
+          UBL, /**/ UBR,  U20, /**/ U21, U22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+TriangularInverseUVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TriangularInverseUVar3");

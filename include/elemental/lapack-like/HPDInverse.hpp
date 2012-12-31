@@ -12,6 +12,23 @@
 
 namespace elem {
 
+namespace internal {
+
+template<typename F>
+inline void
+LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalHPDInverse");
+#endif
+    HPDInverse( uplo, A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
+
 template<typename F>
 inline void
 HPDInverse( UpperOrLower uplo, Matrix<F>& A  )

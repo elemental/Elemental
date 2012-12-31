@@ -94,26 +94,6 @@ Cholesky factorization
    Hermitian, with the data stored in the lower triangle if `uplo` equals 
    'L', or in the upper triangle if `uplo` equals 'U'.
 
-LU factorization
-^^^^^^^^^^^^^^^^
-
-.. cpp:function:: void lapack::LU( int m, int n, F* A, int lda, int* p )
-
-   Perform an LU factorization with partial pivoting on 
-   :math:`A \in F^{m \times n}`, where :math:`A(i,j)` can be accessed at 
-   ``A[i+j*lda]``. On exit, the pivots are stored in the vector `p`, which 
-   should be at least as large as ``min(m,n)``.
-
-Triangular inversion
-^^^^^^^^^^^^^^^^^^^^
-
-.. cpp:function:: void lapack::TriangularInverse( char uplo, char diag, int n, const F* A, int lda )
-
-   Overwrite either the lower or upper triangle of :math:`A \in F^{n \times n}`
-   with its inverse. Which triangle is accessed is determined by `uplo` ('L' for lower or 'U' for upper), and setting `diag` equal to 'U' results in the 
-   triangular matrix being treated as unit diagonal (set `diag` to 'N' 
-   otherwise).
-
 QR-based SVD
 ^^^^^^^^^^^^
 

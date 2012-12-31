@@ -12,6 +12,84 @@ namespace internal {
 
 template<typename F>
 inline void
+TriangularInverseLVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TriangularInverseLVar3Unb");
+    if( L.Height() != L.Width() )
+        throw std::logic_error("Nonsquare matrices cannot be triangular");
+#endif
+    const int n = L.Height();
+    const int ldl = L.LDim();
+    F* LBuffer = L.Buffer();
+    for( int j=0; j<n; ++j )
+    {
+        const F lambda = ( diag==NON_UNIT ? LBuffer[j+j*ldl] : F(1) );
+        for( int k=0; k<j; ++k )
+            LBuffer[j+k*ldl] /= -lambda;
+        blas::Geru
+        ( n-(j+1), j, F(1),
+          &LBuffer[(j+1)+j*ldl], 1, &LBuffer[j], ldl, 
+          &LBuffer[j+1], ldl );
+        if( diag == NON_UNIT )
+        {
+            for( int k=j+1; k<n; ++k )
+                LBuffer[k+j*ldl] /= lambda;
+            LBuffer[j+j*ldl] = F(1) / LBuffer[j+j*ldl];
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+TriangularInverseLVar3( UnitOrNonUnit diag, Matrix<F>& L )
+{
+#ifndef RELEASE
+    PushCallStack("internal::TriangularInverseLVar3");
+    if( L.Height() != L.Width() )
+        throw std::logic_error("Nonsquare matrices cannot be triangular");
+#endif
+    // Matrix views
+    Matrix<F> 
+        LTL, LTR,  L00, L01, L02,
+        LBL, LBR,  L10, L11, L12,
+                   L20, L21, L22;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    while( LTL.Height() < L.Height() )
+    {
+        RepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        //--------------------------------------------------------------------//
+        Trsm( LEFT, LOWER, NORMAL, diag, F(-1), L11, L10 );
+        Gemm( NORMAL, NORMAL, F(1), L21, L10, F(1), L20 );
+        Trsm( RIGHT, LOWER, NORMAL, diag, F(1), L11, L21 );
+        TriangularInverseLVar3Unb( diag, L11 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
 TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
 {
 #ifndef RELEASE
