@@ -37,32 +37,28 @@ void LocalTriangularInverse
 //----------------------------------------------------------------------------//
 
 template<typename F>
-void CholeskyLVar2( DistMatrix<F>& A );
-
+void CholeskyLVar3Unb( Matrix<F>& A );
 template<typename F>
-void CholeskyLVar2Naive( DistMatrix<F>& A );
-
+void CholeskyLVar2( Matrix<F>& A );
+template<typename F>
+void CholeskyLVar2( DistMatrix<F>& A );
+template<typename F>
+void CholeskyLVar3( Matrix<F>& A );
 template<typename F>
 void CholeskyLVar3( DistMatrix<F>& A );
-
-template<typename F>
-void CholeskyLVar3Naive( DistMatrix<F>& A );
-
 template<typename F>
 void CholeskyLVar3Square( DistMatrix<F>& A );
 
 template<typename F>
-void CholeskyUVar2( DistMatrix<F>& A );
-
+void CholeskyUVar3Unb( Matrix<F>& A );
 template<typename F>
-void CholeskyUVar2Naive( DistMatrix<F>& A );
- 
+void CholeskyUVar2( Matrix<F>& A );
+template<typename F>
+void CholeskyUVar2( DistMatrix<F>& A );
+template<typename F>
+void CholeskyUVar3( Matrix<F>& A );
 template<typename F>
 void CholeskyUVar3( DistMatrix<F>& A );
-
-template<typename F>
-void CholeskyUVar3Naive( DistMatrix<F>& A );
-
 template<typename F>
 void CholeskyUVar3Square( DistMatrix<F>& A );
             

@@ -10,35 +10,52 @@
 namespace elem {
 namespace internal {
 
-/*
-   Parallelization of Variant 2 Upper Cholesky factorization. 
+template<typename F> 
+inline void
+CholeskyUVar2( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::CholeskyUVar2");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    // Matrix views
+    Matrix<F> 
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
 
-   Original serial update:
-   ------------------------
-   A11 := A11 - A01^H A01
-   A11 := Cholesky(A11)
-   A12 := A12 - A01^H A02
-   A12 := triu(A11)^-H A12
-   ------------------------
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-   Our parallel update:
-   -----------------------------------------------------
-   A01[MC,* ] <- A01[MC,MR]
-   X11^H[MR,* ] := (A01[MC,MR])^H A01[MC,* ]
-   A11[MC,MR] := A11[MC,MR] - ((SumCol(X11^H[MR,* ]))[* ,MC])^H
+        //--------------------------------------------------------------------//
+        Herk( UPPER, ADJOINT, F(-1), A01, F(1), A11 );
+        CholeskyUVar3Unb( A11 );
+        Gemm( ADJOINT, NORMAL, F(-1), A02, A01, F(1), A12 );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
+        //--------------------------------------------------------------------//
 
-   A11[* ,* ] <- A11[MC,MR]   
-   A11[* ,* ] := Cholesky(A11[* ,* ])
-   A11[MC,MR] <- A11[* ,* ]
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
-   X12^H[MR,* ] := (A02[MC,MR])^H A01[MC,* ]
-   A12[MC,MR] := A12[MC,MR] - ((SumCol(X12^H[MR,* ]))[MC,* ])^H
-
-   A12[* ,VR] <- A12[MC,MR]
-   A12[* ,VR] := triu(A11[* ,* ])^-H A12[* ,VR]
-   A12[MC,MR] <- A12[* ,VR]
-   -----------------------------------------------------
-*/
 template<typename F> 
 inline void
 CholeskyUVar2( DistMatrix<F>& A )
@@ -119,115 +136,6 @@ CholeskyUVar2( DistMatrix<F>& A )
         X12Adj_MR_STAR.FreeAlignments();
         X12Adj_MR_MC.FreeAlignments();
         X12.FreeAlignments();
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-/*
-   Naive parallelization of Variant 2 Upper Cholesky factorization. 
-
-   Original serial update:
-   ------------------------
-   A11 := A11 - A01^H A01
-   A11 := Cholesky(A11)
-   A12 := A12 - A01^H A02
-   A12 := triu(A11)^-H A12
-   ------------------------
-
-   Our parallel update:
-   -----------------------------------------------------
-   A01[MC,* ] <- A01[MC,MR]
-   X11[* ,MR] := (A01[MC,* ])^H A01[MC,MR]
-   A11[MC,MR] := A11[MC,MR] - (SumCol(X11[* ,MR]))[MC,* ]
-
-   A11[* ,* ] <- A11[MC,MR]   
-   A11[* ,* ] := Cholesky(A11[* ,* ])
-   A11[MC,MR] <- A11[* ,* ]
-
-   X12[* ,MR] := (A01[MC,* ])^H A02[MC,MR]
-   A12[MC,MR] := A12[MC,MR] - (SumCol(X12[* ,MR]))[MC,* ]
-
-   A12[* ,VR] <- A12[MC,MR]
-   A12[* ,VR] := triu(A11[* ,* ])^-H A12[* ,VR]
-   A12[MC,MR] <- A12[* ,VR]
-   -----------------------------------------------------
-*/
-template<typename F> 
-inline void
-CholeskyUVar2Naive( DistMatrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::CholeskyUVar2Naive");
-    if( A.Height() != A.Width() )
-        throw std::logic_error
-        ( "Can only compute Cholesky factor of square matrices." );
-    if( A.Grid().VCRank() == 0 )
-    {
-        std::cout 
-            << "CholeskyUVar2Naive exists solely for academic purposes. Please "
-               "use CholeskyUVar2 in real applications." << std::endl;
-    }
-#endif
-    const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary distributions
-    DistMatrix<F,MC,  STAR> A01_MC_STAR(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
-    DistMatrix<F,STAR,MR  > X11_STAR_MR(g);
-    DistMatrix<F,STAR,MR  > X12_STAR_MR(g);
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        A01_MC_STAR.AlignWith( A01 );
-        X11_STAR_MR.AlignWith( A01 );
-        X12_STAR_MR.AlignWith( A02 );
-        X11_STAR_MR.ResizeTo( A11.Height(), A11.Width() );
-        X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
-        //--------------------------------------------------------------------//
-        A01_MC_STAR = A01;
-        LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, A01, F(0), X11_STAR_MR );
-        A11.SumScatterUpdate( F(-1), X11_STAR_MR );
-
-        A11_STAR_STAR = A11;
-        LocalCholesky( UPPER, A11_STAR_STAR );
-        A11 = A11_STAR_STAR;
-
-        LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, A02, F(0), X12_STAR_MR );
-        A12.SumScatterUpdate( F(-1), X12_STAR_MR );
-
-        A12_STAR_VR = A12;
-        LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
-        A12 = A12_STAR_VR;
-        //--------------------------------------------------------------------//
-        A01_MC_STAR.FreeAlignments();
-        X11_STAR_MR.FreeAlignments();
-        X12_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

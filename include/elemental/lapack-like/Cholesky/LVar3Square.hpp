@@ -10,32 +10,6 @@
 namespace elem {
 namespace internal {
 
-/*
-   Parallelization of Variant 3 Lower Cholesky factorization for
-   square process grids.
-
-   Original serial update:
-   ------------------------
-   A11 := Cholesky(A11) 
-   A21 := A21 tril(A11)^-H
-   A22 := A22 - A21 A21^H
-   ------------------------
-
-   Corresponding parallel update:
-   -----------------------------------------------------
-   A11[* ,* ] <- A11[MC,MR] 
-   A11[* ,* ] := Cholesky(A11[* ,* ])
-   A11[MC,MR] <- A11[* ,* ]
-   
-   A21[VC,* ] <- A21[MC,MR]
-   A21[VC,* ] := A21[VC,* ] tril(A11[* ,* ])^-H
-   
-   A21^T[* ,MC] <- A21[VC,* ]
-   A21^H[* ,MR] <- A21^T[* ,MC]
-   A22[MC,MR] := A22[MC,MR] - (A21^T[* ,MC])^T A21^H[* ,MR]
-   A21[MC,MR] <- A21^T[* ,MC]
-   -----------------------------------------------------
-*/
 template<typename F>
 inline void
 CholeskyLVar3Square( DistMatrix<F>& A )

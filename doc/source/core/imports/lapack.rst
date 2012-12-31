@@ -1,10 +1,9 @@
 LAPACK
 ------
 A handful of LAPACK routines are currently used by Elemental: a few
-routines for querying floating point characteristics, serial Cholesky and LU 
-factorization, triangular inversion, and a few other utilities. In addition, 
-there are several BLAS-like routines which are technically part of LAPACK 
-(e.g., ``csyr``) which were included in the BLAS imports section.
+routines for querying floating point characteristics and a few other utilities.
+In addition, there are several BLAS-like routines which are technically part 
+of LAPACK (e.g., ``csyr``) which were included in the BLAS imports section.
 
 The prototypes can be found in
 `include/elemental/core/imports/lapack.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/core/imports/lapack.hpp>`_,
@@ -83,16 +82,6 @@ Kahan and Demmel's "On computing Givens rotations reliably and efficiently".
 .. cpp:function:: void lapack::ComputeGivens( C phi, C gamma, R* c, C* s, C* rho )
 
    Computes a Givens rotation for complex :math:`\phi` and :math:`\gamma`.
-
-Cholesky factorization
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. cpp:function:: void lapack::Cholesky( char uplo, int n, const F* A, int lda )
-
-   Perform a Cholesky factorization on :math:`A \in F^{n \times n}`, where 
-   :math:`A(i,j)` can be accessed at ``A[i+j*lda]`` and :math:`A` is implicitly
-   Hermitian, with the data stored in the lower triangle if `uplo` equals 
-   'L', or in the upper triangle if `uplo` equals 'U'.
 
 QR-based SVD
 ^^^^^^^^^^^^

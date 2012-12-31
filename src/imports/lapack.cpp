@@ -38,20 +38,6 @@ void LAPACK(zlartg)
 ( const elem::dcomplex* phi, const elem::dcomplex* gamma,
   double* c, elem::dcomplex* s, elem::dcomplex* rho );
 
-// Cholesky factorization
-void LAPACK(spotrf)
-( const char* uplo, const int* n, const float* A, const int* lda,
-  int* info );
-void LAPACK(dpotrf)
-( const char* uplo, const int* n, const double* A, const int* lda,
-  int* info );
-void LAPACK(cpotrf)
-( const char* uplo, const int* n, const elem::scomplex* A,
-  const int* lda, int* info );
-void LAPACK(zpotrf)
-( const char* uplo, const int* n, const elem::dcomplex* A,
-  const int* lda, int* info );
-
 // Bidiagonal QR
 void LAPACK(sbdsqr)
 ( const char* uplo, const int* n, const int* numColsVTrans, const int* numRowsU,
@@ -299,90 +285,6 @@ void ComputeGivens
 ( dcomplex phi, dcomplex gamma,
   double* c, dcomplex* s, dcomplex* rho )
 { LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
-
-//
-// Cholesky factorization
-//
-
-void Cholesky( char uplo, int n, const float* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Cholesky");
-#endif
-    int info;
-    LAPACK(spotrf)( &uplo, &n, A, &lda, &info );
-    if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "spotrf returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-        throw NonHPDMatrixException();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Cholesky( char uplo, int n, const double* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Cholesky");
-#endif
-    int info;
-    LAPACK(dpotrf)( &uplo, &n, A, &lda, &info );
-    if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "dpotrf returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-        throw NonHPDMatrixException();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Cholesky( char uplo, int n, const scomplex* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Cholesky");
-#endif
-    int info;
-    LAPACK(cpotrf)( &uplo, &n, A, &lda, &info );
-    if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "cpotrf returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-        throw NonHPDMatrixException();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Cholesky( char uplo, int n, const dcomplex* A, int lda )
-{
-#ifndef RELEASE
-    PushCallStack("lapack::Cholesky");
-#endif
-    int info;
-    LAPACK(zpotrf)( &uplo, &n, A, &lda, &info );
-    if( info < 0 )
-    {
-        std::ostringstream msg;
-        msg << "zpotrf returned with info = " << info;
-        throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-        throw NonHPDMatrixException();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
 
 //
 // Bidiagonal QR algorithm for SVD

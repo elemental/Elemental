@@ -90,15 +90,6 @@ void ComputeGivens
   double* cs, dcomplex* sn, dcomplex* rho );
 
 //
-// Cholesky factorization
-//
-
-void Cholesky( char uplo, int n, const float* A, int lda );
-void Cholesky( char uplo, int n, const double* A, int lda );
-void Cholesky( char uplo, int n, const scomplex* A, int lda );
-void Cholesky( char uplo, int n, const dcomplex* A, int lda );
-
-//
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 //
 

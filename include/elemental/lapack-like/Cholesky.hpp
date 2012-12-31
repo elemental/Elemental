@@ -43,8 +43,10 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
-    const char uploChar = UpperOrLowerToChar( uplo );
-    lapack::Cholesky( uploChar, A.Height(), A.Buffer(), A.LDim() );
+    if( uplo == LOWER )
+        internal::CholeskyLVar3( A );
+    else
+        internal::CholeskyUVar3( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -59,7 +61,6 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 #endif
     const Grid& g = A.Grid();
 
-    // TODO: Come up with a better routing mechanism
     if( g.Height() == g.Width() )
     {
         if( uplo == LOWER )

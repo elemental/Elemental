@@ -10,32 +10,6 @@
 namespace elem {
 namespace internal {
 
-/*
-   Parallelization of Variant 3 Upper Cholesky factorization for
-   square process grids.
-
-   Original serial update:
-   ------------------------
-   A11 := Cholesky(A11) 
-   A12 := triu(A11)^-H A12
-   A22 := A22 - A12^H A12
-   ------------------------
-
-   Corresponding parallel update:
-   -----------------------------------------------------
-   A11[* ,* ] <- A11[MC,MR] 
-   A11[* ,* ] := Cholesky(A11[* ,* ])
-   A11[MC,MR] <- A11[* ,* ]
-   
-   A12[* ,VR] <- A12[MC,MR]
-   A12[* ,VR] := triu(A11[* ,* ])^-H A12[* ,VR]
-
-   A12[* ,MR] <- A12[* ,VR]
-   A12[* ,MC] <- A12[* ,MR]
-   A22[MC,MR] := A22[MC,MR] - (A12[* ,MC])^H A12[* ,MR]
-   A12[MC,MR] <- A12[* ,MR]
-   -----------------------------------------------------
-*/
 template<typename F>
 inline void
 CholeskyUVar3Square( DistMatrix<F>& A )

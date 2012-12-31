@@ -10,47 +10,95 @@
 namespace elem {
 namespace internal {
 
-// I do not see any algorithmic optimizations to make for the upper var3 
-// Cholesky, since most memory access is stride one.
+template<typename F>
+inline void
+CholeskyUVar3Unb( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::CholeskyUVar3Unb");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    typedef typename Base<F>::type R;
+
+    const int n = A.Height();
+    const int lda = A.LDim();
+    F* ABuffer = A.Buffer();
+    for( int j=0; j<n; ++j )
+    {
+        R alpha = RealPart(ABuffer[j+j*lda]);
+        if( alpha <= R(0) )
+            throw std::logic_error("A was not numerically HPD");
+        alpha = Sqrt( alpha );
+        ABuffer[j+j*lda] = alpha;
+        
+        for( int k=j+1; k<n; ++k )
+            ABuffer[j+k*lda] /= alpha;
+
+        for( int k=j+1; k<n; ++k )
+            for( int i=j+1; i<=k; ++i )
+                ABuffer[i+k*lda] -= Conj(ABuffer[j+i*lda])*ABuffer[j+k*lda];
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
+CholeskyUVar3( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::CholeskyUVar3");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    // Matrix views
+    Matrix<F> 
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    // Start the algorithm
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 ); 
+    while( ABR.Height() > 0 )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+
+        //--------------------------------------------------------------------//
+        CholeskyUVar3Unb( A11 );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
+        Herk( UPPER, ADJOINT, F(-1), A12, F(1), A22 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename F> 
 inline void
 CholeskyUVar3( DistMatrix<F>& A )
-{ CholeskyUVar3Naive( A ); }
-
-/*
-   Parallelization of Variant 3 Upper Cholesky factorization. 
-
-   Original serial update:
-   ------------------------
-   A11 := Cholesky(A11) 
-   A12 := triu(A11)^-H A12
-   A22 := A22 - A12^H A12
-   ------------------------
-
-   Corresponding parallel update:
-   -----------------------------------------------------
-   A11[* ,* ] <- A11[MC,MR] 
-   A11[* ,* ] := Cholesky(A11[* ,* ])
-   A11[MC,MR] <- A11[* ,* ]
-   
-   A12[* ,VR] <- A12[MC,MR]
-   A12[* ,VR] := triu(A11[* ,* ])^-H A12[* ,VR]
-
-   A12[* ,VC] <- A12[* ,VR]
-   A12[* ,MC] <- A12[* ,VC]
-   A12[* ,MR] <- A12[* ,VR]
-   A22[MC,MR] := A22[MC,MR] - (A12[* ,MC])^H A12[* ,MR]
-   -----------------------------------------------------
-*/
-template<typename F> 
-inline void
-CholeskyUVar3Naive( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyUVar3Naive");
+    PushCallStack("internal::CholeskyUVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
-        ( "Can only compute Cholesky factor of square matrices." );
+        ("Can only compute Cholesky factor of square matrices");
 #endif
     const Grid& g = A.Grid();
 
