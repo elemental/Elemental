@@ -16,7 +16,8 @@
 
 #include "elemental/core.hpp"
 
-#include "elemental/special_matrices.hpp"
+#include "elemental/special_matrices_decl.hpp"
+#include "elemental/special_matrices_incl.hpp"
 
 #include "elemental/blas-like_decl.hpp"
 #include "elemental/blas-like_impl.hpp"

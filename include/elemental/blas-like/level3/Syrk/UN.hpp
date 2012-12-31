@@ -12,9 +12,7 @@ namespace internal {
 
 template<typename T>
 inline void
-SyrkUN
-( T alpha, const DistMatrix<T,MC,MR>& A,
-  T beta,        DistMatrix<T,MC,MR>& C )
+SyrkUN( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::SyrkUN");
@@ -33,8 +31,8 @@ SyrkUN
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AL(g), AR(g),
-                        A0(g), A1(g), A2(g);
+    DistMatrix<T> AL(g), AR(g),
+                  A0(g), A1(g), A2(g);
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> A1_MC_STAR(g);

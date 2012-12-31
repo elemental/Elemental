@@ -12,9 +12,7 @@ namespace internal {
 
 template<typename T>
 inline void
-SyrkLT
-( T alpha, const DistMatrix<T,MC,MR>& A,
-  T beta,        DistMatrix<T,MC,MR>& C )
+SyrkLT( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::SyrkLT");
@@ -33,9 +31,9 @@ SyrkLT
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> AT(g),  A0(g),
-                        AB(g),  A1(g),
-                                A2(g);
+    DistMatrix<T> AT(g),  A0(g),
+                  AB(g),  A1(g),
+                          A2(g);
 
     // Temporary distributions
     DistMatrix<T,MR,  STAR> A1Trans_MR_STAR(g);

@@ -9,35 +9,6 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Uniform( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
-{
-#ifndef RELEASE
-    PushCallStack("Uniform");
-#endif
-    A.ResizeTo( m, n );
-    MakeUniform( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Uniform
-( int m, int n, DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
-{
-#ifndef RELEASE
-    PushCallStack("Uniform");
-#endif
-    A.ResizeTo( m, n );
-    MakeUniform( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Draw each entry from a uniform PDF over the closed unit ball.
 template<typename T>
 inline void
@@ -51,6 +22,20 @@ MakeUniform( Matrix<T>& A, T center, typename Base<T>::type radius )
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set( i, j, center+radius*SampleUnitBall<T>() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T>
+inline void
+Uniform( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
+{
+#ifndef RELEASE
+    PushCallStack("Uniform");
+#endif
+    A.ResizeTo( m, n );
+    MakeUniform( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -378,6 +363,21 @@ MakeUniform
     PushCallStack("Uniform");
 #endif
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Uniform
+( int m, int n, DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
+{
+#ifndef RELEASE
+    PushCallStack("Uniform");
+#endif
+    A.ResizeTo( m, n );
+    MakeUniform( A, center, radius );
 #ifndef RELEASE
     PopCallStack();
 #endif

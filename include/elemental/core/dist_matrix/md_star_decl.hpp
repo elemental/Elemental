@@ -268,8 +268,6 @@ public:
       const DistMatrix<T,MD,STAR,Int>& ABR );
 
 private:
-    bool inDiagonal_;
-
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
 };
 

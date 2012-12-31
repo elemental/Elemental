@@ -54,7 +54,7 @@ TrtrmmLVar1( Orientation orientation, Matrix<T>& L )
 
 template<typename T>
 inline void
-TrtrmmLVar1( Orientation orientation, DistMatrix<T,MC,MR>& L )
+TrtrmmLVar1( Orientation orientation, DistMatrix<T>& L )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrtrmmLVar1");
@@ -66,7 +66,7 @@ TrtrmmLVar1( Orientation orientation, DistMatrix<T,MC,MR>& L )
     const Grid& g = L.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         LTL(g), LTR(g),  L00(g), L01(g), L02(g),
         LBL(g), LBR(g),  L10(g), L11(g), L12(g),
                          L20(g), L21(g), L22(g);

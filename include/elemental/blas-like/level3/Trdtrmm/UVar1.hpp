@@ -60,7 +60,7 @@ TrdtrmmUVar1( Orientation orientation, Matrix<F>& U )
 
 template<typename F>
 inline void
-TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
+TrdtrmmUVar1( Orientation orientation, DistMatrix<F>& U )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrdtrmmUVar1");
@@ -72,7 +72,7 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F,MC,MR>& U )
     const Grid& g = U.Grid();
 
     // Matrix views
-    DistMatrix<F,MC,MR>
+    DistMatrix<F>
         UTL(g), UTR(g),  U00(g), U01(g), U02(g),
         UBL(g), UBR(g),  U10(g), U11(g), U12(g),
                          U20(g), U21(g), U22(g);

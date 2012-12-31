@@ -51,10 +51,8 @@ Syrk
 template<typename T>
 inline void
 Syrk
-( UpperOrLower uplo, 
-  Orientation orientation,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("Syrk");

@@ -13,9 +13,8 @@ namespace internal {
 template<typename T>
 inline void
 SymmRLA
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::SymmRLA");
@@ -25,11 +24,11 @@ SymmRLA
 #endif
     const Grid& g = A.Grid();
 
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         BT(g),  B0(g),
         BB(g),  B1(g),
                 B2(g);
-    DistMatrix<T,MC,MR>
+    DistMatrix<T>
         CT(g),  C0(g),
         CB(g),  C1(g),
                 C2(g);
@@ -110,9 +109,8 @@ SymmRLA
 template<typename T>
 inline void
 SymmRLC
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::SymmRLC");
@@ -123,15 +121,15 @@ SymmRLC
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<T,MC,MR> 
+    DistMatrix<T> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AColPan(g),
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ARowPan(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<T,MC,MR> BL(g), BR(g),
-                        B0(g), B1(g), B2(g);
-    DistMatrix<T,MC,MR> CL(g), CR(g),
-                        C0(g), C1(g), C2(g),
-                        CLeft(g), CRight(g);
+    DistMatrix<T> BL(g), BR(g),
+                  B0(g), B1(g), B2(g);
+    DistMatrix<T> CL(g), CR(g),
+                  C0(g), C1(g), C2(g),
+                  CLeft(g), CRight(g);
 
     // Temporary distributions
     DistMatrix<T,MC,  STAR> B1_MC_STAR(g);
@@ -218,9 +216,8 @@ SymmRLC
 template<typename T>
 inline void
 SymmRL
-( T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("internal::SymmRL");

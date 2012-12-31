@@ -54,11 +54,9 @@ Syr2k
 template<typename T>
 inline void
 Syr2k
-( UpperOrLower uplo, 
-  Orientation orientation,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("Syr2k");

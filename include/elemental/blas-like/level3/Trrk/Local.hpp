@@ -98,7 +98,7 @@ CheckInput
 ( Orientation orientationOfB,
   const DistMatrix<T,MC,STAR>& A,
   const DistMatrix<T,MR,STAR>& B,
-  const DistMatrix<T,MC,MR  >& C )
+  const DistMatrix<T>& C )
 {
     if( orientationOfB == NORMAL )
         throw std::logic_error("B[MR,* ] must be (Conjugate)Transpose'd");
@@ -327,9 +327,9 @@ LocalTrrkKernel
     DistMatrix<T,MC,STAR> AT(g), 
                           AB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+    DistMatrix<T> CTL(g), CTR(g),
+                  CBL(g), CBR(g);
+    DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, C );
@@ -422,7 +422,7 @@ LocalTrrkKernel
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T,MC,MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("LocalTrrkKernel");
@@ -434,9 +434,9 @@ LocalTrrkKernel
                           AB(g);
     DistMatrix<T,MR,STAR> BT(g), 
                           BB(g);
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+    DistMatrix<T> CTL(g), CTR(g),
+                  CBL(g), CBR(g);
+    DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, C );
@@ -535,9 +535,9 @@ LocalTrrkKernel
 
     DistMatrix<T,STAR,MC> AL(g), AR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+    DistMatrix<T> CTL(g), CTR(g),
+                  CBL(g), CBR(g);
+    DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, C );
@@ -638,9 +638,9 @@ LocalTrrkKernel
     DistMatrix<T,STAR,MC> AL(g), AR(g);
     DistMatrix<T,MR,STAR> BT(g), 
                           BB(g);
-    DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                        CBL(g), CBR(g);
-    DistMatrix<T,MC,MR> DTL(g), DBR(g);
+    DistMatrix<T> CTL(g), CTR(g),
+                  CBL(g), CBR(g);
+    DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, C );
@@ -758,8 +758,8 @@ LocalTrrk
         DistMatrix<T,MC,STAR> AT(g),
                               AB(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
 
         const int half = C.Height() / 2;
         LockedPartitionDown
@@ -846,7 +846,7 @@ LocalTrrk
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,MC,STAR>& A,
            const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T,MC,MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
 #ifndef RELEASE
@@ -867,8 +867,8 @@ LocalTrrk
                               AB(g);
         DistMatrix<T,MR,STAR> BT(g), 
                               BB(g);
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
 
         const int half = C.Height() / 2;
         LockedPartitionDown
@@ -970,8 +970,8 @@ LocalTrrk
         // and recurse on CTL and CBR.
         DistMatrix<T,STAR,MC> AL(g), AR(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
 
         const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -1077,8 +1077,8 @@ LocalTrrk
         DistMatrix<T,STAR,MC> AL(g), AR(g);
         DistMatrix<T,MR,STAR> BT(g), 
                               BB(g);
-        DistMatrix<T,MC,MR> CTL(g), CTR(g),
-                            CBL(g), CBR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
 
         const int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );

@@ -71,11 +71,11 @@ namespace internal {
 
      template<typename T,Distribution U,Distribution V>
      T internal::DotuHelper
-     ( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y );
+     ( const DistMatrix<T,U,V>& x, const DistMatrix<T>& y );
 */
 template<typename T,Distribution U,Distribution V>
 inline T
-DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
+DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T>& y )
 {
 #ifndef RELEASE
     PushCallStack("internal::DotuHelper");
@@ -94,7 +94,7 @@ DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
     T globalDotu;
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(g);
+        DistMatrix<T> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -139,7 +139,7 @@ DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MC,MR>& y )
     }
     else
     {
-        DistMatrix<T,MC,MR> xRedist(g);
+        DistMatrix<T> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -340,7 +340,7 @@ DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
     }
     else if( x.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(g);
+        DistMatrix<T> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 
@@ -355,7 +355,7 @@ DotuHelper( const DistMatrix<T,U,V>& x, const DistMatrix<T,MR,MC>& y )
     }
     else if( y.Width() == 1 )
     {
-        DistMatrix<T,MC,MR> xRedist(g);
+        DistMatrix<T> xRedist(g);
         xRedist.AlignWith( y );
         xRedist = x;
 

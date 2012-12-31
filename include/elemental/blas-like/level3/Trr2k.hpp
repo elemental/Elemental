@@ -132,11 +132,9 @@ Trr2k
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-           const DistMatrix<T,MC,MR>& C,
-           const DistMatrix<T,MC,MR>& D,
-  T beta,        DistMatrix<T,MC,MR>& E )
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+           const DistMatrix<T>& C, const DistMatrix<T>& D,
+  T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
     PushCallStack("Trr2k");

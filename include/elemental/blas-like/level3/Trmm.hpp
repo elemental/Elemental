@@ -58,7 +58,7 @@ inline void
 Trmm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  T alpha, const DistMatrix<T,MC,MR>& A, DistMatrix<T,MC,MR>& X )
+  T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("Trmm");

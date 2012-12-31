@@ -18,7 +18,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix( const elem::Grid& g )
    (g.InGrid() && g.DiagPath()==g.DiagPath(0) ?
     Shift(g.DiagPathRank(),g.DiagPathRank(0),g.LCM()) : 0),
    0,0,g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -33,7 +33,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
    (g.InGrid() && g.DiagPath()==g.DiagPath(0) ?
     LocalLength(width,g.DiagPathRank(),g.DiagPathRank(0),g.LCM()) : 0),
    g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(0) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -45,7 +45,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
    (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ?
     Shift(g.DiagPathRank(),g.DiagPathRank(rowAlignment),g.LCM()) : 0),
    0,0,g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -62,7 +62,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
     LocalLength(width,g.DiagPathRank(),g.DiagPathRank(rowAlignment),g.LCM()) :
     0),
    g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -79,7 +79,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
     LocalLength(width,g.DiagPathRank(),g.DiagPathRank(rowAlignment),g.LCM()) :
     0),
    ldim,g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -96,7 +96,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
     LocalLength(width,g.DiagPathRank(),g.DiagPathRank(rowAlignment),g.LCM()) :
     0),
    buffer,ldim,g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ); }
+{ }
 
 template<typename T,typename Int>
 inline
@@ -113,7 +113,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
     LocalLength(width,g.DiagPathRank(),g.DiagPathRank(rowAlignment),g.LCM()) :
     0),
    buffer,ldim,g)
-{ inDiagonal_ = ( g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignment) ); }
+{ }
 
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
@@ -150,15 +150,9 @@ DistMatrix<T,STAR,MD,Int>::SetGrid( const elem::Grid& g )
     this->grid_ = &g;
     this->rowAlignment_ = 0;
     if( g.InGrid() && g.DiagPath()==g.DiagPath(0) )
-    {
-        inDiagonal_ = true;
         this->rowShift_ = Shift(g.DiagPathRank(),g.DiagPathRank(0),g.LCM());
-    }
     else
-    {
-        inDiagonal_ = false;
         this->rowShift_ = 0;
-    }
 }
 
 template<typename T,typename Int>
@@ -174,7 +168,10 @@ DistMatrix<T,STAR,MD,Int>::RowStride() const
 template<typename T,typename Int>
 inline bool
 DistMatrix<T,STAR,MD,Int>::InDiagonal() const
-{ return inDiagonal_; }
+{
+    const Grid& g = this->Grid();
+    return ( g.InGrid() && g.DiagPath()==g.DiagPath(this->rowAlignment_) );
+}
 
 template<typename T,typename Int>
 template<typename S,typename N>
@@ -188,7 +185,6 @@ DistMatrix<T,STAR,MD,Int>::AlignWith( const DistMatrix<S,STAR,MD,N>& A )
 #endif
     this->Empty();
     this->rowAlignment_ = A.RowAlignment();
-    this->inDiagonal_   = A.InDiagonal();
     this->constrainedRowAlignment_ = true;
     if( this->InDiagonal() )
         this->rowShift_ = A.RowShift();
@@ -211,7 +207,6 @@ DistMatrix<T,STAR,MD,Int>::AlignWith( const DistMatrix<S,MD,STAR,N>& A )
 #endif
     this->Empty();
     this->rowAlignment_ = A.ColAlignment();
-    this->inDiagonal_   = A.InDiagonal();
     this->constrainedRowAlignment_ = true;
     if( this->InDiagonal() )
         this->rowShift_ = A.ColShift();
@@ -328,16 +323,12 @@ DistMatrix<T,STAR,MD,Int>::AlignWithDiagonal
         const Int ownerRow = colAlignment;
         const Int ownerCol = (rowAlignment + offset) % c;
         this->rowAlignment_ = ownerRow + r*ownerCol;
-        this->inDiagonal_ =
-            ( g.DiagPath() == g.DiagPath( this->RowAlignment() ) );
     }
     else
     {
         const Int ownerRow = (colAlignment-offset) % r;
         const Int ownerCol = rowAlignment;
         this->rowAlignment_ = ownerRow + r*ownerCol;
-        this->inDiagonal_ =
-            ( g.DiagPath() == g.DiagPath( this->RowAlignment() ) );
     }
     this->constrainedRowAlignment_ = true;
     if( this->InDiagonal() )
@@ -375,16 +366,12 @@ DistMatrix<T,STAR,MD,Int>::AlignWithDiagonal
         const Int ownerRow = rowAlignment;
         const Int ownerCol = (colAlignment + offset) % c;
         this->rowAlignment_ = ownerRow + r*ownerCol;
-        this->inDiagonal_ =
-            ( g.DiagPath() == g.DiagPath( this->RowAlignment() ) );
     }
     else
     {
         const Int ownerRow = (rowAlignment-offset) % r;
         const Int ownerCol = colAlignment;
         this->rowAlignment_ = ownerRow + r*ownerCol;
-        this->inDiagonal_ =
-            ( g.DiagPath() == g.DiagPath( this->RowAlignment() ) );
     }
     this->constrainedRowAlignment_ = true;
     if( this->InDiagonal() )
@@ -413,7 +400,6 @@ DistMatrix<T,STAR,MD,Int>::PrintBase
     const Int width      = this->Width();
     const Int localWidth = this->LocalWidth();
     const Int lcm        = this->Grid().LCM();
-    const Int inDiagonal = this->InDiagonal();
 
     if( height == 0 || width == 0 || !this->Grid().InGrid() )
     {
@@ -424,7 +410,7 @@ DistMatrix<T,STAR,MD,Int>::PrintBase
     }
 
     std::vector<T> sendBuf(height*width,0);
-    if( inDiagonal )
+    if( this->InDiagonal() )
     {
         const Int colShift = this->ColShift();
         const T* thisLocalBuffer = this->LockedLocalBuffer();
@@ -496,9 +482,8 @@ DistMatrix<T,STAR,MD,Int>::AlignRows( Int rowAlignment )
         throw std::runtime_error("Invalid row alignment for [STAR,MD]");
 #endif
     this->rowAlignment_ = rowAlignment;
-    this->inDiagonal_ = ( g.DiagPath() == g.DiagPath(rowAlignment) );
     this->constrainedRowAlignment_ = true;
-    if( this->inDiagonal_ )
+    if( this->InDiagonal() )
         this->rowShift_ = Shift( g.DiagPathRank(), rowAlignment, g.Size() );
     else
         this->rowShift_ = 0;
@@ -520,7 +505,6 @@ DistMatrix<T,STAR,MD,Int>::View( DistMatrix<T,STAR,MD,Int>& A )
     this->height_ = A.Height();
     this->width_  = A.Width();
     this->rowAlignment_ = A.RowAlignment();
-    this->inDiagonal_   = A.InDiagonal();
     this->viewing_ = true;
     if( this->InDiagonal() )
     {
@@ -549,10 +533,8 @@ DistMatrix<T,STAR,MD,Int>::View
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->inDiagonal_ = 
-        grid.InGrid() && grid.DiagPath()==grid.DiagPath(rowAlignment);
     this->viewing_ = true;
-    if( this->inDiagonal_ )
+    if( this->InDiagonal() )
     {
         this->rowShift_ =
             Shift(grid.DiagPathRank(),
@@ -581,7 +563,6 @@ DistMatrix<T,STAR,MD,Int>::LockedView( const DistMatrix<T,STAR,MD,Int>& A )
     this->height_ = A.Height();
     this->width_  = A.Width();
     this->rowAlignment_ = A.RowAlignment();
-    this->inDiagonal_   = A.InDiagonal();
     this->viewing_ = true;
     this->lockedView_ = true;
     if( this->InDiagonal() )
@@ -611,11 +592,9 @@ DistMatrix<T,STAR,MD,Int>::LockedView
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->inDiagonal_ = 
-        grid.InGrid() && grid.DiagPath()==grid.DiagPath(rowAlignment);
     this->viewing_ = true;
     this->lockedView_ = true;
-    if( this->inDiagonal_ )
+    if( this->InDiagonal() )
     {
         this->rowShift_ =
             Shift(grid.DiagPathRank(),
@@ -660,8 +639,6 @@ DistMatrix<T,STAR,MD,Int>::View
     const Int newAlignmentRank = newAlignmentRow + r*newAlignmentCol;
 
     this->rowAlignment_ = newAlignmentRank;
-    this->inDiagonal_ = A.InDiagonal();
-
     if( this->InDiagonal() )
     {
         this->rowShift_ = 
@@ -711,8 +688,6 @@ DistMatrix<T,STAR,MD,Int>::LockedView
     const Int newAlignmentRank = newAlignmentRow + r*newAlignmentCol;
 
     this->rowAlignment_ = newAlignmentRank;
-    this->inDiagonal_ = A.InDiagonal();
-
     if( this->InDiagonal() )
     {
         this->rowShift_ = 
@@ -748,7 +723,6 @@ DistMatrix<T,STAR,MD,Int>::View1x2
     this->height_ = AL.Height();
     this->width_  = AL.Width() + AR.Width();
     this->rowAlignment_ = AL.RowAlignment();
-    this->inDiagonal_ = AL.InDiagonal();
     this->viewing_ = true;
     if( this->InDiagonal() )
     {
@@ -778,7 +752,6 @@ DistMatrix<T,STAR,MD,Int>::LockedView1x2
     this->height_ = AL.Height();
     this->width_ = AL.Width() + AR.Width();
     this->rowAlignment_ = AL.RowAlignment();
-    this->inDiagonal_ = AL.InDiagonal();
     this->viewing_ = true;
     this->lockedView_ = true;
     if( this->InDiagonal() )
@@ -811,7 +784,6 @@ DistMatrix<T,STAR,MD,Int>::View2x1
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
     this->rowAlignment_ = AT.RowAlignment();
-    this->inDiagonal_ = AT.InDiagonal();
     this->viewing_ = true;
     if( this->InDiagonal() )
     {
@@ -843,7 +815,6 @@ DistMatrix<T,STAR,MD,Int>::LockedView2x1
     this->height_ = AT.Height() + AB.Height();
     this->width_ = AT.Width();
     this->rowAlignment_ = AT.RowAlignment();
-    this->inDiagonal_ = AT.InDiagonal();
     this->viewing_ = true;
     this->lockedView_ = true;
     if( this->InDiagonal() )
@@ -878,7 +849,6 @@ DistMatrix<T,STAR,MD,Int>::View2x2
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();
     this->rowAlignment_ = ATL.RowAlignment();
-    this->inDiagonal_ = ATL.InDiagonal();
     this->viewing_ = true;
     if( this->InDiagonal() )
     {
@@ -913,7 +883,6 @@ DistMatrix<T,STAR,MD,Int>::LockedView2x2
     this->height_ = ATL.Height() + ABL.Height();
     this->width_ = ATL.Width() + ATR.Width();
     this->rowAlignment_ = ATL.RowAlignment();
-    this->inDiagonal_ = ATL.InDiagonal();
     this->viewing_ = true;
     this->lockedView_ = true;
     if( this->InDiagonal() )
@@ -1142,7 +1111,6 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
         if( !this->ConstrainedRowAlignment() )
         {
             this->rowAlignment_ = A.RowAlignment();
-            this->inDiagonal_ = A.InDiagonal();
             if( this->InDiagonal() )
                 this->rowShift_ = A.RowShift();
         }

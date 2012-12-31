@@ -33,7 +33,7 @@ Trtrmm( Orientation orientation, UpperOrLower uplo, Matrix<T>& A )
 
 template<typename T>
 inline void
-Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T,MC,MR>& A )
+Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T>& A )
 {
 #ifndef RELEASE
     PushCallStack("Trtrmm");

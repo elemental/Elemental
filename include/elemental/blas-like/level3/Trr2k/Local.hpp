@@ -862,9 +862,9 @@ LocalTrr2kKernel
                           AB(g),  CB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -930,9 +930,9 @@ LocalTrr2kKernel
     DistMatrix<T,MR,STAR> DT(g), 
                           DB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1000,9 +1000,9 @@ LocalTrr2kKernel
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1067,9 +1067,9 @@ LocalTrr2kKernel
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,MR,STAR> DT(g),
                           DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1139,9 +1139,9 @@ LocalTrr2kKernel
     DistMatrix<T,MR,STAR> BT(g), 
                           BB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1209,9 +1209,9 @@ LocalTrr2kKernel
                           AB(g),  CB(g);
     DistMatrix<T,MR,STAR> BT(g),  DT(g),
                           BB(g),  DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1282,9 +1282,9 @@ LocalTrr2kKernel
                           BB(g);
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1354,9 +1354,9 @@ LocalTrr2kKernel
     DistMatrix<T,STAR,MC> CL(g), CR(g);
     DistMatrix<T,MR,STAR> DT(g), 
                           DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1428,9 +1428,9 @@ LocalTrr2kKernel
                           CB(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1495,9 +1495,9 @@ LocalTrr2kKernel
                           CB(g);
     DistMatrix<T,MR,STAR> DT(g),
                           DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1563,9 +1563,9 @@ LocalTrr2kKernel
                           CL(g), CR(g);
     DistMatrix<T,STAR,MR> BL(g), BR(g),
                           DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1629,9 +1629,9 @@ LocalTrr2kKernel
     DistMatrix<T,STAR,MR> BL(g), BR(g);
     DistMatrix<T,MR,STAR> DT(g),
                           DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1700,9 +1700,9 @@ LocalTrr2kKernel
     DistMatrix<T,MC,STAR> CT(g),
                           CB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1776,9 +1776,9 @@ LocalTrr2kKernel
                           CB(g);
     DistMatrix<T,MR,STAR> DT(g), 
                           DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1852,9 +1852,9 @@ LocalTrr2kKernel
     DistMatrix<T,MR,STAR> BT(g),
                           BB(g);
     DistMatrix<T,STAR,MR> DL(g), DR(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -1924,9 +1924,9 @@ LocalTrr2kKernel
                           CL(g), CR(g);
     DistMatrix<T,MR,STAR> BT(g),  DT(g),
                           BB(g),  DB(g);
-    DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                        EBL(g), EBR(g);
-    DistMatrix<T,MC,MR> FTL(g), FBR(g);
+    DistMatrix<T> ETL(g), ETR(g),
+                  EBL(g), EBR(g);
+    DistMatrix<T> FTL(g), FBR(g);
 
     const int half = E.Height()/2;
     ScaleTrapezoid( beta, LEFT, uplo, 0, E );
@@ -2011,8 +2011,8 @@ LocalTrr2k
                               AB(g),  CB(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g),
                               DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2077,8 +2077,8 @@ LocalTrr2k
         DistMatrix<T,STAR,MR> BL(g), BR(g);
         DistMatrix<T,MR,STAR> DT(g), 
                               DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2145,8 +2145,8 @@ LocalTrr2k
         DistMatrix<T,STAR,MR> BL(g), BR(g),
                               DL(g), DR(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2212,8 +2212,8 @@ LocalTrr2k
         DistMatrix<T,STAR,MC> CL(g), CR(g);
         DistMatrix<T,MR,STAR> DT(g),
                               DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2284,8 +2284,8 @@ LocalTrr2k
         DistMatrix<T,MR,STAR> BT(g), 
                               BB(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2353,8 +2353,8 @@ LocalTrr2k
                               AB(g),  CB(g);
         DistMatrix<T,MR,STAR> BT(g),  DT(g),
                               BB(g),  DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2430,8 +2430,8 @@ LocalTrr2k
                               BB(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2504,8 +2504,8 @@ LocalTrr2k
         DistMatrix<T,MR,STAR> BT(g),  DT(g),
                               BB(g),  DB(g);
         DistMatrix<T,STAR,MC> CL(g), CR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionDown
@@ -2578,8 +2578,8 @@ LocalTrr2k
                               DL(g), DR(g);
         DistMatrix<T,MC,STAR> CT(g),
                               CB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -2645,8 +2645,8 @@ LocalTrr2k
                               CB(g); 
         DistMatrix<T,MR,STAR> DT(g),
                               DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -2716,8 +2716,8 @@ LocalTrr2k
                               CL(g), CR(g);
         DistMatrix<T,STAR,MR> BL(g), BR(g),
                               DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -2786,8 +2786,8 @@ LocalTrr2k
         DistMatrix<T,STAR,MR> BL(g), BR(g);
         DistMatrix<T,MR,STAR> DT(g),
                               DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -2859,8 +2859,8 @@ LocalTrr2k
         DistMatrix<T,MC,STAR> CT(g),
                               CB(g); 
         DistMatrix<T,STAR,MR> DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -2935,8 +2935,8 @@ LocalTrr2k
                               BB(g),  DB(g);
         DistMatrix<T,MC,STAR> CT(g),
                               CB(g); 
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -3014,8 +3014,8 @@ LocalTrr2k
         DistMatrix<T,MR,STAR> BT(g),
                               BB(g);
         DistMatrix<T,STAR,MR> DL(g), DR(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
@@ -3090,8 +3090,8 @@ LocalTrr2k
                               CL(g), CR(g);
         DistMatrix<T,MR,STAR> BT(g),  DT(g),
                               BB(g),  DB(g);
-        DistMatrix<T,MC,MR> ETL(g), ETR(g),
-                            EBL(g), EBR(g);
+        DistMatrix<T> ETL(g), ETR(g),
+                      EBL(g), EBR(g);
 
         const int half = E.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );

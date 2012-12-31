@@ -43,11 +43,9 @@ Trrk
 template<typename T>
 inline void
 Trrk
-( UpperOrLower uplo, 
-  Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,MR>& A,
-           const DistMatrix<T,MC,MR>& B,
-  T beta,        DistMatrix<T,MC,MR>& C )
+( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     PushCallStack("Trrk");
