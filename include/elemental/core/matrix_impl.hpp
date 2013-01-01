@@ -711,27 +711,13 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal
 #endif
 }
 
-//
-// Viewing other Matrix instances
-//
-
-template<typename T,typename Int>
-inline bool
-Matrix<T,Int>::Viewing() const
-{ return viewing_; }
-
-template<typename T,typename Int>
-inline bool
-Matrix<T,Int>::LockedView() const
-{ return lockedView_; }
-
 template<typename T,typename Int>
 inline void
-Matrix<T,Int>::View
+Matrix<T,Int>::Attach
 ( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::View(buffer)");
+    PushCallStack("Matrix::Attach");
 #endif
     Empty();
 
@@ -748,6 +734,41 @@ Matrix<T,Int>::View
 
 template<typename T,typename Int>
 inline void
+Matrix<T,Int>::LockedAttach
+( Int height, Int width, const T* buffer, Int ldim )
+{
+#ifndef RELEASE
+    PushCallStack("Matrix::LockedAttach");
+#endif
+    Empty();
+
+    height_ = height;
+    width_ = width;
+    ldim_ = ldim;
+    lockedData_ = buffer;
+    viewing_ = true;
+    lockedView_ = true;
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+//
+// Viewing other Matrix instances
+//
+
+template<typename T,typename Int>
+inline bool
+Matrix<T,Int>::Viewing() const
+{ return viewing_; }
+
+template<typename T,typename Int>
+inline bool
+Matrix<T,Int>::LockedView() const
+{ return lockedView_; }
+
+template<typename T,typename Int>
+inline void
 Matrix<T,Int>::View( Matrix<T,Int>& A )
 {
 #ifndef RELEASE
@@ -761,27 +782,6 @@ Matrix<T,Int>::View( Matrix<T,Int>& A )
     data_   = A.Buffer();
     viewing_ = true;
     lockedView_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-Matrix<T,Int>::LockedView
-( Int height, Int width, const T* buffer, Int ldim )
-{
-#ifndef RELEASE
-    PushCallStack("Matrix::LockedView(buffer)");
-#endif
-    Empty();
-
-    height_ = height;
-    width_ = width;
-    ldim_ = ldim;
-    lockedData_ = buffer;
-    viewing_ = true;
-    lockedView_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif

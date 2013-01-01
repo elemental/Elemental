@@ -98,7 +98,7 @@ LogDetDivergence
     R localLogDet(0);
     DistMatrix<F,MD,STAR> d(g);
     ACopy.GetDiagonal( d );
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const int nLocalDiag = d.LocalHeight();
         for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )

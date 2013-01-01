@@ -22,7 +22,7 @@ inline F Trace( const DistMatrix<F>& A )
     DistMatrix<F,MD,STAR> d(g);
     A.GetDiagonal( d );
     F localTrace = 0;
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const int nLocalDiag = d.LocalHeight();
         for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )

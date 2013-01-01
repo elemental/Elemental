@@ -77,7 +77,7 @@ main( int argc, char* argv[] )
             // Build another set of local buffers and attach it to X.
             // This time, make it all two's.
             std::vector<double> localTwos( localHeight*localWidth, 2 ); 
-            X.View( n, n, 0, 0, &localTwos[0], localHeight, grid );
+            X.Attach( n, n, 0, 0, &localTwos[0], localHeight, grid );
             if( print )
                 X.Print("After viewing local buffers of all two's");
         }

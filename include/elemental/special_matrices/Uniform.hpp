@@ -110,7 +110,7 @@ struct MakeUniformHelper<T,MD,STAR>
     static void Func
     ( DistMatrix<T,MD,STAR>& A, T center, typename Base<T>::type radius )
     {
-        if( A.InDiagonal() )
+        if( A.Participating() )
         {
             const int n = A.Width();
             const int localHeight = A.LocalHeight();
@@ -210,7 +210,7 @@ struct MakeUniformHelper<T,STAR,MD>
     static void Func
     ( DistMatrix<T,STAR,MD>& A, T center, typename Base<T>::type radius )
     {
-        if( A.InDiagonal() )
+        if( A.Participating() )
         {
             const int m = A.Height();
             const int localWidth = A.LocalWidth();

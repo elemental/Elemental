@@ -140,17 +140,17 @@ public:
     template<typename S,Distribution U,Distribution V,typename N>
     void AlignRowsWith( const DistMatrix<S,U,V,N>& A ) { }
 
+    // (Immutable) view of a distributed matrix's buffer
+    void Attach
+    ( Int height, Int width,
+      T* buffer, Int ldim, const elem::Grid& grid );
+    void LockedAttach
+    ( Int height, Int width, 
+      const T* buffer, Int ldim, const elem::Grid& grid );
+
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,STAR,STAR,Int>& A );
     void LockedView( const DistMatrix<T,STAR,STAR,Int>& A );
-
-    // (Immutable) view of a distributed matrix's buffer
-    void View
-    ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedView
-    ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
 
     // (Immutable) view of a portion of a distributed matrix
     void View

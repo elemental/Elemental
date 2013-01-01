@@ -259,17 +259,17 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
 
       Return whether or not we can modify the data we are viewing.
 
-   .. cpp:function:: void View( int height, int width, T* buffer, int ldim )
+   .. cpp:function:: void Attach( int height, int width, T* buffer, int ldim )
 
       Reconfigure the matrix around the specified buffer.
+
+   .. cpp:function:: void LockedAttach( int height, int width, const T* buffer, int ldim )
+
+      Reconfigure the matrix around the specified unmodifiable buffer.
 
    .. cpp:function:: void View( Matrix<T>& A )
 
       Reconfigure the matrix around the modifiable buffer underlying `A`.
-
-   .. cpp:function:: void LockedView( int height, int width, const T* buffer, int ldim )
-
-      Reconfigure the matrix around the specified unmodifiable buffer.
 
    .. cpp:function:: void LockedView( const Matrix<T>& A )
 

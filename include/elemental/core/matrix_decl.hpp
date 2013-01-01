@@ -102,7 +102,9 @@ public:
     bool Viewing() const;
     bool LockedView() const;
 
-    void View( Int height, Int width, T* buffer, Int ldim );
+    void Attach( Int height, Int width, T* buffer, Int ldim );
+    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
+
     void View( Matrix<T,Int>& A);
     void View( Matrix<T,Int>& A, Int i, Int j, Int height, Int width );
     void View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR );
@@ -111,7 +113,6 @@ public:
     void View2x2( Matrix<T,Int>& ATL, Matrix<T,Int>& ATR,
                   Matrix<T,Int>& ABL, Matrix<T,Int>& ABR );
 
-    void LockedView( Int height, Int width, const T* buffer, Int ldim );
     void LockedView( const Matrix<T,Int>& A );
     void LockedView
     ( const Matrix<T,Int>& A, Int i, Int j, Int height, Int width );

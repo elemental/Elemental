@@ -638,6 +638,17 @@ It should also be noted that this is the default distribution format for the
 
    .. rubric:: Views
 
+   .. cpp:function:: void Attach( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
+
+      Reconfigure this distributed matrix around an implicit ``[MC,MR]`` 
+      distributed matrix of the specified dimensions, alignments, local buffer, 
+      local leading dimension, and process grid.
+
+   .. cpp:function:: void LockedAttach( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
+
+      Same as above, but the resulting matrix is "locked", meaning that it 
+      cannot modify the underlying local data.
+
    .. cpp:function:: void View( DistMatrix<T,MC,MR>& A )
 
       Reconfigure this matrix such that it is essentially a copy of the 
@@ -659,17 +670,6 @@ It should also be noted that this is the default distribution format for the
 
       Same as above, but this matrix is "locked", meaning that it cannot
       change the data from `A` that it points to.
-
-   .. cpp:function:: void View( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
-
-      Reconfigure this distributed matrix around an implicit ``[MC,MR]`` 
-      distributed matrix of the specified dimensions, alignments, local buffer, 
-      local leading dimension, and process grid.
-
-   .. cpp:function:: void LockedView( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
-
-      Same as above, but the resulting matrix is "locked", meaning that it 
-      cannot modify the underlying local data.
 
    .. note::
 

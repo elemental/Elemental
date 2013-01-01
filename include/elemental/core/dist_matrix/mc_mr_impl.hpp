@@ -837,6 +837,78 @@ DistMatrix<T,MC,MR,Int>::AlignRows( Int rowAlignment )
 
 template<typename T,typename Int>
 inline void
+DistMatrix<T,MC,MR,Int>::Attach
+( Int height, Int width, Int colAlignment, Int rowAlignment, 
+  T* buffer, Int ldim, const elem::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::Attach");
+#endif
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlignment_ = colAlignment;
+    this->rowAlignment_ = rowAlignment;
+    this->viewing_ = true;
+    if( g.InGrid() )
+    {
+        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
+        this->rowShift_ = Shift(g.Col(),rowAlignment,g.Width());
+        Int localHeight = LocalLength(height,this->colShift_,g.Height());
+        Int localWidth = LocalLength(width,this->rowShift_,g.Width());
+        this->localMatrix_.Attach( localHeight, localWidth, buffer, ldim );
+    }
+    else
+    {
+        this->colShift_ = 0;
+        this->rowShift_ = 0;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,MC,MR,Int>::LockedAttach
+( Int height, Int width, Int colAlignment, Int rowAlignment, 
+  const T* buffer, Int ldim, const elem::Grid& g )
+{
+#ifndef RELEASE
+    PushCallStack("[MC,MR]::LockedAttach");
+#endif
+    this->Empty();
+
+    this->grid_ = &g;
+    this->height_ = height;
+    this->width_ = width;
+    this->colAlignment_ = colAlignment;
+    this->rowAlignment_ = rowAlignment;
+    this->viewing_ = true;
+    this->lockedView_ = true;
+    if( g.InGrid() )
+    {
+        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
+        this->rowShift_ = Shift(g.Col(),rowAlignment,g.Width());
+        Int localHeight = LocalLength(height,this->colShift_,g.Height());
+        Int localWidth = LocalLength(width,this->rowShift_,g.Width());
+        this->localMatrix_.LockedAttach
+        ( localHeight, localWidth, buffer, ldim );
+    }
+    else
+    {
+        this->colShift_ = 0;
+        this->rowShift_ = 0;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
 DistMatrix<T,MC,MR,Int>::View( DistMatrix<T,MC,MR,Int>& A )
 {
 #ifndef RELEASE
@@ -855,41 +927,6 @@ DistMatrix<T,MC,MR,Int>::View( DistMatrix<T,MC,MR,Int>& A )
         this->colShift_ = A.ColShift();
         this->rowShift_ = A.RowShift();
         this->localMatrix_.View( A.LocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MC,MR,Int>::View
-( Int height, Int width, Int colAlignment, Int rowAlignment, 
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-#ifndef RELEASE
-    PushCallStack("[MC,MR]::View");
-#endif
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlignment_ = colAlignment;
-    this->rowAlignment_ = rowAlignment;
-    this->viewing_ = true;
-    if( g.InGrid() )
-    {
-        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
-        this->rowShift_ = Shift(g.Col(),rowAlignment,g.Width());
-        Int localHeight = LocalLength(height,this->colShift_,g.Height());
-        Int localWidth = LocalLength(width,this->rowShift_,g.Width());
-        this->localMatrix_.View( localHeight, localWidth, buffer, ldim );
     }
     else
     {
@@ -922,42 +959,6 @@ DistMatrix<T,MC,MR,Int>::LockedView( const DistMatrix<T,MC,MR,Int>& A )
         this->colShift_ = A.ColShift();
         this->rowShift_ = A.RowShift();
         this->localMatrix_.LockedView( A.LockedLocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MC,MR,Int>::LockedView
-( Int height, Int width, Int colAlignment, Int rowAlignment, 
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-#ifndef RELEASE
-    PushCallStack("[MC,MR]::LockedView");
-#endif
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlignment_ = colAlignment;
-    this->rowAlignment_ = rowAlignment;
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( g.InGrid() )
-    {
-        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
-        this->rowShift_ = Shift(g.Col(),rowAlignment,g.Width());
-        Int localHeight = LocalLength(height,this->colShift_,g.Height());
-        Int localWidth = LocalLength(width,this->rowShift_,g.Width());
-        this->localMatrix_.LockedView( localHeight, localWidth, buffer, ldim );
     }
     else
     {
@@ -1427,7 +1428,7 @@ DistMatrix<T,MC,MR,Int>::GetDiagonal
             d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( diagLength, 1 );
     }
-    if( !d.InDiagonal() )
+    if( !d.Participating() )
     {
 #ifndef RELEASE
         PopCallStack();
@@ -1508,7 +1509,7 @@ DistMatrix<T,MC,MR,Int>::GetDiagonal
             d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, diagLength );
     }
-    if( !d.InDiagonal() )
+    if( !d.Participating() )
     {
 #ifndef RELEASE
         PopCallStack();
@@ -1580,7 +1581,7 @@ DistMatrix<T,MC,MR,Int>::SetDiagonal
     if( !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    if( !d.InDiagonal() )
+    if( !d.Participating() )
     {
 #ifndef RELEASE
         PopCallStack();
@@ -1652,7 +1653,7 @@ DistMatrix<T,MC,MR,Int>::SetDiagonal
     if( !d.AlignedWithDiagonal( *this, offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    if( !d.InDiagonal() )
+    if( !d.Participating() )
     {
 #ifndef RELEASE
         PopCallStack();
@@ -4875,7 +4876,7 @@ DistMatrix<T,MC,MR,Int>::GetRealPartOfDiagonal
         d.ResizeTo( length, 1 );
     }
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -4952,7 +4953,7 @@ DistMatrix<T,MC,MR,Int>::GetImagPartOfDiagonal
         d.ResizeTo( length, 1 );
     }
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -5029,7 +5030,7 @@ DistMatrix<T,MC,MR,Int>::GetRealPartOfDiagonal
         d.ResizeTo( 1, length );
     }
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -5108,7 +5109,7 @@ DistMatrix<T,MC,MR,Int>::GetImagPartOfDiagonal
         d.ResizeTo( 1, length );
     }
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const Int r = g.Height();
         const Int c = g.Width();
@@ -5177,7 +5178,7 @@ DistMatrix<T,MC,MR,Int>::SetRealPartOfDiagonal
 #endif
     typedef typename Base<T>::type R;
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const elem::Grid& g = this->Grid();
         const Int r = g.Height();
@@ -5244,7 +5245,7 @@ DistMatrix<T,MC,MR,Int>::SetImagPartOfDiagonal
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const elem::Grid& g = this->Grid();
         const Int r = g.Height();
@@ -5309,7 +5310,7 @@ DistMatrix<T,MC,MR,Int>::SetRealPartOfDiagonal
 #endif
     typedef typename Base<T>::type R;
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const elem::Grid& g = this->Grid();
         const Int r = g.Height();
@@ -5378,7 +5379,7 @@ DistMatrix<T,MC,MR,Int>::SetImagPartOfDiagonal
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
 
-    if( d.InDiagonal() )
+    if( d.Participating() )
     {
         const elem::Grid& g = this->Grid();
         const Int r = g.Height();

@@ -222,17 +222,17 @@ public:
     template<typename S,typename N> 
     void AlignRowsWith( const DistMatrix<S,VR,STAR,N>& A ) {}
 
+    // (Immutable) view of a distributed matrix's buffer
+    void Attach
+    ( Int height, Int width, Int colAlignment, 
+      T* buffer, Int ldim, const elem::Grid& grid );
+    void LockedAttach
+    ( Int height, Int width, Int colAlignment,
+      const T* buffer, Int ldim, const elem::Grid& grid );
+
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,MR,STAR,Int>& A );
     void LockedView( const DistMatrix<T,MR,STAR,Int>& A );
-
-    // (Immutable) view of a distributed matrix's buffer
-    void View
-    ( Int height, Int width, Int colAlignment, 
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedView
-    ( Int height, Int width, Int colAlignment,
-      const T* buffer, Int ldim, const elem::Grid& grid );
 
     // (Immutable) view of a portion of a distributed matrix
     void View

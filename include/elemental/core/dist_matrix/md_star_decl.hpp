@@ -107,6 +107,8 @@ public:
     virtual Int ColStride() const;
     virtual Int RowStride() const;
 
+    virtual bool Participating() const;
+
     //
     // Collective routines
     //
@@ -136,12 +138,6 @@ public:
     //------------------------------------------------------------------------//
     // Routines specific to [MD,* ] distribution                              //
     //------------------------------------------------------------------------//
-
-    //
-    // Non-collective routines
-    //
-
-    bool InDiagonal() const;
 
     //
     // Collective routines
@@ -221,17 +217,17 @@ public:
     template<typename S,typename N>
     void AlignWithDiagonal( const DistMatrix<S,MR,MC,N>& A, Int offset=0 );
 
+    // (Immutable) view of a distributed matrix's buffer
+    void Attach
+    ( Int height, Int width, Int colAlignment,
+      T* buffer, Int ldim, const elem::Grid& grid );
+    void LockedAttach
+    ( Int height, Int width, Int colAlignment, 
+      const T* buffer, Int ldim, const elem::Grid& grid );
+
     // (Immutable) view of a distributed matrix
     void View( DistMatrix<T,MD,STAR,Int>& A );
     void LockedView( const DistMatrix<T,MD,STAR,Int>& A );
-
-    // (Immutable) view of a distributed matrix's buffer
-    void View
-    ( Int height, Int width, Int colAlignment,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedView
-    ( Int height, Int width, Int colAlignment, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
 
     // (Immutable) view of a portion of a distributed matrix
     void View

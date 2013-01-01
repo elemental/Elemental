@@ -131,6 +131,51 @@ DistMatrix<T,STAR,STAR,Int>::PrintBase
 
 template<typename T,typename Int>
 inline void
+DistMatrix<T,STAR,STAR,Int>::Attach
+( Int height, Int width, 
+  T* buffer, Int ldim, const elem::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::Attach");
+#endif
+    this->Empty();
+
+    this->grid_ = &grid;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    if( this->Grid().InGrid() )
+        this->localMatrix_.Attach( height, width, buffer, ldim );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+DistMatrix<T,STAR,STAR,Int>::LockedAttach
+( Int height, Int width, 
+  const T* buffer, Int ldim, const elem::Grid& grid )
+{
+#ifndef RELEASE
+    PushCallStack("[* ,* ]::LockedAttach");
+#endif
+    this->Empty();
+
+    this->grid_ = &grid;
+    this->height_ = height;
+    this->width_ = width;
+    this->viewing_ = true;
+    this->lockedView_ = true;
+    if( this->Grid().InGrid() )
+        this->localMatrix_.LockedAttach( height, width, buffer, ldim );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
 DistMatrix<T,STAR,STAR,Int>::View( DistMatrix<T,STAR,STAR,Int>& A )
 {
 #ifndef RELEASE
@@ -144,28 +189,6 @@ DistMatrix<T,STAR,STAR,Int>::View( DistMatrix<T,STAR,STAR,Int>& A )
     this->viewing_ = true;
     if( this->Grid().InGrid() )
         this->localMatrix_.View( A.LocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,STAR,Int>::View
-( Int height, Int width, 
-  T* buffer, Int ldim, const elem::Grid& grid )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,* ]::View");
-#endif
-    this->Empty();
-
-    this->grid_ = &grid;
-    this->height_ = height;
-    this->width_ = width;
-    this->viewing_ = true;
-    if( this->Grid().InGrid() )
-        this->localMatrix_.View( height, width, buffer, ldim );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -188,29 +211,6 @@ DistMatrix<T,STAR,STAR,Int>::LockedView
     this->lockedView_ = true;
     if( this->Grid().InGrid() )
         this->localMatrix_.LockedView( A.LockedLocalMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,STAR,Int>::LockedView
-( Int height, Int width, 
-  const T* buffer, Int ldim, const elem::Grid& grid )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,* ]::LockedView");
-#endif
-    this->Empty();
-
-    this->grid_ = &grid;
-    this->height_ = height;
-    this->width_ = width;
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( this->Grid().InGrid() )
-        this->localMatrix_.LockedView( height, width, buffer, ldim );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -819,7 +819,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     T* recvBuf = &buffer[portionSize];
 
     // Pack
-    if( A.InDiagonal() )
+    if( A.Participating() )
     {
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();
@@ -918,7 +918,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     T* recvBuf = &buffer[portionSize];
 
     // Pack
-    if( A.InDiagonal() )
+    if( A.Participating() )
     {
         const T* ALocalBuffer = A.LockedLocalBuffer();
         const Int ALDim = A.LocalLDim();

@@ -404,6 +404,11 @@ AbstractDistMatrix<T,Int>::Empty()
 }
 
 template<typename T,typename Int>
+inline bool
+AbstractDistMatrix<T,Int>::Participating() const
+{ return grid_->InGrid(); }
+
+template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::Print( const std::string msg ) const
 { PrintBase( std::cout, msg ); }
