@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -157,17 +157,17 @@ HemmLUC
                C1,
           CB,  C2 );
 
-        ARowPan.LockedView1x2( A11, A12 );
-        AColPan.LockedView2x1
-        ( A01,
-          A11 );
+        LockedView1x2( ARowPan, A11, A12 );
+        LockedView2x1
+        ( AColPan, A01,
+                   A11 );
 
-        CAbove.View2x1
-        ( C0,
-          C1 );
-        CBelow.View2x1
-        ( C1,
-          C2 );
+        View2x1
+        ( CAbove, C0,
+                  C1 );
+        View2x1
+        ( CBelow, C1,
+                  C2 );
 
         AColPan_MC_STAR.AlignWith( CAbove );
         ARowPan_STAR_MC.AlignWith( CBelow );

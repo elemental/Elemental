@@ -1,6 +1,6 @@
 /*
-   Copyright (c) The University of Texas at Austin, 2012.
-   Copyright (c) Jack Poulson, 2012.
+   Copyright (c) The University of Texas at Austin, 2013.
+   Copyright (c) Jack Poulson, 2013.
 
    Authors: Martin Schatz (primary) and Jack Poulson (maintenance)
 

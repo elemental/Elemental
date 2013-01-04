@@ -101,7 +101,7 @@ which states::
 
 Most source files contain the copyright notice::
 
-    Copyright (c) 2009-2012, Jack Poulson
+    Copyright (c) 2009-2013, Jack Poulson
     All rights reserved.
 
 For an up-to-date list of contributing authors, please see the 

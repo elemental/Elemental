@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -94,11 +94,8 @@ MakeHermitianUniformSpectrum
 
     // Force the diagonal to be real
     if( isComplex )
-    {
-        const int n = A.Height();
         for( int j=0; j<n; ++j )
             A.SetImagPart( j, j, R(0) );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

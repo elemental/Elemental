@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -44,8 +44,8 @@ inline void UnblockedBidiagL( DistMatrix<R>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        a1R.View1x2( alpha11, a12 );
-        A2R.View1x2( a21, A22 );
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
 
         a21_MC_STAR.AlignWith( A22 );
         a1R_STAR_MR.AlignWith( A2R );
@@ -186,8 +186,8 @@ inline void UnblockedBidiagL
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        a1R.View1x2( alpha11, a12 );
-        A2R.View1x2( a21, A22 );
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
 
         a21_MC_STAR.AlignWith( A22 );
         a1R_STAR_MR.AlignWith( A2R );

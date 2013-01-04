@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -123,7 +123,7 @@ SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
 #endif
     Matrix<F> B;
     if( canOverwrite )
-        B.View( A );
+        View( B, A );
     else
         B = A;
     SafeProduct<F> det = internal::SafeHPDDeterminantWithOverwrite( uplo, B ); 
@@ -187,7 +187,7 @@ SafeHPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
 #endif
     DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
-        B.View( A );
+        View( B, A );
     else
         B = A;
     SafeProduct<F> det = internal::SafeHPDDeterminantWithOverwrite( uplo, B );

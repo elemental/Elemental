@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -90,12 +90,12 @@ LocalHemvColAccumulateU
         const int n0 = x0_MR_STAR.Height();
         const int n1 = x1_MR_STAR.Height();
         const int n2 = x2_MR_STAR.Height();
-        A11.LockedView( A, n0, n0,    n1, n1 );
-        A12.LockedView( A, n0, n0+n1, n1, n2 );
-        x1_MC_STAR.LockedView( x_MC_STAR, n0, 0, n1, 1 );
-        z1_MC_STAR.View( z_MC_STAR, n0,    0, n1, 1 );
-        z1_MR_STAR.View( z_MR_STAR, n0,    0, n1, 1 );
-        z2_MR_STAR.View( z_MR_STAR, n0+n1, 0, n2, 1 );
+        LockedView( A11, A, n0, n0,    n1, n1 );
+        LockedView( A12, A, n0, n0+n1, n1, n2 );
+        LockedView( x1_MC_STAR, x_MC_STAR, n0, 0, n1, 1 );
+        View( z1_MC_STAR, z_MC_STAR, n0,    0, n1, 1 );
+        View( z1_MR_STAR, z_MR_STAR, n0,    0, n1, 1 );
+        View( z2_MR_STAR, z_MR_STAR, n0+n1, 0, n2, 1 );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//
@@ -213,12 +213,12 @@ LocalHemvRowAccumulateU
         const int n0 = x0_STAR_MR.Width();
         const int n1 = x1_STAR_MR.Width();
         const int n2 = x2_STAR_MR.Width();
-        A11.LockedView( A, n0, n0,    n1, n1 );
-        A12.LockedView( A, n0, n0+n1, n1, n2 );
-        x1_STAR_MC.LockedView( x_STAR_MC, 0, n0, 1, n1 );
-        z1_STAR_MC.View( z_STAR_MC, 0, n0,    1, n1 );
-        z1_STAR_MR.View( z_STAR_MR, 0, n0,    1, n1 );
-        z2_STAR_MR.View( z_STAR_MR, 0, n0+n1, 1, n2 );
+        LockedView( A11, A, n0, n0,    n1, n1 );
+        LockedView( A12, A, n0, n0+n1, n1, n2 );
+        LockedView( x1_STAR_MC, x_STAR_MC, 0, n0, 1, n1 );
+        View( z1_STAR_MC, z_STAR_MC, 0, n0,    1, n1 );
+        View( z1_STAR_MR, z_STAR_MR, 0, n0,    1, n1 );
+        View( z2_STAR_MR, z_STAR_MR, 0, n0+n1, 1, n2 );
 
         D11.AlignWith( A11 );
         //--------------------------------------------------------------------//

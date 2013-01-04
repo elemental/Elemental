@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -164,13 +164,13 @@ HemmRLC
         ( CL, /**/ CR,
           C0, /**/ C1, C2 );
 
-        ARowPan.LockedView1x2( A10, A11 );
-        AColPan.LockedView2x1
-        ( A11,
-          A21 );
+        LockedView1x2( ARowPan, A10, A11 );
+        LockedView2x1
+        ( AColPan, A11,
+                   A21 );
 
-        CLeft.View1x2( C0, C1 );
-        CRight.View1x2( C1, C2 );
+        View1x2( CLeft, C0, C1 );
+        View1x2( CRight, C1, C2 );
 
         AColPan_VR_STAR.AlignWith( CRight );
         AColPanAdj_STAR_MR.AlignWith( CRight );

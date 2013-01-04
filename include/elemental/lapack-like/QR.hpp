@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -48,13 +48,13 @@ QR( Matrix<Real>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        ALeftPan.View2x1
-        ( A11,
-          A21 );
+        View2x1
+        ( ALeftPan, A11,
+                    A21 );
 
-        ARightPan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( ARightPan, A12,
+                     A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelQR( ALeftPan );
@@ -101,13 +101,13 @@ QR( DistMatrix<Real>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        ALeftPan.View2x1
-        ( A11,
-          A21 );
+        View2x1
+        ( ALeftPan, A11,
+                    A21 );
 
-        ARightPan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( ARightPan, A12,
+                     A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelQR( ALeftPan );
@@ -168,13 +168,13 @@ QR( Matrix<Complex<Real> >& A,
                t1,
           tB,  t2 );
 
-        ALeftPan.View2x1
-        ( A11,
-          A21 );
+        View2x1
+        ( ALeftPan, A11,
+                    A21 );
 
-        ARightPan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( ARightPan, A12,
+                     A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelQR( ALeftPan, t1 );
@@ -256,13 +256,13 @@ QR( DistMatrix<Complex<Real> >& A,
                t1,
           tB,  t2 );
 
-        ALeftPan.View2x1
-        ( A11,
-          A21 );
+        View2x1
+        ( ALeftPan, A11,
+                    A21 );
 
-        ARightPan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( ARightPan, A12,
+                     A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelQR( ALeftPan, t1 );

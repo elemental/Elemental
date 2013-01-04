@@ -1,8 +1,8 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
-   Copyright (c) 2012, The University of Texas at Austin
+   Copyright (c) 2013, The University of Texas at Austin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -59,8 +59,7 @@ TrmmRLTA
         else
             X1AdjOrTrans_MR_STAR.TransposeFrom( X1 );
         LocalTrmmAccumulateRLT
-        ( orientation, diag, 
-          alpha, L, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
+        ( diag, alpha, L, X1AdjOrTrans_MR_STAR, Z1AdjOrTrans_MC_STAR );
 
         Z1AdjOrTrans.SumScatterFrom( Z1AdjOrTrans_MC_STAR );
         Z1AdjOrTrans_MR_MC = Z1AdjOrTrans;
@@ -180,7 +179,7 @@ TrmmRLTC
 template<typename T>
 inline void
 LocalTrmmAccumulateRLT
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
+( UnitOrNonUnit diag, T alpha,
   const DistMatrix<T>& L,
   const DistMatrix<T,MR,STAR>& XAdjOrTrans_MR_STAR,
         DistMatrix<T,MC,STAR>& ZAdjOrTrans_MC_STAR )

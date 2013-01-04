@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -56,7 +56,6 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     PushCallStack("MakeTriangular");
 #endif
     const int height = A.Height();
-    const int width = A.Width();
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();

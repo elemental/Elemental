@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -36,11 +36,11 @@ PanelQR( Matrix<Real>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aLeftCol.View2x1( alpha11,
-                          a21 );
+        View2x1( aLeftCol, alpha11,
+                           a21 );
 
-        ARightPan.View2x1( a12,
-                           A22 );
+        View2x1( ARightPan, a12,
+                            A22 );
 
         Zeros( ARightPan.Width(), 1, z );
         //--------------------------------------------------------------------//
@@ -97,11 +97,11 @@ PanelQR( DistMatrix<Real>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aLeftCol.View2x1( alpha11,
-                          a21 );
+        View2x1( aLeftCol, alpha11,
+                           a21 );
 
-        ARightPan.View2x1( a12,
-                           A22 );
+        View2x1( ARightPan, a12,
+                            A22 );
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );
@@ -197,11 +197,11 @@ PanelQR
                tau1, 
           tB,  t2 );
 
-        aLeftCol.View2x1( alpha11,
-                          a21 );
+        View2x1( aLeftCol, alpha11,
+                           a21 );
 
-        ARightPan.View2x1( a12,
-                           A22 );
+        View2x1( ARightPan, a12,
+                            A22 );
 
         Zeros( ARightPan.Width(), 1, z );
         //--------------------------------------------------------------------//
@@ -288,11 +288,11 @@ PanelQR
                tau1, 
           tB,  t2 );
 
-        aLeftCol.View2x1( alpha11,
-                          a21 );
+        View2x1( aLeftCol, alpha11,
+                           a21 );
 
-        ARightPan.View2x1( a12,
-                           A22 );
+        View2x1( ARightPan, a12,
+                            A22 );
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );

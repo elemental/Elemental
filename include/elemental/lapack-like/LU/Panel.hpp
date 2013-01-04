@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -127,10 +127,11 @@ PanelLU
     std::vector<byte> recvData(numBytes);
 
     // Extract pointers to send and recv data
-    F* sendBufFloat = (F*) &sendData[0];
-    F* recvBufFloat = (F*) &recvData[0];
-    int* sendBufInt = (int*) &sendData[(width+1)*sizeof(F)];
-    int* recvBufInt = (int*) &recvData[(width+1)*sizeof(F)];
+    // TODO: Think of how to make this safer with respect to alignment issues
+    F* sendBufFloat = (F*)&sendData[0];
+    F* recvBufFloat = (F*)&recvData[0];
+    int* sendBufInt = (int*)&sendData[(width+1)*sizeof(F)];
+    int* recvBufInt = (int*)&recvData[(width+1)*sizeof(F)];
 
     // Start the algorithm
     PushBlocksizeStack( 1 );

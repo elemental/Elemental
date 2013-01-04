@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -49,8 +49,8 @@ Inverse( Matrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        A1.View( A, 0, A00.Width(),             A.Height(), A01.Width() );
-        A2.View( A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
+        View( A1, A, 0, A00.Width(),             A.Height(), A01.Width() );
+        View( A2, A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
 
         //--------------------------------------------------------------------//
         // Copy out L1
@@ -119,8 +119,8 @@ Inverse( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
 
-        A1.View( A, 0, A00.Width(),             A.Height(), A01.Width() );
-        A2.View( A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
+        View( A1, A, 0, A00.Width(),             A.Height(), A01.Width() );
+        View( A2, A, 0, A00.Width()+A01.Width(), A.Height(), A02.Width() );
 
         L21_VR_STAR.AlignWith( A2 );
         L21Trans_STAR_MR.AlignWith( A2 );

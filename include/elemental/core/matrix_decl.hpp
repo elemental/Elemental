@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -10,7 +10,7 @@
 namespace elem {
 
 // Matrix base for arbitrary rings
-template<typename T,typename Int=int>
+template<typename T,typename Int>
 class Matrix
 {
 public:    
@@ -105,26 +105,6 @@ public:
     void Attach( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
 
-    void View( Matrix<T,Int>& A);
-    void View( Matrix<T,Int>& A, Int i, Int j, Int height, Int width );
-    void View1x2( Matrix<T,Int>& AL, Matrix<T,Int>& AR );
-    void View2x1( Matrix<T,Int>& AT, 
-                  Matrix<T,Int>& AB );
-    void View2x2( Matrix<T,Int>& ATL, Matrix<T,Int>& ATR,
-                  Matrix<T,Int>& ABL, Matrix<T,Int>& ABR );
-
-    void LockedView( const Matrix<T,Int>& A );
-    void LockedView
-    ( const Matrix<T,Int>& A, Int i, Int j, Int height, Int width );
-    void LockedView1x2
-    ( const Matrix<T,Int>& AL, const Matrix<T,Int>& AR );
-    void LockedView2x1
-    ( const Matrix<T,Int>& AT, 
-      const Matrix<T,Int>& AB );
-    void LockedView2x2
-    ( const Matrix<T,Int>& ATL, const Matrix<T,Int>& ATR,
-      const Matrix<T,Int>& ABL, const Matrix<T,Int>& ABR );
-
     //
     // Utilities
     //
@@ -196,6 +176,38 @@ private:
         ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
     };
     template<typename Z> friend struct UpdateImagPartHelper;
+
+    friend void View<T,Int>
+    ( Matrix<T,Int>& A, Matrix<T,Int>& B );
+    friend void View<T,Int>
+    ( Matrix<T,Int>& A, Matrix<T,Int>& B, Int i, Int j, Int height, Int width );
+    friend void View1x2<T,Int>
+    ( Matrix<T,Int>& A, Matrix<T,Int>& BL, Matrix<T,Int>& BR );
+    friend void View2x1<T,Int>
+    ( Matrix<T,Int>& A,
+      Matrix<T,Int>& BT,
+      Matrix<T,Int>& BB );
+    friend void View2x2<T,Int>
+    ( Matrix<T,Int>& A,
+      Matrix<T,Int>& BTL, Matrix<T,Int>& BTR,
+      Matrix<T,Int>& BBL, Matrix<T,Int>& BBR );
+
+    friend void elem::LockedView<T,Int>
+    ( Matrix<T,Int>& A, const Matrix<T,Int>& B );
+    friend void elem::LockedView<T,Int>
+    (       Matrix<T,Int>& A, 
+      const Matrix<T,Int>& B, Int i, Int j, Int height, Int width );
+    friend void LockedView1x2<T,Int>
+    (       Matrix<T,Int>& A,
+      const Matrix<T,Int>& BL, const Matrix<T,Int>& BR );
+    friend void LockedView2x1<T,Int>
+    (       Matrix<T,Int>& A,
+      const Matrix<T,Int>& BT,
+      const Matrix<T,Int>& BB );
+    friend void LockedView2x2<T,Int>
+    (       Matrix<T,Int>& A,
+      const Matrix<T,Int>& BTL, const Matrix<T,Int>& BTR,
+      const Matrix<T,Int>& BBL, const Matrix<T,Int>& BBR );
 };
 
 } // namespace elem

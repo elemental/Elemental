@@ -9,6 +9,7 @@ Core functionality
    core/matrix
    core/grid
    core/dist_matrix
+   core/viewing
    core/partitioning
    core/repartitioning
    core/slide_partition

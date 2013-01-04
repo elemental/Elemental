@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -65,10 +65,10 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 
             const int n0 = x0.Height();
             const int n1 = x1.Height();
-            U01.LockedView( U, 0,  n0, n0, n1 );
-            U11.LockedView( U, n0, n0, n1, n1 );
-            z0_MC_STAR.View( z_MC_STAR, 0,  0, n0, 1 );
-            z1_MC_STAR.View( z_MC_STAR, n0, 0, n1, 1 );
+            LockedView( U01, U, 0,  n0, n0, n1 );
+            LockedView( U11, U, n0, n0, n1, n1 );
+            View( z0_MC_STAR, z_MC_STAR, 0,  0, n0, 1 );
+            View( z1_MC_STAR, z_MC_STAR, n0, 0, n1, 1 );
 
             x1_MR_STAR.AlignWith( U01 );
             //----------------------------------------------------------------//
@@ -133,10 +133,10 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 
             const int n0 = x0.Width();
             const int n1 = x1.Width();
-            U01.LockedView( U, 0,  n0, n0, n1 );
-            U11.LockedView( U, n0, n0, n1, n1 );
-            z0_STAR_MC.View( z_STAR_MC, 0, 0,  1, n0 );
-            z1_STAR_MC.View( z_STAR_MC, 0, n0, 1, n1 );
+            LockedView( U01, U, 0,  n0, n0, n1 );
+            LockedView( U11, U, n0, n0, n1, n1 );
+            View( z0_STAR_MC, z_STAR_MC, 0, 0,  1, n0 );
+            View( z1_STAR_MC, z_STAR_MC, 0, n0, 1, n1 );
 
             x1_STAR_MR.AlignWith( U01 );
             z1.AlignWith( x1 );

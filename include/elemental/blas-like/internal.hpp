@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -283,7 +283,7 @@ void LocalTrmmAccumulateRLN
 
 template<typename T>
 void LocalTrmmAccumulateRLT
-( Orientation orientation, UnitOrNonUnit diag, T alpha, 
+( UnitOrNonUnit diag, T alpha, 
   const DistMatrix<T>& L,
   const DistMatrix<T,MR,  STAR>& XHermOrTrans_MR_STAR,
         DistMatrix<T,MC,  STAR>& ZHermOrTrans_MC_STAR );
@@ -297,7 +297,7 @@ void LocalTrmmAccumulateRUN
 
 template<typename T>
 void LocalTrmmAccumulateRUT
-( Orientation orientation, UnitOrNonUnit diag, T alpha, 
+( UnitOrNonUnit diag, T alpha, 
   const DistMatrix<T>& U,
   const DistMatrix<T,MR,  STAR>& XHermOrTrans_MR_STAR,
         DistMatrix<T,MC,  STAR>& ZHermOrTrans_MC_STAR );

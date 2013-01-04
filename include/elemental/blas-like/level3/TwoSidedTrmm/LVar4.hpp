@@ -1,8 +1,8 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
-   Copyright (c) 2012, The University of Texas at Austin
+   Copyright (c) 2013, The University of Texas at Austin
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 

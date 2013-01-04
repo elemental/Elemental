@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -147,13 +147,15 @@ PanelBidiagU
         PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
 
-        A2L.View1x2( A20, a21 );
-        Y2L.View1x2( Y20, y21 );
+        View1x2( A2L, A20, a21 );
+        View1x2( Y2L, Y20, y21 );
 
-        a12_STAR_MR.View
-        ( ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
-        aB1_MC_STAR.View
-        ( AColPan_MC_STAR, ATL.Height(), ATL.Width(), ABR.Height(), 1 );
+        View
+        ( a12_STAR_MR,
+          ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
+        View
+        ( aB1_MC_STAR,
+          AColPan_MC_STAR, ATL.Height(), ATL.Width(), ABR.Height(), 1 );
 
         // Main alignments
         a01_MR_STAR.AlignWith( ABL );
@@ -389,7 +391,7 @@ PanelBidiagU
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
     DistMatrix<R> ATLExpanded(g);
-    ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
+    View( ATLExpanded, A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();
@@ -564,13 +566,15 @@ PanelBidiagU
         PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
 
-        A2L.View1x2( A20, a21 );
-        Y2L.View1x2( Y20, y21 );
+        View1x2( A2L, A20, a21 );
+        View1x2( Y2L, Y20, y21 );
 
-        a12_STAR_MR.View
-        ( ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
-        aB1_MC_STAR.View
-        ( AColPan_MC_STAR, ATL.Height(), ATL.Width(), ABR.Height(), 1 );
+        View
+        ( a12_STAR_MR,
+          ARowPan_STAR_MR, ATL.Height(), ATL.Width()+1, 1, a12.Width() );
+        View
+        ( aB1_MC_STAR,
+          AColPan_MC_STAR, ATL.Height(), ATL.Width(), ABR.Height(), 1 );
 
         // Main alignments
         a01_MR_STAR.AlignWith( ABL );
@@ -833,7 +837,7 @@ PanelBidiagU
     // Put back d and e
     ATL.SetRealPartOfDiagonal( d, 0 );
     DistMatrix<Complex<R> > ATLExpanded(g);
-    ATLExpanded.View( A, 0, 0, ATL.Height(), ATL.Width()+1 );
+    View( ATLExpanded, A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetRealPartOfDiagonal( e, 1 );
 #ifndef RELEASE
     PopCallStack();

@@ -56,12 +56,11 @@ to view the bottom-right :math:`6 \times 7` submatrix using
 
      #include "elemental.hpp"
      ...
-     Matrix<Complex<double> > ABR;
-     ABR.View( A, 4, 3, 6, 7 );
+     Matrix<Complex<double> > ABR( A, 1, 2, 3, 4 );
 
-since the bottom-right :math:`6 \times 7` submatrix beings at index 
-:math:`(4,3)`. In general, to view the :math:`M \times N` submatrix starting
-at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
+since the bottom-right :math:`3 \times 4` submatrix beings at index 
+:math:`(1,2)`. In general, to view the :math:`M \times N` submatrix starting
+at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
 
 .. cpp:type:: class Matrix<T>
 
@@ -266,58 +265,6 @@ at entry :math:`(i,j)`, one would call ``ABR.View( A, i, j, M, N );``.
    .. cpp:function:: void LockedAttach( int height, int width, const T* buffer, int ldim )
 
       Reconfigure the matrix around the specified unmodifiable buffer.
-
-   .. cpp:function:: void View( Matrix<T>& A )
-
-      Reconfigure the matrix around the modifiable buffer underlying `A`.
-
-   .. cpp:function:: void LockedView( const Matrix<T>& A )
-
-      Reconfigure the matrix around the unmodifiable buffer underlying `A`.
-
-   .. cpp:function:: void View( Matrix<T>& A, int i, int j, int height, int width )
-
-      Reconfigure the matrix around the modifiable buffer underlying `A`, but
-      only the portion that holds the `height` :math:`\times` `width` submatrix 
-      starting at entry `(i,j)`
-
-   .. cpp:function:: void LockedView( const Matrix<T>& A, int i, int j, int height, int width )
-
-      Same as above, but the resulting matrix data is unmodifiable.
-
-   .. cpp:function:: void View1x2( Matrix<T>& AL, Matrix<T>& AR )
-
-      Reconfigure the matrix to use the modifiable buffer that spans the 
-      matrices :math:`A_L` and :math:`A_R` such that it behaves like 
-      :math:`[A_L A_R]` (this routine requires that :math:`A_R`'s buffer begins 
-      at the same memory location that an extra column of :math:`A_L` would 
-      have).
-
-   .. cpp:function:: void LockedView1x2( const Matrix<T>& AL, const Matrix<T>& AR )
-
-      Same as above, but the resulting matrix data is unmodifiable.
-
-   .. cpp:function:: void View2x1( Matrix<T>& AT, Matrix<T>& AB )
-
-      Reconfigure the matrix to use the modifiable buffer that spans the 
-      matrices :math:`A_T` and :math:`A_B` such that it behaves like 
-      :math:`[A_T;A_B]` (this routine requires that :math:`A_B`'s buffer begins 
-      at the same memory location that an extra row of :math:`A_T` would have).
-
-   .. cpp:function:: void LockedView2x1( const Matrix<T>& AT, const Matrix<T>& AB )
-
-      Same as above, but the resulting matrix data is unmodifiable.
-
-   .. cpp:function:: void View2x2( Matrix<T>& ATL, Matrix<T>& ATR, Matrix<T>& ABL, Matrix<T>& ABR )
-
-      Reconfigure the matrix to behave like 
-      :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`
-      (the buffer requirements are similar to :cpp:func:`Matrix\<T>::View1x2` 
-      and :cpp:func:`Matrix\<T>::View2x1`).
-
-   .. cpp:function:: void LockedView2x2( const Matrix<T>& ATL, const Matrix<T>& ATR, const Matrix<T>& ABL, const Matrix<T>& ABR )
-
-      Same as above, but the resulting matrix data is unmodifiable.
 
    .. rubric:: Utilities
 

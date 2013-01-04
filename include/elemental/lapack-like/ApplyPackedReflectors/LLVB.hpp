@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -74,10 +74,10 @@ ApplyPackedReflectorsLLVB
         const int HPanHeight = H11.Height() + H21.Height();
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        ABottom.View2x1( A1,
-                         A2 );
+        View2x1( ABottom, A1,
+                          A2 );
 
         Zeros( HPanWidth, ABottom.Width(), Z );
         Zeros( HPanWidth, HPanWidth, SInv );
@@ -168,10 +168,10 @@ ApplyPackedReflectorsLLVB
         const int HPanHeight = H11.Height() + H21.Height();
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        ABottom.View2x1( A1,
-                         A2 );
+        View2x1( ABottom, A1,
+                          A2 );
 
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
@@ -279,7 +279,7 @@ ApplyPackedReflectorsLLVB
         const int HPanHeight = H11.Height() + H21.Height();
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -293,8 +293,8 @@ ApplyPackedReflectorsLLVB
          /**/ /**/
           AB,  A2 );
 
-        ABottom.View2x1( A1,
-                         A2 );
+        View2x1( ABottom, A1,
+                          A2 );
 
         Zeros( HPan.Width(), ABottom.Width(), Z );
         Zeros( HPan.Width(), HPan.Width(), SInv );
@@ -399,7 +399,7 @@ ApplyPackedReflectorsLLVB
         const int HPanHeight = H11.Height() + H21.Height();
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -413,8 +413,8 @@ ApplyPackedReflectorsLLVB
          /**/ /**/
           AB,  A2 );
 
-        ABottom.View2x1( A1,
-                         A2 );
+        View2x1( ABottom, A1,
+                          A2 );
 
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );

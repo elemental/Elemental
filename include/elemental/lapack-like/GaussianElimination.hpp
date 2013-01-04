@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -99,9 +99,9 @@ internal::ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
                B1,
           BB,  B2 );
 
-        APan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( APan, A12,
+                A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelLU( APan, p1, A00.Height() );
@@ -193,9 +193,9 @@ internal::ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
                B1,
           BB,  B2 );
 
-        APan.View2x1
-        ( A12,
-          A22 );
+        View2x1
+        ( APan, A12,
+                A22 );
 
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_MR.AlignWith( A22 );

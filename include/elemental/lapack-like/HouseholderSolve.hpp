@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -43,7 +43,7 @@ HouseholderSolve
 
             // Solve against R (checking for singularities)
             Matrix<R> AT;
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), AT, X, true );
         }
         else
@@ -62,7 +62,7 @@ HouseholderSolve
 
             // Solve against L (checking for singularities)
             Matrix<R> AL;
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -90,7 +90,7 @@ HouseholderSolve
 
             // Solve against R' (checking for singularities)
             Matrix<R> AT;
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), AT, XT, true );
 
             // Apply Q to X
@@ -112,7 +112,7 @@ HouseholderSolve
 
             // Solve against L' (check for singularities)
             Matrix<R> AL;
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
         }
     }
@@ -160,7 +160,7 @@ HouseholderSolve
 
             // Solve against R (checking for singularities)
             DistMatrix<R> AT( g );
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), AT, X, true );
         }
         else
@@ -179,7 +179,7 @@ HouseholderSolve
 
             // Solve against L (checking for singularities)
             DistMatrix<R> AL( g );
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -207,7 +207,7 @@ HouseholderSolve
 
             // Solve against R' (checking for singularities)
             DistMatrix<R> AT( g );
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), AT, XT, true );
 
             // Apply Q to X
@@ -229,7 +229,7 @@ HouseholderSolve
 
             // Solve against L' (check for singularities)
             DistMatrix<R> AL( g );
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
         }
     }
@@ -280,7 +280,7 @@ HouseholderSolve
 
             // Solve against R (checking for singularities)
             Matrix<C> AT;
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), AT, X, true );
         }
         else
@@ -300,7 +300,7 @@ HouseholderSolve
 
             // Solve against L (checking for singularities)
             Matrix<C> AL;
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, C(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -330,7 +330,7 @@ HouseholderSolve
 
             // Solve against R' (checking for singularities)
             Matrix<C> AT;
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, C(1), AT, XT, true );
 
             // Apply Q to X
@@ -355,7 +355,7 @@ HouseholderSolve
 
             // Solve against L' (check for singularities)
             Matrix<C> AL;
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
         }
     }
@@ -409,7 +409,7 @@ HouseholderSolve
 
             // Solve against R (checking for singularities)
             DistMatrix<C> AT( g );
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), AT, X, true );
         }
         else
@@ -429,7 +429,7 @@ HouseholderSolve
 
             // Solve against L (checking for singularities)
             DistMatrix<C> AL( g );
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, C(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -459,7 +459,7 @@ HouseholderSolve
 
             // Solve against R' (checking for singularities)
             DistMatrix<C> AT( g );
-            AT.LockedView( A, 0, 0, n, n );
+            LockedView( AT, A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, C(1), AT, XT, true );
 
             // Apply Q to X
@@ -484,7 +484,7 @@ HouseholderSolve
 
             // Solve against L' (check for singularities)
             DistMatrix<C> AL( g );
-            AL.LockedView( A, 0, 0, m, m );
+            LockedView( AL, A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
         }
     }

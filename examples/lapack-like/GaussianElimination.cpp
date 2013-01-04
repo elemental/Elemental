@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -15,6 +15,7 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
+    const int commSize = mpi::CommSize( comm );
 
     try 
     {
@@ -26,23 +27,14 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        // If the grid height wasn't specified, then we should attempt to build
-        // a nearly-square process grid
-        int gridWidth;
-        if( gridHeight == 0 )
-        {
-            const int commSize = mpi::CommSize( comm );
-            const int sqrtSize = (int)sqrt((double)commSize);
-            gridHeight = sqrtSize;
-            while( commSize % gridHeight != 0 )
-                ++gridHeight;
-            gridWidth = commSize / gridHeight;
-        }
-
         // Set the algorithmic blocksize
         SetBlocksize( blocksize );
 
-        // Build our gridHeight x gridWidth process grid
+        // If the grid height wasn't specified, then we should attempt to build
+        // a nearly-square process grid
+        if( gridHeight == 0 )
+            gridHeight = Grid::FindFactor( commSize );
+        const int gridWidth = commSize / gridHeight;
         Grid grid( comm, gridHeight, gridWidth );
 
         // Set up random A and B, then make the copies X := B and ACopy := A

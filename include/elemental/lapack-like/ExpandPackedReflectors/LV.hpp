@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -75,13 +75,13 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
         const int oldEffectedWidth = oldEffectedHeight - dimDiff;
         const int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
         LockedPartitionDown
         ( HPan, HPanT,
                 HPanB, newEffectedWidth /* to match ZNew */ );
 
-        HEffected.View
-        ( H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        View
+        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -120,7 +120,7 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
     const int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
-        HEffectedNew.View( H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonalToOne( LEFT, 0, HEffectedNew );
     }
@@ -186,10 +186,10 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
         const int oldEffectedWidth = oldEffectedHeight - dimDiff;
         const int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        HEffected.View
-        ( H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        View
+        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -254,7 +254,7 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
     const int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
-        HEffectedNew.View( H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonalToOne( LEFT, 0, HEffectedNew );
     }
@@ -324,13 +324,13 @@ ExpandPackedReflectorsLV
         const int oldEffectedWidth = oldEffectedHeight - dimDiff;
         const int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
         LockedPartitionDown
         ( HPan, HPanT,
                 HPanB, newEffectedWidth /* to match ZNew */ );
 
-        HEffected.View
-        ( H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        View
+        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -381,7 +381,7 @@ ExpandPackedReflectorsLV
     const int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
-        HEffectedNew.View( H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonalToOne( LEFT, 0, HEffectedNew );
     }
@@ -465,10 +465,10 @@ ExpandPackedReflectorsLV
         const int oldEffectedWidth = oldEffectedHeight - dimDiff;
         const int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        HEffected.View
-        ( H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
+        View
+        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
           effectedHeight, effectedWidth ); 
         PartitionLeft
         ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
@@ -546,7 +546,7 @@ ExpandPackedReflectorsLV
     const int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
-        HEffectedNew.View( H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
+        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
         SetDiagonalToOne( LEFT, 0, HEffectedNew );
     }

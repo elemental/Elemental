@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -32,7 +32,7 @@ void TestCorrectness
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, Z );
 
     DistMatrix<R> ZUpper(g);
-    ZUpper.View( Z, 0, 0, minDim, minDim );
+    View( ZUpper, Z, 0, 0, minDim, minDim );
 
     // Form Identity
     DistMatrix<R> X(g);
@@ -105,7 +105,7 @@ void TestCorrectness
     ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, Z );
     
     DistMatrix<C> ZUpper(g);
-    ZUpper.View( Z, 0, 0, minDim, minDim );
+    View( ZUpper, Z, 0, 0, minDim, minDim );
 
     // Form Identity
     DistMatrix<C> X(g);

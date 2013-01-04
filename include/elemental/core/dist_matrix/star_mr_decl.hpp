@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -105,6 +105,8 @@ public:
 
     virtual Int ColStride() const;
     virtual Int RowStride() const;
+    virtual Int ColRank() const;
+    virtual Int RowRank() const;
 
     //
     // Collective routines
@@ -229,44 +231,6 @@ public:
     ( Int height, Int width, Int rowAlignment,
       const T* buffer, Int ldim, const elem::Grid& grid );
 
-    // (Immutable) view of a distributed matrix
-    void View( DistMatrix<T,STAR,MR,Int>& A );
-    void LockedView( const DistMatrix<T,STAR,MR,Int>& A );
-
-    // (Immutable) view of a portion of a distributed matrix
-    void View
-    ( DistMatrix<T,STAR,MR,Int>& A, Int i, Int j, Int height, Int width );
-    void LockedView
-    ( const DistMatrix<T,STAR,MR,Int>& A, Int i, Int j, Int height, Int width );
-
-    // (Immutable) view of two horizontally contiguous partitions of a
-    // distributed matrix
-    void View1x2
-    ( DistMatrix<T,STAR,MR,Int>& AL, DistMatrix<T,STAR,MR,Int>& AR );
-    void LockedView1x2
-    ( const DistMatrix<T,STAR,MR,Int>& AL, 
-      const DistMatrix<T,STAR,MR,Int>& AR );
-
-    // (Immutable) view of two vertically contiguous partitions of a
-    // distributed matrix
-    void View2x1
-    ( DistMatrix<T,STAR,MR,Int>& AT,
-      DistMatrix<T,STAR,MR,Int>& AB );
-    void LockedView2x1
-    ( const DistMatrix<T,STAR,MR,Int>& AT,
-      const DistMatrix<T,STAR,MR,Int>& AB );
-
-    // (Immutable) view of a contiguous 2x2 set of partitions of a
-    // distributed matrix
-    void View2x2
-    ( DistMatrix<T,STAR,MR,Int>& ATL, DistMatrix<T,STAR,MR,Int>& ATR,
-      DistMatrix<T,STAR,MR,Int>& ABL, DistMatrix<T,STAR,MR,Int>& ABR );
-    void LockedView2x2
-    ( const DistMatrix<T,STAR,MR,Int>& ATL, 
-      const DistMatrix<T,STAR,MR,Int>& ATR,
-      const DistMatrix<T,STAR,MR,Int>& ABL, 
-      const DistMatrix<T,STAR,MR,Int>& ABR );
-
     // AllReduce sum over process column
     void SumOverCol();
 
@@ -277,6 +241,9 @@ public:
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
+
+    template<typename S,Distribution U,Distribution V,typename Ord>
+    friend class DistMatrix;
 };
 
 } // namespace elem

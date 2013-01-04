@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2012, Jack Poulson
+   Copyright (c) 2013, Jack Poulson
    All rights reserved.
 
    This file is a modification of Choice, a simple command-line option library.

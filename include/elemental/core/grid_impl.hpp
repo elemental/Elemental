@@ -1,6 +1,6 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
-                      2012, Jed Brown 
+   Copyright (c) 2009-2013, Jack Poulson
+                      2013, Jed Brown 
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -105,6 +105,7 @@ Grid::SetUpGrid()
     else
         mpi::CommSplit( viewingComm_, false, 0, notOwningComm_ );
 
+    diagPathsAndRanks_.resize(2*size_);
     if( inGrid_ )
     {
         // Create a cartesian communicator
@@ -133,7 +134,6 @@ Grid::SetUpGrid()
 
         // Compute which diagonal 'path' we're in, and what our rank is, then
         // perform AllGather world to store everyone's info
-        diagPathsAndRanks_.resize(2*size_);
         std::vector<int> myDiagPathAndRank(2);
         myDiagPathAndRank[0] = (matrixRowRank_+height_-matrixColRank_) % gcd_;
         int diagPathRank = 0;
@@ -175,6 +175,7 @@ Grid::SetUpGrid()
         vectorColRank_ = mpi::UNDEFINED;
         vectorRowRank_ = mpi::UNDEFINED;
     }
+    mpi::Broadcast( &diagPathsAndRanks_[0], 2*size_, 0, viewingComm_ );
 
     // Set up the map from the VC group to the viewingGroup_ ranks.
     // Since the VC communicator preserves the ordering of the owningGroup_
@@ -449,6 +450,10 @@ Grid::DiagPathRank( int vectorColRank ) const
     else
         return mpi::UNDEFINED;
 }
+
+inline int
+Grid::FirstVCRank( int diagPath ) const
+{ return diagPath*height_; }
 
 //
 // Comparison functions

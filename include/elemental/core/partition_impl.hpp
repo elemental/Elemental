@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -31,8 +31,8 @@ PartitionUp
 #endif
     heightAB = std::min(heightAB,A.Height());
     const Int heightAT = A.Height()-heightAB;
-    AT.View( A, 0,        0, heightAT, A.Width() );
-    AB.View( A, heightAT, 0, heightAB, A.Width() );
+    View( AT, A, 0,        0, heightAT, A.Width() );
+    View( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -52,8 +52,8 @@ PartitionUp
 #endif
     heightAB = std::min(heightAB,A.Height());
     const Int heightAT = A.Height()-heightAB;
-    AT.View( A, 0,        0, heightAT, A.Width() );
-    AB.View( A, heightAT, 0, heightAB, A.Width() );
+    View( AT, A, 0,        0, heightAT, A.Width() );
+    View( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -73,8 +73,8 @@ LockedPartitionUp
 #endif
     heightAB = std::min(heightAB,A.Height());
     const Int heightAT = A.Height()-heightAB;
-    AT.LockedView( A, 0,        0, heightAT, A.Width() );
-    AB.LockedView( A, heightAT, 0, heightAB, A.Width() );
+    LockedView( AT, A, 0,        0, heightAT, A.Width() );
+    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -94,8 +94,8 @@ LockedPartitionUp
 #endif
     heightAB = std::min(heightAB,A.Height());
     const Int heightAT = A.Height()-heightAB;
-    AT.LockedView( A, 0,        0, heightAT, A.Width() );
-    AB.LockedView( A, heightAT, 0, heightAB, A.Width() );
+    LockedView( AT, A, 0,        0, heightAT, A.Width() );
+    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -118,8 +118,8 @@ PartitionDown
 #endif
     heightAT = std::min(heightAT,A.Height());
     const Int heightAB = A.Height()-heightAT;
-    AT.View( A, 0,        0, heightAT, A.Width() );
-    AB.View( A, heightAT, 0, heightAB, A.Width() );
+    View( AT, A, 0,        0, heightAT, A.Width() );
+    View( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -138,8 +138,8 @@ PartitionDown
 #endif
     heightAT = std::min(heightAT,A.Height());
     const Int heightAB = A.Height()-heightAT;
-    AT.View( A, 0,        0, heightAT, A.Width() );
-    AB.View( A, heightAT, 0, heightAB, A.Width() );
+    View( AT, A, 0,        0, heightAT, A.Width() );
+    View( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -158,8 +158,8 @@ LockedPartitionDown
 #endif
     heightAT = std::min(heightAT,A.Height());
     const Int heightAB = A.Height()-heightAT;
-    AT.LockedView( A, 0,        0, heightAT, A.Width() );
-    AB.LockedView( A, heightAT, 0, heightAB, A.Width() );
+    LockedView( AT, A, 0,        0, heightAT, A.Width() );
+    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -178,8 +178,8 @@ LockedPartitionDown
 #endif
     heightAT = std::min(heightAT,A.Height());
     const Int heightAB = A.Height()-heightAT;
-    AT.LockedView( A, 0,        0, heightAT, A.Width() );
-    AB.LockedView( A, heightAT, 0, heightAB, A.Width() );
+    LockedView( AT, A, 0,        0, heightAT, A.Width() );
+    LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -200,8 +200,8 @@ PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
 #endif
     widthAR = std::min(widthAR,A.Width());
     const Int widthAL = A.Width()-widthAR;
-    AL.View( A, 0, 0,       A.Height(), widthAL );
-    AR.View( A, 0, widthAL, A.Height(), widthAR );
+    View( AL, A, 0, 0,       A.Height(), widthAL );
+    View( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -218,8 +218,8 @@ PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
 #endif
     widthAR = std::min(widthAR,A.Width());
     const Int widthAL = A.Width()-widthAR;
-    AL.View( A, 0, 0,       A.Height(), widthAL );
-    AR.View( A, 0, widthAL, A.Height(), widthAR );
+    View( AL, A, 0, 0,       A.Height(), widthAL );
+    View( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -236,8 +236,8 @@ LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
 #endif
     widthAR = std::min(widthAR,A.Width());
     const Int widthAL = A.Width()-widthAR;
-    AL.LockedView( A, 0, 0,       A.Height(), widthAL );
-    AR.LockedView( A, 0, widthAL, A.Height(), widthAR );
+    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
+    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -254,8 +254,8 @@ LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 #endif
     widthAR = std::min(widthAR,A.Width());
     const Int widthAL = A.Width()-widthAR;
-    AL.LockedView( A, 0, 0,       A.Height(), widthAL );
-    AR.LockedView( A, 0, widthAL, A.Height(), widthAR );
+    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
+    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -276,8 +276,8 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL )
 #endif
     widthAL = std::min(widthAL,A.Width());
     const Int widthAR = A.Width()-widthAL;
-    AL.View( A, 0, 0,       A.Height(), widthAL );
-    AR.View( A, 0, widthAL, A.Height(), widthAR );
+    View( AL, A, 0, 0,       A.Height(), widthAL );
+    View( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -294,8 +294,8 @@ PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 #endif
     widthAL = std::min(widthAL,A.Width());
     const Int widthAR = A.Width()-widthAL;
-    AL.View( A, 0, 0,       A.Height(), widthAL );
-    AR.View( A, 0, widthAL, A.Height(), widthAR );
+    View( AL, A, 0, 0,       A.Height(), widthAL );
+    View( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -312,8 +312,8 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
 #endif
     widthAL = std::min(widthAL,A.Width());
     const Int widthAR = A.Width()-widthAL;
-    AL.LockedView( A, 0, 0,       A.Height(), widthAL );
-    AR.LockedView( A, 0, widthAL, A.Height(), widthAR );
+    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
+    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -330,8 +330,8 @@ LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 #endif
     widthAL = std::min(widthAL,A.Width());
     const Int widthAR = A.Width()-widthAL;
-    AL.LockedView( A, 0, 0,       A.Height(), widthAL );
-    AR.LockedView( A, 0, widthAL, A.Height(), widthAR );
+    LockedView( AL, A, 0, 0,       A.Height(), widthAL );
+    LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -429,10 +429,10 @@ PartitionUpLeftDiagonal
     const Int sizeATL = minDim - diagABR;
     const Int remHeight = A.Height()-sizeATL;
     const Int remWidth = A.Width()-sizeATL;
-    ATL.View( A, 0,       0,       sizeATL,   sizeATL  );
-    ATR.View( A, 0,       sizeATL, sizeATL,   remWidth );
-    ABL.View( A, sizeATL, 0,       remHeight, sizeATL  );
-    ABR.View( A, sizeATL, sizeATL, remHeight, remWidth );
+    View( ATL, A, 0,       0,       sizeATL,   sizeATL  );
+    View( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
+    View( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
+    View( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -454,10 +454,10 @@ PartitionUpLeftDiagonal
     const Int sizeATL = minDim - diagABR;
     const Int remHeight = A.Height()-sizeATL;
     const Int remWidth = A.Width()-sizeATL;
-    ATL.View( A, 0,       0,       sizeATL,   sizeATL  );
-    ATR.View( A, 0,       sizeATL, sizeATL,   remWidth );
-    ABL.View( A, sizeATL, 0,       remHeight, sizeATL  );
-    ABR.View( A, sizeATL, sizeATL, remHeight, remWidth );
+    View( ATL, A, 0,       0,       sizeATL,   sizeATL  );
+    View( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
+    View( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
+    View( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -479,10 +479,10 @@ LockedPartitionUpLeftDiagonal
     const Int sizeATL = minDim - diagABR;
     const Int remHeight = A.Height()-sizeATL;
     const Int remWidth = A.Width()-sizeATL;
-    ATL.LockedView( A, 0,       0,       sizeATL,   sizeATL  );
-    ATR.LockedView( A, 0,       sizeATL, sizeATL,   remWidth );
-    ABL.LockedView( A, sizeATL, 0,       remHeight, sizeATL  );
-    ABR.LockedView( A, sizeATL, sizeATL, remHeight, remWidth );
+    LockedView( ATL, A, 0,       0,       sizeATL,   sizeATL  );
+    LockedView( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
+    LockedView( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
+    LockedView( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -504,10 +504,10 @@ LockedPartitionUpLeftDiagonal
     const Int sizeATL = minDim - diagABR;
     const Int remHeight = A.Height()-sizeATL;
     const Int remWidth = A.Width()-sizeATL;
-    ATL.LockedView( A, 0,       0,       sizeATL,   sizeATL  );
-    ATR.LockedView( A, 0,       sizeATL, sizeATL,   remWidth );
-    ABL.LockedView( A, sizeATL, 0,       remHeight, sizeATL  );
-    ABR.LockedView( A, sizeATL, sizeATL, remHeight, remWidth );
+    LockedView( ATL, A, 0,       0,       sizeATL,   sizeATL  );
+    LockedView( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
+    LockedView( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
+    LockedView( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -532,10 +532,10 @@ PartitionUpRightDiagonal
     diagABR = std::min(diagABR,minDim);
     const Int remHeight = A.Height()-diagABR;
     const Int remWidth = A.Width()-diagABR;
-    ATL.View( A, 0,         0,        remHeight, remWidth );
-    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
-    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
-    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+    View( ATL, A, 0,         0,        remHeight, remWidth );
+    View( ATR, A, 0,         remWidth, remHeight, diagABR  );
+    View( ABL, A, remHeight, 0,        diagABR,   remWidth );
+    View( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -556,10 +556,10 @@ PartitionUpRightDiagonal
     diagABR = std::min(diagABR,minDim);
     const Int remHeight = A.Height()-diagABR;
     const Int remWidth = A.Width()-diagABR;
-    ATL.View( A, 0,         0,        remHeight, remWidth );
-    ATR.View( A, 0,         remWidth, remHeight, diagABR  );
-    ABL.View( A, remHeight, 0,        diagABR,   remWidth );
-    ABR.View( A, remHeight, remWidth, diagABR,   diagABR  );
+    View( ATL, A, 0,         0,        remHeight, remWidth );
+    View( ATR, A, 0,         remWidth, remHeight, diagABR  );
+    View( ABL, A, remHeight, 0,        diagABR,   remWidth );
+    View( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -580,10 +580,10 @@ LockedPartitionUpRightDiagonal
     diagABR = std::min(diagABR,minDim);
     const Int remHeight = A.Height()-diagABR;
     const Int remWidth = A.Width()-diagABR;
-    ATL.LockedView( A, 0,         0,        remHeight, remWidth );
-    ATR.LockedView( A, 0,         remWidth, remHeight, diagABR  );
-    ABL.LockedView( A, remHeight, 0,        diagABR,   remWidth );
-    ABR.LockedView( A, remHeight, remWidth, diagABR,   diagABR  );
+    LockedView( ATL, A, 0,         0,        remHeight, remWidth );
+    LockedView( ATR, A, 0,         remWidth, remHeight, diagABR  );
+    LockedView( ABL, A, remHeight, 0,        diagABR,   remWidth );
+    LockedView( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -604,10 +604,10 @@ LockedPartitionUpRightDiagonal
     diagABR = std::min(diagABR,minDim);
     const Int remHeight = A.Height()-diagABR;
     const Int remWidth = A.Width()-diagABR;
-    ATL.LockedView( A, 0,         0,        remHeight, remWidth );
-    ATR.LockedView( A, 0,         remWidth, remHeight, diagABR  );
-    ABL.LockedView( A, remHeight, 0,        diagABR,   remWidth );
-    ABR.LockedView( A, remHeight, remWidth, diagABR,   diagABR  );
+    LockedView( ATL, A, 0,         0,        remHeight, remWidth );
+    LockedView( ATR, A, 0,         remWidth, remHeight, diagABR  );
+    LockedView( ABL, A, remHeight, 0,        diagABR,   remWidth );
+    LockedView( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -704,10 +704,10 @@ PartitionDownLeftDiagonal
     diagATL = std::min(diagATL,minDim);
     const Int heightABR = A.Height()-diagATL;
     const Int widthABR = A.Width()-diagATL;
-    ATL.View( A, 0,       0,       diagATL,   diagATL  );
-    ATR.View( A, 0,       diagATL, diagATL,   widthABR );
-    ABL.View( A, diagATL, 0,       heightABR, diagATL  );
-    ABR.View( A, diagATL, diagATL, heightABR, widthABR );
+    View( ATL, A, 0,       0,       diagATL,   diagATL  );
+    View( ATR, A, 0,       diagATL, diagATL,   widthABR );
+    View( ABL, A, diagATL, 0,       heightABR, diagATL  );
+    View( ABR, A, diagATL, diagATL, heightABR, widthABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -728,10 +728,10 @@ PartitionDownLeftDiagonal
     diagATL = std::min(diagATL,minDim);
     const Int heightABR = A.Height()-diagATL;
     const Int widthABR = A.Width()-diagATL;
-    ATL.View( A, 0,       0,       diagATL,   diagATL  );
-    ATR.View( A, 0,       diagATL, diagATL,   widthABR );
-    ABL.View( A, diagATL, 0,       heightABR, diagATL  );
-    ABR.View( A, diagATL, diagATL, heightABR, widthABR );
+    View( ATL, A, 0,       0,       diagATL,   diagATL  );
+    View( ATR, A, 0,       diagATL, diagATL,   widthABR );
+    View( ABL, A, diagATL, 0,       heightABR, diagATL  );
+    View( ABR, A, diagATL, diagATL, heightABR, widthABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -752,10 +752,10 @@ LockedPartitionDownLeftDiagonal
     diagATL = std::min(diagATL,minDim);
     const Int heightABR = A.Height()-diagATL;
     const Int widthABR = A.Width()-diagATL;
-    ATL.LockedView( A, 0,       0,       diagATL,   diagATL  );
-    ATR.LockedView( A, 0,       diagATL, diagATL,   widthABR );
-    ABL.LockedView( A, diagATL, 0,       heightABR, diagATL  );
-    ABR.LockedView( A, diagATL, diagATL, heightABR, widthABR );
+    LockedView( ATL, A, 0,       0,       diagATL,   diagATL  );
+    LockedView( ATR, A, 0,       diagATL, diagATL,   widthABR );
+    LockedView( ABL, A, diagATL, 0,       heightABR, diagATL  );
+    LockedView( ABR, A, diagATL, diagATL, heightABR, widthABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -776,10 +776,10 @@ LockedPartitionDownLeftDiagonal
     diagATL = std::min(diagATL,minDim);
     const Int heightABR = A.Height()-diagATL;
     const Int widthABR = A.Width()-diagATL;
-    ATL.LockedView( A, 0,       0,       diagATL,   diagATL  );
-    ATR.LockedView( A, 0,       diagATL, diagATL,   widthABR );
-    ABL.LockedView( A, diagATL, 0,       heightABR, diagATL  );
-    ABR.LockedView( A, diagATL, diagATL, heightABR, widthABR );
+    LockedView( ATL, A, 0,       0,       diagATL,   diagATL  );
+    LockedView( ATR, A, 0,       diagATL, diagATL,   widthABR );
+    LockedView( ABL, A, diagATL, 0,       heightABR, diagATL  );
+    LockedView( ABR, A, diagATL, diagATL, heightABR, widthABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -805,10 +805,10 @@ PartitionDownRightDiagonal
     const Int sizeABR = minDim-diagATL;
     const Int remHeight = A.Height()-sizeABR;
     const Int remWidth = A.Width()-sizeABR;
-    ATL.View( A, 0,         0,        remHeight, remWidth );
-    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
-    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
-    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
+    View( ATL, A, 0,         0,        remHeight, remWidth );
+    View( ATR, A, 0,         remWidth, remHeight, sizeABR  );
+    View( ABL, A, remHeight, 0,        sizeABR,   remWidth );
+    View( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -830,10 +830,10 @@ PartitionDownRightDiagonal
     const Int sizeABR = minDim-diagATL;
     const Int remHeight = A.Height()-sizeABR;
     const Int remWidth = A.Width()-sizeABR;
-    ATL.View( A, 0,         0,        remHeight, remWidth );
-    ATR.View( A, 0,         remWidth, remHeight, sizeABR  );
-    ABL.View( A, remHeight, 0,        sizeABR,   remWidth );
-    ABR.View( A, remHeight, remWidth, sizeABR,   sizeABR  );
+    View( ATL, A, 0,         0,        remHeight, remWidth );
+    View( ATR, A, 0,         remWidth, remHeight, sizeABR  );
+    View( ABL, A, remHeight, 0,        sizeABR,   remWidth );
+    View( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -855,10 +855,10 @@ LockedPartitionDownRightDiagonal
     const Int sizeABR = minDim-diagATL;
     const Int remHeight = A.Height()-sizeABR;
     const Int remWidth = A.Width()-sizeABR;
-    ATL.LockedView( A, 0,         0,        remHeight, remWidth );
-    ATR.LockedView( A, 0,         remWidth, remHeight, sizeABR  );
-    ABL.LockedView( A, remHeight, 0,        sizeABR,   remWidth );
-    ABR.LockedView( A, remHeight, remWidth, sizeABR,   sizeABR  );
+    LockedView( ATL, A, 0,         0,        remHeight, remWidth );
+    LockedView( ATR, A, 0,         remWidth, remHeight, sizeABR  );
+    LockedView( ABL, A, remHeight, 0,        sizeABR,   remWidth );
+    LockedView( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -880,10 +880,10 @@ LockedPartitionDownRightDiagonal
     const Int sizeABR = minDim-diagATL;
     const Int remHeight = A.Height()-sizeABR;
     const Int remWidth = A.Width()-sizeABR;
-    ATL.LockedView( A, 0,         0,        remHeight, remWidth );
-    ATR.LockedView( A, 0,         remWidth, remHeight, sizeABR  );
-    ABL.LockedView( A, remHeight, 0,        sizeABR,   remWidth );
-    ABR.LockedView( A, remHeight, remWidth, sizeABR,   sizeABR  );
+    LockedView( ATL, A, 0,         0,        remHeight, remWidth );
+    LockedView( ATR, A, 0,         remWidth, remHeight, sizeABR  );
+    LockedView( ABL, A, remHeight, 0,        sizeABR,   remWidth );
+    LockedView( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
 #ifndef RELEASE
     PopCallStack();
 #endif

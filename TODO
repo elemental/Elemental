@@ -1,6 +1,6 @@
 Functionality
 =============
-- Pivoted QR decompositions 
+- Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form
 - Implement sequential versions of Trrk/Trr2k (and other routines)
 - More explicit expansions of packed Householder reflectors

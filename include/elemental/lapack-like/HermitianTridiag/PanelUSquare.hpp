@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -37,6 +37,14 @@ HermitianPanelTridiagUSquare
     const Grid& g = A.Grid();
     const int r = g.Height();
 
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     // Find the process holding our transposed data
     int transposeRank;
     {
@@ -54,17 +62,9 @@ HermitianPanelTridiagUSquare
     // Create a distributed matrix for storing the superdiagonal
     DistMatrix<R,MD,STAR> e(g);
     DistMatrix<R> expandedABR(g);
-    expandedABR.View( A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
+    View( expandedABR, A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
     e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
-
-    if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
-        return;
-    }
 
     // Matrix views 
     DistMatrix<R> 
@@ -126,29 +126,28 @@ HermitianPanelTridiagUSquare
          /**/ /********/
           eB,  e2 );
 
-        ACol.View2x1
-        ( a01,
-          alpha11 );
+        View2x1
+        ( ACol, a01,
+                alpha11 );
 
-        WCol.View2x1
-        ( w01,
-          omega11 );
+        View2x1
+        ( WCol, w01,
+                omega11 );
 
         // View the portions of A02 and W02 outside of this panel's square
-        A02T.View( A02, 0, 0, topSize, A02.Width() );
-        W02T.View( W02, 0, 0, topSize, W02.Width() );
+        View( A02T, A02, 0, 0, topSize, A02.Width() );
+        View( W02T, W02, 0, 0, topSize, W02.Width() );
 
         // View the portion of A00 that is inside this panel
-        A00Pan.View( A00, 0, topSize, A00.Height(), A00.Width()-topSize );
+        View( A00Pan, A00, 0, topSize, A00.Height(), A00.Width()-topSize );
 
         if( !firstIteration )
         {
-            a01Last_MC_STAR.View
-            ( APan_MC_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            a01Last_MR_STAR.View
-            ( APan_MR_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            w01Last.View
-            ( W, 0, WTL.Width(), ACol.Height(), 1 );
+            View
+            ( a01Last_MC_STAR, APan_MC_STAR, 0, WTL.Width(), ACol.Height(), 1 );
+            View
+            ( a01Last_MR_STAR, APan_MR_STAR, 0, WTL.Width(), ACol.Height(), 1 );
+            View( w01Last, W, 0, WTL.Width(), ACol.Height(), 1 );
         }
             
         PartitionUp
@@ -173,8 +172,8 @@ HermitianPanelTridiagUSquare
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
-        a01T_MC_STAR.View( a01_MC_STAR, 0, 0, topSize, 1 );
-        p01T_MC_STAR.View( p01_MC_STAR, 0, 0, topSize, 1 );
+        View( a01T_MC_STAR, a01_MC_STAR, 0, 0, topSize, 1 );
+        View( p01T_MC_STAR, p01_MC_STAR, 0, 0, topSize, 1 );
         //--------------------------------------------------------------------//
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
@@ -370,12 +369,14 @@ HermitianPanelTridiagUSquare
                                   w01Last_MC_STAR_Top(g);
             DistMatrix<R,MR,STAR> a01Last_MR_STAR_TopPan(g),
                                   w01Last_MR_STAR_TopPan(g);
-            a01Last_MC_STAR_Top.View( a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
-            w01Last_MC_STAR_Top.View( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
-            a01Last_MR_STAR_TopPan.View
-            ( a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
-            w01Last_MR_STAR_TopPan.View
-            ( w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
+            View( a01Last_MC_STAR_Top, a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            View( w01Last_MC_STAR_Top, w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            View
+            ( a01Last_MR_STAR_TopPan, 
+              a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
+            View
+            ( w01Last_MR_STAR_TopPan,
+              w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
             const R* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.LocalBuffer();
             const R* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.LocalBuffer();
             const R* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
@@ -622,8 +623,8 @@ HermitianPanelTridiagUSquare
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<R,MC,STAR> w01_MC_STAR(g);
             DistMatrix<R,MR,STAR> w01_MR_STAR(g);
-            w01_MC_STAR.View( W_MC_STAR, 0, W00.Width(), w01.Height(), 1 );
-            w01_MR_STAR.View( W_MR_STAR, 0, W00.Width(), w01.Height(), 1 );
+            View( w01_MC_STAR, W_MC_STAR, 0, W00.Width(), w01.Height(), 1 );
+            View( w01_MR_STAR, W_MR_STAR, 0, W00.Width(), w01.Height(), 1 );
 
             // Store w01[MC,* ]
             R scale = 0.5*dotProduct*tau;
@@ -721,6 +722,14 @@ HermitianPanelTridiagUSquare
     const Grid& g = A.Grid();
     const int r = g.Height();
 
+    if( !g.InGrid() )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
     // Find the process holding our transposed data
     int transposeRank;
     {
@@ -738,17 +747,9 @@ HermitianPanelTridiagUSquare
     // Create a distributed matrix for storing the superdiagonal
     DistMatrix<R,MD,STAR> e(g);
     DistMatrix<C> expandedABR(g);
-    expandedABR.View( A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
+    View( expandedABR, A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
     e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
-
-    if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
-        return;
-    }
 
     // Matrix views 
     DistMatrix<C> 
@@ -823,29 +824,28 @@ HermitianPanelTridiagUSquare
          /**/ /****/
           tB,  t2 );
 
-        ACol.View2x1
-        ( a01,
-          alpha11 );
+        View2x1
+        ( ACol, a01,
+                alpha11 );
 
-        WCol.View2x1
-        ( w01,
-          omega11 );
+        View2x1
+        ( WCol, w01,
+                omega11 );
 
         // View the portions of A02 and W0T outside of this panel's square
-        A02T.View( A02, 0, 0, topSize, A02.Width() );
-        W02T.View( W02, 0, 0, topSize, W02.Width() );
+        View( A02T, A02, 0, 0, topSize, A02.Width() );
+        View( W02T, W02, 0, 0, topSize, W02.Width() );
 
         // View the portion of A00 inside the current panel
-        A00Pan.View( A00, 0, topSize, A00.Height(), A00.Width()-topSize );
+        View( A00Pan, A00, 0, topSize, A00.Height(), A00.Width()-topSize );
 
         if( !firstIteration )
         {
-            a01Last_MC_STAR.View
-            ( APan_MC_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            a01Last_MR_STAR.View
-            ( APan_MR_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            w01Last.View
-            ( W, 0, WTL.Width(), ACol.Height(), 1 );
+            View
+            ( a01Last_MC_STAR, APan_MC_STAR, 0, WTL.Width(), ACol.Height(), 1 );
+            View
+            ( a01Last_MR_STAR, APan_MR_STAR, 0, WTL.Width(), ACol.Height(), 1 );
+            View( w01Last, W, 0, WTL.Width(), ACol.Height(), 1 );
         }
             
         PartitionUp
@@ -870,8 +870,8 @@ HermitianPanelTridiagUSquare
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
-        a01T_MC_STAR.View( a01_MC_STAR, 0, 0, topSize, 1 );
-        p01T_MC_STAR.View( p01_MC_STAR, 0, 0, topSize, 1 );
+        View( a01T_MC_STAR, a01_MC_STAR, 0, 0, topSize, 1 );
+        View( p01T_MC_STAR, p01_MC_STAR, 0, 0, topSize, 1 );
         //--------------------------------------------------------------------//
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
@@ -1068,12 +1068,14 @@ HermitianPanelTridiagUSquare
                                   w01Last_MC_STAR_Top(g);
             DistMatrix<C,MR,STAR> a01Last_MR_STAR_TopPan(g),
                                   w01Last_MR_STAR_TopPan(g);
-            a01Last_MC_STAR_Top.View( a01Last_MC_STAR, 0, 0, a01.Height(), 1 ); 
-            w01Last_MC_STAR_Top.View( w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
-            a01Last_MR_STAR_TopPan.View
-            ( a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
-            w01Last_MR_STAR_TopPan.View
-            ( w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
+            View( a01Last_MC_STAR_Top, a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            View( w01Last_MC_STAR_Top, w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
+            View
+            ( a01Last_MR_STAR_TopPan,
+              a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
+            View
+            ( w01Last_MR_STAR_TopPan,
+              w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
             const C* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.LocalBuffer();
             const C* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.LocalBuffer();
             const C* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.LocalBuffer();
@@ -1325,8 +1327,8 @@ HermitianPanelTridiagUSquare
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<C,MC,STAR> w01_MC_STAR(g);
             DistMatrix<C,MR,STAR> w01_MR_STAR(g);
-            w01_MC_STAR.View( W_MC_STAR, 0, W00.Width(), w01.Height(), 1 );
-            w01_MR_STAR.View( W_MR_STAR, 0, W00.Width(), w01.Height(), 1 );
+            View( w01_MC_STAR, W_MC_STAR, 0, W00.Width(), w01.Height(), 1 );
+            View( w01_MR_STAR, W_MR_STAR, 0, W00.Width(), w01.Height(), 1 );
 
             // Store w01[MC,* ]
             C scale = dotProduct*Conj(tau)/C(2);

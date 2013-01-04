@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -39,8 +39,8 @@ inline void BidiagL( Matrix<R>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        a1R.View1x2( alpha11, a12 );
-        A2R.View1x2( a21, A22 );
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
 
         x12Trans.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
@@ -134,12 +134,12 @@ inline void BidiagU( Matrix<R>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aB1.View2x1
-        ( alpha11,
-          a21 );
-        AB2.View2x1
-        ( a12,
-          A22 );
+        View2x1
+        ( aB1, alpha11,
+               a21 );
+        View2x1
+        ( AB2, a12,
+               A22 );
 
         x12Trans.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
@@ -249,8 +249,8 @@ inline void BidiagL
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        a1R.View1x2( alpha11, a12 );
-        A2R.View1x2( a21, A22 );
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
 
         x12Adj.ResizeTo( a12.Width(), 1 );
         w21.ResizeTo( a21.Height(), 1 );
@@ -374,12 +374,12 @@ inline void BidiagU
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aB1.View2x1
-        ( alpha11,
-          a21 );
-        AB2.View2x1
-        ( a12,
-          A22 );
+        View2x1
+        ( aB1, alpha11,
+               a21 );
+        View2x1
+        ( AB2, a12,
+               A22 );
 
         x12Adj.ResizeTo( a12.Width(),  1 );
         w21.ResizeTo( a21.Height(), 1 );

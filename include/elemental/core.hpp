@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -51,6 +51,9 @@
 #include "elemental/core/memory_decl.hpp"
 #include "elemental/core/complex_decl.hpp"
 #include "elemental/core/types_decl.hpp"
+#include "elemental/core/matrix_forward_decl.hpp"
+#include "elemental/core/dist_matrix_forward_decl.hpp"
+#include "elemental/core/view_decl.hpp"
 #include "elemental/core/matrix_decl.hpp"
 #include "elemental/core/imports/mpi.hpp"
 #include "elemental/core/grid_decl.hpp"
@@ -81,6 +84,7 @@
 
 // Declare and implement the decoupled parts of the core of the library
 // (perhaps these should be moved into their own directory?)
+#include "elemental/core/view_impl.hpp"
 #include "elemental/core/partition_decl.hpp"
 #include "elemental/core/partition_impl.hpp"
 #include "elemental/core/repartition_decl.hpp"

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -36,8 +36,8 @@ PanelLQ( Matrix<Real>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aTopRow.View1x2( alpha11, a12 );
-        ABottomPan.View1x2( a21, A22 );
+        View1x2( aTopRow, alpha11, a12 );
+        View1x2( ABottomPan, a21, A22 );
 
         Zeros( ABottomPan.Height(), 1, z );
         //--------------------------------------------------------------------//
@@ -93,8 +93,8 @@ PanelLQ( DistMatrix<Real>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
 
-        aTopRow.View1x2( alpha11, a12 );
-        ABottomPan.View1x2( a21, A22 );
+        View1x2( aTopRow, alpha11, a12 );
+        View1x2( ABottomPan, a21, A22 );
 
         aTopRow_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );
@@ -190,8 +190,8 @@ PanelLQ
                tau1,
           tB,  t2 );
 
-        aTopRow.View1x2( alpha11, a12 );
-        ABottomPan.View1x2( a21, A22 );
+        View1x2( aTopRow, alpha11, a12 );
+        View1x2( ABottomPan, a21, A22 );
 
         Zeros( ABottomPan.Height(), 1, z );
         //--------------------------------------------------------------------//
@@ -280,8 +280,8 @@ PanelLQ
                tau1,
           tB,  t2 );
 
-        aTopRow.View1x2( alpha11, a12 );
-        ABottomPan.View1x2( a21, A22 );
+        View1x2( aTopRow, alpha11, a12 );
+        View1x2( ABottomPan, a21, A22 );
 
         aTopRowConj_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );

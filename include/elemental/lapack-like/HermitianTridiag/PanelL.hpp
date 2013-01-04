@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -116,26 +116,27 @@ HermitianPanelTridiagL
                epsilon1,
           eB,  e2 );
 
-        ACol.View2x1
-        ( alpha11,
-          a21 );
+        View2x1
+        ( ACol, alpha11,
+                a21 );
 
-        WCol.View2x1
-        ( omega11,
-          w21 );
+        View2x1
+        ( WCol, omega11,
+                w21 );
 
         // View the portions of A20 and W20 outside of this panel's square
-        A20B.View( A, panelSize, 0, bottomSize, A20.Width() );
-        W20B.View( W, panelSize, 0, bottomSize, W20.Width() );
+        View( A20B, A, panelSize, 0, bottomSize, A20.Width() );
+        View( W20B, W, panelSize, 0, bottomSize, W20.Width() );
 
         if( !firstIteration )
         {
-            a21Last_MC_STAR.View
-            ( APan_MC_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
-            a21Last_MR_STAR.View
-            ( APan_MR_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
-            w21Last.View
-            ( W, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View
+            ( a21Last_MC_STAR,
+              APan_MC_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View
+            ( a21Last_MR_STAR,
+              APan_MR_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View( w21Last, W, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
         }
             
         PartitionDown
@@ -162,10 +163,12 @@ HermitianPanelTridiagL
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
-        a21B_MC_STAR.View
-        ( a21_MC_STAR, a21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
-        p21B_MC_STAR.View
-        ( p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
+        View
+        ( a21B_MC_STAR,
+          a21_MC_STAR, a21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
+        View
+        ( p21B_MC_STAR,
+          p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
@@ -330,19 +333,19 @@ HermitianPanelTridiagL
                 // Pack the necessary portion of w21Last[MC,* ]
                 const int w21Shift = Shift(g.VCRank(),colAlignSource,p);
                 const int w21Offset = (w21Shift-colShiftSource)/r;
-                const int w21LocalHeight = LocalLength(height,w21Shift,p);
+                const int w21VCLocalHeight = LocalLength(height,w21Shift,p);
                 const R* w21LastBuffer = 
                     w21Last_MC_STAR.LocalBuffer(w21Offset,0);
-                for( int i=0; i<w21LocalHeight; ++i )
+                for( int i=0; i<w21VCLocalHeight; ++i )
                     sendBuf[i] = w21LastBuffer[i*c];
                 
                 // Pack the necessary portion of a21[MC,* ]
                 const int a21Shift = (w21Shift+p-1) % p;
                 const int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
-                const int a21LocalHeight = LocalLength(height-1,a21Shift,p);
+                const int a21VCLocalHeight = LocalLength(height-1,a21Shift,p);
                 const R* a21Buffer = a21_MC_STAR.LocalBuffer(a21Offset,0);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    sendBuf[w21LocalHeight+i] = a21Buffer[i*c];
+                for( int i=0; i<a21VCLocalHeight; ++i )
+                    sendBuf[w21VCLocalHeight+i] = a21Buffer[i*c];
             }
 
             // [VR,* ] <- [VC,* ]
@@ -364,18 +367,18 @@ HermitianPanelTridiagL
                 const R* w21Data = &sendBuf[k*portionSize];
                 const int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
                 const int w21Offset = (w21Shift-colShiftDest) / c;
-                const int w21LocalHeight = LocalLength(height,w21Shift,p);
+                const int w21VCLocalHeight = LocalLength(height,w21Shift,p);
                 R* w21LastBuffer = w21Last_MR_STAR.LocalBuffer(w21Offset,0);
-                for( int i=0; i<w21LocalHeight; ++i )
+                for( int i=0; i<w21VCLocalHeight; ++i )
                     w21LastBuffer[i*r] = w21Data[i];
 
                 // Unpack into a21[MR,* ]
-                const R* a21Data = &sendBuf[k*portionSize+w21LocalHeight];
+                const R* a21Data = &sendBuf[k*portionSize+w21VCLocalHeight];
                 const int a21Shift = (w21Shift+p-1) % p;
                 const int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
-                const int a21LocalHeight = LocalLength(height-1,a21Shift,p);
+                const int a21VCLocalHeight = LocalLength(height-1,a21Shift,p);
                 R* a21Buffer = a21_MR_STAR.LocalBuffer(a21Offset,0);
-                for( int i=0; i<a21LocalHeight; ++i )
+                for( int i=0; i<a21VCLocalHeight; ++i )
                     a21Buffer[i*r] = a21Data[i];
             }
             // Store w21Last[MR,* ]
@@ -402,14 +405,18 @@ HermitianPanelTridiagL
                                   w21Last_MC_STAR_Bottom(g);
             DistMatrix<R,MR,STAR> a21Last_MR_STAR_Bottom(g),
                                   w21Last_MR_STAR_Bottom(g);
-            a21Last_MC_STAR_Bottom.View
-            ( a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
-            w21Last_MC_STAR_Bottom.View
-            ( w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
-            a21Last_MR_STAR_Bottom.View
-            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
-            w21Last_MR_STAR_Bottom.View
-            ( w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
+            View
+            ( a21Last_MC_STAR_Bottom,
+              a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
+            View
+            ( w21Last_MC_STAR_Bottom,
+              w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
+            View
+            ( a21Last_MR_STAR_Bottom,
+              a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
+            View
+            ( w21Last_MR_STAR_Bottom,
+              w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
             const R* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.LocalBuffer();
             const R* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.LocalBuffer();
             const R* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
@@ -676,10 +683,12 @@ HermitianPanelTridiagL
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<R,MC,STAR> w21_MC_STAR(g);
             DistMatrix<R,MR,STAR> w21_MR_STAR(g);
-            w21_MC_STAR.View
-            ( W_MC_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
-            w21_MR_STAR.View
-            ( W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
+            View
+            ( w21_MC_STAR, 
+              W_MC_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
+            View
+            ( w21_MR_STAR,
+              W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
             R scale = 0.5*dotProduct*tau;
@@ -726,7 +735,7 @@ HermitianPanelTridiagL
 
     // View the portion of A that e is the subdiagonal of, then place e into it
     DistMatrix<R> expandedATL(g);
-    expandedATL.View( A, 0, 0, panelSize+1, panelSize+1 );
+    View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetDiagonal( e, -1 );
 #ifndef RELEASE
     PopCallStack();
@@ -860,26 +869,27 @@ HermitianPanelTridiagL
                tau1,
           tB,  t2 );
 
-        ACol.View2x1
-        ( alpha11,
-          a21 );
+        View2x1
+        ( ACol, alpha11,
+                a21 );
 
-        WCol.View2x1
-        ( omega11,
-          w21 );
+        View2x1
+        ( WCol, omega11,
+                w21 );
 
         // View the portions of A20 and W20 outside of this panel's square
-        A20B.View( A, panelSize, 0, bottomSize, A20.Width() );
-        W20B.View( W, panelSize, 0, bottomSize, W20.Width() );
+        View( A20B, A, panelSize, 0, bottomSize, A20.Width() );
+        View( W20B, W, panelSize, 0, bottomSize, W20.Width() );
 
         if( !firstIteration )
         {
-            a21Last_MC_STAR.View
-            ( APan_MC_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
-            a21Last_MR_STAR.View
-            ( APan_MR_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
-            w21Last.View
-            ( W, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View
+            ( a21Last_MC_STAR,
+              APan_MC_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View
+            ( a21Last_MR_STAR,
+              APan_MR_STAR, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
+            View( w21Last, W, WTL.Height(), WTL.Width()-1, WBL.Height(), 1 );
         }
             
         PartitionDown
@@ -906,10 +916,12 @@ HermitianPanelTridiagL
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
-        a21B_MC_STAR.View
-        ( a21_MC_STAR, a21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
-        p21B_MC_STAR.View
-        ( p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
+        View
+        ( a21B_MC_STAR,
+          a21_MC_STAR, a21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
+        View
+        ( p21B_MC_STAR,
+          p21_MC_STAR, p21_MC_STAR.Height()-bottomSize, 0, bottomSize, 1 );
         //--------------------------------------------------------------------//
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
@@ -1076,19 +1088,19 @@ HermitianPanelTridiagL
                 // Pack the necessary portion of w21Last[MC,* ]
                 const int w21Shift = Shift(g.VCRank(),colAlignSource,p);
                 const int w21Offset = (w21Shift-colShiftSource)/r;
-                const int w21LocalHeight = LocalLength(height,w21Shift,p);
+                const int w21VCLocalHeight = LocalLength(height,w21Shift,p);
                 const C* w21LastBuffer = 
                     w21Last_MC_STAR.LocalBuffer(w21Offset,0);
-                for( int i=0; i<w21LocalHeight; ++i )
+                for( int i=0; i<w21VCLocalHeight; ++i )
                     sendBuf[i] = w21LastBuffer[i*c];
                 
                 // Pack the necessary portion of a21[MC,* ]
                 const int a21Shift = (w21Shift+p-1) % p;
                 const int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
-                const int a21LocalHeight = LocalLength(height-1,a21Shift,p);
+                const int a21VCLocalHeight = LocalLength(height-1,a21Shift,p);
                 const C* a21Buffer = a21_MC_STAR.LocalBuffer(a21Offset,0);
-                for( int i=0; i<a21LocalHeight; ++i )
-                    sendBuf[w21LocalHeight+i] = a21Buffer[i*c];
+                for( int i=0; i<a21VCLocalHeight; ++i )
+                    sendBuf[w21VCLocalHeight+i] = a21Buffer[i*c];
             }
 
             // [VR,* ] <- [VC,* ]
@@ -1110,18 +1122,18 @@ HermitianPanelTridiagL
                 const C* w21Data = &sendBuf[k*portionSize];
                 const int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
                 const int w21Offset = (w21Shift-colShiftDest) / c;
-                const int w21LocalHeight = LocalLength(height,w21Shift,p);
+                const int w21VCLocalHeight = LocalLength(height,w21Shift,p);
                 C* w21LastBuffer = w21Last_MR_STAR.LocalBuffer(w21Offset,0);
-                for( int i=0; i<w21LocalHeight; ++i )
+                for( int i=0; i<w21VCLocalHeight; ++i )
                     w21LastBuffer[i*r] = w21Data[i];
 
                 // Unpack into a21[MR,* ]
-                const C* a21Data = &sendBuf[k*portionSize+w21LocalHeight];
+                const C* a21Data = &sendBuf[k*portionSize+w21VCLocalHeight];
                 const int a21Shift = (w21Shift+p-1) % p;
                 const int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
-                const int a21LocalHeight = LocalLength(height-1,a21Shift,p);
+                const int a21VCLocalHeight = LocalLength(height-1,a21Shift,p);
                 C* a21Buffer = a21_MR_STAR.LocalBuffer(a21Offset,0);
-                for( int i=0; i<a21LocalHeight; ++i )
+                for( int i=0; i<a21VCLocalHeight; ++i )
                     a21Buffer[i*r] = a21Data[i];
             }
             // Store w21Last[MR,* ]
@@ -1148,14 +1160,18 @@ HermitianPanelTridiagL
                                   w21Last_MC_STAR_Bottom(g);
             DistMatrix<C,MR,STAR> a21Last_MR_STAR_Bottom(g),
                                   w21Last_MR_STAR_Bottom(g);
-            a21Last_MC_STAR_Bottom.View
-            ( a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
-            w21Last_MC_STAR_Bottom.View
-            ( w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
-            a21Last_MR_STAR_Bottom.View
-            ( a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
-            w21Last_MR_STAR_Bottom.View
-            ( w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
+            View
+            ( a21Last_MC_STAR_Bottom,
+              a21Last_MC_STAR, 1, 0, a21Last_MC_STAR.Height()-1, 1 );
+            View
+            ( w21Last_MC_STAR_Bottom,
+              w21Last_MC_STAR, 1, 0, w21Last_MC_STAR.Height()-1, 1 );
+            View
+            ( a21Last_MR_STAR_Bottom,
+              a21Last_MR_STAR, 1, 0, a21Last_MR_STAR.Height()-1, 1 );
+            View
+            ( w21Last_MR_STAR_Bottom,
+              w21Last_MR_STAR, 1, 0, w21Last_MR_STAR.Height()-1, 1 );
             const C* a21_MC_STAR_Buffer = a21Last_MC_STAR_Bottom.LocalBuffer();
             const C* w21_MC_STAR_Buffer = w21Last_MC_STAR_Bottom.LocalBuffer();
             const C* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.LocalBuffer();
@@ -1425,10 +1441,12 @@ HermitianPanelTridiagL
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<C,MC,STAR> w21_MC_STAR(g);
             DistMatrix<C,MR,STAR> w21_MR_STAR(g);
-            w21_MC_STAR.View
-            ( W_MC_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
-            w21_MR_STAR.View
-            ( W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
+            View
+            ( w21_MC_STAR, 
+              W_MC_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
+            View
+            ( w21_MR_STAR,
+              W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
             C scale = dotProduct*Conj(tau)/C(2);
@@ -1481,7 +1499,7 @@ HermitianPanelTridiagL
 
     // View the portion of A that e is the subdiagonal of, then place e into it
     DistMatrix<C> expandedATL(g);
-    expandedATL.View( A, 0, 0, panelSize+1, panelSize+1 );
+    View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetRealPartOfDiagonal( e, -1 );
 #ifndef RELEASE
     PopCallStack();

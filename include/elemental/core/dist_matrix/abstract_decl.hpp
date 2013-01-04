@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -161,6 +161,8 @@ public:
     // So that the local column indices are given by
     //   A.RowShift():A.RowStride():A.Width()
     virtual Int RowStride() const = 0;
+    virtual Int ColRank() const = 0;
+    virtual Int RowRank() const = 0;
 
     //
     // Entry manipulation
@@ -243,6 +245,55 @@ protected:
       const elem::Grid& g );
 
     virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;
+
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void View
+    ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void elem::LockedView
+    ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void View
+    ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B,
+      Ord i, Ord j, Ord height, Ord width );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void elem::LockedView
+    ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B,
+      Ord i, Ord j, Ord height, Ord width );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void View1x2
+    ( DistMatrix<S,U,V,Ord>& A,
+      DistMatrix<S,U,V,Ord>& BL, DistMatrix<S,U,V,Ord>& BR );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void LockedView1x2
+    (       DistMatrix<S,U,V,Ord>& A,
+      const DistMatrix<S,U,V,Ord>& BL,
+      const DistMatrix<S,U,V,Ord>& BR );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void View2x1
+    ( DistMatrix<S,U,V,Ord>& A,
+      DistMatrix<S,U,V,Ord>& BT,
+      DistMatrix<S,U,V,Ord>& BB );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void LockedView2x1
+    (       DistMatrix<S,U,V,Ord>& A,
+      const DistMatrix<S,U,V,Ord>& BT,
+      const DistMatrix<S,U,V,Ord>& BB );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void View2x2
+    ( DistMatrix<S,U,V,Ord>& A,
+      DistMatrix<S,U,V,Ord>& BTL, DistMatrix<S,U,V,Ord>& BTR,
+      DistMatrix<S,U,V,Ord>& BBL, DistMatrix<S,U,V,Ord>& BBR );
+    template<typename S,Distribution U,Distribution V,typename Ord> 
+    friend void LockedView2x2
+    (       DistMatrix<S,U,V,Ord>& A,
+      const DistMatrix<S,U,V,Ord>& BTL,
+      const DistMatrix<S,U,V,Ord>& BTR,
+      const DistMatrix<S,U,V,Ord>& BBL,
+      const DistMatrix<S,U,V,Ord>& BBR );
+
+    template<typename S,Distribution U,Distribution V,typename Ord>
+    friend class DistMatrix;
 };
 
 } // elem

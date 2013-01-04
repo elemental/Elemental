@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -63,9 +63,9 @@ ApplyPackedReflectorsRLVB
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         const int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
 
         Zeros( ARight.Height(), HPanWidth, Z );
         Zeros( HPanWidth, HPanWidth, SInv );
@@ -139,9 +139,9 @@ ApplyPackedReflectorsRLVB
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         const int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_STAR.AlignWith( ARight );
         ZTrans_STAR_MC.AlignWith( ARight );
@@ -241,7 +241,7 @@ ApplyPackedReflectorsRLVB
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         const int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -249,7 +249,7 @@ ApplyPackedReflectorsRLVB
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
 
         Zeros( ARight.Height(), HPan.Width(), Z );
         Zeros( HPan.Width(), HPan.Width(), SInv );
@@ -344,7 +344,7 @@ ApplyPackedReflectorsRLVB
         const int HPanWidth = 
             std::min( H11.Width(), std::max(HPanHeight+offset,0) );
         const int leftover = A.Width()-HPanHeight;
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -352,7 +352,7 @@ ApplyPackedReflectorsRLVB
          /**/ /**/
           tB,  t2, HPanWidth );
 
-        ARight.View( A, 0, leftover, A.Height(), HPanHeight );
+        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
 
         HPan_MR_STAR.AlignWith( ARight );
         ZAdj_STAR_MC.AlignWith( ARight );

@@ -649,58 +649,6 @@ It should also be noted that this is the default distribution format for the
       Same as above, but the resulting matrix is "locked", meaning that it 
       cannot modify the underlying local data.
 
-   .. cpp:function:: void View( DistMatrix<T,MC,MR>& A )
-
-      Reconfigure this matrix such that it is essentially a copy of the 
-      distributed matrix `A`, but the local data buffer simply points to 
-      the one from `A`.
-
-   .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A )
-
-      Same as above, but this matrix is "locked", meaning that it cannot 
-      change the data from `A` that it points to.
-
-   .. cpp:function:: void View( DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
-
-      View a subset of `A` rather than the entire matrix. In particular, 
-      reconfigure this matrix to behave like the submatrix defined from the 
-      ``[i,i+height)`` rows and ``[j,j+width)`` columns of `A`.
-
-   .. cpp:function:: void LockedView( const DistMatrix<T,MC,MR>& A, int i, int j, int height, int width )
-
-      Same as above, but this matrix is "locked", meaning that it cannot
-      change the data from `A` that it points to.
-
-   .. note::
-
-      The following functions have strict requirements on the input matrices 
-      and must be used with care in ``PureRelease`` and ``HybridRelease`` modes.
-
-   .. cpp:function:: void View1x2( DistMatrix<T,MC,MR>& AL, DistMatrix<T,MC,MR>& AR )
-
-      Recombine two adjacent submatrices to form :math:`[A_L A_R]`. 
-
-   .. cpp:function:: void LockedView1x2( const DistMatrix<T,MC,MR>& AL, const DistMatrix<T,MC,MR>& AR )
-
-      Same as above, but the result is "locked" (the data is not modifiable).
-
-   .. cpp:function:: void View2x1( DistMatrix<T,MC,MR>& AT, DistMatrix<T,MC,MR>& AB )
-
-      Recombine two adjacent submatrices to form :math:`[A_T; A_B]`.
-
-   .. cpp:function:: void LockedView2x1( const DistMatrix<T,MC,MR>& AT, const DistMatrix<T,MC,MR>& AB )
-
-      Same as above, but the result is "locked" (the data is not modifiable).
-
-   .. cpp:function:: void View2x2( DistMatrix<T,MC,MR>& ATL, DistMatrix<T,MC,MR>& ATR, DistMatrix<T,MC,MR>& ABL, DistMatrix<T,MC,MR>& ABR )
-
-      Recombine four adjacent submatrices to form 
-      :math:`[A_{TL} A_{TR}; A_{BL} A_{BR}]`.
-
-   .. cpp:function:: void LockedView2x2( const DistMatrix<T,MC,MR>& ATL, const DistMatrix<T,MC,MR>& ATR, const DistMatrix<T,MC,MR>& ABL, const DistMatrix<T,MC,MR>& ABR )
-
-      Same as above, but the result is "locked" (the data is not modifiable).
-
    .. rubric:: Custom communication routines
 
    The following routines primarily exist as a means of avoiding the poor 

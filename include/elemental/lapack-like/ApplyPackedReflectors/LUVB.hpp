@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -69,8 +69,7 @@ ApplyPackedReflectorsLUVB
         const int HPanOffset = 
             std::min( H11.Width(), std::max(offset-H00.Width(),0) );
         const int HPanWidth = H11.Width()-HPanOffset;
-        HPan.LockedView
-        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
+        LockedView( HPan, H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         RepartitionUp
         ( AT,  A0,
@@ -78,8 +77,8 @@ ApplyPackedReflectorsLUVB
          /**/ /**/
           AB,  A2 );
 
-        ATop.View2x1( A0,
-                      A1 );
+        View2x1( ATop, A0,
+                       A1 );
 
         Zeros( HPan.Width(), ATop.Width(), Z );
         Zeros( HPan.Width(), HPan.Width(), SInv );
@@ -165,8 +164,7 @@ ApplyPackedReflectorsLUVB
         const int HPanOffset = 
             std::min( H11.Width(), std::max(offset-H00.Width(),0) );
         const int HPanWidth = H11.Width()-HPanOffset;
-        HPan.LockedView
-        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
+        LockedView( HPan, H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         RepartitionUp
         ( AT,  A0,
@@ -174,8 +172,8 @@ ApplyPackedReflectorsLUVB
          /**/ /**/
           AB,  A2 );
 
-        ATop.View2x1( A0,
-                      A1 );
+        View2x1( ATop, A0,
+                       A1 );
 
         HPan_MC_STAR.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
@@ -283,8 +281,7 @@ ApplyPackedReflectorsLUVB
         const int HPanOffset = 
             std::min( H11.Width(), std::max(offset-H00.Width(),0) );
         const int HPanWidth = H11.Width()-HPanOffset;
-        HPan.LockedView
-        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
+        LockedView( HPan, H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -298,8 +295,8 @@ ApplyPackedReflectorsLUVB
          /**/ /**/
           AB,  A2 );
 
-        ATop.View2x1( A0,
-                      A1 );
+        View2x1( ATop, A0,
+                       A1 );
 
         Zeros( HPan.Width(), ATop.Width(), Z );
         Zeros( HPan.Width(), HPan.Width(), SInv );
@@ -406,8 +403,7 @@ ApplyPackedReflectorsLUVB
         const int HPanOffset = 
             std::min( H11.Width(), std::max(offset-H00.Width(),0) );
         const int HPanWidth = H11.Width()-HPanOffset;
-        HPan.LockedView
-        ( H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
+        LockedView( HPan, H, 0, H00.Width()+HPanOffset, HPanHeight, HPanWidth );
 
         LockedRepartitionUp
         ( tT,  t0,
@@ -421,8 +417,8 @@ ApplyPackedReflectorsLUVB
          /**/ /**/
           AB,  A2 );
 
-        ATop.View2x1( A0,
-                      A1 );
+        View2x1( ATop, A0,
+                       A1 );
 
         HPan_MC_STAR.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );

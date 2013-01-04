@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -246,7 +246,7 @@ HermitianTridiagUSquare
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 
-// Redistribute from matrix-diagonal form to fully replicated
+    // Redistribute from matrix-diagonal form to fully replicated
     t = tDiag;
 #ifndef RELEASE
     PopCallStack();

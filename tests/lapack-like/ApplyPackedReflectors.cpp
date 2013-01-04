@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -220,7 +220,7 @@ void TestComplexUT
         for( int i=0; i<t.Height(); ++i )
         {
             // View below the diagonal containing the implicit 1
-            HCol.View( H, i-offset+1, i, m-(i-offset+1), 1 );
+            View( HCol, H, i-offset+1, i, m-(i-offset+1), 1 );
             C norm = Nrm2( HCol );
             C alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
@@ -231,7 +231,7 @@ void TestComplexUT
         for( int i=0; i<t.Height(); ++i ) 
         {
             // View above the diagonal containing the implicit 1
-            HCol.View( H, 0, i+offset, i, 1 );
+            View( HCol, H, 0, i+offset, i, 1 );
             C norm = Nrm2( HCol );
             C alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );

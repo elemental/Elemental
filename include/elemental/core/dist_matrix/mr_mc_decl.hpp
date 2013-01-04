@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -109,6 +109,8 @@ public:
 
     virtual Int ColStride() const;
     virtual Int RowStride() const;
+    virtual Int ColRank() const;
+    virtual Int RowRank() const;
 
     //
     // Collective routines
@@ -223,40 +225,6 @@ public:
     ( Int height, Int width, Int colAlignment, Int rowAlignment,
       const T* buffer, Int ldim, const elem::Grid& grid );
 
-    // (Immutable) view of a distributed matrix
-    void View( DistMatrix<T,MR,MC,Int>& A );
-    void LockedView( const DistMatrix<T,MR,MC,Int>& A );
-
-    // (Immutable) view of a portion of a distributed matrix
-    void View
-    ( DistMatrix<T,MR,MC,Int>& A, Int i, Int j, Int height, Int width );
-    void LockedView
-    ( const DistMatrix<T,MR,MC,Int>& A, Int i, Int j, Int height, Int width );
-
-    // (Immutable) view of two horizontally contiguous partitions of a
-    // distributed matrix
-    void View1x2( DistMatrix<T,MR,MC,Int>& AL, DistMatrix<T,MR,MC,Int>& AR );
-    void LockedView1x2
-    ( const DistMatrix<T,MR,MC,Int>& AL, const DistMatrix<T,MR,MC,Int>& AR );
-
-    // (Immutable) view of two vertically contiguous partitions of a
-    // distributed matrix
-    void View2x1
-    ( DistMatrix<T,MR,MC,Int>& AT,
-      DistMatrix<T,MR,MC,Int>& AB );
-    void LockedView2x1
-    ( const DistMatrix<T,MR,MC,Int>& AT,
-      const DistMatrix<T,MR,MC,Int>& AB );
-
-    // (Immutable) view of a contiguous 2x2 set of partitions of a
-    // distributed matrix
-    void View2x2
-    ( DistMatrix<T,MR,MC,Int>& ATL, DistMatrix<T,MR,MC,Int>& ATR,
-      DistMatrix<T,MR,MC,Int>& ABL, DistMatrix<T,MR,MC,Int>& ABR );
-    void LockedView2x2
-    ( const DistMatrix<T,MR,MC,Int>& ATL, const DistMatrix<T,MR,MC,Int>& ATR,
-      const DistMatrix<T,MR,MC,Int>& ABL, const DistMatrix<T,MR,MC,Int>& ABR );
-
     // Equate/Update with the scattered summation of A[MR,* ] across 
     // process cols
     void SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
@@ -298,6 +266,9 @@ public:
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
+
+    template<typename S,Distribution U,Distribution V,typename Ord>
+    friend class DistMatrix;
 };
 
 } // namespace elem

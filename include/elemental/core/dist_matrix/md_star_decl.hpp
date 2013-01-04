@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -28,27 +28,27 @@ public:
 
     // Create a 0 x 0 distributed matrix with specified alignments
     DistMatrix
-    ( bool constrainedColAlignment, Int colAlignment, const elem::Grid& g );
+    ( bool constrainedColAlignment, Int colAlignmentVC, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     DistMatrix
-    ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
+    ( Int height, Int width, bool constrainedColAlignment, Int colAlignmentVC,
       const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
-    ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
+    ( Int height, Int width, bool constrainedColAlignment, Int colAlignmentVC,
       Int ldim, const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int colAlignment,
+    ( Int height, Int width, Int colAlignmentVC,
       const T* buffer, Int ldim, const elem::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int colAlignment,
+    ( Int height, Int width, Int colAlignmentVC,
       T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
@@ -106,6 +106,8 @@ public:
 
     virtual Int ColStride() const;
     virtual Int RowStride() const;
+    virtual Int ColRank() const;
+    virtual Int RowRank() const;
 
     virtual bool Participating() const;
 
@@ -144,8 +146,8 @@ public:
     //
 
     // Set the alignments
-    void Align( Int colAlignment );
-    void AlignCols( Int colAlignment );
+    void Align( Int colAlignmentVC );
+    void AlignCols( Int colAlignmentVC );
    
     // Aligns all of our DistMatrix's distributions that match a distribution
     // of the argument DistMatrix.
@@ -219,52 +221,26 @@ public:
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, Int colAlignment,
+    ( Int height, Int width, Int colAlignmentVC,
       T* buffer, Int ldim, const elem::Grid& grid );
     void LockedAttach
-    ( Int height, Int width, Int colAlignment, 
+    ( Int height, Int width, Int colAlignmentVC, 
       const T* buffer, Int ldim, const elem::Grid& grid );
 
-    // (Immutable) view of a distributed matrix
-    void View( DistMatrix<T,MD,STAR,Int>& A );
-    void LockedView( const DistMatrix<T,MD,STAR,Int>& A );
-
-    // (Immutable) view of a portion of a distributed matrix
-    void View
-    ( DistMatrix<T,MD,STAR,Int>& A, Int i, Int j, Int height, Int width );
-    void LockedView
-    ( const DistMatrix<T,MD,STAR,Int>& A, Int i, Int j, Int height, Int width );
-
-    // (Immutable) view of two horizontally contiguous partitions of a
-    // distributed matrix
-    void View1x2
-    ( DistMatrix<T,MD,STAR,Int>& AL, DistMatrix<T,MD,STAR,Int>& AR );
-    void LockedView1x2
-    ( const DistMatrix<T,MD,STAR,Int>& AL, 
-      const DistMatrix<T,MD,STAR,Int>& AR );
-
-    // (Immutable) view of two vertically contiguous partitions of a
-    // distributed matrix
-    void View2x1
-    ( DistMatrix<T,MD,STAR,Int>& AT,
-      DistMatrix<T,MD,STAR,Int>& AB );
-    void LockedView2x1
-    ( const DistMatrix<T,MD,STAR,Int>& AT,
-      const DistMatrix<T,MD,STAR,Int>& AB );
-
-    // (Immutable) view of a contiguous 2x2 set of partitions of a
-    // distributed matrix
-    void View2x2
-    ( DistMatrix<T,MD,STAR,Int>& ATL, DistMatrix<T,MD,STAR,Int>& ATR,
-      DistMatrix<T,MD,STAR,Int>& ABL, DistMatrix<T,MD,STAR,Int>& ABR );
-    void LockedView2x2
-    ( const DistMatrix<T,MD,STAR,Int>& ATL, 
-      const DistMatrix<T,MD,STAR,Int>& ATR,
-      const DistMatrix<T,MD,STAR,Int>& ABL, 
-      const DistMatrix<T,MD,STAR,Int>& ABR );
+    Int DiagPath() const;
 
 private:
+    // store the DiagPath instead...
+    Int diagPath_;
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
+
+    template<typename S,Distribution U,Distribution V,typename Ord>
+    friend class DistMatrix;
+
+    friend void HandleDiagPath<>
+    ( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );
+    friend void HandleDiagPath<>
+    ( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );
 };
 
 } // namespace elem

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -67,7 +67,7 @@ ApplyPackedReflectorsLLVF
         
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         RepartitionDown
         ( AT,  A0,
@@ -157,7 +157,7 @@ ApplyPackedReflectorsLLVF
         
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         RepartitionDown
         ( AT,  A0,
@@ -268,7 +268,7 @@ ApplyPackedReflectorsLLVF
 
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionDown
         ( tT,  t0,
@@ -385,7 +385,7 @@ ApplyPackedReflectorsLLVF
 
         int HPanHeight = H11.Height() + H21.Height();
         int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        HPan.LockedView( H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
+        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
         LockedRepartitionDown
         ( tT,  t0,

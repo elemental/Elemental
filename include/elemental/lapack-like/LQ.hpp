@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -49,8 +49,8 @@ LQ( Matrix<Real>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        ATopPan.View1x2( A11, A12 );
-        ABottomPan.View1x2( A21, A22 );
+        View1x2( ATopPan, A11, A12 );
+        View1x2( ABottomPan, A21, A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelLQ( ATopPan );
@@ -97,8 +97,8 @@ LQ( DistMatrix<Real>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        ATopPan.View1x2( A11, A12 );
-        ABottomPan.View1x2( A21, A22 );
+        View1x2( ATopPan, A11, A12 );
+        View1x2( ABottomPan, A21, A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelLQ( ATopPan );
@@ -158,8 +158,8 @@ LQ( Matrix<Complex<Real> >& A,
                t1,
           tB,  t2 );
 
-        ATopPan.View1x2( A11, A12 );
-        ABottomPan.View1x2( A21, A22 );
+        View1x2( ATopPan, A11, A12 );
+        View1x2( ABottomPan, A21, A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelLQ( ATopPan, t1 );
@@ -240,8 +240,8 @@ LQ( DistMatrix<Complex<Real> >& A,
                t1,
           tB,  t2 );
 
-        ATopPan.View1x2( A11, A12 );
-        ABottomPan.View1x2( A21, A22 );
+        View1x2( ATopPan, A11, A12 );
+        View1x2( ABottomPan, A21, A22 );
 
         //--------------------------------------------------------------------//
         internal::PanelLQ( ATopPan, t1 );

@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -71,10 +71,10 @@ TrsvUT
             const int n0 = x0.Height();
             const int n1 = x1.Height();
             const int n2 = x2.Height();
-            U11.LockedView( U, n0, n0,    n1, n1 );
-            U12.LockedView( U, n0, n0+n1, n1, n2 );
-            z1_MR_STAR.View( z_MR_STAR, n0,    0, n1, 1 );
-            z2_MR_STAR.View( z_MR_STAR, n0+n1, 0, n2, 1 );
+            LockedView( U11, U, n0, n0,    n1, n1 );
+            LockedView( U12, U, n0, n0+n1, n1, n2 );
+            View( z1_MR_STAR, z_MR_STAR, n0,    0, n1, 1 );
+            View( z2_MR_STAR, z_MR_STAR, n0+n1, 0, n2, 1 );
 
             x1_MC_STAR.AlignWith( U12 );
             z1.AlignWith( x1 );
@@ -143,10 +143,10 @@ TrsvUT
             const int n0 = x0.Width();
             const int n1 = x1.Width();
             const int n2 = x2.Width();
-            U11.LockedView( U, n0, n0,    n1, n1 );
-            U12.LockedView( U, n0, n0+n1, n1, n2 );
-            z1_STAR_MR.View( z_STAR_MR, 0, n0,    1, n1 );
-            z2_STAR_MR.View( z_STAR_MR, 0, n0+n1, 1, n2 );
+            LockedView( U11, U, n0, n0,    n1, n1 );
+            LockedView( U12, U, n0, n0+n1, n1, n2 );
+            View( z1_STAR_MR, z_STAR_MR, 0, n0,    1, n1 );
+            View( z2_STAR_MR, z_STAR_MR, 0, n0+n1, 1, n2 );
 
             x1_STAR_MC.AlignWith( U12 );
             //----------------------------------------------------------------//

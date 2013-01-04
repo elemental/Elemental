@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -44,7 +44,7 @@ main( int argc, char* argv[] )
         if( print )
             points.Print("points");
         DistMatrix<double> firstRow;
-        firstRow.View( X, 0, 0, 1, n );
+        View( firstRow, X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
         for( int j=0; j<n; ++j )
         {

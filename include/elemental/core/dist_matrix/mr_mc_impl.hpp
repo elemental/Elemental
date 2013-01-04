@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -115,8 +115,8 @@ template<Distribution U,Distribution V>
 inline
 DistMatrix<T,MR,MC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 : AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  (A.Grid().InGrid() ? A.Grid().Col() : 0),
-  (A.Grid().InGrid() ? A.Grid().Row() : 0),
+  (A.Participating() ? A.ColRank() : 0),
+  (A.Participating() ? A.RowRank() : 0),
   0,0,A.Grid())
 {
 #ifndef RELEASE
@@ -168,6 +168,16 @@ DistMatrix<T,MR,MC,Int>::RowStride() const
 { return this->grid_->Height(); }
 
 template<typename T,typename Int>
+inline Int
+DistMatrix<T,MR,MC,Int>::ColRank() const
+{ return this->grid_->Col(); }
+
+template<typename T,typename Int>
+inline Int
+DistMatrix<T,MR,MC,Int>::RowRank() const
+{ return this->grid_->Row(); }
+
+template<typename T,typename Int>
 template<typename S,typename N>
 inline void
 DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
@@ -183,7 +193,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
     this->rowAlignment_ = A.RowAlignment();
     this->constrainedColAlignment_ = true;
     this->constrainedRowAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
     {
         this->colShift_ = A.ColShift();
         this->rowShift_ = A.RowShift();
@@ -206,7 +216,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,MR,STAR,N>& A )
     this->Empty();
     this->colAlignment_ = A.ColAlignment();
     this->constrainedColAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -226,7 +236,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,STAR,MC,N>& A )
     this->Empty();
     this->rowAlignment_ = A.RowAlignment();
     this->constrainedRowAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -249,7 +259,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
     this->rowAlignment_ = A.ColAlignment();
     this->constrainedColAlignment_ = true;
     this->constrainedRowAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
     {
         this->colShift_ = A.RowShift();
         this->rowShift_ = A.ColShift();
@@ -272,7 +282,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,MC,STAR,N>& A )
     this->Empty();
     this->rowAlignment_ = A.ColAlignment();
     this->constrainedRowAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -292,7 +302,7 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const DistMatrix<S,STAR,MR,N>& A )
     this->Empty();
     this->colAlignment_ = A.RowAlignment();
     this->constrainedColAlignment_ = true;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -400,7 +410,7 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const DistMatrix<S,MR,MC,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -424,7 +434,7 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const DistMatrix<S,MR,STAR,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -448,7 +458,7 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const DistMatrix<S,MC,MR,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -472,7 +482,7 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const DistMatrix<S,STAR,MR,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->colShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -546,7 +556,7 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const DistMatrix<S,MR,MC,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -570,7 +580,7 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const DistMatrix<S,STAR,MC,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.RowShift();
 #ifndef RELEASE
     PopCallStack();
@@ -594,7 +604,7 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const DistMatrix<S,MC,MR,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -618,7 +628,7 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const DistMatrix<S,MC,STAR,N>& A )
     this->localMatrix_.Empty();
     this->lockedView_ = false;
     this->viewing_ = false;
-    if( this->Grid().InGrid() )
+    if( this->Participating() )
         this->rowShift_ = A.ColShift();
 #ifndef RELEASE
     PopCallStack();
@@ -892,394 +902,6 @@ DistMatrix<T,MR,MC,Int>::LockedAttach
         const Int localWidth = LocalLength(width,this->rowShift_,g.Height());
         this->localMatrix_.LockedAttach
         ( localHeight, localWidth, buffer, ldim );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::View( DistMatrix<T,MR,MC,Int>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::View");
-#endif
-    this->Empty();
-
-    this->grid_ = A.grid_;
-    this->height_ = A.Height();
-    this->width_  = A.Width();
-    this->colAlignment_ = A.ColAlignment();
-    this->rowAlignment_ = A.RowAlignment();
-    this->viewing_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = A.ColShift();
-        this->rowShift_ = A.RowShift();
-        this->localMatrix_.View( A.LocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::LockedView( const DistMatrix<T,MR,MC,Int>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::LockedView");
-#endif
-    this->Empty();
-
-    this->grid_ = A.grid_;
-    this->height_ = A.Height();
-    this->width_  = A.Width();
-    this->colAlignment_ = A.ColAlignment();
-    this->rowAlignment_ = A.RowAlignment();
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = A.ColShift();
-        this->rowShift_ = A.RowShift();
-        this->localMatrix_.LockedView( A.LockedLocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::View
-( DistMatrix<T,MR,MC,Int>& A, Int i, Int j, Int height, Int width )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::View");
-    this->AssertValidSubmatrix( A, i, j, height, width );
-#endif
-    this->Empty();
-
-    this->grid_ = A.grid_;
-    this->height_ = height;
-    this->width_ = width;
-
-    const elem::Grid& g = this->Grid();
-    const Int r   = g.Height();
-    const Int c   = g.Width();
-    const Int row = g.Row();
-    const Int col = g.Col();
-
-    this->colAlignment_ = (A.ColAlignment()+i) % c;
-    this->rowAlignment_ = (A.RowAlignment()+j) % r;
-    this->viewing_ = true;
-
-    if( g.InGrid() )
-    {
-        this->colShift_ = Shift( col, this->ColAlignment(), c );
-        this->rowShift_ = Shift( row, this->RowAlignment(), r );
-
-        const Int localHeightBefore = LocalLength( i, A.ColShift(), c );
-        const Int localWidthBefore  = LocalLength( j, A.RowShift(), r );
-
-        const Int localHeight = LocalLength( height, this->ColShift(), c );
-        const Int localWidth  = LocalLength( width,  this->RowShift(), r );
-
-        this->localMatrix_.View
-        ( A.LocalMatrix(),
-          localHeightBefore, localWidthBefore, localHeight, localWidth );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::LockedView
-( const DistMatrix<T,MR,MC,Int>& A, Int i, Int j, Int height, Int width )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::LockedView");
-    this->AssertValidSubmatrix( A, i, j, height, width );
-#endif
-    this->Empty();
-
-    this->grid_ = A.grid_;
-    this->height_ = height;
-    this->width_ = width;
-
-    const elem::Grid& g = this->Grid();
-    const Int r   = g.Height();
-    const Int c   = g.Width();
-    const Int row = g.Row();
-    const Int col = g.Col();
-
-    this->colAlignment_ = (A.ColAlignment()+i) % c;
-    this->rowAlignment_ = (A.RowAlignment()+j) % r;
-    this->viewing_ = true;
-    this->lockedView_ = true;
-        
-    if( g.InGrid() )
-    {
-        this->colShift_ = Shift( col, this->ColAlignment(), c );
-        this->rowShift_ = Shift( row, this->RowAlignment(), r );
-
-        const Int localHeightBefore = LocalLength( i, A.ColShift(), c );
-        const Int localWidthBefore  = LocalLength( j, A.RowShift(), r );
-
-        const Int localHeight = LocalLength( height, this->ColShift(), c );
-        const Int localWidth  = LocalLength( width,  this->RowShift(), r );
-
-        this->localMatrix_.LockedView
-        ( A.LockedLocalMatrix(),
-          localHeightBefore, localWidthBefore, localHeight, localWidth );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::View1x2
-( DistMatrix<T,MR,MC,Int>& AL, DistMatrix<T,MR,MC,Int>& AR )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::View1x2");
-    this->AssertConforming1x2( AL, AR );
-    AL.AssertSameGrid( AR );
-#endif
-    this->Empty();
-
-    this->grid_ = AL.grid_;
-    this->height_ = AL.Height();
-    this->width_  = AL.Width() + AR.Width();
-    this->colAlignment_ = AL.ColAlignment();
-    this->rowAlignment_ = AL.RowAlignment();
-    this->viewing_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = AL.ColShift();
-        this->rowShift_ = AL.RowShift();
-        this->localMatrix_.View1x2( AL.LocalMatrix(), AR.LocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::LockedView1x2
-( const DistMatrix<T,MR,MC,Int>& AL, const DistMatrix<T,MR,MC,Int>& AR )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::LockedView1x2");
-    this->AssertConforming1x2( AL, AR );
-    AL.AssertSameGrid( AR );
-#endif
-    this->Empty();
-
-    this->grid_ = AL.grid_;
-    this->height_ = AL.Height();
-    this->width_  = AL.Width() + AR.Width();
-    this->colAlignment_ = AL.ColAlignment();
-    this->rowAlignment_ = AL.RowAlignment();
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = AL.ColShift();
-        this->rowShift_ = AL.RowShift();
-        this->localMatrix_.LockedView1x2
-        ( AL.LockedLocalMatrix(), AR.LockedLocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::View2x1
-( DistMatrix<T,MR,MC,Int>& AT,
-  DistMatrix<T,MR,MC,Int>& AB )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::View2x1");
-    this->AssertConforming2x1( AT, AB );
-    AT.AssertSameGrid( AB );
-#endif
-    this->Empty();
-
-    this->grid_ = AT.grid_;
-    this->height_ = AT.Height() + AB.Height();
-    this->width_  = AT.Width();
-    this->colAlignment_ = AT.ColAlignment();
-    this->rowAlignment_ = AT.RowAlignment();
-    this->viewing_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = AT.ColShift();
-        this->rowShift_ = AT.RowShift();
-        this->localMatrix_.View2x1
-        ( AT.LocalMatrix(),
-          AB.LocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::LockedView2x1
-( const DistMatrix<T,MR,MC,Int>& AT,
-  const DistMatrix<T,MR,MC,Int>& AB )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::LockedView2x1");
-    this->AssertConforming2x1( AT, AB );
-    AT.AssertSameGrid( AB );
-#endif
-    this->Empty();
-
-    this->grid_ = AT.grid_;
-    this->height_ = AT.Height() + AB.Height();
-    this->width_  = AT.Width();
-    this->colAlignment_ = AT.ColAlignment();
-    this->rowAlignment_ = AT.RowAlignment();
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = AT.ColShift();
-        this->rowShift_ = AT.RowShift();
-        this->localMatrix_.LockedView2x1
-        ( AT.LockedLocalMatrix(),
-          AB.LockedLocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::View2x2
-( DistMatrix<T,MR,MC,Int>& ATL, DistMatrix<T,MR,MC,Int>& ATR,
-  DistMatrix<T,MR,MC,Int>& ABL, DistMatrix<T,MR,MC,Int>& ABR )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::View2x2");
-    this->AssertConforming2x2( ATL, ATR, ABL, ABR );
-    ATL.AssertSameGrid( ATR );
-    ATL.AssertSameGrid( ABL );
-    ATL.AssertSameGrid( ABR );
-#endif
-    this->Empty();
-
-    this->grid_ = ATL.grid_;
-    this->height_ = ATL.Height() + ABL.Height();
-    this->width_ = ATL.Width() + ATR.Width();
-    this->colAlignment_ = ATL.ColAlignment();
-    this->rowAlignment_ = ATL.RowAlignment();
-    this->viewing_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = ATL.ColShift();
-        this->rowShift_ = ATL.RowShift();
-        this->localMatrix_.View2x2
-        ( ATL.LocalMatrix(), ATR.LocalMatrix(),
-          ABL.LocalMatrix(), ABR.LocalMatrix() );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::LockedView2x2
-( const DistMatrix<T,MR,MC,Int>& ATL, const DistMatrix<T,MR,MC,Int>& ATR,
-  const DistMatrix<T,MR,MC,Int>& ABL, const DistMatrix<T,MR,MC,Int>& ABR )
-{
-#ifndef RELEASE
-    PushCallStack("[MR,MC]::LockedView2x2");
-    this->AssertConforming2x2( ATL, ATR, ABL, ABR );
-    ATL.AssertSameGrid( ATR );
-    ATL.AssertSameGrid( ABL );
-    ATL.AssertSameGrid( ABR );
-#endif
-    this->Empty();
-
-    this->grid_ = ATL.grid_;
-    this->height_ = ATL.Height() + ABL.Height();
-    this->width_  = ATL.Width() + ATR.Width();
-    this->colAlignment_ = ATL.ColAlignment();
-    this->rowAlignment_ = ATL.RowAlignment();
-    this->viewing_ = true;
-    this->lockedView_ = true;
-    if( this->Grid().InGrid() )
-    {
-        this->colShift_ = ATL.ColShift();
-        this->rowShift_ = ATL.RowShift();
-        this->localMatrix_.LockedView2x2
-        ( ATL.LockedLocalMatrix(), ATR.LockedLocalMatrix(),
-          ABL.LockedLocalMatrix(), ABR.LockedLocalMatrix() );
     }
     else
     {

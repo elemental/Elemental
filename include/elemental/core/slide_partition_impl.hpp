@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -27,9 +27,9 @@ SlidePartitionUp
 #ifndef RELEASE
     PushCallStack("SlidePartitionUp [Matrix]");
 #endif
-    AT.View( A0 );
-    AB.View2x1( A1,
-                A2 );
+    View( AT, A0 );
+    View2x1( AB, A1,
+                 A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -45,9 +45,9 @@ SlidePartitionUp
 #ifndef RELEASE
     PushCallStack("SlidePartitionUp [DistMatrix]");
 #endif
-    AT.View( A0 );
-    AB.View2x1( A1,
-                A2 );
+    View( AT, A0 );
+    View2x1( AB, A1,
+                 A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -63,9 +63,9 @@ SlideLockedPartitionUp
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionUp [Matrix]");
 #endif
-    AT.LockedView( A0 );
-    AB.LockedView2x1( A1,
-                      A2 );
+    LockedView( AT, A0 );
+    LockedView2x1( AB, A1,
+                       A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -81,9 +81,9 @@ SlideLockedPartitionUp
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionUp [DistMatrix]");
 #endif
-    AT.LockedView( A0 );
-    AB.LockedView2x1( A1,
-                      A2 );
+    LockedView( AT, A0 );
+    LockedView2x1( AB, A1,
+                       A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -103,9 +103,9 @@ SlidePartitionDown
 #ifndef RELEASE
     PushCallStack("SlidePartitionDown [Matrix]");
 #endif
-    AT.View2x1( A0,
-                A1 );
-    AB.View( A2 );
+    View2x1( AT, A0,
+                 A1 );
+    View( AB, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -121,9 +121,9 @@ SlidePartitionDown
 #ifndef RELEASE
     PushCallStack("SlidePartitionDown [DistMatrix]");
 #endif
-    AT.View2x1( A0,
-                A1 );
-    AB.View( A2 );
+    View2x1( AT, A0,
+                 A1 );
+    View( AB, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -139,9 +139,9 @@ SlideLockedPartitionDown
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionDown [Matrix]");
 #endif
-    AT.LockedView2x1( A0,
-                      A1 );
-    AB.LockedView( A2 );
+    LockedView2x1( AT, A0,
+                       A1 );
+    LockedView( AB, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -157,9 +157,9 @@ SlideLockedPartitionDown
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionDown [DistMatrix]");
 #endif
-    AT.LockedView2x1( A0,
-                      A1 );
-    AB.LockedView( A2 );
+    LockedView2x1( AT, A0,
+                       A1 );
+    LockedView( AB, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -178,8 +178,8 @@ SlidePartitionLeft
 #ifndef RELEASE
     PushCallStack("SlidePartitionLeft [Matrix]");
 #endif
-    AL.View( A0 );
-    AR.View1x2( A1, A2 );
+    View( AL, A0 );
+    View1x2( AR, A1, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -194,8 +194,8 @@ SlidePartitionLeft
 #ifndef RELEASE
     PushCallStack("SlidePartitionLeft [DistMatrix]");
 #endif
-    AL.View( A0 );
-    AR.View1x2( A1, A2 );
+    View( AL, A0 );
+    View1x2( AR, A1, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -210,8 +210,8 @@ SlideLockedPartitionLeft
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionLeft [Matrix]");
 #endif
-    AL.LockedView( A0 );
-    AR.LockedView1x2( A1, A2 );
+    LockedView( AL, A0 );
+    LockedView1x2( AR, A1, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -226,8 +226,8 @@ SlideLockedPartitionLeft
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionLeft [DistMatrix]");
 #endif
-    AL.LockedView( A0 );
-    AR.LockedView1x2( A1, A2 );
+    LockedView( AL, A0 );
+    LockedView1x2( AR, A1, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -246,8 +246,8 @@ SlidePartitionRight
 #ifndef RELEASE
     PushCallStack("SlidePartitionRight [Matrix]");
 #endif
-    AL.View1x2( A0, A1 );
-    AR.View( A2 );
+    View1x2( AL, A0, A1 );
+    View( AR, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -262,8 +262,8 @@ SlidePartitionRight
 #ifndef RELEASE
     PushCallStack("SlidePartitionRight [DistMatrix]");
 #endif
-    AL.View1x2( A0, A1 );
-    AR.View( A2 );
+    View1x2( AL, A0, A1 );
+    View( AR, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -278,8 +278,8 @@ SlideLockedPartitionRight
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionRight [Matrix]");
 #endif
-    AL.LockedView1x2( A0, A1 );
-    AR.LockedView( A2 );
+    LockedView1x2( AL, A0, A1 );
+    LockedView( AR, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -294,8 +294,8 @@ SlideLockedPartitionRight
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionRight [DistMatrix]");
 #endif
-    AL.LockedView1x2( A0, A1 );
-    AR.LockedView( A2 );
+    LockedView1x2( AL, A0, A1 );
+    LockedView( AR, A2 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -315,12 +315,12 @@ SlidePartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("SlidePartitionUpDiagonal [Matrix]");
 #endif
-    ATL.View( A00 );
-    ATR.View1x2( A01, A02 );
-    ABL.View2x1( A10,
-                 A20 );
-    ABR.View2x2( A11, A12,
-                 A21, A22 );
+    View( ATL, A00 );
+    View1x2( ATR, A01, A02 );
+    View2x1( ABL, A10,
+                  A20 );
+    View2x2( ABR, A11, A12,
+                  A21, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -336,12 +336,12 @@ SlidePartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("SlidePartitionUpDiagonal [DistMatrix]");
 #endif
-    ATL.View( A00 );
-    ATR.View1x2( A01, A02 );
-    ABL.View2x1( A10,
-                 A20 );
-    ABR.View2x2( A11, A12,
-                 A21, A22 );
+    View( ATL, A00 );
+    View1x2( ATR, A01, A02 );
+    View2x1( ABL, A10,
+                  A20 );
+    View2x2( ABR, A11, A12,
+                  A21, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -357,12 +357,12 @@ SlideLockedPartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionUpDiagonal [Matrix]");
 #endif
-    ATL.LockedView( A00 );
-    ATR.LockedView1x2( A01, A02 );
-    ABL.LockedView2x1( A10,
-                       A20 );
-    ABR.LockedView2x2( A11, A12,
-                       A21, A22 );
+    LockedView( ATL, A00 );
+    LockedView1x2( ATR, A01, A02 );
+    LockedView2x1( ABL, A10,
+                        A20 );
+    LockedView2x2( ABR, A11, A12,
+                        A21, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -378,12 +378,12 @@ SlideLockedPartitionUpDiagonal
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionUpDiagonal [DistMatrix]");
 #endif
-    ATL.LockedView( A00 );
-    ATR.LockedView1x2( A01, A02 );
-    ABL.LockedView2x1( A10,
-                       A20 );
-    ABR.LockedView2x2( A11, A12,
-                       A21, A22 );
+    LockedView( ATL, A00 );
+    LockedView1x2( ATR, A01, A02 );
+    LockedView2x1( ABL, A10,
+                        A20 );
+    LockedView2x2( ABR, A11, A12,
+                        A21, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -403,12 +403,12 @@ SlidePartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("SlidePartitionDownDiagonal [Matrix]");
 #endif
-    ATL.View2x2( A00, A01,
-                 A10, A11 );
-    ATR.View2x1( A02,
-                 A12 );
-    ABL.View1x2( A20, A21 );
-    ABR.View( A22 );
+    View2x2( ATL, A00, A01,
+                  A10, A11 );
+    View2x1( ATR, A02,
+                  A12 );
+    View1x2( ABL, A20, A21 );
+    View( ABR, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -424,12 +424,12 @@ SlidePartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("SlidePartitionDownDiagonal [DistMatrix]");
 #endif
-    ATL.View2x2( A00, A01,
-                 A10, A11 );
-    ATR.View2x1( A02,
-                 A12 );
-    ABL.View1x2( A20, A21 );
-    ABR.View( A22 );
+    View2x2( ATL, A00, A01,
+                  A10, A11 );
+    View2x1( ATR, A02,
+                  A12 );
+    View1x2( ABL, A20, A21 );
+    View( ABR, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -445,12 +445,12 @@ SlideLockedPartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionDownDiagonal [Matrix]");
 #endif
-    ATL.LockedView2x2( A00, A01,
-                       A10, A11 );
-    ATR.LockedView2x1( A02,
-                       A12 );
-    ABL.LockedView1x2( A20, A21 );
-    ABR.LockedView( A22 );
+    LockedView2x2( ATL, A00, A01,
+                        A10, A11 );
+    LockedView2x1( ATR, A02,
+                        A12 );
+    LockedView1x2( ABL, A20, A21 );
+    LockedView( ABR, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -466,12 +466,12 @@ SlideLockedPartitionDownDiagonal
 #ifndef RELEASE
     PushCallStack("SlideLockedPartitionDownDiagonal [DistMatrix]");
 #endif
-    ATL.LockedView2x2( A00, A01,
-                       A10, A11 );
-    ATR.LockedView2x1( A02,
-                       A12 );
-    ABL.LockedView1x2( A20, A21 );
-    ABR.LockedView( A22 );
+    LockedView2x2( ATL, A00, A01,
+                        A10, A11 );
+    LockedView2x1( ATR, A02,
+                        A12 );
+    LockedView1x2( ABL, A20, A21 );
+    LockedView( ABR, A22 );
 #ifndef RELEASE
     PopCallStack();
 #endif

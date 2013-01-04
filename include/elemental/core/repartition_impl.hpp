@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -31,9 +31,9 @@ RepartitionUp
 #endif
     A1Height = std::min(A1Height,AT.Height());
     const Int offset = AT.Height()-A1Height; 
-    A0.View( AT, 0,      0, offset,   AT.Width() );
-    A1.View( AT, offset, 0, A1Height, AT.Width() );
-    A2.View( AB );
+    View( A0, AT, 0,      0, offset,   AT.Width() );
+    View( A1, AT, offset, 0, A1Height, AT.Width() );
+    View( A2, AB );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,9 +55,9 @@ RepartitionUp
 #endif
     A1Height = std::min(A1Height,AT.Height());
     const Int offset = AT.Height()-A1Height; 
-    A0.View( AT, 0,      0, offset,   AT.Width() );
-    A1.View( AT, offset, 0, A1Height, AT.Width() );
-    A2.View( AB );
+    View( A0, AT, 0,      0, offset,   AT.Width() );
+    View( A1, AT, offset, 0, A1Height, AT.Width() );
+    View( A2, AB );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -77,9 +77,9 @@ LockedRepartitionUp
 #endif
     A1Height = std::min(A1Height,AT.Height());
     const Int offset = AT.Height()-A1Height;
-    A0.LockedView( AT, 0,      0, offset,   AT.Width() );
-    A1.LockedView( AT, offset, 0, A1Height, AT.Width() );
-    A2.LockedView( AB );
+    LockedView( A0, AT, 0,      0, offset,   AT.Width() );
+    LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
+    LockedView( A2, AB );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -101,9 +101,9 @@ LockedRepartitionUp
 #endif
     A1Height = std::min(A1Height,AT.Height());
     const Int offset = AT.Height()-A1Height;
-    A0.LockedView( AT, 0,      0, offset,   AT.Width() );
-    A1.LockedView( AT, offset, 0, A1Height, AT.Width() );
-    A2.LockedView( AB );
+    LockedView( A0, AT, 0,      0, offset,   AT.Width() );
+    LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
+    LockedView( A2, AB );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -127,9 +127,9 @@ RepartitionDown
 #endif
     A1Height = std::min(A1Height,AB.Height());
     const Int offset = AB.Height()-A1Height; 
-    A0.View( AT );
-    A1.View( AB, 0,        0, A1Height, AB.Width() );
-    A2.View( AB, A1Height, 0, offset,   AB.Width() );
+    View( A0, AT );
+    View( A1, AB, 0,        0, A1Height, AB.Width() );
+    View( A2, AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -151,9 +151,9 @@ RepartitionDown
 #endif
     A1Height = std::min(A1Height,AB.Height());
     const Int offset = AB.Height()-A1Height; 
-    A0.View( AT );
-    A1.View( AB, 0,        0, A1Height, AB.Width() );
-    A2.View( AB, A1Height, 0, offset, AB.Width() );
+    View( A0, AT );
+    View( A1, AB, 0,        0, A1Height, AB.Width() );
+    View( A2, AB, A1Height, 0, offset, AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -173,9 +173,9 @@ LockedRepartitionDown
 #endif
     A1Height = std::min(A1Height,AB.Height());
     const Int offset = AB.Height()-A1Height;
-    A0.LockedView( AT );
-    A1.LockedView( AB, 0,        0, A1Height, AB.Width() );
-    A2.LockedView( AB, A1Height, 0, offset,   AB.Width() );
+    LockedView( A0, AT );
+    LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
+    LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -197,9 +197,9 @@ LockedRepartitionDown
 #endif
     A1Height = std::min(A1Height,AB.Height());
     const Int offset = AB.Height()-A1Height;
-    A0.LockedView( AT );
-    A1.LockedView( AB, 0,        0, A1Height, AB.Width() );
-    A2.LockedView( AB, A1Height, 0, offset,   AB.Width() );
+    LockedView( A0, AT );
+    LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
+    LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -222,9 +222,9 @@ RepartitionLeft
 #endif
     A1Width = std::min(A1Width,AL.Width());
     const Int offset = AL.Width()-A1Width;
-    A0.View( AL, 0, 0,      AL.Height(), offset   );
-    A1.View( AL, 0, offset, AL.Height(), A1Width  );
-    A2.View( AR );
+    View( A0, AL, 0, 0,      AL.Height(), offset   );
+    View( A1, AL, 0, offset, AL.Height(), A1Width  );
+    View( A2, AR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -245,9 +245,9 @@ RepartitionLeft
 #endif
     A1Width = std::min(A1Width,AL.Width());
     const Int offset = AL.Width()-A1Width;
-    A0.View( AL, 0, 0,      AL.Height(), offset  );
-    A1.View( AL, 0, offset, AL.Height(), A1Width );
-    A2.View( AR );
+    View( A0, AL, 0, 0,      AL.Height(), offset  );
+    View( A1, AL, 0, offset, AL.Height(), A1Width );
+    View( A2, AR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -266,9 +266,9 @@ LockedRepartitionLeft
 #endif
     A1Width = std::min(A1Width,AL.Width());
     const Int offset = AL.Width()-A1Width;
-    A0.LockedView( AL, 0, 0,      AL.Height(), offset  );
-    A1.LockedView( AL, 0, offset, AL.Height(), A1Width );
-    A2.LockedView( AR );
+    LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
+    LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
+    LockedView( A2, AR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -289,9 +289,9 @@ LockedRepartitionLeft
 #endif
     A1Width = std::min(A1Width,AL.Width());
     const Int offset = AL.Width()-A1Width;
-    A0.LockedView( AL, 0, 0,      AL.Height(), offset  );
-    A1.LockedView( AL, 0, offset, AL.Height(), A1Width );
-    A2.LockedView( AR );
+    LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
+    LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
+    LockedView( A2, AR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -314,9 +314,9 @@ RepartitionRight
 #endif
     A1Width = std::min(A1Width,AR.Width());
     const Int offset = AR.Width()-A1Width;
-    A0.View( AL );
-    A1.View( AR, 0, 0,       AR.Height(), A1Width );
-    A2.View( AR, 0, A1Width, AR.Height(), offset  );
+    View( A0, AL );
+    View( A1, AR, 0, 0,       AR.Height(), A1Width );
+    View( A2, AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -337,9 +337,9 @@ RepartitionRight
 #endif
     A1Width = std::min(A1Width,AR.Width());
     const Int offset = AR.Width()-A1Width;
-    A0.View( AL );
-    A1.View( AR, 0, 0,       AR.Height(), A1Width );
-    A2.View( AR, 0, A1Width, AR.Height(), offset  );
+    View( A0, AL );
+    View( A1, AR, 0, 0,       AR.Height(), A1Width );
+    View( A2, AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -358,9 +358,9 @@ LockedRepartitionRight
 #endif
     A1Width = std::min(A1Width,AR.Width());
     const Int offset = AR.Width()-A1Width;
-    A0.LockedView( AL );
-    A1.LockedView( AR, 0, 0,       AR.Height(), A1Width );
-    A2.LockedView( AR, 0, A1Width, AR.Height(), offset  );
+    LockedView( A0, AL );
+    LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
+    LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -381,9 +381,9 @@ LockedRepartitionRight
 #endif
     A1Width = std::min(A1Width,AR.Width());
     const Int offset = AR.Width()-A1Width;
-    A0.LockedView( AL );
-    A1.LockedView( AR, 0, 0,       AR.Height(), A1Width );
-    A2.LockedView( AR, 0, A1Width, AR.Height(), offset  );
+    LockedView( A0, AL );
+    LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
+    LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -411,15 +411,15 @@ RepartitionUpDiagonal
     bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
     const Int vOffset = ATL.Height()-bsize;
     const Int hOffset = ATL.Width()-bsize;
-    A00.View( ATL, 0,       0,       vOffset,      hOffset     );
-    A01.View( ATL, 0,       hOffset, vOffset,      bsize       );
-    A02.View( ATR, 0,       0,       vOffset,      ATR.Width() );
-    A10.View( ATL, vOffset, 0,       bsize,        hOffset     );
-    A11.View( ATL, vOffset, hOffset, bsize,        bsize       );
-    A12.View( ATR, vOffset, 0,       bsize,        ATR.Width() );
-    A20.View( ABL, 0,       0,       ABL.Height(), hOffset     );
-    A21.View( ABL, 0,       hOffset, ABL.Height(), bsize       );
-    A22.View( ABR );
+    View( A00, ATL, 0,       0,       vOffset,      hOffset     );
+    View( A01, ATL, 0,       hOffset, vOffset,      bsize       );
+    View( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
+    View( A10, ATL, vOffset, 0,       bsize,        hOffset     );
+    View( A11, ATL, vOffset, hOffset, bsize,        bsize       );
+    View( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
+    View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
+    View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    View( A22, ABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -448,15 +448,15 @@ RepartitionUpDiagonal
     bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
     const Int vOffset = ATL.Height()-bsize;
     const Int hOffset = ATL.Width()-bsize;
-    A00.View( ATL, 0,       0,       vOffset,      hOffset     );
-    A01.View( ATL, 0,       hOffset, vOffset,      bsize       );
-    A02.View( ATR, 0,       0,       vOffset,      ATR.Width() );
-    A10.View( ATL, vOffset, 0,       bsize,        hOffset     );
-    A11.View( ATL, vOffset, hOffset, bsize,        bsize       );
-    A12.View( ATR, vOffset, 0,       bsize,        ATR.Width() );
-    A20.View( ABL, 0,       0,       ABL.Height(), hOffset     );
-    A21.View( ABL, 0,       hOffset, ABL.Height(), bsize       );
-    A22.View( ABR );
+    View( A00, ATL, 0,       0,       vOffset,      hOffset     );
+    View( A01, ATL, 0,       hOffset, vOffset,      bsize       );
+    View( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
+    View( A10, ATL, vOffset, 0,       bsize,        hOffset     );
+    View( A11, ATL, vOffset, hOffset, bsize,        bsize       );
+    View( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
+    View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
+    View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    View( A22, ABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -480,15 +480,15 @@ LockedRepartitionUpDiagonal
     bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
     const Int vOffset = ATL.Height()-bsize;
     const Int hOffset = ATL.Width()-bsize;
-    A00.LockedView( ATL, 0,       0,       vOffset,      hOffset     );
-    A01.LockedView( ATL, 0,       hOffset, vOffset,      bsize       );
-    A02.LockedView( ATR, 0,       0,       vOffset,      ATR.Width() );
-    A10.LockedView( ATL, vOffset, 0,       bsize,        hOffset     );
-    A11.LockedView( ATL, vOffset, hOffset, bsize,        bsize       );
-    A12.LockedView( ATR, vOffset, 0,       bsize,        ATR.Width() );
-    A20.LockedView( ABL, 0,       0,       ABL.Height(), hOffset     );
-    A21.LockedView( ABL, 0,       hOffset, ABL.Height(), bsize       );
-    A22.LockedView( ABR );
+    LockedView( A00, ATL, 0,       0,       vOffset,      hOffset     );
+    LockedView( A01, ATL, 0,       hOffset, vOffset,      bsize       );
+    LockedView( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
+    LockedView( A10, ATL, vOffset, 0,       bsize,        hOffset     );
+    LockedView( A11, ATL, vOffset, hOffset, bsize,        bsize       );
+    LockedView( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
+    LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
+    LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    LockedView( A22, ABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -519,15 +519,15 @@ LockedRepartitionUpDiagonal
     bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
     const Int vOffset = ATL.Height()-bsize;
     const Int hOffset = ATL.Width()-bsize;
-    A00.LockedView( ATL, 0,       0,       vOffset,      hOffset     );
-    A01.LockedView( ATL, 0,       hOffset, vOffset,      bsize       );
-    A02.LockedView( ATR, 0,       0,       vOffset,      ATR.Width() );
-    A10.LockedView( ATL, vOffset, 0,       bsize,        hOffset     );
-    A11.LockedView( ATL, vOffset, hOffset, bsize,        bsize       );
-    A12.LockedView( ATR, vOffset, 0,       bsize,        ATR.Width() );
-    A20.LockedView( ABL, 0,       0,       ABL.Height(), hOffset     );
-    A21.LockedView( ABL, 0,       hOffset, ABL.Height(), bsize       );
-    A22.LockedView( ABR );
+    LockedView( A00, ATL, 0,       0,       vOffset,      hOffset     );
+    LockedView( A01, ATL, 0,       hOffset, vOffset,      bsize       );
+    LockedView( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
+    LockedView( A10, ATL, vOffset, 0,       bsize,        hOffset     );
+    LockedView( A11, ATL, vOffset, hOffset, bsize,        bsize       );
+    LockedView( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
+    LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
+    LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    LockedView( A22, ABR );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -555,15 +555,15 @@ RepartitionDownDiagonal
     bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
     const Int vOffset = ABR.Height()-bsize;
     const Int hOffset = ABR.Width()-bsize;
-    A00.View( ATL );
-    A01.View( ATR, 0,     0,     ATL.Height(), bsize       );
-    A02.View( ATR, 0,     bsize, ATL.Height(), hOffset     );
-    A10.View( ABL, 0,     0,     bsize,        ABL.Width() );
-    A11.View( ABR, 0,     0,     bsize,        bsize       );
-    A12.View( ABR, 0,     bsize, bsize,        hOffset     );
-    A20.View( ABL, bsize, 0,     vOffset,      ABL.Width() );
-    A21.View( ABR, bsize, 0,     vOffset,      bsize       );
-    A22.View( ABR, bsize, bsize, vOffset,      hOffset     );
+    View( A00, ATL );
+    View( A01, ATR, 0,     0,     ATL.Height(), bsize       );
+    View( A02, ATR, 0,     bsize, ATL.Height(), hOffset     );
+    View( A10, ABL, 0,     0,     bsize,        ABL.Width() );
+    View( A11, ABR, 0,     0,     bsize,        bsize       );
+    View( A12, ABR, 0,     bsize, bsize,        hOffset     );
+    View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
+    View( A21, ABR, bsize, 0,     vOffset,      bsize       );
+    View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -592,15 +592,15 @@ RepartitionDownDiagonal
     bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
     const Int vOffset = ABR.Height()-bsize;
     const Int hOffset = ABR.Width()-bsize;
-    A00.View( ATL );
-    A01.View( ATR, 0,     0,     ATL.Height(), bsize       );
-    A02.View( ATR, 0,     bsize, ATL.Height(), hOffset     );
-    A10.View( ABL, 0,     0,     bsize,        ABL.Width() );
-    A11.View( ABR, 0,     0,     bsize,        bsize       );
-    A12.View( ABR, 0,     bsize, bsize,        hOffset     );
-    A20.View( ABL, bsize, 0,     vOffset,      ABL.Width() );
-    A21.View( ABR, bsize, 0,     vOffset,      bsize       );
-    A22.View( ABR, bsize, bsize, vOffset,      hOffset     );
+    View( A00, ATL );
+    View( A01, ATR, 0,     0,     ATL.Height(), bsize       );
+    View( A02, ATR, 0,     bsize, ATL.Height(), hOffset     );
+    View( A10, ABL, 0,     0,     bsize,        ABL.Width() );
+    View( A11, ABR, 0,     0,     bsize,        bsize       );
+    View( A12, ABR, 0,     bsize, bsize,        hOffset     );
+    View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
+    View( A21, ABR, bsize, 0,     vOffset,      bsize       );
+    View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -624,15 +624,15 @@ LockedRepartitionDownDiagonal
     bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
     const Int vOffset = ABR.Height()-bsize;
     const Int hOffset = ABR.Width()-bsize;
-    A00.LockedView( ATL );
-    A01.LockedView( ATR, 0,     0,     ATL.Height(), bsize       );
-    A02.LockedView( ATR, 0,     bsize, ATL.Height(), hOffset     ); 
-    A10.LockedView( ABL, 0,     0,     bsize,        ABL.Width() );
-    A11.LockedView( ABR, 0,     0,     bsize,        bsize       );
-    A12.LockedView( ABR, 0,     bsize, bsize,        hOffset     );
-    A20.LockedView( ABL, bsize, 0,     vOffset,      ABL.Width() );
-    A21.LockedView( ABR, bsize, 0,     vOffset,      bsize       );
-    A22.LockedView( ABR, bsize, bsize, vOffset,      hOffset     );
+    LockedView( A00, ATL );
+    LockedView( A01, ATR, 0,     0,     ATL.Height(), bsize       );
+    LockedView( A02, ATR, 0,     bsize, ATL.Height(), hOffset     ); 
+    LockedView( A10, ABL, 0,     0,     bsize,        ABL.Width() );
+    LockedView( A11, ABR, 0,     0,     bsize,        bsize       );
+    LockedView( A12, ABR, 0,     bsize, bsize,        hOffset     );
+    LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
+    LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
+    LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -663,15 +663,15 @@ LockedRepartitionDownDiagonal
     bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
     const Int vOffset = ABR.Height()-bsize;
     const Int hOffset = ABR.Width()-bsize;
-    A00.LockedView( ATL );
-    A01.LockedView( ATR, 0,     0,     ATR.Height(), bsize  );
-    A02.LockedView( ATR, 0,     bsize, ATR.Height(), hOffset     );
-    A10.LockedView( ABL, 0,     0,     bsize,        ABL.Width() );
-    A11.LockedView( ABR, 0,     0,     bsize,        bsize       );
-    A12.LockedView( ABR, 0,     bsize, bsize,        hOffset     );
-    A20.LockedView( ABL, bsize, 0,     vOffset,      ABL.Width() );
-    A21.LockedView( ABR, bsize, 0,     vOffset,      bsize       );
-    A22.LockedView( ABR, bsize, bsize, vOffset,      hOffset     );
+    LockedView( A00, ATL );
+    LockedView( A01, ATR, 0,     0,     ATR.Height(), bsize  );
+    LockedView( A02, ATR, 0,     bsize, ATR.Height(), hOffset     );
+    LockedView( A10, ABL, 0,     0,     bsize,        ABL.Width() );
+    LockedView( A11, ABR, 0,     0,     bsize,        bsize       );
+    LockedView( A12, ABR, 0,     bsize, bsize,        hOffset     );
+    LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
+    LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
+    LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
 #ifndef RELEASE
     PopCallStack();
 #endif

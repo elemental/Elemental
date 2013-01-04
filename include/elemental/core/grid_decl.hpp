@@ -1,6 +1,6 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
-                      2012, Jed Brown 
+   Copyright (c) 2009-2013, Jack Poulson
+                      2013, Jed Brown 
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -58,6 +58,7 @@ public:
     int DiagPath( int vectorColRank ) const;
     int DiagPathRank() const;
     int DiagPathRank( int vectorColRank ) const;
+    int FirstVCRank( int diagPath ) const;
 
     static int FindFactor( int p );
 

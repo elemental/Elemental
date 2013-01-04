@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2009-2012, Jack Poulson
+   Copyright (c) 2009-2013, Jack Poulson
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -306,7 +306,8 @@ TrsmLLTSmall
         // X1 := L11^-1 X1
         L11_STAR_STAR = L11;
         LocalTrsm
-        ( LEFT, LOWER, orientation, diag, F(1), L11_STAR_STAR, Z1_STAR_STAR );
+        ( LEFT, LOWER, orientation, diag, F(1), L11_STAR_STAR, Z1_STAR_STAR,
+          checkIfSingular );
         X1 = Z1_STAR_STAR;
         //--------------------------------------------------------------------//
 
