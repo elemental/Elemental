@@ -248,14 +248,17 @@ public:
     // inefficient unpackings of partial matrix distributions
     void AdjointFrom( const DistMatrix<T,STAR,MC,Int>& A );
     void AdjointFrom( const DistMatrix<T,MR,STAR,Int>& A );
-    void TransposeFrom( const DistMatrix<T,STAR,MC,Int>& A );
-    void TransposeFrom( const DistMatrix<T,MR,STAR,Int>& A );
     void AdjointSumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
-    void AdjointSumScatterUpdate
-    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
-    void TransposeSumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
+    void AdjointSumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
+
+    void TransposeFrom
+    ( const DistMatrix<T,STAR,MC,Int>& A, bool conjugate=false );
+    void TransposeFrom
+    ( const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
+    void TransposeSumScatterFrom
+    ( const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
     void TransposeSumScatterUpdate
-    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
+    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
 
     //
     // Though the following routines are meant for complex data, all but two

@@ -1540,7 +1540,7 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
           "[MC,* ] <- [VC,* ] potentially causes a large amount of cache-"
           "thrashing. If possible avoid it by performing the redistribution"
           " with a (conjugate)-transpose: \n"
-          "  [* ,MC].(Conjugate)TransposeFrom([VC,* ])" << std::endl;
+          "  [* ,MC].TransposeFrom([VC,* ])" << std::endl;
     }
 #endif
     if( !this->Viewing() )

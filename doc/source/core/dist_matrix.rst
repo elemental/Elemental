@@ -705,15 +705,15 @@ It should also be noted that this is the default distribution format for the
       :math:`[M_C,M_R] \leftarrow [\star,M_R]` redistribution on the adjoint of 
       `A`.
 
-   .. cpp:function:: void TransposeFrom( const DistMatrix<T,STAR,MC>& A )
+   .. cpp:function:: void TransposeFrom( const DistMatrix<T,STAR,MC>& A, bool conjugate=false )
 
       Same as the corresponding :cpp:func:`DistMatrix\<T>::AdjointFrom`, but 
-      with no conjugation.
+      with no conjugation by default.
 
-   .. cpp:function:: void TransposeFrom( const DistMatrix<T,MR,STAR>& A )
+   .. cpp:function:: void TransposeFrom( const DistMatrix<T,MR,STAR>& A, bool conjugate=false )
 
       Same as the corresponding :cpp:func:`DistMatrix\<T>::AdjointFrom`, but 
-      with no conjugation.
+      with no conjugation by default.
 
 Special cases used in Elemental
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

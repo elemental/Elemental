@@ -250,7 +250,8 @@ public:
     // Routines needed to implement algorithms that avoid using
     // inefficient unpackings of partial matrix distributions
     void AdjointFrom( const DistMatrix<T,VC,STAR,Int>& A );
-    void TransposeFrom( const DistMatrix<T,VC,STAR,Int>& A );
+    void TransposeFrom
+    ( const DistMatrix<T,VC,STAR,Int>& A, bool conjugate=false );
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;

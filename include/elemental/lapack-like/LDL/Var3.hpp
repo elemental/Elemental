@@ -201,6 +201,8 @@ LDLVar3
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
 
+    const bool conjugate = ( orientation == ADJOINT );
+
     // Start the algorithm
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -240,11 +242,7 @@ LDLVar3
         S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
         A21_VR_STAR = A21_VC_STAR;
-        if( orientation == ADJOINT )
-            A21AdjOrTrans_STAR_MR.AdjointFrom( A21_VR_STAR );
-        else
-            A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR );
-
+        A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR, conjugate );
         LocalTrrk
         ( LOWER, TRANSPOSE,
           F(-1), S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, F(1), A22 );

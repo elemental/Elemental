@@ -430,18 +430,19 @@ void ScaleTrapezoid
 //
 // Transpose:
 //
-// B := A^T
+// B := A^T or B := A^H
 //
 
 // Serial version
 template<typename T>
-void Transpose( const Matrix<T>& A, Matrix<T>& B );
+void Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false );
 
 // Parallel version
 template<typename T, 
          Distribution U,Distribution V,
          Distribution W,Distribution Z>
-void Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B );
+void Transpose
+( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false );
 
 //
 // Zero the contents of a matrix

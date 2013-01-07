@@ -2,6 +2,8 @@ Functionality
 =============
 - Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form
+- Compressed SVD and pseudoinverse solves which avoid unnecessary 
+  backtransformations
 - Implement sequential versions of Trrk/Trr2k (and other routines)
 - More explicit expansions of packed Householder reflectors
 - More TwoSidedTrmm/TwoSidedTrsm routines
@@ -12,7 +14,7 @@ Functionality
 
 Maintenance
 ===========
-- Finding a way to accelerate the build process
+- Speeding up the build process
 - Consistent handling of unblocked routines
 - Make namespacing of internal functions consistent
 - Standardize on impl/decl pairs

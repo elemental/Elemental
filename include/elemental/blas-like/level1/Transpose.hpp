@@ -11,7 +11,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Transpose( const Matrix<T>& A, Matrix<T>& B )
+Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Transpose");
@@ -32,9 +32,18 @@ Transpose( const Matrix<T>& A, Matrix<T>& B )
     else
         B.ResizeTo( n, m );
 
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
-            B.Set(j,i,A.Get(i,j));
+    if( conjugate )
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<m; ++i )
+                B.Set(j,i,Conj(A.Get(i,j)));
+    }
+    else
+    {
+        for( int j=0; j<n; ++j )
+            for( int i=0; i<m; ++i )
+                B.Set(j,i,A.Get(i,j));
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -43,7 +52,7 @@ Transpose( const Matrix<T>& A, Matrix<T>& B )
 template<typename T,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
 inline void
-Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
+Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Transpose");
@@ -64,7 +73,7 @@ Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
         A.ColAlignment() == B.RowAlignment() &&
         A.RowAlignment() == B.ColAlignment() )
     {
-        Transpose( A.LockedLocalMatrix(), B.LocalMatrix() );
+        Transpose( A.LockedLocalMatrix(), B.LocalMatrix(), conjugate );
     }
     else
     {
@@ -83,7 +92,7 @@ Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
                 B.AlignRowsWith( C );
             B.ResizeTo( A.Width(), A.Height() );
         }
-        Transpose( C.LockedLocalMatrix(), B.LocalMatrix() );
+        Transpose( C.LockedLocalMatrix(), B.LocalMatrix(), conjugate );
     }
 #ifndef RELEASE
     PopCallStack();
