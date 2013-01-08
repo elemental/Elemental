@@ -1,5 +1,5 @@
 /*
-   Copyright (c) 2013, Jack Poulson
+   Copyright (c) 2012-2013, Jack Poulson
    All rights reserved.
 
    This file is a modification of Choice, a simple command-line option library.
@@ -14,6 +14,37 @@
 #include <typeinfo>
 
 namespace elem {
+
+template<typename TOut,typename TIn>
+inline TOut Cast( const TIn& input )
+{
+    std::stringstream stream;
+    TOut output;
+
+    stream << input;
+    stream >> output;
+
+    return output;
+}
+
+template<>
+inline bool Cast( const std::string& input )
+{
+    std::string trueString("true");
+    std::string falseString("false");
+    if( input.compare(trueString) == 0 )
+        return true;
+    else if( input.compare(falseString) == 0 )
+        return false;
+    else
+    {
+        bool output;
+        std::stringstream stream;
+        stream << input;
+        stream >> output;
+        return output;
+    }
+}
 
 class ArgException : public std::logic_error
 {
@@ -62,18 +93,6 @@ private:
         : name(n), desc(d), typeInfo(t), 
           defaultVal(dv), usedVal(uv), found(f) { } 
     };
-
-    template<typename TOut,typename TIn>
-    TOut Cast( const TIn& input )
-    {
-        std::stringstream stream;
-        TOut output;
-
-        stream << input;
-        stream >> output;
-
-        return output;
-    }
 
     std::vector<RequiredArg> requiredArgs_;
     std::vector<OptionalArg> optionalArgs_;
@@ -216,14 +235,11 @@ Args::PrintReport( std::ostream& output ) const
         const RequiredArg& reqArg = requiredArgs_[i];
         if( !reqArg.found )
             ++numReqFailed;
-        output << "  " << reqArg.name << "\n"
-               << "    description: " << reqArg.desc << "\n"
-               << "    type string: " << reqArg.typeInfo << "\n"
-               << "    used value:  " << reqArg.usedVal << "\n";
-        if( reqArg.found )
-            output << "    found\n\n";
-        else
-            output << "    NOT found\n\n";
+        std::string foundString = ( reqArg.found ? "found" : "NOT found" );
+        output << "  " << reqArg.name
+               << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
+               << foundString << "]\n"
+               << "    " << reqArg.desc << "\n\n";
     }
 
     if( numOptional > 0 )
@@ -234,15 +250,12 @@ Args::PrintReport( std::ostream& output ) const
         const OptionalArg& optArg = optionalArgs_[i];
         if( !optArg.found )
             ++numOptFailed;
-        output << "  " << optArg.name << "\n"
-               << "    description:   " << optArg.desc << "\n"
-               << "    type string:   " << optArg.typeInfo << "\n"
-               << "    default value: " << optArg.defaultVal << "\n"
-               << "    used value:    " << optArg.usedVal << "\n";
-        if( optArg.found )
-            output << "    found\n\n";
-        else
-            output << "    NOT found\n\n";
+        std::string foundString = ( optArg.found ? "found" : "NOT found" );
+        output << "  " << optArg.name
+               << " [" << optArg.typeInfo
+               << "," << optArg.defaultVal << "," << optArg.usedVal << ","
+               << foundString << "]\n"
+               << "    " << optArg.desc << "\n\n";
     }
 
     output << "Out of " << numRequired << " required arguments, " 

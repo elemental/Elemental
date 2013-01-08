@@ -57,18 +57,6 @@ private:
           defaultVal(dv), usedVal(uv), found(f) { } 
     };
 
-    template<typename TOut,typename TIn>
-    TOut Cast( const TIn& input )
-    {
-        std::stringstream stream;
-        TOut output;
-
-        stream << input;
-        stream >> output;
-
-        return output;
-    }
-
     std::vector<RequiredArg> requiredArgs_;
     std::vector<OptionalArg> optionalArgs_;
 };
@@ -222,14 +210,11 @@ MpiArgs::PrintReport( std::ostream& output ) const
         const RequiredArg& reqArg = requiredArgs_[i];
         if( !reqArg.found )
             ++numReqFailed;
-        output << "  " << reqArg.name << "\n"
-               << "    description: " << reqArg.desc << "\n"
-               << "    type string: " << reqArg.typeInfo << "\n"
-               << "    used value:  " << reqArg.usedVal << "\n";
-        if( reqArg.found )
-            output << "    found\n\n";
-        else
-            output << "    NOT found\n\n";
+        std::string foundString = ( reqArg.found ? "found" : "NOT found" );
+        output << "  " << reqArg.name
+               << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
+               << foundString << "]\n"
+               << "    " << reqArg.desc << "\n\n";
     }
 
     if( numOptional > 0 )
@@ -240,15 +225,12 @@ MpiArgs::PrintReport( std::ostream& output ) const
         const OptionalArg& optArg = optionalArgs_[i];
         if( !optArg.found )
             ++numOptFailed;
-        output << "  " << optArg.name << "\n"
-               << "    description:   " << optArg.desc << "\n"
-               << "    type string:   " << optArg.typeInfo << "\n"
-               << "    default value: " << optArg.defaultVal << "\n"
-               << "    used value:    " << optArg.usedVal << "\n";
-        if( optArg.found )
-            output << "    found\n\n";
-        else
-            output << "    NOT found\n\n";
+        std::string foundString = ( optArg.found ? "found" : "NOT found" );
+        output << "  " << optArg.name
+               << " [" << optArg.typeInfo
+               << "," << optArg.defaultVal << "," << optArg.usedVal << ","
+               << foundString << "]\n"
+               << "    " << optArg.desc << "\n\n";
     }
 
     output << "Out of " << numRequired << " required arguments, " 
