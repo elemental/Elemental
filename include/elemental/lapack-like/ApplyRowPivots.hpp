@@ -150,6 +150,68 @@ ApplyInverseRowPivots
 template<typename F> 
 inline void
 ApplyRowPivots
+( Matrix<F>& A, 
+  const std::vector<int>& image,
+  const std::vector<int>& preimage )
+{
+    const int b = image.size();
+#ifndef RELEASE
+    PushCallStack("ApplyRowPivots");
+    if( A.Height() < b || b != (int)preimage.size() )
+        throw std::logic_error
+        ("image and preimage must be vectors of equal length that are not "
+         "taller than A.");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    if( m == 0 || n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    // TODO: Optimize this routine
+
+    // Make a copy of the first b rows
+    Matrix<F> ARowPanView;
+    LockedView( ARowPanView, A, 0, 0, b, n );
+    Matrix<F> ARowPanCopy( ARowPanView );
+
+    // Make a copy of the image rows
+    Matrix<F> AImageCopy( b, n );
+    for( int i=0; i<b; ++i ) 
+    {
+        const int iPost = image[i];
+        if( iPost >= b )
+            for( int j=0; j<n; ++j )
+                AImageCopy.Set(i,j,A.Get(iPost,j));
+    }
+
+    // Apply the permutations
+    for( int i=0; i<b; ++i )
+    {
+        const int iPre = preimage[i];
+        const int iPost = image[i];
+        // Move row[i] into row[preimage[i]]
+        for( int j=0; j<n; ++j )
+            A.Set(iPre,j,ARowPanCopy.Get(i,j));
+        if( iPost >= b )
+        {
+            // Move row[image[i]] into row[i]
+            for( int j=0; j<n; ++j )
+                A.Set(i,j,AImageCopy.Get(i,j));
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
+ApplyRowPivots
 ( DistMatrix<F>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )

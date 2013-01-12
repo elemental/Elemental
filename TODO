@@ -1,5 +1,6 @@
 Functionality
 =============
+- Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form
 - Compressed SVD and pseudoinverse solves which avoid unnecessary 

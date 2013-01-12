@@ -33,7 +33,7 @@ PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset )
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    while( ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
