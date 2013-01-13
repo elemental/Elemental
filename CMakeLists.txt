@@ -503,10 +503,10 @@ if(ELEM_EXAMPLES)
     GaussianElimination HermitianQDWH HouseholderSolve HPDInverse LDL LDLInverse
     LogDetDivergence Polar Pseudoinverse QDWH SequentialQR QR SequentialSVD
     SimpleSVD SVD)
-  set(SPECIAL_EXAMPLES 
+  set(special_matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum
-    Ones OneTwoOne Toeplitz Uniform Walsh Wilkinson Zeros)
+    Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson Zeros)
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND lapack-like_EXAMPLES
       HermitianEig HermitianEigFromSequential HermitianSVD 
