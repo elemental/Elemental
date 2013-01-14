@@ -15,7 +15,7 @@ Functionality
 
 Maintenance
 ===========
-- Speeding up the build process
+- Speeding up the build process (by switching away from monolithic headers)
 - Consistent handling of unblocked routines
 - Make namespacing of internal functions consistent
 - Standardize on impl/decl pairs

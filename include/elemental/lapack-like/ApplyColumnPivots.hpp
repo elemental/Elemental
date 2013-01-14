@@ -148,6 +148,63 @@ ApplyInverseColumnPivots
 template<typename F> 
 inline void
 ApplyColumnPivots
+( Matrix<F>& A, 
+  const std::vector<int>& image,
+  const std::vector<int>& preimage )
+{
+    const int b = image.size();
+#ifndef RELEASE
+    PushCallStack("ApplyColumnPivots");
+    if( A.Width() < b || b != preimage.size() )
+        throw std::logic_error
+        ("image and preimage must be vectors of equal length that are not "
+         "wider than A.");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    if( m == 0 || n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return;
+    }
+
+    // TODO: Optimize this routine
+
+    // Make a copy of the first b columns
+    Matrix<F> AColPanView;
+    LockedView( AColPanView, A, 0, 0, m, b );
+    Matrix<F> AColPanCopy( AColPanView );
+
+    // Make a copy of the preimage columns
+    Matrix<F> APreimageCopy( m, b );
+    for( int j=0; j<b; ++j )
+    {
+        const int jPre = preimage[j];
+        if( jPre >= b )
+            MemCopy( APreimageCopy.Buffer(0,j), A.LockedBuffer(0,jPre), m );
+    }
+
+    // Apply the permutations
+    for( int j=0; j<b; ++j )
+    {
+        const int jPre = preimage[j];
+        const int jPost = image[j];
+        // Move row[i] into row[image[i]]
+        MemCopy( A.Buffer(0,jPost), AColPanCopy.LockedBuffer(0,j), m );
+        // Move row[preimage[i]] into row[i]
+        if( jPre >= b )
+            MemCopy( A.Buffer(0,j), APreimageCopy.LockedBuffer(0,j), m );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F> 
+inline void
+ApplyColumnPivots
 ( DistMatrix<F>& A, 
   const std::vector<int>& image,
   const std::vector<int>& preimage )
@@ -180,21 +237,21 @@ ApplyColumnPivots
     // This process's sends may be logically partitioned into two sets:
     //   (a) sends from rows [0,...,b-1]
     //   (b) sends from rows [b,...]
-    // The latter is analyzed with image, the former deduced with preimage.
+    // The latter is analyzed with preimage, the former deduced with image.
     std::vector<int> sendCounts(c,0), recvCounts(c,0);
     for( int j=rowShift; j<b; j+=c )
     {
-        const int sendCol = preimage[j];         
+        const int sendCol = image[j];         
         const int sendTo = (rowAlignment+sendCol) % c; 
         sendCounts[sendTo] += localHeight;
 
-        const int recvCol = image[j];
+        const int recvCol = preimage[j];
         const int recvFrom = (rowAlignment+recvCol) % c;
         recvCounts[recvFrom] += localHeight;
     }
     for( int j=0; j<b; ++j )
     {
-        const int sendCol = preimage[j];
+        const int sendCol = image[j];
         if( sendCol >= b )
         {
             const int sendTo = (rowAlignment+sendCol) % c;
@@ -205,7 +262,7 @@ ApplyColumnPivots
             }
         }
 
-        const int recvCol = image[j];
+        const int recvCol = preimage[j];
         if( recvCol >= b )
         {
             const int recvFrom = (rowAlignment+recvCol) % c;
@@ -243,7 +300,7 @@ ApplyColumnPivots
     const int localWidth = LocalLength( b, rowShift, c );
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const int sendCol = preimage[rowShift+jLocal*c];
+        const int sendCol = image[rowShift+jLocal*c];
         const int sendTo = (rowAlignment+sendCol) % c;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
         MemCopy( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight );
@@ -251,7 +308,7 @@ ApplyColumnPivots
     }
     for( int j=0; j<b; ++j )
     {
-        const int recvCol = image[j];
+        const int recvCol = preimage[j];
         if( recvCol >= b )
         {
             const int recvFrom = (rowAlignment+recvCol) % c; 
@@ -280,7 +337,7 @@ ApplyColumnPivots
         int thisRowShift = Shift( k, rowAlignment, c );
         for( int j=thisRowShift; j<b; j+=c )
         {
-            const int sendCol = preimage[j];
+            const int sendCol = image[j];
             const int sendTo = (rowAlignment+sendCol) % c;
             if( sendTo == myCol )
             {
@@ -294,7 +351,7 @@ ApplyColumnPivots
     }
     for( int j=0; j<b; ++j )
     {
-        const int recvCol = image[j];
+        const int recvCol = preimage[j];
         if( recvCol >= b )
         {
             const int recvTo = (rowAlignment+j) % c;
