@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_MEMORY_DECL_HPP
+#define CORE_MEMORY_DECL_HPP 1
 
 namespace elem {
 
@@ -13,19 +15,20 @@ template<typename G>
 class Memory
 {
     std::size_t size_;
-    G*     buffer_;
+    G* buffer_;
 public:
     Memory();
     Memory( std::size_t size );
     ~Memory();
 
-    G*          Buffer() const;
+    G* Buffer() const;
     std::size_t Size()   const;
 
-    void   Require( std::size_t size );
-    void   Release();
-    void   Empty();
+    void Require( std::size_t size );
+    void Release();
+    void Empty();
 };
 
 } // namespace elem
 
+#endif // ifndef CORE_MEMORY_DECL_HPP

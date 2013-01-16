@@ -6,14 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef CORE_MATRIX_FORWARD_DECL_HPP
-#define CORE_MATRIX_FORWARD_DECL_HPP 1
+#ifndef SPECIAL_HPP
+#define SPECIAL_HPP 1
 
-namespace elem {
+#include "elemental/special_matrices_decl.hpp"
+#include "elemental/special_matrices_impl.hpp"
 
-template<typename T,typename Int=int>
-class Matrix;
-
-} // namespace elem
-
-#endif // ifndef CORE_MATRIX_FORWARD_DECL_HPP
+#endif // ifndef SPECIAL_HPP

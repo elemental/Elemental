@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_TWONORMUPPERBOUND_HPP
+#define LAPACK_TWONORMUPPERBOUND_HPP 1
 
 namespace elem {
 
@@ -58,3 +60,5 @@ TwoNormUpperBound( const DistMatrix<F>& A )
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_TWONORMUPPERBOUND_HPP

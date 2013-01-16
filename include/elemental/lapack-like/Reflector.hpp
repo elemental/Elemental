@@ -11,6 +11,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_REFLECTOR_HPP
+#define LAPACK_REFLECTOR_HPP 1
 
 #include "./Reflector/Col.hpp"
 #include "./Reflector/Row.hpp"
@@ -333,3 +335,5 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_REFLECTOR_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_IDENTITY_HPP
+#define SPECIAL_IDENTITY_HPP 1
 
 namespace elem {
 
@@ -85,3 +87,5 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_IDENTITY_HPP

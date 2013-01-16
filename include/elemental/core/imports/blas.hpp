@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_BLAS_HPP
+#define CORE_BLAS_HPP 1
 
 namespace elem {
 namespace blas {
@@ -750,3 +752,5 @@ void Gemm
 
 } // namespace blas
 } // namespace elem
+
+#endif // ifndef CORE_BLAS_DECL_HPP

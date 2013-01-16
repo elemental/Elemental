@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_SYMV_HPP
+#define BLAS_SYMV_HPP 1
 
 #include "./Symv/L.hpp"
 #include "./Symv/U.hpp"
@@ -273,3 +275,5 @@ Symv
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_SYMV_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_SYMMETRICNORM_HPP
+#define LAPACK_SYMMETRICNORM_HPP 1
 
 #include "./SymmetricNorm/Nuclear.hpp"
 #include "./SymmetricNorm/Two.hpp"
@@ -53,3 +55,5 @@ SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_SYMMETRICNORM_HPP

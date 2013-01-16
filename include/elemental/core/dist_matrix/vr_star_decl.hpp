@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_DISTMATRIX_VR_STAR_DECL_HPP
+#define CORE_DISTMATRIX_VR_STAR_DECL_HPP 1
 
 namespace elem {
 
@@ -244,3 +246,5 @@ private:
 };
 
 } // namespace elem
+
+#endif // ifndef CORE_DISTMATRIX_VR_STAR_DECL_HPP

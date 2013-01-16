@@ -6,11 +6,39 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_GEMV_HPP
+#define BLAS_GEMV_HPP 1
 
 #include "./Gemv/N.hpp"
 #include "./Gemv/T.hpp"
 
 namespace elem {
+
+namespace internal {
+
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                    Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist>
+inline void LocalGemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
+           const DistMatrix<T,xColDist,xRowDist>& x,
+  T beta,        DistMatrix<T,yColDist,yRowDist>& y )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalGemv");
+    // TODO: Add error checking here
+#endif
+    Gemv
+    ( orientation ,
+      alpha, A.LockedLocalMatrix(), x.LockedLocalMatrix(),
+      beta,                         y.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
 
 template<typename T>
 inline void
@@ -120,3 +148,4 @@ Gemv
 
 } // namespace elem
 
+#endif // ifndef BLAS_GEMV_HPP

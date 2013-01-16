@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_SYR2K_HPP
+#define BLAS_SYR2K_HPP 1
 
 #include "./Syr2k/LN.hpp"
 #include "./Syr2k/LT.hpp"
@@ -77,3 +79,5 @@ Syr2k
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_SYR2K_HPP

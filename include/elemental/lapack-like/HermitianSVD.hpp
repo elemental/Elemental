@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_HERMITIANSVD_HPP
+#define LAPACK_HERMITIANSVD_HPP 1
 
 #ifndef WITHOUT_PMRRR
 
@@ -93,3 +95,5 @@ inline void HermitianSingularValues
 } // namespace elem
 
 #endif // WITHOUT_PMRRR
+
+#endif // ifndef LAPACK_HERMITIANSVD_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_HPP
+#define CORE_HPP 1
 
 #include "mpi.h"
 #include <algorithm>
@@ -45,6 +47,8 @@
 #else
 #define LAPACK(name) name
 #endif
+
+// TODO: Think of how to better decouple the following components
 
 // Declare the intertwined core parts of our library
 #include "elemental/core/timer_decl.hpp"
@@ -95,3 +99,5 @@
 #include "elemental/core/random_impl.hpp"
 #include "elemental/core/axpy_interface_decl.hpp"
 #include "elemental/core/axpy_interface_impl.hpp"
+
+#endif // ifndef CORE_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP
+#define LAPACK_HERMITIANGENDEFINITEEIG_HPP 1
 
 #ifndef WITHOUT_PMRRR
 
@@ -440,3 +442,5 @@ HermitianGenDefiniteEig
 } // namespace elem
 
 #endif // WITHOUT_PMRRR
+
+#endif // ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP

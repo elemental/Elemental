@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_HILBERTSCHMIDT_HPP
+#define LAPACK_HILBERTSCHMIDT_HPP 1
 
 namespace elem {
 
@@ -70,3 +72,5 @@ HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_HILBERTSCHMIDT_HPP

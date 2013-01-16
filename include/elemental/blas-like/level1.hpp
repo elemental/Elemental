@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_LEVEL1_HPP
+#define BLAS_LEVEL1_HPP 1
 
 #include "./level1/Adjoint.hpp"
 #include "./level1/Axpy.hpp"
@@ -26,3 +28,5 @@
 #include "./level1/ScaleTrapezoid.hpp"
 #include "./level1/Transpose.hpp"
 #include "./level1/Zero.hpp"
+
+#endif // ifndef BLAS_LEVEL1_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_TRSM_HPP
+#define BLAS_TRSM_HPP 1
 
 #include "./Trsm/LLN.hpp"
 #include "./Trsm/LLT.hpp"
@@ -17,6 +19,34 @@
 #include "./Trsm/RUT.hpp"
 
 namespace elem {
+
+namespace internal {
+
+template<typename F,Distribution XColDist,Distribution XRowDist>
+inline void
+LocalTrsm
+( LeftOrRight side, UpperOrLower uplo,
+  Orientation orientation, UnitOrNonUnit diag,
+  F alpha, const DistMatrix<F,STAR,STAR>& A,
+                 DistMatrix<F,XColDist,XRowDist>& X,
+  bool checkIfSingular )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalTrsm");
+    if( (side == LEFT && XColDist != STAR) ||
+        (side == RIGHT && XRowDist != STAR) )
+        throw std::logic_error
+        ("Distribution of RHS must conform with that of triangle");
+#endif
+    Trsm
+    ( side, uplo, orientation, diag,
+      alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
 
 template<typename F>
 inline void
@@ -146,3 +176,5 @@ Trsm
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_TRSM_HPP

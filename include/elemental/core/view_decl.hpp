@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_VIEW_DECL_HPP
+#define CORE_VIEW_DECL_HPP 1
 
 namespace elem {
 
@@ -141,3 +143,5 @@ void HandleDiagPath
 ( DistMatrix<T,STAR,MD,Int>& A, const DistMatrix<T,STAR,MD,Int>& B );
 
 } // namespace elem
+
+#endif // ifndef CORE_VIEW_DECL_HPP

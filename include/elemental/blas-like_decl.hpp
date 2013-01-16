@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_DECL_HPP
+#define BLAS_DECL_HPP 1
 
 namespace elem {
 
@@ -1055,3 +1057,5 @@ void TwoSidedTrsm
   DistMatrix<F>& A, const DistMatrix<F>& B );
 
 } // namespace elem
+
+#endif // ifndef BLAS_DECL_HPP

@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_HANKEL_HPP
+#define SPECIAL_HANKEL_HPP 1
 
 namespace elem {
 
@@ -62,3 +64,5 @@ Hankel( int m, int n, const std::vector<T>& a, DistMatrix<T,U,V>& A )
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_HANKEL_HPP

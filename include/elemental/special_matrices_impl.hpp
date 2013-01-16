@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_IMPL_HPP
+#define SPECIAL_IMPL_HPP 1
 
 //
 // Deterministic
@@ -36,3 +38,5 @@
 #include "./special_matrices/NormalUniformSpectrum.hpp"
 
 // TODO: Gaussian
+
+#endif // ifndef SPECIAL_IMPL_HPP

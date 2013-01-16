@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_LOGBARRIER_HPP
+#define LAPACK_LOGBARRIER_HPP 1
 
 namespace elem {
 
@@ -70,3 +72,5 @@ LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_LOGBARRIER_HPP

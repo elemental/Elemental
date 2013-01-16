@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_NORMALUNIFORMSPECTRUM_HPP
+#define SPECIAL_NORMALUNIFORMSPECTRUM_HPP 1
 
 namespace elem {
 
@@ -211,3 +213,5 @@ MakeNormalUniformSpectrum
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_NORMALUNIFORMSPECTRUM_HPP

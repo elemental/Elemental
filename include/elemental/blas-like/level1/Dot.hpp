@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_DOT_HPP
+#define BLAS_DOT_HPP 1
 
 namespace elem {
 
@@ -885,3 +887,5 @@ Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
 { return Dot( x, y ); }
 
 } // namespace elem
+
+#endif // ifndef BLAS_DOT_HPP

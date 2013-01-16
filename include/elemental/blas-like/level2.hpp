@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_LEVEL2_HPP
+#define BLAS_LEVEL2_HPP 1
 
 #include "./level2/Gemv.hpp"
 #include "./level2/Ger.hpp"
@@ -19,3 +21,4 @@
 #include "./level2/Trmv.hpp"
 #include "./level2/Trsv.hpp"
 
+#endif // ifndef BLAS_LEVEL2_HPP

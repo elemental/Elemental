@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_EXPANDPACKEDREFLECTORS_HPP
+#define LAPACK_EXPANDPACKEDREFLECTORS_HPP 1
 
 #include "./ExpandPackedReflectors/LV.hpp"
 
@@ -120,3 +122,5 @@ ExpandPackedReflectors
 }
 
 } // namespace elem
+
+#endif // ifndef LAPACK_EXPANDPACKEDREFLECTORS_HPP

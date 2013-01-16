@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_ENVIRONMENT_IMPL_HPP
+#define CORE_ENVIRONMENT_IMPL_HPP
 
 namespace elem {
 
@@ -347,3 +349,5 @@ Log( const Complex<R>& alpha )
 { return Complex<R>( Log(Abs(alpha)), Arg(alpha) ); }
 
 } // namespace elem
+
+#endif // ifndef CORE_ENVIRONMENT_IMPL_HPP

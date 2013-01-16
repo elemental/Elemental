@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_HERK_HPP
+#define BLAS_HERK_HPP 1
 
 #include "./Herk/LC.hpp"
 #include "./Herk/LN.hpp"
@@ -76,3 +78,5 @@ Herk
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_HERK_HPP

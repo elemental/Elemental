@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_WILKINSON_HPP
+#define SPECIAL_WILKINSON_HPP 1
 
 namespace elem {
 
@@ -77,3 +79,5 @@ Wilkinson( int k, DistMatrix<T,U,V>& A )
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_WILKINSON_HPP

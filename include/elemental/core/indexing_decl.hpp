@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_INDEXING_DECL_HPP
+#define CORE_INDEXING_DECL_HPP 1
 
 namespace elem {
 
@@ -45,3 +47,5 @@ template<typename Int>
 Int RawShift( Int rank, Int firstRank, Int numProcs );
 
 } // namespace elem
+
+#endif // ifndef CORE_INDEXING_DECL_HPP

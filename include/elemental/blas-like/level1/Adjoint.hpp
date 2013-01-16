@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_ADJOINT_HPP
+#define BLAS_ADJOINT_HPP 1
 
 namespace elem {
 
@@ -37,3 +39,5 @@ Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_ADJOINT_HPP

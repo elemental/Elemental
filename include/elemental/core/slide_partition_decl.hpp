@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_SLIDEPARTITION_DECL_HPP
+#define CORE_SLIDEPARTITION_DECL_HPP 1
 
 namespace elem {
 
@@ -177,3 +179,5 @@ void SlideLockedPartitionDownDiagonal
 #undef M
 
 } // namespace elem
+
+#endif // ifndef CORE_SLIDEPARTITION_DECL_HPP

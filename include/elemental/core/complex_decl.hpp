@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_COMPLEX_DECL_HPP
+#define CORE_COMPLEX_DECL_HPP 1
 
 namespace elem {
 
@@ -179,3 +181,5 @@ template<typename R>
 struct IsComplex<Complex<R> > { enum { val=1 }; };
 
 } // namespace elem
+
+#endif // ifndef CORE_COMPLEX_DECL_HPP

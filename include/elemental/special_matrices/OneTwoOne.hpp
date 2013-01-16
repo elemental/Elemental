@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_ONETWOONE_HPP
+#define SPECIAL_ONETWOONE_HPP 1
 
 namespace elem {
 
@@ -98,3 +100,5 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_ONETWOONE_HPP

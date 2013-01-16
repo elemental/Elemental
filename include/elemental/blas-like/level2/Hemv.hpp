@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_HEMV_HPP
+#define BLAS_HEMV_HPP 1
 
 #include "./Hemv/L.hpp"
 #include "./Hemv/U.hpp"
@@ -273,3 +275,5 @@ Hemv
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_HEMV_HPP

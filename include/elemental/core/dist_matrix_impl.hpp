@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_DISTMATRIX_IMPL_HPP
+#define CORE_DISTMATRIX_IMPL_HPP 1
 
 #include "elemental/core/dist_matrix/abstract_impl.hpp"
 #include "elemental/core/dist_matrix/mc_mr_impl.hpp"
@@ -21,3 +23,5 @@
 #include "elemental/core/dist_matrix/star_vr_impl.hpp"
 #include "elemental/core/dist_matrix/vc_star_impl.hpp"
 #include "elemental/core/dist_matrix/vr_star_impl.hpp"
+
+#endif // ifndef CORE_DISTMATRIX_IMPL_HPP

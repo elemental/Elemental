@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_IMPL_HPP
+#define LAPACK_IMPL_HPP 1
 
 #include "./lapack-like/internal.hpp"
 #include "./lapack-like/ApplyPackedReflectors.hpp"
@@ -60,3 +62,5 @@
 #include "./lapack-like/TriangularInverse.hpp"
 #include "./lapack-like/TwoNormLowerBound.hpp"
 #include "./lapack-like/TwoNormUpperBound.hpp"
+
+#endif // ifndef LAPACK_IMPL_HPP

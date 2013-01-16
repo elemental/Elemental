@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef SPECIAL_DIAGONAL_HPP
+#define SPECIAL_DIAGONAL_HPP 1
 
 namespace elem {
 
@@ -58,3 +60,5 @@ Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
 }
 
 } // namespace elem
+
+#endif // ifndef SPECIAL_DIAGONAL_HPP

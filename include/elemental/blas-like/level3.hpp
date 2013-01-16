@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_LEVEL3_HPP
+#define BLAS_LEVEL3_HPP 1
 
 #include "./level3/Gemm.hpp"
 #include "./level3/Hemm.hpp"
@@ -23,3 +25,5 @@
 #include "./level3/Trtrsm.hpp"
 #include "./level3/TwoSidedTrmm.hpp"
 #include "./level3/TwoSidedTrsm.hpp"
+
+#endif // ifndef BLAS_LEVEL3_HPP

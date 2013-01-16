@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_FLAME_HPP
+#define CORE_FLAME_HPP 1
 
 extern "C" {
 
@@ -39,3 +41,5 @@ FLA_Error FLA_Bsvd_v_opz_var1
   int       nb );
 
 } // extern "C"
+
+#endif // ifndef CORE_FLAME_HPP

@@ -8,8 +8,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef CHOICE_H
-#define CHOICE_H 1
+#ifndef CORE_CHOICE_HPP
+#define CORE_CHOICE_HPP 1
 
 #include <typeinfo>
 
@@ -267,4 +267,4 @@ Args::PrintReport( std::ostream& output ) const
 
 } // namespace elem
 
-#endif // ifndef CHOICE_H
+#endif // ifndef CORE_CHOICE_HPP

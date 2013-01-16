@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_MPI_HPP
+#define CORE_MPI_HPP 1
 
 namespace elem {
 namespace mpi {
@@ -669,3 +671,5 @@ void IReduceScatter
 
 } // mpi
 } // elem
+
+#endif // ifndef CORE_MPI_HPP

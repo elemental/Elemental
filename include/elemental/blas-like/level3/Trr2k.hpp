@@ -6,6 +6,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_TRR2K_HPP
+#define BLAS_TRR2K_HPP 1
 
 #include "./Trr2k/Local.hpp"
 #include "./Trr2k/NNNN.hpp"
@@ -223,3 +225,5 @@ Trr2k
 }
 
 } // namespace elem
+
+#endif // ifndef BLAS_TRR2K_HPP

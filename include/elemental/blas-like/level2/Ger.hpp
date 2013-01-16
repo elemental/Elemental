@@ -6,8 +6,32 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef BLAS_GER_HPP
+#define BLAS_GER_HPP 1
 
 namespace elem {
+
+namespace internal {
+
+template<typename T,Distribution xColDist,Distribution xRowDist,
+                    Distribution yColDist,Distribution yRowDist,
+                    Distribution AColDist,Distribution ARowDist>
+inline void LocalGer
+( T alpha, const DistMatrix<T,xColDist,xRowDist>& x,
+           const DistMatrix<T,yColDist,yRowDist>& y,
+                 DistMatrix<T,AColDist,ARowDist>& A )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalGer");
+    // TODO: Add error checking here
+#endif
+    Ger( alpha, x.LockedLocalMatrix(), y.LockedLocalMatrix(), A.LocalMatrix() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+} // namespace internal
 
 template<typename T>
 inline void
@@ -169,3 +193,5 @@ Gerc
 { Ger( alpha, x, y, A ); }
 
 } // namespace elem
+
+#endif // ifndef BLAS_GER_HPP

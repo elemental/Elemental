@@ -7,6 +7,8 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef CORE_GRID_IMPL_HPP
+#define CORE_GRID_IMPL_HPP 1
 
 namespace elem {
 
@@ -468,3 +470,5 @@ operator!=( const Grid& A, const Grid& B )
 { return &A != &B; }
 
 } // namespace elem
+
+#endif // ifndef CORE_GRID_IMPL_HPP
