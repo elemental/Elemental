@@ -1,5 +1,6 @@
 /*
    Copyright (c) 2009-2013, Jack Poulson
+                      2013, Jeff Hammond
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -88,6 +89,14 @@ void Initialize( int& argc, char**& argv )
     }
     else
     {
+#ifdef HAVE_OPENMP
+        const int provided = mpi::QueryThread();
+        if( provided != mpi::THREAD_MULTIPLE )
+        {
+            throw std::runtime_error
+            ("MPI initialized with inadequate thread support for Elemental");
+        }
+#endif
         ::elemInitializedMpi = false;
     }
 

@@ -23,8 +23,9 @@ Jed Brown and Argonne National Laboratory:
   Fixed several problems with Elemental installation,
   as well as fixing an MPI_Group leakage in the Grid class.
 
-Jeff Hammond:
-  Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q.
+Jeff Hammond and Argonne National Laboratory:
+  Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q, and an 
+  improvement for Elemental's threading support.
 
 Jack Poulson, Lexing Ying, and The University of Texas at Austin:
   The parallel linear congruential generator.

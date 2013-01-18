@@ -1,5 +1,6 @@
 /*
    Copyright (c) 2009-2013, Jack Poulson
+                      2013, Jeff Hammond
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -75,6 +76,7 @@ int InitializeThread( int& argc, char**& argv, int required );
 void Finalize();
 bool Initialized();
 bool Finalized();
+int QueryThread();
 double Time();
 void OpCreate( UserFunction* func, bool commutes, Op& op );
 void OpFree( Op& op );
