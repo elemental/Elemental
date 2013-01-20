@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef ELEMENTAL_HPP
-#define ELEMENTAL_HPP 1
+#define ELEMENTAL_HPP
 
 #include "elemental/config.h"
 #ifdef HAVE_F90_INTERFACE

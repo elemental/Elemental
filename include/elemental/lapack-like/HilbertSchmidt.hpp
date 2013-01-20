@@ -6,15 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef LAPACK_HILBERTSCHMIDT_HPP
-#define LAPACK_HILBERTSCHMIDT_HPP 1
+#define LAPACK_HILBERTSCHMIDT_HPP
 
 namespace elem {
-
-namespace internal {
-template<typename F,Distribution U,Distribution V>
-mpi::Comm NormComm( const DistMatrix<F,U,V>& A );
-}
 
 // TODO: Think about using a more stable accumulation algorithm?
 
@@ -32,7 +28,7 @@ HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
     const int height = A.Height();
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
-            innerProd += Conj(A.Get(i,j)*B.Get(i,j));
+            innerProd += Conj(A.Get(i,j))*B.Get(i,j);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -63,7 +59,7 @@ HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
                                    B.GetLocal(iLocal,jLocal);
 
     F innerProd;
-    mpi::Comm comm = internal::NormComm( A );
+    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localInnerProd, &innerProd, 1, mpi::SUM, comm );
 #ifndef RELEASE
     PopCallStack();

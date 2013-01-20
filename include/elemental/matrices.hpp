@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef MATRICES_HPP
-#define MATRICES_HPP 1
+#define MATRICES_HPP
 
 #include "elemental/matrices_decl.hpp"
 #include "elemental/matrices_impl.hpp"

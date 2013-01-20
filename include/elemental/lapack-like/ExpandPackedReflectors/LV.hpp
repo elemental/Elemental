@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
+#define LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
 
 namespace elem {
 namespace internal {
@@ -557,3 +560,5 @@ ExpandPackedReflectorsLV
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP

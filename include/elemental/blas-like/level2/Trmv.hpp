@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef BLAS_TRMV_HPP
-#define BLAS_TRMV_HPP 1
+#define BLAS_TRMV_HPP
 
 // TODO: Implement distributed version
 

@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef BLAS_IMPL_HPP
-#define BLAS_IMPL_HPP 1
+#define BLAS_IMPL_HPP
 
 #include "./matrices_decl.hpp"
 #include "./matrices/Identity.hpp"

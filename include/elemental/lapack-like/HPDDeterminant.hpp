@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef LAPACK_HPDDETERMINANT_HPP
-#define LAPACK_HPDDETERMINANT_HPP 1
+#define LAPACK_HPDDETERMINANT_HPP
 
 #include "elemental/lapack-like/Cholesky.hpp"
 

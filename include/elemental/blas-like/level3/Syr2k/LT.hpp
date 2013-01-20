@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_SYR2K_LT_HPP
+#define BLAS_SYR2K_LT_HPP
 
 namespace elem {
 namespace internal {
@@ -115,3 +118,5 @@ Syr2kLT
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_SYR2K_LT_HPP

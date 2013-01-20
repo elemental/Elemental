@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_LQ_PANEL_HPP
+#define LAPACK_LQ_PANEL_HPP
 
 namespace elem {
 namespace internal {
@@ -341,3 +344,5 @@ PanelLQ
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_LQ_PANEL_HPP

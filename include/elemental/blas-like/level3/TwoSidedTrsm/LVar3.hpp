@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_TWOSIDEDTRSM_LVAR3_HPP
+#define BLAS_TWOSIDEDTRSM_LVAR3_HPP
 
 namespace elem {
 namespace internal {
@@ -318,3 +321,5 @@ TwoSidedTrsmLVar3
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_TWOSIDEDTRSM_LVAR3_HPP

@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef BLAS_HER2K_HPP
-#define BLAS_HER2K_HPP 1
+#define BLAS_HER2K_HPP
 
 #include "./Her2k/LC.hpp"
 #include "./Her2k/LN.hpp"

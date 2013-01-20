@@ -11,6 +11,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_REFLECTOR_ROW_HPP
+#define LAPACK_REFLECTOR_ROW_HPP
 
 namespace elem {
 namespace internal {
@@ -225,3 +228,5 @@ RowReflector
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_REFLECTOR_ROW_HPP

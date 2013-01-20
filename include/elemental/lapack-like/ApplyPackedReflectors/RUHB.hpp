@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_APPLYPACKEDREFLECTORS_RUHB_HPP
+#define LAPACK_APPLYPACKEDREFLECTORS_RUHB_HPP
 
 namespace elem {
 namespace internal {
@@ -452,3 +455,5 @@ ApplyPackedReflectorsRUHB
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_RUHB_HPP

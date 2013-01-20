@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
-#define MATRICES_HERMITIANUNIFORMSPECTRUM_HPP 1
+#define MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Uniform.hpp"

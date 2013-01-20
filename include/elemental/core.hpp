@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef CORE_HPP
-#define CORE_HPP 1
+#define CORE_HPP
 
 #include "mpi.h"
 #include <algorithm>
@@ -99,5 +100,7 @@
 #include "elemental/core/random_impl.hpp"
 #include "elemental/core/axpy_interface_decl.hpp"
 #include "elemental/core/axpy_interface_impl.hpp"
+
+#include "elemental/core/ReduceComm.hpp"
 
 #endif // ifndef CORE_HPP

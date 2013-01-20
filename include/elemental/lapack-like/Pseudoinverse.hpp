@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef LAPACK_PSEUDOINVERSE_HPP
-#define LAPACK_PSEUDOINVERSE_HPP 1
+#define LAPACK_PSEUDOINVERSE_HPP
 
 #include "elemental/lapack-like/SVD.hpp"
 

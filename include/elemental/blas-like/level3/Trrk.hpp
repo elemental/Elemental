@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef BLAS_TRRK_HPP
-#define BLAS_TRRK_HPP 1
+#define BLAS_TRRK_HPP
 
 #include "./Trrk/Local.hpp"
 #include "./Trrk/NN.hpp"

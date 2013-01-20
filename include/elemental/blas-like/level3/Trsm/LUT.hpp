@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_TRSM_LUT_HPP
+#define BLAS_TRSM_LUT_HPP
 
 namespace elem {
 namespace internal {
@@ -309,3 +312,5 @@ TrsmLUTSmall
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_TRSM_LUT_HPP

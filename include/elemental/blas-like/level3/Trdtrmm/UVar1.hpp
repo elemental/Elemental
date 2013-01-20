@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_TRDTRMM_UVAR1_HPP
+#define BLAS_TRDTRMM_UVAR1_HPP
 
 namespace elem {
 namespace internal {
@@ -141,3 +144,5 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F>& U )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_TRDTRMM_UVAR1_HPP

@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_BIDIAG_L_HPP
+#define LAPACK_BIDIAG_L_HPP
 
 namespace elem {
 namespace internal {
@@ -270,3 +273,5 @@ BidiagL
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_BIDIAG_L_HPP

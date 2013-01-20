@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_CHOLESKY_UVAR2_HPP
+#define LAPACK_CHOLESKY_UVAR2_HPP
 
 namespace elem {
 namespace internal {
@@ -150,3 +153,5 @@ CholeskyUVar2( DistMatrix<F>& A )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_CHOLESKY_UVAR2_HPP

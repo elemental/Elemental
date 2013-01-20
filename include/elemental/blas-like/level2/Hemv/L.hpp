@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_HEMV_L
+#define BLAS_HEMV_L
 
 namespace elem {
 namespace internal {
@@ -264,3 +267,5 @@ LocalHemvRowAccumulateL
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_HEMV_L

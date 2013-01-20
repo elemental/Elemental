@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef BLAS_NRM2_HPP
-#define BLAS_NRM2_HPP 1
+#define BLAS_NRM2_HPP
 
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 

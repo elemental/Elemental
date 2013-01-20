@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_HERK_LC_HPP
+#define BLAS_HERK_LC_HPP
 
 namespace elem {
 namespace internal {
@@ -79,3 +82,5 @@ HerkLC( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_HERK_LC_HPP

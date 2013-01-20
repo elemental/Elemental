@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef BLAS_TRSV_LN_HPP
+#define BLAS_TRSV_LN_HPP
 
 namespace elem {
 namespace internal {
@@ -180,3 +183,5 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef BLAS_TRSV_LN_HPP

@@ -6,20 +6,19 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#ifndef LAPACK_NORM_UTIL_HPP
-#define LAPACK_NORM_UTIL_HPP 1
+#pragma once
+#ifndef CORE_REDUCE_COMM_HPP
+#define CORE_REDUCE_COMM_HPP
 
 namespace elem {
-namespace internal {
 
-template<typename F,Distribution U,Distribution V>
+template<Distribution U,Distribution V>
 inline mpi::Comm 
-NormComm( const DistMatrix<F,U,V>& A )
+ReduceComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("internal::NormComm");
+    PushCallStack("ReduceComm");
 #endif
-    const Grid& grid = A.Grid();
     mpi::Comm comm;
     if( U == MC && V == MR )
         comm = grid.VCComm();
@@ -55,14 +54,13 @@ NormComm( const DistMatrix<F,U,V>& A )
     return comm;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<Distribution U,Distribution V>
 inline mpi::Comm 
-NormColComm( const DistMatrix<F,U,V>& A )
+ReduceColComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("internal::NormComm");
+    PushCallStack("ReduceColComm");
 #endif
-    const Grid& grid = A.Grid();
     mpi::Comm comm;
     switch( U )
     {
@@ -79,14 +77,13 @@ NormColComm( const DistMatrix<F,U,V>& A )
     return comm;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<Distribution U,Distribution V>
 inline mpi::Comm 
-NormRowComm( const DistMatrix<F,U,V>& A )
+ReduceRowComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("internal::NormComm");
+    PushCallStack("ReduceRowComm");
 #endif
-    const Grid& grid = A.Grid();
     mpi::Comm comm;
     switch( V )
     {
@@ -103,7 +100,6 @@ NormRowComm( const DistMatrix<F,U,V>& A )
     return comm;
 }
 
-} // namespace internal
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_UTIL_HPP
+#endif // ifndef CORE_REDUCE_COMM_HPP

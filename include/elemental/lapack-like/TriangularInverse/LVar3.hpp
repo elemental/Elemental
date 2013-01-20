@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_TRIANGULARINVERSE_LVAR3_HPP
+#define LAPACK_TRIANGULARINVERSE_LVAR3_HPP
 
 namespace elem {
 namespace internal {
@@ -161,3 +164,5 @@ TriangularInverseLVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_TRIANGULARINVERSE_LVAR3_HPP

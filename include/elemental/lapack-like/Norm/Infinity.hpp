@@ -6,10 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef LAPACK_NORM_INFINITY_HPP
-#define LAPACK_NORM_INFINITY_HPP 1
-
-#include "elemental/lapack-like/Norm/Util.hpp"
+#define LAPACK_NORM_INFINITY_HPP
 
 namespace elem {
 namespace internal {
@@ -47,8 +46,8 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     PushCallStack("internal::InfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    mpi::Comm colComm = NormColComm( A );
-    mpi::Comm rowComm = NormRowComm( A );
+    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
+    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
 
     // Compute the partial row sums defined by our local matrix, A[U,V]
     const int localHeight = A.LocalHeight();

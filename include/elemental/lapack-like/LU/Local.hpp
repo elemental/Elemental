@@ -6,6 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
+#ifndef LAPACK_LU_LOCAL_HPP
+#define LAPACK_LU_LOCAL_HPP
 
 namespace elem {
 
@@ -87,3 +90,5 @@ LUUnb( Matrix<F>& A )
 } // namespace internal
 
 } // namespace elem
+
+#endif // ifndef LAPACK_LU_LOCAL_HPP

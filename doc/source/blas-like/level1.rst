@@ -78,7 +78,7 @@ Returns :math:`(x,y) = x^H y`. :math:`x` and :math:`y` are both allowed to be
 stored as column or row vectors, but will be interpreted as column vectors.
 
 .. cpp:function:: T Dot( const Matrix<T>& x, const Matrix<T>& y )
-.. cpp:function:: T Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+.. cpp:function:: T Dot( const DistMatrix<T,U,V>& x, const DistMatrix<T,U,V>& y )
 
 Dotc
 ----
@@ -86,14 +86,14 @@ Same as ``Dot``. This routine name is provided since it is the usual
 BLAS naming convention.
 
 .. cpp:function:: T Dotc( const Matrix<T>& x, const Matrix<T>& y )
-.. cpp:function:: T Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+.. cpp:function:: T Dotc( const DistMatrix<T,U,V>& x, const DistMatrix<T,U,V>& y )
 
 Dotu
 ----
 Returns :math:`x^T y`, which is **not** an inner product.
 
 .. cpp:function:: T Dotu( const Matrix<T>& x, const Matrix<T>& y )
-.. cpp:function:: T Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,W,Z>& y )
+.. cpp:function:: T Dotu( const DistMatrix<T,U,V>& x, const DistMatrix<T,U,V>& y )
 
 MakeTrapezoidal
 ---------------

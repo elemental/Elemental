@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef CORE_DISTMATRIX_DECL_HPP
-#define CORE_DISTMATRIX_DECL_HPP 1
+#define CORE_DISTMATRIX_DECL_HPP
 
 #include "elemental/core/dist_matrix/abstract_decl.hpp"
 #include "elemental/core/dist_matrix/mc_mr_decl.hpp"

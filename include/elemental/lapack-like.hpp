@@ -6,8 +6,9 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#pragma once
 #ifndef LAPACKLIKE_HPP
-#define LAPACKLIKE_HPP 1
+#define LAPACKLIKE_HPP
 
 #include "elemental/lapack-like_decl.hpp"
 #include "elemental/lapack-like_impl.hpp"
