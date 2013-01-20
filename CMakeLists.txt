@@ -495,7 +495,7 @@ endif()
 # Build the example drivers if necessary
 if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-  set(EXAMPLE_TYPES core blas-like lapack-like special_matrices)
+  set(EXAMPLE_TYPES core blas-like lapack-like matrices)
 
   set(core_EXAMPLES Constructors)
   set(blas-like_EXAMPLES Gemv)
@@ -503,7 +503,7 @@ if(ELEM_EXAMPLES)
     GaussianElimination HermitianQDWH HouseholderSolve HPDInverse LDL LDLInverse
     LogDetDivergence Polar Pseudoinverse QDWH SequentialQR QR SequentialSVD
     SimpleSVD SVD)
-  set(special_matrices_EXAMPLES 
+  set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum
     Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson Zeros)

@@ -9,6 +9,8 @@
 #ifndef LAPACK_LOGBARRIER_HPP
 #define LAPACK_LOGBARRIER_HPP 1
 
+#include "elemental/lapack-like/HPDDeterminant.hpp"
+
 namespace elem {
 
 template<typename F>

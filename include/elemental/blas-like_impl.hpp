@@ -9,6 +9,10 @@
 #ifndef BLAS_IMPL_HPP
 #define BLAS_IMPL_HPP 1
 
+#include "./matrices_decl.hpp"
+#include "./matrices/Identity.hpp"
+#include "./matrices/Zeros.hpp"
+
 #include "./blas-like/internal.hpp"
 
 #include "./blas-like/level1.hpp"

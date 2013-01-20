@@ -9,6 +9,8 @@
 #ifndef LAPACK_HERMITIANFUNCTION_HPP
 #define LAPACK_HERMITIANFUNCTION_HPP 1
 
+#include "elemental/lapack-like/HermitianEig.hpp"
+
 namespace elem {
 
 namespace hermitian_function {

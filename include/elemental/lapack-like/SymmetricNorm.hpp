@@ -9,6 +9,9 @@
 #ifndef LAPACK_SYMMETRICNORM_HPP
 #define LAPACK_SYMMETRICNORM_HPP 1
 
+#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/SVD.hpp"
+
 #include "./SymmetricNorm/Nuclear.hpp"
 #include "./SymmetricNorm/Two.hpp"
 

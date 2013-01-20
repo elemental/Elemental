@@ -9,6 +9,8 @@
 #ifndef LAPACK_SOLVEAFTERLU_HPP
 #define LAPACK_SOLVEAFTERLU_HPP 1
 
+#include "elemental/lapack-like/ApplyRowPivots.hpp"
+
 namespace elem {
 
 template<typename F> 

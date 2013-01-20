@@ -9,6 +9,8 @@
 #ifndef LAPACK_NORM_HPP
 #define LAPACK_NORM_HPP 1
 
+#include "elemental/lapack-like/SVD.hpp"
+
 #include "./Norm/Util.hpp"
 
 #include "./Norm/One.hpp"

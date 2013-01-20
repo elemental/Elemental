@@ -9,6 +9,10 @@
 #ifndef LAPACK_QDWH_HPP
 #define LAPACK_QDWH_HPP 1
 
+#include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/Norm.hpp"
+
 namespace elem {
 
 //

@@ -9,6 +9,8 @@
 #ifndef LAPACK_TWONORMLOWERBOUND_HPP
 #define LAPACK_TWONORMLOWERBOUND_HPP 1
 
+#include "elemental/lapack-like/Norm.hpp"
+
 namespace elem {
 
 template<typename F>

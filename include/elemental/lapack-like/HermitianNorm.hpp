@@ -9,6 +9,9 @@
 #ifndef LAPACK_HERMITIANNORM_HPP
 #define LAPACK_HERMITIANNORM_HPP 1
 
+#include "elemental/lapack-like/HermitianSVD.hpp"
+#include "elemental/lapack-like/Norm.hpp"
+
 #include "./HermitianNorm/One.hpp"
 #include "./HermitianNorm/Infinity.hpp"
 #include "./HermitianNorm/Max.hpp"

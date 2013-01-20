@@ -9,6 +9,9 @@
 #ifndef LAPACK_EXPLICITQR_HPP
 #define LAPACK_EXPLICITQR_HPP 1
 
+#include "elemental/lapack-like/ExpandPackedReflectors.hpp"
+#include "elemental/lapack-like/QR.hpp"
+
 namespace elem {
 
 namespace internal {

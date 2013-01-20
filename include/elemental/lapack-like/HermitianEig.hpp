@@ -11,6 +11,10 @@
 
 #ifndef WITHOUT_PMRRR
 
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianTridiag.hpp"
+
 namespace elem {
 
 // The targeted number of pieces to break the eigenvectors into during the

@@ -9,6 +9,9 @@
 #ifndef LAPACK_CHOLESKY_HPP
 #define LAPACK_CHOLESKY_HPP 1
 
+// TODO: Avoid this by defining sequential Cholesky first?
+#include "elemental/lapack-like/internal.hpp"
+
 #include "./Cholesky/LVar2.hpp"
 #include "./Cholesky/LVar3.hpp"
 #include "./Cholesky/LVar3Square.hpp"

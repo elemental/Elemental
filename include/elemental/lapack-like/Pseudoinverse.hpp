@@ -9,6 +9,8 @@
 #ifndef LAPACK_PSEUDOINVERSE_HPP
 #define LAPACK_PSEUDOINVERSE_HPP 1
 
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
 
 //

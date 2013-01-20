@@ -30,38 +30,6 @@ LocalTriangularInverse
 #endif
 }
 
-} // namespace internal
-
-template<typename F>
-inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("TriangularInverse");
-#endif
-    internal::TriangularInverseVar3( uplo, diag, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename F>
-inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
-{
-#ifndef RELEASE
-    PushCallStack("TriangularInverse");
-#endif
-    internal::TriangularInverseVar3( uplo, diag, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-namespace internal {
-
 template<typename F>
 inline void
 TriangularInverseVar3
@@ -97,6 +65,34 @@ TriangularInverseVar3
 }
 
 } // namespace internal
+
+template<typename F>
+inline void
+TriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("TriangularInverse");
+#endif
+    internal::TriangularInverseVar3( uplo, diag, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+TriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+{
+#ifndef RELEASE
+    PushCallStack("TriangularInverse");
+#endif
+    internal::TriangularInverseVar3( uplo, diag, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 } // namespace elem
 

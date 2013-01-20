@@ -6,6 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
+#ifndef LAPACK_NORM_MAX_HPP
+#define LAPACK_NORM_MAX_HPP 1
+
+#include "elemental/lapack-like/Norm/Util.hpp"
 
 namespace elem {
 namespace internal {
@@ -67,3 +71,5 @@ MaxNorm( const DistMatrix<F,U,V>& A )
 
 } // namespace internal
 } // namespace elem
+
+#endif // ifndef LAPACK_NORM_MAX_HPP

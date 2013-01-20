@@ -9,6 +9,9 @@
 #ifndef LAPACK_LU_HPP
 #define LAPACK_LU_HPP 1
 
+#include "elemental/lapack-like/internal.hpp"
+#include "elemental/lapack-like/ApplyRowPivots.hpp"
+
 #include "./LU/Local.hpp"
 #include "./LU/Panel.hpp"
 

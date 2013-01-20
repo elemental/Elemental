@@ -15,8 +15,8 @@
 #endif
 
 #include "elemental/core.hpp"
-#include "elemental/special_matrices.hpp"
 #include "elemental/blas-like.hpp"
 #include "elemental/lapack-like.hpp"
+#include "elemental/matrices.hpp"
 
 #endif // ifndef ELEMENTAL_HPP

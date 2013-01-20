@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental.hpp"
+#include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
 
@@ -226,8 +227,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestGemm<double>
-        ( print, orientA, orientB, m, n, k, (double)3, (double)4, g );
+        TestGemm<double>( print, orientA, orientB, m, n, k, 3., 4., g );
 
         if( commRank == 0 )
         {

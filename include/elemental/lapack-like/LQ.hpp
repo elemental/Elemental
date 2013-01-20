@@ -9,6 +9,8 @@
 #ifndef LAPACK_LQ_HPP
 #define LAPACK_LQ_HPP 1
 
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+
 #include "./LQ/Panel.hpp"
 
 namespace elem {

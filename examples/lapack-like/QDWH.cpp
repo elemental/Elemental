@@ -6,7 +6,13 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
+#include "elemental-lite.hpp"
+#include "elemental/lapack-like/Halley.hpp"
+#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/QDWH.hpp"
+#include "elemental/lapack-like/TwoNormUpperBound.hpp"
+#include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
 

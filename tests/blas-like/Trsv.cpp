@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental.hpp"
+#include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
 

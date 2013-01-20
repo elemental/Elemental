@@ -9,6 +9,9 @@
 #ifndef LAPACK_DETERMINANT_HPP
 #define LAPACK_DETERMINANT_HPP 1
 
+#include "elemental/lapack-like/LU.hpp"
+#include "elemental/lapack-like/PivotParity.hpp"
+
 namespace elem {
 
 namespace internal {

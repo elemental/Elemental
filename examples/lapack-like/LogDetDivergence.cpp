@@ -6,7 +6,10 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
+#include "elemental-lite.hpp"
+#include "elemental/lapack-like/LogDetDivergence.hpp"
+#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace elem;
 
 int 
@@ -55,4 +58,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

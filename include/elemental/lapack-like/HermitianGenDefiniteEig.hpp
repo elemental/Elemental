@@ -11,6 +11,9 @@
 
 #ifndef WITHOUT_PMRRR
 
+#include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/HermitianEig.hpp"
+
 namespace elem {
 
 // Grab the full set of eigenpairs.

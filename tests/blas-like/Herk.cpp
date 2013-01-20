@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental.hpp"
+#include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
 
@@ -105,8 +106,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:                 \n"
                  << "--------------------------------------" << endl;
         }
-        TestHerk<double>
-        ( print, uplo, orientation, m, k, (double)3, (double)4, g );
+        TestHerk<double>( print, uplo, orientation, m, k, 3., 4., g );
 
         if( commRank == 0 )
         {

@@ -9,6 +9,8 @@
 #ifndef BLAS_NRM2_HPP
 #define BLAS_NRM2_HPP 1
 
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+
 namespace elem {
 
 template<typename F>
@@ -43,7 +45,7 @@ Nrm2( const DistMatrix<F>& x )
         throw std::logic_error("x must be a vector");
 #endif
     typedef typename Base<F>::type R;
-    const R norm = Norm( x, FROBENIUS_NORM );
+    const R norm = internal::FrobeniusNorm( x );
 #ifndef RELEASE
     PopCallStack();
 #endif

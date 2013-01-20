@@ -9,6 +9,10 @@
 #ifndef LAPACK_INVERSE_HPP
 #define LAPACK_INVERSE_HPP 1
 
+#include "elemental/lapack-like/ApplyColumnPivots.hpp"
+#include "elemental/lapack-like/LU.hpp"
+#include "elemental/lapack-like/TriangularInverse.hpp"
+
 namespace elem {
 
 // Start by forming the partially pivoted LU decomposition of A,

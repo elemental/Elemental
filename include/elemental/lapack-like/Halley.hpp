@@ -9,6 +9,10 @@
 #ifndef LAPACK_HALLEY_HPP
 #define LAPACk_HALLEY_HPP 1
 
+#include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/Norm.hpp"
+
 namespace elem {
 
 //

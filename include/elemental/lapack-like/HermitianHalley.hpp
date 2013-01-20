@@ -9,6 +9,10 @@
 #ifndef LAPACK_HERMITIANHALLEY_HPP
 #define LAPACK_HERMITIANHALLEY_HPP 1
 
+#include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/HermitianNorm.hpp"
+
 namespace elem {
 
 //

@@ -9,6 +9,8 @@
 #ifndef LAPACK_APPLYCOLUMNPIVOTS_HPP
 #define LAPACK_APPLYCOLUMNPIVOTS_HPP 1
 
+#include "elemental/lapack-like/ComposePivots.hpp"
+
 namespace elem {
 
 template<typename F>

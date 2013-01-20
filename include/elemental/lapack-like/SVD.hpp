@@ -9,6 +9,11 @@
 #ifndef LAPACK_SVD_HPP
 #define LAPACK_SVD_HPP 1
 
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/Bidiag.hpp"
+#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/QR.hpp"
+
 namespace elem {
 
 namespace svd {

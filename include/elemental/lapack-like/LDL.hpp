@@ -9,6 +9,8 @@
 #ifndef LAPACK_LDL_HPP
 #define LAPACK_LDL_HPP 1
 
+#include "elemental/lapack-like/internal.hpp"
+
 #include "./LDL/Var3.hpp"
 
 namespace elem {

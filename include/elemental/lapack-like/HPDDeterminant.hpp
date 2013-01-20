@@ -9,6 +9,8 @@
 #ifndef LAPACK_HPDDETERMINANT_HPP
 #define LAPACK_HPDDETERMINANT_HPP 1
 
+#include "elemental/lapack-like/Cholesky.hpp"
+
 namespace elem {
 
 namespace internal {

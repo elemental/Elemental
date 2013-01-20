@@ -9,6 +9,9 @@
 #ifndef LAPACK_POLAR_HPP
 #define LAPACK_POLAR_HPP 1
 
+#include "elemental/lapack-like/HermitianFunction.hpp"
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
 
 //

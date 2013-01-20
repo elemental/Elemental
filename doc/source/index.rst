@@ -14,5 +14,5 @@ Welcome to Elemental's documentation!
    core
    blas-like
    lapack-like
-   special_matrices
+   matrices
    indices

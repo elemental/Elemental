@@ -9,6 +9,8 @@
 #ifndef LAPACK_QR_HPP
 #define LAPACK_QR_HPP 1
 
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+
 #include "./QR/Panel.hpp"
 
 namespace elem {

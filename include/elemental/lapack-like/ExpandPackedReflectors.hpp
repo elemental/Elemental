@@ -9,6 +9,8 @@
 #ifndef LAPACK_EXPANDPACKEDREFLECTORS_HPP
 #define LAPACK_EXPANDPACKEDREFLECTORS_HPP 1
 
+#include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
+
 #include "./ExpandPackedReflectors/LV.hpp"
 
 namespace elem {

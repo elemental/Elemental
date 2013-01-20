@@ -11,6 +11,8 @@
 
 #ifndef WITHOUT_PMRRR
 
+#include "elemental/lapack-like/HermitianFunction.hpp"
+
 namespace elem {
 
 //

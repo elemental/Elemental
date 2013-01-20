@@ -9,6 +9,8 @@
 #ifndef LAPACK_LOGDETDIVERGENCE_HPP
 #define LAPACK_LOGDETDIVERGENCE_HPP 1
 
+#include "elemental/lapack-like/Cholesky.hpp"
+
 namespace elem {
 
 template<typename F>

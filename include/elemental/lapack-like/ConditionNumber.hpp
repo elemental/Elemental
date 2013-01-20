@@ -9,6 +9,8 @@
 #ifndef LAPACK_CONDITIONNUMBER_HPP
 #define LAPACK_CONDITIONNUMBER_HPP 1
 
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
 
 template<typename F> 

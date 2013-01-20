@@ -9,6 +9,9 @@
 #ifndef LAPACK_EXPLICITLQ_HPP
 #define LAPACK_EXPLICITLQ_HPP 1
 
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/LQ.hpp"
+
 namespace elem {
 
 namespace internal {
