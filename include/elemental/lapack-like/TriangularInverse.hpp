@@ -10,6 +10,15 @@
 #ifndef LAPACK_TRIANGULARINVERSE_HPP
 #define LAPACK_TRIANGULARINVERSE_HPP
 
+namespace elem {
+namespace internal {
+template<typename F>
+inline void
+LocalTriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
+} // namespace internal
+} // namespace elem
+
 #include "./TriangularInverse/LVar3.hpp"
 #include "./TriangularInverse/UVar3.hpp"
 

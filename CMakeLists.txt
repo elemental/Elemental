@@ -465,7 +465,7 @@ if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas-like lapack-like)
 
-  set(CORE_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
+  set(core_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
   set(blas-like_TESTS 
     Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
     TwoSidedTrsm)

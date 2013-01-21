@@ -153,14 +153,8 @@ LocalTwoSidedTrmm
 } // namespace internal
 } // namespace elem
 
-#include "./TwoSidedTrmm/LVar1.hpp"
-#include "./TwoSidedTrmm/LVar2.hpp"
 #include "./TwoSidedTrmm/LVar4.hpp"
-#include "./TwoSidedTrmm/LVar5.hpp"
-#include "./TwoSidedTrmm/UVar1.hpp"
-#include "./TwoSidedTrmm/UVar2.hpp"
 #include "./TwoSidedTrmm/UVar4.hpp"
-#include "./TwoSidedTrmm/UVar5.hpp"
 
 namespace elem {
 
