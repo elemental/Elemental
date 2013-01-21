@@ -15,7 +15,8 @@ namespace internal {
 
 template<typename T>
 inline void
-SyrkUT( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
+SyrkUT
+( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::SyrkUT");
@@ -32,6 +33,7 @@ SyrkUT( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
     }
 #endif
     const Grid& g = A.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T> AT(g),  A0(g), 
@@ -65,7 +67,7 @@ SyrkUT( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
         A1_STAR_MC = A1_STAR_VR;
 
         LocalTrrk
-        ( UPPER, TRANSPOSE, TRANSPOSE, 
+        ( UPPER, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, A1Trans_MR_STAR, T(1), C );
         //--------------------------------------------------------------------//
 

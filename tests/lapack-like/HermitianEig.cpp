@@ -343,7 +343,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalHemvBlocksize<Complex<double> >( nbLocal );
+        SetLocalSymvBlocksize<Complex<double> >( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
             throw logic_error("'range' must be 'A', 'I', or 'V'");
         if( onlyEigvals && testCorrectness && commRank==0 )

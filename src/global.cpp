@@ -23,11 +23,6 @@ std::stack<std::string> callStack;
 #endif
 
 // Tuning parameters for basic routines
-int localHemvFloatBlocksize = 64;
-int localHemvDoubleBlocksize = 64;
-int localHemvComplexFloatBlocksize = 64;
-int localHemvComplexDoubleBlocksize = 64;
-
 int localSymvFloatBlocksize = 64;
 int localSymvDoubleBlocksize = 64;
 int localSymvComplexFloatBlocksize = 64;
@@ -232,38 +227,6 @@ void DumpCallStack()
     std::cerr << msg.str() << std::endl;
 }
 #endif // RELEASE
-
-template<>
-void SetLocalHemvBlocksize<float>( int blocksize )
-{ ::localHemvFloatBlocksize = blocksize; }
-
-template<>
-void SetLocalHemvBlocksize<double>( int blocksize )
-{ ::localHemvDoubleBlocksize = blocksize; }
-
-template<>
-void SetLocalHemvBlocksize<Complex<float> >( int blocksize )
-{ ::localHemvComplexFloatBlocksize = blocksize; }
-
-template<>
-void SetLocalHemvBlocksize<Complex<double> >( int blocksize )
-{ ::localHemvComplexDoubleBlocksize = blocksize; }
-
-template<>
-int LocalHemvBlocksize<float>()
-{ return ::localHemvFloatBlocksize; }
-
-template<>
-int LocalHemvBlocksize<double>()
-{ return ::localHemvDoubleBlocksize; }
-
-template<>
-int LocalHemvBlocksize<Complex<float> >()
-{ return ::localHemvComplexFloatBlocksize; }
-
-template<>
-int LocalHemvBlocksize<Complex<double> >()
-{ return ::localHemvComplexDoubleBlocksize; }
 
 template<>
 void SetLocalSymvBlocksize<float>( int blocksize )

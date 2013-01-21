@@ -17,7 +17,8 @@ template<typename T>
 inline void
 Syr2kUT
 ( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+  T beta,        DistMatrix<T>& C,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::Syr2kUT");
@@ -39,6 +40,7 @@ Syr2kUT
     }
 #endif
     const Grid& g = A.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T> AT(g),  A0(g),
@@ -93,7 +95,7 @@ Syr2kUT
         B1_STAR_MC = B1_STAR_VR;
 
         LocalTrr2k
-        ( UPPER, TRANSPOSE, TRANSPOSE, TRANSPOSE, TRANSPOSE, 
+        ( UPPER, orientation, TRANSPOSE, orientation, TRANSPOSE, 
           alpha, A1_STAR_MC, B1Trans_MR_STAR,
                  B1_STAR_MC, A1Trans_MR_STAR,
           T(1),  C );

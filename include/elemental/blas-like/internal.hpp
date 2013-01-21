@@ -89,66 +89,6 @@ void LocalTrtrsm
 //
 // Returns the unreduced components z[MC,* ] and z[MR,* ]:
 //     z[MC,* ] := alpha tril(A)[MC,MR] x[MR,* ]
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H x[MC,* ]
-template<typename T>
-void LocalHemvColAccumulateL
-( T alpha, 
-  const DistMatrix<T>& A,
-  const DistMatrix<T,MC,STAR>& x_MC_STAR,
-  const DistMatrix<T,MR,STAR>& x_MR_STAR,
-        DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR
-);
-
-// This is for the case where x is a column vector and A is upper.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha triu(A)[MC,MR] x[MR,* ]
-//     z[MR,* ] := alpha (trius(A)[MC,MR])^H x[MC,* ]
-template<typename T>
-void LocalHemvColAccumulateU
-( T alpha, 
-  const DistMatrix<T>& A,
-  const DistMatrix<T,MC,STAR>& x_MC_STAR,
-  const DistMatrix<T,MR,STAR>& x_MR_STAR,
-        DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR
-);
-
-// This is for the case where x is a row vector and A is lower.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] (x[* ,MR])^H
-//     z[MR,* ] := alpha (trils(A)[MC,MR])^H (x[* ,MC])^H
-template<typename T>
-void LocalHemvRowAccumulateL
-( T alpha, 
-  const DistMatrix<T>& A,
-  const DistMatrix<T,STAR,MC>& x_STAR_MC,
-  const DistMatrix<T,STAR,MR>& x_STAR_MR,
-        DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR
-);
-
-// This is for the case where x is a row vector and A is upper.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha triu(A)[MC,MR] (x[* ,MR])^H
-//     z[MR,* ] := alpha (trius(A)[MC,MR])^H (x[* ,MC])^H
-template<typename T>
-void LocalHemvRowAccumulateU
-( T alpha, 
-  const DistMatrix<T>& A,
-  const DistMatrix<T,STAR,MC>& x_STAR_MC,
-  const DistMatrix<T,STAR,MR>& x_STAR_MR,
-        DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR
-);
-
-// This is for the case where x is a column vector and A is lower.
-//
-// Returns the unreduced components z[MC,* ] and z[MR,* ]:
-//     z[MC,* ] := alpha tril(A)[MC,MR] x[MR,* ]
 //     z[MR,* ] := alpha (trils(A)[MC,MR])^T x[MC,* ]
 template<typename T>
 void LocalSymvColAccumulateL
@@ -157,8 +97,8 @@ void LocalSymvColAccumulateL
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR
-);
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate=false );
 
 // This is for the case where x is a column vector and A is upper.
 //
@@ -172,8 +112,8 @@ void LocalSymvColAccumulateU
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR
-);
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate=false );
 
 // This is for the case where x is a row vector and A is lower.
 //
@@ -187,8 +127,8 @@ void LocalSymvRowAccumulateL
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR
-);
+        DistMatrix<T,STAR,MR>& z_STAR_MR,
+  bool conjugate=false );
 
 // This is for the case where x is a row vector and A is upper.
 //
@@ -202,8 +142,8 @@ void LocalSymvRowAccumulateU
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR
-);
+        DistMatrix<T,STAR,MR>& z_STAR_MR,
+  bool conjugate=false );
 
 //----------------------------------------------------------------------------//
 // Distributed BLAS-like helpers: Level 3                                     //

@@ -14,12 +14,7 @@ where :math:`\mbox{op}_A(M)` and :math:`\mbox{op}_B(M)` can each be chosen from
 :math:`M`, :math:`M^T`, and :math:`M^H`.
 
 .. cpp:function:: void Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Gemm( Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Hemm
 ----
@@ -31,12 +26,7 @@ Hermitian matrix-matrix multiplication: updates
 accessed.
 
 .. cpp:function:: void Hemm( LeftOrRight side, UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Hemm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Her2k
 -----
@@ -47,12 +37,7 @@ Hermitian rank-2K update: updates
 triangle of :math:`C` specified by the `uplo` parameter is modified.
 
 .. cpp:function:: void Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Her2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Please see :cpp:func:`SetLocalTrr2kBlocksize\<T>` 
 and :cpp:func:`LocalTrr2kBlocksize\<T>` in the 
@@ -68,12 +53,7 @@ set to ``NORMAL`` or ``ADJOINT``, respectively. Only the triangle of :math:`C`
 specified by the `uplo` parameter is modified.
 
 .. cpp:function:: void Herk( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Herk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Please see :cpp:func:`SetLocalTrrkBlocksize\<T>` 
 and :cpp:func:`LocalTrrkBlocksize\<T>` in the :ref:`blas-tuning`
@@ -88,13 +68,8 @@ Symmetric matrix-matrix multiplication: updates
 :math:`A` is implicitly symmetric and only the triangle specified by `uplo` 
 is accessed.
 
-.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
-.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
+.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C, bool conjugate=false )
+.. cpp:function:: void Symm( LeftOrRight side, UpperOrLower uplo, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C, bool conjugate=false )
 
 Syr2k
 -----
@@ -105,12 +80,7 @@ Symmetric rank-2K update: updates
 triangle of :math:`C` specified by the `uplo` parameter is modified.
 
 .. cpp:function:: void Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Syr2k( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Please see :cpp:func:`SetLocalTrr2kBlocksize\<T>` 
 and :cpp:func:`LocalTrr2kBlocksize\<T>` in the 
@@ -126,12 +96,7 @@ set to ``NORMAL`` or ``TRANSPOSE``, respectively. Only the triangle of :math:`C`
 specified by the `uplo` parameter is modified.
 
 .. cpp:function:: void Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Syrk( UpperOrLower uplo, Orientation orientation, T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Please see :cpp:func:`SetLocalTrrkBlocksize\<T>` 
 and :cpp:func:`LocalTrrkBlocksize\<T>` in the :ref:`blas-tuning`
@@ -148,12 +113,7 @@ can be any of :math:`A`, :math:`A^T`, and :math:`A^H` (and `diag` determines
 whether :math:`A` is treated as unit-diagonal or not).
 
 .. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const Matrix<T>& A, Matrix<T>& B )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Trmm( LeftOrRight side, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag, T alpha, const DistMatrix<T>& A, DistMatrix<T>& B )
-
-   The distributed implementation (templated over the datatype).
 
 Trr2k
 -----
@@ -169,12 +129,7 @@ where only the triangle of `E` specified by `uplo` is modified, and
    of "symmetric" and "Hermitian" updates.
 
 .. cpp:function:: void Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C, const Matrix<T>& D, T beta, Matrix<T>& E )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Trr2k( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, Orientation orientationOfC, Orientation orientationOfD, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, const DistMatrix<T>& C, const DistMatrix<T>& D, T beta, DistMatrix<T>& E )
-
-   The distributed implementation (templated over the datatype).
 
 Trrk
 ----
@@ -192,12 +147,7 @@ respectively.
    two update matrices is scaled by D.
 
 .. cpp:function:: void Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
-
-   The serial implementation (templated over the datatype).
-
 .. cpp:function:: void Trrk( UpperOrLower uplo, Orientation orientationOfA, Orientation orientationOfB, T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B, T beta, DistMatrix<T>& C )
-
-   The distributed implementation (templated over the datatype).
 
 Trtrmm
 ------

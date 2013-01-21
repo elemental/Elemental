@@ -16,12 +16,6 @@ namespace elem {
 // Tuning parameters                                                          //
 //----------------------------------------------------------------------------//
 
-template<typename T> void SetLocalHemvBlocksize( int blocksize );
-template<> void SetLocalHemvBlocksize<float>( int blocksize );
-template<> void SetLocalHemvBlocksize<double>( int blocksize );
-template<> void SetLocalHemvBlocksize<Complex<float> >( int blocksize );
-template<> void SetLocalHemvBlocksize<Complex<double> >( int blocksize );
-
 template<typename T> void SetLocalSymvBlocksize( int blocksize );
 template<> void SetLocalSymvBlocksize<float>( int blocksize );
 template<> void SetLocalSymvBlocksize<double>( int blocksize );
@@ -41,12 +35,6 @@ template<> void SetLocalTrr2kBlocksize<float>( int blocksize );
 template<> void SetLocalTrr2kBlocksize<double>( int blocksize );
 template<> void SetLocalTrr2kBlocksize<Complex<float> >( int blocksize );
 template<> void SetLocalTrr2kBlocksize<Complex<double> >( int blocksize );
-
-template<typename T> int LocalHemvBlocksize();
-template<> int LocalHemvBlocksize<float>();
-template<> int LocalHemvBlocksize<double>();
-template<> int LocalHemvBlocksize<scomplex>();
-template<> int LocalHemvBlocksize<dcomplex>();
 
 template<typename T> int LocalSymvBlocksize();
 template<> int LocalSymvBlocksize<float>();
@@ -607,14 +595,16 @@ void Her2
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y );
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y,
+  bool conjugate=false );
 
 // Parallel version
 template<typename T>
 void Symv
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& x,
-  T beta,        DistMatrix<T>& y );
+  T beta,        DistMatrix<T>& y,
+  bool conjugate=false );
 
 //
 // Syr (SYmmetric Rank-one update):
@@ -626,12 +616,15 @@ void Symv
 
 // Serial version
 template<typename T>
-void Syr( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A );
+void Syr
+( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, 
+  bool conjugate=false );
 
 // Parallel version
 template<typename T>
 void Syr
-( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A );
+( UpperOrLower uplo, T alpha, const DistMatrix<T>& x, DistMatrix<T>& A,
+  bool conjugate=false );
 
 //
 // Syr2 (SYmmetric Rank-2 update):
@@ -645,14 +638,16 @@ void Syr
 template<typename T>
 void Syr2
 ( UpperOrLower uplo, 
-  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A );
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A,
+  bool conjugate=false );
 
 // Parallel version
 template<typename T>
 void Syr2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x, const DistMatrix<T>& y,
-                 DistMatrix<T>& A );
+                 DistMatrix<T>& A,
+  bool conjugate=false );
 
 //
 // Trmv (TRiangular Matrix-Vector multiply):
@@ -805,14 +800,16 @@ void Herk
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C ); 
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  bool conjugate=false ); 
 
 // Parallel version
 template<typename T>
 void Symm
 ( LeftOrRight side, UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+  T beta,        DistMatrix<T>& C,
+  bool conjugate=false );
 
 //
 // Syr2k (SYmmetric Rank-2K update):
@@ -828,14 +825,16 @@ void Symm
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C );
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
+  bool conjugate=false );
 
 // Parallel version
 template<typename T>
 void Syr2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C );
+  T beta,        DistMatrix<T>& C,
+  bool conjugate=false );
 
 //
 // Syrk (SYmmetric Rank-K update):
@@ -851,13 +850,15 @@ void Syr2k
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C );
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
+  bool conjugate=false );
 
 // Parallel version
 template<typename T>
 void Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C );
+  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
+  bool conjugate=false );
 
 //
 // Trmm (TRiangular Matrix-Matrix multiplication):

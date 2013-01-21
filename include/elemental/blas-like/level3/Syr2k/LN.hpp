@@ -17,7 +17,8 @@ template<typename T>
 inline void
 Syr2kLN
 ( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
+  T beta,        DistMatrix<T>& C,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::Syr2kLN");
@@ -75,10 +76,10 @@ Syr2kLN
 
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
-        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
+        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR, conjugate );
 
         B1_VR_STAR = B1_MC_STAR = B1;
-        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
+        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
 
         LocalTrr2k
         ( LOWER, 

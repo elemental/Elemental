@@ -15,7 +15,8 @@ namespace internal {
 
 template<typename T>
 inline void
-SyrkUN( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
+SyrkUN
+( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::SyrkUN");
@@ -57,7 +58,7 @@ SyrkUN( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1_MC_STAR = A1;
-        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR );
+        A1Trans_STAR_MR.TransposeFrom( A1_VR_STAR, conjugate );
         LocalTrrk( UPPER, alpha, A1_MC_STAR, A1Trans_STAR_MR, T(1), C ); 
         //--------------------------------------------------------------------//
 

@@ -21,7 +21,8 @@ template<typename T>
 inline void
 Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C )
+  T alpha, const Matrix<T>& A, T beta, Matrix<T>& C,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Syrk");
@@ -30,22 +31,29 @@ Syrk
         if( A.Height() != C.Height() || A.Height() != C.Width() )
             throw std::logic_error("Nonconformal Syrk");
     }
-    else if( orientation == TRANSPOSE )
+    else
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
             throw std::logic_error("Nonconformal Syrk");
     }
-    else
-        throw std::logic_error
-        ("Syrk only accepts NORMAL and TRANSPOSE options");
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
     const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
-    blas::Syrk
-    ( uploChar, transChar, C.Height(), k,
-      alpha, A.LockedBuffer(), A.LDim(),
-      beta,  C.Buffer(),       C.LDim() );
+    if( conjugate )
+    {
+        blas::Herk
+        ( uploChar, transChar, C.Height(), k,
+          alpha, A.LockedBuffer(), A.LDim(),
+          beta,  C.Buffer(),       C.LDim() );
+    }
+    else
+    {
+        blas::Syrk
+        ( uploChar, transChar, C.Height(), k,
+          alpha, A.LockedBuffer(), A.LDim(),
+          beta,  C.Buffer(),       C.LDim() );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -55,21 +63,20 @@ template<typename T>
 inline void
 Syrk
 ( UpperOrLower uplo, Orientation orientation,
-  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
+  T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Syrk");
-    if( orientation == ADJOINT )
-        throw std::logic_error("Syrk accepts NORMAL and TRANSPOSE options");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
-        internal::SyrkLN( alpha, A, beta, C );
+        internal::SyrkLN( alpha, A, beta, C, conjugate );
     else if( uplo == LOWER )
-        internal::SyrkLT( alpha, A, beta, C );
+        internal::SyrkLT( alpha, A, beta, C, conjugate );
     else if( orientation == NORMAL )
-        internal::SyrkUN( alpha, A, beta, C );
+        internal::SyrkUN( alpha, A, beta, C, conjugate );
     else
-        internal::SyrkUT( alpha, A, beta, C );
+        internal::SyrkUT( alpha, A, beta, C, conjugate );
 #ifndef RELEASE
     PopCallStack();
 #endif

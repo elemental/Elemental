@@ -21,7 +21,8 @@ LocalSymvColAccumulateU
   const DistMatrix<T,MC,STAR>& x_MC_STAR,
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
-        DistMatrix<T,MR,STAR>& z_MR_STAR )
+        DistMatrix<T,MR,STAR>& z_MR_STAR,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalSymvColAccumulateU");
@@ -60,6 +61,7 @@ LocalSymvColAccumulateU
         throw std::logic_error("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T> A11(g), A12(g);
@@ -112,7 +114,7 @@ LocalSymvColAccumulateU
           T(1),  z1_MC_STAR.LocalMatrix() );
         MakeTrapezoidal( LEFT, UPPER, 1, D11 );
         Gemv
-        ( TRANSPOSE,
+        ( orientation,
           alpha, D11.LockedLocalMatrix(),
                  x1_MC_STAR.LockedLocalMatrix(),
           T(1),  z1_MR_STAR.LocalMatrix() );
@@ -123,7 +125,7 @@ LocalSymvColAccumulateU
                  x2_MR_STAR.LockedLocalMatrix(),
           T(1),  z1_MC_STAR.LocalMatrix() );
         Gemv
-        ( TRANSPOSE,
+        ( orientation,
           alpha, A12.LockedLocalMatrix(),
                  x1_MC_STAR.LockedLocalMatrix(),
           T(1),  z2_MR_STAR.LocalMatrix() );
@@ -150,7 +152,8 @@ LocalSymvRowAccumulateU
   const DistMatrix<T,STAR,MC>& x_STAR_MC,
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
-        DistMatrix<T,STAR,MR>& z_STAR_MR )
+        DistMatrix<T,STAR,MR>& z_STAR_MR,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalSymvRowAccumulateU");
@@ -189,6 +192,7 @@ LocalSymvRowAccumulateU
         throw std::logic_error("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T> A11(g), A12(g);
@@ -235,7 +239,7 @@ LocalSymvRowAccumulateU
           T(1),  z1_STAR_MC.LocalMatrix() );
         MakeTrapezoidal( LEFT, UPPER, 1, D11 );
         Gemv
-        ( TRANSPOSE,
+        ( orientation,
           alpha, D11.LockedLocalMatrix(),
                  x1_STAR_MC.LockedLocalMatrix(),
           T(1),  z1_STAR_MR.LocalMatrix() );
@@ -246,7 +250,7 @@ LocalSymvRowAccumulateU
                  x2_STAR_MR.LockedLocalMatrix(),
           T(1),  z1_STAR_MC.LocalMatrix() );
         Gemv
-        ( TRANSPOSE,
+        ( orientation,
           alpha, A12.LockedLocalMatrix(),
                  x1_STAR_MC.LockedLocalMatrix(),
           T(1),  z2_STAR_MR.LocalMatrix() );

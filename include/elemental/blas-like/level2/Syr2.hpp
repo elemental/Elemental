@@ -16,7 +16,8 @@ template<typename T>
 inline void
 Syr2
 ( UpperOrLower uplo,
-  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
+  T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Syr2");
@@ -34,10 +35,20 @@ Syr2
     const int m = A.Height();
     const int incx = ( x.Width()==1 ? 1 : x.LDim() );
     const int incy = ( y.Width()==1 ? 1 : y.LDim() );
-    blas::Syr2
-    ( uploChar, m,
-      alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
-             A.Buffer(), A.LDim() );
+    if( conjugate )
+    {
+        blas::Her2
+        ( uploChar, m,
+          alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                 A.Buffer(), A.LDim() );
+    }
+    else
+    {
+        blas::Syr2
+        ( uploChar, m,
+          alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
+                 A.Buffer(), A.LDim() );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -49,7 +60,8 @@ Syr2
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
-                 DistMatrix<T>& A )
+                 DistMatrix<T>& A,
+  bool conjugate )
 {
 #ifndef RELEASE
     PushCallStack("Syr2");
@@ -105,8 +117,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightAboveDiag = LocalLength(j,colShift,r);
 
-                const T gamma = alpha*y_MR_STAR.GetLocal(jLocal,0);
-                const T delta = alpha*x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_MR_STAR.GetLocal(jLocal,0);
+                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal] +
@@ -120,8 +134,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightToDiag = LocalLength(j+1,colShift,r);
 
-                const T gamma = alpha*y_MR_STAR.GetLocal(jLocal,0);
-                const T delta = alpha*x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_MR_STAR.GetLocal(jLocal,0);
+                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal] + 
@@ -161,8 +177,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightAboveDiag = LocalLength(j,colShift,r);
 
-                const T gamma = alpha*y_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal] +
@@ -176,8 +194,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightToDiag = LocalLength(j+1,colShift,r);
 
-                const T gamma = alpha*y_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal] +
@@ -217,8 +237,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightAboveDiag = LocalLength(j,colShift,r);
 
-                const T gamma = alpha*x_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*y_MR_STAR.GetLocal(jLocal,0);
+                const T beta = x_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = y_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal*incx] +
@@ -232,8 +254,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightToDiag = LocalLength(j+1,colShift,r);
 
-                const T gamma = alpha*x_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*y_MR_STAR.GetLocal(jLocal,0);
+                const T beta = x_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = y_MR_STAR.GetLocal(jLocal,0);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal*incx] +
@@ -274,8 +298,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightAboveDiag = LocalLength(j,colShift,r);
 
-                const T gamma = alpha*y_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*x_STAR_MR.GetLocal(0,jLocal);
+                const T beta = y_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = x_STAR_MR.GetLocal(0,jLocal);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal*incx] +
@@ -289,8 +315,10 @@ Syr2
                 const int j = rowShift + jLocal*c;
                 const int heightToDiag = LocalLength(j+1,colShift,r);
 
-                const T gamma = alpha*y_STAR_MR.GetLocal(0,jLocal);
-                const T delta = alpha*x_STAR_MR.GetLocal(0,jLocal);
+                const T beta = y_STAR_MR.GetLocal(0,jLocal);
+                const T kappa = x_STAR_MR.GetLocal(0,jLocal);
+                const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
+                const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
                 T* ALocalCol = A.LocalBuffer(0,jLocal);
                 for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
                     ALocalCol[iLocal] += gamma*xLocal[iLocal*incx] +

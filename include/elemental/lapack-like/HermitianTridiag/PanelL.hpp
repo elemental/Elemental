@@ -1202,8 +1202,8 @@ HermitianPanelTridiagL
         PopBlocksizeStack();
         Zero( p21_MC_STAR );
         Zero( q21_MR_STAR );
-        LocalHemvColAccumulateL
-        ( C(1), A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR );
+        LocalSymvColAccumulateL
+        ( C(1), A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR, true );
         PushBlocksizeStack( 1 );
 
         LocalGemv( ADJOINT, C(1), W20B, a21B_MC_STAR, C(0), x01_MR_STAR );

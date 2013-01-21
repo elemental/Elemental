@@ -282,7 +282,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalHemvBlocksize<Complex<double> >( nbLocal );
+        SetLocalSymvBlocksize<Complex<double> >( nbLocal );
 #ifndef RELEASE
         if( commRank == 0 )
         {
