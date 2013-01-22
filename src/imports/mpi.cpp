@@ -198,7 +198,11 @@ void ErrorHandlerSet( Comm comm, ErrorHandler errorHandler )
 #ifndef RELEASE
     PushCallStack("mpi::ErrorHandlerSet");
 #endif
+#ifdef HAVE_MPI_COMM_SET_ERRHANDLER
+    SafeMpi( MPI_Comm_set_errhandler( comm, errorHandler ) );
+#else
     SafeMpi( MPI_Errhandler_set( comm, errorHandler ) );
+#endif
 #ifndef RELEASE
     PopCallStack();
 #endif

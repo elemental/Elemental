@@ -313,6 +313,9 @@ if(NOT HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
 endif()
 
+# Look for namechanges from MPI 3
+check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
+
 # Check for nonblocking collectives
 check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
 check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
