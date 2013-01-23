@@ -90,14 +90,6 @@ DistMatrix<T,STAR,STAR,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,STAR,Int>::SetGrid( const elem::Grid& grid )
-{
-    this->Empty();
-    this->grid_ = &grid;
-}
-
-template<typename T,typename Int>
 inline Int
 DistMatrix<T,STAR,STAR,Int>::ColStride() const
 { return 1; }

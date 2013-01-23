@@ -120,8 +120,6 @@ public:
     // Collective routines
     //
 
-    virtual void SetGrid( const elem::Grid& grid );
-
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
     virtual void Update( Int i, Int j, T alpha );
@@ -157,7 +155,7 @@ public:
     //
     // Collective routines
     //
-
+   
     void GetDiagonal
     ( DistMatrix<T,MD,STAR,Int>& d, Int offset=0 ) const;
     void GetDiagonal

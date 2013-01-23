@@ -148,20 +148,6 @@ DistMatrix<T,MD,STAR,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline void
-DistMatrix<T,MD,STAR,Int>::SetGrid( const elem::Grid& g )
-{
-    this->Empty();
-    this->grid_ = &g;
-    this->diagPath_ = 0;
-    this->colAlignment_ = 0;
-    if( g.InGrid() && g.DiagPath()==0 )
-        this->colShift_ = g.DiagPathRank();
-    else
-        this->colShift_ = 0;
-}
-
-template<typename T,typename Int>
 inline Int
 DistMatrix<T,MD,STAR,Int>::ColStride() const
 { return this->grid_->LCM(); }
@@ -203,7 +189,7 @@ DistMatrix<T,MD,STAR,Int>::AlignWith( const elem::DistData<Int>& data )
     this->AssertFreeColAlignment();
 #endif
     const Grid& grid = *data.grid;
-    SetGrid( grid );
+    this->SetGrid( grid );
 
     if( data.colDist == MD && data.rowDist == STAR )
     {

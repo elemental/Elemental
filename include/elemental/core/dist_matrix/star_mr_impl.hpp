@@ -135,19 +135,6 @@ DistMatrix<T,STAR,MR,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,MR,Int>::SetGrid( const elem::Grid& grid )
-{
-    this->Empty();
-    this->grid_ = &grid;
-    this->rowAlignment_ = 0;
-    if( grid.InGrid() )
-        this->rowShift_ = grid.Col();
-    else
-        this->rowShift_ = 0;
-}
-
-template<typename T,typename Int>
 inline Int
 DistMatrix<T,STAR,MR,Int>::ColStride() const
 { return 1; }

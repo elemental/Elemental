@@ -155,26 +155,6 @@ DistMatrix<T,MR,MC,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline void
-DistMatrix<T,MR,MC,Int>::SetGrid( const elem::Grid& grid )
-{
-    this->Empty();
-    this->grid_ = &grid;
-    this->colAlignment_ = 0;
-    this->rowAlignment_ = 0;
-    if( grid.InGrid() )
-    {
-        this->colShift_ = grid.Col();
-        this->rowShift_ = grid.Row();
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
-    }
-}
-
-template<typename T,typename Int>
 inline Int
 DistMatrix<T,MR,MC,Int>::ColStride() const
 { return this->grid_->Width(); }
@@ -281,10 +261,9 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const elem::DistData<Int>& data )
 #ifndef RELEASE
     PushCallStack("[MR,MC]::AlignColsWith");
     this->AssertFreeColAlignment();
+    if( *this->grid_ != *data.grid )
+        throw std::logic_error("Grids do not match");
 #endif
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-
     if( data.colDist == MR )
         this->colAlignment_ = data.colAlignment;
     else if( data.rowDist == MR )
@@ -315,10 +294,9 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const elem::DistData<Int>& data )
 #ifndef RELEASE
     PushCallStack("[MR,MC]::AlignRowsWith");
     this->AssertFreeRowAlignment();
+    if( *this->grid_ != *data.grid )
+        throw std::logic_error("Grids do not match");
 #endif
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-
     if( data.colDist == MC )
         this->rowAlignment_ = data.colAlignment;
     else if( data.rowDist == MC )

@@ -270,8 +270,57 @@ AbstractDistMatrix<T,Int>::AssertConforming2x2
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
-{ SetGrid( A.Grid() ); }
+AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
+{ 
+#ifndef RELEASE
+    PushCallStack("AbstractDistMatrix::Align");    
+    AssertFreeColAlignment();
+    AssertFreeRowAlignment();
+#endif
+    Empty();
+    colAlignment_ = colAlignment;
+    rowAlignment_ = rowAlignment;
+    constrainedColAlignment_ = true;
+    constrainedRowAlignment_ = true;
+    SetShifts();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignCols( Int colAlignment )
+{ 
+#ifndef RELEASE
+    PushCallStack("AbstractDistMatrix::AlignCols"); 
+    AssertFreeColAlignment();
+#endif
+    EmptyData();
+    colAlignment_ = colAlignment;
+    constrainedColAlignment_ = true;
+    SetShifts();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignRows( Int rowAlignment )
+{ 
+#ifndef RELEASE
+    PushCallStack("AbstractDistMatrix::AlignRows"); 
+    AssertFreeRowAlignment();
+#endif
+    EmptyData();
+    rowAlignment_ = rowAlignment;
+    constrainedRowAlignment_ = true;
+    SetShifts();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 template<typename T,typename Int>
 inline void
@@ -280,23 +329,38 @@ AbstractDistMatrix<T,Int>::AlignWith( const elem::DistData<Int>& data )
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
-{ SetGrid( A.Grid() ); }
+AbstractDistMatrix<T,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
+{ AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::AlignColsWith( const elem::DistData<Int>& data )
-{ SetGrid( *data.grid ); }
+{ 
+    EmptyData(); 
+    colAlignment_ = 0; 
+    constrainedColAlignment_ = false; 
+    SetShifts(); 
+}
 
 template<typename T,typename Int>
 inline void
-AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
-{ SetGrid( A.Grid() ); }
+AbstractDistMatrix<T,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
+{ AlignColsWith( A.DistData() ); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::AlignRowsWith( const elem::DistData<Int>& data )
-{ SetGrid( *data.grid ); }
+{ 
+    EmptyData(); 
+    rowAlignment_ = 0; 
+    constrainedRowAlignment_ = false;
+    SetShifts(); 
+}
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
+{ AlignRowsWith( A.DistData() ); }
 
 template<typename T,typename Int>
 inline bool
@@ -439,6 +503,17 @@ AbstractDistMatrix<T,Int>::Empty()
 }
 
 template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::EmptyData()
+{
+    localMatrix_.Empty();
+    lockedView_ = false;
+    viewing_ = false;
+    height_ = 0;
+    width_ = 0;
+}
+
+template<typename T,typename Int>
 inline bool
 AbstractDistMatrix<T,Int>::Participating() const
 { return grid_->InGrid(); }
@@ -534,6 +609,15 @@ AbstractDistMatrix<T,Int>::SetShifts()
         colShift_ = 0;
         rowShift_ = 0;
     }
+}
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
+{
+    Empty();
+    grid_ = &grid; 
+    SetShifts();
 }
 
 } // namespace elem
