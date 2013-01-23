@@ -121,6 +121,20 @@ DistMatrix<T,STAR,MC,Int>::~DistMatrix()
 { }
 
 template<typename T,typename Int>
+inline elem::DistData<Int>
+DistMatrix<T,STAR,MC,Int>::DistData() const
+{
+    elem::DistData<Int> data;
+    data.colDist = STAR;
+    data.rowDist = MC;
+    data.colAlignment = 0;
+    data.rowAlignment = this->rowAlignment_;
+    data.diagPath = 0;
+    data.grid = this->grid_;
+    return data;
+}
+
+template<typename T,typename Int>
 inline void
 DistMatrix<T,STAR,MC,Int>::SetGrid( const elem::Grid& grid )
 {
@@ -154,188 +168,84 @@ DistMatrix<T,STAR,MC,Int>::RowRank() const
 { return this->grid_->Row(); }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,MR,MC,N>& A )
+DistMatrix<T,STAR,MC,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([MR,MC])");
+    PushCallStack("[* ,MC]::AlignWith");
     this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
 #endif
-    this->Empty();
-    this->rowAlignment_ = A.RowAlignment();
+    const Grid& grid = *data.grid;
+    this->SetGrid( grid );
+
+    if( data.colDist == MC )
+        this->rowAlignment_ = data.colAlignment;
+    else if( data.rowDist == MC )
+        this->rowAlignment_ = data.rowAlignment;
+    else if( data.colDist == VC )
+        this->rowAlignment_ = data.colAlignment % this->RowStride();
+    else if( data.rowDist == VC )
+        this->rowAlignment_ = data.rowAlignment % this->RowStride();
+#ifndef RELEASE
+    else throw std::logic_error("Nonsensical alignment");
+#endif
     this->constrainedRowAlignment_ = true;
-    if( this->Participating() )
-        this->rowShift_ = A.RowShift();
+    this->SetShifts();
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,STAR,MC,N>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([* ,MC])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    this->Empty();
-    this->rowAlignment_ = A.RowAlignment();
-    this->constrainedRowAlignment_ = true;
-    if( this->Participating() )
-        this->rowShift_ = A.RowShift();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+DistMatrix<T,STAR,MC,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
+{ this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,MC,MR,N>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([MC,MR])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    this->Empty();
-    this->rowAlignment_ = A.ColAlignment();
-    this->constrainedRowAlignment_ = true;
-    if( this->Participating() )
-        this->rowShift_ = A.ColShift();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const elem::DistData<Int>& data )
+{ this->AlignWith( data ); }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,MC,STAR,N>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([MC,* ])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    this->Empty();
-    this->rowAlignment_ = A.ColAlignment();
-    this->constrainedRowAlignment_ = true;
-    if( this->Participating() )
-        this->rowShift_ = A.ColShift();
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
+{ this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,VC,STAR,N>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([VC,* ])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    const elem::Grid& g = this->Grid();
-    this->Empty();
-    this->rowAlignment_ = A.ColAlignment() % g.Height();
-    this->constrainedRowAlignment_ = true;
-    if( g.InGrid() )
-        this->rowShift_ = Shift( g.Row(), this->RowAlignment(), g.Height() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignWith( const DistMatrix<S,STAR,VC,N>& A )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWith([* ,VC])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    const elem::Grid& g = this->Grid();
-    this->Empty();
-    this->rowAlignment_ = A.RowAlignment() % g.Height();
-    this->constrainedRowAlignment_ = true;
-    if( g.InGrid() )
-        this->rowShift_ = Shift( g.Row(), this->RowAlignment(), g.Height() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,MC,MR,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,MC,STAR,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,STAR,MC,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,MR,MC,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
-void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,VC,STAR,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
-void
-DistMatrix<T,STAR,MC,Int>::AlignRowsWith( const DistMatrix<S,STAR,VC,N>& A )
-{ AlignWith( A ); }
-
-template<typename T,typename Int>
-template<typename S,typename N>
 inline bool
 DistMatrix<T,STAR,MC,Int>::AlignedWithDiagonal
-( const DistMatrix<S,MC,STAR,N>& A, Int offset ) const
+( const elem::DistData<Int>& data, Int offset ) const
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignedWithDiagonal([* ,MC])");
-    this->AssertSameGrid( A );
+    PushCallStack("[* ,MC]::AlignedWithDiagonal");
 #endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int colAlignment = A.ColAlignment();
-    bool aligned;
+    const Grid& grid = this->Grid();
+    if( grid != *data.grid )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return false;
+    }
 
-    if( offset >= 0 )
+    bool aligned;
+    if( (data.colDist == MC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == MC  ) )
     {
-        const Int ownerRow = colAlignment;
-        aligned = ( this->RowAlignment() == ownerRow );
+        const Int alignment = ( data.colDist==MC ? data.colAlignment
+                                                 : data.rowAlignment );
+        if( offset >= 0 )
+        {
+            const Int row = alignment;
+            aligned = ( this->RowAlignment() == row );
+        }
+        else
+        {
+            const Int row = (alignment-offset) % this->RowStride();
+            aligned = ( this->RowAlignment() == row );
+        }
     }
-    else
-    {
-        const Int ownerRow = (colAlignment-offset) % r;
-        aligned = ( this->RowAlignment() == ownerRow );
-    }
+    else aligned = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -343,103 +253,52 @@ DistMatrix<T,STAR,MC,Int>::AlignedWithDiagonal
 }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline bool
 DistMatrix<T,STAR,MC,Int>::AlignedWithDiagonal
-( const DistMatrix<S,STAR,MC,N>& A, Int offset ) const
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignedWithDiagonal([* ,MC])");
-    this->AssertSameGrid( A );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int rowAlignment = A.RowAlignment();
-    bool aligned;
-
-    if( offset >= 0 )
-    {
-        const Int ownerRow = (rowAlignment + offset) % r;
-        aligned = ( this->RowAlignment() == ownerRow );
-    }
-    else
-    {
-        const Int ownerRow = rowAlignment;
-        aligned = ( this->RowAlignment() == ownerRow );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return aligned;
-}
+( const AbstractDistMatrix<T,Int>& A, Int offset ) const
+{ return this->AlignedWithDiagonal( A.DistData(), offset ); }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
 DistMatrix<T,STAR,MC,Int>::AlignWithDiagonal
-( const DistMatrix<S,MC,STAR,N>& A, Int offset )
+( const elem::DistData<Int>& data, Int offset )
 {
 #ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWithDiagonal([MC,* ])");
+    PushCallStack("[* ,MC]::AlignWithDiagonal");
     this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
 #endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int colAlignment = A.ColAlignment();
+    const Grid& grid = *data.grid;
+    this->SetGrid( grid );
 
-    this->Empty();
-    if( offset >= 0 )
+    if( (data.colDist == MC   && data.rowDist == STAR) ||
+        (data.colDist == STAR && data.rowDist == MC  ) )
     {
-        const Int ownerRow = colAlignment;
-        this->rowAlignment_ = ownerRow;
+        const Int alignment = ( data.colDist==MC ? data.colAlignment
+                                                 : data.rowAlignment );
+        if( offset >= 0 )
+        {
+            const Int row = alignment;
+            this->rowAlignment_ = row;
+        }
+        else
+        {
+            const Int row = (alignment-offset) % this->RowStride();
+            this->rowAlignment_ = row;
+        }
+        this->constrainedRowAlignment_ = true;
+        this->SetShifts();
     }
-    else
-    {
-        const Int ownerRow = (colAlignment-offset) % r;
-        this->rowAlignment_ = ownerRow;
-    }
-    this->constrainedRowAlignment_ = true;
-    if( g.InGrid() )
-        this->rowShift_ = Shift(g.Row(),this->rowAlignment_,r);
 #ifndef RELEASE
+    else throw std::logic_error("Invalid diagonal alignment");
     PopCallStack();
 #endif
 }
 
 template<typename T,typename Int>
-template<typename S,typename N>
 inline void
 DistMatrix<T,STAR,MC,Int>::AlignWithDiagonal
-( const DistMatrix<S,STAR,MC,N>& A, Int offset )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignWithDiagonal([* ,MC])");
-    this->AssertFreeRowAlignment();
-    this->AssertSameGrid( A );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int rowAlignment = A.RowAlignment();
-
-    this->Empty();
-    if( offset >= 0 )
-    {
-        const Int ownerRow = (rowAlignment+offset) % r;
-        this->rowAlignment_ = ownerRow;
-    }
-    else
-    {
-        const Int ownerRow = rowAlignment;
-        this->rowAlignment_ = ownerRow;
-    }
-    this->constrainedRowAlignment_ = true;
-    if( g.InGrid() )
-        this->rowShift_ = Shift(g.Row(),this->rowAlignment_,r);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+( const AbstractDistMatrix<T,Int>& A, Int offset )
+{ this->AlignWithDiagonal( A.DistData(), offset ); }
 
 template<typename T,typename Int>
 inline void
@@ -505,43 +364,6 @@ DistMatrix<T,STAR,MC,Int>::PrintBase
         }
     }
     mpi::Barrier( g.VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,MC,Int>::Align( Int rowAlignment )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::Align");
-    this->AssertFreeRowAlignment();
-#endif
-    this->AlignRows( rowAlignment );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T,typename Int>
-inline void
-DistMatrix<T,STAR,MC,Int>::AlignRows( Int rowAlignment )
-{
-#ifndef RELEASE
-    PushCallStack("[* ,MC]::AlignRows");
-    this->AssertFreeRowAlignment();
-#endif
-    const elem::Grid& g = this->Grid();
-#ifndef RELEASE
-    if( rowAlignment < 0 || rowAlignment >= g.Height() )
-        throw std::runtime_error("Invalid row alignment for [* ,MC]");
-#endif
-    this->Empty();
-    this->rowAlignment_ = rowAlignment;
-    this->constrainedRowAlignment_ = true;
-    if( g.InGrid() )
-        this->rowShift_ = Shift( g.Row(), rowAlignment, g.Height() );
 #ifndef RELEASE
     PopCallStack();
 #endif

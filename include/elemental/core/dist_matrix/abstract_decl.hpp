@@ -148,6 +148,12 @@ public:
     //------------------------------------------------------------------------//
 
     virtual bool Participating() const;
+    virtual void AlignWith( const elem::DistData<Int>& data );
+    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignColsWith( const elem::DistData<Int>& data );
+    virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignRowsWith( const elem::DistData<Int>& data );
+    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
@@ -156,6 +162,8 @@ public:
     //
     // Basic information
     //
+
+    virtual elem::DistData<Int> DistData() const = 0;
 
     virtual void SetGrid( const elem::Grid& grid ) = 0;
     // So that the local row indices are given by
@@ -246,6 +254,9 @@ protected:
       T* buffer,
       Int ldim,
       const elem::Grid& g );
+
+protected:
+    void SetShifts();
 
     virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;
 

@@ -36,7 +36,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
@@ -82,7 +82,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
@@ -126,7 +126,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
@@ -167,7 +167,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
@@ -212,7 +212,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();
@@ -255,7 +255,7 @@ SkewHermitianEig
     const Grid& grid = G.Grid();
 
     DistMatrix<Complex<double> > A(grid);
-    A.Align( G.ColAlignment(), G.RowAlignment() );
+    A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
     const int localHeight = A.LocalHeight();

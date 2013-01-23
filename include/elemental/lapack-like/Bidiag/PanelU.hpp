@@ -495,8 +495,8 @@ PanelBidiagU
     DistMatrix<C,MC,  STAR> s21_MC_STAR(g);
     DistMatrix<C,MR,  STAR> sB1_MR_STAR(g);
 
-    d.AlignWithDiagonal( A, 0 );
-    e.AlignWithDiagonal( A, 1 );
+    d.AlignWithDiagonal( A.DistData(), 0 );
+    e.AlignWithDiagonal( A.DistData(), 1 );
     d.ResizeTo( panelSize, 1 );
     e.ResizeTo( panelSize, 1 );
 

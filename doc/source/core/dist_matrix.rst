@@ -22,6 +22,20 @@ the :cpp:type:`DistMatrix\<T,U,V>` class.
    :cpp:type:`DistMatrix\<T,U,V>`:
    ``int``, ``float``, ``double``, ``Complex<float>``, and ``Complex<double>``.
 
+.. cpp:type:: struct DistData
+
+   .. cpp:member:: Distribution colDist
+   
+   .. cpp:member:: Distribution rowDist
+
+   .. cpp:member:: int colAlignment
+
+   .. cpp:member:: int rowAlignment
+
+   .. cpp:member:: int diagPath
+
+   .. cpp:member:: const Grid* grid
+
 AbstractDistMatrix
 ------------------
 
@@ -135,6 +149,10 @@ to be available for all matrix distributions.
    .. cpp:function:: int RowStride() const
 
       Return the number of columns between locally owned entries.
+
+   .. cpp:function:: elem::DistData DistData() const
+
+      Returns a description of the distribution and alignment information
 
    .. rubric:: Entry manipulation
 
@@ -526,115 +544,32 @@ It should also be noted that this is the default distribution format for the
    All of the following clear the distributed matrix's contents and then 
    reconfigure the alignments as described.
 
-   .. cpp:function:: void Align( int colAlignment, int rowAlignment )
-
-      Specify the process row, `colAlignment`, and process column,
-      `rowAlignment`, which own the top-left entry.
-
-   .. cpp:function:: void AlignCols( int colAlignment )
-
-      Specify the process row which owns the top-left entry.
-
-   .. cpp:function:: void AlignRows( int rowAlignment )
-
-      Specify the process column which owns the top-left entry.
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,MC,MR>& A )
+   .. cpp:function:: void AlignWith( const AbstractDistMatrix<T>& A )
 
       Force the alignments to match those of `A`.
 
-   .. cpp:function:: void AlignWith( const DistMatrix<S,MC,STAR>& A )
+   .. cpp:function:: void AlignWith( const elem::DistData& data )
+
+      A mechanism for aligning with a distributed matrix of a different 
+      datatype, via ``AlignWith( A.DistData() );``
+
+   .. cpp:function:: void AlignColsWith( const AbstractDistMatrix<T>& A )
 
       Force the column alignment to match that of `A`.
 
-   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MR>& A )
+   .. cpp:function:: void AlignColsWith( const elem::DistData& data )
+
+      A mechanism for aligning with a distributed matrix of a different 
+      datatype, via ``AlignColsWith( A.DistData() );``
+
+   .. cpp:function:: void AlignRowsWith( const AbstractDistMatrix<T>& A )
 
       Force the row alignment to match that of `A`.
 
-   .. cpp:function:: void AlignWith( const DistMatrix<S,MR,MC>& A )
+   .. cpp:function:: void AlignRowsWith( const elem::DistData& data )
 
-      Force the column alignment to match the row alignment of `A` (and 
-      vice-versa).
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,MR,STAR>& A )
-
-      Force the row alignment to match the column alignment of `A`.
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,MC>& A )
-
-      Force the column alignment to match the row alignment of `A`.
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,VC,STAR>& A )
-
-      Force the column alignment to be equal to that of `A` (modulo 
-      the number of process rows).
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VC>& A )
-
-      Force the column alignment to equal the row alignment of `A` (modulo
-      the number of process rows).
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,VR,STAR>& A )
-
-      Force the row alignment to equal the column alignment of `A` (modulo
-      the number of process columns).
-
-   .. cpp:function:: void AlignWith( const DistMatrix<S,STAR,VR>& A )
-
-      Force the row alignment to equal the row alignment of `A` (modulo
-      the number of process columns).
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,MR>& A )
-
-      Force the column alignment to match that of `A`.
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MC,STAR>& A )
-
-      Force the column alignment to match that of `A`.
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,MR,MC>& A )
-
-      Force the column alignment to match the row alignment of `A`.
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,MC>& A )
-
-      Force the column alignment to match the row alignment of `A`.
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,VC,STAR>& A )
-
-      Force the column alignment to match the column alignment of `A` 
-      (modulo the number of process rows).
-
-   .. cpp:function:: void AlignColsWith( const DistMatrix<S,STAR,VC>& A )
-
-      Force the column alignment to match the row alignment of `A` 
-      (modulo the number of process rows).
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MC,MR>& A )
-
-      Force the row alignment to match that of `A`.
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,MR>& A )
-
-      Force the row alignment to match that of `A`.
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,MC>& A )
-
-      Force the row alignment to match the column alignment of `A`.
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,MR,STAR>& A )
-
-      Force the row alignment to match the column alignment of `A`.
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,VR,STAR>& A )
-
-      Force the row alignment to match the column alignment of `A` (modulo
-      the number of process columns).
-
-   .. cpp:function:: void AlignRowsWith( const DistMatrix<S,STAR,VR>& A )
-
-      Force the row alignment to match the row alignment of `A` (modulo
-      the number of process columns).
+      A mechanism for aligning with a distributed matrix of a different 
+      datatype, via ``AlignRowsWith( A.DistData() );``
 
    .. rubric:: Views
 

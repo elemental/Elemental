@@ -37,7 +37,7 @@ inline void HermitianSVD
     // Redistribute the singular values into an [MR,* ] distribution
     const Grid& grid = A.Grid();
     DistMatrix<R,MR,STAR> s_MR_STAR( grid );
-    s_MR_STAR.AlignWith( V );
+    s_MR_STAR.AlignWith( V.DistData() );
     s_MR_STAR = s;
 
     // Set the singular values to the absolute value of the eigenvalues

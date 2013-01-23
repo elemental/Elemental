@@ -122,7 +122,7 @@ inline void
 AbstractDistMatrix<T,Int>::AssertValidEntry
 ( Int i, Int j ) const
 {
-    if( i < 0 || i >= this->Height() || j < 0 || j >= this->Width() )
+    if( i < 0 || i >= Height() || j < 0 || j >= Width() )
     {
         std::ostringstream msg;
         msg << "Entry (" << i << "," << j << ") is out of bounds of "
@@ -269,6 +269,36 @@ AbstractDistMatrix<T,Int>::AssertConforming2x2
 #endif // RELEASE
 
 template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
+{ SetGrid( A.Grid() ); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignWith( const elem::DistData<Int>& data )
+{ SetGrid( *data.grid ); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
+{ SetGrid( A.Grid() ); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignColsWith( const elem::DistData<Int>& data )
+{ SetGrid( *data.grid ); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
+{ SetGrid( A.Grid() ); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::AlignRowsWith( const elem::DistData<Int>& data )
+{ SetGrid( *data.grid ); }
+
+template<typename T,typename Int>
 inline bool
 AbstractDistMatrix<T,Int>::Viewing() const
 { return viewing_; }
@@ -402,6 +432,8 @@ AbstractDistMatrix<T,Int>::Empty()
     viewing_ = false;
     height_ = 0;
     width_ = 0;
+    colAlignment_ = 0;
+    rowAlignment_ = 0;
     constrainedColAlignment_ = false;
     constrainedRowAlignment_ = false;
 }
@@ -457,36 +489,52 @@ AbstractDistMatrix<T,Int>::Write
 template<typename T,typename Int>
 inline typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
-{ return this->localMatrix_.GetRealPart(iLocal,jLocal); }
+{ return localMatrix_.GetRealPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
-{ return this->localMatrix_.GetImagPart(iLocal,jLocal); }
+{ return localMatrix_.GetImagPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::SetLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.SetRealPart(iLocal,jLocal,alpha); }
+{ localMatrix_.SetRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::SetLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.SetImagPart(iLocal,jLocal,alpha); }
+{ localMatrix_.SetImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::UpdateLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.UpdateRealPart(iLocal,jLocal,alpha); }
+{ localMatrix_.UpdateRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::UpdateLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ this->localMatrix_.UpdateImagPart(iLocal,jLocal,alpha); }
+{ localMatrix_.UpdateImagPart(iLocal,jLocal,alpha); }
+
+template<typename T,typename Int>
+inline void
+AbstractDistMatrix<T,Int>::SetShifts()
+{
+    if( Participating() )
+    {
+        colShift_ = Shift(ColRank(),colAlignment_,ColStride());
+        rowShift_ = Shift(RowRank(),rowAlignment_,RowStride());
+    }
+    else
+    {
+        colShift_ = 0;
+        rowShift_ = 0;
+    }
+}
 
 } // namespace elem
 

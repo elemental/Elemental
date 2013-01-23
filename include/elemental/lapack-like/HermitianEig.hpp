@@ -265,7 +265,7 @@ HermitianEig
     }
     else
     {
-        paddedZ.Align( 0, 0 );
+        paddedZ.Empty();
         paddedZ.ResizeTo( N, K );
     }
 
@@ -278,7 +278,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -432,7 +432,7 @@ HermitianEig
     }
     else
     {
-        paddedZ.Align( 0, 0 );
+        paddedZ.Empty();
         paddedZ.ResizeTo( N, K );
     }
 
@@ -445,7 +445,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -605,10 +605,7 @@ HermitianEig
         if( w.Height() != n || w.Width() != 1 )
             throw std::logic_error("w was a view but was not the proper size");
     }
-    else
-    {
-        w.Align( 0 );
-    }
+    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
@@ -652,7 +649,7 @@ HermitianEig
         if( !paddedZ.Viewing() )
         {
             const int K = MaxLocalLength(k,g.Size())*g.Size(); 
-            paddedZ.Align( 0, 0 );
+            paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
 
@@ -769,7 +766,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -853,7 +850,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -932,10 +929,7 @@ HermitianEig
         if( w.Height() != n || w.Width() != 1 )
             throw std::logic_error("w was a view but was not the proper size");
     }
-    else
-    {
-        w.Align( 0 );
-    }
+    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
@@ -1023,7 +1017,7 @@ HermitianEig
     }
     else
     {
-        paddedZ.Align( 0, 0 );
+        paddedZ.Empty();
         paddedZ.ResizeTo( N, K );
     }
 
@@ -1036,7 +1030,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -1193,7 +1187,7 @@ HermitianEig
     }
     else
     {
-        paddedZ.Align( 0, 0 );
+        paddedZ.Empty();
         paddedZ.ResizeTo( N, K );
     }
 
@@ -1206,7 +1200,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -1369,10 +1363,7 @@ HermitianEig
         if( w.Height() != n || w.Width() != 1 )
             throw std::logic_error("w was a view but was not the proper size");
     }
-    else
-    {
-        w.Align( 0 );
-    }
+    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
@@ -1417,7 +1408,7 @@ HermitianEig
         if( !paddedZ.Viewing() )
         {
             const int K = MaxLocalLength(k,g.Size())*g.Size();
-            paddedZ.Align( 0, 0 );
+            paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
 
@@ -1537,7 +1528,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -1622,7 +1613,7 @@ HermitianEig
     }
     else
     {
-        w.Align( 0 );
+        w.Empty();
         w.ResizeTo( k, 1 );
     }
 
@@ -1702,10 +1693,7 @@ HermitianEig
         if( w.Height() != n || w.Width() != 1 )
             throw std::logic_error("w was a view but was not the proper size");
     }
-    else
-    {
-        w.Align( 0 );
-    }
+    else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;

@@ -101,7 +101,7 @@ public:
     operator=( const DistMatrix<T,STAR,STAR,Int>& A );
 
     //------------------------------------------------------------------------//
-    // Fulfillments of abstract virtual func's from AbstractDistMatrix        //
+    // Overrides of AbstractDistMatrix                                        //
     //------------------------------------------------------------------------//
 
     //
@@ -112,6 +112,7 @@ public:
     virtual Int RowStride() const;
     virtual Int ColRank() const;
     virtual Int RowRank() const;
+    virtual elem::DistData<Int> DistData() const;
 
     virtual bool Participating() const;
 
@@ -126,6 +127,12 @@ public:
     virtual void Update( Int i, Int j, T alpha );
 
     virtual void ResizeTo( Int height, Int width );
+
+    // Distribution alignment
+    virtual void AlignWith( const elem::DistData<Int>& data );
+    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignRowsWith( const elem::DistData<Int>& data );
+    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
 
     //
     // Though the following routines are meant for complex data, all but two
@@ -149,79 +156,13 @@ public:
     // Collective routines
     //
 
-    // Set the alignments
-    void Align( Int rowAlignment );
-    void AlignRows( Int rowAlignment );
-
-    // Aligns all of our DistMatrix's distributions that match a distribution
-    // of the argument DistMatrix.
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,MD,STAR,N>& A );
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,MD,N>& A );
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,MC,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,MR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,VC,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,VR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,STAR,STAR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,MC,STAR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,MR,STAR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,VC,STAR,N>& A ) {}
-    template<typename S,typename N> 
-    void AlignWith( const DistMatrix<S,VR,STAR,N>& A ) {}
-
-    // Aligns our column distribution (i.e., Star) with the matching 
-    // distribution of the argument. These are all no-ops and exist solely
-    // to allow for templating over distribution parameters.
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,MC,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,MR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,MD,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,VC,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,VR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,STAR,STAR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,MC,STAR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,MR,STAR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,MD,STAR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,VC,STAR,N>& A ) {}
-    template<typename S,typename N>
-    void AlignColsWith( const DistMatrix<S,VR,STAR,N>& A ) {}
-
-    // Aligns our row distribution (i.e., MD) with the matching distribution
-    // of the argument. 
-    template<typename S,typename N> 
-    void AlignRowsWith( const DistMatrix<S,MD,STAR,N>& A );
-    template<typename S,typename N> 
-    void AlignRowsWith( const DistMatrix<S,STAR,MD,N>& A );
-
-    template<typename S,typename N> 
     bool AlignedWithDiagonal
-    ( const DistMatrix<S,MC,MR,N>& A, Int offset=0 ) const;
-    template<typename S,typename N> 
+    ( const elem::DistData<Int>& data, Int offset=0 ) const;
     bool AlignedWithDiagonal
-    ( const DistMatrix<S,MR,MC,N>& A, Int offset=0 ) const;
+    ( const AbstractDistMatrix<T,Int>& A, Int offset=0 ) const;
 
-    template<typename S,typename N> 
-    void AlignWithDiagonal( const DistMatrix<S,MC,MR,N>& A, Int offset=0 );
-    template<typename S,typename N> 
-    void AlignWithDiagonal( const DistMatrix<S,MR,MC,N>& A, Int offset=0 );
+    void AlignWithDiagonal( const elem::DistData<Int>& data, Int offset=0 );
+    void AlignWithDiagonal( const AbstractDistMatrix<T,Int>& A, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach
@@ -237,7 +178,7 @@ private:
     Int diagPath_;
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
 
-    template<typename S,Distribution U,Distribution V,typename Ord>
+    template<typename S,Distribution U,Distribution V,typename N>
     friend class DistMatrix;
 };
 

@@ -782,7 +782,7 @@ HermitianPanelTridiagLSquare
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,STAR> e(g);
-    e.AlignWithDiagonal( A, -1 );
+    e.AlignWithDiagonal( A.DistData(), -1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 
