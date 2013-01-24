@@ -4,23 +4,7 @@ Tuning parameters
 =================
 
 The following tuning parameters have been exposed since they are 
-system-dependent and can have a large impact on performance. The first two sets
-of tuning parameters, those of ``LocalHemvBlocksize`` and 
-``LocalSymvBlocksize``, should probably be combined.
-
-LocalHemvBlocksize
-------------------
-
-.. cpp:function:: void SetLocalHemvBlocksize<T>( int blocksize )
-
-   Sets the local blocksize for the distributed :cpp:func:`Hemv` routine for 
-   datatype ``T``. It is set to 64 by 
-   default and is important for the reduction of a complex Hermitian
-   matrix to real symmetric tridiagonal form.
-
-.. cpp:function:: int LocalHemvBlocksize<T>()
-
-   Retrieves the local :cpp:func:`Hemv` blocksize for datatype ``T``.
+system-dependent and can have a large impact on performance. 
 
 LocalSymvBlocksize
 ------------------
