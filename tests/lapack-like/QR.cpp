@@ -16,8 +16,7 @@ using namespace elem;
 
 template<typename R> 
 void TestCorrectness
-( bool print,
-  const DistMatrix<R>& A,
+( const DistMatrix<R>& A,
         DistMatrix<R>& AOrig )
 {
     const Grid& g = A.Grid();
@@ -84,8 +83,7 @@ void TestCorrectness
 
 template<typename R>
 void TestCorrectness
-( bool print,
-  const DistMatrix<Complex<R> >& A,
+( const DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,MD,STAR>& t,
         DistMatrix<Complex<R> >& AOrig )
 {
@@ -200,7 +198,7 @@ void TestRealQR
     if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( print, A, AOrig );
+        TestCorrectness( A, AOrig );
 }
 
 template<typename R>
@@ -249,7 +247,7 @@ void TestComplexQR
     if( print )
         A.Print("A after factorization");
     if( testCorrectness )
-        TestCorrectness( print, A, t, AOrig );
+        TestCorrectness( A, t, AOrig );
 }
 
 int 
