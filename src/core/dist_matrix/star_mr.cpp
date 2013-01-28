@@ -6,14 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef CORE_DISTMATRIX_STAR_MR_IMPL_HPP
-#define CORE_DISTMATRIX_STAR_MR_IMPL_HPP
+#include "elemental-lite.hpp"
 
 namespace elem {
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix( const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,false,0,0,
@@ -22,7 +19,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix( const elem::Grid& g )
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
@@ -33,7 +29,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( bool constrainedRowAlignment, Int rowAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
@@ -43,7 +38,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
   const elem::Grid& g )
@@ -56,7 +50,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedRowAlignment, Int rowAlignment,
   Int ldim, const elem::Grid& g )
@@ -69,7 +62,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, const T* buffer, Int ldim, 
   const elem::Grid& g )
@@ -82,7 +74,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, T* buffer, Int ldim, 
   const elem::Grid& g )
@@ -96,7 +87,6 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix
 
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
-inline
 DistMatrix<T,STAR,MR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 : AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
   0,(A.Participating() ? A.RowRank() : 0),
@@ -116,12 +106,11 @@ DistMatrix<T,STAR,MR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,STAR,MR,Int>::~DistMatrix()
 { }
 
 template<typename T,typename Int>
-inline elem::DistData<Int>
+elem::DistData<Int>
 DistMatrix<T,STAR,MR,Int>::DistData() const
 {
     elem::DistData<Int> data;
@@ -135,27 +124,27 @@ DistMatrix<T,STAR,MR,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,STAR,MR,Int>::ColStride() const
 { return 1; }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,STAR,MR,Int>::RowStride() const
 { return this->grid_->Width(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,STAR,MR,Int>::ColRank() const
 { return 0; }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,STAR,MR,Int>::RowRank() const
 { return this->grid_->Col(); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
@@ -184,22 +173,22 @@ DistMatrix<T,STAR,MR,Int>::AlignWith( const elem::DistData<Int>& data )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
 { this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::AlignRowsWith( const elem::DistData<Int>& data )
 { this->AlignWith( data ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
 { this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::PrintBase
 ( std::ostream& os, const std::string msg ) const
 {
@@ -268,7 +257,7 @@ DistMatrix<T,STAR,MR,Int>::PrintBase
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::Attach
 ( Int height, Int width, Int rowAlignment,
   T* buffer, Int ldim, const elem::Grid& g )
@@ -297,7 +286,7 @@ DistMatrix<T,STAR,MR,Int>::Attach
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::LockedAttach
 ( Int height, Int width, Int rowAlignment,
   const T* buffer, Int ldim, const elem::Grid& g )
@@ -327,7 +316,7 @@ DistMatrix<T,STAR,MR,Int>::LockedAttach
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
@@ -347,7 +336,7 @@ DistMatrix<T,STAR,MR,Int>::ResizeTo( Int height, Int width )
 }
 
 template<typename T,typename Int>
-inline T
+T
 DistMatrix<T,STAR,MR,Int>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -375,7 +364,7 @@ DistMatrix<T,STAR,MR,Int>::Get( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::Set( Int i, Int j, T u )
 {
 #ifndef RELEASE
@@ -396,7 +385,7 @@ DistMatrix<T,STAR,MR,Int>::Set( Int i, Int j, T u )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::Update( Int i, Int j, T u )
 {
 #ifndef RELEASE
@@ -421,7 +410,7 @@ DistMatrix<T,STAR,MR,Int>::Update( Int i, Int j, T u )
 //
 
 template<typename T,typename Int> 
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::SumOverCol()
 {
 #ifndef RELEASE
@@ -479,7 +468,7 @@ DistMatrix<T,STAR,MR,Int>::SumOverCol()
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
 { 
 #ifndef RELEASE
@@ -492,16 +481,16 @@ DistMatrix<T,STAR,MR,Int>::AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::TransposeFrom
 ( const DistMatrix<T,VR,STAR,Int>& A, bool conjugate )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR]::TransposeFrom");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSizeAsTranspose( A );
+        this->AssertSameSize( A.Width(), A.Height() );
 #endif
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
@@ -713,15 +702,15 @@ DistMatrix<T,STAR,MR,Int>::TransposeFrom
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [MC,MR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
 #ifdef CACHE_WARNINGS
@@ -992,15 +981,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [MC,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(false,true,0,this->RowAlignment(),g);
@@ -1014,15 +1003,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,MR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
@@ -1114,15 +1103,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [MD,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     throw std::logic_error("[* ,MR] = [MD,* ] not yet implemented");
 #ifndef RELEASE
@@ -1132,15 +1121,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,MD]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     throw std::logic_error("[* ,MR] = [* ,MD] not yet implemented");
 #ifndef RELEASE
@@ -1150,15 +1139,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [MR,MC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,STAR,VC,Int> > A_STAR_VC
@@ -1178,15 +1167,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [MR,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
@@ -1211,15 +1200,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,MC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,STAR,VC,Int> > A_STAR_VC
@@ -1244,15 +1233,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [VC,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(false,true,0,this->RowAlignment(),g);
@@ -1266,15 +1255,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,VC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VR,Int> A_STAR_VR(true,this->RowAlignment(),g);
@@ -1288,15 +1277,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [VR,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,VC,STAR,Int> > A_VC_STAR
@@ -1316,15 +1305,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
 { 
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,VR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
@@ -1503,15 +1492,15 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,STAR,MR,Int>&
+const DistMatrix<T,STAR,MR,Int>&
 DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MR] = [* ,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
@@ -1554,7 +1543,7 @@ DistMatrix<T,STAR,MR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 //
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 DistMatrix<T,STAR,MR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1584,7 +1573,7 @@ DistMatrix<T,STAR,MR,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 DistMatrix<T,STAR,MR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1614,7 +1603,7 @@ DistMatrix<T,STAR,MR,Int>::GetImagPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::SetRealPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1636,7 +1625,7 @@ DistMatrix<T,STAR,MR,Int>::SetRealPart
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::SetImagPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1661,7 +1650,7 @@ DistMatrix<T,STAR,MR,Int>::SetImagPart
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::UpdateRealPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1683,7 +1672,7 @@ DistMatrix<T,STAR,MR,Int>::UpdateRealPart
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,STAR,MR,Int>::UpdateImagPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1707,6 +1696,84 @@ DistMatrix<T,STAR,MR,Int>::UpdateImagPart
 #endif
 }
 
-} // namespace elem
+template class DistMatrix<int,STAR,MR,int>;
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,MC,  MR,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,MC,  STAR,int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,MD,  STAR,int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,MR,  MC,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,MR,  STAR,int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,MC,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,MD,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,MR,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,STAR,int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,VC,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,STAR,VR,  int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,VC,  STAR,int>& A );
+template DistMatrix<int,STAR,MR,int>::DistMatrix( const DistMatrix<int,VR,  STAR,int>& A );
 
-#endif // ifndef CORE_DISTMATRIX_STAR_MR_IMPL_HPP
+#ifndef DISABLE_FLOAT
+template class DistMatrix<float,STAR,MR,int>;
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,MC,  MR,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,MC,  STAR,int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,MD,  STAR,int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,MR,  MC,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,MR,  STAR,int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,MC,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,MD,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,MR,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,STAR,int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,VC,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,STAR,VR,  int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,VC,  STAR,int>& A );
+template DistMatrix<float,STAR,MR,int>::DistMatrix( const DistMatrix<float,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_FLOAT
+
+template class DistMatrix<double,STAR,MR,int>;
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,MC,  MR,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,MC,  STAR,int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,MD,  STAR,int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,MR,  MC,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,MR,  STAR,int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,MC,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,MD,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,MR,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,STAR,int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,VC,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,STAR,VR,  int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,VC,  STAR,int>& A );
+template DistMatrix<double,STAR,MR,int>::DistMatrix( const DistMatrix<double,VR,  STAR,int>& A );
+
+#ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+template class DistMatrix<Complex<float>,STAR,MR,int>;
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  MR,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  STAR,int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,MD,  STAR,int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  MC,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  STAR,int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MC,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MD,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MR,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,STAR,int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VC,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VR,  int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,VC,  STAR,int>& A );
+template DistMatrix<Complex<float>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<float>,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_FLOAT
+template class DistMatrix<Complex<double>,STAR,MR,int>;
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  MR,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  STAR,int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,MD,  STAR,int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  MC,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  STAR,int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MC,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MD,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MR,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,STAR,int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VC,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VR,  int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,VC,  STAR,int>& A );
+template DistMatrix<Complex<double>,STAR,MR,int>::DistMatrix( const DistMatrix<Complex<double>,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_COMPLEX
+
+} // namespace elem

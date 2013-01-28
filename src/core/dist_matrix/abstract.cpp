@@ -6,14 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef CORE_DISTMATRIX_ABSTRACT_IMPL_HPP
-#define CORE_DISTMATRIX_ABSTRACT_IMPL_HPP
+#include "elemental-lite.hpp"
 
 namespace elem {
 
 template<typename T,typename Int>
-inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
 ( Int height, Int width, 
   bool constrainedColAlignment, bool constrainedRowAlignment,
@@ -33,7 +30,6 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 { } 
 
 template<typename T,typename Int>
-inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
 ( Int height, Int width, 
   bool constrainedColAlignment, bool constrainedRowAlignment,
@@ -54,7 +50,6 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 { } 
 
 template<typename T,typename Int>
-inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
 ( Int height, Int width, 
   Int colAlignment, Int rowAlignment,
@@ -74,7 +69,6 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 { } 
 
 template<typename T,typename Int>
-inline
 AbstractDistMatrix<T,Int>::AbstractDistMatrix
 ( Int height, Int width, 
   Int colAlignment, Int rowAlignment,
@@ -94,13 +88,12 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 { } 
 
 template<typename T,typename Int>
-inline
 AbstractDistMatrix<T,Int>::~AbstractDistMatrix() 
 { }
 
 #ifndef RELEASE
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertNotLockedView() const
 {
     if( viewing_ && lockedView_ )
@@ -109,7 +102,7 @@ AbstractDistMatrix<T,Int>::AssertNotLockedView() const
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertNotStoringData() const
 {
     if( localMatrix_.MemorySize() > 0 )
@@ -118,7 +111,7 @@ AbstractDistMatrix<T,Int>::AssertNotStoringData() const
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertValidEntry
 ( Int i, Int j ) const
 {
@@ -131,29 +124,27 @@ AbstractDistMatrix<T,Int>::AssertValidEntry
     }
 }
 
-template<typename T,typename Int> 
-template<typename U>
+template<typename T,typename Int>
 inline void
 AbstractDistMatrix<T,Int>::AssertValidSubmatrix
-( const AbstractDistMatrix<U,Int>& A,
-  Int i, Int j, Int height, Int width ) const
+( Int i, Int j, Int height, Int width ) const
 {
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices of submatrix were negative");
     if( height < 0 || width < 0 )
         throw std::logic_error("Dimensions of submatrix were negative");
-    if( (i+height) > A.Height() || (j+width) > A.Width() )
+    if( (i+height) > Height() || (j+width) > Width() )
     {
         std::ostringstream msg;
         msg << "Submatrix is out of bounds: accessing up to (" << i+height-1
-            << "," << j+width-1 << ") of " << A.Height() << " x "
-            << A.Width() << " matrix.";
+            << "," << j+width-1 << ") of " << Height() << " x "
+            << Width() << " matrix.";
         throw std::logic_error( msg.str().c_str() );
     }
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertFreeColAlignment() const
 {
     if( constrainedColAlignment_ )
@@ -162,7 +153,7 @@ AbstractDistMatrix<T,Int>::AssertFreeColAlignment() const
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertFreeRowAlignment() const
 {
     if( constrainedRowAlignment_ )
@@ -170,43 +161,27 @@ AbstractDistMatrix<T,Int>::AssertFreeRowAlignment() const
 }
 
 template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertSameGrid
-( const AbstractDistMatrix<U,Int>& A ) const
+void
+AbstractDistMatrix<T,Int>::AssertSameGrid( const elem::Grid& grid ) const
 {
-    if( Grid() != A.Grid() )
+    if( Grid() != grid )
         throw std::logic_error("Assertion that grids match failed");
 }
 
 template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertSameSize
-( const AbstractDistMatrix<U,Int>& A ) const
+void
+AbstractDistMatrix<T,Int>::AssertSameSize( int height, int width ) const
 {
-    if( Height() != A.Height() || Width() != A.Width() )
+    if( Height() != height || Width() != width )
         throw std::logic_error
         ("Assertion that matrices be the same size failed");
 }
 
 template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertSameSizeAsTranspose
-( const AbstractDistMatrix<U,Int>& A ) const
-{
-    if( Height() != A.Width() || Width() != A.Height() )
-        throw std::logic_error
-        ("Assertion that matrices be the same size (after trans.) failed");
-}
-
-template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertConforming1x2
-( const AbstractDistMatrix<U,Int>& AL, 
-  const AbstractDistMatrix<U,Int>& AR ) const
+void
+AssertConforming1x2
+( const AbstractDistMatrix<T,Int>& AL, 
+  const AbstractDistMatrix<T,Int>& AR )
 {
     if( AL.Height() != AR.Height() )    
     {
@@ -221,11 +196,10 @@ AbstractDistMatrix<T,Int>::AssertConforming1x2
 }
 
 template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertConforming2x1
-( const AbstractDistMatrix<U,Int>& AT,
-  const AbstractDistMatrix<U,Int>& AB ) const
+void
+AssertConforming2x1
+( const AbstractDistMatrix<T,Int>& AT,
+  const AbstractDistMatrix<T,Int>& AB )
 {
     if( AT.Width() != AB.Width() )
     {
@@ -240,13 +214,12 @@ AbstractDistMatrix<T,Int>::AssertConforming2x1
 }
 
 template<typename T,typename Int> 
-template<typename U>
-inline void
-AbstractDistMatrix<T,Int>::AssertConforming2x2
-( const AbstractDistMatrix<U,Int>& ATL, 
-  const AbstractDistMatrix<U,Int>& ATR,
-  const AbstractDistMatrix<U,Int>& ABL, 
-  const AbstractDistMatrix<U,Int>& ABR ) const
+void
+AssertConforming2x2
+( const AbstractDistMatrix<T,Int>& ATL, 
+  const AbstractDistMatrix<T,Int>& ATR,
+  const AbstractDistMatrix<T,Int>& ABL, 
+  const AbstractDistMatrix<T,Int>& ABR ) 
 {
     if( ATL.Width() != ABL.Width() || ATR.Width() != ABR.Width() ||
         ATL.Height() != ATR.Height() || ABL.Height() != ABR.Height() )
@@ -269,7 +242,7 @@ AbstractDistMatrix<T,Int>::AssertConforming2x2
 #endif // RELEASE
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
 { 
 #ifndef RELEASE
@@ -289,7 +262,7 @@ AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignCols( Int colAlignment )
 { 
 #ifndef RELEASE
@@ -306,7 +279,7 @@ AbstractDistMatrix<T,Int>::AlignCols( Int colAlignment )
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignRows( Int rowAlignment )
 { 
 #ifndef RELEASE
@@ -323,17 +296,17 @@ AbstractDistMatrix<T,Int>::AlignRows( Int rowAlignment )
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignWith( const elem::DistData<Int>& data )
 { SetGrid( *data.grid ); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
 { AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignColsWith( const elem::DistData<Int>& data )
 { 
     EmptyData(); 
@@ -343,12 +316,12 @@ AbstractDistMatrix<T,Int>::AlignColsWith( const elem::DistData<Int>& data )
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
 { AlignColsWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignRowsWith( const elem::DistData<Int>& data )
 { 
     EmptyData(); 
@@ -358,37 +331,37 @@ AbstractDistMatrix<T,Int>::AlignRowsWith( const elem::DistData<Int>& data )
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
 { AlignRowsWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline bool
+bool
 AbstractDistMatrix<T,Int>::Viewing() const
 { return viewing_; }
 
 template<typename T,typename Int>
-inline bool
+bool
 AbstractDistMatrix<T,Int>::LockedView() const
 { return lockedView_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::Height() const
 { return height_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::Width() const
 { return width_; }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::FreeAlignments() 
 { 
     constrainedColAlignment_ = false;
@@ -396,62 +369,62 @@ AbstractDistMatrix<T,Int>::FreeAlignments()
 }
     
 template<typename T,typename Int>
-inline bool
+bool
 AbstractDistMatrix<T,Int>::ConstrainedColAlignment() const
 { return constrainedColAlignment_; }
 
 template<typename T,typename Int>
-inline bool
+bool
 AbstractDistMatrix<T,Int>::ConstrainedRowAlignment() const
 { return constrainedRowAlignment_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::ColAlignment() const
 { return colAlignment_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::RowAlignment() const
 { return rowAlignment_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::ColShift() const
 { return colShift_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::RowShift() const
 { return rowShift_; }
 
 template<typename T,typename Int>
-inline const elem::Grid&
+const elem::Grid&
 AbstractDistMatrix<T,Int>::Grid() const
 { return *grid_; }
 
 template<typename T,typename Int>
-inline size_t
+size_t
 AbstractDistMatrix<T,Int>::AllocatedMemory() const
 { return localMatrix_.MemorySize(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::LocalHeight() const
 { return localMatrix_.Height(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::LocalWidth() const
 { return localMatrix_.Width(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 AbstractDistMatrix<T,Int>::LocalLDim() const
 { return localMatrix_.LDim(); }
 
 template<typename T,typename Int>
-inline T
+T
 AbstractDistMatrix<T,Int>::GetLocal( Int i, Int j ) const
 { return localMatrix_.Get(i,j); }
 
@@ -466,29 +439,29 @@ AbstractDistMatrix<T,Int>::UpdateLocal( Int iLocal, Int jLocal, T alpha )
 { localMatrix_.Update(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
-inline T*
+T*
 AbstractDistMatrix<T,Int>::LocalBuffer
 ( Int iLocal, Int jLocal )
 { return localMatrix_.Buffer(iLocal,jLocal); }
 
 template<typename T,typename Int>
-inline const T*
+const T*
 AbstractDistMatrix<T,Int>::LockedLocalBuffer
 ( Int iLocal, Int jLocal ) const
 { return localMatrix_.LockedBuffer(iLocal,jLocal); }
 
 template<typename T,typename Int>
-inline Matrix<T,Int>&
+Matrix<T,Int>&
 AbstractDistMatrix<T,Int>::LocalMatrix()
 { return localMatrix_; }
 
 template<typename T,typename Int>
-inline const Matrix<T,Int>&
+const Matrix<T,Int>&
 AbstractDistMatrix<T,Int>::LockedLocalMatrix() const
 { return localMatrix_; }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::Empty()
 {
     localMatrix_.Empty();
@@ -503,7 +476,7 @@ AbstractDistMatrix<T,Int>::Empty()
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
     localMatrix_.Empty();
@@ -514,23 +487,23 @@ AbstractDistMatrix<T,Int>::EmptyData()
 }
 
 template<typename T,typename Int>
-inline bool
+bool
 AbstractDistMatrix<T,Int>::Participating() const
 { return grid_->InGrid(); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::Print( const std::string msg ) const
 { PrintBase( std::cout, msg ); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::Print
 ( std::ostream& os, const std::string msg ) const
 { PrintBase( os, msg ); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::Write
 ( const std::string filename, const std::string msg ) const
 {
@@ -562,41 +535,41 @@ AbstractDistMatrix<T,Int>::Write
 //
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
 { return localMatrix_.GetRealPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
 { return localMatrix_.GetImagPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::SetLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { localMatrix_.SetRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::SetLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { localMatrix_.SetImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::UpdateLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { localMatrix_.UpdateRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::UpdateLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
 { localMatrix_.UpdateImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::SetShifts()
 {
     if( Participating() )
@@ -612,7 +585,7 @@ AbstractDistMatrix<T,Int>::SetShifts()
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
 {
     Empty();
@@ -620,6 +593,54 @@ AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
     SetShifts();
 }
 
-} // namespace elem
+template class AbstractDistMatrix<int,int>;
+#ifndef DISABLE_FLOAT
+template class AbstractDistMatrix<float,int>;
+#endif // ifndef DISABLE_FLOAT
+template class AbstractDistMatrix<double,int>;
+#ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+template class AbstractDistMatrix<Complex<float>,int>;
+#endif // ifndef DISABLE_FLOAT
+template class AbstractDistMatrix<Complex<double>,int>;
+#endif // ifndef DISABLE_COMPLEX
 
-#endif // ifndef CORE_DISTMATRIX_ABSTRACT_IMPL_HPP
+#ifndef RELEASE
+template void AssertConforming1x2( const AbstractDistMatrix<int,int>& AL, const AbstractDistMatrix<int,int>& AR );
+template void AssertConforming2x1( const AbstractDistMatrix<int,int>& AT, const AbstractDistMatrix<int,int>& AB );
+template void AssertConforming2x2
+( const AbstractDistMatrix<int,int>& ATL, const AbstractDistMatrix<int,int>& ATR,
+  const AbstractDistMatrix<int,int>& ABL, const AbstractDistMatrix<int,int>& ABR );
+
+#ifndef DISABLE_FLOAT
+template void AssertConforming1x2( const AbstractDistMatrix<float,int>& AL, const AbstractDistMatrix<float,int>& AR );
+template void AssertConforming2x1( const AbstractDistMatrix<float,int>& AT, const AbstractDistMatrix<float,int>& AB );
+template void AssertConforming2x2
+( const AbstractDistMatrix<float,int>& ATL, const AbstractDistMatrix<float,int>& ATR,
+  const AbstractDistMatrix<float,int>& ABL, const AbstractDistMatrix<float,int>& ABR );
+#endif // ifndef DISABLE_FLOAT
+
+template void AssertConforming1x2( const AbstractDistMatrix<double,int>& AL, const AbstractDistMatrix<double,int>& AR );
+template void AssertConforming2x1( const AbstractDistMatrix<double,int>& AT, const AbstractDistMatrix<double,int>& AB );
+template void AssertConforming2x2
+( const AbstractDistMatrix<double,int>& ATL, const AbstractDistMatrix<double,int>& ATR,
+  const AbstractDistMatrix<double,int>& ABL, const AbstractDistMatrix<double,int>& ABR );
+
+#ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+template void AssertConforming1x2( const AbstractDistMatrix<Complex<float>,int>& AL, const AbstractDistMatrix<Complex<float>,int>& AR );
+template void AssertConforming2x1( const AbstractDistMatrix<Complex<float>,int>& AT, const AbstractDistMatrix<Complex<float>,int>& AB );
+template void AssertConforming2x2
+( const AbstractDistMatrix<Complex<float>,int>& ATL, const AbstractDistMatrix<Complex<float>,int>& ATR,
+  const AbstractDistMatrix<Complex<float>,int>& ABL, const AbstractDistMatrix<Complex<float>,int>& ABR );
+#endif // ifndef DISABLE_FLOAT
+
+template void AssertConforming1x2( const AbstractDistMatrix<Complex<double>,int>& AL, const AbstractDistMatrix<Complex<double>,int>& AR );
+template void AssertConforming2x1( const AbstractDistMatrix<Complex<double>,int>& AT, const AbstractDistMatrix<Complex<double>,int>& AB );
+template void AssertConforming2x2
+( const AbstractDistMatrix<Complex<double>,int>& ATL, const AbstractDistMatrix<Complex<double>,int>& ATR,
+  const AbstractDistMatrix<Complex<double>,int>& ABL, const AbstractDistMatrix<Complex<double>,int>& ABR );
+#endif // ifndef DISABLE_COMPLEX
+#endif // ifndef RELEASE
+
+} // namespace elem

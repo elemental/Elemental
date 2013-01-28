@@ -59,10 +59,10 @@
 #include "elemental/core/matrix_forward_decl.hpp"
 #include "elemental/core/dist_matrix_forward_decl.hpp"
 #include "elemental/core/view_decl.hpp"
-#include "elemental/core/matrix_decl.hpp"
+#include "elemental/core/matrix.hpp"
 #include "elemental/core/imports/mpi.hpp"
 #include "elemental/core/grid_decl.hpp"
-#include "elemental/core/dist_matrix_decl.hpp"
+#include "elemental/core/dist_matrix.hpp"
 #include "elemental/core/environment_decl.hpp"
 #include "elemental/core/indexing_decl.hpp"
 
@@ -81,9 +81,7 @@
 #include "elemental/core/memory_impl.hpp"
 #include "elemental/core/complex_impl.hpp"
 #include "elemental/core/types_impl.hpp"
-#include "elemental/core/matrix_impl.hpp"
 #include "elemental/core/grid_impl.hpp"
-#include "elemental/core/dist_matrix_impl.hpp"
 #include "elemental/core/environment_impl.hpp"
 #include "elemental/core/indexing_impl.hpp"
 

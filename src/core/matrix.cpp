@@ -6,9 +6,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef CORE_MATRIX_IMPL_HPP
-#define CORE_MATRIX_IMPL_HPP
+#include "elemental-lite.hpp"
 
 namespace elem {
 
@@ -17,7 +15,6 @@ namespace elem {
 //
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::Matrix()
 : viewing_(false), lockedView_(false),
   height_(0), width_(0), ldim_(1), data_(0), lockedData_(0),
@@ -25,7 +22,6 @@ Matrix<T,Int>::Matrix()
 { }
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::Matrix( Int height, Int width )
 : viewing_(false), lockedView_(false),
   height_(height), width_(width), ldim_(std::max(height,1)), lockedData_(0)
@@ -43,7 +39,6 @@ Matrix<T,Int>::Matrix( Int height, Int width )
 }
 
 template<typename T,typename Int>
-inline 
 Matrix<T,Int>::Matrix
 ( Int height, Int width, Int ldim )
 : viewing_(false), lockedView_(false),
@@ -72,7 +67,6 @@ Matrix<T,Int>::Matrix
 }
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim )
 : viewing_(true), lockedView_(true),
@@ -97,7 +91,6 @@ Matrix<T,Int>::Matrix
 }
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::Matrix
 ( Int height, Int width, T* buffer, Int ldim )
 : viewing_(true), lockedView_(false),
@@ -122,7 +115,6 @@ Matrix<T,Int>::Matrix
 }
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::Matrix
 ( const Matrix<T,Int>& A )
 : viewing_(false), lockedView_(false), 
@@ -146,7 +138,6 @@ Matrix<T,Int>::Matrix
 //
 
 template<typename T,typename Int>
-inline
 Matrix<T,Int>::~Matrix()
 { }
 
@@ -155,32 +146,32 @@ Matrix<T,Int>::~Matrix()
 //
 
 template<typename T,typename Int>
-inline Int 
+Int 
 Matrix<T,Int>::Height() const
 { return height_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 Matrix<T,Int>::Width() const
 { return width_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 Matrix<T,Int>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
 template<typename T,typename Int>
-inline Int
+Int
 Matrix<T,Int>::LDim() const
 { return ldim_; }
 
 template<typename T,typename Int>
-inline Int
+Int
 Matrix<T,Int>::MemorySize() const
 { return memory_.Size(); }
 
 template<typename T,typename Int>
-inline T*
+T*
 Matrix<T,Int>::Buffer()
 {
 #ifndef RELEASE
@@ -194,7 +185,7 @@ Matrix<T,Int>::Buffer()
 }
 
 template<typename T,typename Int>
-inline const T*
+const T*
 Matrix<T,Int>::LockedBuffer() const
 {
     if( lockedView_ )
@@ -204,7 +195,7 @@ Matrix<T,Int>::LockedBuffer() const
 }
 
 template<typename T,typename Int>
-inline T*
+T*
 Matrix<T,Int>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
@@ -220,7 +211,7 @@ Matrix<T,Int>::Buffer( Int i, Int j )
 }
 
 template<typename T,typename Int>
-inline const T*
+const T*
 Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -240,7 +231,7 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 //
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
 {
 #ifndef RELEASE
@@ -265,7 +256,7 @@ Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Print( const std::string msg ) const
 { Print( std::cout, msg ); }
 
@@ -274,7 +265,7 @@ Matrix<T,Int>::Print( const std::string msg ) const
 //
 
 template<typename T,typename Int>
-inline T
+T
 Matrix<T,Int>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -289,7 +280,7 @@ Matrix<T,Int>::Get( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Set( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
@@ -305,7 +296,7 @@ Matrix<T,Int>::Set( Int i, Int j, T alpha )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Update( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
@@ -321,7 +312,7 @@ Matrix<T,Int>::Update( Int i, Int j, T alpha )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
 { 
 #ifndef RELEASE
@@ -347,7 +338,7 @@ Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
@@ -368,7 +359,7 @@ Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
@@ -389,7 +380,7 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 }
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -404,7 +395,7 @@ Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -419,14 +410,14 @@ Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::SetRealPart
 ( Int i, Int j, typename Base<T>::type alpha )
 { SetRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::SetRealPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
@@ -442,7 +433,7 @@ Matrix<T,Int>::SetRealPartHelper<Z>::Func
     
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
@@ -458,14 +449,14 @@ Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::SetImagPart
 ( Int i, Int j, typename Base<T>::type alpha ) 
 { SetImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::SetImagPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
@@ -477,7 +468,7 @@ Matrix<T,Int>::SetImagPartHelper<Z>::Func
     
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha ) 
 {
@@ -493,14 +484,14 @@ Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::UpdateRealPart
 ( Int i, Int j, typename Base<T>::type alpha )
 { UpdateRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
@@ -516,7 +507,7 @@ Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
     
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
@@ -532,14 +523,14 @@ Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::UpdateImagPart
 ( Int i, Int j, typename Base<T>::type alpha ) 
 { UpdateImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
@@ -551,7 +542,7 @@ Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
     
 template<typename T,typename Int>
 template<typename Z>
-inline void
+void
 Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
@@ -567,7 +558,7 @@ Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::GetRealPartOfDiagonal
 ( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
@@ -594,7 +585,7 @@ Matrix<T,Int>::GetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::GetImagPartOfDiagonal
 ( Matrix<typename Base<T>::type>& d, Int offset ) const
 { 
@@ -621,7 +612,7 @@ Matrix<T,Int>::GetImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::SetRealPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
@@ -643,7 +634,7 @@ Matrix<T,Int>::SetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::SetImagPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
@@ -668,7 +659,7 @@ Matrix<T,Int>::SetImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::UpdateRealPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
@@ -690,7 +681,7 @@ Matrix<T,Int>::UpdateRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::UpdateImagPartOfDiagonal
 ( const Matrix<typename Base<T>::type>& d, Int offset )
 { 
@@ -715,7 +706,7 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Attach
 ( Int height, Int width, T* buffer, Int ldim )
 {
@@ -736,7 +727,7 @@ Matrix<T,Int>::Attach
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::LockedAttach
 ( Int height, Int width, const T* buffer, Int ldim )
 {
@@ -761,12 +752,12 @@ Matrix<T,Int>::LockedAttach
 //
 
 template<typename T,typename Int>
-inline bool
+bool
 Matrix<T,Int>::Viewing() const
 { return viewing_; }
 
 template<typename T,typename Int>
-inline bool
+bool
 Matrix<T,Int>::LockedView() const
 { return lockedView_; }
 
@@ -775,7 +766,7 @@ Matrix<T,Int>::LockedView() const
 //
 
 template<typename T,typename Int>
-inline const Matrix<T,Int>&
+const Matrix<T,Int>&
 Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
@@ -806,7 +797,7 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::Empty()
 {
     memory_.Empty();
@@ -820,7 +811,7 @@ Matrix<T,Int>::Empty()
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
@@ -847,7 +838,7 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
@@ -875,7 +866,7 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 }
 
 template<typename T,typename Int>
-inline void
+void
 Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -896,6 +887,16 @@ Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
 #endif
 }
 
-} // namespace elem
+template class Matrix<int,int>;
+#ifndef DISABLE_FLOAT
+template class Matrix<float,int>;
+#endif // ifndef DISABLE_FLOAT
+template class Matrix<double,int>;
+#ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+template class Matrix<Complex<float>,int>;
+#endif // ifndef DISABLE_FLOAT
+template class Matrix<Complex<double>,int>;
+#endif // ifndef DISABLE_COMPLEX
 
-#endif // ifndef CORE_MATRIX_IMPL_HPP
+} // namespace elem

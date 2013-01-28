@@ -168,7 +168,7 @@ inline void View
 {
 #ifndef RELEASE
     PushCallStack("View");
-    B.AssertValidSubmatrix( B, i, j, height, width );
+    B.AssertValidSubmatrix( i, j, height, width );
 #endif
     A.Empty();
 
@@ -252,7 +252,7 @@ inline void LockedView
 {
 #ifndef RELEASE
     PushCallStack("LockedView");
-    B.AssertValidSubmatrix( B, i, j, height, width );
+    B.AssertValidSubmatrix( i, j, height, width );
 #endif
     A.Empty();
 
@@ -330,8 +330,8 @@ inline void View1x2
 {
 #ifndef RELEASE
     PushCallStack("View1x2");
-    A.AssertConforming1x2( BL, BR );
-    BL.AssertSameGrid( BR );
+    AssertConforming1x2( BL, BR );
+    BL.AssertSameGrid( BR.Grid() );
 #endif
     A.Empty();
     A.grid_ = BL.grid_;
@@ -392,8 +392,8 @@ inline void LockedView1x2
 {
 #ifndef RELEASE
     PushCallStack("LockedView1x2");
-    A.AssertConforming1x2( BL, BR );
-    BL.AssertSameGrid( BR );
+    AssertConforming1x2( BL, BR );
+    BL.AssertSameGrid( BR.Grid() );
 #endif
     A.Empty();
     A.grid_ = BL.grid_;
@@ -456,8 +456,8 @@ inline void View2x1
 {
 #ifndef RELEASE
     PushCallStack("View2x1");
-    A.AssertConforming2x1( BT, BB );
-    BT.AssertSameGrid( BB );
+    AssertConforming2x1( BT, BB );
+    BT.AssertSameGrid( BB.Grid() );
 #endif
     A.Empty();
     A.grid_ = BT.grid_;
@@ -518,8 +518,8 @@ inline void LockedView2x1
 {
 #ifndef RELEASE
     PushCallStack("LockedView2x1");
-    A.AssertConforming2x1( BT, BB );
-    BT.AssertSameGrid( BB );
+    AssertConforming2x1( BT, BB );
+    BT.AssertSameGrid( BB.Grid() );
 #endif
     A.Empty();
     A.grid_ = BT.grid_;
@@ -589,10 +589,10 @@ inline void View2x2
 {
 #ifndef RELEASE
     PushCallStack("View2x2");
-    A.AssertConforming2x2( BTL, BTR, BBL, BBR );
-    BTL.AssertSameGrid( BTR );
-    BTL.AssertSameGrid( BBL );
-    BTL.AssertSameGrid( BBR );
+    AssertConforming2x2( BTL, BTR, BBL, BBR );
+    BTL.AssertSameGrid( BTR.Grid() );
+    BTL.AssertSameGrid( BBL.Grid() );
+    BTL.AssertSameGrid( BBR.Grid() );
 #endif
     A.Empty();
     A.grid_ = BTL.grid_;
@@ -666,10 +666,10 @@ inline void LockedView2x2
 {
 #ifndef RELEASE
     PushCallStack("LockedView2x2");
-    A.AssertConforming2x2( BTL, BTR, BBL, BBR );
-    BTL.AssertSameGrid( BTR );
-    BTL.AssertSameGrid( BBL );
-    BTL.AssertSameGrid( BBR );
+    AssertConforming2x2( BTL, BTR, BBL, BBR );
+    BTL.AssertSameGrid( BTR.Grid() );
+    BTL.AssertSameGrid( BBL.Grid() );
+    BTL.AssertSameGrid( BBR.Grid() );
 #endif
     A.Empty();
     A.grid_ = BTL.grid_;

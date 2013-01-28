@@ -12,6 +12,22 @@
 
 namespace elem {
 
+#ifndef RELEASE
+template<typename T,typename Int>
+void AssertConforming1x2
+( const AbstractDistMatrix<T,Int>& AL, const AbstractDistMatrix<T,Int>& AR );
+
+template<typename T,typename Int>
+void AssertConforming2x1
+( const AbstractDistMatrix<T,Int>& AT,
+  const AbstractDistMatrix<T,Int>& AB );
+
+template<typename T,typename Int>
+void AssertConforming2x2
+( const AbstractDistMatrix<T,Int>& ATL, const AbstractDistMatrix<T,Int>& ATR,
+  const AbstractDistMatrix<T,Int>& ABL, const AbstractDistMatrix<T,Int>& ABR );
+#endif // ifndef RELEASE
+
 template<typename T,typename Int> 
 class AbstractDistMatrix
 {
@@ -24,45 +40,13 @@ public:
 
 #ifndef RELEASE
     void AssertNotLockedView() const;
-
     void AssertNotStoringData() const;
-
     void AssertValidEntry( Int i, Int j ) const;
-
-    template<typename U>
-    void AssertValidSubmatrix
-    ( const AbstractDistMatrix<U,Int>& A, 
-      Int i, Int j, Int height, Int width ) const;
-
+    void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
     void AssertFreeColAlignment() const;
     void AssertFreeRowAlignment() const;
-
-    template<typename U>
-    void AssertSameGrid( const AbstractDistMatrix<U,Int>& A ) const;
-
-    template<typename U>
-    void AssertSameSize( const AbstractDistMatrix<U,Int>& A ) const;
-
-    template<typename U>
-    void AssertSameSizeAsTranspose
-    ( const AbstractDistMatrix<U,Int>& A ) const;
-
-    template<typename U>
-    void AssertConforming1x2
-    ( const AbstractDistMatrix<U,Int>& AL, 
-      const AbstractDistMatrix<U,Int>& AR ) const;
-
-    template<typename U>
-    void AssertConforming2x1
-    ( const AbstractDistMatrix<U,Int>& AT,
-      const AbstractDistMatrix<U,Int>& AB ) const;
-
-    template<typename U>
-    void AssertConforming2x2
-    ( const AbstractDistMatrix<U,Int>& ATL, 
-      const AbstractDistMatrix<U,Int>& ATR,
-      const AbstractDistMatrix<U,Int>& ABL, 
-      const AbstractDistMatrix<U,Int>& ABR ) const;
+    void AssertSameGrid( const elem::Grid& grid ) const;
+    void AssertSameSize( int height, int width ) const;
 #endif // ifndef RELEASE
 
     //

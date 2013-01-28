@@ -6,14 +6,11 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#pragma once
-#ifndef CORE_DISTMATRIX_MC_STAR_IMPL_HPP
-#define CORE_DISTMATRIX_MC_STAR_IMPL_HPP
+#include "elemental-lite.hpp"
 
 namespace elem {
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix( const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
   (0,0,false,false,0,0,
@@ -22,7 +19,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix( const elem::Grid& g )
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
@@ -33,7 +29,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( bool constrainedColAlignment, Int colAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
@@ -43,7 +38,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
   const elem::Grid& g )
@@ -55,7 +49,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
   Int ldim, const elem::Grid& g )
@@ -67,7 +60,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, const T* buffer, Int ldim,
   const elem::Grid& g )
@@ -79,7 +71,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, T* buffer, Int ldim,
   const elem::Grid& g )
@@ -92,7 +83,6 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
-inline
 DistMatrix<T,MC,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 : AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
   (A.Participating() ? A.ColRank() : 0),0,
@@ -112,12 +102,11 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 }
 
 template<typename T,typename Int>
-inline
 DistMatrix<T,MC,STAR,Int>::~DistMatrix()
 { }
 
 template<typename T,typename Int>
-inline elem::DistData<Int>
+elem::DistData<Int>
 DistMatrix<T,MC,STAR,Int>::DistData() const
 {
     elem::DistData<Int> data;
@@ -131,27 +120,27 @@ DistMatrix<T,MC,STAR,Int>::DistData() const
 }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,MC,STAR,Int>::ColStride() const
 { return this->grid_->Height(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,MC,STAR,Int>::RowStride() const
 { return 1; }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,MC,STAR,Int>::ColRank() const
 { return this->grid_->Row(); }
 
 template<typename T,typename Int>
-inline Int
+Int
 DistMatrix<T,MC,STAR,Int>::RowRank() const
 { return 0; }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
@@ -180,22 +169,22 @@ DistMatrix<T,MC,STAR,Int>::AlignWith( const elem::DistData<Int>& data )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
 { this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignColsWith( const elem::DistData<Int>& data )
 { this->AlignWith( data ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
 { this->AlignWith( A.DistData() ); }
 
 template<typename T,typename Int>
-inline bool
+bool
 DistMatrix<T,MC,STAR,Int>::AlignedWithDiagonal
 ( const elem::DistData<Int>& data, Int offset ) const
 {
@@ -236,13 +225,13 @@ DistMatrix<T,MC,STAR,Int>::AlignedWithDiagonal
 }
 
 template<typename T,typename Int>
-inline bool
+bool
 DistMatrix<T,MC,STAR,Int>::AlignedWithDiagonal
 ( const AbstractDistMatrix<T,Int>& A, Int offset ) const
 { return this->AlignedWithDiagonal( A.DistData(), offset ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignWithDiagonal
 ( const elem::DistData<Int>& data, Int offset )
 {
@@ -278,13 +267,13 @@ DistMatrix<T,MC,STAR,Int>::AlignWithDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::AlignWithDiagonal
 ( const AbstractDistMatrix<T,Int>& A, Int offset )
 { this->AlignWithDiagonal( A.DistData(), offset ); }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::PrintBase
 ( std::ostream& os, const std::string msg ) const
 {
@@ -355,7 +344,7 @@ DistMatrix<T,MC,STAR,Int>::PrintBase
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::Attach
 ( Int height, Int width, Int colAlignment,
   T* buffer, Int ldim, const elem::Grid& g )
@@ -384,7 +373,7 @@ DistMatrix<T,MC,STAR,Int>::Attach
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::LockedAttach
 ( Int height, Int width, Int colAlignment,
   const T* buffer, Int ldim, const elem::Grid& g )
@@ -414,7 +403,7 @@ DistMatrix<T,MC,STAR,Int>::LockedAttach
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
@@ -434,7 +423,7 @@ DistMatrix<T,MC,STAR,Int>::ResizeTo( Int height, Int width )
 }
 
 template<typename T,typename Int>
-inline T DistMatrix<T,MC,STAR,Int>::Get( Int i, Int j ) const
+T DistMatrix<T,MC,STAR,Int>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::Get");
@@ -461,7 +450,7 @@ inline T DistMatrix<T,MC,STAR,Int>::Get( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void DistMatrix<T,MC,STAR,Int>::Set( Int i, Int j, T u )
+void DistMatrix<T,MC,STAR,Int>::Set( Int i, Int j, T u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::Set");
@@ -481,7 +470,7 @@ inline void DistMatrix<T,MC,STAR,Int>::Set( Int i, Int j, T u )
 }
 
 template<typename T,typename Int>
-inline void DistMatrix<T,MC,STAR,Int>::Update( Int i, Int j, T u )
+void DistMatrix<T,MC,STAR,Int>::Update( Int i, Int j, T u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::Update");
@@ -501,14 +490,14 @@ inline void DistMatrix<T,MC,STAR,Int>::Update( Int i, Int j, T u )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetDiagonal
 ( DistMatrix<T,MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetDiagonal");
     if( d.Viewing() )
-        this->AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -577,14 +566,14 @@ DistMatrix<T,MC,STAR,Int>::GetDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetDiagonal
 ( DistMatrix<T,STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetDiagonal");
     if( d.Viewing() )
-        this->AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int diagLength = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -654,13 +643,13 @@ DistMatrix<T,MC,STAR,Int>::GetDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetDiagonal
 ( const DistMatrix<T,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetDiagonal");
-    this->AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     const Int diagLength = this->DiagonalLength(offset);
@@ -721,13 +710,13 @@ DistMatrix<T,MC,STAR,Int>::SetDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetDiagonal
 ( const DistMatrix<T,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetDiagonal");
-    this->AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     const Int diagLength = this->DiagonalLength(offset);
@@ -793,7 +782,7 @@ DistMatrix<T,MC,STAR,Int>::SetDiagonal
 //
 
 template<typename T,typename Int>
-inline void DistMatrix<T,MC,STAR,Int>::SumOverRow()
+void DistMatrix<T,MC,STAR,Int>::SumOverRow()
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SumOverRow");
@@ -850,15 +839,15 @@ inline void DistMatrix<T,MC,STAR,Int>::SumOverRow()
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MC,MR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
@@ -1078,15 +1067,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MC,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
@@ -1178,15 +1167,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(true,false,this->ColAlignment(),0,g);
@@ -1200,15 +1189,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MD,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     throw std::logic_error("[MC,* ] = [MD,* ] not yet implemented");
 #ifndef RELEASE
@@ -1218,15 +1207,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MD]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     throw std::logic_error("[MC,* ] = [* ,MD] not yet implemented");
 #ifndef RELEASE
@@ -1236,15 +1225,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MR,MC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
@@ -1264,15 +1253,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [MR,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,VR,STAR,Int> > A_VR_STAR
@@ -1292,15 +1281,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,MC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,MR,MC,Int> > 
@@ -1325,15 +1314,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [VC,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
 #ifdef VECTOR_WARNINGS
@@ -1533,15 +1522,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,VC]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     std::auto_ptr<DistMatrix<T,STAR,VR,Int> > 
@@ -1562,15 +1551,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [VR,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,VC,STAR,Int> A_VC_STAR(true,this->ColAlignment(),g);
@@ -1584,15 +1573,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,VR]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR,Int> A_MC_MR(true,false,this->ColAlignment(),0,g);
@@ -1606,15 +1595,15 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
 }
 
 template<typename T,typename Int>
-inline const DistMatrix<T,MC,STAR,Int>&
+const DistMatrix<T,MC,STAR,Int>&
 DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ] = [* ,* ]");
     this->AssertNotLockedView();
-    this->AssertSameGrid( A );
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
-        this->AssertSameSize( A );
+        this->AssertSameSize( A.Height(), A.Width() );
 #endif
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
@@ -1650,7 +1639,7 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 //
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1680,7 +1669,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline typename Base<T>::type
+typename Base<T>::type
 DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1710,7 +1699,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
@@ -1729,7 +1718,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 {
 #ifndef RELEASE
@@ -1751,7 +1740,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::UpdateRealPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1771,7 +1760,7 @@ DistMatrix<T,MC,STAR,Int>::UpdateRealPart
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::UpdateImagPart
 ( Int i, Int j, typename Base<T>::type u )
 {
@@ -1794,14 +1783,14 @@ DistMatrix<T,MC,STAR,Int>::UpdateImagPart
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -1815,7 +1804,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
+        !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
     typedef typename Base<T>::type R;
@@ -1825,7 +1814,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiagonal( *this, offset );
+            d.AlignWithDiagonal( this->DistData(), offset );
         d.ResizeTo( length, 1 );
     }
 
@@ -1868,14 +1857,14 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int length = this->DiagonalLength( offset );
 #ifndef RELEASE
@@ -1889,7 +1878,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedColAlignment() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
+        !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
     typedef typename Base<T>::type R;
@@ -1899,7 +1888,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiagonal( *this, offset );
+            d.AlignWithDiagonal( this->DistData(), offset );
         d.ResizeTo( length, 1 );
     }
 
@@ -1942,14 +1931,14 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int length = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -1963,7 +1952,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
+        !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
     typedef typename Base<T>::type R;
@@ -1973,7 +1962,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiagonal( *this, offset );
+            d.AlignWithDiagonal( this->DistData(), offset );
         d.ResizeTo( 1, length );
     }
 
@@ -2017,14 +2006,14 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 ( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
     if( d.Viewing() )
-        AssertSameGrid( d );
+        this->AssertSameGrid( d.Grid() );
 #endif
     const Int length = this->DiagonalLength(offset);
 #ifndef RELEASE
@@ -2038,7 +2027,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
     if( ( d.Viewing() || d.ConstrainedRowAlignment() ) &&
-        !d.AlignedWithDiagonal( *this, offset ) )
+        !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
     typedef typename Base<T>::type R;
@@ -2048,7 +2037,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiagonal( *this, offset );
+            d.AlignWithDiagonal( this->DistData(), offset );
         d.ResizeTo( 1, length );
     }
 
@@ -2092,13 +2081,13 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     const Int length = this->DiagonalLength(offset);
@@ -2111,7 +2100,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
             << "  A diag length: " << length << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiagonal( *this, offset ) )
+    if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     typedef typename Base<T>::type R;
@@ -2154,13 +2143,13 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Width() != 1 )
         throw std::logic_error("d must be a column vector");
     const Int length = this->DiagonalLength(offset);
@@ -2173,7 +2162,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
             << "  A diag length: " << length << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiagonal( *this, offset ) )
+    if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     typedef typename Base<T>::type R;
@@ -2216,13 +2205,13 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     const Int length = this->DiagonalLength(offset);
@@ -2235,7 +2224,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
             << "  A diag length: " << length << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiagonal( *this, offset ) )
+    if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     typedef typename Base<T>::type R;
@@ -2280,13 +2269,13 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 }
 
 template<typename T,typename Int>
-inline void
+void
 DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 ( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
-    AssertSameGrid( d );
+    this->AssertSameGrid( d.Grid() );
     if( d.Height() != 1 )
         throw std::logic_error("d must be a row vector");
     const Int length = this->DiagonalLength(offset);
@@ -2299,7 +2288,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
             << "  A diag length: " << length << "\n";
         throw std::logic_error( msg.str().c_str() );
     }
-    if( !d.AlignedWithDiagonal( *this, offset ) )
+    if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
     typedef typename Base<T>::type R;
@@ -2345,6 +2334,84 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 #endif
 }
 
-} // namespace elem
+template class DistMatrix<int,MC,STAR,int>;
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,MC,  MR,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,MC,  STAR,int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,MD,  STAR,int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,MR,  MC,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,MR,  STAR,int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MC,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MD,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MR,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,STAR,int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,VC,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,STAR,VR,  int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,VC,  STAR,int>& A );
+template DistMatrix<int,MC,STAR,int>::DistMatrix( const DistMatrix<int,VR,  STAR,int>& A );
 
-#endif // ifndef CORE_DISTMATRIX_MC_STAR_IMPL_HPP
+#ifndef DISABLE_FLOAT
+template class DistMatrix<float,MC,STAR,int>;
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,MC,  MR,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,MC,  STAR,int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,MD,  STAR,int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,MR,  MC,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,MR,  STAR,int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MC,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MD,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MR,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,STAR,int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,VC,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,STAR,VR,  int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,VC,  STAR,int>& A );
+template DistMatrix<float,MC,STAR,int>::DistMatrix( const DistMatrix<float,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_FLOAT
+
+template class DistMatrix<double,MC,STAR,int>;
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,MC,  MR,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,MC,  STAR,int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,MD,  STAR,int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,MR,  MC,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,MR,  STAR,int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MC,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MD,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MR,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,STAR,int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,VC,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,STAR,VR,  int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,VC,  STAR,int>& A );
+template DistMatrix<double,MC,STAR,int>::DistMatrix( const DistMatrix<double,VR,  STAR,int>& A );
+
+#ifndef DISABLE_COMPLEX
+#ifndef DISABLE_FLOAT
+template class DistMatrix<Complex<float>,MC,STAR,int>;
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  MR,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  STAR,int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MD,  STAR,int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  MC,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  STAR,int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MC,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MD,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MR,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,STAR,int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VC,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VR,  int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,VC,  STAR,int>& A );
+template DistMatrix<Complex<float>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_FLOAT
+template class DistMatrix<Complex<double>,MC,STAR,int>;
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  MR,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  STAR,int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MD,  STAR,int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  MC,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  STAR,int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MC,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MD,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MR,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,STAR,int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VC,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VR,  int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,VC,  STAR,int>& A );
+template DistMatrix<Complex<double>,MC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,VR,  STAR,int>& A );
+#endif // ifndef DISABLE_COMPLEX
+
+} // namespace elem
