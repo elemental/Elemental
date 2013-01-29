@@ -8,9 +8,13 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/internal.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
-#include "elemental/lapack-like/Norm.hpp"
 #include "elemental/lapack-like/CholeskyQR.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/One.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -33,9 +37,9 @@ void TestCorrectness
     Identity( n, n, Z );
     DistMatrix<F> Q_MC_MR( Q );
     Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
-    Real oneNormOfError = HermitianNorm( UPPER, Z, ONE_NORM );
-    Real infNormOfError = HermitianNorm( UPPER, Z, INFINITY_NORM );
-    Real frobNormOfError = HermitianNorm( UPPER, Z, FROBENIUS_NORM );
+    Real oneNormOfError = HermitianOneNorm( UPPER, Z );
+    Real infNormOfError = HermitianInfinityNorm( UPPER, Z );
+    Real frobNormOfError = HermitianFrobeniusNorm( UPPER, Z );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -46,13 +50,13 @@ void TestCorrectness
     // Form A - Q R
     if( g.Rank() == 0 )
         cout << "  Testing if A = QR..." << endl;
-    const Real oneNormOfA = Norm( A, ONE_NORM );
-    const Real infNormOfA = Norm( A, INFINITY_NORM );
-    const Real frobNormOfA = Norm( A, FROBENIUS_NORM );
+    const Real oneNormOfA = OneNorm( A );
+    const Real infNormOfA = InfinityNorm( A );
+    const Real frobNormOfA = FrobeniusNorm( A );
     internal::LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
-    oneNormOfError = Norm( A, ONE_NORM );
-    infNormOfError = Norm( A, INFINITY_NORM );
-    frobNormOfError = Norm( A, FROBENIUS_NORM );
+    oneNormOfError = OneNorm( A );
+    infNormOfError = InfinityNorm( A );
+    frobNormOfError = FrobeniusNorm( A );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"

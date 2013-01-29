@@ -8,7 +8,12 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/One.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 #include "elemental/matrices/Wilkinson.hpp"
 using namespace std;
@@ -42,9 +47,9 @@ void TestCorrectness
     DistMatrix<double> X(g);
     Identity( k, k, X );
     Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
-    double oneNormOfError = Norm( X, ONE_NORM );
-    double infNormOfError = Norm( X, INFINITY_NORM );
-    double frobNormOfError = Norm( X, FROBENIUS_NORM );
+    double oneNormOfError = OneNorm( X );
+    double infNormOfError = InfinityNorm( X );
+    double frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -68,14 +73,14 @@ void TestCorrectness
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    double oneNormOfZ = Norm( Z, ONE_NORM );
-    double infNormOfZ = Norm( Z, INFINITY_NORM );
-    double frobNormOfZ = Norm( Z, FROBENIUS_NORM );
-    oneNormOfError = Norm( X, ONE_NORM );
-    infNormOfError = Norm( X, INFINITY_NORM );
-    frobNormOfError = Norm( X, FROBENIUS_NORM );
+    double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+    double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+    double oneNormOfZ = OneNorm( Z );
+    double infNormOfZ = InfinityNorm( Z );
+    double frobNormOfZ = FrobeniusNorm( Z );
+    oneNormOfError = OneNorm( X );
+    infNormOfError = InfinityNorm( X );
+    frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -119,9 +124,9 @@ void TestCorrectness
     ( uplo, ADJOINT, 
       Complex<double>(-1), Z, 
       Complex<double>(1), X );
-    double oneNormOfError = Norm( X, ONE_NORM );
-    double infNormOfError = Norm( X, INFINITY_NORM );
-    double frobNormOfError = Norm( X, FROBENIUS_NORM );
+    double oneNormOfError = OneNorm( X );
+    double infNormOfError = InfinityNorm( X );
+    double frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -148,14 +153,14 @@ void TestCorrectness
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    double oneNormOfZ = Norm( Z, ONE_NORM );
-    double infNormOfZ = Norm( Z, INFINITY_NORM );
-    double frobNormOfZ = Norm( Z, FROBENIUS_NORM );
-    oneNormOfError = Norm( X, ONE_NORM );
-    infNormOfError = Norm( X, INFINITY_NORM );
-    frobNormOfError = Norm( X, FROBENIUS_NORM );
+    double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+    double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+    double oneNormOfZ = OneNorm( Z );
+    double infNormOfZ = InfinityNorm( Z );
+    double frobNormOfZ = FrobeniusNorm( Z );
+    oneNormOfError = OneNorm( X );
+    infNormOfError = InfinityNorm( X );
+    frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"

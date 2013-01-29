@@ -7,8 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -64,7 +65,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
-        const R frobNormOfError = Norm( A, FROBENIUS_NORM );
+        const R frobNormOfError = FrobeniusNorm( A );
         if( commRank == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
                       << std::endl;

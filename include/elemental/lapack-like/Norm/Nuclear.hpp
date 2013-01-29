@@ -10,23 +10,23 @@
 #ifndef LAPACK_NORM_NUCLEAR_HPP
 #define LAPACK_NORM_NUCLEAR_HPP
 
+#include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 NuclearNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::NuclearNorm");
+    PushCallStack("NuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     SingularValues( B, s );
-
-    const R norm = Norm( s, ONE_NORM );
+    const R norm = OneNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -38,22 +38,19 @@ inline typename Base<F>::type
 NuclearNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::NuclearNorm");
+    PushCallStack("NuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SingularValues( B, s );
-
-    const R norm = Norm( s, ONE_NORM );
+    const R norm = OneNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_NUCLEAN_HPP
+#endif // ifndef LAPACK_NORM_NUCLEAR_HPP

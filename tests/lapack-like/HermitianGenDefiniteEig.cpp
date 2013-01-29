@@ -11,7 +11,12 @@
 #include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/HermitianGenDefiniteEig.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/One.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
@@ -59,16 +64,16 @@ void TestCorrectness
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, (double)-1, AOrig, X, (double)1, Y );
         // Find the infinity norms of A, B, and X, and ||BXW-AX||
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Y, ONE_NORM );
-        double infNormOfError = Norm( Y, INFINITY_NORM );
-        double frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Y );
+        double infNormOfError = InfinityNorm( Y );
+        double frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -92,9 +97,9 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
         Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
         {
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
@@ -126,16 +131,16 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Z, ONE_NORM );
-        double infNormOfError = Norm( Z, INFINITY_NORM );
-        double frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Z );
+        double infNormOfError = InfinityNorm( Z );
+        double frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -158,9 +163,9 @@ void TestCorrectness
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
         Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
@@ -190,16 +195,16 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Z, ONE_NORM );
-        double infNormOfError = Norm( Z, INFINITY_NORM );
-        double frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Z );
+        double infNormOfError = InfinityNorm( Z );
+        double frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -222,9 +227,9 @@ void TestCorrectness
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (double)1, B, Z );
         Identity( k, k, Y );
         Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"
@@ -281,16 +286,16 @@ void TestCorrectness
           Complex<double>(-1), AOrig, X, 
           Complex<double>(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Y, ONE_NORM );
-        double infNormOfError = Norm( Y, INFINITY_NORM );
-        double frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Y );
+        double infNormOfError = InfinityNorm( Y );
+        double frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -317,9 +322,9 @@ void TestCorrectness
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
           Complex<double>(1), Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
@@ -355,16 +360,16 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Z, ONE_NORM );
-        double infNormOfError = Norm( Z, INFINITY_NORM );
-        double frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Z );
+        double infNormOfError = InfinityNorm( Z );
+        double frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -390,9 +395,9 @@ void TestCorrectness
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
           Complex<double>(1), Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
             cout << "    ||X^H B X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B X - I||_oo = " << infNormOfError << "\n"
@@ -428,16 +433,16 @@ void TestCorrectness
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        double infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        double frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        double infNormOfB = HermitianNorm( uplo, BOrig, INFINITY_NORM );
-        double frobNormOfB = HermitianNorm( uplo, BOrig, FROBENIUS_NORM );
-        double oneNormOfX = Norm( X, ONE_NORM );
-        double infNormOfX = Norm( X, INFINITY_NORM );
-        double frobNormOfX = Norm( X, FROBENIUS_NORM );
-        double oneNormOfError = Norm( Z, ONE_NORM );
-        double infNormOfError = Norm( Z, INFINITY_NORM );
-        double frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        double infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        double frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        double oneNormOfX = OneNorm( X );
+        double infNormOfX = InfinityNorm( X );
+        double frobNormOfX = FrobeniusNorm( X );
+        double oneNormOfError = OneNorm( Z );
+        double infNormOfError = InfinityNorm( Z );
+        double frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -463,9 +468,9 @@ void TestCorrectness
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
           Complex<double>(1), Y );
-        oneNormOfError = Norm( Y, ONE_NORM );
-        infNormOfError = Norm( Y, INFINITY_NORM );
-        frobNormOfError = Norm( Y, FROBENIUS_NORM );
+        oneNormOfError = OneNorm( Y );
+        infNormOfError = InfinityNorm( Y );
+        frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
             cout << "    ||X^H B^-1 X - I||_1  = " << oneNormOfError << "\n"
                  << "    ||X^H B^-1 X - I||_oo = " << infNormOfError << "\n"

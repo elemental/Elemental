@@ -10,7 +10,9 @@
 #ifndef LAPACK_TWONORMUPPERBOUND_HPP
 #define LAPACK_TWONORMUPPERBOUND_HPP
 
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 
 namespace elem {
 
@@ -25,9 +27,9 @@ TwoNormUpperBound( const Matrix<F>& A )
     const R m = A.Height();
     const R n = A.Width();
 
-    const R maxNorm = Norm( A, MAX_NORM );
-    const R oneNorm = Norm( A, ONE_NORM );
-    const R infNorm = Norm( A, INFINITY_NORM );
+    const R maxNorm = MaxNorm( A );
+    const R oneNorm = OneNorm( A );
+    const R infNorm = InfinityNorm( A );
 
     R upperBound = std::min( Sqrt(m*n)*maxNorm, Sqrt(m)*infNorm );
     upperBound = std::min( upperBound, Sqrt(n)*oneNorm );
@@ -49,9 +51,9 @@ TwoNormUpperBound( const DistMatrix<F>& A )
     const R m = A.Height();
     const R n = A.Width();
 
-    const R maxNorm = Norm( A, MAX_NORM );
-    const R oneNorm = Norm( A, ONE_NORM );
-    const R infNorm = Norm( A, INFINITY_NORM );
+    const R maxNorm = MaxNorm( A );
+    const R oneNorm = OneNorm( A );
+    const R infNorm = InfinityNorm( A );
 
     R upperBound = std::min( Sqrt(m*n)*maxNorm, Sqrt(m)*infNorm );
     upperBound = std::min( upperBound, Sqrt(n)*oneNorm );

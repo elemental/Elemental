@@ -7,26 +7,22 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_TWO_HPP
-#define LAPACK_NORM_TWO_HPP
+#ifndef LAPACK_SYMMETRICNORM_FROBENIUS_HPP
+#define LAPACK_SYMMETRICNORM_FROBENIUS_HPP
 
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 
 namespace elem {
 
 template<typename F> 
 inline typename Base<F>::type
-TwoNorm( const Matrix<F>& A )
+SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    PushCallStack("SymmetricFrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
-    Matrix<F> B( A );
-    Matrix<R> s;
-    SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = HermitianFrobeniusNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -35,16 +31,13 @@ TwoNorm( const Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
-TwoNorm( const DistMatrix<F,U,V>& A )
+SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    PushCallStack("SymmetricFrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = HermitianFrobeniusNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,4 +46,4 @@ TwoNorm( const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_TWO_HPP
+#endif // ifndef LAPACK_SYMMETRICNORM_FROBENIUS_HPP

@@ -12,7 +12,7 @@
 
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 
-#include "./QR/Panel.hpp"
+#include "elemental/lapack-like/QR/Panel.hpp"
 
 namespace elem {
 

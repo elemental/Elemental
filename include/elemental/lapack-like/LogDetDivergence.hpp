@@ -11,6 +11,7 @@
 #define LAPACK_LOGDETDIVERGENCE_HPP
 
 #include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 
 namespace elem {
 
@@ -46,7 +47,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     }
 
     MakeTrapezoidal( LEFT, uplo, 0, ACopy );
-    const R frobNorm = Norm( ACopy, FROBENIUS_NORM );
+    const R frobNorm = FrobeniusNorm( ACopy );
 
     Matrix<F> d;
     ACopy.GetDiagonal( d );
@@ -97,7 +98,7 @@ LogDetDivergence
     }
 
     MakeTrapezoidal( LEFT, uplo, 0, ACopy );
-    const R frobNorm = Norm( ACopy, FROBENIUS_NORM );
+    const R frobNorm = FrobeniusNorm( ACopy );
 
     R logDet;
     R localLogDet(0);

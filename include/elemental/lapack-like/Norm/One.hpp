@@ -11,14 +11,13 @@
 #define LAPACK_NORM_ONE_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F>
 inline typename Base<F>::type
 OneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::OneNorm");
+    PushCallStack("OneNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -43,7 +42,7 @@ inline typename Base<F>::type
 OneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::OneNorm");
+    PushCallStack("OneNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -80,7 +79,6 @@ OneNorm( const DistMatrix<F,U,V>& A )
     return maxColSum;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_NORM_ONE_HPP

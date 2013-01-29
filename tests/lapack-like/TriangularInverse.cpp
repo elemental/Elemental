@@ -7,7 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/TriangularInverse.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
@@ -33,15 +35,15 @@ void TestCorrectness
     Trmm( LEFT, uplo, NORMAL, diag, F(1), AOrig, Y );
     Axpy( F(-1), X, Y );
 
-    const R oneNormOrig = Norm( AOrig, ONE_NORM );
-    const R infNormOrig = Norm( AOrig, INFINITY_NORM );
-    const R frobNormOrig = Norm( AOrig, FROBENIUS_NORM );
-    const R oneNormFinal = Norm( A, ONE_NORM );
-    const R infNormFinal = Norm( A, INFINITY_NORM );
-    const R frobNormFinal = Norm( A, FROBENIUS_NORM );
-    const R oneNormOfError = Norm( Y, ONE_NORM );
-    const R infNormOfError = Norm( Y, INFINITY_NORM );
-    const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
+    const R oneNormOrig = OneNorm( AOrig );
+    const R infNormOrig = InfinityNorm( AOrig );
+    const R frobNormOrig = FrobeniusNorm( AOrig );
+    const R oneNormFinal = OneNorm( A );
+    const R infNormFinal = InfinityNorm( A );
+    const R frobNormFinal = FrobeniusNorm( A );
+    const R oneNormOfError = OneNorm( Y );
+    const R infNormOfError = InfinityNorm( Y );
+    const R frobNormOfError = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1           = " << oneNormOrig << "\n"

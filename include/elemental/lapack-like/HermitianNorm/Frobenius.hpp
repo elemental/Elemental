@@ -11,14 +11,13 @@
 #define LAPACK_HERMITIANNORM_FROBENIUS_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F>
 inline typename Base<F>::type 
 HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianFrobeniusNorm");
+    PushCallStack("HermitianFrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -121,7 +120,7 @@ HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianFrobeniusNorm");
+    PushCallStack("HermitianFrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -232,7 +231,6 @@ HermitianFrobeniusNorm
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANNORM_FROBENIUS_HPP

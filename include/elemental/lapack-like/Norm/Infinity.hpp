@@ -11,14 +11,13 @@
 #define LAPACK_NORM_INFINITY_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 InfinityNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::InfinityNorm");
+    PushCallStack("InfinityNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -43,7 +42,7 @@ inline typename Base<F>::type
 InfinityNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::InfinityNorm");
+    PushCallStack("InfinityNorm");
 #endif
     typedef typename Base<F>::type R;
     mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
@@ -79,7 +78,6 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     return maxRowSum;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_NORM_INFINITY_HPP

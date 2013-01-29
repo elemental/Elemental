@@ -331,6 +331,13 @@ Pow( const R& alpha, const R& beta )
 
 template<typename R>
 inline Complex<R>
+Pow( const Complex<R>& alpha, const R& beta )
+{
+    return Exp( beta*Log(alpha) );
+}
+
+template<typename R>
+inline Complex<R>
 Pow( const Complex<R>& alpha, const Complex<R>& beta )
 {
     if( alpha.real == R(0) && alpha.imag == R(0) )

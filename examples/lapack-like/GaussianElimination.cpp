@@ -8,7 +8,9 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/GaussianElimination.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace elem;
 
@@ -69,10 +71,10 @@ main( int argc, char* argv[] )
 
             // Compute the relevant Frobenius norms and a relative residual
             const double epsilon = lapack::MachineEpsilon<double>();
-            const double AFrobNorm = Norm( ACopy, FROBENIUS_NORM );
-            const double BFrobNorm = Norm( B,     FROBENIUS_NORM );
-            const double XFrobNorm = Norm( X,     FROBENIUS_NORM );
-            const double RFrobNorm = Norm( R,     FROBENIUS_NORM );
+            const double AFrobNorm = FrobeniusNorm( ACopy );
+            const double BFrobNorm = FrobeniusNorm( B );
+            const double XFrobNorm = FrobeniusNorm( X );
+            const double RFrobNorm = FrobeniusNorm( R );
             const double frobResidual = 
                 RFrobNorm / (AFrobNorm*XFrobNorm*epsilon*n);
             if( commRank == 0 )
@@ -87,10 +89,10 @@ main( int argc, char* argv[] )
             }
 
             // Compute the relevant infinity norms and a relative residual
-            const double AInfNorm = Norm( ACopy, INFINITY_NORM );
-            const double BInfNorm = Norm( B,     INFINITY_NORM );
-            const double XInfNorm = Norm( X,     INFINITY_NORM );
-            const double RInfNorm = Norm( R,     INFINITY_NORM );
+            const double AInfNorm = InfinityNorm( ACopy );
+            const double BInfNorm = InfinityNorm( B );
+            const double XInfNorm = InfinityNorm( X );
+            const double RInfNorm = InfinityNorm( R );
             const double infResidual = RInfNorm / (AInfNorm*XInfNorm*epsilon*n);
             if( commRank == 0 )
             {
@@ -105,10 +107,10 @@ main( int argc, char* argv[] )
             }
 
             // Compute the relevant one norms and a relative residual
-            const double AOneNorm = Norm( ACopy, ONE_NORM );
-            const double BOneNorm = Norm( B,     ONE_NORM );
-            const double XOneNorm = Norm( X,     ONE_NORM );
-            const double ROneNorm = Norm( R,     ONE_NORM );
+            const double AOneNorm = OneNorm( ACopy );
+            const double BOneNorm = OneNorm( B );
+            const double XOneNorm = OneNorm( X );
+            const double ROneNorm = OneNorm( R );
             const double oneResidual = ROneNorm / (AOneNorm*XOneNorm*epsilon*n);
             if( commRank == 0 )
             {

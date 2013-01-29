@@ -7,8 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Pseudoinverse.hpp"
+#include "elemental/lapack-like/Norm/Schatten.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -29,33 +28,24 @@ main( int argc, char* argv[] )
     {
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
+        const int nb = Input("--nb","algorithmic blocksize",96);
+        const double p = Input("--p","power of Schatten norm",2);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+
+        SetBlocksize( nb );
 
         Grid g( comm );
         DistMatrix<C> A( g );
         Uniform( m, n, A );
 
-        // Compute the pseudoinverseof A (but do not overwrite A)
-        DistMatrix<C> pinvA( A );
-        Pseudoinverse( pinvA );
-
         if( print )
-        {
             A.Print("A");
-            pinvA.Print("pinv(A)");
-        }
 
-        const R frobOfA = FrobeniusNorm( A );
-        const R frobOfPinvA = FrobeniusNorm( pinvA );
-
+        const double norm = SchattenNorm( A, p );
         if( commRank == 0 )
-        {
-            cout << "||   A   ||_F =  " << frobOfA << "\n"
-                 << "||pinv(A)||_F =  " << frobOfPinvA << "\n"
-                 << endl;
-        }
+            cout << "|| A ||_p = " << norm << std::endl;
     }
     catch( ArgException& e )
     {

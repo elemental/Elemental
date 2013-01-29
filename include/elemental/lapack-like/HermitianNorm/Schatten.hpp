@@ -7,39 +7,47 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANNORM_NUCLEAR_HPP
-#define LAPACK_HERMITIANNORM_NUCLEAR_HPP
+#ifndef LAPACK_HERMITIANNORM_SCHATTEN_HPP
+#define LAPACK_HERMITIANNORM_SCHATTEN_HPP
 
 #ifndef WITHOUT_PMRRR
 #include "elemental/lapack-like/HermitianSVD.hpp"
 #endif // ifndef WITHOUT_PMRRR
-#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
 namespace elem {
 
 template<typename F> 
 inline typename Base<F>::type
-HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
+HermitianSchattenNorm
+( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNuclearNorm");
+    PushCallStack("HermitianSchattenNorm");
 #endif
     typedef typename Base<F>::type R;
+
     Matrix<F> B( A );
     Matrix<R> s;
-// TODO: Enable support for sequential MRRR
+
+// TODO: Enable sequential MRRR
 /*
 #ifndef WITHOUT_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-#endif
+#endif // ifndef WITHOUT_PMRRR
 */
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-    const R norm = OneNorm( s );
+
+    // TODO: Think of how to make this more stable
+    const int k = s.Height();
+    R sum = 0;
+    for( int j=0; j<k; ++j )
+        sum += Pow( s.Get(j), p ); 
+    const R norm = Pow( sum, 1/p ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -48,21 +56,31 @@ HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
-HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+HermitianSchattenNorm
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNuclearNorm");
+    PushCallStack("HermitianSchattenNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F,U,V> B( A );
+
+    DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
 #ifndef WITHOUT_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-#endif
-    const R norm = OneNorm( s );
+#endif // ifndef WITHOUT_PMRRR
+
+    // TODO: Think of how to make this more stable
+    const int kLocal = s.LocalHeight();
+    R localSum = 0;
+    for( int j=0; j<kLocal; ++j ) 
+        localSum += Pow( s.GetLocal(j), p );
+    R sum;
+    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
+    const R norm = Pow( sum, 1/p );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -71,4 +89,4 @@ HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANNORM_NUCLEAR_HPP
+#endif // ifndef LAPACK_HERMITIANNORM_SCHATTEN_HPP

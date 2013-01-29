@@ -10,7 +10,10 @@
 #ifndef LAPACK_TWONORMLOWERBOUND_HPP
 #define LAPACK_TWONORMLOWERBOUND_HPP
 
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 
 namespace elem {
 
@@ -25,10 +28,10 @@ TwoNormLowerBound( const Matrix<F>& A )
     const R m = A.Height();
     const R n = A.Width();
 
-    const R maxNorm = Norm( A, MAX_NORM );
-    const R oneNorm = Norm( A, ONE_NORM );
-    const R infNorm = Norm( A, INFINITY_NORM );
-    const R frobNorm = Norm( A, FROBENIUS_NORM );
+    const R maxNorm = MaxNorm( A );
+    const R oneNorm = OneNorm( A );
+    const R infNorm = InfinityNorm( A );
+    const R frobNorm = FrobeniusNorm( A );
     R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
     lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
     lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );
@@ -49,10 +52,10 @@ TwoNormLowerBound( const DistMatrix<F>& A )
     const R m = A.Height();
     const R n = A.Width();
 
-    const R maxNorm = Norm( A, MAX_NORM );
-    const R oneNorm = Norm( A, ONE_NORM );
-    const R infNorm = Norm( A, INFINITY_NORM );
-    const R frobNorm = Norm( A, FROBENIUS_NORM );
+    const R maxNorm = MaxNorm( A );
+    const R oneNorm = OneNorm( A );
+    const R infNorm = InfinityNorm( A );
+    const R frobNorm = FrobeniusNorm( A );
     R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
     lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
     lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );

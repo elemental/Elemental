@@ -8,8 +8,8 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Halley.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/QDWH.hpp"
 #include "elemental/lapack-like/TwoNormUpperBound.hpp"
 #include "elemental/matrices/Uniform.hpp"
@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> A( g ), Q( g ), P( g );
         Uniform( m, n, A );
         const R lowerBound = 1e-7;
-        const R frobA = Norm( A, FROBENIUS_NORM );
+        const R frobA = FrobeniusNorm( A );
         const R upperBound = TwoNormUpperBound( A );
         if( g.Rank() == 0 )
         {
@@ -58,10 +58,10 @@ main( int argc, char* argv[] )
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
-        const R frobQDWH = Norm( B, FROBENIUS_NORM );
+        const R frobQDWH = FrobeniusNorm( B );
         Identity( n, n, B );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
-        const R frobQDWHOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
+        const R frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( g.Rank() == 0 )
         {
             std::cout << numItsQDWH << " iterations of QDWH\n"
@@ -82,10 +82,10 @@ main( int argc, char* argv[] )
         // Check and report the overall and orthogonality error
         B = A; 
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
-        const R frobHalley = Norm( B, FROBENIUS_NORM );
+        const R frobHalley = FrobeniusNorm( B );
         Identity( n, n, B );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
-        const R frobHalleyOrthog = HermitianNorm( LOWER, B, FROBENIUS_NORM );
+        const R frobHalleyOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( g.Rank() == 0 )
         {
             std::cout << numItsHalley << " iterations of Halley\n"

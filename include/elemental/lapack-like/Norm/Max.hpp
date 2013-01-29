@@ -11,14 +11,13 @@
 #define LAPACK_NORM_MAX_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 MaxNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::MaxNorm");
+    PushCallStack("MaxNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -44,7 +43,7 @@ inline typename Base<F>::type
 MaxNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::MaxNorm");
+    PushCallStack("MaxNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -69,7 +68,6 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     return maxAbs;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_NORM_MAX_HPP

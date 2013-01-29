@@ -10,11 +10,12 @@
 #ifndef LAPACK_SYMMETRICNORM_HPP
 #define LAPACK_SYMMETRICNORM_HPP
 
-#include "elemental/lapack-like/HermitianNorm.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-
-#include "./SymmetricNorm/Nuclear.hpp"
-#include "./SymmetricNorm/Two.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Frobenius.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Infinity.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Max.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Nuclear.hpp"
+#include "elemental/lapack-like/SymmetricNorm/One.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Two.hpp"
 
 namespace elem {
 
@@ -26,12 +27,27 @@ SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
     PushCallStack("SymmetricNorm");
 #endif
     typename Base<F>::type norm = 0;
-    if( type == NUCLEAR_NORM )
-        norm = internal::SymmetricNuclearNorm( uplo, A );
-    else if( type == TWO_NORM )
-        norm = internal::SymmetricTwoNorm( uplo, A );
-    else
-        norm = HermitianNorm( uplo, A );
+    switch( type )
+    {
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = SymmetricInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = SymmetricMaxNorm( uplo, A );
+        break;
+    case NUCLEAR_NORM:
+        norm = SymmetricNuclearNorm( uplo, A );
+        break;
+    case FROBENIUS_NORM:
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = SymmetricTwoNorm( uplo, A );
+        break;
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -46,12 +62,27 @@ SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
     PushCallStack("SymmetricNorm");
 #endif
     typename Base<F>::type norm = 0;
-    if( type == NUCLEAR_NORM )
-        norm = internal::SymmetricNuclearNorm( uplo, A );
-    else if( type == TWO_NORM )
-        norm = internal::SymmetricTwoNorm( uplo, A );
-    else
-        norm = HermitianNorm( uplo, A );
+    switch( type )
+    {
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = SymmetricInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = SymmetricMaxNorm( uplo, A );
+        break;
+    case NUCLEAR_NORM:
+        norm = SymmetricNuclearNorm( uplo, A );
+        break;
+    case FROBENIUS_NORM:
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = SymmetricTwoNorm( uplo, A );
+        break;
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif

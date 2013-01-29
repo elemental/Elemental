@@ -10,7 +10,11 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/blas-like/level3/TwoSidedTrsm.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
@@ -39,13 +43,13 @@ void TestCorrectness
         Hemm( LEFT, LOWER, F(1), AOrig, Y, F(0), Z );
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), B, Z );
         Hemm( LEFT, LOWER, F(-1), A, X, F(1), Z );
-        R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        R infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );
-        R frobNormOfA = HermitianNorm( uplo, A, FROBENIUS_NORM );
-        R oneNormOfError = Norm( Z, ONE_NORM );
-        R infNormOfError = Norm( Z, INFINITY_NORM );
-        R frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+        R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        R infNormOfA = HermitianInfinityNorm( uplo, A );
+        R frobNormOfA = HermitianFrobeniusNorm( uplo, A );
+        R oneNormOfError = OneNorm( Z );
+        R infNormOfError = InfinityNorm( Z );
+        R frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -73,13 +77,13 @@ void TestCorrectness
         Hemm( LEFT, UPPER, F(1), AOrig, Y, F(0), Z );
         Trsm( LEFT, UPPER, ADJOINT, diag, F(1), B, Z );
         Hemm( LEFT, UPPER, F(-1), A, X, F(1), Z );
-        R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        R infNormOfA = HermitianNorm( uplo, A, INFINITY_NORM );
-        R frobNormOfA = HermitianNorm( uplo, A, FROBENIUS_NORM );
-        R oneNormOfError = Norm( Z, ONE_NORM );
-        R infNormOfError = Norm( Z, INFINITY_NORM );
-        R frobNormOfError = Norm( Z, FROBENIUS_NORM );
+        R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+        R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        R infNormOfA = HermitianInfinityNorm( uplo, A );
+        R frobNormOfA = HermitianFrobeniusNorm( uplo, A );
+        R oneNormOfError = OneNorm( Z );
+        R infNormOfError = InfinityNorm( Z );
+        R frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "||AOrig||_1 = ||AOrig||_oo     = "

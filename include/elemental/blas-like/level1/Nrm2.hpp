@@ -46,7 +46,7 @@ Nrm2( const DistMatrix<F>& x )
         throw std::logic_error("x must be a vector");
 #endif
     typedef typename Base<F>::type R;
-    const R norm = internal::FrobeniusNorm( x );
+    const R norm = FrobeniusNorm( x );
 #ifndef RELEASE
     PopCallStack();
 #endif

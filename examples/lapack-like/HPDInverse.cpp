@@ -7,7 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/HPDInverse.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
@@ -56,9 +57,9 @@ main( int argc, char* argv[] )
         Identity( n, n, E );
         Hemm( LEFT, uplo, C(-1), invA, A, C(1), E );
 
-        const R frobNormA = HermitianNorm( uplo, A, FROBENIUS_NORM );
-        const R frobNormInvA = HermitianNorm( uplo, invA, FROBENIUS_NORM );
-        const R frobNormError = Norm( E, FROBENIUS_NORM );
+        const R frobNormA = HermitianFrobeniusNorm( uplo, A );
+        const R frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
+        const R frobNormError = FrobeniusNorm( E );
         if( g.Rank() == 0 )
         {
             std::cout << "|| A          ||_F = " << frobNormA << "\n"

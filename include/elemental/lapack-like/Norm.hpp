@@ -10,15 +10,13 @@
 #ifndef LAPACK_NORM_HPP
 #define LAPACK_NORM_HPP
 
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 
-#include "./Norm/One.hpp"
-#include "./Norm/Infinity.hpp"
-#include "./Norm/Max.hpp"
-
-#include "./Norm/Nuclear.hpp"
-#include "./Norm/Frobenius.hpp"
-#include "./Norm/Two.hpp"
+#include "elemental/lapack-like/Norm/Nuclear.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Two.hpp"
 
 namespace elem {
 
@@ -33,22 +31,22 @@ Norm( const Matrix<F>& A, NormType type )
     switch( type )
     {
     case ONE_NORM:
-        norm = internal::OneNorm( A );
+        norm = OneNorm( A );
         break;
     case INFINITY_NORM:
-        norm = internal::InfinityNorm( A );
+        norm = InfinityNorm( A );
         break;
     case MAX_NORM:
-        norm = internal::MaxNorm( A );
+        norm = MaxNorm( A );
         break;
     case NUCLEAR_NORM:
-        norm = internal::NuclearNorm( A );
+        norm = NuclearNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
+        norm = FrobeniusNorm( A );
         break;
     case TWO_NORM:
-        norm = internal::TwoNorm( A );
+        norm = TwoNorm( A );
         break;
     }
 #ifndef RELEASE
@@ -68,22 +66,22 @@ Norm( const DistMatrix<F,U,V>& A, NormType type )
     switch( type )
     {
     case ONE_NORM:
-        norm = internal::OneNorm( A );
+        norm = OneNorm( A );
         break;
     case INFINITY_NORM:
-        norm = internal::InfinityNorm( A );
+        norm = InfinityNorm( A );
         break;
     case MAX_NORM:
-        norm = internal::MaxNorm( A );
+        norm = MaxNorm( A );
         break;
     case NUCLEAR_NORM:
-        norm = internal::NuclearNorm( A );
+        norm = NuclearNorm( A );
         break;
     case FROBENIUS_NORM: 
-        norm = internal::FrobeniusNorm( A );
+        norm = FrobeniusNorm( A );
         break;
     case TWO_NORM:
-        norm = internal::TwoNorm( A );
+        norm = TwoNorm( A );
         break;
     }
 #ifndef RELEASE

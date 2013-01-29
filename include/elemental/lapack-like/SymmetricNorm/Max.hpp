@@ -7,44 +7,37 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_TWO_HPP
-#define LAPACK_NORM_TWO_HPP
+#ifndef LAPACK_SYMMETRICNORM_MAX_HPP
+#define LAPACK_SYMMETRICNORM_MAX_HPP
 
-#include "elemental/lapack-like/Norm/Infinity.hpp"
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/HermitianNorm/Max.hpp"
 
 namespace elem {
 
-template<typename F> 
+template<typename F>
 inline typename Base<F>::type
-TwoNorm( const Matrix<F>& A )
+SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    PushCallStack("SymmetricMaxNorm");
 #endif
     typedef typename Base<F>::type R;
-    Matrix<F> B( A );
-    Matrix<R> s;
-    SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = HermitianMaxNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-template<typename F,Distribution U,Distribution V> 
+template<typename F>
 inline typename Base<F>::type
-TwoNorm( const DistMatrix<F,U,V>& A )
+SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    PushCallStack("SymmetricMaxNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = HermitianMaxNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,4 +46,4 @@ TwoNorm( const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_TWO_HPP
+#endif // ifndef LAPACK_SYMMETRICNORM_MAX_HPP

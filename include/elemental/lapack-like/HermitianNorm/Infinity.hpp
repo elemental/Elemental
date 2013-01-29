@@ -10,8 +10,9 @@
 #ifndef LAPACK_HERMITIANNORM_INFINITY_HPP
 #define LAPACK_HERMITIANNORM_INFINITY_HPP
 
+#include "elemental/lapack-like/HermitianNorm/One.hpp"
+
 namespace elem {
-namespace internal {
 
 // The operator L1 and Linf norms for Hermitian matrices are identical. The 
 // former is the maximum column L1 norm and the latter is the maximum row L1 
@@ -22,10 +23,10 @@ inline typename Base<F>::type
 HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianInfinityNorm");
+    PushCallStack("HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = HermitianNorm( uplo, A, ONE_NORM );
+    R maxRowSum = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -38,17 +39,16 @@ HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianInfinityNorm");
+    PushCallStack("HermitianInfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-    R maxRowSum = HermitianNorm( uplo, A, ONE_NORM );
+    R maxRowSum = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return maxRowSum;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANNORM_INFINITY_HPP

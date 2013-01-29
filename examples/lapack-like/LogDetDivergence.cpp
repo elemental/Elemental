@@ -8,7 +8,6 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/LogDetDivergence.hpp"
-#include "elemental/lapack-like/Norm.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace elem;
 

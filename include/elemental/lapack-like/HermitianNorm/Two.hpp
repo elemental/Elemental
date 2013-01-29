@@ -10,21 +10,24 @@
 #ifndef LAPACK_HERMITIANNORM_TWO_HPP
 #define LAPACK_HERMITIANNORM_TWO_HPP
 
+#ifndef WITHOUT_PMRRR
+#include "elemental/lapack-like/HermitianSVD.hpp"
+#endif // ifndef WITHOUT_PMRRR
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianTwoNorm");
+    PushCallStack("HermitianTwoNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
-
 // TODO: Enable support for sequential MRRR
 /*
 #ifndef WITHOUT_PMRRR
@@ -36,8 +39,7 @@ HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 */
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-
-    const R norm = Norm( s, INFINITY_NORM );
+    const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -49,10 +51,9 @@ inline typename Base<F>::type
 HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianTwoNorm");
+    PushCallStack("HermitianTwoNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
 #ifndef WITHOUT_PMRRR
@@ -61,15 +62,13 @@ HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     MakeHermitian( uplo, B );
     SingularValues( B, s );
 #endif
-
-    const R norm = Norm( s, INFINITY_NORM );
+    const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANNORM_TWO_HPP

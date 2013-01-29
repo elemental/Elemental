@@ -12,7 +12,7 @@
 
 #include "elemental/lapack-like/Cholesky.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 
 namespace elem {
 
@@ -118,7 +118,7 @@ int QDWH
         }
 
         Axpy( F(-1), A, ALast );
-        frobNormADiff = Norm( ALast, FROBENIUS_NORM );
+        frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 #ifndef RELEASE
@@ -217,7 +217,7 @@ int QDWH
         }
 
         Axpy( F(-1), A, ALast );
-        frobNormADiff = Norm( ALast, FROBENIUS_NORM );
+        frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 #ifndef RELEASE

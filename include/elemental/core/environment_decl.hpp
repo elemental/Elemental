@@ -199,6 +199,8 @@ Complex<R> Exp( const Complex<R>& alpha );
 template<typename R>
 R Pow( const R& alpha, const R& beta );
 template<typename R>
+Complex<R> Pow( const Complex<R>& alpha, const R& beta );
+template<typename R>
 Complex<R> Pow( const Complex<R>& alpha, const Complex<R>& beta );
 
 // Logarithm

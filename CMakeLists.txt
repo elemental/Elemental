@@ -504,8 +504,8 @@ if(ELEM_EXAMPLES)
   set(blas-like_EXAMPLES Gemv)
   set(lapack-like_EXAMPLES 
     GaussianElimination HermitianQDWH HouseholderSolve HPDInverse LDL LDLInverse
-    LogDetDivergence Polar Pseudoinverse QDWH SequentialQR QR SequentialSVD
-    SimpleSVD SVD)
+    LogDetDivergence Polar Pseudoinverse QDWH SequentialQR QR Schatten 
+    SequentialSVD SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum

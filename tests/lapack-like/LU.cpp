@@ -10,7 +10,9 @@
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/LU.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -41,16 +43,16 @@ void TestCorrectness
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const R oneNormOfX = Norm( X, ONE_NORM );
-    const R infNormOfX = Norm( X, INFINITY_NORM );
-    const R frobNormOfX = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfX = OneNorm( X );
+    const R infNormOfX = InfinityNorm( X );
+    const R frobNormOfX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const R oneNormOfError = Norm( X, ONE_NORM );
-    const R infNormOfError = Norm( X, INFINITY_NORM );
-    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
-    const R oneNormOfA = Norm( AOrig, ONE_NORM );
-    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
+    const R oneNormOfError = OneNorm( X );
+    const R infNormOfError = InfinityNorm( X );
+    const R frobNormOfError = FrobeniusNorm( X );
+    const R oneNormOfA = OneNorm( AOrig );
+    const R infNormOfA = InfinityNorm( AOrig );
+    const R frobNormOfA = FrobeniusNorm( AOrig );
 
     if( g.Rank() == 0 )
     {

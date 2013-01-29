@@ -8,8 +8,8 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
 
         Matrix<C> A;
         Uniform( m, n, A );
-        const Real frobA = Norm( A, FROBENIUS_NORM );
+        const Real frobA = FrobeniusNorm( A );
 
         // Compute the QR decomposition of A, but do not overwrite A
         Matrix<C> Q( A ), R;
@@ -43,13 +43,13 @@ main( int argc, char* argv[] )
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
         Matrix<C> E( A );
         Gemm( NORMAL, NORMAL, C(-1), Q, R, C(1), E );
-        const Real frobQR = Norm( E, FROBENIUS_NORM );
+        const Real frobQR = FrobeniusNorm( E );
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
         const int k = std::min(m,n);
         Identity( k, k, E );
         Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
-        const Real frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( commRank == 0 )
         {

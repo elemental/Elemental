@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/LDL.hpp"
-#include "elemental/lapack-like/Norm.hpp"
-#include "elemental/lapack-like/SymmetricNorm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Frobenius.hpp"
 #include "elemental/lapack-like/TriangularInverse.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 #include "elemental/matrices/Uniform.hpp"
@@ -70,11 +70,11 @@ main( int argc, char* argv[] )
         else
             Symm( LEFT, LOWER, C(-1), invA, A, C(1), E );
 
-        const R frobNormA = Norm( A, FROBENIUS_NORM );
+        const R frobNormA = FrobeniusNorm( A );
         const R frobNormInvA = 
-            ( conjugate ? HermitianNorm( LOWER, invA, FROBENIUS_NORM )
-                        : SymmetricNorm( LOWER, invA, FROBENIUS_NORM ) );
-        const R frobNormError = Norm( E, FROBENIUS_NORM );
+            ( conjugate ? HermitianFrobeniusNorm( LOWER, invA )
+                        : SymmetricFrobeniusNorm( LOWER, invA ) );
+        const R frobNormError = FrobeniusNorm( E );
         if( g.Rank() == 0 )
         {
             std::cout << "|| A          ||_F = " << frobNormA << "\n"

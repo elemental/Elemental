@@ -11,14 +11,13 @@
 #define LAPACK_NORM_FROBENIUS_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 FrobeniusNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::FrobeniusNorm");
+    PushCallStack("FrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -60,7 +59,7 @@ inline typename Base<F>::type
 FrobeniusNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::FrobeniusNorm");
+    PushCallStack("FrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
@@ -114,7 +113,6 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_NORM_FROBENIUS_HPP

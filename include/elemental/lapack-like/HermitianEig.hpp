@@ -13,7 +13,7 @@
 #ifndef WITHOUT_PMRRR
 
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Max.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 
 namespace elem {
@@ -208,7 +208,7 @@ CheckScale
 
     scale = 1;
     needRescaling = false;
-    const R maxNormOfA = HermitianNorm( uplo, A, MAX_NORM );
+    const R maxNormOfA = HermitianMaxNorm( uplo, A );
     const R underflowThreshold = lapack::MachineUnderflowThreshold<R>();
     const R overflowThreshold = lapack::MachineOverflowThreshold<R>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )

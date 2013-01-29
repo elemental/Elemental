@@ -137,6 +137,29 @@ the maximum entrywise norm, :math:`\|A\|_2`, or :math:`\|A\|_*`
 .. cpp:function:: typename Base<F>::type Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 
+Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
+
+.. cpp:function:: typename Base<F>::type FrobeniusNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type FrobeniusNorm( const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type InfinityNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type InfinityNorm( const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type MaxNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type MaxNorm( const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type NuclearNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type NuclearNorm( const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type OneNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type OneNorm( const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+
+.. cpp:function:: typename Base<F>::type TwoNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoNorm( const DistMatrix<F,U,V>& A )
+
 HermitianNorm
 -------------
 Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly
@@ -149,6 +172,29 @@ distribution.
 .. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 
+Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
+
+.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+
+.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
 SymmetricNorm
 -------------
 Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly
@@ -160,6 +206,29 @@ distribution.
 
 .. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
+
+Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
+
+.. cpp:function:: typename Base<F>::type SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+.. cpp:function:: typename Base<F>::type SymmetricSchattenNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type SymmetricSchattenNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+
+.. cpp:function:: typename Base<F>::type SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 
 Two-norm estimates
 ------------------

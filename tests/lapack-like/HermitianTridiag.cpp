@@ -7,7 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
@@ -72,10 +73,10 @@ void TestCorrectness
     MakeTriangular( uplo, B );
     Axpy( R(-1), AOrig, B );
 
-    const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    const R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    const R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
-    const R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
+    const R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+    const R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+    const R infNormOfError = HermitianInfinityNorm( uplo, B );
+    const R frobNormOfError = HermitianFrobeniusNorm( uplo, B );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
@@ -148,10 +149,10 @@ void TestCorrectness
     MakeTriangular( uplo, B );
     Axpy( C(-1), AOrig, B );
 
-    const R infNormOfAOrig = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-    const R frobNormOfAOrig = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-    const R infNormOfError = HermitianNorm( uplo, B, INFINITY_NORM );
-    const R frobNormOfError = HermitianNorm( uplo, B, FROBENIUS_NORM );
+    const R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+    const R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+    const R infNormOfError = HermitianInfinityNorm( uplo, B );
+    const R frobNormOfError = HermitianFrobeniusNorm( uplo, B );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"

@@ -9,7 +9,9 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/LQ.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -44,9 +46,9 @@ void TestCorrectness
     // Form X := I - Q Q^H
     Axpy( R(-1), ZUpper, X );
 
-    R oneNormOfError = Norm( X, ONE_NORM );
-    R infNormOfError = Norm( X, INFINITY_NORM );
-    R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = OneNorm( X );
+    R infNormOfError = InfinityNorm( X );
+    R frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
@@ -66,12 +68,12 @@ void TestCorrectness
     // Form L Q - A
     Axpy( R(-1), AOrig, L );
     
-    const R oneNormOfA = Norm( AOrig, ONE_NORM );
-    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = Norm( L, ONE_NORM );
-    infNormOfError = Norm( L, INFINITY_NORM );
-    frobNormOfError = Norm( L, FROBENIUS_NORM );
+    const R oneNormOfA = OneNorm( AOrig );
+    const R infNormOfA = InfinityNorm( AOrig );
+    const R frobNormOfA = FrobeniusNorm( AOrig );
+    oneNormOfError = OneNorm( L );
+    infNormOfError = InfinityNorm( L );
+    frobNormOfError = FrobeniusNorm( L );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"
@@ -118,9 +120,9 @@ void TestCorrectness
     // Form X := I - Q Q^H
     Axpy( C(-1), ZUpper, X );
 
-    R oneNormOfError = Norm( X, ONE_NORM );
-    R infNormOfError = Norm( X, INFINITY_NORM );
-    R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    R oneNormOfError = OneNorm( X );
+    R infNormOfError = InfinityNorm( X );
+    R frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
@@ -140,12 +142,12 @@ void TestCorrectness
     // Form L Q - A
     Axpy( C(-1), AOrig, L );
     
-    const R oneNormOfA = Norm( AOrig, ONE_NORM );
-    const R infNormOfA = Norm( AOrig, INFINITY_NORM );
-    const R frobNormOfA = Norm( AOrig, FROBENIUS_NORM );
-    oneNormOfError = Norm( L, ONE_NORM );
-    infNormOfError = Norm( L, INFINITY_NORM );
-    frobNormOfError = Norm( L, FROBENIUS_NORM );
+    const R oneNormOfA = OneNorm( AOrig );
+    const R infNormOfA = InfinityNorm( AOrig );
+    const R frobNormOfA = FrobeniusNorm( AOrig );
+    oneNormOfError = OneNorm( L );
+    infNormOfError = InfinityNorm( L );
+    frobNormOfError = FrobeniusNorm( L );
     if( g.Rank() == 0 )
     {
         cout << "    ||A||_1       = " << oneNormOfA << "\n"

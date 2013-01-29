@@ -10,6 +10,8 @@
 #ifndef LAPACK_QR_PANEL_HPP
 #define LAPACK_QR_PANEL_HPP
 
+#include "elemental/lapack-like/Reflector.hpp"
+
 namespace elem {
 namespace internal {
 

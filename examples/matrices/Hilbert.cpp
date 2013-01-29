@@ -8,7 +8,9 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/ConditionNumber.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Nuclear.hpp"
+#include "elemental/lapack-like/HermitianNorm/Two.hpp"
 #include "elemental/lapack-like/HilbertSchmidt.hpp"
 #include "elemental/lapack-like/HPDDeterminant.hpp"
 #include "elemental/lapack-like/LogBarrier.hpp"
@@ -41,9 +43,9 @@ main( int argc, char* argv[] )
         const double det = HPDDeterminant( LOWER, H );
         const double logBarrier = LogBarrier( LOWER, H );
         const double hilbertSchmidt = HilbertSchmidt( H, H );
-        const double twoNorm = HermitianNorm( LOWER, H, TWO_NORM );
-        const double frobNorm = HermitianNorm( LOWER, H, FROBENIUS_NORM );
-        const double nuclearNorm = HermitianNorm( LOWER, H, NUCLEAR_NORM );
+        const double twoNorm = HermitianTwoNorm( LOWER, H );
+        const double frobNorm = HermitianFrobeniusNorm( LOWER, H );
+        const double nuclearNorm = HermitianNuclearNorm( LOWER, H );
 
         if( commRank == 0 )
         {

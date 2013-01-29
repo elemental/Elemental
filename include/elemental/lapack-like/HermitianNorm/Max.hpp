@@ -11,14 +11,13 @@
 #define LAPACK_HERMITIANNORM_MAX_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F>
 inline typename Base<F>::type
 HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianMaxNorm");
+    PushCallStack("HermitianMaxNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -61,7 +60,7 @@ inline typename Base<F>::type
 HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianMaxNorm");
+    PushCallStack("HermitianMaxNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -111,7 +110,6 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     return maxAbs;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANNORM_MAX_HPP

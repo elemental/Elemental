@@ -24,11 +24,11 @@ main( int argc, char* argv[] )
     DistMatrix<R,VR,STAR> s;
     U = A;
     SVD( U, s, V );
-    const R twoNormOfA = Norm( s, MAX_NORM );
+    const R twoNormOfA = MaxNorm( s );
 
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-    const R frobNormOfE = Norm( A, FROBENIUS_NORM );
+    const R frobNormOfE = FrobeniusNorm( A );
     const R eps = lapack::MachineEpsilon<R>();
     const R scaledResidual = frobNormOfE / (std::max(m,n)*eps*twoNormOfA);
     if( mpi::WorldRank() == 0 )

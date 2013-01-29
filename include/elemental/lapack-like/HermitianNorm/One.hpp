@@ -11,14 +11,13 @@
 #define LAPACK_HERMITIANNORM_ONE_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianOneNorm");
+    PushCallStack("HermitianOneNorm");
 #endif
     typedef typename Base<F>::type R;
     if( A.Height() != A.Width() )
@@ -60,7 +59,7 @@ inline typename Base<F>::type
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianOneNorm");
+    PushCallStack("HermitianOneNorm");
 #endif
     typedef typename Base<F>::type R;
 
@@ -178,7 +177,6 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     return maxColSum;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANNORM_ONE_HPP

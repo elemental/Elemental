@@ -13,6 +13,7 @@
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Bidiag.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
 namespace elem {
@@ -678,7 +679,7 @@ CheckScale
 
     scale = 1;
     needRescaling = false;
-    const R oneNormOfA = Norm( A, ONE_NORM );
+    const R oneNormOfA = OneNorm( A );
     const R safeMin = lapack::MachineSafeMin<R>();
     const R precision = lapack::MachinePrecision<R>();
     const R smallNumber = safeMin/precision;

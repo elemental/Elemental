@@ -8,7 +8,7 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/SortEig.hpp"
 using namespace std;
 using namespace elem;
@@ -99,16 +99,16 @@ main( int argc, char* argv[] )
         }
 
         // Check the residual, || H X - Omega X ||_F
-        const R frobH = HermitianNorm( LOWER, HCopy, FROBENIUS_NORM );
+        const R frobH = HermitianFrobeniusNorm( LOWER, HCopy );
         DistMatrix<C> E( X );
         DiagonalScale( RIGHT, NORMAL, w, E );
         Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
-        const R frobResid = HermitianNorm( LOWER, E, FROBENIUS_NORM );
+        const R frobResid = HermitianFrobeniusNorm( LOWER, E );
 
         // Check the orthogonality of X
         Identity( n, n, E );
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
-        const R frobOrthog = HermitianNorm( LOWER, E, FROBENIUS_NORM );
+        const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( g.Rank() == 0 )
         {

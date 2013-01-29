@@ -7,27 +7,27 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SYMMETRICNORM_NUCLEAN_HPP
-#define LAPACK_SYMMETRICNORM_NUCLEAN_HPP
+#ifndef LAPACK_SYMMETRICNORM_NUCLEAR_HPP
+#define LAPACK_SYMMETRICNORM_NUCLEAR_HPP
+
+#include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/SVD.hpp"
 
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmetricNuclearNorm");
+    PushCallStack("SymmetricNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-
-    const R norm = Norm( s, ONE_NORM );
+    const R norm = OneNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -39,23 +39,20 @@ inline typename Base<F>::type
 SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmetricNuclearNorm");
+    PushCallStack("SymmetricNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-
-    const R norm = Norm( s, ONE_NORM );
+    const R norm = OneNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_SYMMETRICNORM_NUCLEAR_HPP

@@ -8,8 +8,13 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/One.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 using namespace std;
 using namespace elem;
 
@@ -34,14 +39,14 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = Norm( Y, ONE_NORM );
-        const R infNormOfError = Norm( Y, INFINITY_NORM );
-        const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        const R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        const R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        const R oneNormOfX = Norm( X, ONE_NORM );
-        const R infNormOfX = Norm( X, INFINITY_NORM );
-        const R frobNormOfX = Norm( X, FROBENIUS_NORM );
+        const R oneNormOfError = OneNorm( Y );
+        const R infNormOfError = InfinityNorm( Y );
+        const R frobNormOfError = FrobeniusNorm( Y );
+        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const R oneNormOfX = OneNorm( X );
+        const R infNormOfX = InfinityNorm( X );
+        const R frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -61,14 +66,14 @@ void TestCorrectness
         Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = Norm( Y, ONE_NORM );
-        const R infNormOfError = Norm( Y, INFINITY_NORM );
-        const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-        const R infNormOfA = HermitianNorm( uplo, AOrig, INFINITY_NORM );
-        const R frobNormOfA = HermitianNorm( uplo, AOrig, FROBENIUS_NORM );
-        const R oneNormOfX = Norm( X, ONE_NORM );
-        const R infNormOfX = Norm( X, INFINITY_NORM );
-        const R frobNormOfX = Norm( X, FROBENIUS_NORM );
+        const R oneNormOfError = OneNorm( Y );
+        const R infNormOfError = InfinityNorm( Y );
+        const R frobNormOfError = FrobeniusNorm( Y );
+        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const R oneNormOfX = OneNorm( X );
+        const R infNormOfX = InfinityNorm( X );
+        const R frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"

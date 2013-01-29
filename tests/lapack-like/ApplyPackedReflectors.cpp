@@ -8,7 +8,9 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -63,9 +65,9 @@ void TestCorrectness
             X.Print("I - Q^H Q");
     }
 
-    const R oneNormOfError = Norm( X, ONE_NORM );
-    const R infNormOfError = Norm( X, INFINITY_NORM );
-    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = OneNorm( X );
+    const R infNormOfError = InfinityNorm( X );
+    const R frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -139,9 +141,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    const R oneNormOfError = Norm( X, ONE_NORM );
-    const R infNormOfError = Norm( X, INFINITY_NORM );
-    const R frobNormOfError = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = OneNorm( X );
+    const R infNormOfError = InfinityNorm( X );
+    const R frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )

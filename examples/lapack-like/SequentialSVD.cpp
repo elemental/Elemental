@@ -7,7 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 #include "elemental/lapack-like/TwoNormLowerBound.hpp"
 #include "elemental/lapack-like/TwoNormUpperBound.hpp"
@@ -102,21 +105,20 @@ main( int argc, char* argv[] )
             U = A;
             SVD( U, s, V, useQR );
 
-            const R twoNormOfA = Norm( s, MAX_NORM );
-
-            const R maxNormOfA = Norm( A, MAX_NORM );
-            const R oneNormOfA = Norm( A, ONE_NORM );
-            const R infNormOfA = Norm( A, INFINITY_NORM );
-            const R frobNormOfA = Norm( A, FROBENIUS_NORM );
+            const R twoNormOfA = MaxNorm( s );
+            const R maxNormOfA = MaxNorm( A );
+            const R oneNormOfA = OneNorm( A );
+            const R infNormOfA = InfinityNorm( A );
+            const R frobNormOfA = FrobeniusNorm( A );
             const R lowerBound = TwoNormLowerBound( A );
             const R upperBound = TwoNormUpperBound( A );
 
             DiagonalScale( RIGHT, NORMAL, s, U );
             Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-            const R maxNormOfE = Norm( A, MAX_NORM );
-            const R oneNormOfE = Norm( A, ONE_NORM );
-            const R infNormOfE = Norm( A, INFINITY_NORM );
-            const R frobNormOfE = Norm( A, FROBENIUS_NORM );
+            const R maxNormOfE = MaxNorm( A );
+            const R oneNormOfE = OneNorm( A );
+            const R infNormOfE = InfinityNorm( A );
+            const R frobNormOfE = FrobeniusNorm( A );
             const R epsilon = lapack::MachineEpsilon<R>();
             const R scaledResidual = frobNormOfE/(n*epsilon*twoNormOfA);
 

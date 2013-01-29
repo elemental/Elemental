@@ -10,24 +10,24 @@
 #ifndef LAPACK_SYMMETRICNORM_TWO_HPP
 #define LAPACK_SYMMETRICNORM_TWO_HPP
 
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/SVD.hpp"
+
 namespace elem {
-namespace internal {
 
 template<typename F> 
 inline typename Base<F>::type
 SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmetricTwoNorm");
+    PushCallStack("SymmetricTwoNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-
-    const R norm = Norm( s, INFINITY_NORM );
+    const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -39,23 +39,20 @@ inline typename Base<F>::type
 SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmetricTwoNorm");
+    PushCallStack("SymmetricTwoNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-
-    const R norm = Norm( s, INFINITY_NORM );
+    const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return norm;
 }
 
-} // namespace internal
 } // namespace elem
 
 #endif // ifndef LAPACK_SYMMETRICNORM_TWO_HPP

@@ -10,9 +10,12 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Symm.hpp"
 #include "elemental/blas-like/level3/Trmm.hpp"
-#include "elemental/lapack-like/HermitianNorm.hpp"
+#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
+#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/LDL.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
@@ -44,14 +47,14 @@ void TestCorrectness
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
     else
         Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-    const R oneNormOfError = Norm( Y, ONE_NORM );
-    const R infNormOfError = Norm( Y, INFINITY_NORM );
-    const R frobNormOfError = Norm( Y, FROBENIUS_NORM );
-    const R infNormOfA = HermitianNorm( LOWER, AOrig, INFINITY_NORM );
-    const R frobNormOfA = HermitianNorm( LOWER, AOrig, FROBENIUS_NORM );
-    const R oneNormOfX = Norm( X, ONE_NORM );
-    const R infNormOfX = Norm( X, INFINITY_NORM );
-    const R frobNormOfX = Norm( X, FROBENIUS_NORM );
+    const R oneNormOfError = OneNorm( Y );
+    const R infNormOfError = InfinityNorm( Y );
+    const R frobNormOfError = FrobeniusNorm( Y );
+    const R infNormOfA = HermitianInfinityNorm( LOWER, AOrig );
+    const R frobNormOfA = HermitianFrobeniusNorm( LOWER, AOrig );
+    const R oneNormOfX = OneNorm( X );
+    const R infNormOfX = InfinityNorm( X );
+    const R frobNormOfX = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
