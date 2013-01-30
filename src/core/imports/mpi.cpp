@@ -1,6 +1,7 @@
 /*
    Copyright (c) 2009-2013, Jack Poulson
                       2013, Jeff Hammond
+                      2013, Jed Brown
    All rights reserved.
 
    This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -35,7 +36,7 @@ namespace mpi {
 template<typename T>
 struct MpiMap
 {
-    int type;
+    Datatype type;
     MpiMap();
 };
 
