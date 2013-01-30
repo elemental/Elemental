@@ -7,7 +7,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-#include "elemental.hpp"
+#include "elemental-lite.hpp"
 
 namespace {
 
@@ -29,6 +29,33 @@ SafeMpi( int mpiError )
 
 namespace elem {
 namespace mpi {
+
+// NOTE: This data structure is inspired by Justin Holewinski's blog post at
+//       http://jholewinski.org/blog/the-beauty-of-c-templates/
+template<typename T>
+struct MpiMap
+{
+    int type;
+    MpiMap();
+};
+
+template<>
+MpiMap<byte>::MpiMap() : type(MPI_UNSIGNED_CHAR) { }
+
+template<>
+MpiMap<int>::MpiMap() : type(MPI_INT) { }
+
+template<>
+MpiMap<float>::MpiMap() : type(MPI_FLOAT) { }
+
+template<>
+MpiMap<double>::MpiMap() : type(MPI_DOUBLE) { }
+
+template<>
+MpiMap<Complex<float> >::MpiMap() : type(MPI_COMPLEX) { }
+
+template<>
+MpiMap<Complex<double> >::MpiMap() : type(MPI_DOUBLE_COMPLEX) { }
 
 //----------------------------//
 // MPI environmental routines //
@@ -103,7 +130,7 @@ int WorldRank()
     PushCallStack("mpi::WorldRank");
 #endif
     int rank;
-    SafeMpi( MPI_Comm_rank( mpi::COMM_WORLD, &rank ) );
+    SafeMpi( MPI_Comm_rank( COMM_WORLD, &rank ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -408,302 +435,108 @@ bool IProbe( int source, int tag, Comm comm, Status& status )
     return flag;
 }
 
-template<>
-int GetCount<byte>( Status& status )
+template<typename T>
+int GetCount( Status& status )
 {
 #ifndef RELEASE
     PushCallStack("mpi::GetCount");
 #endif
     int count;
-    SafeMpi( MPI_Get_count( &status, MPI_UNSIGNED_CHAR, &count ) );
+    MpiMap<T> map;
+    SafeMpi( MPI_Get_count( &status, map.type, &count ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
     return count;
 }
+template int GetCount<byte>( Status& status );
+template int GetCount<int>( Status& status );
+template int GetCount<float>( Status& status );
+template int GetCount<double>( Status& status );
+template int GetCount<Complex<float> >( Status& status );
+template int GetCount<Complex<double> >( Status& status );
 
-template<>
-int GetCount<int>( Status& status )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::GetCount");
-#endif
-    int count;
-    SafeMpi( MPI_Get_count( &status, MPI_INT, &count ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return count;
-}
-
-template<>
-int GetCount<float>( Status& status )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::GetCount");
-#endif
-    int count;
-    SafeMpi( MPI_Get_count( &status, MPI_FLOAT, &count ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return count;
-}
-
-template<>
-int GetCount<double>( Status& status )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::GetCount");
-#endif
-    int count;
-    SafeMpi( MPI_Get_count( &status, MPI_DOUBLE, &count ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return count;
-}
-
-template<>
-int GetCount<scomplex>( Status& status )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::GetCount");
-#endif
-    int count;
-    SafeMpi( MPI_Get_count( &status, MPI_COMPLEX, &count ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return count;
-}
-
-template<>
-int GetCount<dcomplex>( Status& status )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::GetCount");
-#endif
-    int count;
-    SafeMpi( MPI_Get_count( &status, MPI_DOUBLE_COMPLEX, &count ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return count;
-}
-
-void Send( const byte* buf, int count, int to, int tag, Comm comm )
+template<typename R>
+void Send( const R* buf, int count, int to, int tag, Comm comm )
 { 
 #ifndef RELEASE
     PushCallStack("mpi::Send");
 #endif
-    SafeMpi( 
-        MPI_Send
-        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm ) 
-    );
+    MpiMap<R> map;
+    SafeMpi( MPI_Send( const_cast<R*>(buf), count, map.type, to, tag, comm ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
+void Send( const Complex<R>* buf, int count, int to, int tag, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Send");
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
+    SafeMpi(
+        MPI_Send
+        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm )
+    );
+#else
+    MpiMap<Complex<R> > map;
+    SafeMpi( 
+        MPI_Send
+        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm )
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template void Send( const byte* buf, int count, int to, int tag, Comm comm );
+template void Send( const int* buf, int count, int to, int tag, Comm comm );
+template void Send( const float* buf, int count, int to, int tag, Comm comm );
+template void Send( const double* buf, int count, int to, int tag, Comm comm );
+template void Send( const Complex<float>* buf, int count, int to, int tag, Comm comm );
+template void Send( const Complex<double>* buf, int count, int to, int tag, Comm comm );
+
+template<typename R>
 void ISend
-( const byte* buf, int count, int to, int tag, Comm comm, Request& request )
+( const R* buf, int count, int to, int tag, Comm comm, Request& request )
 { 
 #ifndef RELEASE
     PushCallStack("mpi::ISend");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Isend
-        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm,
-          &request ) 
+        ( const_cast<R*>(buf), count, map.type, to, tag, comm, &request )
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void ISSend
-( const byte* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISSend");
-#endif
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<byte*>(buf), count, MPI_UNSIGNED_CHAR, to, tag, comm, 
-          &request )
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Send( const int* buf, int count, int to, int tag, Comm comm )
-{ 
-#ifndef RELEASE
-    PushCallStack("mpi::Send");
-#endif
-    SafeMpi( 
-        MPI_Send( const_cast<int*>(buf), count, MPI_INT, to, tag, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
+template<typename R>
 void ISend
-( const int* buf, int count, int to, int tag, Comm comm, Request& request )
-{ 
-#ifndef RELEASE
-    PushCallStack("mpi::ISend");
-#endif
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<int*>(buf), count, MPI_INT, to, tag, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISSend
-( const int* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISSend");
-#endif
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<int*>(buf), count, MPI_INT, to, tag, comm, &request )
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Send( const float* buf, int count, int to, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Send");
-#endif
-    SafeMpi( 
-        MPI_Send( const_cast<float*>(buf), count, MPI_FLOAT, to, tag, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISend
-( const float* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISend");
-#endif
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<float*>(buf), count, MPI_FLOAT, to, tag, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISSend
-( const float* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISSend");
-#endif
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<float*>(buf), count, MPI_FLOAT, to, tag, comm, &request )
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Send( const double* buf, int count, int to, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Send");
-#endif
-    SafeMpi( 
-        MPI_Send( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISend
-( const double* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISend");
-#endif
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm, &request )
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISSend
-( const double* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISSend");
-#endif
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<double*>(buf), count, MPI_DOUBLE, to, tag, comm, &request )
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Send( const scomplex* buf, int count, int to, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Send");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Send
-        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Send
-        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISend
-( const scomplex* buf, int count, int to, int tag, Comm comm, Request& request )
+( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
+  Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ISend");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Isend
-        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm,
+        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm,
           &request )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Isend
-        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm,
+        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm,
           &request )
     );
 #endif
@@ -712,22 +545,50 @@ void ISend
 #endif
 }
 
+template void ISend( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISend( const int* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISend( const float* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISend( const double* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISend( const Complex<float>* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISend( const Complex<double>* buf, int count, int to, int tag, Comm comm, Request& request );
+
+template<typename R>
 void ISSend
-( const scomplex* buf, int count, int to, int tag, Comm comm, Request& request )
+( const R* buf, int count, int to, int tag, Comm comm, Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ISSend");
+#endif
+    MpiMap<R> map;
+    SafeMpi(
+        MPI_Issend
+        ( const_cast<R*>(buf), count, map.type, to, tag, comm, &request )
+    );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+void ISSend
+( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
+  Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ISSend");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Issend
-        ( const_cast<scomplex*>(buf), 2*count, MPI_FLOAT, to, tag, comm,
+        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm,
           &request )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi(
         MPI_Issend
-        ( const_cast<scomplex*>(buf), count, MPI_COMPLEX, to, tag, comm,
+        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm,
           &request )
     );
 #endif
@@ -736,339 +597,135 @@ void ISSend
 #endif
 }
 
-void Send( const dcomplex* buf, int count, int to, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Send");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Send
-        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Send
-        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void ISSend( const byte* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISSend( const int* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISSend( const float* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISSend( const double* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISSend( const Complex<float>* buf, int count, int to, int tag, Comm comm, Request& request );
+template void ISSend( const Complex<double>* buf, int count, int to, int tag, Comm comm, Request& request );
 
-void ISend
-( const dcomplex* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISend");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Isend
-        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm,
-          &request )
-    );
-#else
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm,
-          &request )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ISSend
-( const dcomplex* buf, int count, int to, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ISSend");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<dcomplex*>(buf), 2*count, MPI_DOUBLE, to, tag, comm,
-          &request )
-    );
-#else
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<dcomplex*>(buf), count, MPI_DOUBLE_COMPLEX, to, tag, comm,
-          &request )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Recv( byte* buf, int count, int from, int tag, Comm comm )
+template<typename R>
+void Recv( R* buf, int count, int from, int tag, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Recv");
 #endif
+    MpiMap<R> map;
     Status status;
-    SafeMpi( 
-        MPI_Recv( buf, count, MPI_UNSIGNED_CHAR, from, tag, comm, &status ) 
-    );
+    SafeMpi( MPI_Recv( buf, count, map.type, from, tag, comm, &status ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void IRecv
-( byte* buf, int count, int from, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IRecv");
-#endif
-    SafeMpi( 
-        MPI_Irecv( buf, count, MPI_UNSIGNED_CHAR, from, tag, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Recv( int* buf, int count, int from, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Recv");
-#endif
-    Status status;
-    SafeMpi( MPI_Recv( buf, count, MPI_INT, from, tag, comm, &status ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IRecv
-( int* buf, int count, int from, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IRecv");
-#endif
-    SafeMpi( MPI_Irecv( buf, count, MPI_INT, from, tag, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Recv( float* buf, int count, int from, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Recv");
-#endif
-    Status status;
-    SafeMpi( MPI_Recv( buf, count, MPI_FLOAT, from, tag, comm, &status ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IRecv
-( float* buf, int count, int from, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IRecv");
-#endif
-    SafeMpi( MPI_Irecv( buf, count, MPI_FLOAT, from, tag, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Recv( double* buf, int count, int from, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Recv");
-#endif
-    Status status;
-    SafeMpi( MPI_Recv( buf, count, MPI_DOUBLE, from, tag, comm, &status ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IRecv
-( double* buf, int count, int from, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IRecv");
-#endif
-    SafeMpi( MPI_Irecv( buf, count, MPI_DOUBLE, from, tag, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Recv( scomplex* buf, int count, int from, int tag, Comm comm )
+template<typename R>
+void Recv( Complex<R>* buf, int count, int from, int tag, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Recv");
 #endif
     Status status;
 #ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Recv( buf, 2*count, MPI_FLOAT, from, tag, comm, &status ) );
+    MpiMap<R> map;
+    SafeMpi( MPI_Recv( buf, 2*count, map.type, from, tag, comm, &status ) );
 #else
-    SafeMpi( MPI_Recv( buf, count, MPI_COMPLEX, from, tag, comm, &status ) );
+    MpiMap<Complex<R> > map;
+    SafeMpi( MPI_Recv( buf, count, map.type, from, tag, comm, &status ) );
 #endif
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template void Recv( byte* buf, int count, int from, int tag, Comm comm );
+template void Recv( int* buf, int count, int from, int tag, Comm comm );
+template void Recv( float* buf, int count, int from, int tag, Comm comm );
+template void Recv( double* buf, int count, int from, int tag, Comm comm );
+template void Recv( Complex<float>* buf, int count, int from, int tag, Comm comm );
+template void Recv( Complex<double>* buf, int count, int from, int tag, Comm comm );
+
+template<typename R>
+void IRecv( R* buf, int count, int from, int tag, Comm comm, Request& request )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::IRecv");
+#endif
+    MpiMap<R> map;
+    SafeMpi( MPI_Irecv( buf, count, map.type, from, tag, comm, &request ) );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
 void IRecv
-( scomplex* buf, int count, int from, int tag, Comm comm, Request& request )
+( Complex<R>* buf, int count, int from, int tag, Comm comm, Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::IRecv");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Irecv( buf, 2*count, MPI_FLOAT, from, tag, comm, &request ) );
+    MpiMap<R> map;
+    SafeMpi( MPI_Irecv( buf, 2*count, map.type, from, tag, comm, &request ) );
 #else
-    SafeMpi( MPI_Irecv( buf, count, MPI_COMPLEX, from, tag, comm, &request ) );
+    MpiMap<Complex<R> > map;
+    SafeMpi( MPI_Irecv( buf, count, map.type, from, tag, comm, &request ) );
 #endif
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void Recv( dcomplex* buf, int count, int from, int tag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Recv");
-#endif
-    Status status;
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Recv( buf, 2*count, MPI_DOUBLE, from, tag, comm, &status )
-    );
-#else
-    SafeMpi( 
-        MPI_Recv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &status )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void IRecv( byte* buf, int count, int from, int tag, Comm comm, Request& request );
+template void IRecv( int* buf, int count, int from, int tag, Comm comm, Request& request );
+template void IRecv( float* buf, int count, int from, int tag, Comm comm, Request& request );
+template void IRecv( double* buf, int count, int from, int tag, Comm comm, Request& request );
+template void IRecv( Complex<float>* buf, int count, int from, int tag, Comm comm, Request& request );
+template void IRecv( Complex<double>* buf, int count, int from, int tag, Comm comm, Request& request );
 
-void IRecv
-( dcomplex* buf, int count, int from, int tag, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IRecv");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Irecv( buf, 2*count, MPI_DOUBLE, from, tag, comm, &request )
-    );
-#else
-    SafeMpi( 
-        MPI_Irecv( buf, count, MPI_DOUBLE_COMPLEX, from, tag, comm, &request )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
+template<typename R>
 void SendRecv
-( const byte* sbuf, int sc, int to,   int stag,
-        byte* rbuf, int rc, int from, int rtag, Comm comm )
+( const R* sbuf, int sc, int to,   int stag,
+        R* rbuf, int rc, int from, int rtag, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::SendRecv");
 #endif
     Status status;
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Sendrecv
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR, to, stag,
-          rbuf, rc, MPI_UNSIGNED_CHAR, from, rtag, comm, &status ) 
+        ( const_cast<R*>(sbuf), sc, map.type, to,   stag,
+          rbuf,                 rc, map.type, from, rtag, comm, &status )
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void SendRecv
-( const int* sbuf, int sc, int to,   int stag,
-        int* rbuf, int rc, int from, int rtag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::SendRecv");
-#endif
-    Status status;
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<int*>(sbuf), sc, MPI_INT, to, stag,
-          rbuf, rc, MPI_INT, from, rtag, comm, &status ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void SendRecv
-( const float* sbuf, int sc, int to,   int stag,
-        float* rbuf, int rc, int from, int rtag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::SendRecv");
-#endif
-    Status status;
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT, to, stag,
-          rbuf, rc, MPI_FLOAT, from, rtag, comm, &status ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void SendRecv
-( const double* sbuf, int sc, int to,   int stag,
-        double* rbuf, int rc, int from, int rtag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::SendRecv");
-#endif
-    Status status;
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE, to, stag,
-          rbuf, rc, MPI_DOUBLE, from, rtag, comm, &status ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void SendRecv
-( const scomplex* sbuf, int sc, int to,   int stag,
-        scomplex* rbuf, int rc, int from, int rtag, Comm comm )
+( const Complex<R>* sbuf, int sc, int to,   int stag,
+        Complex<R>* rbuf, int rc, int from, int rtag, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::SendRecv");
 #endif
     Status status;
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Sendrecv
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT, to,   stag,
-          rbuf,                        2*rc, MPI_FLOAT, from, rtag, 
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type, to,   stag,
+          rbuf,                          2*rc, map.type, from, rtag, 
           comm, &status )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Sendrecv
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX, to,   stag,
-          rbuf,                        rc, MPI_COMPLEX, from, rtag, 
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type, to,   stag,
+          rbuf,                          rc, map.type, from, rtag, 
           comm, &status )
     );
 #endif
@@ -1077,276 +734,144 @@ void SendRecv
 #endif
 }
 
-void SendRecv
-( const dcomplex* sbuf, int sc, int to,   int stag,
-        dcomplex* rbuf, int rc, int from, int rtag, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::SendRecv");
-#endif
-    Status status;
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Sendrecv
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE, to,   stag,
-          rbuf,                        2*rc, MPI_DOUBLE, from, rtag, 
-          comm, &status )
-    );
-#else
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX, to,   stag,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, from, rtag, 
-          comm, &status )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void SendRecv
+( const byte* sbuf, int sc, int to, int stag, 
+        byte* rbuf, int rc, int from, int rtag, Comm comm );
+template void SendRecv
+( const int* sbuf, int sc, int to, int stag, 
+        int* rbuf, int rc, int from, int rtag, Comm comm );
+template void SendRecv
+( const float* sbuf, int sc, int to, int stag, 
+        float* rbuf, int rc, int from, int rtag, Comm comm );
+template void SendRecv
+( const double* sbuf, int sc, int to, int stag, 
+        double* rbuf, int rc, int from, int rtag, Comm comm );
+template void SendRecv
+( const Complex<float>* sbuf, int sc, int to, int stag, 
+        Complex<float>* rbuf, int rc, int from, int rtag, Comm comm );
+template void SendRecv
+( const Complex<double>* sbuf, int sc, int to, int stag, 
+        Complex<double>* rbuf, int rc, int from, int rtag, Comm comm );
 
-void Broadcast( byte* buf, int count, int root, Comm comm )
+template<typename R>
+void Broadcast( R* buf, int count, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Broadcast");
 #endif
-    SafeMpi( MPI_Bcast( buf, count, MPI_UNSIGNED_CHAR, root, comm ) );
+    MpiMap<R> map;
+    SafeMpi( MPI_Bcast( buf, count, map.type, root, comm ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void Broadcast( int* buf, int count, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Broadcast");
-#endif
-    SafeMpi( MPI_Bcast( buf, count, MPI_INT, root, comm ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Broadcast( float* buf, int count, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Broadcast");
-#endif
-    SafeMpi( MPI_Bcast( buf, count, MPI_FLOAT, root, comm ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Broadcast( double* buf, int count, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Broadcast");
-#endif
-    SafeMpi( MPI_Bcast( buf, count, MPI_DOUBLE, root, comm ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Broadcast( scomplex* buf, int count, int root, Comm comm )
+template<typename R>
+void Broadcast( Complex<R>* buf, int count, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Broadcast");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Bcast( buf, 2*count, MPI_FLOAT, root, comm ) );
+    MpiMap<R> map;
+    SafeMpi( MPI_Bcast( buf, 2*count, map.type, root, comm ) );
 #else
-    SafeMpi( MPI_Bcast( buf, count, MPI_COMPLEX, root, comm ) );
+    MpiMap<Complex<R> > map;
+    SafeMpi( MPI_Bcast( buf, count, map.type, root, comm ) );
 #endif
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void Broadcast( dcomplex* buf, int count, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Broadcast");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Bcast( buf, 2*count, MPI_DOUBLE, root, comm ) );
-#else
-    SafeMpi( MPI_Bcast( buf, count, MPI_DOUBLE_COMPLEX, root, comm ) );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void Broadcast( byte* buf, int count, int root, Comm comm );
+template void Broadcast( int* buf, int count, int root, Comm comm );
+template void Broadcast( float* buf, int count, int root, Comm comm );
+template void Broadcast( double* buf, int count, int root, Comm comm );
+template void Broadcast( Complex<float>* buf, int count, int root, Comm comm );
+template void Broadcast( Complex<double>* buf, int count, int root, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
-void IBroadcast( byte* buf, int count, int root, Comm comm, Request& request )
+template<typename R>
+void IBroadcast( R* buf, int count, int root, Comm comm, Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::IBroadcast");
 #endif
-    SafeMpi( 
-        MPI_Ibcast( buf, count, MPI_UNSIGNED_CHAR, root, comm, &request ) 
-    );
+    MpiMap<R> map;
+    SafeMpi( MPI_Ibcast( buf, count, map.type, root, comm, &request ) );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void IBroadcast( int* buf, int count, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IBroadcast");
-#endif
-    SafeMpi( MPI_Ibcast( buf, count, MPI_INT, root, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IBroadcast( float* buf, int count, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IBroadcast");
-#endif
-    SafeMpi( MPI_Ibcast( buf, count, MPI_FLOAT, root, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IBroadcast( double* buf, int count, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IBroadcast");
-#endif
-    SafeMpi( MPI_Ibcast( buf, count, MPI_DOUBLE, root, comm, &request ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
+template<typename R>
 void IBroadcast
-( scomplex* buf, int count, int root, Comm comm, Request& request )
+( Complex<R>* buf, int count, int root, Comm comm, Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::IBroadcast");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Ibcast( buf, 2*count, MPI_FLOAT, root, comm, &request ) );
+    MpiMap<R> map;
+    SafeMpi( MPI_Ibcast( buf, 2*count, map.type, root, comm, &request ) );
 #else
-    SafeMpi( MPI_Ibcast( buf, count, MPI_COMPLEX, root, comm, &request ) );
+    MpiMap<Complex<R> > map;
+    SafeMpi( MPI_Ibcast( buf, count, map.type, root, comm, &request ) );
 #endif
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-void IBroadcast
-( dcomplex* buf, int count, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IBroadcast");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi( MPI_Ibcast( buf, 2*count, MPI_DOUBLE, root, comm, &request ) );
-#else
-    SafeMpi( 
-        MPI_Ibcast( buf, count, MPI_DOUBLE_COMPLEX, root, comm, &request ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void IBroadcast( byte* buf, int count, int root, Comm comm, Request& request );
+template void IBroadcast( int* buf, int count, int root, Comm comm, Request& request );
+template void IBroadcast( float* buf, int count, int root, Comm comm, Request& request );
+template void IBroadcast( double* buf, int count, int root, Comm comm, Request& request );
+template void IBroadcast( Complex<float>* buf, int count, int root, Comm comm, Request& request );
+template void IBroadcast( Complex<double>* buf, int count, int root, Comm comm, Request& request );
 #endif // ifdef HAVE_NONBLOCKING_COLLECTIVES
 
+template<typename R>
 void Gather
-( const byte* sbuf, int sc,
-        byte* rbuf, int rc, int root, Comm comm )
+( const R* sbuf, int sc,
+        R* rbuf, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Gather
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
-          rbuf,                    rc, MPI_UNSIGNED_CHAR, root, comm ) 
+        ( const_cast<R*>(sbuf), sc, map.type,
+          rbuf,                 rc, map.type, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void Gather
-( const int* sbuf, int sc,
-        int* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<int*>(sbuf), sc, MPI_INT,
-          rbuf,                   rc, MPI_INT, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const float* sbuf, int sc,
-        float* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-          rbuf,                     rc, MPI_FLOAT, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const double* sbuf, int sc,
-        double* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-          rbuf,                      rc, MPI_DOUBLE, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int rc, int root, Comm comm )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Gather
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf,                        2*rc, MPI_FLOAT, root, comm )
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf,                          2*rc, map.type, root, comm )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Gather
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-          rbuf,                        rc, MPI_COMPLEX, root, comm ) 
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
+          rbuf,                          rc, map.type, root, comm ) 
     );
 #endif
 #ifndef RELEASE
@@ -1354,123 +879,55 @@ void Gather
 #endif
 }
 
-void Gather
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Gather
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf,                        2*rc, MPI_DOUBLE, root, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, root, comm )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void Gather( const byte* sbuf, int sc, byte* rbuf, int rc, int root, Comm comm );
+template void Gather( const int* sbuf, int sc, int* rbuf, int rc, int root, Comm comm );
+template void Gather( const float* sbuf, int sc, float* rbuf, int rc, int root, Comm comm );
+template void Gather( const double* sbuf, int sc, double* rbuf, int rc, int root, Comm comm );
+template void Gather( const Complex<float>* sbuf, int sc, Complex<float>* rbuf, int rc, int root, Comm comm );
+template void Gather( const Complex<double>* sbuf, int sc, Complex<double>* rbuf, int rc, int root, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
+template<typename R>
 void IGather
-( const byte* sbuf, int sc,
-        byte* rbuf, int rc, int root, Comm comm, Request& request )
+( const R* sbuf, int sc,
+        R* rbuf, int rc, int root, Comm comm, Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::IGather");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Igather
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
-          rbuf,                    rc, MPI_UNSIGNED_CHAR, 
-          root, comm, &request ) 
+        ( const_cast<R*>(sbuf), sc, map.type,
+          rbuf,                 rc, map.type, root, comm, &request )
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void IGather
-( const int* sbuf, int sc,
-        int* rbuf, int rc, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IGather");
-#endif
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<int*>(sbuf), sc, MPI_INT,
-          rbuf,                   rc, MPI_INT, 
-          root, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Igather
-( const float* sbuf, int sc,
-        float* rbuf, int rc, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IGather");
-#endif
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-          rbuf,                     rc, MPI_FLOAT, 
-          root, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IGather
-( const double* sbuf, int sc,
-        double* rbuf, int rc, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IGather");
-#endif
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-          rbuf,                      rc, MPI_DOUBLE, 
-          root, comm, &request ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void IGather
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int rc, int root, Comm comm, Request& request )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, int rc, int root, Comm comm, Request& request )
 {
 #ifndef RELEASE
     PushCallStack("mpi::IGather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Igather
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf,                        2*rc, MPI_FLOAT, 
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf,                          2*rc, map.type, 
           root, comm, &request )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Igather
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-          rbuf,                        rc, MPI_COMPLEX, 
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
+          rbuf,                          rc, map.type, 
           root, comm, &request ) 
     );
 #endif
@@ -1479,50 +936,44 @@ void IGather
 #endif
 }
 
-void IGather
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int rc, int root, Comm comm, Request& request )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::IGather");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Igather
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf,                        2*rc, MPI_DOUBLE, 
-          root, comm, &request )
-    );
-#else
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, 
-          root, comm, &request )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void IGather
+( const byte* sbuf, int sc, 
+        byte* rbuf, int rc, int root, Comm comm, Request& request );
+template void IGather
+( const int* sbuf, int sc, 
+        int* rbuf, int rc, int root, Comm comm, Request& request );
+template void IGather
+( const float* sbuf, int sc, 
+        float* rbuf, int rc, int root, Comm comm, Request& request );
+template void IGather
+( const double* sbuf, int sc, 
+        double* rbuf, int rc, int root, Comm comm, Request& request );
+template void IGather
+( const Complex<float>* sbuf, int sc, 
+        Complex<float>* rbuf, int rc, int root, Comm comm, Request& request );
+template void IGather
+( const Complex<double>* sbuf, int sc, 
+        Complex<double>* rbuf, int rc, int root, Comm comm, Request& request );
 #endif // ifdef HAVE_NONBLOCKING_COLLECTIVES
 
+template<typename R>
 void Gather
-( const byte* sbuf, int sc,
-        byte* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+( const R* sbuf, int sc,
+        R* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<byte*>(sbuf), 
+        ( const_cast<R*>(sbuf), 
           sc,       
-          MPI_UNSIGNED_CHAR,
+          map.type,
           rbuf,                    
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_UNSIGNED_CHAR, 
+          map.type,
           root, 
           comm ) 
     );
@@ -1531,86 +982,16 @@ void Gather
 #endif
 }
 
+template<typename R>
 void Gather
-( const int* sbuf, int sc,
-        int* rbuf, const int* rcs, const int* rds, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<int*>(sbuf), 
-          sc,       
-          MPI_INT,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_INT, 
-          root, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const float* sbuf, int sc,
-        float* rbuf, const int* rcs, const int* rds, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<float*>(sbuf), 
-          sc,       
-          MPI_FLOAT,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_FLOAT, 
-          root, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const double* sbuf, int sc,
-        double* rbuf, const int* rcs, const int* rds, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Gather");
-#endif
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<double*>(sbuf), 
-          sc,       
-          MPI_DOUBLE,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_DOUBLE, 
-          root, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Gather
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, const int* rcs, const int* rds, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     const int commRank = CommRank( comm );
     const int commSize = CommSize( comm );
     std::vector<int> rcsDouble, rdsDouble;
@@ -1626,20 +1007,21 @@ void Gather
     }
     SafeMpi(
         MPI_Gatherv
-        ( const_cast<scomplex*>(sbuf), 2*sc,                         MPI_FLOAT,
-          rbuf,                        &rcsDouble[0], &rdsDouble[0], MPI_FLOAT, 
+        ( const_cast<Complex<R>*>(sbuf), 2*sc,                         map.type,
+          rbuf,                          &rcsDouble[0], &rdsDouble[0], map.type,
           root, comm )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Gatherv
-        ( const_cast<scomplex*>(sbuf), 
+        ( const_cast<Complex<R>*>(sbuf), 
           sc,       
-          MPI_COMPLEX,
+          map.type,
           rbuf,  
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_COMPLEX, 
+          map.type,
           root, 
           comm ) 
     );
@@ -1649,266 +1031,128 @@ void Gather
 #endif
 }
 
-void Gather
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, const int* rcs, const int* rds, int root, Comm comm )
+template void Gather
+( const byte* sbuf, int sc, 
+        byte* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template void Gather
+( const int* sbuf, int sc, 
+        int* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template void Gather
+( const float* sbuf, int sc, 
+        float* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template void Gather
+( const double* sbuf, int sc, 
+        double* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template void Gather
+( const Complex<float>* sbuf, int sc, 
+        Complex<float>* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+template void Gather
+( const Complex<double>* sbuf, int sc, 
+        Complex<double>* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+
+template<typename R>
+void AllGather
+( const R* sbuf, int sc,
+        R* rbuf, int rc, Comm comm )
 {
 #ifndef RELEASE
-    PushCallStack("mpi::Gather");
+    PushCallStack("mpi::AllGather");
 #endif
-#ifdef AVOID_COMPLEX_MPI
-    const int commRank = CommRank( comm );
+#ifdef USE_BYTE_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                 sizeof(R)*rc, MPI_UNSIGNED_CHAR, comm ) 
+    );
+#else
+    MpiMap<R> map;
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<R*>(sbuf), sc, map.type, 
+          rbuf,                 rc, map.type, comm ) 
+    );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+void AllGather
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, int rc, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf,                          2*sizeof(R)*rc, MPI_UNSIGNED_CHAR, 
+          comm ) 
+    );
+#else
+ #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
+    SafeMpi(
+        MPI_Allgather
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf,                          2*rc, map.type, comm )
+    );
+ #else
+    MpiMap<Complex<R> > map;
+    SafeMpi( 
+        MPI_Allgather
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
+          rbuf,                          rc, map.type, comm ) 
+    );
+ #endif
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template void AllGather( const byte* sbuf, int sc, byte* rbuf, int rc, Comm comm );
+template void AllGather( const int* sbuf, int sc, int* rbuf, int rc, Comm comm );
+template void AllGather( const float* sbuf, int sc, float* rbuf, int rc, Comm comm );
+template void AllGather( const double* sbuf, int sc, double* rbuf, int rc, Comm comm );
+template void AllGather( const Complex<float>* sbuf, int sc, Complex<float>* rbuf, int rc, Comm comm );
+template void AllGather( const Complex<double>* sbuf, int sc, Complex<double>* rbuf, int rc, Comm comm );
+
+template<typename R>
+void AllGather
+( const R* sbuf, int sc,
+        R* rbuf, const int* rcs, const int* rds, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllGather");
+#endif
+#ifdef USE_BYTE_ALLGATHERS
     const int commSize = CommSize( comm );
-    std::vector<int> rcsDouble, rdsDouble;
-    if( commRank == root )
-    {
-        rcsDouble.resize( commSize );
-        rdsDouble.resize( commSize );
-        for( int i=0; i<commSize; ++i )
-        {
-            rcsDouble[i] = 2*rcs[i];
-            rdsDouble[i] = 2*rds[i];
-        }
-    }
-    SafeMpi(
-        MPI_Gatherv
-        ( const_cast<dcomplex*>(sbuf), 2*sc,                         MPI_DOUBLE,
-          rbuf,                        &rcsDouble[0], &rdsDouble[0], MPI_DOUBLE,
-          root, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<dcomplex*>(sbuf), 
-          sc,       
-          MPI_DOUBLE_COMPLEX,
-          rbuf,  
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_DOUBLE_COMPLEX, 
-          root, 
-          comm )
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const byte* sbuf, int sc,
-        byte* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                    rc, MPI_UNSIGNED_CHAR, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const int* sbuf, int sc,
-        int* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<int*>(sbuf), sizeof(int)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                   sizeof(int)*rc, MPI_UNSIGNED_CHAR, comm ) 
-    );
-#else
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<int*>(sbuf), sc, MPI_INT, 
-          rbuf,                   rc, MPI_INT, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const float* sbuf, int sc,
-        float* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                     sizeof(float)*rc, MPI_UNSIGNED_CHAR, comm ) 
-    );
-#else
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT, 
-          rbuf,                     rc, MPI_FLOAT, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const double* sbuf, int sc,
-        double* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                      sizeof(double)*rc, MPI_UNSIGNED_CHAR, 
-          comm ) 
-    );
-#else
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-          rbuf,                      rc, MPI_DOUBLE, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                        2*sizeof(float)*rc, MPI_UNSIGNED_CHAR, 
-          comm ) 
-    );
-#else
- #ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Allgather
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf,                        2*rc, MPI_FLOAT, comm )
-    );
- #else
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-          rbuf,                        rc, MPI_COMPLEX, comm ) 
-    );
- #endif
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                        2*sizeof(double)*rc, MPI_UNSIGNED_CHAR, 
-          comm ) 
-    );
-#else
- #ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Allgather
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf,                        2*rc, MPI_DOUBLE, comm )
-    );
- #else
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
-    );
- #endif
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const byte* sbuf, int sc,
-        byte* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<byte*>(sbuf), 
-          sc,       
-          MPI_UNSIGNED_CHAR, 
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_UNSIGNED_CHAR, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const int* sbuf, int sc,
-        int* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    const int commSize = mpi::CommSize( comm );
     std::vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
-        byteRcs[i] = sizeof(int)*rcs[i];
-        byteRds[i] = sizeof(int)*rds[i];
+        byteRcs[i] = sizeof(R)*rcs[i];
+        byteRds[i] = sizeof(R)*rds[i];
     }
     SafeMpi( 
         MPI_Allgatherv
-        ( const_cast<int*>(sbuf), sizeof(int)*sc,   MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm ) 
+        ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+          rbuf, &byteRcs[0], &byteRds[0],     MPI_UNSIGNED_CHAR, comm ) 
     );
 #else
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Allgatherv
-        ( const_cast<int*>(sbuf), 
+        ( const_cast<R*>(sbuf), 
           sc, 
-          MPI_INT, 
+          map.type, 
           rbuf,   
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_INT, 
+          map.type, 
           comm ) 
     );
 #endif
@@ -1917,105 +1161,31 @@ void AllGather
 #endif
 }
 
+template<typename R>
 void AllGather
-( const float* sbuf, int sc,
-        float* rbuf, const int* rcs, const int* rds, Comm comm )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllGather");
 #endif
 #ifdef USE_BYTE_ALLGATHERS
-    const int commSize = mpi::CommSize( comm );
+    const int commSize = CommSize( comm );
     std::vector<int> byteRcs( commSize ), byteRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
-        byteRcs[i] = sizeof(float)*rcs[i];
-        byteRds[i] = sizeof(float)*rds[i];
+        byteRcs[i] = 2*sizeof(R)*rcs[i];
+        byteRds[i] = 2*sizeof(R)*rds[i];
     }
     SafeMpi( 
         MPI_Allgatherv
-        ( const_cast<float*>(sbuf), sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm ) 
-    );
-#else
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<float*>(sbuf), 
-          sc, 
-          MPI_FLOAT, 
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_FLOAT, 
-          comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const double* sbuf, int sc,
-        double* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    const int commSize = mpi::CommSize( comm );
-    std::vector<int> byteRcs( commSize ), byteRds( commSize );
-    for( int i=0; i<commSize; ++i )
-    {
-        byteRcs[i] = sizeof(double)*rcs[i];
-        byteRds[i] = sizeof(double)*rds[i];
-    }
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<double*>(sbuf), sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<double*>(sbuf), 
-          sc, 
-          MPI_DOUBLE,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds),
-          MPI_DOUBLE, 
-          comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllGather
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    const int commSize = mpi::CommSize( comm );
-    std::vector<int> byteRcs( commSize ), byteRds( commSize );
-    for( int i=0; i<commSize; ++i )
-    {
-        byteRcs[i] = 2*sizeof(float)*rcs[i];
-        byteRds[i] = 2*sizeof(float)*rds[i];
-    }
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<scomplex*>(sbuf), 2*sizeof(float)*sc, MPI_UNSIGNED_CHAR, 
+        ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
           rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
     );
 #else
  #ifdef AVOID_COMPLEX_MPI
-    const int commSize = mpi::CommSize( comm );
+    MpiMap<R> map;
+    const int commSize = CommSize( comm );
     std::vector<int> realRcs( commSize ), realRds( commSize );
     for( int i=0; i<commSize; ++i )
     {
@@ -2024,19 +1194,20 @@ void AllGather
     }
     SafeMpi(
         MPI_Allgatherv
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf, &realRcs[0], &realRds[0], MPI_FLOAT, comm )
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf, &realRcs[0], &realRds[0],      map.type, comm )
     );
  #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Allgatherv
-        ( const_cast<scomplex*>(sbuf), 
+        ( const_cast<Complex<R>*>(sbuf), 
           sc, 
-          MPI_COMPLEX,
+          map.type,
           rbuf, 
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_COMPLEX, 
+          map.type,
           comm ) 
     );
  #endif
@@ -2046,145 +1217,65 @@ void AllGather
 #endif
 }
 
-void AllGather
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllGather");
-#endif
-#ifdef USE_BYTE_ALLGATHERS
-    const int commSize = mpi::CommSize( comm );
-    std::vector<int> byteRcs( commSize ), byteRds( commSize );
-    for( int i=0; i<commSize; ++i )
-    {
-        byteRcs[i] = 2*sizeof(double)*rcs[i];
-        byteRds[i] = 2*sizeof(double)*rds[i];
-    }
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<dcomplex*>(sbuf), 2*sizeof(double)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
-    );
-#else
- #ifdef AVOID_COMPLEX_MPI
-    const int commSize = mpi::CommSize( comm );
-    std::vector<int> realRcs( commSize ), realRds( commSize );
-    for( int i=0; i<commSize; ++i )
-    {
-        realRcs[i] = 2*rcs[i];
-        realRds[i] = 2*rds[i];
-    }
-    SafeMpi(
-        MPI_Allgatherv
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf, &realRcs[0], &realRds[0], MPI_DOUBLE, comm )
-    );
- #else
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<dcomplex*>(sbuf), 
-          sc, 
-          MPI_DOUBLE_COMPLEX,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_DOUBLE_COMPLEX, 
-          comm ) 
-    );
- #endif
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void AllGather
+( const byte* sbuf, int sc, 
+        byte* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllGather
+( const int* sbuf, int sc, 
+        int* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllGather
+( const float* sbuf, int sc, 
+        float* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllGather
+( const double* sbuf, int sc, 
+        double* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllGather
+( const Complex<float>* sbuf, int sc, 
+        Complex<float>* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllGather
+( const Complex<double>* sbuf, int sc, 
+        Complex<double>* rbuf, const int* rcs, const int* rds, Comm comm );
 
+template<typename R>
 void Scatter
-( const byte* sbuf, int sc,
-        byte* rbuf, int rc, int root, Comm comm )
+( const R* sbuf, int sc,
+        R* rbuf, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Scatter");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Scatter
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
-          rbuf,                    rc, MPI_UNSIGNED_CHAR, root, comm ) 
+        ( const_cast<R*>(sbuf), sc, map.type,
+          rbuf,                 rc, map.type, root, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void Scatter
-( const int* sbuf, int sc,
-        int* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<int*>(sbuf), sc, MPI_INT,
-          rbuf,                   rc, MPI_INT, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter
-( const float* sbuf, int sc,
-        float* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-          rbuf,                     rc, MPI_FLOAT, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter
-( const double* sbuf, int sc,
-        double* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-          rbuf,                      rc, MPI_DOUBLE, root, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int rc, int root, Comm comm )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Scatter");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Scatter
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf,                        2*rc, MPI_FLOAT, root, comm )
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf,                          2*rc, map.type, root, comm )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Scatter
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-          rbuf,                        rc, MPI_COMPLEX, root, comm ) 
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
+          rbuf,                          rc, map.type, root, comm ) 
     );
 #endif
 #ifndef RELEASE
@@ -2192,53 +1283,50 @@ void Scatter
 #endif
 }
 
-void Scatter
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Scatter
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf,                        2*rc, MPI_DOUBLE, root, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, root, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void Scatter
+( const byte* sbuf, int sc, 
+        byte* rbuf, int rc, int root, Comm comm );
+template void Scatter
+( const int* sbuf, int sc, 
+        int* rbuf, int rc, int root, Comm comm );
+template void Scatter
+( const float* sbuf, int sc, 
+        float* rbuf, int rc, int root, Comm comm );
+template void Scatter
+( const double* sbuf, int sc, 
+        double* rbuf, int rc, int root, Comm comm );
+template void Scatter
+( const Complex<float>* sbuf, int sc, 
+        Complex<float>* rbuf, int rc, int root, Comm comm );
+template void Scatter
+( const Complex<double>* sbuf, int sc, 
+        Complex<double>* rbuf, int rc, int root, Comm comm );
 
-void Scatter( byte* buf, int sc, int rc, int root, Comm comm )
+
+template<typename R>
+void Scatter( R* buf, int sc, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Scatter");
 #endif
+    MpiMap<R> map;
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
 #ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
-            ( buf,          sc, MPI_UNSIGNED_CHAR, 
-              MPI_IN_PLACE, rc, MPI_UNSIGNED_CHAR, root, comm )
+            ( buf,          sc, map.type, 
+              MPI_IN_PLACE, rc, map.type, root, comm )
         );
 #else
         const int commSize = CommSize( comm );
-        std::vector<byte> sendBuf( sc*commSize );
+        std::vector<R> sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
         SafeMpi(
             MPI_Scatter
-            ( &sendBuf[0], sc, MPI_UNSIGNED_CHAR, 
-              buf,         rc, MPI_UNSIGNED_CHAR, root, comm )
+            ( &sendBuf[0], sc, map.type, 
+              buf,         rc, map.type, root, comm )
         );
 #endif
     }
@@ -2246,8 +1334,8 @@ void Scatter( byte* buf, int sc, int rc, int root, Comm comm )
     {
         SafeMpi(
             MPI_Scatter
-            ( 0,   sc, MPI_UNSIGNED_CHAR, 
-              buf, rc, MPI_UNSIGNED_CHAR, root, comm )
+            ( 0,   sc, map.type, 
+              buf, rc, map.type, root, comm )
         );
     }
 #ifndef RELEASE
@@ -2255,121 +1343,8 @@ void Scatter( byte* buf, int sc, int rc, int root, Comm comm )
 #endif
 }
 
-void Scatter( int* buf, int sc, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    const int commRank = CommRank( comm );
-    if( commRank == root )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, MPI_INT, 
-              MPI_IN_PLACE, rc, MPI_INT, root, comm )
-        );
-#else
-        const int commSize = CommSize( comm );
-        std::vector<int> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, MPI_INT, 
-              buf,         rc, MPI_INT, root, comm )
-        );
-#endif
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, MPI_INT, 
-              buf, rc, MPI_INT, root, comm )
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter( float* buf, int sc, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    const int commRank = CommRank( comm );
-    if( commRank == root )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, MPI_FLOAT, 
-              MPI_IN_PLACE, rc, MPI_FLOAT, root, comm )
-        );
-#else
-        const int commSize = CommSize( comm );
-        std::vector<float> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, MPI_FLOAT,          
-              buf,         rc, MPI_FLOAT, root, comm )
-        );
-#endif
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, MPI_FLOAT, 
-              buf, rc, MPI_FLOAT, root, comm )
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter( double* buf, int sc, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    const int commRank = CommRank( comm );
-    if( commRank == root )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, MPI_DOUBLE, 
-              MPI_IN_PLACE, rc, MPI_DOUBLE, root, comm )
-        );
-#else
-        const int commSize = CommSize( comm );
-        std::vector<double> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, MPI_DOUBLE,          
-              buf,         rc, MPI_DOUBLE, root, comm )
-        );
-#endif
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, MPI_DOUBLE, 
-              buf, rc, MPI_DOUBLE, root, comm )
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
+template<typename R>
+void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Scatter");
@@ -2378,37 +1353,39 @@ void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
     if( commRank == root )
     {
 #ifdef AVOID_COMPLEX_MPI
+        MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
-            ( buf,          2*sc, MPI_FLOAT, 
-              MPI_IN_PLACE, 2*rc, MPI_FLOAT, root, comm )
+            ( buf,          2*sc, map.type, 
+              MPI_IN_PLACE, 2*rc, map.type, root, comm )
         );
 # else
         const int commSize = CommSize( comm );
-        std::vector<scomplex> sendBuf( sc*commSize );
+        std::vector<Complex<R> > sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
         SafeMpi(
             MPI_Scatter
-            ( &sendBuf[0], 2*sc, MPI_FLOAT,          
-              buf,         2*rc, MPI_FLOAT, root, comm )
+            ( &sendBuf[0], 2*sc, map.type,          
+              buf,         2*rc, map.type, root, comm )
         );
 # endif
 #else
 # ifdef HAVE_MPI_IN_PLACE
+        MpiMap<Complex<R> > map;
         SafeMpi(
             MPI_Scatter
-            ( buf,          sc, MPI_COMPLEX, 
-              MPI_IN_PLACE, rc, MPI_COMPLEX, root, comm )
+            ( buf,          sc, map.type, 
+              MPI_IN_PLACE, rc, map.type, root, comm )
         );
 # else
         const int commSize = CommSize( comm );
-        std::vector<scomplex> sendBuf( sc*commSize );
+        std::vector<Complex<R> > sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
         SafeMpi(
             MPI_Scatter
-            ( &sendBuf[0], sc, MPI_COMPLEX,
-              buf,         rc, MPI_COMPLEX, root, comm )
+            ( &sendBuf[0], sc, map.type,
+              buf,         rc, map.type, root, comm )
         );
 # endif
 #endif
@@ -2416,16 +1393,18 @@ void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
     else
     {
 #ifdef AVOID_COMPLEX_MPI
+        MpiMap<R> map;
         SafeMpi(
             MPI_Scatter
-            ( 0,   2*sc, MPI_FLOAT, 
-              buf, 2*rc, MPI_FLOAT, root, comm )
+            ( 0,   2*sc, map.type, 
+              buf, 2*rc, map.type, root, comm )
         );
 #else
+        MpiMap<Complex<R> > map;
         SafeMpi(
             MPI_Scatter
-            ( 0,   sc, MPI_COMPLEX, 
-              buf, rc, MPI_COMPLEX, root, comm )
+            ( 0,   sc, map.type, 
+              buf, rc, map.type, root, comm )
         );
 #endif
     }
@@ -2434,157 +1413,53 @@ void Scatter( scomplex* buf, int sc, int rc, int root, Comm comm )
 #endif
 }
 
-void Scatter( dcomplex* buf, int sc, int rc, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Scatter");
-#endif
-    const int commRank = CommRank( comm );
-    if( commRank == root )
-    {
-#ifdef AVOID_COMPLEX_MPI
-# ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          2*sc, MPI_DOUBLE, 
-              MPI_IN_PLACE, 2*rc, MPI_DOUBLE, root, comm )
-        );
-# else
-        const int commSize = CommSize( comm );
-        std::vector<dcomplex> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], 2*sc, MPI_DOUBLE,
-              buf,         2*rc, MPI_DOUBLE, root, comm )
-        );
-# endif
-#else
-# ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, MPI_DOUBLE_COMPLEX, 
-              MPI_IN_PLACE, rc, MPI_DOUBLE_COMPLEX, root, comm )
-        );
-# else
-        const int commSize = CommSize( comm );
-        std::vector<dcomplex> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, MPI_DOUBLE_COMPLEX,
-              buf,         rc, MPI_DOUBLE_COMPLEX, root, comm )
-        );
-# endif
-#endif
-    }
-    else
-    {
-#ifdef AVOID_COMPLEX_MPI
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   2*sc, MPI_DOUBLE, 
-              buf, 2*rc, MPI_DOUBLE, root, comm )
-        );
-#else
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, MPI_DOUBLE_COMPLEX, 
-              buf, rc, MPI_DOUBLE_COMPLEX, root, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void Scatter( byte* buf, int sc, int rc, int root, Comm comm );
+template void Scatter( int* buf, int sc, int rc, int root, Comm comm );
+template void Scatter( float* buf, int sc, int rc, int root, Comm comm );
+template void Scatter( double* buf, int sc, int rc, int root, Comm comm );
+template void Scatter( Complex<float>* buf, int sc, int rc, int root, Comm comm );
+template void Scatter( Complex<double>* buf, int sc, int rc, int root, Comm comm );
 
+template<typename R>
 void AllToAll
-( const byte* sbuf, int sc,
-        byte* rbuf, int rc, Comm comm )
+( const R* sbuf, int sc,
+        R* rbuf, int rc, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllToAll");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Alltoall
-        ( const_cast<byte*>(sbuf), sc, MPI_UNSIGNED_CHAR,
-          rbuf,                    rc, MPI_UNSIGNED_CHAR, comm ) 
+        ( const_cast<R*>(sbuf), sc, map.type,
+          rbuf,                 rc, map.type, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void AllToAll
-( const int* sbuf, int sc,
-        int* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<int*>(sbuf), sc, MPI_INT,
-          rbuf,                   rc, MPI_INT, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const float* sbuf, int sc,
-        float* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<float*>(sbuf), sc, MPI_FLOAT,
-          rbuf,                     rc, MPI_FLOAT, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const double* sbuf, int sc,
-        double* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<double*>(sbuf), sc, MPI_DOUBLE,
-          rbuf,                      rc, MPI_DOUBLE, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const scomplex* sbuf, int sc,
-        scomplex* rbuf, int rc, Comm comm )
+( const Complex<R>* sbuf, int sc,
+        Complex<R>* rbuf, int rc, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllToAll");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     SafeMpi(
         MPI_Alltoall
-        ( const_cast<scomplex*>(sbuf), 2*sc, MPI_FLOAT,
-          rbuf,                        2*rc, MPI_FLOAT, comm )
+        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
+          rbuf,                          2*rc, map.type, comm )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Alltoall
-        ( const_cast<scomplex*>(sbuf), sc, MPI_COMPLEX,
-          rbuf,                        rc, MPI_COMPLEX, comm ) 
+        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
+          rbuf,                          rc, map.type, comm ) 
     );
 #endif
 #ifndef RELEASE
@@ -2592,48 +1467,44 @@ void AllToAll
 #endif
 }
 
-void AllToAll
-( const dcomplex* sbuf, int sc,
-        dcomplex* rbuf, int rc, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Alltoall
-        ( const_cast<dcomplex*>(sbuf), 2*sc, MPI_DOUBLE,
-          rbuf,                        2*rc, MPI_DOUBLE, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<dcomplex*>(sbuf), sc, MPI_DOUBLE_COMPLEX,
-          rbuf,                        rc, MPI_DOUBLE_COMPLEX, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void AllToAll
+( const byte* sbuf, int sc, 
+        byte* rbuf, int rc, Comm comm );
+template void AllToAll
+( const int* sbuf, int sc, 
+        int* rbuf, int rc, Comm comm );
+template void AllToAll
+( const float* sbuf, int sc, 
+        float* rbuf, int rc, Comm comm );
+template void AllToAll
+( const double* sbuf, int sc, 
+        double* rbuf, int rc, Comm comm );
+template void AllToAll
+( const Complex<float>* sbuf, int sc, 
+        Complex<float>* rbuf, int rc, Comm comm );
+template void AllToAll
+( const Complex<double>* sbuf, int sc, 
+        Complex<double>* rbuf, int rc, Comm comm );
 
+template<typename R>
 void AllToAll
-( const byte* sbuf, const int* scs, const int* sds, 
-        byte* rbuf, const int* rcs, const int* rds, Comm comm )
+( const R* sbuf, const int* scs, const int* sds, 
+        R* rbuf, const int* rcs, const int* rds, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllToAll");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Alltoallv
-        ( const_cast<byte*>(sbuf), 
+        ( const_cast<R*>(sbuf), 
           const_cast<int*>(scs), 
           const_cast<int*>(sds), 
-          MPI_UNSIGNED_CHAR,
+          map.type,
           rbuf, 
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_UNSIGNED_CHAR, 
+          map.type,
           comm ) 
     ); 
 #ifndef RELEASE
@@ -2641,86 +1512,16 @@ void AllToAll
 #endif
 }
 
+template<typename R>
 void AllToAll
-( const int* sbuf, const int* scs, const int* sds, 
-        int* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<int*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          MPI_INT,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_INT, 
-          comm ) 
-    ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const float* sbuf, const int* scs, const int* sds,
-        float* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<float*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          MPI_FLOAT,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_FLOAT, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const double* sbuf, const int* scs, const int* sds,
-        double* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<double*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          MPI_DOUBLE,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_DOUBLE, 
-          comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllToAll
-( const scomplex* sbuf, const int* scs, const int* sds,
-        scomplex* rbuf, const int* rcs, const int* rds, Comm comm )
+( const Complex<R>* sbuf, const int* scs, const int* sds,
+        Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllToAll");
 #endif
 #ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
     int p;
     MPI_Comm_size( comm, &p );
     std::vector<int> scsDoubled(p);
@@ -2737,21 +1538,22 @@ void AllToAll
         rdsDoubled[i] = 2*rds[i];
     SafeMpi(
         MPI_Alltoallv
-        ( const_cast<scomplex*>(sbuf),
-                &scsDoubled[0], &sdsDoubled[0], MPI_FLOAT,
-          rbuf, &rcsDoubled[0], &rdsDoubled[0], MPI_FLOAT, comm )
+        ( const_cast<Complex<R>*>(sbuf),
+                &scsDoubled[0], &sdsDoubled[0], map.type,
+          rbuf, &rcsDoubled[0], &rdsDoubled[0], map.type, comm )
     );
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Alltoallv
-        ( const_cast<scomplex*>(sbuf), 
+        ( const_cast<Complex<R>*>(sbuf), 
           const_cast<int*>(scs), 
           const_cast<int*>(sds), 
-          MPI_COMPLEX,
+          map.type,
           rbuf, 
           const_cast<int*>(rcs), 
           const_cast<int*>(rds), 
-          MPI_COMPLEX, 
+          map.type,
           comm )
     );
 #endif
@@ -2760,65 +1562,38 @@ void AllToAll
 #endif
 }
 
-void AllToAll
-( const dcomplex* sbuf, const int* scs, const int* sds,
-        dcomplex* rbuf, const int* rcs, const int* rds, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllToAll");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    int p;
-    MPI_Comm_size( comm, &p );
-    std::vector<int> scsDoubled(p);
-    std::vector<int> sdsDoubled(p);
-    std::vector<int> rcsDoubled(p);
-    std::vector<int> rdsDoubled(p);
-    for( int i=0; i<p; ++i )
-        scsDoubled[i] = 2*scs[i];
-    for( int i=0; i<p; ++i )
-        sdsDoubled[i] = 2*sds[i];
-    for( int i=0; i<p; ++i )
-        rcsDoubled[i] = 2*rcs[i];
-    for( int i=0; i<p; ++i )
-        rdsDoubled[i] = 2*rds[i];
-    SafeMpi(
-        MPI_Alltoallv
-        ( const_cast<dcomplex*>(sbuf),
-                &scsDoubled[0], &sdsDoubled[0], MPI_DOUBLE,
-          rbuf, &rcsDoubled[0], &rdsDoubled[0], MPI_DOUBLE, comm )
-    );
-#else
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<dcomplex*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          MPI_DOUBLE_COMPLEX,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          MPI_DOUBLE_COMPLEX, 
-          comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void AllToAll
+( const byte* sbuf, const int* scs, const int* sds,
+        byte* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllToAll
+( const int* sbuf, const int* scs, const int* sds,
+        int* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllToAll
+( const float* sbuf, const int* scs, const int* sds,
+        float* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllToAll
+( const double* sbuf, const int* scs, const int* sds,
+        double* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllToAll
+( const Complex<float>* sbuf, const int* scs, const int* sds,
+        Complex<float>* rbuf, const int* rcs, const int* rds, Comm comm );
+template void AllToAll
+( const Complex<double>* sbuf, const int* scs, const int* sds,
+        Complex<double>* rbuf, const int* rcs, const int* rds, Comm comm );
 
+template<typename R>
 void Reduce
-( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm )
+( const R* sbuf, R* rbuf, int count, Op op, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Reduce");
 #endif
+    MpiMap<R> map;
     if( count != 0 )
     {
         SafeMpi( 
             MPI_Reduce
-            ( const_cast<byte*>(sbuf), rbuf, count, MPI_UNSIGNED_CHAR, op, root,
-              comm ) 
+            ( const_cast<R*>(sbuf), rbuf, count, map.type, op, root, comm )
         );
     }
 #ifndef RELEASE
@@ -2826,201 +1601,10 @@ void Reduce
 #endif
 }
 
-void Reduce( byte* buf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        const int commRank = CommRank( comm );
-        if( commRank == root )
-        {
-#ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
-            );
-#else
-            std::vector<byte> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce
-                ( &sendBuf[0], buf, count, MPI_UNSIGNED_CHAR, op, root, comm )
-            );
-#endif
-        }
-        else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_UNSIGNED_CHAR, op, root, comm )
-            );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
+template<typename R>
 void Reduce
-( const int* sbuf, int* rbuf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, root, comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce( int* buf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        const int commRank = CommRank( comm );
-        if( commRank == root )
-        {
-#ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_INT, op, root, comm )
-            );
-#else
-            std::vector<int> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, MPI_INT, op, root, comm )
-            );
-#endif
-        }
-        else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_INT, op, root, comm )
-            );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce
-( const float* sbuf, float* rbuf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, root, comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce( float* buf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        const int commRank = CommRank( comm );
-        if( commRank == root )
-        {
-#ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, root, comm )
-            );
-#else
-            std::vector<float> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, MPI_FLOAT, op, root, comm )
-            );
-#endif
-        }
-        else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_FLOAT, op, root, comm )
-            );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce
-( const double* sbuf, double* rbuf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, root, 
-              comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce( double* buf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        const int commRank = CommRank( comm );
-        if( commRank == root )
-        {
-#ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, root, comm )
-            );
-#else
-            std::vector<double> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce
-                ( &sendBuf[0], buf, count, MPI_DOUBLE, op, root, comm )
-            );
-#endif
-        }
-        else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_DOUBLE, op, root, comm )
-            );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void Reduce
-( const scomplex* sbuf, scomplex* rbuf, int count, Op op, int root, Comm comm )
+( const Complex<R>* sbuf, 
+        Complex<R>* rbuf, int count, Op op, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Reduce");
@@ -3030,25 +1614,28 @@ void Reduce
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MpiMap<R> map;
             SafeMpi(
                 MPI_Reduce
-                ( const_cast<scomplex*>(sbuf),
-                  rbuf, 2*count, MPI_FLOAT, op, root, comm )
+                ( const_cast<Complex<R>*>(sbuf),
+                  rbuf, 2*count, map.type, op, root, comm )
             );
         }
         else
         {
+            MpiMap<Complex<R> > map;
             SafeMpi(
                 MPI_Reduce
-                ( const_cast<scomplex*>(sbuf),
-                  rbuf, count, MPI_COMPLEX, op, root, comm )
+                ( const_cast<Complex<R>*>(sbuf),
+                  rbuf, count, map.type, op, root, comm )
             );
         }
 #else
+        MpiMap<Complex<R> > map;
         SafeMpi( 
             MPI_Reduce
-            ( const_cast<scomplex*>(sbuf), 
-              rbuf, count, MPI_COMPLEX, op, root, comm ) 
+            ( const_cast<Complex<R>*>(sbuf), 
+              rbuf, count, map.type, op, root, comm ) 
         );
 #endif
     }
@@ -3057,7 +1644,47 @@ void Reduce
 #endif
 }
 
-void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
+template void Reduce( const byte* sbuf, byte* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const int* sbuf, int* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const float* sbuf, float* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const double* sbuf, double* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, int root, Comm comm );
+
+template<typename R>
+void Reduce( R* buf, int count, Op op, int root, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::Reduce");
+#endif
+    MpiMap<R> map;
+    if( count != 0 )
+    {
+        const int commRank = CommRank( comm );
+        if( commRank == root )
+        {
+#ifdef HAVE_MPI_IN_PLACE
+            SafeMpi( 
+                MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
+            );
+#else
+            std::vector<R> sendBuf( count );
+            MemCopy( &sendBuf[0], buf, count );
+            SafeMpi(
+                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
+            );
+#endif
+        }
+        else
+            SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::Reduce");
@@ -3068,74 +1695,70 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MpiMap<R> map;
             if( commRank == root )
             {
 # ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
-                    ( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, root, comm )
+                    ( MPI_IN_PLACE, buf, 2*count, map.type, op, root, comm )
                 );
 # else
-                std::vector<scomplex> sendBuf( count );
+                std::vector<Complex<R> > sendBuf( count );
                 MemCopy( &sendBuf[0], buf, count );
                 SafeMpi(
                     MPI_Reduce
-                    ( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, root, comm )
+                    ( &sendBuf[0], buf, 2*count, map.type, op, root, comm )
                 );
 # endif
             }
             else
                 SafeMpi(
-                    MPI_Reduce
-                    ( buf, 0, 2*count, MPI_FLOAT, op, root, comm )
+                    MPI_Reduce( buf, 0, 2*count, map.type, op, root, comm )
                 );
         }
         else
         {
+            MpiMap<Complex<R> > map;
             if( commRank == root )
             {
 # ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
-                    ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
+                    ( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
                 );
 # else
-                std::vector<scomplex> sendBuf( count );
+                std::vector<Complex<R> > sendBuf( count );
                 MemCopy( &sendBuf[0], buf, count );
                 SafeMpi(
                     MPI_Reduce
-                    ( &sendBuf[0], buf, count, MPI_COMPLEX, op, root, comm )
+                    ( &sendBuf[0], buf, count, map.type, op, root, comm )
                 );
 # endif
             }
             else
                 SafeMpi(
-                    MPI_Reduce
-                    ( buf, 0, count, MPI_COMPLEX, op, root, comm )
+                    MPI_Reduce( buf, 0, count, map.type, op, root, comm )
                 );
         }
 #else
+        MpiMap<Complex<R> > map;
         if( commRank == root )
         {
 # ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, root, comm )
+                MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
             );
 # else
-            std::vector<scomplex> sendBuf( count );
+            std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
-                MPI_Reduce
-                ( &sendBuf[0], buf, count, MPI_COMPLEX, op, root, comm )
+                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
             );
 # endif
         }
         else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_COMPLEX, op, root, comm )
-            );
+            SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
 #endif
     }
 #ifndef RELEASE
@@ -3143,143 +1766,25 @@ void Reduce( scomplex* buf, int count, Op op, int root, Comm comm )
 #endif
 }
 
-void Reduce
-( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-            SafeMpi(
-                MPI_Reduce
-                ( const_cast<dcomplex*>(sbuf),
-                  rbuf, 2*count, MPI_DOUBLE, op, root, comm )
-            );
-        }
-        else
-        {
-            SafeMpi(
-                MPI_Reduce
-                ( const_cast<dcomplex*>(sbuf),
-                  rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-            );
-        }
-#else
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<dcomplex*>(sbuf), 
-              rbuf, count, MPI_DOUBLE_COMPLEX, op, root, comm ) 
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void Reduce( byte* buf, int count, Op op, int root, Comm comm );
+template void Reduce( int* buf, int count, Op op, int root, Comm comm );
+template void Reduce( float* buf, int count, Op op, int root, Comm comm );
+template void Reduce( double* buf, int count, Op op, int root, Comm comm );
+template void Reduce( Complex<float>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( Complex<double>* buf, int count, Op op, int root, Comm comm );
 
-void Reduce( dcomplex* buf, int count, Op op, int root, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::Reduce");
-#endif
-    if( count != 0 )
-    {
-        const int commRank = CommRank( comm );
-#ifdef AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-            if( commRank == root )
-            {
-# ifdef HAVE_MPI_IN_PLACE
-                SafeMpi(
-                    MPI_Reduce
-                    ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, root, comm )
-                );
-# else
-                std::vector<dcomplex> sendBuf( count );
-                MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, root, comm )
-                );
-# endif
-            }
-            else
-                SafeMpi(
-                    MPI_Reduce
-                    ( buf, 0, 2*count, MPI_DOUBLE, op, root, comm )
-                );
-        }
-        else
-        {
-            if( commRank == root )
-            {
-# ifdef HAVE_MPI_IN_PLACE
-                SafeMpi(
-                    MPI_Reduce
-                    ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, 
-                      op, root, comm )
-                );
-# else
-                std::vector<dcomplex> sendBuf( count );
-                MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, 
-                      op, root, comm )
-                );
-# endif
-            }
-            else
-                SafeMpi(
-                    MPI_Reduce
-                    ( buf, 0, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-                );
-        }
-#else
-        if( commRank == root )
-        {
-# ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce
-                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-            );
-# else
-            std::vector<dcomplex> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce
-                ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-            );
-# endif
-        }
-        else
-            SafeMpi(
-                MPI_Reduce
-                ( buf, 0, count, MPI_DOUBLE_COMPLEX, op, root, comm )
-            );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm )
+template<typename R>
+void AllReduce( const R* sbuf, R* rbuf, int count, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllReduce");
 #endif
+    MpiMap<R> map;
     if( count != 0 )
     {
         SafeMpi( 
             MPI_Allreduce
-            ( const_cast<byte*>(sbuf), rbuf, count, MPI_UNSIGNED_CHAR, op, 
-              comm ) 
+            ( const_cast<R*>(sbuf), rbuf, count, map.type, op, comm )
         );
     }
 #ifndef RELEASE
@@ -3287,157 +1792,9 @@ void AllReduce( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm )
 #endif
 }
 
-void AllReduce( byte* buf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce
-            ( MPI_IN_PLACE, buf, count, MPI_UNSIGNED_CHAR, op, comm )
-        );
-#else
-        std::vector<byte> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce
-            ( &sendBuf[0], buf, count, MPI_UNSIGNED_CHAR, op, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( const int* sbuf, int* rbuf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<int*>(sbuf), rbuf, count, MPI_INT, op, comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( int* buf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_INT, op, comm )
-        );
-#else
-        std::vector<int> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce( &sendBuf[0], buf, count, MPI_INT, op, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( const float* sbuf, float* rbuf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<float*>(sbuf), rbuf, count, MPI_FLOAT, op, comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( float* buf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_FLOAT, op, comm )
-        );
-#else
-        std::vector<float> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce( &sendBuf[0], buf, count, MPI_FLOAT, op, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( const double* sbuf, double* rbuf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<double*>(sbuf), rbuf, count, MPI_DOUBLE, op, comm ) 
-        );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void AllReduce( double* buf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_DOUBLE, op, comm )
-        );
-#else
-        std::vector<double> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce( &sendBuf[0], buf, count, MPI_DOUBLE, op, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
+template<typename R>
 void AllReduce
-( const scomplex* sbuf, scomplex* rbuf, int count, Op op, Comm comm )
+( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllReduce");
@@ -3447,25 +1804,28 @@ void AllReduce
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MpiMap<R> map;
             SafeMpi(
                 MPI_Allreduce
-                ( const_cast<scomplex*>(sbuf),
-                  rbuf, 2*count, MPI_FLOAT, op, comm )
+                ( const_cast<Complex<R>*>(sbuf),
+                  rbuf, 2*count, map.type, op, comm )
             );
         }
         else
         {
+            MpiMap<Complex<R> > map;
             SafeMpi(
                 MPI_Allreduce
-                ( const_cast<scomplex*>(sbuf),
-                  rbuf, count, MPI_COMPLEX, op, comm )
+                ( const_cast<Complex<R>*>(sbuf),
+                  rbuf, count, map.type, op, comm )
             );
         }
 #else
+        MpiMap<Complex<R> > map;
         SafeMpi( 
             MPI_Allreduce
-            ( const_cast<scomplex*>(sbuf), 
-              rbuf, count, MPI_COMPLEX, op, comm ) 
+            ( const_cast<Complex<R>*>(sbuf), 
+              rbuf, count, map.type, op, comm ) 
         );
 #endif
     }
@@ -3474,7 +1834,41 @@ void AllReduce
 #endif
 }
 
-void AllReduce( scomplex* buf, int count, Op op, Comm comm )
+template void AllReduce( const byte* sbuf, byte* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const int* sbuf, int* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const float* sbuf, float* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const double* sbuf, double* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, Comm comm );
+
+template<typename R>
+void AllReduce( R* buf, int count, Op op, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::AllReduce");
+#endif
+    MpiMap<R> map;
+    if( count != 0 )
+    {
+#ifdef HAVE_MPI_IN_PLACE
+        SafeMpi( 
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
+        );
+#else
+        std::vector<R> sendBuf( count );
+        MemCopy( &sendBuf[0], buf, count );
+        SafeMpi(
+            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
+        );
+#endif
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::AllReduce");
@@ -3484,42 +1878,45 @@ void AllReduce( scomplex* buf, int count, Op op, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
+            MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
-                MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, MPI_FLOAT, op, comm )
+                MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, map.type, op, comm )
             );
 # else
-            std::vector<scomplex> sendBuf( count );
+            std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, 2*count, MPI_FLOAT, op, comm )
+                MPI_Allreduce( &sendBuf[0], buf, 2*count, map.type, op, comm )
             );
 # endif
         }
         else
         {
+            MpiMap<Complex<R> > map;
 # ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
-                MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
+                MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
             );
 # else
-            std::vector<scomplex> sendBuf( count );
+            std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, count, MPI_COMPLEX, op, comm )
+                MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
             );
 # endif
         }
 #else
+        MpiMap<Complex<R> > map;
 # ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, MPI_COMPLEX, op, comm )
+            MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
         );
 # else
-        std::vector<scomplex> sendBuf( count );
+        std::vector<Complex<R> > sendBuf( count );
         MemCopy( &sendBuf[0], buf, count );
         SafeMpi( 
-            MPI_Allreduce( &sendBuf[0], buf, count, MPI_COMPLEX, op, comm )
+            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
         );
 # endif
 #endif
@@ -3529,119 +1926,27 @@ void AllReduce( scomplex* buf, int count, Op op, Comm comm )
 #endif
 }
 
-void AllReduce
-( const dcomplex* sbuf, dcomplex* rbuf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-            SafeMpi(
-                MPI_Allreduce
-                ( const_cast<dcomplex*>(sbuf),
-                  rbuf, 2*count, MPI_DOUBLE, op, comm )
-            );
-        }
-        else
-        {
-            SafeMpi(
-                MPI_Allreduce
-                ( const_cast<dcomplex*>(sbuf),
-                  rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
-            );
-        }
-#else
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<dcomplex*>(sbuf), 
-              rbuf, count, MPI_DOUBLE_COMPLEX, op, comm )
-        );
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void AllReduce( byte* buf, int count, Op op, Comm comm );
+template void AllReduce( int* buf, int count, Op op, Comm comm );
+template void AllReduce( float* buf, int count, Op op, Comm comm );
+template void AllReduce( double* buf, int count, Op op, Comm comm );
+template void AllReduce( Complex<float>* buf, int count, Op op, Comm comm );
+template void AllReduce( Complex<double>* buf, int count, Op op, Comm comm );
 
-void AllReduce( dcomplex* buf, int count, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::AllReduce");
-#endif
-    if( count != 0 )
-    {
-#ifdef AVOID_COMPLEX_MPI
-        if( op == SUM )
-        {
-# ifdef HAVE_MPI_IN_PLACE
-            SafeMpi(
-                MPI_Allreduce
-                ( MPI_IN_PLACE, buf, 2*count, MPI_DOUBLE, op, comm )
-            );
-# else
-            std::vector<dcomplex> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce
-                ( &sendBuf[0], buf, 2*count, MPI_DOUBLE, op, comm )
-            );
-# endif
-        }
-        else
-        {
-# ifdef HAVE_MPI_IN_PLACE
-            SafeMpi(
-                MPI_Allreduce
-                ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
-            );
-# else
-            std::vector<dcomplex> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce
-                ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, comm )
-            );
-# endif
-        }
-#else
-# ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce
-            ( MPI_IN_PLACE, buf, count, MPI_DOUBLE_COMPLEX, op, comm )
-        );
-# else
-        std::vector<dcomplex> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi( 
-            MPI_Allreduce
-            ( &sendBuf[0], buf, count, MPI_DOUBLE_COMPLEX, op, comm )
-        );
-# endif
-#endif
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm )
+template<typename R>
+void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
-    SafeMpi( 
-        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_UNSIGNED_CHAR, op, comm )
-    );
+    MpiMap<R> map;
+    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc );
+    MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #else
     const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
@@ -3652,100 +1957,26 @@ void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm )
 #endif
 }
 
-void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-    SafeMpi( 
-        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_INT, op, comm )
-    );
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(int) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-    SafeMpi( 
-        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_FLOAT, op, comm )
-    );
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(float) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-    SafeMpi( 
-        MPI_Reduce_scatter_block( sbuf, rbuf, rc, MPI_DOUBLE, op, comm )
-    );
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(double) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm )
+template<typename R>
+void ReduceScatter
+( Complex<R>* sbuf, Complex<R>* rbuf, int rc, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Reduce_scatter_block
-        ( sbuf, rbuf, 2*rc, MPI_FLOAT, op, comm )
-    );
+    MpiMap<R> map;
+    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, 2*rc, map.type, op, comm ) );
 # else
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( sbuf, rbuf, rc, MPI_COMPLEX, op, comm )
-    );
+    MpiMap<Complex<R> > map;
+    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
 # endif
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
     const int commSize = CommSize( comm );
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(scomplex) );
+    MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #else
     const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
@@ -3756,208 +1987,83 @@ void ReduceScatter( scomplex* sbuf, scomplex* rbuf, int rc, Op op, Comm comm )
 #endif
 }
 
-void ReduceScatter( dcomplex* sbuf, dcomplex* rbuf, int rc, Op op, Comm comm )
+template void ReduceScatter( byte* sbuf, byte* rbuf, int rc, Op op, Comm comm );
+template void ReduceScatter( int* sbuf, int* rbuf, int rc, Op op, Comm comm );
+template void ReduceScatter( float* sbuf, float* rbuf, int rc, Op op, Comm comm );
+template void ReduceScatter( double* sbuf, double* rbuf, int rc, Op op, Comm comm );
+template void ReduceScatter( Complex<float>* sbuf, Complex<float>* rbuf, int rc, Op op, Comm comm );
+template void ReduceScatter( Complex<double>* sbuf, Complex<double>* rbuf, int rc, Op op, Comm comm );
+
+template<typename R>
+void ReduceScatter( R* buf, int rc, Op op, Comm comm )
+{
+#ifndef RELEASE
+    PushCallStack("mpi::ReduceScatter");
+#endif
+#ifdef HAVE_REDUCE_SCATTER_BLOCK
+    MpiMap<R> map;
+# ifdef HAVE_MPI_IN_PLACE
+    SafeMpi( 
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
+    );
+# else
+    const int commSize = CommSize( comm );
+    std::vector<R> sendBuf( rc*commSize );
+    MemCopy( &sendBuf[0], buf, rc*commSize );
+    SafeMpi( 
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
+    );
+# endif
+#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    const int commSize = CommSize( comm );
+    const int commRank = CommRank( comm );
+    AllReduce( buf, rc*commSize, op, comm );
+    if( commRank != 0 )
+        MemCopy( buf, &buf[commRank*rc], rc );
+#else
+    const int commSize = CommSize( comm );
+    Reduce( buf, rc*commSize, op, 0, comm );
+    Scatter( buf, rc, rc, 0, comm );
+#endif
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// TODO: Handle case where op is not summation
+template<typename R>
+void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
 #ifdef HAVE_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
-    SafeMpi(
-        MPI_Reduce_scatter_block
-        ( sbuf, rbuf, 2*rc, MPI_DOUBLE, op, comm )
-    );
-# else
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( sbuf, rbuf, rc, MPI_DOUBLE_COMPLEX, op, comm )
-    );
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( sbuf, rc*commSize, op, comm );
-    std::memcpy( rbuf, &sbuf[commRank*rc], rc*sizeof(dcomplex) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( byte* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( MPI_IN_PLACE, buf, rc, MPI_UNSIGNED_CHAR, op, comm )
-    );
-# else
-    const int commSize = CommSize( comm );
-    std::vector<byte> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( &sendBuf[0], buf, rc, MPI_UNSIGNED_CHAR, op, comm )
-    );
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( int* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_INT, op, comm )
-    );
-# else
-    const int commSize = CommSize( comm );
-    std::vector<int> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_INT, op, comm )
-    );
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(int) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( float* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_FLOAT, op, comm )
-    );
-# else
-    const int commSize = CommSize( comm );
-    std::vector<float> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_FLOAT, op, comm )
-    );
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(float) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( double* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, MPI_DOUBLE, op, comm )
-    );
-# else
-    const int commSize = CommSize( comm );
-    std::vector<double> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_DOUBLE, op, comm )
-    );
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(double) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
 #  ifdef HAVE_MPI_IN_PLACE
     SafeMpi(
-        MPI_Reduce_scatter_block
-        ( MPI_IN_PLACE, buf, 2*rc, MPI_FLOAT, op, comm )
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, 2*rc, map.type, op, comm )
     );
 #  else 
     const int commSize = CommSize( comm );
-    std::vector<scomplex> sendBuf( rc*commSize );
+    std::vector<Complex<R> > sendBuf( rc*commSize );
     MemCopy( &sendBuf[0], buf, rc*commSize );
     SafeMpi(
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_FLOAT, op, comm )
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, map.type, op, comm )
     );
 #  endif
 # else
+    MpiMap<Complex<R> > map;
 #  ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( MPI_IN_PLACE, buf, rc, MPI_COMPLEX, op, comm )
+        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
     );
 #  else
     const int commSize = CommSize( comm );
-    std::vector<scomplex> sendBuf( rc*commSize );
+    std::vector<Complex<R> > sendBuf( rc*commSize );
     MemCopy( &sendBuf[0], buf, rc*commSize );
     SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, MPI_COMPLEX, op, comm )
+        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
     );
 #  endif
 # endif
@@ -3966,7 +2072,7 @@ void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
     const int commRank = CommRank( comm );
     AllReduce( buf, rc*commSize, op, comm );
     if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(scomplex) );
+        MemCopy( buf, &buf[commRank*rc], rc );
 #else
     const int commSize = CommSize( comm );
     Reduce( buf, rc*commSize, op, 0, comm );
@@ -3977,124 +2083,34 @@ void ReduceScatter( scomplex* buf, int rc, Op op, Comm comm )
 #endif
 }
 
-void ReduceScatter( dcomplex* buf, int rc, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
-# ifdef AVOID_COMPLEX_MPI
-#  ifdef HAVE_MPI_IN_PLACE
-    SafeMpi(
-        MPI_Reduce_scatter_block
-        ( MPI_IN_PLACE, buf, 2*rc, MPI_DOUBLE, op, comm )
-    );
-#  else
-    const int commSize = CommSize( comm );
-    std::vector<dcomplex> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi(
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, MPI_DOUBLE, op, comm )
-    );
-#  endif
-# else
-#  ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( MPI_IN_PLACE, buf, rc, MPI_DOUBLE_COMPLEX, op, comm )
-    );
-#  else
-    const int commSize = CommSize( comm );
-    std::vector<dcomplex> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block
-        ( &sendBuf[0], buf, rc, MPI_DOUBLE_COMPLEX, op, comm )
-    );
-#  endif
-# endif
-#elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
-    const int commSize = CommSize( comm );
-    const int commRank = CommRank( comm );
-    AllReduce( buf, rc*commSize, op, comm );
-    if( commRank != 0 )
-        std::memcpy( buf, &buf[commRank*rc], rc*sizeof(dcomplex) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void ReduceScatter( byte* buf, int rc, Op op, Comm comm );
+template void ReduceScatter( int* buf, int rc, Op op, Comm comm );
+template void ReduceScatter( float* buf, int rc, Op op, Comm comm );
+template void ReduceScatter( double* buf, int rc, Op op, Comm comm );
+template void ReduceScatter( Complex<float>* buf, int rc, Op op, Comm comm );
+template void ReduceScatter( Complex<double>* buf, int rc, Op op, Comm comm );
 
+template<typename R>
 void ReduceScatter
-( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm )
+( const R* sbuf, R* rbuf, const int* rcs, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
+    MpiMap<R> map;
     SafeMpi( 
         MPI_Reduce_scatter
-        ( const_cast<byte*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_UNSIGNED_CHAR, op, comm ) 
+        ( const_cast<R*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), map.type, op, comm ) 
     );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+template<typename R>
 void ReduceScatter
-( const int* sbuf, int* rbuf, const int* rcs, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<int*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_INT, op, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter
-( const float* sbuf, float* rbuf, const int* rcs, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<float*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_FLOAT, op, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter
-( const double* sbuf, double* rbuf, const int* rcs, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<double*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_DOUBLE, op, comm ) 
-    );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-void ReduceScatter
-( const scomplex* sbuf, scomplex* rbuf, const int* rcs, Op op, Comm comm )
+( const Complex<R>* sbuf, Complex<R>* rbuf, const int* rcs, Op op, Comm comm )
 {
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
@@ -4102,6 +2118,7 @@ void ReduceScatter
 #ifdef AVOID_COMPLEX_MPI
     if( op == SUM )
     {
+        MpiMap<R> map;
         int p;
         MPI_Comm_size( comm, &p );
         std::vector<int> rcsDoubled(p);
@@ -4109,23 +2126,25 @@ void ReduceScatter
             rcsDoubled[i] = 2*rcs[i];
         SafeMpi(
             MPI_Reduce_scatter
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, &rcsDoubled[0], MPI_FLOAT, op, comm )
+            ( const_cast<Complex<R>*>(sbuf),
+              rbuf, &rcsDoubled[0], map.type, op, comm )
         );
     }
     else
     {
+        MpiMap<Complex<R> > map;
         SafeMpi(
             MPI_Reduce_scatter
-            ( const_cast<scomplex*>(sbuf),
-              rbuf, const_cast<int*>(rcs), MPI_COMPLEX, op, comm )
+            ( const_cast<Complex<R>*>(sbuf),
+              rbuf, const_cast<int*>(rcs), map.type, op, comm )
         );
     }
 #else
+    MpiMap<Complex<R> > map;
     SafeMpi( 
         MPI_Reduce_scatter
-        ( const_cast<scomplex*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_COMPLEX, op, comm ) 
+        ( const_cast<Complex<R>*>(sbuf), 
+          rbuf, const_cast<int*>(rcs), map.type, op, comm ) 
     );
 #endif
 #ifndef RELEASE
@@ -4133,45 +2152,12 @@ void ReduceScatter
 #endif
 }
 
-void ReduceScatter
-( const dcomplex* sbuf, dcomplex* rbuf, const int* rcs, Op op, Comm comm )
-{
-#ifndef RELEASE
-    PushCallStack("mpi::ReduceScatter");
-#endif
-#ifdef AVOID_COMPLEX_MPI
-    if( op == SUM )
-    {
-        int p;
-        MPI_Comm_size( comm, &p );
-        std::vector<int> rcsDoubled(p);
-        for( int i=0; i<p; ++i )
-            rcsDoubled[i] = 2*rcs[i];
-        SafeMpi(
-            MPI_Reduce_scatter
-            ( const_cast<dcomplex*>(sbuf),
-              rbuf, &rcsDoubled[0], MPI_DOUBLE, op, comm )
-        );
-    }
-    else
-    {
-        SafeMpi(
-            MPI_Reduce_scatter
-            ( const_cast<dcomplex*>(sbuf),
-              rbuf, const_cast<int*>(rcs), MPI_DOUBLE_COMPLEX, op, comm )
-        );
-    }
-#else
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<dcomplex*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), MPI_DOUBLE_COMPLEX, op, comm ) 
-    );
-#endif
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
+template void ReduceScatter( const byte* sbuf, byte* rbuf, const int* rcs, Op op, Comm comm );
+template void ReduceScatter( const int* sbuf, int* rbuf, const int* rcs, Op op, Comm comm );
+template void ReduceScatter( const float* sbuf, float* rbuf, const int* rcs, Op op, Comm comm );
+template void ReduceScatter( const double* sbuf, double* rbuf, const int* rcs, Op op, Comm comm );
+template void ReduceScatter( const Complex<float>* sbuf, Complex<float>* rbuf, const int* rcs, Op op, Comm comm );
+template void ReduceScatter( const Complex<double>* sbuf, Complex<double>* rbuf, const int* rcs, Op op, Comm comm );
 
 } // namespace mpi
 } // namespace elem

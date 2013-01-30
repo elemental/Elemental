@@ -566,7 +566,7 @@ inline T Dotu( int n, const T* x, int incx, const T* y, int incy )
 // TODO: templated Nrm2
 
 template<typename T>
-void Scal( int n, T alpha, T* x, int incx )
+inline void Scal( int n, T alpha, T* x, int incx )
 {
     for( int i=0; i<n; ++i )
         x[i*incx] *= alpha;
@@ -577,7 +577,7 @@ void Scal( int n, T alpha, T* x, int incx )
 //
 
 template<typename T>
-void Gemv
+inline void Gemv
 ( char trans, int m, int n,
   T alpha, const T* A, int lda, const T* x, int incx,
   T beta,        T* y, int incy )
@@ -640,7 +640,7 @@ void Gemv
 //
 
 template<typename T>
-void Gemm
+inline void Gemm
 ( char transA, char transB, int m, int n, int k,
   T alpha, const T* A, int lda, const T* B, int ldb,
   T beta,        T* C, int ldc )
