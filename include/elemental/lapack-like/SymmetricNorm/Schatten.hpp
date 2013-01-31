@@ -23,7 +23,6 @@ SymmetricSchattenNorm
     PushCallStack("SymmetricSchattenNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -50,7 +49,6 @@ SymmetricSchattenNorm
     PushCallStack("SymmetricSchattenNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

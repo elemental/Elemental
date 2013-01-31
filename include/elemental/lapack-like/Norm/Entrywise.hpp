@@ -7,65 +7,58 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_MAX_HPP
-#define LAPACK_NORM_MAX_HPP
+#ifndef LAPACK_NORM_ENTRYWISE_HPP
+#define LAPACK_NORM_ENTRYWISE_HPP
 
 namespace elem {
 
 template<typename F> 
 inline typename Base<F>::type
-MaxNorm( const Matrix<F>& A )
+EntrywiseNorm( const Matrix<F>& A, typename Base<F>::type p )
 {
 #ifndef RELEASE
-    PushCallStack("MaxNorm");
+    PushCallStack("EntrywiseNorm");
 #endif
+    // TODO: Make this more numerically stable
     typedef typename Base<F>::type R;
-    R maxAbs = 0;
-    const int height = A.Height();
+    R sum = 0;
     const int width = A.Width();
+    const int height = A.Height();
     for( int j=0; j<width; ++j )
-    {
         for( int i=0; i<height; ++i )
-        {
-            const R thisAbs = Abs(A.Get(i,j));
-            maxAbs = std::max( maxAbs, thisAbs );
-        }
-    }
+            sum += Pow( Abs(A.Get(i,j)), p );
+    const R norm = Pow( sum, 1/p );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return norm;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
-MaxNorm( const DistMatrix<F,U,V>& A )
+EntrywiseNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
 {
 #ifndef RELEASE
-    PushCallStack("MaxNorm");
+    PushCallStack("EntrywiseNorm");
 #endif
     typedef typename Base<F>::type R;
-    R localMaxAbs = 0;
+    R localSum = 0;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
-    {
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        {
-            const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
-            localMaxAbs = std::max( localMaxAbs, thisAbs );
-        }
-    }
+            localSum += Pow( Abs(A.GetLocal(iLocal,jLocal)), p ); 
 
-    R maxAbs;
-    mpi::Comm reduceComm = ReduceComm<U,V>( A.Grid() );
-    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, reduceComm );
+    R sum;
+    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
+    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, comm );
+    const R norm = Pow( sum, 1/p );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return norm;
 }
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_MAX_HPP
+#endif // ifndef LAPACK_NORM_ENTRYWISE_HPP

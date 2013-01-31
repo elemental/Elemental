@@ -20,7 +20,6 @@ OneNorm( const Matrix<F>& A )
     PushCallStack("OneNorm");
 #endif
     typedef typename Base<F>::type R;
-
     R maxColSum = 0;
     const int height = A.Height();
     const int width = A.Width();
@@ -44,12 +43,8 @@ OneNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     PushCallStack("OneNorm");
 #endif
-    typedef typename Base<F>::type R;
-
-    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-
     // Compute the partial column sums defined by our local matrix, A[U,V]
+    typedef typename Base<F>::type R;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     std::vector<R> myPartialColSums( localWidth );
@@ -62,6 +57,7 @@ OneNorm( const DistMatrix<F,U,V>& A )
 
     // Sum our partial column sums to get the column sums over A[* ,V]
     std::vector<R> myColSums( localWidth );
+    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
     mpi::AllReduce
     ( &myPartialColSums[0], &myColSums[0], localWidth, mpi::SUM, colComm );
 
@@ -72,6 +68,7 @@ OneNorm( const DistMatrix<F,U,V>& A )
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
+    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
     mpi::AllReduce( &myMaxColSum, &maxColSum, 1, mpi::MAX, rowComm );
 #ifndef RELEASE
     PopCallStack();

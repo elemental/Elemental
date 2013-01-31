@@ -20,10 +20,8 @@ FrobeniusNorm( const Matrix<F>& A )
     PushCallStack("FrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
-
     R scale = 0;
     R scaledSquare = 1;
-
     const int width = A.Width();
     const int height = A.Height();
     for( int j=0; j<width; ++j )
@@ -62,8 +60,6 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     PushCallStack("FrobeniusNorm");
 #endif
     typedef typename Base<F>::type R;
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-
     R localScale = 0;
     R localScaledSquare = 1;
     const int localHeight = A.LocalHeight();
@@ -92,6 +88,7 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
 
     // Find the maximum relative scale
     R scale;
+    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localScale, &scale, 1, mpi::MAX, comm );
 
     R norm = 0;
@@ -104,7 +101,6 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
         // The scaled square is now simply the sum of the local contributions
         R scaledSquare;
         mpi::AllReduce( &localScaledSquare, &scaledSquare, 1, mpi::SUM, comm );
-
         norm = scale*Sqrt(scaledSquare);
     }
 #ifndef RELEASE

@@ -22,7 +22,6 @@ SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
     PushCallStack("SchattenNorm");
 #endif
     typedef typename Base<F>::type R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     SingularValues( B, s );
@@ -47,7 +46,6 @@ SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
     PushCallStack("SchattenNorm");
 #endif
     typedef typename Base<F>::type R;
-
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SingularValues( B, s );

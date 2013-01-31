@@ -10,12 +10,13 @@
 #ifndef LAPACK_NORM_HPP
 #define LAPACK_NORM_HPP
 
-#include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/Norm/EntrywiseOne.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/One.hpp"
 
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
-#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 
 namespace elem {
@@ -30,8 +31,12 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
     typename Base<F>::type norm = 0;
     switch( type )
     {
-    case ONE_NORM:
-        norm = OneNorm( A );
+    // The following norms are rather cheap to compute
+    case ENTRYWISE_ONE_NORM:
+        norm = EntrywiseOneNorm( A );
+        break;
+    case FROBENIUS_NORM: 
+        norm = FrobeniusNorm( A );
         break;
     case INFINITY_NORM:
         norm = InfinityNorm( A );
@@ -39,11 +44,12 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
     case MAX_NORM:
         norm = MaxNorm( A );
         break;
+    case ONE_NORM:
+        norm = OneNorm( A );
+        break;
+    // The following two norms make use of an SVD
     case NUCLEAR_NORM:
         norm = NuclearNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = FrobeniusNorm( A );
         break;
     case TWO_NORM:
         norm = TwoNorm( A );
@@ -65,8 +71,12 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
     typename Base<F>::type norm = 0;
     switch( type )
     {
-    case ONE_NORM:
-        norm = OneNorm( A );
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM: 
+        norm = FrobeniusNorm( A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = EntrywiseOneNorm( A );
         break;
     case INFINITY_NORM:
         norm = InfinityNorm( A );
@@ -74,11 +84,12 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
     case MAX_NORM:
         norm = MaxNorm( A );
         break;
+    case ONE_NORM:
+        norm = OneNorm( A );
+        break;
+    // The following norms make use of an SVD
     case NUCLEAR_NORM:
         norm = NuclearNorm( A );
-        break;
-    case FROBENIUS_NORM: 
-        norm = FrobeniusNorm( A );
         break;
     case TWO_NORM:
         norm = TwoNorm( A );

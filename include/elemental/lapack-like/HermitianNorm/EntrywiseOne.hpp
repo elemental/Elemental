@@ -7,33 +7,36 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANNORM_MAX_HPP
-#define LAPACK_HERMITIANNORM_MAX_HPP
+#ifndef LAPACK_HERMITIANNORM_ENTRYWISEONE_HPP
+#define LAPACK_HERMITIANNORM_ENTRYWISEONE_HPP
 
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type
-HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+inline typename Base<F>::type 
+HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianMaxNorm");
+    PushCallStack("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
     typedef typename Base<F>::type R;
-    R maxAbs = 0;
+    R norm = 0;
     const int height = A.Height();
     const int width = A.Width();
     if( uplo == UPPER )
     {
         for( int j=0; j<width; ++j )
         {
-            for( int i=0; i<=j; ++i )
+            for( int i=0; i<j; ++i )
             {
-                const R thisAbs = Abs(A.Get(i,j));
-                maxAbs = std::max( maxAbs, thisAbs );
+                const R alpha = Abs(A.Get(i,j));
+                if( i ==j )
+                    norm += alpha;
+                else
+                    norm += 2*alpha;
             }
         }
     }
@@ -41,25 +44,28 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     {
         for( int j=0; j<width; ++j )
         {
-            for( int i=j; i<height; ++i )
+            for( int i=j+1; i<height; ++i )
             {
-                const R thisAbs = Abs(A.Get(i,j));
-                maxAbs = std::max( maxAbs, thisAbs );
+                const R alpha = Abs(A.Get(i,j));
+                if( i ==j )
+                    norm += alpha;
+                else
+                    norm += 2*alpha;
             }
         }
     }
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return norm;
 }
 
 template<typename F>
 inline typename Base<F>::type
-HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianMaxNorm");
+    PushCallStack("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -70,7 +76,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const int rowShift = A.RowShift();
 
     typedef typename Base<F>::type R;
-    R localMaxAbs = 0;
+    R localSum = 0;
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
@@ -80,8 +86,12 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             int numUpperRows = LocalLength(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
-                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
-                localMaxAbs = std::max( localMaxAbs, thisAbs );
+                int i = colShift + iLocal*r;
+                const R alpha = Abs(A.GetLocal(iLocal,jLocal));
+                if( i ==j )
+                    localSum += alpha;
+                else
+                    localSum += 2*alpha;
             }
         }
     }
@@ -94,20 +104,24 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {
-                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
-                localMaxAbs = std::max( localMaxAbs, thisAbs );
+                int i = colShift + iLocal*r;
+                const R alpha = Abs(A.GetLocal(iLocal,jLocal));
+                if( i ==j )
+                    localSum += alpha;
+                else
+                    localSum += 2*alpha;
             }
         }
     }
 
-    R maxAbs;
-    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+    R norm;
+    mpi::AllReduce( &localSum, &norm, 1, mpi::SUM, A.Grid().VCComm() );
 #ifndef RELEASE
     PopCallStack();
 #endif
-    return maxAbs;
+    return norm;
 }
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANNORM_MAX_HPP
+#endif // ifndef LAPACK_HERMITIANNORM_ENTRYWISEONE_HPP

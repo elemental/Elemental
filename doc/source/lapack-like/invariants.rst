@@ -151,7 +151,27 @@ the maximum entrywise norm, :math:`\|A\|_2`, or :math:`\|A\|_*`
    :cpp:func:`HermitianNorm`/:cpp:func:`SymmetricNorm` currently only supports 
    the standard matrix distribution.
 
-Alternatively, one may directly call the following routines (note that general KyFan and Schatten norms have an extra parameter and must be called directly).
+Alternatively, one may directly call the following routines (note that the entrywise, KyFan, and Schatten norms have an extra parameter and must be called 
+directly).
+
+.. cpp:function:: typename Base<F>::type EntrywiseNorm( const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type EntrywiseNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type HermitianEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type SymmetricEntrywiseNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type SymmetricEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, typename Base<F>::type p )
+
+   The :math:`\ell_p` norm of the columns of `A` stacked into a single vector. 
+   Note that the Frobenius norm corresponds to the :math:`p=2` case.
+
+.. cpp:function:: typename Base<F>::type EntrywiseOneNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+
+   The :math:`\ell_1` norm of the columns of `A` stacked into a single vector. 
 
 .. cpp:function:: typename Base<F>::type FrobeniusNorm( const Matrix<F>& A )
 .. cpp:function:: typename Base<F>::type FrobeniusNorm( const DistMatrix<F,U,V>& A )

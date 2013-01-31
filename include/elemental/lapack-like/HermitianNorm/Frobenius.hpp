@@ -19,11 +19,10 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 #ifndef RELEASE
     PushCallStack("HermitianFrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
-
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
+    typedef typename Base<F>::type R;
     R scale = 0;
     R scaledSquare = 1;
     const int height = A.Height();
@@ -122,8 +121,6 @@ HermitianFrobeniusNorm
 #ifndef RELEASE
     PushCallStack("HermitianFrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
-
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -132,6 +129,7 @@ HermitianFrobeniusNorm
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
+    typedef typename Base<F>::type R;
     R localScale = 0;
     R localScaledSquare = 1;
     const int localWidth = A.LocalWidth();

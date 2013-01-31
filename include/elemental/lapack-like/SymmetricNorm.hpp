@@ -10,11 +10,13 @@
 #ifndef LAPACK_SYMMETRICNORM_HPP
 #define LAPACK_SYMMETRICNORM_HPP
 
+#include "elemental/lapack-like/SymmetricNorm/EntrywiseOne.hpp"
 #include "elemental/lapack-like/SymmetricNorm/Frobenius.hpp"
 #include "elemental/lapack-like/SymmetricNorm/Infinity.hpp"
-#include "elemental/lapack-like/SymmetricNorm/Max.hpp"
-#include "elemental/lapack-like/SymmetricNorm/Nuclear.hpp"
 #include "elemental/lapack-like/SymmetricNorm/One.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Max.hpp"
+
+#include "elemental/lapack-like/SymmetricNorm/Nuclear.hpp"
 #include "elemental/lapack-like/SymmetricNorm/Two.hpp"
 
 namespace elem {
@@ -30,8 +32,12 @@ SymmetricNorm
     typename Base<F>::type norm = 0;
     switch( type )
     {
-    case ONE_NORM:
-        norm = SymmetricOneNorm( uplo, A );
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM: 
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = SymmetricEntrywiseOneNorm( uplo, A );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -39,11 +45,12 @@ SymmetricNorm
     case MAX_NORM:
         norm = SymmetricMaxNorm( uplo, A );
         break;
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
     case NUCLEAR_NORM:
         norm = SymmetricNuclearNorm( uplo, A );
-        break;
-    case FROBENIUS_NORM:
-        norm = SymmetricFrobeniusNorm( uplo, A );
         break;
     case TWO_NORM:
         norm = SymmetricTwoNorm( uplo, A );
@@ -66,8 +73,12 @@ SymmetricNorm
     typename Base<F>::type norm = 0;
     switch( type )
     {
-    case ONE_NORM:
-        norm = SymmetricOneNorm( uplo, A );
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM:
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = SymmetricEntrywiseOneNorm( uplo, A );
         break;
     case INFINITY_NORM:
         norm = SymmetricInfinityNorm( uplo, A );
@@ -75,15 +86,16 @@ SymmetricNorm
     case MAX_NORM:
         norm = SymmetricMaxNorm( uplo, A );
         break;
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
     case NUCLEAR_NORM:
         norm = SymmetricNuclearNorm( uplo, A );
         break;
-    case FROBENIUS_NORM:
-        norm = SymmetricFrobeniusNorm( uplo, A );
-        break;
     case TWO_NORM:
         norm = SymmetricTwoNorm( uplo, A );
-        break;
+        break; 
     }
 #ifndef RELEASE
     PopCallStack();

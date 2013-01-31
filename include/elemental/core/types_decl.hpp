@@ -86,12 +86,13 @@ using namespace left_or_right_wrapper;
 namespace norm_type_wrapper {
 enum NormType
 {
-    ONE_NORM,       // Operator one norm
-    INFINITY_NORM,  // Operator infinity norm
-    MAX_NORM,       // Maximum entry-wise magnitude
-    NUCLEAR_NORM,   // One-norm of the singular values
-    FROBENIUS_NORM, // Two-norm of the singular values
-    TWO_NORM        // Infinity-norm of the singular values
+    ONE_NORM,           // Operator one norm
+    INFINITY_NORM,      // Operator infinity norm
+    ENTRYWISE_ONE_NORM, // One-norm of vectorized matrix
+    MAX_NORM,           // Maximum entry-wise magnitude
+    NUCLEAR_NORM,       // One-norm of the singular values
+    FROBENIUS_NORM,     // Two-norm of the singular values
+    TWO_NORM            // Infinity-norm of the singular values
 };
 }
 using namespace norm_type_wrapper;

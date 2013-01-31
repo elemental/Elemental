@@ -20,7 +20,6 @@ InfinityNorm( const Matrix<F>& A )
     PushCallStack("InfinityNorm");
 #endif
     typedef typename Base<F>::type R;
-
     R maxRowSum = 0;
     const int height = A.Height();
     const int width = A.Width();
@@ -44,11 +43,8 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     PushCallStack("InfinityNorm");
 #endif
-    typedef typename Base<F>::type R;
-    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-
     // Compute the partial row sums defined by our local matrix, A[U,V]
+    typedef typename Base<F>::type R;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     std::vector<R> myPartialRowSums( localHeight );
@@ -61,6 +57,7 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 
     // Sum our partial row sums to get the row sums over A[U,* ]
     std::vector<R> myRowSums( localHeight );
+    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
     mpi::AllReduce
     ( &myPartialRowSums[0], &myRowSums[0], localHeight, mpi::SUM, rowComm );
 
@@ -71,6 +68,7 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 
     // Find the global maximum row sum by searching over the U team
     R maxRowSum = 0;
+    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
     mpi::AllReduce( &myMaxRowSum, &maxRowSum, 1, mpi::MAX, colComm );
 #ifndef RELEASE
     PopCallStack();

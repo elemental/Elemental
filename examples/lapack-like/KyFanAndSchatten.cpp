@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/Norm/Entrywise.hpp"
 #include "elemental/lapack-like/Norm/KyFan.hpp"
 #include "elemental/lapack-like/Norm/Schatten.hpp"
 #include "elemental/matrices/Uniform.hpp"
@@ -47,9 +48,11 @@ main( int argc, char* argv[] )
 
         const double kyFanNorm = KyFanNorm( A, k );
         const double schattenNorm = SchattenNorm( A, p );
+        const double entrywiseNorm = EntrywiseNorm( A, p );
         if( commRank == 0 )
-            cout << "|| A ||_K(p) = " << kyFanNorm << "\n"
-                 << "|| A ||_S(p) = " << schattenNorm << std::endl;
+            cout << "|| A ||_K(p)   = " << kyFanNorm << "\n"
+                 << "|| A ||_S(p)   = " << schattenNorm << "\n"
+                 << "|| vec(A) ||_p = " << entrywiseNorm << std::endl;
     }
     catch( ArgException& e )
     {
