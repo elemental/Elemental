@@ -10,11 +10,7 @@
 #ifndef LAPACK_HERMITIANNORM_NUCLEAR_HPP
 #define LAPACK_HERMITIANNORM_NUCLEAR_HPP
 
-#ifndef WITHOUT_PMRRR
-#include "elemental/lapack-like/HermitianSVD.hpp"
-#endif // ifndef WITHOUT_PMRRR
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/HermitianNorm/Schatten.hpp"
 
 namespace elem {
 
@@ -26,20 +22,7 @@ HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
     PushCallStack("HermitianNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    Matrix<F> B( A );
-    Matrix<R> s;
-// TODO: Enable support for sequential MRRR
-/*
-#ifndef WITHOUT_PMRRR
-    HermitianSingularValues( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SingularValues( B, s );
-#endif
-*/
-    MakeHermitian( uplo, B );
-    SingularValues( B, s );
-    const R norm = OneNorm( s );
+    const R norm = HermitianSchattenNorm( uplo, A, R(1) ); 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -54,15 +37,7 @@ HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     PushCallStack("HermitianNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F,U,V> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
-#ifndef WITHOUT_PMRRR
-    HermitianSingularValues( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SingularValues( B, s );
-#endif
-    const R norm = OneNorm( s );
+    const R norm = HermitianSchattenNorm( uplo, A, R(1) ); 
 #ifndef RELEASE
     PopCallStack();
 #endif

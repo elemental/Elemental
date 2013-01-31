@@ -135,7 +135,7 @@ SafeDeterminant( const Matrix<F>& A )
 
 template<typename F>
 inline SafeProduct<F> 
-SafeDeterminant( Matrix<F>& A, bool canOverwrite )
+SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("SafeDeterminant");
@@ -167,7 +167,7 @@ inline F Determinant( const Matrix<F>& A )
 }
 
 template<typename F>
-inline F Determinant( Matrix<F>& A, bool canOverwrite )
+inline F Determinant( Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("Determinant");
@@ -197,7 +197,7 @@ SafeDeterminant( const DistMatrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
-SafeDeterminant( DistMatrix<F>& A, bool canOverwrite )
+SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("SafeDeterminant");
@@ -229,7 +229,7 @@ inline F Determinant( const DistMatrix<F>& A )
 }
 
 template<typename F> 
-inline F Determinant( DistMatrix<F>& A, bool canOverwrite )
+inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("Determinant");

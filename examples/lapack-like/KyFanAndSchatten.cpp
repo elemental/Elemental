@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/Norm/KyFan.hpp"
 #include "elemental/lapack-like/Norm/Schatten.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -29,6 +30,7 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
         const int nb = Input("--nb","algorithmic blocksize",96);
+        const int k = Input("--k","index of KyFan norm",10);
         const double p = Input("--p","power of Schatten norm",2);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -43,9 +45,11 @@ main( int argc, char* argv[] )
         if( print )
             A.Print("A");
 
-        const double norm = SchattenNorm( A, p );
+        const double kyFanNorm = KyFanNorm( A, k );
+        const double schattenNorm = SchattenNorm( A, p );
         if( commRank == 0 )
-            cout << "|| A ||_p = " << norm << std::endl;
+            cout << "|| A ||_K(p) = " << kyFanNorm << "\n"
+                 << "|| A ||_S(p) = " << schattenNorm << std::endl;
     }
     catch( ArgException& e )
     {

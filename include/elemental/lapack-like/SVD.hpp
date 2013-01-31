@@ -761,7 +761,9 @@ QRSVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V, bool useQR )
+SVD
+( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V, 
+  bool useQR=false )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -781,7 +783,7 @@ SVD
 ( DistMatrix<F>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s,
   DistMatrix<F>& V,
-  double heightRatio )
+  double heightRatio=1.5 )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -846,7 +848,7 @@ inline void
 SingularValues
 ( DistMatrix<F>& A,
   DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  double heightRatio )
+  double heightRatio=1.2 )
 {
 #ifndef RELEASE
     PushCallStack("SingularValues");

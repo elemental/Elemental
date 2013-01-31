@@ -33,7 +33,7 @@ SymmetricSchattenNorm
     const int k = s.Height();
     R sum = 0;
     for( int j=0; j<k; ++j )
-        sum += Pow( s.Get(j), p ); 
+        sum += Pow( s.Get(j,0), p ); 
     const R norm = Pow( sum, 1/p ); 
 #ifndef RELEASE
     PopCallStack();
@@ -60,7 +60,7 @@ SymmetricSchattenNorm
     const int kLocal = s.LocalHeight();
     R localSum = 0;
     for( int j=0; j<kLocal; ++j ) 
-        localSum += Pow( s.GetLocal(j), p );
+        localSum += Pow( s.GetLocal(j,0), p );
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
     const R norm = Pow( sum, 1/p );

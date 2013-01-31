@@ -31,7 +31,7 @@ LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");
@@ -61,7 +61,7 @@ LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");

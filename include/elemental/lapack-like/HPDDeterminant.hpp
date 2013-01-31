@@ -121,7 +121,7 @@ SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline SafeProduct<F> 
-SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("SafeHPDDeterminant");
@@ -155,7 +155,7 @@ HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 
 template<typename F>
 inline typename Base<F>::type
-HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite )
+HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");
@@ -185,7 +185,8 @@ SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
-SafeHPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+SafeHPDDeterminant
+( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("SafeHPDDeterminant");
@@ -219,7 +220,7 @@ HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 
 template<typename F> 
 inline typename Base<F>::type
-HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite )
+HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");

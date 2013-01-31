@@ -21,7 +21,8 @@ namespace elem {
 
 template<typename F>
 inline typename Base<F>::type
-SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
+SymmetricNorm
+( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");
@@ -56,7 +57,8 @@ SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type )
 
 template<typename F>
 inline typename Base<F>::type
-SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type )
+SymmetricNorm
+( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");

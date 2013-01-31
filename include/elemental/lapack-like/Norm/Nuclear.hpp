@@ -10,8 +10,7 @@
 #ifndef LAPACK_NORM_NUCLEAR_HPP
 #define LAPACK_NORM_NUCLEAR_HPP
 
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/Norm/Schatten.hpp"
 
 namespace elem {
 
@@ -23,10 +22,7 @@ NuclearNorm( const Matrix<F>& A )
     PushCallStack("NuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    Matrix<F> B( A );
-    Matrix<R> s;
-    SingularValues( B, s );
-    const R norm = OneNorm( s );
+    const R norm = SchattenNorm( A, R(1) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -41,10 +37,7 @@ NuclearNorm( const DistMatrix<F,U,V>& A )
     PushCallStack("NuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
-    const R norm = OneNorm( s );
+    const R norm = SchattenNorm( A, R(1) );
 #ifndef RELEASE
     PopCallStack();
 #endif

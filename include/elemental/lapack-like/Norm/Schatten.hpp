@@ -30,8 +30,8 @@ SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
     // TODO: Think of how to make this more stable
     const int k = s.Height();
     R sum = 0;
-    for( int j=0; j<k; ++j )
-        sum += Pow( RealPart(s.Get(j,0)), p ); 
+    for( int j=k-1; j>=0; --j )
+        sum += Pow( s.Get(j,0), p ); 
     const R norm = Pow( sum, 1/p ); 
 #ifndef RELEASE
     PopCallStack();
@@ -55,8 +55,8 @@ SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
     // TODO: Think of how to make this more stable
     const int kLocal = s.LocalHeight();
     R localSum = 0;
-    for( int j=0; j<kLocal; ++j ) 
-        localSum += Pow( RealPart(s.GetLocal(j,0)), p );
+    for( int j=kLocal-1; j>=0; --j ) 
+        localSum += Pow( s.GetLocal(j,0), p );
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
     const R norm = Pow( sum, 1/p );

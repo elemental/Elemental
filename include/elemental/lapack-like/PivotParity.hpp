@@ -17,7 +17,7 @@ namespace elem {
 // nontrivial pivots were performed.
 
 inline bool
-PivotParity( const Matrix<int>& p, int pivotOffset )
+PivotParity( const Matrix<int>& p, int pivotOffset=0 )
 {
 #ifndef RELEASE
     PushCallStack("PivotParity");
@@ -38,7 +38,7 @@ PivotParity( const Matrix<int>& p, int pivotOffset )
 }
 
 inline bool
-PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset ) 
+PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 ) 
 {
 #ifndef RELEASE
     PushCallStack("PivotParity");

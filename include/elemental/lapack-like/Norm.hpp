@@ -22,7 +22,7 @@ namespace elem {
 
 template<typename F>
 inline typename Base<F>::type
-Norm( const Matrix<F>& A, NormType type )
+Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
@@ -57,7 +57,7 @@ Norm( const Matrix<F>& A, NormType type )
 
 template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
-Norm( const DistMatrix<F,U,V>& A, NormType type )
+Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("Norm");

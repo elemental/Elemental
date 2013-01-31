@@ -10,8 +10,7 @@
 #ifndef LAPACK_SYMMETRICNORM_NUCLEAR_HPP
 #define LAPACK_SYMMETRICNORM_NUCLEAR_HPP
 
-#include "elemental/lapack-like/Norm/One.hpp"
-#include "elemental/lapack-like/SVD.hpp"
+#include "elemental/lapack-like/SymmetricNorm/Schatten.hpp"
 
 namespace elem {
 
@@ -23,11 +22,7 @@ SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
     PushCallStack("SymmetricNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    Matrix<F> B( A );
-    Matrix<R> s;
-    MakeSymmetric( uplo, B );
-    SingularValues( B, s );
-    const R norm = OneNorm( s );
+    const R norm = SymmetricSchattenNorm( uplo, A, R(1) );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -42,11 +37,7 @@ SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     PushCallStack("SymmetricNuclearNorm");
 #endif
     typedef typename Base<F>::type R;
-    DistMatrix<F,U,V> B( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
-    MakeSymmetric( uplo, B );
-    SingularValues( B, s );
-    const R norm = OneNorm( s );
+    const R norm = SymmetricSchattenNorm( uplo, A, R(1) );
 #ifndef RELEASE
     PopCallStack();
 #endif
