@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
