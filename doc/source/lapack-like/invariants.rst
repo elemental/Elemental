@@ -3,7 +3,7 @@ Invariants, inner products, and divergences
 
 Condition number
 ----------------
-Returns the two-norm condition number
+The two-norm condition number
 
 .. math::
 
@@ -41,7 +41,7 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 .. cpp:function:: F Determinant( Matrix<F>& A, bool canOverwrite=false )
 .. cpp:function:: F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 
-   Returns the determinant of the (fully populated) square matrix `A`.
+   The determinant of the (fully populated) square matrix `A`.
    Some of the variants allow for overwriting the input matrix in order to 
    avoid forming another temporary matrix.
 
@@ -69,7 +69,7 @@ where :math:`\upsilon_{i,i}` is the i'th diagonal entry of :math:`U`.
 .. cpp:function:: SafeProduct<F> SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
 .. cpp:function:: SafeProduct<F> SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 
-   Returns the determinant of the square matrix `A` in an expanded form 
+   The determinant of the square matrix `A` in an expanded form 
    which is less likely to over/under-flow.
 
 HPDDeterminant
@@ -83,7 +83,7 @@ determinant).
 .. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 .. cpp:function:: typename Base<F>::type HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 
-   Returns the determinant of the (fully populated) Hermitian positive-definite
+   The determinant of the (fully populated) Hermitian positive-definite
    matrix `A`.
    Some of the variants allow for overwriting the input matrix in order to 
    avoid forming another temporary matrix.
@@ -93,7 +93,7 @@ determinant).
 .. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 .. cpp:function:: SafeProduct<F> SafeHPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 
-   Returns the determinant of the Hermitian positive-definite matrix `A` in an 
+   The determinant of the Hermitian positive-definite matrix `A` in an 
    expanded form which is less likely to over/under-flow.
 
 LogBarrier
@@ -137,98 +137,101 @@ the maximum entrywise norm, :math:`\|A\|_2`, or :math:`\|A\|_*`
 .. cpp:function:: typename Base<F>::type Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 
-Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
-
-.. cpp:function:: typename Base<F>::type FrobeniusNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type FrobeniusNorm( const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type InfinityNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type InfinityNorm( const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type MaxNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type MaxNorm( const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type NuclearNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type NuclearNorm( const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type OneNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type OneNorm( const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
-.. cpp:function:: typename Base<F>::type SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
-
-.. cpp:function:: typename Base<F>::type TwoNorm( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type TwoNorm( const DistMatrix<F,U,V>& A )
-
-HermitianNorm
--------------
-Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly
-Hermitian with the data stored in the triangle specified by
-:cpp:type:`UpperOrLower`.
-Also, while :cpp:func:`Norm` supports every type of distribution,
-:cpp:func:`HermitianNorm` currently only supports the standard matrix
-distribution.
+   Assumes that the input is a fully-specified matrix.
 
 .. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type HermitianNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
-
-Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
-
-.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
-.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
-
-.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
-
-SymmetricNorm
--------------
-Same as :cpp:func:`Norm`, but the (distributed) matrix is implicitly
-symmetric with the data stored in the triangle specified by
-:cpp:type:`UpperOrLower`.
-Also, while :cpp:func:`Norm` supports every type of distribution,
-:cpp:func:`SymmetricNorm` currently only supports the standard matrix
-distribution.
-
 .. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 .. cpp:function:: typename Base<F>::type SymmetricNorm( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 
-Alternatively, one may directly call the following routines (note that general Schatten norms have an extra parameter and must be directly called).
+   Same as :cpp:func:`Norm`, but the matrix is implicitly
+   Hermitian/symmetric with the data stored in the triangle specified by
+   :cpp:type:`UpperOrLower`.
+   Also, while :cpp:func:`Norm` supports every type of distribution,
+   :cpp:func:`HermitianNorm`/:cpp:func:`SymmetricNorm` currently only supports 
+   the standard matrix distribution.
 
+Alternatively, one may directly call the following routines (note that general KyFan and Schatten norms have an extra parameter and must be called directly).
+
+.. cpp:function:: typename Base<F>::type FrobeniusNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type FrobeniusNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 .. cpp:function:: typename Base<F>::type SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 
+   The :math:`\ell_2` norm of the singular values (the Schatten norm with 
+   :math:`p=2`), which can be cheaply computed as the :math:`\ell_2` norm of 
+   :math:`\text{vec}(A)`.
+
+.. cpp:function:: typename Base<F>::type KyFanNorm( const Matrix<F>& A, int k )
+.. cpp:function:: typename Base<F>::type KyFanNorm( const DistMatrix<F,U,V>& A, int k )
+.. cpp:function:: typename Base<F>::type HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
+.. cpp:function:: typename Base<F>::type HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
+.. cpp:function:: typename Base<F>::type SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
+.. cpp:function:: typename Base<F>::type SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
+
+   The sum of the largest `k` singular values.
+
+.. cpp:function:: typename Base<F>::type InfinityNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type InfinityNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 .. cpp:function:: typename Base<F>::type SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 
+   The maximum :math:`\ell_1` norm of the rows of `A`. In the symmetric and 
+   Hermitian cases, this is equivalent to the :math:`\|\cdot \|_1` norm.
+
+.. cpp:function:: typename Base<F>::type MaxNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type MaxNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 .. cpp:function:: typename Base<F>::type SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 
+   The maximum absolute value of the matrix entries.
+
+.. cpp:function:: typename Base<F>::type NuclearNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type NuclearNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 .. cpp:function:: typename Base<F>::type SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 .. cpp:function:: typename Base<F>::type SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 
-.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+   The sum of the singular values. This is equivalent to both the KyFan 
+   norm with :math:`k=n` and the Schatten norm with :math:`p=1`.
+   Note that the nuclear norm is dual to the two-norm, which is the 
+   Schatten norm with :math:`p=\infty`.
 
+.. cpp:function:: typename Base<F>::type OneNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type OneNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+
+   The maximum :math:`\ell_1` norm of the columns of `A`. In the symmetric and 
+   Hermitian cases, this is equivalent to the :math:`\| \cdot \|_\infty` norm.
+
+.. cpp:function:: typename Base<F>::type SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+.. cpp:function:: typename Base<F>::type HermitianSchattenNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
 .. cpp:function:: typename Base<F>::type SymmetricSchattenNorm( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
 .. cpp:function:: typename Base<F>::type SymmetricSchattenNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
 
+   The :math:`\ell_p` norm of the singular values.
+
+.. cpp:function:: typename Base<F>::type TwoNorm( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoNorm( const DistMatrix<F,U,V>& A )
+.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 .. cpp:function:: typename Base<F>::type SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 .. cpp:function:: typename Base<F>::type SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
+
+   The maximum singular value. This is equivalent to the KyFan norm with `k` 
+   equal to one and the Schatten norm with :math:`p=\infty`.
 
 Two-norm estimates
 ------------------
