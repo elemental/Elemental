@@ -512,7 +512,7 @@ if(ELEM_EXAMPLES)
     Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson Zeros)
   if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     list(APPEND lapack-like_EXAMPLES
-      HermitianEig HermitianEigFromSequential HermitianSVD 
+      HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig
       ComplexHermitianFunction RealHermitianFunction HermitianPseudoinverse
       HPSDCholesky HPSDSquareRoot SymmetricEig RealSymmetricFunction)
   endif()

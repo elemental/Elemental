@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
+#include "elemental/lapack-like/SkewHermitianEig.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/SortEig.hpp"
@@ -51,20 +51,20 @@ main( int argc, char* argv[] )
         // allow you to pass in your own local buffer and to specify the 
         // distribution alignments (i.e., which process row and column owns the
         // top-left element)
-        DistMatrix<C> H( n, n, g );
+        DistMatrix<C> S( n, n, g );
 
         // Fill the matrix since we did not pass in a buffer. 
         //
-        // We will fill entry (i,j) with the complex value (i+j,i-j) so that 
-        // the global matrix is Hermitian. However, only one triangle of the 
-        // matrix actually needs to be filled, the symmetry can be implicit.
+        // We will fill entry (i,j) with the complex value (i-j,i+j) so that 
+        // the global matrix is skew-Hermitian. However, only one triangle of 
+        // the matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const int colShift = H.ColShift(); // first row we own
-        const int rowShift = H.RowShift(); // first col we own
-        const int colStride = H.ColStride();
-        const int rowStride = H.RowStride();
-        const int localHeight = H.LocalHeight();
-        const int localWidth = H.LocalWidth();
+        const int colShift = S.ColShift(); // first row we own
+        const int rowShift = S.RowShift(); // first col we own
+        const int colStride = S.ColStride();
+        const int rowStride = S.RowStride();
+        const int localHeight = S.LocalHeight();
+        const int localWidth = S.LocalWidth();
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
@@ -73,37 +73,38 @@ main( int argc, char* argv[] )
                 //           and the columns rowShift:rowStride:n
                 const int i = colShift + iLocal*colStride;
                 const int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
+                S.SetLocal( iLocal, jLocal, C(i-j,i+j) );
             }
         }
 
-        // Make a backup of H before we overwrite it within the eigensolver
-        DistMatrix<C> HCopy( H );
+        // Make a backup of S before we overwrite it within the eigensolver
+        DistMatrix<C> SCopy( S );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        DistMatrix<R,VR,STAR> w( g );
+        DistMatrix<R,VR,STAR> wImag( g );
         DistMatrix<C> X( g );
-        HermitianEig( LOWER, H, w, X ); // only use lower half of H
+        SkewHermitianEig( LOWER, S, wImag, X ); // only use lower half of S
 
         // Optional: sort the eigenpairs
-        SortEig( w, X );
+        SortEig( wImag, X );
 
         if( print )
         {
-            HCopy.Print("H");
+            SCopy.Print("S");
             X.Print("X");
-            w.Print("w");
+            wImag.Print("wImag");
         }
 
-        // Check the residual, || H X - Omega X ||_F
-        const R frobH = HermitianFrobeniusNorm( LOWER, HCopy );
+        // Check the residual, || S X - Omega X ||_F
+        const R frobS = HermitianFrobeniusNorm( LOWER, SCopy );
         DistMatrix<C> E( X );
-        DiagonalScale( RIGHT, NORMAL, w, E );
-        Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
+        Scale( C(0,1), E );
+        DiagonalScale( RIGHT, NORMAL, wImag, E );
+        Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );
         const R frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X
@@ -113,10 +114,10 @@ main( int argc, char* argv[] )
 
         if( g.Rank() == 0 )
         {
-            std::cout << "|| H ||_F = " << frobH << "\n"
+            std::cout << "|| H ||_F = " << frobS << "\n"
                       << "|| H X - X Omega ||_F / || A ||_F = " 
-                      << frobResid / frobH << "\n"
-                      << "|| X X^H - I ||_F = " << frobOrthog / frobH
+                      << frobResid / frobS << "\n"
+                      << "|| X X^H - I ||_F = " << frobOrthog / frobS
                       << "\n" << std::endl;
         }
     }
