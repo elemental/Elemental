@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename F> 
 inline typename Base<F>::type
-EntrywiseOne( const Matrix<F>& A )
+EntrywiseOneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("EntrywiseOneNorm");
