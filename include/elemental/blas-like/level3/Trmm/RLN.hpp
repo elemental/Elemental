@@ -305,7 +305,7 @@ LocalTrmmAccumulateRLN
     DistMatrix<T,MR,STAR>
         ZTAdjOrTrans_MR_STAR(g),  Z0AdjOrTrans_MR_STAR(g),
         ZBAdjOrTrans_MR_STAR(g),  Z1AdjOrTrans_MR_STAR(g),
-                                   Z2AdjOrTrans_MR_STAR(g);
+                                  Z2AdjOrTrans_MR_STAR(g);
 
     const int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
@@ -331,8 +331,8 @@ LocalTrmmAccumulateRLN
 
         RepartitionDown
         ( ZTAdjOrTrans_MR_STAR,  Z0AdjOrTrans_MR_STAR,
-         /*********************/ /*********************/
-                                  Z1AdjOrTrans_MR_STAR,
+         /********************/ /*********************/
+                                 Z1AdjOrTrans_MR_STAR,
           ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR );
 
         D11.AlignWith( L11 );

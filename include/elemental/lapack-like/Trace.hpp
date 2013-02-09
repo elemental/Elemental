@@ -12,6 +12,27 @@
 
 namespace elem {
 
+template<typename F>
+inline F Trace( const Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Trace");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot compute trace of nonsquare matrix");
+
+    Matrix<F> d;
+    A.GetDiagonal( d );
+    F trace = 0;
+    const int n = A.Height();
+    for( int i=0; i<n; ++i )
+        trace += d.Get(i,0);
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return trace;
+}
+
 template<typename F> 
 inline F Trace( const DistMatrix<F>& A )
 {
@@ -33,27 +54,6 @@ inline F Trace( const DistMatrix<F>& A )
     }
     F trace;
     mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return trace;
-}
-
-template<typename F>
-inline F Trace( const Matrix<F>& A )
-{
-#ifndef RELEASE
-    PushCallStack("Trace");
-#endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
-
-    Matrix<F> d;
-    A.GetDiagonal( d );
-    F trace = 0;
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
-        trace += d.Get(i,0);
 #ifndef RELEASE
     PopCallStack();
 #endif
