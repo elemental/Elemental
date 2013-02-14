@@ -1,5 +1,5 @@
-Invariants, inner products, and divergences
-===========================================
+Invariants, inner products, norms, etc.
+=======================================
 
 Condition number
 ----------------
@@ -321,6 +321,15 @@ important characterization.
 .. cpp:function:: F Trace( const DistMatrix<F>& A )
 
    Return the trace of the square matrix `A`.
+
+Hadamard
+--------
+The Hadamard product of two :math:`m \times n` matrices :math:`A` and 
+:math:`B` is given entrywise by :math:`\alpha_{i,j} \beta_{i,j}` and denoted
+by :math:`C = A \circ B`.
+
+.. cpp:function:: void Hadamard( const Matrix<F>& A, const Matrix<F>& B, Matrix<F>& C )
+.. cpp:function:: void Hadamard( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B, DistMatrix<F,U,V>& C )
 
 HilbertSchmidt
 --------------

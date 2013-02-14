@@ -8,7 +8,7 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level2/Trsv.hpp"
-#include "elemental/lapack-like/Norm.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
@@ -56,8 +56,8 @@ void TestTrsv
         y.Print("y after solve");
 
     Axpy( F(-1), x, y );
-    const R xNorm = Norm( x );
-    const R yNorm = Norm( y );
+    const R xNorm = FrobeniusNorm( x );
+    const R yNorm = FrobeniusNorm( y );
     if( g.Rank() == 0 )
     {
         std::cout << "|| x - y ||_2 = " << yNorm << "\n"
