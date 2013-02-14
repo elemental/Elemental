@@ -586,6 +586,26 @@ AbstractDistMatrix<T,Int>::SetShifts()
 
 template<typename T,typename Int>
 void
+AbstractDistMatrix<T,Int>::SetColShift()
+{
+    if( Participating() )
+        colShift_ = Shift(ColRank(),colAlignment_,ColStride());
+    else
+        colShift_ = 0;
+}
+
+template<typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::SetRowShift()
+{
+    if( Participating() )
+        rowShift_ = Shift(RowRank(),rowAlignment_,RowStride());
+    else
+        rowShift_ = 0;
+}
+
+template<typename T,typename Int>
+void
 AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
 {
     Empty();

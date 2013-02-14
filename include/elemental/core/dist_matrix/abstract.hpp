@@ -246,6 +246,8 @@ protected:
 
 protected:
     void SetShifts();
+    void SetColShift();
+    void SetRowShift();
     void SetGrid();
 
     virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;

@@ -32,21 +32,9 @@ DistMatrix<T,MD,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MD,STAR,Int>::DistMatrix
-( bool constrainedColAlignment, Int colAlignmentVC, const elem::Grid& g )
+( Int height, Int width, Int colAlignmentVC, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (0,0,constrainedColAlignment,false,g.DiagPathRank(colAlignmentVC),0,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignmentVC) ?
-    Shift(g.DiagPathRank(),g.DiagPathRank(colAlignmentVC),g.LCM()) : 0),0,
-   0,0,g),
-  diagPath_(g.DiagPath(colAlignmentVC))
-{ }
-
-template<typename T,typename Int>
-DistMatrix<T,MD,STAR,Int>::DistMatrix
-( Int height, Int width, bool constrainedColAlignment, Int colAlignmentVC,
-  const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,constrainedColAlignment,false,g.DiagPathRank(colAlignmentVC),0,
+  (height,width,true,false,g.DiagPathRank(colAlignmentVC),0,
    (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignmentVC) ?
     Shift(g.DiagPathRank(),g.DiagPathRank(colAlignmentVC),g.LCM()) : 0),0,
    (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignmentVC) ?
@@ -57,10 +45,9 @@ DistMatrix<T,MD,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MD,STAR,Int>::DistMatrix
-( Int height, Int width, bool constrainedColAlignment, Int colAlignmentVC,
-  Int ldim, const elem::Grid& g )
+( Int height, Int width, Int colAlignmentVC, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (height,width,constrainedColAlignment,false,g.DiagPathRank(colAlignmentVC),0,
+  (height,width,true,false,g.DiagPathRank(colAlignmentVC),0,
    (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignmentVC) ?
     Shift(g.DiagPathRank(),g.DiagPathRank(colAlignmentVC),g.LCM()) : 0),0,
    (g.InGrid() && g.DiagPath()==g.DiagPath(colAlignmentVC) ?
@@ -454,15 +441,12 @@ DistMatrix<T,MD,STAR,Int>::Attach
     this->diagPath_ = grid.DiagPath(colAlignmentVC);
     this->colAlignment_ = grid.DiagPathRank(colAlignmentVC);
     this->viewing_ = true;
+    this->SetColShift();
     if( this->Participating() )
     {
-        this->colShift_ = 
-            Shift(grid.DiagPathRank(),this->colAlignment_,grid.LCM());
         const Int localHeight = LocalLength(height,this->colShift_,grid.LCM());
         this->localMatrix_.Attach( localHeight, width, buffer, ldim );
     }
-    else
-        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -486,15 +470,12 @@ DistMatrix<T,MD,STAR,Int>::LockedAttach
     this->colAlignment_ = grid.DiagPathRank(colAlignmentVC);
     this->viewing_ = true;
     this->lockedView_ = true;
+    this->SetColShift();
     if( this->Participating() )
     {
-        this->colShift_ = 
-            Shift( grid.DiagPathRank(), this->colAlignment_, grid.LCM() );
         const Int localHeight = LocalLength(height,this->colShift_,grid.LCM());
         this->localMatrix_.LockedAttach( localHeight, width, buffer, ldim );
     }
-    else
-        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif

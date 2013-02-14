@@ -27,21 +27,13 @@ public:
     // Create a height x width distributed matrix
     DistMatrix( Int height, Int width, const elem::Grid& g=DefaultGrid() );
 
-    // Create a 0 x 0 distributed matrix with specified alignments
-    DistMatrix
-    ( bool constrainedColAlignment,
-      Int colAlignment, const elem::Grid& g );
-
     // Create a height x width distributed matrix with specified alignments
-    DistMatrix
-    ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
-      const elem::Grid& g );
+    DistMatrix( Int height, Int width, Int colAlignment, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
-    ( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
-      Int ldim, const elem::Grid& g );
+    ( Int height, Int width, Int colAlignment, Int ldim, const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
