@@ -33,26 +33,10 @@ DistMatrix<T,MC,MR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
-( bool constrainedColAlignment, bool constrainedRowAlignment,
-  Int colAlignment, Int rowAlignment, const elem::Grid& grid )
-: AbstractDistMatrix<T,Int>
-  (0,0,
-   constrainedColAlignment,constrainedRowAlignment,
-   colAlignment,rowAlignment,
-   (grid.InGrid() ? Shift(grid.Row(),colAlignment,grid.Height()) : 0),
-   (grid.InGrid() ? Shift(grid.Col(),rowAlignment,grid.Width()) : 0),
-   0,0,grid)
-{ }
-
-template<typename T,typename Int>
-DistMatrix<T,MC,MR,Int>::DistMatrix
-( Int height, Int width,
-  bool constrainedColAlignment, bool constrainedRowAlignment,
+( Int height, Int width, 
   Int colAlignment, Int rowAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (height,width,
-   constrainedColAlignment,constrainedRowAlignment,
-   colAlignment,rowAlignment,
+  (height,width,true,true,colAlignment,rowAlignment,
    (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
    (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    (g.InGrid() ? LocalLength(height,g.Row(),colAlignment,g.Height()) : 0),
@@ -63,12 +47,9 @@ DistMatrix<T,MC,MR,Int>::DistMatrix
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width,
-  bool constrainedColAlignment, bool constrainedRowAlignment,
   Int colAlignment, Int rowAlignment, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (height,width,
-   constrainedColAlignment,constrainedRowAlignment,
-   colAlignment,rowAlignment,
+  (height,width,true,true,colAlignment,rowAlignment,
    (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
    (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
    (g.InGrid() ? LocalLength(height,g.Row(),colAlignment,g.Height()) : 0),
@@ -400,18 +381,12 @@ DistMatrix<T,MC,MR,Int>::Attach
     this->colAlignment_ = colAlignment;
     this->rowAlignment_ = rowAlignment;
     this->viewing_ = true;
+    this->SetShifts();
     if( g.InGrid() )
     {
-        this->colShift_ = Shift(this->ColRank(),colAlignment,this->ColStride());
-        this->rowShift_ = Shift(this->RowRank(),rowAlignment,this->RowStride());
         Int localHeight = LocalLength(height,this->colShift_,this->ColStride());
         Int localWidth = LocalLength(width,this->rowShift_,this->RowStride());
         this->localMatrix_.Attach( localHeight, localWidth, buffer, ldim );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -436,19 +411,13 @@ DistMatrix<T,MC,MR,Int>::LockedAttach
     this->rowAlignment_ = rowAlignment;
     this->viewing_ = true;
     this->lockedView_ = true;
+    this->SetShifts();
     if( g.InGrid() )
     {
-        this->colShift_ = Shift(this->ColRank(),colAlignment,this->ColStride());
-        this->rowShift_ = Shift(this->RowRank(),rowAlignment,this->RowStride());
         Int localHeight = LocalLength(height,this->colShift_,this->ColStride());
         Int localWidth = LocalLength(width,this->rowShift_,this->RowStride());
         this->localMatrix_.LockedAttach
         ( localHeight, localWidth, buffer, ldim );
-    }
-    else
-    {
-        this->colShift_ = 0;
-        this->rowShift_ = 0;
     }
 #ifndef RELEASE
     PopCallStack();
@@ -892,11 +861,7 @@ DistMatrix<T,MC,MR,Int>::TransposeFrom
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.RowAlignment();
-            if( this->Participating() )
-                this->colShift_ = 
-                    Shift( this->ColRank(), 
-                           this->ColAlignment(), 
-                           this->ColStride() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
@@ -1056,11 +1021,7 @@ DistMatrix<T,MC,MR,Int>::TransposeFrom
         if( !this->ConstrainedRowAlignment() )
         {
             this->rowAlignment_ = A.ColAlignment();
-            if( this->Participating() )
-                this->rowShift_ = 
-                    Shift( this->RowRank(), 
-                           this->RowAlignment(), 
-                           this->RowStride() );
+            this->SetRowShift();
         }
         this->ResizeTo( A.Width(), A.Height() );
     }
@@ -1491,9 +1452,7 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment();
-            if( g.InGrid() )
-                this->colShift_ = 
-                    Shift( g.Row(), this->ColAlignment(), g.Height() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -1611,9 +1570,7 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
         if( !this->ConstrainedRowAlignment() )
         {
             this->rowAlignment_ = A.RowAlignment();
-            if( g.InGrid() )
-                this->rowShift_ = 
-                    Shift( g.Col(), this->RowAlignment(), g.Width() );
+            this->SetRowShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -2067,9 +2024,7 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment() % g.Height();
-            if( g.InGrid() )
-                this->colShift_ = 
-                    Shift( g.Row(), this->ColAlignment(), g.Height() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -2329,9 +2284,7 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         if( !this->ConstrainedRowAlignment() )
         {
             this->rowAlignment_ = A.RowAlignment() % g.Width();
-            if( g.InGrid() )
-                this->rowShift_ = 
-                    Shift( g.Col(), this->RowAlignment(), g.Width() );
+            this->SetRowShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -2589,9 +2542,7 @@ DistMatrix<T,MC,MR,Int>::SumScatterFrom( const DistMatrix<T,MC,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment();
-            if( g.InGrid() )
-                this->colShift_ = 
-                    Shift( g.Row(), this->ColAlignment(), g.Height() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -2871,9 +2822,7 @@ DistMatrix<T,MC,MR,Int>::SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A )
         if( !this->ConstrainedRowAlignment() )
         {
             this->rowAlignment_ = A.RowAlignment();
-            if( g.InGrid() )
-                this->rowShift_ = 
-                    Shift( g.Col(), this->RowAlignment(), g.Width() );
+            this->SetRowShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }

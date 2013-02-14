@@ -386,15 +386,14 @@ It should also be noted that this is the default distribution format for the
       Create a `height` :math:`\times` `width` distributed matrix over the
       specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const elem::Grid& grid )
 
       Create a `height` :math:`\times` `width` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
       owned by the `colAlignment` process row and the `rowAlignment` 
-      process column. Each of these alignments may be *constrained* to remain
-      constant when redistributing data into this :cpp:type:`DistMatrix\<T>`.
+      process column.
 
-   .. cpp:function:: DistMatrix( int height, int width, bool constrainedColAlignment, bool constrainedRowAlignment, int colAlignment, int rowAlignment, int ldim, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, int ldim, const elem::Grid& grid )
 
       Same as above, but the local leading dimension is also specified.
 

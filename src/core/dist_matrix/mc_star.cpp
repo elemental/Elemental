@@ -30,19 +30,9 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MC,STAR,Int>::DistMatrix
-( bool constrainedColAlignment, Int colAlignment, const elem::Grid& g )
+( Int height, Int width, Int colAlignment, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (0,0,constrainedColAlignment,false,colAlignment,0,
-   (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),0,
-   0,0,g)
-{ }
-
-template<typename T,typename Int>
-DistMatrix<T,MC,STAR,Int>::DistMatrix
-( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
-  const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,constrainedColAlignment,false,colAlignment,0,
+  (height,width,true,false,colAlignment,0,
    (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),0,
    (g.InGrid() ? LocalLength(height,g.Row(),colAlignment,g.Height()) : 0),
    width,g)
@@ -50,10 +40,9 @@ DistMatrix<T,MC,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MC,STAR,Int>::DistMatrix
-( Int height, Int width, bool constrainedColAlignment, Int colAlignment,
-  Int ldim, const elem::Grid& g )
+( Int height, Int width, Int colAlignment, Int ldim, const elem::Grid& g )
 : AbstractDistMatrix<T,Int>
-  (height,width,constrainedColAlignment,false,colAlignment,0,
+  (height,width,true,false,colAlignment,0,
    (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),0,
    (g.InGrid() ? LocalLength(height,g.Row(),colAlignment,g.Height()) : 0),
    width,ldim,g)
@@ -359,14 +348,12 @@ DistMatrix<T,MC,STAR,Int>::Attach
     this->width_ = width;
     this->colAlignment_ = colAlignment;
     this->viewing_ = true;
+    this->SetColShift();
     if( g.InGrid() )
     {
-        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
         const Int localHeight = LocalLength(height,this->colShift_,g.Height());
         this->localMatrix_.Attach( localHeight, width, buffer, ldim );
     }
-    else
-        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -389,14 +376,12 @@ DistMatrix<T,MC,STAR,Int>::LockedAttach
     this->colAlignment_ = colAlignment;
     this->viewing_ = true;
     this->lockedView_ = true; 
+    this->SetColShift();
     if( g.InGrid() )
     {
-        this->colShift_ = Shift(g.Row(),colAlignment,g.Height());
         const Int localHeight = LocalLength(height,this->colShift_,g.Height());
         this->localMatrix_.LockedAttach( localHeight, width, buffer, ldim );
     }
-    else
-        this->colShift_ = 0;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -855,9 +840,7 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment();
-            if( g.InGrid() )
-                this->colShift_ = 
-                    Shift( g.Row(), this->ColAlignment(), this->ColStride() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
@@ -1349,9 +1332,7 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
         if( !this->ConstrainedColAlignment() )
         {
             this->colAlignment_ = A.ColAlignment() % g.Height();
-            if( g.InGrid() )
-                this->colShift_ = 
-                    Shift( g.Row(), this->ColAlignment(), g.Height() );
+            this->SetColShift();
         }
         this->ResizeTo( A.Height(), A.Width() );
     }
