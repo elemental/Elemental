@@ -17,7 +17,7 @@ inline void
 Syr2
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A, 
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr2");
@@ -61,7 +61,7 @@ Syr2
   T alpha, const DistMatrix<T>& x,
            const DistMatrix<T>& y,
                  DistMatrix<T>& A,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr2");
@@ -93,10 +93,8 @@ Syr2
 
     if( x.Width() == 1 && y.Width() == 1 )
     {
-        DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g);
-        DistMatrix<T,MC,STAR> y_MC_STAR(g);
-        DistMatrix<T,MR,STAR> y_MR_STAR(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g), y_MC_STAR(g);
+        DistMatrix<T,MR,STAR> x_MR_STAR(g), y_MR_STAR(g);
 
         x_MC_STAR.AlignWith( A );
         x_MR_STAR.AlignWith( A );
@@ -272,10 +270,8 @@ Syr2
     }
     else
     {
-        DistMatrix<T,STAR,MC> x_STAR_MC(g);
-        DistMatrix<T,STAR,MR> x_STAR_MR(g);
-        DistMatrix<T,STAR,MC> y_STAR_MC(g);
-        DistMatrix<T,STAR,MR> y_STAR_MR(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g), y_STAR_MC(g);
+        DistMatrix<T,STAR,MR> x_STAR_MR(g), y_STAR_MR(g);
 
         x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );

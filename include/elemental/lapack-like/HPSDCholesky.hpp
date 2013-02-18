@@ -12,6 +12,8 @@
 
 #ifndef WITHOUT_PMRRR
 
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/HPSDSquareRoot.hpp"
 #include "elemental/lapack-like/LQ.hpp"
 #include "elemental/lapack-like/QR.hpp"
@@ -36,12 +38,12 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
     if( uplo == LOWER )
     {
         LQ( A );
-        MakeTrapezoidal( LEFT, LOWER, 0, A );
+        MakeTriangular( LOWER, A );
     }
     else
     {
         QR( A );
-        MakeTrapezoidal( RIGHT, UPPER, 0, A );
+        MakeTriangular( UPPER, A );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -63,13 +65,13 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
     {
         DistMatrix<Complex<R>,MD,STAR> t(g);
         LQ( A, t );
-        MakeTrapezoidal( LEFT, LOWER, 0, A );
+        MakeTriangular( LOWER, A );
     }
     else
     {
         DistMatrix<Complex<R>,MD,STAR> t(g);
         QR( A, t );
-        MakeTrapezoidal( RIGHT, UPPER, 0, A );
+        MakeTriangular( UPPER, A );
     }
 #ifndef RELEASE
     PopCallStack();

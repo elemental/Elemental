@@ -10,8 +10,11 @@
 #ifndef LAPACK_PSEUDOINVERSE_HPP
 #define LAPACK_PSEUDOINVERSE_HPP
 
-#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/SVD.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -39,7 +42,7 @@ Pseudoinverse( Matrix<F>& A )
     SVD( U, s, V );
 
     // Compute the two-norm of A as the maximum singular value
-    const R twoNorm = InfinityNorm( s );
+    const R twoNorm = MaxNorm( s );
 
     // Set the tolerance equal to k ||A||_2 eps and invert above tolerance
     const R eps = lapack::MachineEpsilon<R>();
@@ -86,7 +89,7 @@ Pseudoinverse( DistMatrix<F>& A )
     SVD( U, s, V );
 
     // Compute the two-norm of A as the maximum singular value
-    const R twoNorm = InfinityNorm( s );
+    const R twoNorm = MaxNorm( s );
 
     // Set the tolerance equal to k ||A||_2 eps and invert above tolerance
     const R eps = lapack::MachineEpsilon<R>();

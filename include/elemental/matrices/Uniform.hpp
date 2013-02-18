@@ -15,7 +15,7 @@ namespace elem {
 // Draw each entry from a uniform PDF over the closed unit ball.
 template<typename T>
 inline void
-MakeUniform( Matrix<T>& A, T center, typename Base<T>::type radius )
+MakeUniform( Matrix<T>& A, T center=0, typename Base<T>::type radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeUniform");
@@ -32,7 +32,8 @@ MakeUniform( Matrix<T>& A, T center, typename Base<T>::type radius )
 
 template<typename T>
 inline void
-Uniform( int m, int n, Matrix<T>& A, T center, typename Base<T>::type radius )
+Uniform
+( int m, int n, Matrix<T>& A, T center=0, typename Base<T>::type radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");
@@ -360,7 +361,7 @@ struct MakeUniformHelper<T,VR,STAR>
 template<typename T,Distribution U,Distribution V>
 inline void
 MakeUniform
-( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
+( DistMatrix<T,U,V>& A, T center=0, typename Base<T>::type radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");
@@ -374,7 +375,8 @@ MakeUniform
 template<typename T,Distribution U,Distribution V>
 inline void
 Uniform
-( int m, int n, DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius )
+( int m, int n, DistMatrix<T,U,V>& A, 
+  T center=0, typename Base<T>::type radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");

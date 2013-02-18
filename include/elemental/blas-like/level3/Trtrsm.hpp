@@ -10,10 +10,7 @@
 #ifndef BLAS_TRTRSM_HPP
 #define BLAS_TRTRSM_HPP
 
-#include "./Trtrsm/LLN.hpp"
-
 namespace elem {
-
 namespace internal {
 
 template<typename F>
@@ -23,7 +20,7 @@ LocalTrtrsm
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
                  DistMatrix<F,STAR,STAR>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalTrtrsm");
@@ -37,6 +34,11 @@ LocalTrtrsm
 }
 
 } // namespace internal
+} // namespace elem
+
+#include "./Trtrsm/LLN.hpp"
+
+namespace elem {
 
 template<typename F>
 inline void
@@ -44,7 +46,7 @@ Trtrsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const Matrix<F>& A, Matrix<F>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("Trtrsm");
@@ -103,7 +105,7 @@ Trtrsm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("Trtrsm");

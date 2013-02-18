@@ -22,7 +22,7 @@ inline void
 Syr2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr2k");
@@ -69,7 +69,7 @@ Syr2k
 ( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr2k");

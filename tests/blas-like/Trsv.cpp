@@ -8,6 +8,7 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level2/Trsv.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;

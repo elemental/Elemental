@@ -10,8 +10,10 @@
 #ifndef LAPACK_EXPLICITLQ_HPP
 #define LAPACK_EXPLICITLQ_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/LQ.hpp"
+#include "elemental/matrices/Identity.hpp"
 
 namespace elem {
 
@@ -83,7 +85,7 @@ ExplicitLQHelper( Matrix<Real>& L, Matrix<Real>& A )
 {
     LQ( A );
     L = A;
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Real> Q;
@@ -98,7 +100,7 @@ ExplicitLQHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
 {
     LQ( A );
     L = A;
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
@@ -115,7 +117,7 @@ ExplicitLQHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
     Matrix<Complex<Real> > t;
     LQ( A, t );
     L = A;
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Complex<Real> > Q;
@@ -134,7 +136,7 @@ ExplicitLQHelper
     DistMatrix<Complex<Real>,MD,STAR> t( g );
     LQ( A, t );
     L = A;
-    MakeTrapezoidal( LEFT, LOWER, 0, L );
+    MakeTriangular( LOWER, L );
 
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<Complex<Real> > Q( g );

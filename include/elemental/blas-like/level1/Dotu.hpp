@@ -69,4 +69,4 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HILBERTSCHMIDT_HPP
+#endif // ifndef LAPACK_DOTU_HPP

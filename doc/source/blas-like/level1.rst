@@ -162,3 +162,16 @@ Sets all of the entries of the input matrix to zero.
 .. cpp:function:: void Zero( Matrix<T>& A )
 .. cpp:function:: void Zero( DistMatrix<T,U,V>& A )
 
+SetDiagonal
+-----------
+.. note::
+   
+   This is not a standard BLAS routine.
+
+Sets all of the diagonal entries of a matrix to a given value.
+
+.. cpp:function:: void SetDiagonal( Matrix<T>& A, T alpha )
+.. cpp:function:: void SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
+
+.. cpp:function:: void SetDiagonal( LeftOrRight side, int offset, Matrix<T>& A, T alpha )
+.. cpp:function:: void SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )

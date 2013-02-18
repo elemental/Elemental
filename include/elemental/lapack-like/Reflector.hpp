@@ -15,6 +15,9 @@
 #ifndef LAPACK_REFLECTOR_HPP
 #define LAPACK_REFLECTOR_HPP
 
+#include "elemental/blas-like/level1/Nrm2.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+
 #include "./Reflector/Col.hpp"
 #include "./Reflector/Row.hpp"
 

@@ -10,9 +10,16 @@
 #ifndef LAPACK_HERMITIANHALLEY_HPP
 #define LAPACK_HERMITIANHALLEY_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/matrices/Identity.hpp"
 
 namespace elem {
 

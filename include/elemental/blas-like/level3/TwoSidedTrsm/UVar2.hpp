@@ -10,6 +10,14 @@
 #ifndef BLAS_TWOSIDEDTRSM_UVAR2_HPP
 #define BLAS_TWOSIDEDTRSM_UVAR2_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -187,10 +195,8 @@ TwoSidedTrsmUVar2
         U01_MC_STAR = U01;
         U01_VR_STAR = U01_MC_STAR;
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        Y01_MR_STAR.ResizeTo( A01.Height(), A01.Width() ); 
-        F01_MC_STAR.ResizeTo( A01.Height(), A01.Width() );
-        Zero( Y01_MR_STAR );
-        Zero( F01_MC_STAR );
+        Zeros( A01.Height(), A01.Width(), Y01_MR_STAR );
+        Zeros( A01.Height(), A01.Width(), F01_MC_STAR );
         LocalSymmetricAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
@@ -199,7 +205,7 @@ TwoSidedTrsmUVar2
         Y01.SumScatterUpdate( F(1), F01_MC_STAR );
 
         // X11 := U01' A01
-        X11_STAR_MR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_MR );
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, F(0), X11_STAR_MR );
 
         // A01 := A01 - Y01
@@ -209,7 +215,7 @@ TwoSidedTrsmUVar2
         // A11 := A11 - triu(X11 + A01' U01) = A11 - (U01 A01 + A01' U01)
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U01, F(1), X11_STAR_MR );
         X11.SumScatterFrom( X11_STAR_MR );
-        MakeTrapezoidal( LEFT, UPPER, 0, X11 );
+        MakeTriangular( UPPER, X11 );
         Axpy( F(-1), X11, A11 );
 
         // A01 := A01 inv(U11)
@@ -225,7 +231,7 @@ TwoSidedTrsmUVar2
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - A02' U01
-        X12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
+        Zeros( A12.Width(), A12.Height(), X12Adj_MR_STAR );
         LocalGemm
         ( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, F(0), X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );

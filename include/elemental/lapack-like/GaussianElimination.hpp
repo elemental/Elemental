@@ -10,6 +10,7 @@
 #ifndef LAPACK_GAUSSIANELIMINATION_HPP
 #define LAPACK_GAUSSIANELIMINATION_HPP
 
+#include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/lapack-like/LU.hpp"
 
 namespace elem {

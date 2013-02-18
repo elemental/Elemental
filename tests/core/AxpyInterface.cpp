@@ -8,6 +8,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
 int

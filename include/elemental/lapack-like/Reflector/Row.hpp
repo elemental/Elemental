@@ -15,6 +15,9 @@
 #ifndef LAPACK_REFLECTOR_ROW_HPP
 #define LAPACK_REFLECTOR_ROW_HPP
 
+#include "elemental/blas-like/level1/Nrm2.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+
 namespace elem {
 namespace internal {
 

@@ -10,6 +10,14 @@
 #ifndef LAPACK_HPDINVERSE_UVAR2_HPP
 #define LAPACK_HPDINVERSE_UVAR2_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/blas-like/level3/Trtrmm.hpp"
+#include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/TriangularInverse.hpp"
+
 namespace elem {
 namespace internal {
 

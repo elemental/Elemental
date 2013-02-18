@@ -10,6 +10,8 @@
 #ifndef BLAS_TRSM_LLT_HPP
 #define BLAS_TRSM_LLT_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -301,7 +303,7 @@ TrsmLLTSmall
 
         //--------------------------------------------------------------------//
         // X1 -= L21' X2
-        Z1_STAR_STAR.ResizeTo( X1.Height(), X1.Width() );
+        Zeros( X1.Height(), X1.Width(), Z1_STAR_STAR );
         LocalGemm( orientation, NORMAL, F(-1), L21, X2, F(0), Z1_STAR_STAR );
         AddInLocalData( X1, Z1_STAR_STAR );
         Z1_STAR_STAR.SumOverGrid();

@@ -10,6 +10,9 @@
 #ifndef BLAS_TRTRMM_LVAR1_HPP
 #define BLAS_TRTRMM_LVAR1_HPP
 
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+
 namespace elem {
 namespace internal {
 

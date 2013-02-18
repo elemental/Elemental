@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
+Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Transpose");
@@ -55,7 +55,8 @@ Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate )
 template<typename T,Distribution U,Distribution V,
                     Distribution W,Distribution Z>
 inline void
-Transpose( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate )
+Transpose
+( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Transpose");

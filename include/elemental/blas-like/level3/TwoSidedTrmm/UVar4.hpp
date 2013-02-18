@@ -10,6 +10,13 @@
 #ifndef BLAS_TWOSIDEDTRMM_UVAR4_HPP
 #define BLAS_TWOSIDEDTRMM_UVAR4_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -180,8 +187,7 @@ TwoSidedTrmmUVar4
         // Y01 := U01 A11
         A11_STAR_STAR = A11;
         U01_VC_STAR = U01;
-        Y01_VC_STAR.ResizeTo( A01.Height(), A01.Width() );
-        Zero( Y01_VC_STAR );
+        Zeros( A01.Height(), A01.Width(), Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER, 
           F(1), A11_STAR_STAR.LockedLocalMatrix(), 

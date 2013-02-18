@@ -10,6 +10,9 @@
 #ifndef LAPACK_CHOLESKY_UVAR3_HPP
 #define LAPACK_CHOLESKY_UVAR3_HPP
 
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 namespace internal {
 

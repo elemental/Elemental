@@ -7,6 +7,11 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
@@ -60,7 +65,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> L( factA );
         MakeTriangular( LOWER, L );
-        internal::SetDiagonalToOne( LEFT, 0, L );
+        SetDiagonal( LEFT, 0, L, C(1) );
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );

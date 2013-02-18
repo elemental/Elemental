@@ -10,6 +10,14 @@
 #ifndef LAPACK_HERMITIANTRIDIAG_LOCAL_HPP
 #define LAPACK_HERMITIANTRIDIAG_LOCAL_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Dot.hpp"
+#include "elemental/blas-like/level2/Hemv.hpp"
+#include "elemental/blas-like/level2/Her2.hpp"
+#include "elemental/blas-like/level2/Symv.hpp"
+#include "elemental/blas-like/level2/Syr2.hpp"
+#include "elemental/lapack-like/Reflector.hpp"
+
 namespace elem {
 
 namespace hermitian_tridiag {

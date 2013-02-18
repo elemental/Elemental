@@ -10,6 +10,8 @@
 #ifndef LAPACK_HOUSEHOLDERSOLVE_HPP
 #define LAPACK_HOUSEHOLDERSOLVE_HPP
 
+#include "elemental/blas-like/level1/Zero.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/LQ.hpp"
 #include "elemental/lapack-like/QR.hpp"

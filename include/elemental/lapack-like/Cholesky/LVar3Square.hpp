@@ -10,6 +10,10 @@
 #ifndef LAPACK_CHOLESKY_LVAR3SQUARE_HPP
 #define LAPACK_CHOLESKY_LVAR3SQUARE_HPP
 
+#include "elemental/blas-like/level1/Conjugate.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 namespace internal {
 

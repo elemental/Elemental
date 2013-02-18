@@ -8,6 +8,7 @@
 */
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Diagonal.hpp"
+#include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
 int 

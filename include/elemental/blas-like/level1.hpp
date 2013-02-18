@@ -27,6 +27,7 @@
 #include "./level1/Nrm2.hpp"
 #include "./level1/Scale.hpp"
 #include "./level1/ScaleTrapezoid.hpp"
+#include "./level1/SetDiagonal.hpp"
 #include "./level1/Transpose.hpp"
 #include "./level1/Zero.hpp"
 

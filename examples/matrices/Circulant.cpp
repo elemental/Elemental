@@ -7,8 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/matrices/Circulant.hpp"
 #include "elemental/matrices/DiscreteFourier.hpp"
+#include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
 int 

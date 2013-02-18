@@ -10,6 +10,15 @@
 #ifndef BLAS_TWOSIDEDTRSM_UVAR3_HPP
 #define BLAS_TWOSIDEDTRSM_UVAR3_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -177,8 +186,7 @@ TwoSidedTrsmUVar3
     // acceptable, use TwoSidedTrsmUVar4 instead.
     DistMatrix<F> Y(g);
     Y.AlignWith( A );
-    Y.ResizeTo( A.Height(), A.Width() );
-    Zero( Y );
+    Zeros( A.Height(), A.Width(), Y );
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -225,12 +233,12 @@ TwoSidedTrsmUVar3
         // A11 := A11 - (A01' U01 + U01' A01)
         A01_VC_STAR = A01;
         U01_VC_STAR = U01;
-        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( UPPER, ADJOINT, 
           F(1), A01_VC_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
           F(0), X11_STAR_STAR.LocalMatrix() );
-        MakeTrapezoidal( LEFT, UPPER, 0, X11_STAR_STAR );
+        MakeTriangular( UPPER, X11_STAR_STAR );
         A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
 
         // A11 := inv(U11)' A11 inv(U11)
@@ -241,7 +249,7 @@ TwoSidedTrsmUVar3
 
         // A12 := A12 - U01' A02
         U01_MC_STAR = U01;
-        X12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
+        Zeros( A12.Height(), A12.Width(), X12_STAR_MR );
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A02, F(0), X12_STAR_MR );
         A12.SumScatterUpdate( F(-1), X12_STAR_MR );
 
@@ -267,24 +275,13 @@ TwoSidedTrsmUVar3
         ( NORMAL, ADJOINT, F(1), A01_MC_STAR, U12Adj_MR_STAR, F(1), Y02 );
 
         // Y12 := Y12 + A11 U12
-        //
-        // Symmetrize A11[* ,* ] by copying the upper triangle into the lower
-        // so that we can call a local gemm instead of worrying about
-        // reproducing a hemm with nonsymmetric local matrices.
-        {
-            const int height = A11_STAR_STAR.LocalHeight();
-            const int ldim = A11_STAR_STAR.LocalLDim();
-            F* A11Buffer = A11_STAR_STAR.LocalBuffer();
-            for( int i=0; i<height; ++i )
-                for( int j=i+1; j<height; ++j )
-                    A11Buffer[j+i*ldim] = Conj(A11Buffer[i+j*ldim]);
-        }
+        MakeHermitian( UPPER, A11_STAR_STAR );
         A11_MC_STAR = A11_STAR_STAR;
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A11_MC_STAR, U12Adj_MR_STAR, F(0), Y12 );
 
         // Y12 := Y12 + A01' U02
-        Z12_STAR_MR.ResizeTo( A12.Height(), A12.Width() );
+        Zeros( A12.Height(), A12.Width(), Z12_STAR_MR );
         LocalGemm( ADJOINT, NORMAL, F(1), A01_MC_STAR, U02, F(0), Z12_STAR_MR );
         Y12.SumScatterUpdate( F(1), Z12_STAR_MR );
         //--------------------------------------------------------------------//

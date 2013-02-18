@@ -10,6 +10,8 @@
 #ifndef BLAS_GEMV_HPP
 #define BLAS_GEMV_HPP
 
+#include "elemental/blas-like/level1/Scale.hpp"
+
 #include "./Gemv/N.hpp"
 #include "./Gemv/T.hpp"
 

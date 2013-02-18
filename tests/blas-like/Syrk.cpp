@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level3/Syrk.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;

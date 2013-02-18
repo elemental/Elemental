@@ -10,6 +10,7 @@
 #ifndef LAPACK_SYMMETRICNORM_SCHATTEN_HPP
 #define LAPACK_SYMMETRICNORM_SCHATTEN_HPP
 
+#include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
 namespace elem {

@@ -10,6 +10,9 @@
 #ifndef LAPACK_LU_PANEL_HPP
 #define LAPACK_LU_PANEL_HPP
 
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level2/Geru.hpp"
+
 namespace elem {
 namespace internal {
 

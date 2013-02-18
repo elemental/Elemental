@@ -10,7 +10,8 @@
 #ifndef LAPACK_SYMMETRICNORM_TWO_HPP
 #define LAPACK_SYMMETRICNORM_TWO_HPP
 
-#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/blas-like/level1/MakeSymmetric.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
 namespace elem {
@@ -27,7 +28,7 @@ SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
     Matrix<R> s;
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = MaxNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -46,7 +47,7 @@ SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SingularValues( B, s );
-    const R norm = InfinityNorm( s );
+    const R norm = MaxNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif

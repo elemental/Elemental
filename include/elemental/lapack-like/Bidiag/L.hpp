@@ -10,6 +10,10 @@
 #ifndef LAPACK_BIDIAG_L_HPP
 #define LAPACK_BIDIAG_L_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/Bidiag/PanelL.hpp"
+#include "elemental/lapack-like/Bidiag/UnblockedL.hpp"
+
 namespace elem {
 namespace internal {
 

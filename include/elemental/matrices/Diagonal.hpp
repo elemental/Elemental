@@ -10,6 +10,8 @@
 #ifndef MATRICES_DIAGONAL_HPP
 #define MATRICES_DIAGONAL_HPP
 
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 
 template<typename T> 

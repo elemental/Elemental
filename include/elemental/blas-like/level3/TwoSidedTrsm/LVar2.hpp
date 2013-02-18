@@ -10,6 +10,14 @@
 #ifndef BLAS_TWOSIDEDTRSM_LVAR2_HPP
 #define BLAS_TWOSIDEDTRSM_LVAR2_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -187,10 +195,8 @@ TwoSidedTrsmLVar2
         L10Adj_MR_STAR.AdjointFrom( L10 );
         L10Adj_VC_STAR = L10Adj_MR_STAR;
         L10_STAR_MC.AdjointFrom( L10Adj_VC_STAR );
-        Y10Adj_MC_STAR.ResizeTo( A10.Width(), A10.Height() );
-        F10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
-        Zero( Y10Adj_MC_STAR );
-        Zero( F10Adj_MR_STAR );
+        Zeros( A10.Width(), A10.Height(), Y10Adj_MC_STAR );
+        Zeros( A10.Width(), A10.Height(), F10Adj_MR_STAR );
         LocalSymmetricAccumulateRL
         ( ADJOINT,
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
@@ -201,7 +207,7 @@ TwoSidedTrsmLVar2
         Adjoint( Y10Adj_MR_MC.LockedLocalMatrix(), Y10Local );
 
         // X11 := A10 L10'
-        X11_MC_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_MC_STAR );
         LocalGemm
         ( NORMAL, NORMAL, F(1), A10, L10Adj_MR_STAR, F(0), X11_MC_STAR );
 
@@ -213,7 +219,7 @@ TwoSidedTrsmLVar2
         LocalGemm
         ( NORMAL, NORMAL, F(1), L10, A10Adj_MR_STAR, F(1), X11_MC_STAR );
         X11.SumScatterFrom( X11_MC_STAR );
-        MakeTrapezoidal( LEFT, LOWER, 0, X11 );
+        MakeTriangular( LOWER, X11 );
         Axpy( F(-1), X11, A11 );
 
         // A10 := inv(L11) A10
@@ -229,7 +235,7 @@ TwoSidedTrsmLVar2
         A11 = A11_STAR_STAR;
 
         // A21 := A21 - A20 L10'
-        X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
+        Zeros( A21.Height(), A21.Width(), X21_MC_STAR );
         LocalGemm
         ( NORMAL, NORMAL, F(1), A20, L10Adj_MR_STAR, F(0), X21_MC_STAR );
         A21.SumScatterUpdate( F(-1), X21_MC_STAR );

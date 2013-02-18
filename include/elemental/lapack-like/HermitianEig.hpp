@@ -12,6 +12,8 @@
 
 #ifndef WITHOUT_PMRRR
 
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/HermitianNorm/Max.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"

@@ -10,6 +10,10 @@
 #ifndef BLAS_TRDTRMM_LVAR1_HPP
 #define BLAS_TRDTRMM_LVAR1_HPP
 
+#include "elemental/blas-like/level1/DiagonalSolve.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+
 namespace elem {
 namespace internal {
 

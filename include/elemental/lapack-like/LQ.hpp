@@ -11,7 +11,6 @@
 #define LAPACK_LQ_HPP
 
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-
 #include "elemental/lapack-like/LQ/Panel.hpp"
 
 namespace elem {

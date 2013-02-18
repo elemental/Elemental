@@ -16,7 +16,7 @@ template<typename F>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular )
+  const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalSolve");
@@ -68,7 +68,7 @@ inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const Matrix<typename Base<F>::type>& d, Matrix<F>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalSolve");
@@ -115,7 +115,7 @@ inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalSolve");
@@ -165,7 +165,7 @@ inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
   const DistMatrix<typename Base<F>::type,U,V>& d, DistMatrix<F,W,Z>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalSolve");

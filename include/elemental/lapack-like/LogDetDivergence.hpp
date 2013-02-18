@@ -10,6 +10,9 @@
 #ifndef LAPACK_LOGDETDIVERGENCE_HPP
 #define LAPACK_LOGDETDIVERGENCE_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/blas-like/level3/Trtrsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 
@@ -30,9 +33,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     typedef typename Base<F>::type R;
     const int n = A.Height();
 
-    Matrix<F> ACopy( A );
-    Matrix<F> BCopy( B );
-
+    Matrix<F> ACopy( A ), BCopy( B );
     Cholesky( uplo, ACopy );
     Cholesky( uplo, BCopy );
 
@@ -42,11 +43,11 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     }
     else
     {
-        MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+        MakeTriangular( uplo, ACopy );
         Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
 
-    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+    MakeTriangular( uplo, ACopy );
     const R frobNorm = FrobeniusNorm( ACopy );
 
     Matrix<F> d;
@@ -81,9 +82,7 @@ LogDetDivergence
     const int n = A.Height();
     const Grid& g = A.Grid();
 
-    DistMatrix<F> ACopy( A );
-    DistMatrix<F> BCopy( B );
-
+    DistMatrix<F> ACopy( A ), BCopy( B );
     Cholesky( uplo, ACopy );
     Cholesky( uplo, BCopy );
 
@@ -93,11 +92,11 @@ LogDetDivergence
     }
     else
     {
-        MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+        MakeTriangular( uplo, ACopy );
         Trsm( LEFT, uplo, NORMAL, NON_UNIT, F(1), BCopy, ACopy );
     }
 
-    MakeTrapezoidal( LEFT, uplo, 0, ACopy );
+    MakeTriangular( uplo, ACopy );
     const R frobNorm = FrobeniusNorm( ACopy );
 
     R logDet;

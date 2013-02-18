@@ -10,18 +10,7 @@
 #ifndef BLAS_TRMM_HPP
 #define BLAS_TRMM_HPP
 
-#include "./Trmm/Util.hpp"
-#include "./Trmm/LLN.hpp"
-#include "./Trmm/LLT.hpp"
-#include "./Trmm/LUN.hpp"
-#include "./Trmm/LUT.hpp"
-#include "./Trmm/RLN.hpp"
-#include "./Trmm/RLT.hpp"
-#include "./Trmm/RUN.hpp"
-#include "./Trmm/RUT.hpp"
-
 namespace elem {
-
 namespace internal {
 
 template<typename T,Distribution BColDist,Distribution BRowDist>
@@ -48,6 +37,18 @@ LocalTrmm
 }
 
 } // namespace internal
+} // namespace elem
+
+#include "./Trmm/LLN.hpp"
+#include "./Trmm/LLT.hpp"
+#include "./Trmm/LUN.hpp"
+#include "./Trmm/LUT.hpp"
+#include "./Trmm/RLN.hpp"
+#include "./Trmm/RLT.hpp"
+#include "./Trmm/RUN.hpp"
+#include "./Trmm/RUT.hpp"
+
+namespace elem {
 
 template<typename T>
 inline void

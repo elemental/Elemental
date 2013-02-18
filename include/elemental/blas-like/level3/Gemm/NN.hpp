@@ -10,6 +10,9 @@
 #ifndef BLAS_GEMM_NN_HPP
 #define BLAS_GEMM_NN_HPP
 
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 

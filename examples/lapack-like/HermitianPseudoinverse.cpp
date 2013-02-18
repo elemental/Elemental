@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/lapack-like/HermitianPseudoinverse.hpp"
 using namespace std;
 using namespace elem;

@@ -10,13 +10,17 @@
 #ifndef BLAS_SYRK_UT_HPP
 #define BLAS_SYRK_UT_HPP
 
+#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+
 namespace elem {
 namespace internal {
 
 template<typename T>
 inline void
 SyrkUT
-( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, bool conjugate )
+( T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C, 
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("internal::SyrkUT");

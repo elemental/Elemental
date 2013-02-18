@@ -10,9 +10,14 @@
 #ifndef LAPACK_INVERSE_HPP
 #define LAPACK_INVERSE_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/Zero.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/ApplyColumnPivots.hpp"
 #include "elemental/lapack-like/LU.hpp"
 #include "elemental/lapack-like/TriangularInverse.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -65,7 +70,7 @@ Inverse( Matrix<F>& A )
         L21 = A21;
 
         // Zero the strictly lower triangular portion of A1
-        MakeTrapezoidal( LEFT, UPPER, 0, A11 );
+        MakeTriangular( UPPER, A11 );
         Zero( A21 );
 
         // Perform the lazy update of A1
@@ -132,7 +137,6 @@ Inverse( DistMatrix<F>& A )
         L21_VR_STAR.AlignWith( A2 );
         L21Trans_STAR_MR.AlignWith( A2 );
         Z1.AlignWith( A01 );
-        Z1.ResizeTo( A.Height(), A01.Width() );
         //--------------------------------------------------------------------//
         // Copy out L1
         L11_STAR_STAR = A11;
@@ -140,10 +144,11 @@ Inverse( DistMatrix<F>& A )
         L21Trans_STAR_MR.TransposeFrom( L21_VR_STAR );
 
         // Zero the strictly lower triangular portion of A1
-        MakeTrapezoidal( LEFT, UPPER, 0, A11 );
+        MakeTriangular( UPPER, A11 );
         Zero( A21 );
 
         // Perform the lazy update of A1
+        Zeros( A.Height(), A01.Width(), Z1 );
         internal::LocalGemm
         ( NORMAL, TRANSPOSE, 
           F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );

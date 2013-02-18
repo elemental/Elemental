@@ -13,6 +13,7 @@
 #ifndef WITHOUT_PMRRR
 
 #include "elemental/lapack-like/HermitianFunction.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 
 namespace elem {
 
@@ -36,22 +37,14 @@ HermitianPseudoinverse
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    // Compute the two-norm of A as the maximum absolute value of its
-    // eigenvalues
-    R maxLocalAbsEig = 0;
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
-    {
-        const R omega = w.GetLocal(iLocal,0);
-        maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
-    }
-    R twoNorm;
-    mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
+    // Compute the two-norm of A as the maximum absolute value of its eigvals
+    const R twoNorm = MaxNorm( w );
 
     // Set the tolerance equal to n ||A||_2 eps, and invert values above it
     const int n = A.Height();
     const R eps = lapack::MachineEpsilon<R>();
     const R tolerance = n*twoNorm*eps;
+    const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
         const R omega = w.GetLocal(iLocal,0);

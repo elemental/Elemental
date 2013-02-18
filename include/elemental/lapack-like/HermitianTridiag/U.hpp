@@ -10,6 +10,9 @@
 #ifndef LAPACK_HERMITIANTRIDIAG_U_HPP
 #define LAPACK_HERMITIANTRIDIAG_U_HPP
 
+#include "elemental/blas-like/level3/Trr2k.hpp"
+#include "elemental/lapack-like/HermitianTridiag/PanelU.hpp"
+
 namespace elem {
 namespace internal {
 

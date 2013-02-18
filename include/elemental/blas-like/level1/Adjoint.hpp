@@ -10,6 +10,8 @@
 #ifndef BLAS_ADJOINT_HPP
 #define BLAS_ADJOINT_HPP
 
+#include "elemental/blas-like/level1/Transpose.hpp"
+
 namespace elem {
 
 template<typename T>

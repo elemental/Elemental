@@ -10,6 +10,9 @@
 #ifndef LAPACK_TRIANGULARINVERSE_LVAR3_HPP
 #define LAPACK_TRIANGULARINVERSE_LVAR3_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 namespace internal {
 

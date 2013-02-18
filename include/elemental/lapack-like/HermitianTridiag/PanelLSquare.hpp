@@ -10,6 +10,10 @@
 #ifndef LAPACK_HERMITIANTRIDIAG_PANELLSQUARE_HPP
 #define LAPACK_HERMITIANTRIDIAG_PANELLSQUARE_HPP
 
+#include "elemental/blas-like/level1/Zero.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+#include "elemental/lapack-like/Reflector/Col.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -198,12 +202,10 @@ HermitianPanelTridiagLSquare
                         w21LastLocalBuffer[i] + 
                         a21Last_MC_STAR_LocalBuffer[i]*w21LastFirstEntry;
             }
-        }
-        if( thisIsMyCol )
-        {
             // Compute the Householder reflector
             tau = ColReflector( alpha21T, a21B );
         }
+
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry
         alpha21T.GetDiagonal( epsilon1 );
@@ -341,8 +343,7 @@ HermitianPanelTridiagLSquare
             {
                 const int sendSize = A22.LocalHeight()+ABR.LocalHeight();
                 const int recvSize = A22.LocalWidth()+ABR.LocalWidth();
-                std::vector<R> sendBuffer(sendSize);
-                std::vector<R> recvBuffer(recvSize);
+                std::vector<R> sendBuffer(sendSize), recvBuffer(recvSize);
 
                 // Pack the send buffer
                 MemCopy
@@ -526,8 +527,8 @@ HermitianPanelTridiagLSquare
         // Combine the AllReduce column summations of x01[MR,* ] and y01[MR,* ]
         {
             const int x01LocalHeight = x01_MR_STAR.LocalHeight();
-            std::vector<R> colSumSendBuffer(2*x01LocalHeight);
-            std::vector<R> colSumRecvBuffer(2*x01LocalHeight);
+            std::vector<R> colSumSendBuffer(2*x01LocalHeight),
+                           colSumRecvBuffer(2*x01LocalHeight);
             MemCopy
             ( &colSumSendBuffer[0], 
               x01_MR_STAR.LocalBuffer(), x01LocalHeight );
@@ -600,8 +601,7 @@ HermitianPanelTridiagLSquare
                 R myDotProduct = blas::Dot
                     ( a21LocalHeight, &reduceToOneRecvBuffer[0], 1, 
                                       a21_MC_STAR.LocalBuffer(), 1 );
-                R sendBuffer[2];
-                R recvBuffer[2];
+                R sendBuffer[2], recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ? 
                                   reduceToOneRecvBuffer[0] : 0 );
@@ -612,7 +612,7 @@ HermitianPanelTridiagLSquare
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
-                R scale = 0.5*dotProduct*tau;
+                R scale = dotProduct*tau / R(2);
                 const R* a21_MC_STAR_LocalBuffer = a21_MC_STAR.LocalBuffer();
                 for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
@@ -653,7 +653,7 @@ HermitianPanelTridiagLSquare
               W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
-            R scale = 0.5*dotProduct*tau;
+            R scale = dotProduct*tau / R(2);
             R* w21_MC_STAR_LocalBuffer = w21_MC_STAR.LocalBuffer();
             const R* a21_MC_STAR_LocalBuffer = a21_MC_STAR.LocalBuffer();
             for( int i=0; i<a21LocalHeight; ++i )
@@ -925,14 +925,12 @@ HermitianPanelTridiagLSquare
                         w21LastLocalBuffer[i] + 
                         a21Last_MC_STAR_LocalBuffer[i]*Conj(w21LastFirstEntry);
             }
-        }
-        if( thisIsMyCol )
-        {
             // Compute the Householder reflector
             tau = ColReflector( alpha21T, a21B );
             if( g.Row() == alpha21T.ColAlignment() )
                 tau1.SetLocal(0,0,tau);
         }
+
         // Store the subdiagonal value and turn a21 into a proper scaled 
         // reflector by explicitly placing the implicit one in its first entry.
         alpha21T.GetRealPartOfDiagonal( epsilon1 );
@@ -1071,8 +1069,7 @@ HermitianPanelTridiagLSquare
             {
                 const int sendSize = A22.LocalHeight()+ABR.LocalHeight();
                 const int recvSize = A22.LocalWidth()+ABR.LocalWidth();
-                std::vector<C> sendBuffer(sendSize);
-                std::vector<C> recvBuffer(recvSize);
+                std::vector<C> sendBuffer(sendSize), recvBuffer(recvSize);
 
                 // Pack the send buffer
                 MemCopy
@@ -1260,8 +1257,8 @@ HermitianPanelTridiagLSquare
         // y01[MR,* ]
         {
             const int x01LocalHeight = x01_MR_STAR.LocalHeight();
-            std::vector<C> colSumSendBuffer(2*x01LocalHeight);
-            std::vector<C> colSumRecvBuffer(2*x01LocalHeight);
+            std::vector<C> colSumSendBuffer(2*x01LocalHeight),
+                           colSumRecvBuffer(2*x01LocalHeight);
             MemCopy
             ( &colSumSendBuffer[0], 
               x01_MR_STAR.LocalBuffer(), x01LocalHeight );
@@ -1335,8 +1332,7 @@ HermitianPanelTridiagLSquare
                 C myDotProduct = blas::Dot
                     ( a21LocalHeight, &reduceToOneRecvBuffer[0],   1,
                                       &a21_MC_STAR_LocalBuffer[0], 1 );
-                C sendBuffer[2];
-                C recvBuffer[2];
+                C sendBuffer[2], recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ?
                                   reduceToOneRecvBuffer[0] : 0 );
@@ -1347,7 +1343,7 @@ HermitianPanelTridiagLSquare
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastLocalBuffer
                 // - w21LastFirstEntry
-                C scale = dotProduct*Conj(tau)/C(2);
+                C scale = dotProduct*Conj(tau) / C(2);
                 for( int i=0; i<a21LocalHeight; ++i )
                     w21LastLocalBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
@@ -1387,7 +1383,7 @@ HermitianPanelTridiagLSquare
               W_MR_STAR, W00.Height()+1, W00.Width(), w21.Height(), 1 );
 
             // Store w21[MC,* ]
-            C scale = dotProduct*Conj(tau)/C(2);
+            C scale = dotProduct*Conj(tau) / C(2);
             C* w21_MC_STAR_LocalBuffer = w21_MC_STAR.LocalBuffer();
             const C* a21_MC_STAR_LocalBuffer = a21_MC_STAR.LocalBuffer();
             for( int i=0; i<a21LocalHeight; ++i )

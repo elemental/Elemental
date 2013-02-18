@@ -10,6 +10,12 @@
 #ifndef LAPACK_CHOLESKY_LVAR2_HPP
 #define LAPACK_CHOLESKY_LVAR2_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
+#include "elemental/lapack-like/Cholesky/LVar3.hpp"
+
 namespace elem {
 namespace internal {
 

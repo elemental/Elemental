@@ -10,6 +10,11 @@
 #ifndef BLAS_TRTRSM_LLN_HPP
 #define BLAS_TRTRSM_LLN_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -58,7 +63,7 @@ template<typename F>
 inline void
 TrtrsmLLN
 ( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=true )
 {
 #ifndef RELEASE
     PushCallStack("internal::TrtrsmLLN");
@@ -102,7 +107,7 @@ TrtrsmLLN
         TrtrsmLLNUnb( diag, F(1), L11, X11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, X10, F(1), X20 );
         Z11 = X11;
-        MakeTrapezoidal( LEFT, LOWER, 0, Z11 );
+        MakeTriangular( LOWER, Z11 );
         Gemm( NORMAL, NORMAL, F(-1), L21, Z11, F(1), X21 );
         //--------------------------------------------------------------------//
 
@@ -190,7 +195,7 @@ TrtrsmLLN
           checkIfSingular );
         X11 = X11_STAR_STAR;
         X11_STAR_MR = X11_STAR_STAR;
-        MakeTrapezoidal( LEFT, LOWER, 0, X11_STAR_MR );
+        MakeTriangular( LOWER, X11_STAR_MR );
 
         X10_STAR_MR = X10_STAR_VR;
         X10 = X10_STAR_MR;

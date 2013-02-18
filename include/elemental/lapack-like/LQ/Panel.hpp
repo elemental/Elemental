@@ -10,7 +10,11 @@
 #ifndef LAPACK_LQ_PANEL_HPP
 #define LAPACK_LQ_PANEL_HPP
 
+#include "elemental/blas-like/level1/Conjugate.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+#include "elemental/blas-like/level2/Ger.hpp"
 #include "elemental/lapack-like/Reflector.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace internal {

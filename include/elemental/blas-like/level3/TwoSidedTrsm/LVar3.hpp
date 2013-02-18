@@ -10,6 +10,15 @@
 #ifndef BLAS_TWOSIDEDTRSM_LVAR3_HPP
 #define BLAS_TWOSIDEDTRSM_LVAR3_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -224,12 +233,12 @@ TwoSidedTrsmLVar3
         // A11 := A11 - (A10 L10' + L10 A10')
         A10_STAR_VR = A10;
         L10_STAR_VR = L10;
-        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL, 
           F(1), A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(),
           F(0), X11_STAR_STAR.LocalMatrix() );
-        MakeTrapezoidal( LEFT, LOWER, 0, X11_STAR_STAR );
+        MakeTriangular( LOWER, X11_STAR_STAR );
         A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
 
         // A11 := inv(L11) A11 inv(L11)'
@@ -240,7 +249,7 @@ TwoSidedTrsmLVar3
 
         // A21 := A21 - A20 L10'
         L10_STAR_MR = L10_STAR_VR;
-        X21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
+        Zeros( A21.Height(), A21.Width(), X21_MC_STAR );
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A20, L10_STAR_MR, F(0), X21_MC_STAR );
         A21.SumScatterUpdate( F(-1), X21_MC_STAR );
@@ -266,23 +275,12 @@ TwoSidedTrsmLVar3
         LocalGemm( NORMAL, NORMAL, F(1), L21_MC_STAR, A10_STAR_MR, F(1), Y20 );
 
         // Y21 := L21 A11
-        //
-        // Symmetrize A11[* ,* ] by copying the lower triangle into the upper
-        // so that we can call a local gemm instead of worrying about
-        // reproducing a hemm with nonsymmetric local matrices.
-        {
-            const int height = A11_STAR_STAR.LocalHeight();
-            const int ldim = A11_STAR_STAR.LocalLDim();
-            F* A11Buffer = A11_STAR_STAR.LocalBuffer();
-            for( int i=1; i<height; ++i )
-                for( int j=0; j<i; ++j )
-                    A11Buffer[j+i*ldim] = Conj(A11Buffer[i+j*ldim]);
-        }
+        MakeHermitian( LOWER, A11_STAR_STAR );
         A11_STAR_MR = A11_STAR_STAR;
         LocalGemm( NORMAL, NORMAL, F(1), L21_MC_STAR, A11_STAR_MR, F(0), Y21 );
 
         // Y21 := Y21 + L20 A10'
-        Z21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
+        Zeros( A21.Height(), A21.Width(), Z21_MC_STAR );
         LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, F(0), Z21_MC_STAR );
         Y21.SumScatterUpdate( F(1), Z21_MC_STAR );
         //--------------------------------------------------------------------//

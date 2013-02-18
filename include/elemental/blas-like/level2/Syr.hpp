@@ -15,7 +15,8 @@ namespace elem {
 template<typename T>
 inline void
 Syr
-( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, bool conjugate )
+( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A, 
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr");
@@ -51,7 +52,7 @@ Syr
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T>& x,
                  DistMatrix<T>& A,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Syr");

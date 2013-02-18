@@ -7,6 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/matrices/Identity.hpp"
 using namespace elem;
 
 int 
@@ -50,7 +52,7 @@ main( int argc, char* argv[] )
         if( print )
             ASqrt.Print("ASqrt := A");
 
-        Scal( 2.0, ASqrt );
+        Scale( 2., ASqrt );
         if( print )
             ASqrt.Print("ASqrt := 2 ASqrt");
 

@@ -10,13 +10,9 @@
 #ifndef BLAS_GEMM_HPP
 #define BLAS_GEMM_HPP
 
-#include "./Gemm/NN.hpp"
-#include "./Gemm/NT.hpp"
-#include "./Gemm/TN.hpp"
-#include "./Gemm/TT.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
 
 namespace elem {
-
 namespace internal {
 
 template<typename T,Distribution AColDist,Distribution ARowDist,
@@ -137,6 +133,14 @@ inline void LocalGemm
 }
 
 } // namespace internal
+} // namespace elem
+
+#include "./Gemm/NN.hpp"
+#include "./Gemm/NT.hpp"
+#include "./Gemm/TN.hpp"
+#include "./Gemm/TT.hpp"
+
+namespace elem {
 
 template<typename T>
 inline void

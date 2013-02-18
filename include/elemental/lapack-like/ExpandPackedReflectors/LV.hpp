@@ -10,6 +10,17 @@
 #ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
 #define LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
 
+#include "elemental/blas-like/level1/Adjoint.hpp"
+#include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Syrk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Identity.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -44,7 +55,7 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonalToOne( LEFT, offset, H );
+    SetDiagonal( LEFT, offset, H, R(1) );
     const int dimDiff = H.Height() - H.Width();
 
     Matrix<R>
@@ -125,7 +136,7 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonalToOne( LEFT, 0, HEffectedNew );
+        SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -146,7 +157,7 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonalToOne( LEFT, offset, H );
+    SetDiagonal( LEFT, offset, H, R(1) );
     const int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
@@ -259,7 +270,7 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonalToOne( LEFT, 0, HEffectedNew );
+        SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -286,7 +297,7 @@ ExpandPackedReflectorsLV
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonalToOne( LEFT, offset, H );
+    SetDiagonal( LEFT, offset, H, C(1) );
     const int dimDiff = H.Height() - H.Width();
 
     Matrix<C>
@@ -386,7 +397,7 @@ ExpandPackedReflectorsLV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonalToOne( LEFT, 0, HEffectedNew );
+        SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -417,7 +428,7 @@ ExpandPackedReflectorsLV
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonalToOne( LEFT, offset, H );
+    SetDiagonal( LEFT, offset, H, C(1) );
     const int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
@@ -551,7 +562,7 @@ ExpandPackedReflectorsLV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonalToOne( LEFT, 0, HEffectedNew );
+        SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
     }
 #ifndef RELEASE
     PopCallStack();

@@ -10,6 +10,7 @@
 #ifndef LAPACK_CHOLESKYSOLVE_HPP
 #define LAPACK_CHOLESKYSOLVE_HPP
 
+#include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
 
 namespace elem {

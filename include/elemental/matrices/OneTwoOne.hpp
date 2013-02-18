@@ -10,6 +10,8 @@
 #ifndef MATRICES_ONETWOONE_HPP
 #define MATRICES_ONETWOONE_HPP
 
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 
 template<typename T> 

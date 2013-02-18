@@ -10,6 +10,9 @@
 #ifndef BLAS_SYR2K_LN_HPP
 #define BLAS_SYR2K_LN_HPP
 
+#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
+#include "elemental/blas-like/level3/Trr2k.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -18,7 +21,7 @@ inline void
 Syr2kLN
 ( T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("internal::Syr2kLN");

@@ -10,6 +10,7 @@
 #ifndef LAPACK_EXPLICITQR_HPP
 #define LAPACK_EXPLICITQR_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ExpandPackedReflectors.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
@@ -63,7 +64,7 @@ ExplicitQRHelper( Matrix<Real>& A, Matrix<Real>& R )
     ( A, AT,
          AB, std::min(A.Height(),A.Width()) );
     R = AT;
-    MakeTrapezoidal( LEFT, UPPER, 0, R );
+    MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
 }
 
@@ -79,7 +80,7 @@ ExplicitQRHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
     ( A, AT,
          AB, std::min(A.Height(),A.Width()) );
     R = AT;
-    MakeTrapezoidal( LEFT, UPPER, 0, R );
+    MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
 }
 
@@ -95,7 +96,7 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
     ( A, AT,
          AB, std::min(A.Height(),A.Width()) );
     R = AT;
-    MakeTrapezoidal( LEFT, UPPER, 0, R );
+    MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
 
@@ -113,7 +114,7 @@ ExplicitQRHelper
     ( A, AT,
          AB, std::min(A.Height(),A.Width()) );
     R = AT;
-    MakeTrapezoidal( LEFT, UPPER, 0, R );
+    MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
 

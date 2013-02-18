@@ -10,6 +10,12 @@
 #ifndef BLAS_GEMV_T_HPP
 #define BLAS_GEMV_T_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 

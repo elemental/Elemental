@@ -10,6 +10,13 @@
 #ifndef BLAS_TWOSIDEDTRSM_UVAR4_HPP
 #define BLAS_TWOSIDEDTRSM_UVAR4_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -199,9 +206,9 @@ TwoSidedTrsmUVar4
 
         // Y12 := A11 U12
         U12Trans_VR_STAR = U12Trans_MR_STAR;
-        U12_STAR_VR.ResizeTo( A12.Height(), A12.Width() );
+        Zeros( A12.Height(), A12.Width(), U12_STAR_VR );
         Transpose( U12Trans_VR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix() );
-        Y12_STAR_VR.ResizeTo( A12.Height(), A12.Width() );
+        Zeros( A12.Height(), A12.Width(), Y12_STAR_VR );
         Hemm
         ( LEFT, UPPER, 
           F(1), A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(), 

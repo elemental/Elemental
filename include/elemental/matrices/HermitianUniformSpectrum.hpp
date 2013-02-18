@@ -10,6 +10,10 @@
 #ifndef MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 #define MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 
+#include "elemental/blas-like/level1/Dot.hpp"
+#include "elemental/blas-like/level1/Nrm2.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level2/Ger.hpp"
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Uniform.hpp"
 
@@ -22,7 +26,7 @@ template<typename F>
 inline void
 HermitianUniformSpectrum
 ( int n, Matrix<F>& A, 
-  typename Base<F>::type lower, typename Base<F>::type upper )
+  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -38,7 +42,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 HermitianUniformSpectrum
 ( int n, DistMatrix<F,U,V>& A, 
-  typename Base<F>::type lower, typename Base<F>::type upper )
+  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -53,7 +57,7 @@ HermitianUniformSpectrum
 template<typename F>
 inline void
 MakeHermitianUniformSpectrum
-( Matrix<F>& A, typename Base<F>::type lower, typename Base<F>::type upper )
+( Matrix<F>& A, typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeHermitianUniformSpectrum");
@@ -111,7 +115,7 @@ template<typename F,Distribution U,Distribution V>
 inline void
 MakeHermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, 
-  typename Base<F>::type lower, typename Base<F>::type upper )
+  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeHermitianUniformSpectrum");

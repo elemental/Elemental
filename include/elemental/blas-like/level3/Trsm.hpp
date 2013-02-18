@@ -10,17 +10,7 @@
 #ifndef BLAS_TRSM_HPP
 #define BLAS_TRSM_HPP
 
-#include "./Trsm/LLN.hpp"
-#include "./Trsm/LLT.hpp"
-#include "./Trsm/LUN.hpp"
-#include "./Trsm/LUT.hpp"
-#include "./Trsm/RLN.hpp"
-#include "./Trsm/RLT.hpp"
-#include "./Trsm/RUN.hpp"
-#include "./Trsm/RUT.hpp"
-
 namespace elem {
-
 namespace internal {
 
 template<typename F,Distribution XColDist,Distribution XRowDist>
@@ -30,7 +20,7 @@ LocalTrsm
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F,STAR,STAR>& A,
                  DistMatrix<F,XColDist,XRowDist>& X,
-  bool checkIfSingular )
+  bool checkIfSingular=false )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalTrsm");
@@ -48,6 +38,18 @@ LocalTrsm
 }
 
 } // namespace internal
+} // namespace elem
+
+#include "./Trsm/LLN.hpp"
+#include "./Trsm/LLT.hpp"
+#include "./Trsm/LUN.hpp"
+#include "./Trsm/LUT.hpp"
+#include "./Trsm/RLN.hpp"
+#include "./Trsm/RLT.hpp"
+#include "./Trsm/RUN.hpp"
+#include "./Trsm/RUT.hpp"
+
+namespace elem {
 
 template<typename F>
 inline void
@@ -55,7 +57,7 @@ Trsm
 ( LeftOrRight side, UpperOrLower uplo,
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const Matrix<F>& A, Matrix<F>& B,
-  bool checkIfSingular )
+  bool checkIfSingular=false )
 {
 #ifndef RELEASE
     PushCallStack("Trsm");
@@ -97,7 +99,7 @@ Trsm
 ( LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
   F alpha, const DistMatrix<F>& A, DistMatrix<F>& B,
-  bool checkIfSingular )
+  bool checkIfSingular=false )
 {
 #ifndef RELEASE
     PushCallStack("Trsm");

@@ -56,27 +56,19 @@ Symm
 ( LeftOrRight side, UpperOrLower uplo,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C, 
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Symm");
 #endif
     if( side == LEFT && uplo == LOWER )
-    {
         internal::SymmLL( alpha, A, B, beta, C, conjugate );
-    }
     else if( side == LEFT )
-    {
         internal::SymmLU( alpha, A, B, beta, C, conjugate );
-    }
     else if( uplo == LOWER )
-    {
         internal::SymmRL( alpha, A, B, beta, C, conjugate );
-    }
     else
-    {
         internal::SymmRU( alpha, A, B, beta, C, conjugate );
-    }
 #ifndef RELEASE
     PopCallStack();
 #endif

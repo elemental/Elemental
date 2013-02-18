@@ -10,6 +10,8 @@
 #ifndef MATRICES_WILKINSON_HPP
 #define MATRICES_WILKINSON_HPP
 
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 
 template<typename T> 

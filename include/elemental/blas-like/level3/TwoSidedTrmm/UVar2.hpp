@@ -10,6 +10,13 @@
 #ifndef BLAS_TWOSIDEDTRMM_UVAR2_HPP
 #define BLAS_TWOSIDEDTRMM_UVAR2_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -189,7 +196,7 @@ TwoSidedTrmmUVar2
 
         // A01 := A01 + A02 U12'
         U12Adj_MR_STAR.AdjointFrom( U12 );
-        X01_MC_STAR.ResizeTo( A01.Height(), A01.Width() );
+        Zeros( A01.Height(), A01.Width(), X01_MC_STAR );
         LocalGemm
         ( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, F(0), X01_MC_STAR );
         A01.SumScatterUpdate( F(1), X01_MC_STAR );
@@ -197,10 +204,8 @@ TwoSidedTrmmUVar2
         // Y12 := U12 A22
         U12Adj_VC_STAR = U12Adj_MR_STAR;
         U12_STAR_MC.AdjointFrom( U12Adj_VC_STAR );
-        Z12Adj_MC_STAR.ResizeTo( A12.Width(), A12.Height() );
-        Z12Adj_MR_STAR.ResizeTo( A12.Width(), A12.Height() );
-        Zero( Z12Adj_MC_STAR );
-        Zero( Z12Adj_MR_STAR );
+        Zeros( A12.Width(), A12.Height(), Z12Adj_MC_STAR );
+        Zeros( A12.Width(), A12.Height(), Z12Adj_MR_STAR );
         LocalSymmetricAccumulateRU
         ( ADJOINT, 
           F(1), A22, U12_STAR_MC, U12Adj_MR_STAR, 
@@ -229,7 +234,7 @@ TwoSidedTrmmUVar2
         // A11 := A11 + (A12 U12' + U12 A12')
         A12_STAR_VR = A12;
         U12_STAR_VR = U12;
-        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( UPPER, NORMAL,
           F(1), A12_STAR_VR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),

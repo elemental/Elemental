@@ -10,6 +10,12 @@
 #ifndef BLAS_TWOSIDEDTRSM_LVAR1_HPP
 #define BLAS_TWOSIDEDTRSM_LVAR1_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -176,10 +182,8 @@ TwoSidedTrsmLVar1
         L10Adj_MR_STAR.AdjointFrom( L10 );
         L10Adj_VC_STAR = L10Adj_MR_STAR;
         L10_STAR_MC.AdjointFrom( L10Adj_VC_STAR );
-        Z10Adj_MC_STAR.ResizeTo( A10.Width(), A10.Height() );
-        Z10Adj_MR_STAR.ResizeTo( A10.Width(), A10.Height() );
-        Zero( Z10Adj_MC_STAR );
-        Zero( Z10Adj_MR_STAR );
+        Zeros( A10.Width(), A10.Height(), Z10Adj_MC_STAR );
+        Zeros( A10.Width(), A10.Height(), Z10Adj_MR_STAR );
         LocalSymmetricAccumulateRL
         ( ADJOINT,
           F(1), A00, L10_STAR_MC, L10Adj_MR_STAR, 
@@ -200,7 +204,7 @@ TwoSidedTrsmLVar1
         // A11 := A11 - (A10 L10' + L10 A10')
         A10_STAR_VR = A10;
         L10_STAR_VR = L10;
-        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL,
           F(-1), A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(), 

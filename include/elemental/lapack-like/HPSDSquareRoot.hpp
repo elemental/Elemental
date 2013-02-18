@@ -13,6 +13,7 @@
 #ifndef WITHOUT_PMRRR
 
 #include "elemental/lapack-like/HermitianFunction.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 
 namespace elem {
 
@@ -36,20 +37,12 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    // Compute the two-norm of A as the maximum absolute value 
-    // of its eigenvalues
-    R maxLocalAbsEig = 0;
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
-    {
-        const R omega = w.GetLocal(iLocal,0);
-        maxLocalAbsEig = std::max(maxLocalAbsEig,Abs(omega));
-    }
-    R twoNorm;
-    mpi::AllReduce( &maxLocalAbsEig, &twoNorm, 1, mpi::MAX, g.VCComm() );
+    // Compute the two-norm of A as the maximum absolute value of the eigvals
+    const R twoNorm = MaxNorm( w );
 
     // Compute the smallest eigenvalue of A
     R minLocalEig = twoNorm;
+    const int numLocalEigs = w.LocalHeight();
     for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
     {
         const R omega = w.GetLocal(iLocal,0);

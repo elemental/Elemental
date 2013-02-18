@@ -7,6 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
 
 namespace elem {
 

@@ -10,9 +10,6 @@
 #ifndef LAPACK_HPDINVERSE_HPP
 #define LAPACK_HPDINVERSE_HPP
 
-#include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/TriangularInverse.hpp"
-
 #include "./HPDInverse/LVar2.hpp"
 #include "./HPDInverse/UVar2.hpp"
 

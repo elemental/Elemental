@@ -10,6 +10,10 @@
 #ifndef LAPACK_SOLVEAFTERCHOLESKY_HPP
 #define LAPACK_SOLVEAFTERCHOLESKY_HPP
 
+#include "elemental/blas-like/level1/Conjugate.hpp"
+#include "elemental/blas-like/level2/Trsv.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 
 template<typename F> 
@@ -30,20 +34,20 @@ SolveAfterCholesky
         if( uplo == LOWER )
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsv( LOWER, NORMAL, NON_UNIT, A, B );
             Trsv( LOWER, ADJOINT, NON_UNIT, A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
         else
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsv( UPPER, ADJOINT, NON_UNIT, A, B );
             Trsv( UPPER, NORMAL, NON_UNIT, A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
     }
     else
@@ -51,20 +55,20 @@ SolveAfterCholesky
         if( uplo == LOWER )
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
         else
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
     }
 #ifndef RELEASE
@@ -92,20 +96,20 @@ SolveAfterCholesky
         if( uplo == LOWER )
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsv( LOWER, NORMAL, NON_UNIT, A, B );
             Trsv( LOWER, ADJOINT, NON_UNIT, A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
         else
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsv( UPPER, ADJOINT, NON_UNIT, A, B );
             Trsv( UPPER, NORMAL, NON_UNIT, A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
     }
     else
@@ -113,20 +117,20 @@ SolveAfterCholesky
         if( uplo == LOWER )
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
         else
         {
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
             if( orientation == TRANSPOSE )
-                Conj( B );
+                Conjugate( B );
         }
     }
 #ifndef RELEASE

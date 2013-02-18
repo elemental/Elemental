@@ -10,6 +10,13 @@
 #ifndef BLAS_TWOSIDEDTRMM_LVAR2_HPP
 #define BLAS_TWOSIDEDTRMM_LVAR2_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -186,7 +193,7 @@ TwoSidedTrmmLVar2
 
         // A10 := A10 + L21' A20
         L21_MC_STAR = L21;
-        X10_STAR_MR.ResizeTo( A10.Height(), A10.Width() );
+        Zeros( A10.Height(), A10.Width(), X10_STAR_MR );
         LocalGemm( ADJOINT, NORMAL, F(1), L21_MC_STAR, A20, F(0), X10_STAR_MR );
         A10.SumScatterUpdate( F(1), X10_STAR_MR );
 
@@ -194,10 +201,8 @@ TwoSidedTrmmLVar2
         L21_VC_STAR = L21_MC_STAR;
         L21_VR_STAR = L21_VC_STAR;
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
-        Z21_MC_STAR.ResizeTo( A21.Height(), A21.Width() );
-        Z21_MR_STAR.ResizeTo( A21.Height(), A21.Width() );
-        Zero( Z21_MC_STAR );
-        Zero( Z21_MR_STAR );
+        Zeros( A21.Height(), A21.Width(), Z21_MC_STAR );
+        Zeros( A21.Height(), A21.Width(), Z21_MR_STAR );
         LocalSymmetricAccumulateLL
         ( ADJOINT, 
           F(1), A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
@@ -221,7 +226,7 @@ TwoSidedTrmmLVar2
 
         // A11 := A11 + (A21' L21 + L21' A21)
         A21_VC_STAR = A21;
-        X11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
+        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, ADJOINT,
           F(1), A21_VC_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(),

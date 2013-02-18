@@ -10,12 +10,7 @@
 #ifndef BLAS_TRDTRMM_HPP
 #define BLAS_TRDTRMM_HPP
 
-#include "./Trdtrmm/Unblocked.hpp"
-#include "./Trdtrmm/LVar1.hpp"
-#include "./Trdtrmm/UVar1.hpp"
-
 namespace elem {
-
 namespace internal {
 
 template<typename T>
@@ -33,6 +28,13 @@ LocalTrdtrmm
 }
 
 } // namespace internal
+} // namespace elem
+
+#include "./Trdtrmm/Unblocked.hpp"
+#include "./Trdtrmm/LVar1.hpp"
+#include "./Trdtrmm/UVar1.hpp"
+
+namespace elem {
 
 template<typename F>
 inline void

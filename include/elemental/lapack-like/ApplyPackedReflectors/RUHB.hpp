@@ -10,6 +10,14 @@
 #ifndef LAPACK_APPLYPACKEDREFLECTORS_RUHB_HPP
 #define LAPACK_APPLYPACKEDREFLECTORS_RUHB_HPP
 
+#include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Syrk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -82,7 +90,7 @@ ApplyPackedReflectorsRUHB
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
-        SetDiagonalToOne( LEFT, offset, HPanCopy );
+        SetDiagonal( LEFT, offset, HPanCopy, R(1) );
 
         Syrk( LOWER, NORMAL, R(1), HPanCopy, R(0), SInv );
         HalveMainDiagonal( SInv );
@@ -171,7 +179,7 @@ ApplyPackedReflectorsRUHB
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
-        SetDiagonalToOne( LEFT, offset, HPanCopy );
+        SetDiagonal( LEFT, offset, HPanCopy, R(1) );
 
         HPan_STAR_VR = HPanCopy;
         Syrk
@@ -287,7 +295,7 @@ ApplyPackedReflectorsRUHB
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
-        SetDiagonalToOne( LEFT, offset, HPanCopy );
+        SetDiagonal( LEFT, offset, HPanCopy, C(1) );
 
         Herk( LOWER, NORMAL, C(1), HPanCopy, C(0), SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -404,7 +412,7 @@ ApplyPackedReflectorsRUHB
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
-        SetDiagonalToOne( LEFT, offset, HPanCopy );
+        SetDiagonal( LEFT, offset, HPanCopy, C(1) );
 
         HPan_STAR_VR = HPanCopy;
         Herk

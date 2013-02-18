@@ -10,6 +10,10 @@
 #ifndef BLAS_TRSV_LN_HPP
 #define BLAS_TRSV_LN_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 

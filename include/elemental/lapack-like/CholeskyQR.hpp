@@ -10,7 +10,10 @@
 #ifndef LAPACK_CHOLESKY_QR_HPP
 #define LAPACK_CHOLESKY_QR_HPP
 
+#include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 

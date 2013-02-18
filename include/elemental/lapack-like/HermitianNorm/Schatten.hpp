@@ -10,6 +10,8 @@
 #ifndef LAPACK_HERMITIANNORM_SCHATTEN_HPP
 #define LAPACK_HERMITIANNORM_SCHATTEN_HPP
 
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+
 #ifndef WITHOUT_PMRRR
 #include "elemental/lapack-like/HermitianSVD.hpp"
 #endif // ifndef WITHOUT_PMRRR

@@ -14,10 +14,9 @@
 #ifdef HAVE_F90_INTERFACE
 # include "elemental/FCMangle.h"
 #endif
-
 #include "elemental/core.hpp"
-#include "elemental/blas-like.hpp"
 
+#include "elemental/blas-like_decl.hpp"
 #include "elemental/lapack-like_decl.hpp"
 
 #endif // ifndef ELEMENTAL_LITE_HPP

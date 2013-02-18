@@ -10,6 +10,10 @@
 #ifndef LAPACK_LDL_VAR3_HPP
 #define LAPACK_LDL_VAR3_HPP
 
+#include "elemental/blas-like/level1/DiagonalSolve.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -96,13 +100,6 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
     const int n = A.Height();
     if( !d.Viewing() )
         d.ResizeTo( n, 1 );
-    if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
-        return;
-    }
 
     Matrix<F>
         ATL, ATR,  A00, A01, A02,

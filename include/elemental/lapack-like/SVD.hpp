@@ -10,11 +10,18 @@
 #ifndef LAPACK_SVD_HPP
 #define LAPACK_SVD_HPP
 
+#include "elemental/blas-like/level1/Adjoint.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Bidiag.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/QR.hpp"
+#include "elemental/matrices/Identity.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -621,7 +628,7 @@ SingularValuesUpper
         PartitionDown
         ( A, AT,
              AB, n );
-        MakeTrapezoidal( LEFT, UPPER, 0, AT );
+        MakeTriangular( UPPER, AT );
         SimpleSingularValuesUpper( AT, s );
     }
     else
@@ -658,7 +665,7 @@ SingularValuesUpper
         PartitionDown
         ( A, AT,
              AB, n );
-        MakeTrapezoidal( LEFT, UPPER, 0, AT );
+        MakeTriangular( UPPER, AT );
         SimpleSingularValuesUpper( AT, s );
     }
     else
@@ -815,7 +822,7 @@ SVD
 
     // Rescale the singular values if necessary
     if( needRescaling )
-        Scal( 1/scale, s );
+        Scale( 1/scale, s );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -879,7 +886,7 @@ SingularValues
 
     // Rescale the singular values if necessary
     if( needRescaling )
-        Scal( 1/scale, s );
+        Scale( 1/scale, s );
 #ifndef RELEASE
     PopCallStack();
 #endif

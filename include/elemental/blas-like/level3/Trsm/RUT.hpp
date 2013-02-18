@@ -10,6 +10,8 @@
 #ifndef BLAS_TRSM_RUT_HPP
 #define BLAS_TRSM_RUT_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+
 namespace elem {
 namespace internal {
 

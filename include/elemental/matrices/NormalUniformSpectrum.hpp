@@ -10,6 +10,10 @@
 #ifndef MATRICES_NORMALUNIFORMSPECTRUM_HPP
 #define MATRICES_NORMALUNIFORMSPECTRUM_HPP
 
+#include "elemental/blas-like/level1/Dot.hpp"
+#include "elemental/blas-like/level1/Nrm2.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level2/Ger.hpp"
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Uniform.hpp"
 
@@ -21,7 +25,7 @@ namespace elem {
 template<typename R>
 inline void
 NormalUniformSpectrum
-( int n, Matrix<Complex<R> >& A, Complex<R> center, R radius )
+( int n, Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("NormalUniformSpectrum");
@@ -36,7 +40,7 @@ NormalUniformSpectrum
 template<typename R,Distribution U,Distribution V>
 inline void
 NormalUniformSpectrum
-( int n, DistMatrix<Complex<R>,U,V>& A, Complex<R> center, R radius )
+( int n, DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("NormalUniformSpectrum");
@@ -51,7 +55,7 @@ NormalUniformSpectrum
 template<typename R>
 inline void
 MakeNormalUniformSpectrum
-( Matrix<Complex<R> >& A, Complex<R> center, R radius )
+( Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeNormalUniformSpectrum");
@@ -107,7 +111,7 @@ MakeNormalUniformSpectrum
 template<typename R,Distribution U,Distribution V>
 inline void
 MakeNormalUniformSpectrum
-( DistMatrix<Complex<R>,U,V>& A, Complex<R> center, R radius )
+( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeNormalUniformSpectrum");

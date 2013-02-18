@@ -10,6 +10,12 @@
 #ifndef BLAS_SYMV_HPP
 #define BLAS_SYMV_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+
+#include "elemental/matrices/Zeros.hpp"
+
 #include "./Symv/L.hpp"
 #include "./Symv/U.hpp"
 
@@ -20,7 +26,7 @@ inline void
 Symv
 ( UpperOrLower uplo,
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Symv");
@@ -64,7 +70,7 @@ Symv
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("Symv");
@@ -93,10 +99,8 @@ Symv
     if( x.Width() == 1 && y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g);
-        DistMatrix<T,MC,STAR> z_MC_STAR(g);
-        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g), z_MC_STAR(g);
+        DistMatrix<T,MR,STAR> x_MR_STAR(g), z_MR_STAR(g);
         DistMatrix<T,MR,MC  > z_MR_MC(g);
         DistMatrix<T> z(g);
 
@@ -107,10 +111,8 @@ Symv
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z.AlignWith( y );
-        z_MC_STAR.ResizeTo( y.Height(), 1 );
-        z_MR_STAR.ResizeTo( y.Height(), 1 );
-        Zero( z_MC_STAR );
-        Zero( z_MR_STAR );
+        Zeros( y.Height(), 1, z_MC_STAR );
+        Zeros( y.Height(), 1, z_MR_STAR );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
@@ -139,10 +141,8 @@ Symv
     else if( x.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,MC,STAR> x_MC_STAR(g);
-        DistMatrix<T,MR,STAR> x_MR_STAR(g);
-        DistMatrix<T,MC,STAR> z_MC_STAR(g);
-        DistMatrix<T,MR,STAR> z_MR_STAR(g);
+        DistMatrix<T,MC,STAR> x_MC_STAR(g), z_MC_STAR(g);
+        DistMatrix<T,MR,STAR> x_MR_STAR(g), z_MR_STAR(g);
         DistMatrix<T,MR,MC  > z_MR_MC(g);
         DistMatrix<T> z(g), zTrans(g);
 
@@ -154,10 +154,8 @@ Symv
         z_MR_STAR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        z_MC_STAR.ResizeTo( y.Width(), 1 );
-        z_MR_STAR.ResizeTo( y.Width(), 1 );
-        Zero( z_MC_STAR );
-        Zero( z_MR_STAR );
+        Zeros( y.Width(), 1, z_MC_STAR );
+        Zeros( y.Width(), 1, z_MR_STAR );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
@@ -188,10 +186,8 @@ Symv
     else if( y.Width() == 1 )
     {
         // Temporary distributions
-        DistMatrix<T,STAR,MC> x_STAR_MC(g);
-        DistMatrix<T,STAR,MR> x_STAR_MR(g);
-        DistMatrix<T,STAR,MC> z_STAR_MC(g);
-        DistMatrix<T,STAR,MR> z_STAR_MR(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g), z_STAR_MC(g);
+        DistMatrix<T,STAR,MR> x_STAR_MR(g), z_STAR_MR(g);
         DistMatrix<T,MR,  MC> z_MR_MC(g);
         DistMatrix<T> z(g), zTrans(g);
 
@@ -203,10 +199,8 @@ Symv
         z_STAR_MR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        z_STAR_MC.ResizeTo( 1, y.Height() );
-        z_STAR_MR.ResizeTo( 1, y.Height() );
-        Zero( z_STAR_MC );
-        Zero( z_STAR_MR );
+        Zeros( 1, y.Height(), z_STAR_MC );
+        Zeros( 1, y.Height(), z_STAR_MR );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;
@@ -237,10 +231,8 @@ Symv
     else
     {
         // Temporary distributions
-        DistMatrix<T,STAR,MC> x_STAR_MC(g);
-        DistMatrix<T,STAR,MR> x_STAR_MR(g);
-        DistMatrix<T,STAR,MC> z_STAR_MC(g);
-        DistMatrix<T,STAR,MR> z_STAR_MR(g);
+        DistMatrix<T,STAR,MC> x_STAR_MC(g), z_STAR_MC(g);
+        DistMatrix<T,STAR,MR> x_STAR_MR(g), z_STAR_MR(g);
         DistMatrix<T,MR,  MC> z_MR_MC(g);
         DistMatrix<T> z(g);
 
@@ -252,10 +244,8 @@ Symv
         z_STAR_MR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        z_STAR_MC.ResizeTo( 1, y.Width() );
-        z_STAR_MR.ResizeTo( 1, y.Width() );
-        Zero( z_STAR_MC );
-        Zero( z_STAR_MR );
+        Zeros( 1, y.Width(), z_STAR_MC );
+        Zeros( 1, y.Width(), z_STAR_MR );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;

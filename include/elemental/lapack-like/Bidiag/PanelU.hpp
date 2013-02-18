@@ -10,6 +10,12 @@
 #ifndef LAPACK_BIDIAG_PANELU_HPP
 #define LAPACK_BIDIAG_PANELU_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Conjugate.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+#include "elemental/lapack-like/Reflector.hpp"
+
 namespace elem {
 namespace internal {
 

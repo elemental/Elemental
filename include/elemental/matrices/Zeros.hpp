@@ -10,6 +10,8 @@
 #ifndef MATRICES_ZEROS_HPP
 #define MATRICES_ZEROS_HPP
 
+#include "elemental/blas-like/level1/Zero.hpp"
+
 namespace elem {
 
 template<typename T>

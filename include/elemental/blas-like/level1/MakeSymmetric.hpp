@@ -10,11 +10,17 @@
 #ifndef BLAS_MAKESYMMETRIC_HPP
 #define BLAS_MAKESYMMETRIC_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeReal.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+
 namespace elem {
 
 template<typename T>
 inline void
-MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
+MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("MakeSymmetric");
@@ -24,13 +30,16 @@ MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
 
     Matrix<T> d;
     A.GetDiagonal( d );
+    if( conjugate )
+        MakeReal( d );
 
     if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
+        MakeTriangular( LOWER, A );
     else
-        MakeTrapezoidal( LEFT, UPPER, +1, A );
+        MakeTriangular( UPPER, A );
+    SetDiagonal( A, T(0) );
     Matrix<T> ATrans;
-    Transpose( A, ATrans );
+    Transpose( A, ATrans, conjugate );
     Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );
@@ -41,7 +50,7 @@ MakeSymmetric( UpperOrLower uplo, Matrix<T>& A )
 
 template<typename T>
 inline void
-MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
+MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("MakeSymmetric");
@@ -52,13 +61,16 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A )
     const Grid& g = A.Grid();
     DistMatrix<T,MD,STAR> d(g);
     A.GetDiagonal( d );
+    if( conjugate )
+        MakeReal( d );
 
     if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
+        MakeTriangular( LOWER, A );
     else
-        MakeTrapezoidal( LEFT, UPPER, +1, A );
+        MakeTriangular( UPPER, A );
+    SetDiagonal( A, T(0) );
     DistMatrix<T> ATrans(g);
-    Transpose( A, ATrans );
+    Transpose( A, ATrans, conjugate );
     Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );

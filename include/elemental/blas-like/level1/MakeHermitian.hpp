@@ -10,6 +10,8 @@
 #ifndef BLAS_MAKEHERMITIAN_HPP
 #define BLAS_MAKEHERMITIAN_HPP
 
+#include "elemental/blas-like/level1/MakeSymmetric.hpp"
+
 namespace elem {
 
 template<typename T>
@@ -19,22 +21,7 @@ MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 #ifndef RELEASE
     PushCallStack("MakeHermitian");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make non-square matrix Hermitian");
-
-    Matrix<T> d;
-    A.GetDiagonal( d );
-    MakeReal( d );
-
-    if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
-    else
-        MakeTrapezoidal( LEFT, UPPER, +1, A );
-    Matrix<T> AAdj;
-    Adjoint( A, AAdj );
-    Axpy( T(1), AAdj, A );
-
-    A.SetDiagonal( d );
+    MakeSymmetric( uplo, A, true );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -47,23 +34,7 @@ MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
 #ifndef RELEASE
     PushCallStack("MakeHermitian");
 #endif
-    const Grid& g = A.Grid();
-    if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make non-square matrix Hermitian");
-
-    DistMatrix<T,MD,STAR> d(g);
-    A.GetDiagonal( d );
-    MakeReal( d );
-
-    if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
-    else
-        MakeTrapezoidal( LEFT, UPPER, +1, A );
-    DistMatrix<T> AAdj(g);
-    Adjoint( A, AAdj );
-    Axpy( T(1), AAdj, A );
-
-    A.SetDiagonal( d );
+    MakeSymmetric( uplo, A, true );
 #ifndef RELEASE
     PopCallStack();
 #endif

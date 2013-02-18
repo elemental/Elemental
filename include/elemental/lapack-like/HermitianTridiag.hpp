@@ -10,8 +10,6 @@
 #ifndef LAPACK_HERMITIANTRIDIAG_HPP
 #define LAPACK_HERMITIANTRIDIAG_HPP
 
-#include "elemental/lapack-like/Reflector.hpp"
-
 #include "./HermitianTridiag/PanelL.hpp"
 #include "./HermitianTridiag/PanelLSquare.hpp"
 #include "./HermitianTridiag/PanelU.hpp"

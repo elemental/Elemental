@@ -7,12 +7,16 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Symm.hpp"
+#include "elemental/blas-like/level3/Trdtrmm.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/SymmetricNorm/Frobenius.hpp"
 #include "elemental/lapack-like/TriangularInverse.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;

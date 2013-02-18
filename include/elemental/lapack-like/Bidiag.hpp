@@ -10,8 +10,6 @@
 #ifndef LAPACK_BIDIAG_HPP
 #define LAPACK_BIDIAG_HPP
 
-#include "elemental/lapack-like/Reflector.hpp"
-
 #include "./Bidiag/Local.hpp"
 #include "./Bidiag/PanelL.hpp"
 #include "./Bidiag/PanelU.hpp"

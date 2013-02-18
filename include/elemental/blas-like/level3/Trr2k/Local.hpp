@@ -10,6 +10,11 @@
 #ifndef BLAS_TRR2K_LOCAL_HPP
 #define BLAS_TRR2K_LOCAL_HPP
 
+#include "elemental/blas-like/level1/AxpyTriangle.hpp"
+#include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 
 namespace trr2k {
@@ -885,8 +890,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -899,10 +902,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -955,8 +960,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -969,10 +972,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1021,8 +1026,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1035,10 +1038,12 @@ LocalTrr2kKernel
         internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1090,8 +1095,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1106,11 +1109,13 @@ LocalTrr2kKernel
         ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
@@ -1164,8 +1169,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1178,10 +1181,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1236,8 +1241,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1250,10 +1253,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1305,8 +1310,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1319,10 +1322,12 @@ LocalTrr2kKernel
         internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1379,8 +1384,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1395,11 +1398,13 @@ LocalTrr2kKernel
         ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
@@ -1449,8 +1454,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1463,10 +1466,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1518,8 +1523,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1532,10 +1535,12 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1582,8 +1587,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1596,10 +1599,12 @@ LocalTrr2kKernel
         internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
@@ -1650,8 +1655,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1666,11 +1669,13 @@ LocalTrr2kKernel
         ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), FBR );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
@@ -1723,8 +1728,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1739,11 +1742,13 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CT, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
@@ -1801,8 +1806,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1817,11 +1820,13 @@ LocalTrr2kKernel
         internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CT, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
@@ -1873,8 +1878,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1889,11 +1892,13 @@ LocalTrr2kKernel
         internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DR, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CL, DL, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
@@ -1947,8 +1952,6 @@ LocalTrr2kKernel
 
     FTL.AlignWith( ETL );
     FBR.AlignWith( EBR );
-    FTL.ResizeTo( ETL.Height(), ETL.Width() );
-    FBR.ResizeTo( EBR.Height(), EBR.Width() );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
     {
@@ -1965,12 +1968,14 @@ LocalTrr2kKernel
         ( orientationOfC, orientationOfD, alpha, CL, DB, T(1), ETR );
     }
 
+    Zeros( ETL.Height(), ETL.Width(), FTL );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), FTL );
     internal::LocalGemm
     ( orientationOfC, orientationOfD, alpha, CL, DT, T(1), FTL );
     AxpyTriangle( uplo, T(1), FTL, ETL );
 
+    Zeros( EBR.Height(), EBR.Width(), FBR );
     internal::LocalGemm
     ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), FBR );
     internal::LocalGemm

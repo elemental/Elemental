@@ -10,6 +10,9 @@
 #ifndef BLAS_TRTRMM_UVAR1_HPP
 #define BLAS_TRTRMM_UVAR1_HPP
 
+#include "elemental/blas-like/level3/Trmm.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -63,6 +66,7 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
         throw std::logic_error("U must be square");
 #endif
     const Grid& g = U.Grid();
+    const bool conjugate = ( orientation == ADJOINT );
 
     // Matrix views
     DistMatrix<T>
@@ -74,13 +78,13 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
     DistMatrix<T,MC,  STAR> U01_MC_STAR(g);
     DistMatrix<T,VC,  STAR> U01_VC_STAR(g);
     DistMatrix<T,VR,  STAR> U01_VR_STAR(g);
-    DistMatrix<T,STAR,MR  > U01AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR  > U01Trans_STAR_MR(g);
     DistMatrix<T,STAR,STAR> U11_STAR_STAR(g);
 
     U01_MC_STAR.AlignWith( U );
     U01_VC_STAR.AlignWith( U );
     U01_VR_STAR.AlignWith( U );
-    U01AdjOrTrans_STAR_MR.AlignWith( U );
+    U01Trans_STAR_MR.AlignWith( U );
 
     PartitionDownDiagonal
     ( U, UTL, UTR,
@@ -97,11 +101,8 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
         U01_MC_STAR = U01;
         U01_VC_STAR = U01_MC_STAR;
         U01_VR_STAR = U01_VC_STAR;
-        if( orientation == ADJOINT )
-            U01AdjOrTrans_STAR_MR.AdjointFrom( U01_VR_STAR );
-        else
-            U01AdjOrTrans_STAR_MR.TransposeFrom( U01_VR_STAR );
-        LocalTrrk( UPPER, T(1), U01_MC_STAR, U01AdjOrTrans_STAR_MR, T(1), U00 );
+        U01Trans_STAR_MR.TransposeFrom( U01_VR_STAR, conjugate );
+        LocalTrrk( UPPER, T(1), U01_MC_STAR, U01Trans_STAR_MR, T(1), U00 );
 
         U11_STAR_STAR = U11;
         LocalTrmm

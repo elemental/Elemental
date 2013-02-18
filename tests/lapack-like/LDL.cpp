@@ -7,6 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Symm.hpp"
 #include "elemental/blas-like/level3/Trmm.hpp"

@@ -10,6 +10,12 @@
 #ifndef BLAS_TWOSIDEDTRSM_LVAR5_HPP
 #define BLAS_TWOSIDEDTRSM_LVAR5_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level3/Hemm.hpp"
+#include "elemental/blas-like/level3/Her2k.hpp"
+#include "elemental/blas-like/level3/Trsm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -179,7 +185,7 @@ TwoSidedTrsmLVar5
 
         // Y21 := L21 A11
         L21_VC_STAR = L21;
-        Y21_VC_STAR.ResizeTo( A21.Height(), A21.Width() );
+        Zeros( A21.Height(), A21.Width(), Y21_VC_STAR );
         Hemm
         ( RIGHT, LOWER, 
           F(1), A11_STAR_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(), 

@@ -10,6 +10,9 @@
 #ifndef LAPACK_HERMITIANFUNCTION_HPP
 #define LAPACK_HERMITIANFUNCTION_HPP
 
+#include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
+#include "elemental/blas-like/level3/Trrk.hpp"
 #include "elemental/lapack-like/HermitianEig.hpp"
 
 namespace elem {

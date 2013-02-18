@@ -10,6 +10,8 @@
 #ifndef BLAS_TRSM_LUN_HPP
 #define BLAS_TRSM_LUN_HPP
 
+#include "elemental/blas-like/level3/Gemm.hpp"
+
 namespace elem {
 namespace internal {
 

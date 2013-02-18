@@ -10,6 +10,10 @@
 #ifndef BLAS_SYMV_U_HPP
 #define BLAS_SYMV_U_HPP
 
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -22,7 +26,7 @@ LocalSymvColAccumulateU
   const DistMatrix<T,MR,STAR>& x_MR_STAR,
         DistMatrix<T,MC,STAR>& z_MC_STAR,
         DistMatrix<T,MR,STAR>& z_MR_STAR,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalSymvColAccumulateU");
@@ -106,13 +110,13 @@ LocalSymvColAccumulateU
         //--------------------------------------------------------------------//
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
-        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
+        MakeTriangular( UPPER, D11 );
         Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_MR_STAR.LockedLocalMatrix(),
           T(1),  z1_MC_STAR.LocalMatrix() );
-        MakeTrapezoidal( LEFT, UPPER, 1, D11 );
+        SetDiagonal( D11, T(0) );
         Gemv
         ( orientation,
           alpha, D11.LockedLocalMatrix(),
@@ -153,7 +157,7 @@ LocalSymvRowAccumulateU
   const DistMatrix<T,STAR,MR>& x_STAR_MR,
         DistMatrix<T,STAR,MC>& z_STAR_MC,
         DistMatrix<T,STAR,MR>& z_STAR_MR,
-  bool conjugate )
+  bool conjugate=false )
 {
 #ifndef RELEASE
     PushCallStack("internal::LocalSymvRowAccumulateU");
@@ -231,13 +235,13 @@ LocalSymvRowAccumulateU
         //--------------------------------------------------------------------//
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
-        MakeTrapezoidal( LEFT, UPPER, 0, D11 );
+        MakeTriangular( UPPER, D11 );
         Gemv
         ( NORMAL, 
           alpha, D11.LockedLocalMatrix(), 
                  x1_STAR_MR.LockedLocalMatrix(),
           T(1),  z1_STAR_MC.LocalMatrix() );
-        MakeTrapezoidal( LEFT, UPPER, 1, D11 );
+        SetDiagonal( D11, T(0) );
         Gemv
         ( orientation,
           alpha, D11.LockedLocalMatrix(),

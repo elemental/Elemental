@@ -13,8 +13,131 @@
 #ifndef BLAS_TRMM_RLN_HPP
 #define BLAS_TRMM_RLN_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/blas-like/level1/Transpose.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
+
+template<typename T>
+inline void
+LocalTrmmAccumulateRLN
+( Orientation orientation, UnitOrNonUnit diag, T alpha,
+  const DistMatrix<T,MC,  MR  >& L,
+  const DistMatrix<T,STAR,MC  >& X_STAR_MC,
+        DistMatrix<T,MR,  STAR>& ZTrans_MR_STAR )
+{
+#ifndef RELEASE
+    PushCallStack("internal::LocalTrmmAccumulateRLN");
+    if( L.Grid() != X_STAR_MC.Grid() || 
+        X_STAR_MC.Grid() != ZTrans_MR_STAR.Grid() )
+        throw std::logic_error
+        ("{L,X,Z} must be distributed over the same grid");
+    if( L.Height() != L.Width() ||
+        L.Height() != X_STAR_MC.Width() ||
+        L.Height() != ZTrans_MR_STAR.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal LocalTrmmAccumulateRLN: \n"
+            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
+            << "  X[* ,MC] ~ " << X_STAR_MC.Height() << " x "
+                               << X_STAR_MC.Width() << "\n"
+            << "  Z^H/T[MR,* ] ~ " << ZTrans_MR_STAR.Height() << " x "
+                                   << ZTrans_MR_STAR.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    if( X_STAR_MC.RowAlignment() != L.ColAlignment() ||
+        ZTrans_MR_STAR.ColAlignment() != L.RowAlignment() )
+        throw std::logic_error("Partial matrix distributions are misaligned");
+#endif
+    const Grid& g = L.Grid();
+
+    // Matrix views
+    DistMatrix<T>
+        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
+        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
+                         L20(g), L21(g), L22(g);
+
+    DistMatrix<T> D11(g);
+
+    DistMatrix<T,STAR,MC>
+        XL_STAR_MC(g), XR_STAR_MC(g),
+        X0_STAR_MC(g), X1_STAR_MC(g), X2_STAR_MC(g);
+
+    DistMatrix<T,MR,STAR>
+        ZTTrans_MR_STAR(g),  Z0Trans_MR_STAR(g),
+        ZBTrans_MR_STAR(g),  Z1Trans_MR_STAR(g),
+                             Z2Trans_MR_STAR(g);
+
+    const int ratio = std::max( g.Height(), g.Width() );
+    PushBlocksizeStack( ratio*Blocksize() );
+
+    LockedPartitionDownDiagonal
+    ( L, LTL, LTR,
+         LBL, LBR, 0 );
+    LockedPartitionRight( X_STAR_MC,  XL_STAR_MC, XR_STAR_MC, 0 );
+    PartitionDown
+    ( ZTrans_MR_STAR, ZTTrans_MR_STAR,
+                      ZBTrans_MR_STAR, 0 );
+    while( LTL.Height() < L.Height() )
+    {
+        LockedRepartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
+         /*************/ /******************/
+               /**/       L10, /**/ L11, L12,
+          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+
+        LockedRepartitionRight
+        ( XL_STAR_MC, /**/ XR_STAR_MC,
+          X0_STAR_MC, /**/ X1_STAR_MC, X2_STAR_MC );
+
+        RepartitionDown
+        ( ZTTrans_MR_STAR,  Z0Trans_MR_STAR,
+         /***************/ /***************/
+                            Z1Trans_MR_STAR,
+          ZBTrans_MR_STAR,  Z2Trans_MR_STAR );
+
+        D11.AlignWith( L11 );
+        //--------------------------------------------------------------------//
+        D11 = L11;
+        MakeTriangular( LOWER, D11 );
+        if( diag == UNIT )
+            SetDiagonal( D11, T(1) );
+        LocalGemm
+        ( orientation, orientation,
+          alpha, D11, X1_STAR_MC, T(1), Z1Trans_MR_STAR );
+        LocalGemm
+        ( orientation, orientation,
+          alpha, L21, X2_STAR_MC, T(1), Z1Trans_MR_STAR );
+        //--------------------------------------------------------------------//
+        D11.FreeAlignments();
+
+        SlideLockedPartitionDownDiagonal
+        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
+               /**/       L10, L11, /**/ L12,
+         /*************/ /******************/
+          LBL, /**/ LBR,  L20, L21, /**/ L22 );
+
+        SlideLockedPartitionRight
+        ( XL_STAR_MC,             /**/ XR_STAR_MC,
+          X0_STAR_MC, X1_STAR_MC, /**/ X2_STAR_MC );
+
+        SlidePartitionDown
+        ( ZTTrans_MR_STAR,  Z0Trans_MR_STAR,
+                            Z1Trans_MR_STAR,
+         /***************/ /***************/
+          ZBTrans_MR_STAR,  Z2Trans_MR_STAR );
+    }
+    PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 template<typename T>
 inline void
@@ -252,122 +375,6 @@ TrmmRLNC
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-template<typename T>
-inline void
-LocalTrmmAccumulateRLN
-( Orientation orientation, UnitOrNonUnit diag, T alpha,
-  const DistMatrix<T,MC,  MR  >& L,
-  const DistMatrix<T,STAR,MC  >& X_STAR_MC,
-        DistMatrix<T,MR,  STAR>& ZAdjOrTrans_MR_STAR )
-{
-#ifndef RELEASE
-    PushCallStack("internal::LocalTrmmAccumulateRLN");
-    if( L.Grid() != X_STAR_MC.Grid() || 
-        X_STAR_MC.Grid() != ZAdjOrTrans_MR_STAR.Grid() )
-        throw std::logic_error
-        ("{L,X,Z} must be distributed over the same grid");
-    if( L.Height() != L.Width() ||
-        L.Height() != X_STAR_MC.Width() ||
-        L.Height() != ZAdjOrTrans_MR_STAR.Height() )
-    {
-        std::ostringstream msg;
-        msg << "Nonconformal LocalTrmmAccumulateRLN: \n"
-            << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
-            << "  X[* ,MC] ~ " << X_STAR_MC.Height() << " x "
-                               << X_STAR_MC.Width() << "\n"
-            << "  Z^H/T[MR,* ] ~ " << ZAdjOrTrans_MR_STAR.Height() << " x "
-                                   << ZAdjOrTrans_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
-    }
-    if( X_STAR_MC.RowAlignment() != L.ColAlignment() ||
-        ZAdjOrTrans_MR_STAR.ColAlignment() != L.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
-#endif
-    const Grid& g = L.Grid();
-
-    // Matrix views
-    DistMatrix<T>
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-
-    DistMatrix<T> D11(g);
-
-    DistMatrix<T,STAR,MC>
-        XL_STAR_MC(g), XR_STAR_MC(g),
-        X0_STAR_MC(g), X1_STAR_MC(g), X2_STAR_MC(g);
-
-    DistMatrix<T,MR,STAR>
-        ZTAdjOrTrans_MR_STAR(g),  Z0AdjOrTrans_MR_STAR(g),
-        ZBAdjOrTrans_MR_STAR(g),  Z1AdjOrTrans_MR_STAR(g),
-                                  Z2AdjOrTrans_MR_STAR(g);
-
-    const int ratio = std::max( g.Height(), g.Width() );
-    PushBlocksizeStack( ratio*Blocksize() );
-
-    LockedPartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    LockedPartitionRight( X_STAR_MC,  XL_STAR_MC, XR_STAR_MC, 0 );
-    PartitionDown
-    ( ZAdjOrTrans_MR_STAR, ZTAdjOrTrans_MR_STAR,
-                            ZBAdjOrTrans_MR_STAR, 0 );
-    while( LTL.Height() < L.Height() )
-    {
-        LockedRepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
-
-        LockedRepartitionRight
-        ( XL_STAR_MC, /**/ XR_STAR_MC,
-          X0_STAR_MC, /**/ X1_STAR_MC, X2_STAR_MC );
-
-        RepartitionDown
-        ( ZTAdjOrTrans_MR_STAR,  Z0AdjOrTrans_MR_STAR,
-         /********************/ /*********************/
-                                 Z1AdjOrTrans_MR_STAR,
-          ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR );
-
-        D11.AlignWith( L11 );
-        //--------------------------------------------------------------------//
-        D11 = L11;
-        MakeTrapezoidal( LEFT, LOWER, 0, D11 );
-        if( diag == UNIT )
-            SetDiagonalToOne( D11 );
-        LocalGemm
-        ( orientation, orientation,
-          alpha, D11, X1_STAR_MC, T(1), Z1AdjOrTrans_MR_STAR );
-
-        LocalGemm
-        ( orientation, orientation,
-          alpha, L21, X2_STAR_MC, T(1), Z1AdjOrTrans_MR_STAR );
-        //--------------------------------------------------------------------//
-        D11.FreeAlignments();
-
-        SlideLockedPartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
-
-        SlideLockedPartitionRight
-        ( XL_STAR_MC,             /**/ XR_STAR_MC,
-          X0_STAR_MC, X1_STAR_MC, /**/ X2_STAR_MC );
-
-        SlidePartitionDown
-        ( ZTAdjOrTrans_MR_STAR,  Z0AdjOrTrans_MR_STAR,
-                                 Z1AdjOrTrans_MR_STAR,
-         /********************/ /********************/
-          ZBAdjOrTrans_MR_STAR,  Z2AdjOrTrans_MR_STAR );
-    }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

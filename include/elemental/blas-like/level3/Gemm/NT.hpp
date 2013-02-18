@@ -10,6 +10,10 @@
 #ifndef BLAS_GEMM_NT_HPP
 #define BLAS_GEMM_NT_HPP
 
+#include "elemental/blas-like/level1/Axpy.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 namespace internal {
 
@@ -43,6 +47,7 @@ GemmNTA
     }
 #endif
     const Grid& g = A.Grid();
+    const bool conjugate = ( orientationOfB == ADJOINT );
 
     // Matrix views
     DistMatrix<T> BT(g),  B0(g),
@@ -52,10 +57,10 @@ GemmNTA
                   C0(g), C1(g), C2(g);
 
     // Temporary distributions
-    DistMatrix<T,MR,STAR> B1AdjOrTrans_MR_STAR(g);
+    DistMatrix<T,MR,STAR> B1Trans_MR_STAR(g);
     DistMatrix<T,MC,STAR> D1_MC_STAR(g);
 
-    B1AdjOrTrans_MR_STAR.AlignWith( A );
+    B1Trans_MR_STAR.AlignWith( A );
     D1_MC_STAR.AlignWith( A );
 
     // Start the algorithm
@@ -78,14 +83,11 @@ GemmNTA
 
         Zeros( C1.Height(), C1.Width(), D1_MC_STAR );
         //--------------------------------------------------------------------//
-        if( orientationOfB == ADJOINT )
-            B1AdjOrTrans_MR_STAR.AdjointFrom( B1 );
-        else
-            B1AdjOrTrans_MR_STAR.TransposeFrom( B1 );
+        B1Trans_MR_STAR.TransposeFrom( B1, conjugate );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
         LocalGemm
-        ( NORMAL, NORMAL, alpha, A, B1AdjOrTrans_MR_STAR, T(0), D1_MC_STAR );
+        ( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, T(0), D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.SumScatterUpdate( T(1), D1_MC_STAR );
@@ -241,6 +243,7 @@ GemmNTC
     }
 #endif
     const Grid& g = A.Grid();
+    const bool conjugate = ( orientationOfB == ADJOINT );
 
     // Matrix views
     DistMatrix<T> AL(g), AR(g),
@@ -251,11 +254,11 @@ GemmNTC
     // Temporary distributions
     DistMatrix<T,MC,STAR> A1_MC_STAR(g);
     DistMatrix<T,VR,STAR> B1_VR_STAR(g);
-    DistMatrix<T,STAR,MR> B1AdjOrTrans_STAR_MR(g);
+    DistMatrix<T,STAR,MR> B1Trans_STAR_MR(g);
 
     A1_MC_STAR.AlignWith( C );
     B1_VR_STAR.AlignWith( C );
-    B1AdjOrTrans_STAR_MR.AlignWith( C );
+    B1Trans_STAR_MR.AlignWith( C );
 
     // Start the algorithm
     Scale( beta, C );
@@ -274,14 +277,11 @@ GemmNTC
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; // A1[MC,*] <- A1[MC,MR]
         B1_VR_STAR = B1;
-        if( orientationOfB == ADJOINT )
-            B1AdjOrTrans_STAR_MR.AdjointFrom( B1_VR_STAR );
-        else
-            B1AdjOrTrans_STAR_MR.TransposeFrom( B1_VR_STAR );
+        B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
 
         // C[MC,MR] += alpha A1[MC,*] (B1[MR,*])^T
         LocalGemm
-        ( NORMAL, NORMAL, alpha, A1_MC_STAR, B1AdjOrTrans_STAR_MR, T(1), C );
+        ( NORMAL, NORMAL, alpha, A1_MC_STAR, B1Trans_STAR_MR, T(1), C );
         //--------------------------------------------------------------------//
  
         SlideLockedPartitionRight
