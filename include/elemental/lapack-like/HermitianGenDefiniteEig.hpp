@@ -15,7 +15,6 @@
 #include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
 
 namespace elem {
 

@@ -20,8 +20,6 @@
 #include "./level3/Trmm.hpp"
 #include "./level3/Trtrmm.hpp"
 #include "./level3/Trdtrmm.hpp"
-#include "./level3/Trr2k.hpp"
-#include "./level3/Trrk.hpp"
 #include "./level3/Trsm.hpp"
 #include "./level3/Trtrsm.hpp"
 #include "./level3/TwoSidedTrmm.hpp"

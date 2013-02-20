@@ -8,8 +8,8 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
 #include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
 /*

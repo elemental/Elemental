@@ -14,7 +14,6 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level3/Trrk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
 #include "elemental/lapack-like/ExplicitQR.hpp"

@@ -12,6 +12,64 @@
 
 namespace elem {
 
+template<typename R>
+void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );
+template<typename R>
+void HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A );
+template<typename R>
+void HermitianTridiag
+( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
+template<typename R>
+void HermitianTridiag
+( UpperOrLower uplo, 
+  DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& t );
+
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ,
+  int lowerBound, int upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ,
+  double lowerBound, double upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A,
+  DistMatrix<double,VR,STAR>& w );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A,
+  DistMatrix<double,VR,STAR>& w,
+  int lowerBound, int upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<double>& A,
+  DistMatrix<double,VR,STAR>& w,
+  double lowerBound, double upperBound );
+
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ,
+  int lowerBound, int upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ,
+  double lowerBound, double upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
+  int lowerBound, int upperBound );
+void HermitianEig
+( UpperOrLower uplo, DistMatrix<Complex<double> >& A,
+  DistMatrix<double,VR,STAR>& w,
+  double lowerBound, double upperBound );
+
 //
 // HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver) 
 //
@@ -24,7 +82,6 @@ enum HermitianGenDefiniteEigType
 };
 }
 using namespace hermitian_gen_definite_eig_type_wrapper;
-
 
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //

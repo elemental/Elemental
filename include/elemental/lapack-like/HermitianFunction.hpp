@@ -12,8 +12,7 @@
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
-#include "elemental/blas-like/level3/Trrk.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
 
 namespace elem {
 

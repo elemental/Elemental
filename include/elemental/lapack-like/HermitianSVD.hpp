@@ -12,8 +12,6 @@
 
 #ifndef WITHOUT_PMRRR
 
-#include "elemental/lapack-like/HermitianEig.hpp"
-
 namespace elem {
 
 //

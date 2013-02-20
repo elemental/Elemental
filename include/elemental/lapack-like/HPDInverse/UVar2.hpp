@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
-#include "elemental/blas-like/level3/Trrk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/blas-like/level3/Trtrmm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"

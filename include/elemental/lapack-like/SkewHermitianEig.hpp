@@ -13,7 +13,6 @@
 #ifndef WITHOUT_PMRRR
 
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
-#include "elemental/lapack-like/HermitianEig.hpp"
 
 namespace elem {
 

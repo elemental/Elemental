@@ -8,10 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;

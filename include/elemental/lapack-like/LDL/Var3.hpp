@@ -11,7 +11,6 @@
 #define LAPACK_LDL_VAR3_HPP
 
 #include "elemental/blas-like/level1/DiagonalSolve.hpp"
-#include "elemental/blas-like/level3/Trrk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {

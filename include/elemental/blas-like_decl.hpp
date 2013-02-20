@@ -12,6 +12,223 @@
 
 namespace elem {
 
+template<typename T>
+void Trrk
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void Trrk
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C );
+
+template<typename T>
+void Trr2k
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientationOfC, Orientation orientationOfD,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+           const Matrix<T>& C, const Matrix<T>& D,
+  T beta,        Matrix<T>& E );
+template<typename T>
+void Trr2k
+( UpperOrLower uplo, 
+  Orientation orientationOfA, Orientation orientationOfB,
+  Orientation orientationOfC, Orientation orientationOfD,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+           const DistMatrix<T>& C, const DistMatrix<T>& D,
+  T beta,        DistMatrix<T>& E );
+
+namespace internal {
+
+template<typename T>
+void TrrkNN
+( UpperOrLower uplo,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T,MC,  STAR>& A,
+           const DistMatrix<T,STAR,MR  >& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C );
+
+template<typename T>
+void TrrkNT
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,STAR>& A,
+           const DistMatrix<T,MR,STAR>& B,
+  T beta,        DistMatrix<T>& C );
+
+template<typename T>
+void TrrkTN
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC>& A,
+           const DistMatrix<T,STAR,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C );
+
+template<typename T>
+void TrrkTT
+( UpperOrLower uplo,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B,
+  T beta,        Matrix<T>& C );
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,STAR,MC  >& A,
+           const DistMatrix<T,MR,  STAR>& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C );
+
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfC,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfC,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,STAR>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,MC,STAR>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  Orientation orientationOfC,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  Orientation orientationOfC,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,MC,  STAR>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,STAR,MC  >& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfC,
+  T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR>& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfC,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,STAR,MR>& B,
+           const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR>& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,STAR,MC  >& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,MC,  STAR>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR  >& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  Orientation orientationOfC,
+  T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,STAR,MR>& D,
+  T beta,        DistMatrix<T,MC,  MR>& E  );
+template<typename T>
+void LocalTrr2k
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  Orientation orientationOfB,
+  Orientation orientationOfC,
+  Orientation orientationOfD,
+  T alpha, const DistMatrix<T,STAR,MC>& A, const DistMatrix<T,MR,STAR>& B,
+           const DistMatrix<T,STAR,MC>& C, const DistMatrix<T,MR,STAR>& D,
+  T beta,        DistMatrix<T,MC,  MR>& E  );
+
+} // namespace internal
+
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //
 //----------------------------------------------------------------------------//

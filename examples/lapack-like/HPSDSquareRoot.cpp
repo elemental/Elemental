@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/HPSDSquareRoot.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;

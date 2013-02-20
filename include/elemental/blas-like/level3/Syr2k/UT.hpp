@@ -11,7 +11,6 @@
 #define BLAS_SYR2K_UT_HPP
 
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
-#include "elemental/blas-like/level3/Trr2k.hpp"
 
 namespace elem {
 namespace internal {

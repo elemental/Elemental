@@ -9,6 +9,9 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/SkewHermitianEig.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
