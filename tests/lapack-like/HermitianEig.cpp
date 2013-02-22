@@ -50,7 +50,7 @@ void TestCorrectness
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double> X(g);
     Identity( k, k, X );
-    Herk( uplo, ADJOINT, (double)-1, Z, (double)1, X );
+    Herk( uplo, ADJOINT, -1., Z, 1., X );
     double oneNormOfError = OneNorm( X );
     double infNormOfError = InfinityNorm( X );
     double frobNormOfError = FrobeniusNorm( X );
@@ -64,7 +64,7 @@ void TestCorrectness
     // Set X := AZ
     X.AlignWith( Z );
     Zeros( n, k, X );
-    Hemm( LEFT, uplo, (double)1, AOrig, Z, (double)0, X );
+    Hemm( LEFT, uplo, 1., AOrig, Z, 0., X );
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {

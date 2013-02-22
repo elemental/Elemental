@@ -59,14 +59,14 @@ void TestCorrectness
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Zeros( n, k, Y );
-        Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
+        Hemm( LEFT, uplo, 1., BOrig, X, 0., Y );
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocal(jLocal,0);
             blas::Scal( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
-        Hemm( LEFT, uplo, (double)-1, AOrig, X, (double)1, Y );
+        Hemm( LEFT, uplo, -1., AOrig, X, 1., Y );
         // Find the infinity norms of A, B, and X, and ||BXW-AX||
         double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
         double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
@@ -96,11 +96,11 @@ void TestCorrectness
         DistMatrix<double> Z(g);
         Z = X;
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, Z );
         else
-            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
+            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B, Z );
         Identity( k, k, Y );
-        Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
+        Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -119,10 +119,10 @@ void TestCorrectness
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Zeros( n, k, Y );
-        Hemm( LEFT, uplo, (double)1, BOrig, X, (double)0, Y );
+        Hemm( LEFT, uplo, 1., BOrig, X, 0., Y );
         // Set Z := AY = ABX
         DistMatrix<double> Z( n, k, g );
-        Hemm( LEFT, uplo, (double)1, AOrig, Y, (double)0, Z );
+        Hemm( LEFT, uplo, 1., AOrig, Y, 0., Z );
         // Set Z := Z - XW = ABX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
@@ -162,11 +162,11 @@ void TestCorrectness
         }
         Z = X;
         if( uplo == LOWER )
-            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, (double)1, B, Z );
+            Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, Z );
         else
-            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, (double)1, B, Z );
+            Trmm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B, Z );
         Identity( k, k, Y );
-        Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
+        Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -183,10 +183,10 @@ void TestCorrectness
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
         Zeros( n, k, Y );
-        Hemm( LEFT, uplo, (double)1, AOrig, X, (double)0, Y );
+        Hemm( LEFT, uplo, 1., AOrig, X, 0., Y );
         // Set Z := BY = BAX
         DistMatrix<double> Z( n, k, g );
-        Hemm( LEFT, uplo, (double)1, BOrig, Y, (double)0, Z );
+        Hemm( LEFT, uplo, 1., BOrig, Y, 0., Z );
         // Set Z := Z - XW = BAX - XW
         for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
@@ -226,11 +226,11 @@ void TestCorrectness
         }
         Z = X;
         if( uplo == LOWER )
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, (double)1, B, Z );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, 1., B, Z );
         else
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, (double)1, B, Z );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, 1., B, Z );
         Identity( k, k, Y );
-        Herk( uplo, ADJOINT, (double)-1, Z, (double)1, Y );
+        Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
         frobNormOfError = FrobeniusNorm( Y );
@@ -501,7 +501,7 @@ void TestHermitianGenDefiniteEigDouble
         Zeros( m, m, B );
         DistMatrix<double> C(g);
         Uniform( m, m, C );
-        Herk( uplo, ADJOINT, (double)1, C, (double)0, B );
+        Herk( uplo, ADJOINT, 1., C, 0., B );
     }
     else
         HermitianUniformSpectrum( m, B, 1, 10 );
