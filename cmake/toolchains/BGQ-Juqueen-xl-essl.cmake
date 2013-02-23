@@ -52,7 +52,8 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 ##############################################################
 
 if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
-   CMAKE_BUILD_TYPE MATCHES PureRelease)
+   CMAKE_BUILD_TYPE MATCHES PureRelease OR 
+   NOT CMAKE_BUILD_TYPE)
   set(MATH_LIBS "-L/bgsys/local/lapack/3.3.0/lib -llapack -L/opt/ibmmath/essl/5.1/lib64 -lesslbg -L/opt/ibmcmp/xlf/bg/14.1/bglib64 -lxlfmath -lxlf90_r -lm")
 else()
   set(MATH_LIBS "-L/bgsys/local/lapack/3.3.0/lib -llapack -L/opt/ibmmath/essl/5.1/lib64 -lesslsmpbg -L/opt/ibmcmp/xlf/bg/14.1/bglib64 -lxlfmath -lxlf90_r -lm")
