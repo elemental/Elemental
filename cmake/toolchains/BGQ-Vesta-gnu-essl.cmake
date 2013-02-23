@@ -2,12 +2,6 @@
 
 # The serial compilers are typically set here, but, at least at some point,
 # it was easier to set them to the MPI compilers.
-#
-#set(GCC_ROOT  "/bgsys/drivers/ppcfloor/gnu-linux")
-#set(GCC_NAME  "powerpc64-bgq-linux")
-#set(CMAKE_C_COMPILER       ${GCC_ROOT}/bin/${GCC_NAME}-gcc)
-#set(CMAKE_CXX_COMPILER     ${GCC_ROOT}/bin/${GCC_NAME}-g++)
-#set(CMAKE_Fortran_COMPILER ${GCC_ROOT}/bin/${GCC_NAME}-gfortran)
 set(MPI_ROOT  "/bgsys/drivers/ppcfloor/comm/gcc")
 set(CMAKE_C_COMPILER       ${MPI_ROOT}/bin/mpicc)
 set(CMAKE_CXX_COMPILER     ${MPI_ROOT}/bin/mpicxx)
@@ -58,7 +52,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 set(LAPACK_LIB "/soft/libraries/alcf/current/gcc/LAPACK/lib")
 set(ESSL_LIB "/soft/libraries/essl/current/essl/5.1/lib64")
-set(IBMCMP_ROOT "/soft/compilers/ibmcmp-feb2012")
+set(IBMCMP_ROOT "/soft/compilers/ibmcmp-nov2012")
 set(XLF_LIB "${IBMCMP_ROOT}/xlf/bg/14.1/bglib64")
 set(XLSMP_LIB "${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64")
 
