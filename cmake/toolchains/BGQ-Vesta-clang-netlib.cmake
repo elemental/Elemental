@@ -21,10 +21,14 @@ set(MPI_CXX_LINK_FLAGS ${MPI_C_LINK_FLAGS})
 set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
 set(MPI_CXX_LIBRARIES "-lcxxmpich ${MPI_C_LIBRARIES}")
 
-set(CXX_FLAGS_PUREDEBUG "-g -static -Bstatic")
-set(CXX_FLAGS_PURERELEASE "-g -O2 -static -Bstatic")
-set(CXX_FLAGS_HYBRIDDEBUG "-g -static -Bstatic")
-set(CXX_FLAGS_HYBRIDRELEASE "-g -O2 -static -Bstatic")
+#set(CXX_FLAGS_PUREDEBUG "-g -static -Bstatic")
+#set(CXX_FLAGS_PURERELEASE "-g -O2 -static -Bstatic")
+#set(CXX_FLAGS_HYBRIDDEBUG "-g -static -Bstatic")
+#set(CXX_FLAGS_HYBRIDRELEASE "-g -O2 -static -Bstatic")
+set(CXX_FLAGS_PUREDEBUG "-g")
+set(CXX_FLAGS_PURERELEASE "-g -O2")
+set(CXX_FLAGS_HYBRIDDEBUG "-g")
+set(CXX_FLAGS_HYBRIDRELEASE "-g -O2")
 
 #set(CMAKE_THREAD_LIBS_INIT "-fopenmp")
 #set(OpenMP_CXX_FLAGS "-fopenmp")
@@ -49,6 +53,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 ##############################################################
 
-set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-set(CMAKE_EXE_LINKER_FLAGS "-static")
+#set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+#set(CMAKE_EXE_LINKER_FLAGS "-static")
 set(MATH_LIBS "-L/soft/libraries/alcf/current/gcc/LAPACK/lib -llapack -L/soft/libraries/alcf/current/gcc/BLAS/lib -lblas -lgfortran -lm")
