@@ -18,7 +18,7 @@ namespace internal {
 
 template<typename F>
 inline void
-PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset )
+PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLU");
@@ -100,7 +100,7 @@ PanelLU
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
   DistMatrix<int,STAR,STAR>& p, 
-  int pivotOffset )
+  int pivotOffset=0 )
 {
 #ifndef RELEASE
     PushCallStack("internal::PanelLU");

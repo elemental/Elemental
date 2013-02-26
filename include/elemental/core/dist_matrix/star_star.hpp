@@ -39,6 +39,7 @@ public:
     ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
+    DistMatrix( const DistMatrix<T,STAR,STAR,Int>& A );
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V,Int>& A );
 

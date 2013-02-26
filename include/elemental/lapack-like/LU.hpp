@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/lapack-like/internal.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
 
 #include "./LU/Local.hpp"

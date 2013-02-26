@@ -10,8 +10,13 @@
 #ifndef LAPACK_CHOLESKY_HPP
 #define LAPACK_CHOLESKY_HPP
 
-// TODO: Avoid this by defining sequential Cholesky first?
-#include "elemental/lapack-like/internal.hpp"
+// TODO: Reorganize Cholesky implementation?
+namespace elem {
+namespace internal {
+template<typename F>
+void LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
+} // namespace internal 
+} // namespace elem
 
 #include "./Cholesky/LVar3.hpp"
 #include "./Cholesky/LVar3Square.hpp"

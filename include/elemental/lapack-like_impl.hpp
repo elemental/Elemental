@@ -10,7 +10,6 @@
 #ifndef LAPACK_IMPL_HPP
 #define LAPACK_IMPL_HPP
 
-#include "./lapack-like/internal.hpp"
 #include "./lapack-like/ApplyPackedReflectors.hpp"
 #include "./lapack-like/ApplyColumnPivots.hpp"
 #include "./lapack-like/ApplyRowPivots.hpp"

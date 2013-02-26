@@ -84,6 +84,36 @@ enum HermitianGenDefiniteEigType
 using namespace hermitian_gen_definite_eig_type_wrapper;
 
 //----------------------------------------------------------------------------//
+// Utilities                                                                  //
+//----------------------------------------------------------------------------//
+
+namespace internal {
+
+template<typename F>
+void PivotFunc
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+
+template<typename F> mpi::Op PivotOp();
+template<> mpi::Op PivotOp<float>();
+template<> mpi::Op PivotOp<double>();
+template<> mpi::Op PivotOp<scomplex>();
+template<> mpi::Op PivotOp<dcomplex>();
+
+template<typename F> void CreatePivotOp();
+template<> void CreatePivotOp<float>();
+template<> void CreatePivotOp<double>();
+template<> void CreatePivotOp<scomplex>();
+template<> void CreatePivotOp<dcomplex>();
+
+template<typename T> void DestroyPivotOp();
+template<> void DestroyPivotOp<float>();
+template<> void DestroyPivotOp<double>();
+template<> void DestroyPivotOp<scomplex>();
+template<> void DestroyPivotOp<dcomplex>();
+
+} // namespace internal
+
+//----------------------------------------------------------------------------//
 // Tuning parameters                                                          //
 //----------------------------------------------------------------------------//
 

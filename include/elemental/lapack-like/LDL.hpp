@@ -10,7 +10,15 @@
 #ifndef LAPACK_LDL_HPP
 #define LAPACK_LDL_HPP
 
-#include "elemental/lapack-like/internal.hpp"
+// TODO: Reorganize LDL implementation?
+namespace elem {
+namespace internal {
+template<typename F>
+void LocalLDL
+( Orientation orientation, 
+  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d );
+} // namespace internal 
+} // namespace elem
 
 #include "./LDL/Var3.hpp"
 

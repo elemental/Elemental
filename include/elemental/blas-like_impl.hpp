@@ -14,8 +14,6 @@
 #include "./matrices/Identity.hpp"
 #include "./matrices/Zeros.hpp"
 
-#include "./blas-like/internal.hpp"
-
 #include "./blas-like/level1.hpp"
 #include "./blas-like/level2.hpp"
 #include "./blas-like/level3.hpp"

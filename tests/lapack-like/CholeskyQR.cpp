@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/blas-like/internal.hpp"
 #include "elemental/lapack-like/CholeskyQR.hpp"
 #include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/HermitianNorm/Infinity.hpp"

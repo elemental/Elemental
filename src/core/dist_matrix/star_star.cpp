@@ -45,6 +45,22 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix
 { }
 
 template<typename T,typename Int>
+DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,STAR,STAR,Int>& A )
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+{
+#ifndef RELEASE
+    PushCallStack("DistMatrix[* ,* ]::DistMatrix");
+#endif
+    if( &A != this )
+        *this = A;
+    else
+        throw std::logic_error("Tried to construct [* ,* ] with itself");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 : AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
@@ -1751,7 +1767,6 @@ template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,MR,  ST
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MC,  int>& A );
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MD,  int>& A );
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,MR,  int>& A );
-template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,STAR,int>& A );
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,VC,  int>& A );
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,STAR,VR,  int>& A );
 template DistMatrix<int,STAR,STAR,int>::DistMatrix( const DistMatrix<int,VC,  STAR,int>& A );
@@ -1767,7 +1782,6 @@ template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,MR,
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MC,  int>& A );
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MD,  int>& A );
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,MR,  int>& A );
-template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,STAR,int>& A );
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,VC,  int>& A );
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,STAR,VR,  int>& A );
 template DistMatrix<float,STAR,STAR,int>::DistMatrix( const DistMatrix<float,VC,  STAR,int>& A );
@@ -1783,7 +1797,6 @@ template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,M
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MC,  int>& A );
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MD,  int>& A );
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,MR,  int>& A );
-template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,STAR,int>& A );
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,VC,  int>& A );
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,STAR,VR,  int>& A );
 template DistMatrix<double,STAR,STAR,int>::DistMatrix( const DistMatrix<double,VC,  STAR,int>& A );
@@ -1800,7 +1813,6 @@ template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MC,  int>& A );
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MD,  int>& A );
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MR,  int>& A );
-template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,STAR,int>& A );
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VC,  int>& A );
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VR,  int>& A );
 template DistMatrix<Complex<float>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,VC,  STAR,int>& A );
@@ -1815,7 +1827,6 @@ template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MC,  int>& A );
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MD,  int>& A );
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MR,  int>& A );
-template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,STAR,int>& A );
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VC,  int>& A );
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VR,  int>& A );
 template DistMatrix<Complex<double>,STAR,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,VC,  STAR,int>& A );
