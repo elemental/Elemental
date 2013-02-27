@@ -1940,7 +1940,7 @@ void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
+#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
     MpiMap<R> map;
     SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
 #elif REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
@@ -1965,7 +1965,7 @@ void ReduceScatter
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
+#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
     MpiMap<R> map;
     SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, 2*rc, map.type, op, comm ) );
@@ -2001,7 +2001,7 @@ void ReduceScatter( R* buf, int rc, Op op, Comm comm )
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
+#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
     MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
@@ -2038,7 +2038,7 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
 #ifndef RELEASE
     PushCallStack("mpi::ReduceScatter");
 #endif
-#ifdef HAVE_REDUCE_SCATTER_BLOCK
+#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
 # ifdef AVOID_COMPLEX_MPI
     MpiMap<R> map;
 #  ifdef HAVE_MPI_IN_PLACE
