@@ -75,7 +75,7 @@ to be available for all matrix distributions.
       Return the number of entries of type `T` that we have locally allocated
       space for.
 
-   .. cpp:function:: const elem::Grid& Grid() const
+   .. cpp:function:: const Grid& Grid() const
 
       Return the grid that this distributed matrix is distributed over.
 
@@ -90,11 +90,11 @@ to be available for all matrix distributions.
       `(iLocal,jLocal)`, but do not allow for the data to be modified through
       the returned pointer.
 
-   .. cpp:function:: elem::Matrix<T>& Matrix()
+   .. cpp:function:: Matrix<T>& Matrix()
 
       Return a reference to the local matrix.
 
-   .. cpp:function:: const elem::Matrix<T>& LockedMatrix() const
+   .. cpp:function:: const Matrix<T>& LockedMatrix() const
 
       Return an unmodifiable reference to the local matrix.
 
@@ -267,7 +267,7 @@ to be available for all matrix distributions.
 
       Reconfigure the matrix so that it is `height` :math:`\times` `width`.
 
-   .. cpp:function:: void SetGrid( const elem::Grid& grid )
+   .. cpp:function:: void SetGrid( const Grid& grid )
 
       Clear the distributed matrix's contents and reconfigure for the new 
       process grid.
@@ -377,33 +377,33 @@ It should also be noted that this is the default distribution format for the
 
    .. rubric:: Constructors
 
-   .. cpp:function:: DistMatrix( const elem::Grid& grid=DefaultGrid() )
+   .. cpp:function:: DistMatrix( const Grid& grid=DefaultGrid() )
       
       Create a :math:`0 \times 0` distributed matrix over the specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, const elem::Grid& grid=DefaultGrid() )
+   .. cpp:function:: DistMatrix( int height, int width, const Grid& grid=DefaultGrid() )
 
       Create a `height` :math:`\times` `width` distributed matrix over the
       specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const Grid& grid )
 
       Create a `height` :math:`\times` `width` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
       owned by the `colAlignment` process row and the `rowAlignment` 
       process column.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, int ldim, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, int ldim, const Grid& grid )
 
       Same as above, but the local leading dimension is also specified.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const Grid& grid )
 
       View a constant distributed matrix's buffer; the buffer must correspond 
       to the local portion of an elemental distributed matrix with the 
       specified row and column alignments and leading dimension, `ldim`.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const Grid& grid )
 
       Same as above, but the contents of the matrix are modifiable.
 
@@ -572,13 +572,13 @@ It should also be noted that this is the default distribution format for the
 
    .. rubric:: Views
 
-   .. cpp:function:: void Attach( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const elem::Grid& grid )
+   .. cpp:function:: void Attach( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const Grid& grid )
 
       Reconfigure this distributed matrix around an implicit ``[MC,MR]`` 
       distributed matrix of the specified dimensions, alignments, local buffer, 
       local leading dimension, and process grid.
 
-   .. cpp:function:: void LockedAttach( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const elem::Grid& grid )
+   .. cpp:function:: void LockedAttach( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const Grid& grid )
 
       Same as above, but the resulting matrix is "locked", meaning that it 
       cannot modify the underlying local data.
