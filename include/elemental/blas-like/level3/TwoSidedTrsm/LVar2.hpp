@@ -204,7 +204,7 @@ TwoSidedTrsmLVar2
         Y10Adj.SumScatterFrom( Y10Adj_MC_STAR );
         Y10Adj_MR_MC = Y10Adj;
         Y10Adj_MR_MC.SumScatterUpdate( F(1), F10Adj_MR_STAR );
-        Adjoint( Y10Adj_MR_MC.LockedLocalMatrix(), Y10Local );
+        Adjoint( Y10Adj_MR_MC.LockedMatrix(), Y10Local );
 
         // X11 := A10 L10'
         Zeros( A11.Height(), A11.Width(), X11_MC_STAR );
@@ -212,7 +212,7 @@ TwoSidedTrsmLVar2
         ( NORMAL, NORMAL, F(1), A10, L10Adj_MR_STAR, F(0), X11_MC_STAR );
 
         // A10 := A10 - Y10
-        Axpy( F(-1), Y10Local, A10.LocalMatrix() );
+        Axpy( F(-1), Y10Local, A10.Matrix() );
         A10Adj_MR_STAR.AdjointFrom( A10 );
         
         // A11 := A11 - (X11 + L10 A10') = A11 - (A10 L10' + L10 A10')

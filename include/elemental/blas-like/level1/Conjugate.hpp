@@ -61,7 +61,7 @@ Conjugate( DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("Conjugate (in-place)");
 #endif
-    Conjugate( A.LocalMatrix() );
+    Conjugate( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -61,10 +61,10 @@ main( int argc, char* argv[] )
         if( commRank == 0 ) 
         {
             mpi::Broadcast( HRoot.Buffer(), n*n, 0, comm );
-            MemCopy( H_STAR_STAR.LocalBuffer(), HRoot.Buffer(), n*n );
+            MemCopy( H_STAR_STAR.Buffer(), HRoot.Buffer(), n*n );
         }
         else
-            mpi::Broadcast( H_STAR_STAR.LocalBuffer(), n*n, 0, comm );
+            mpi::Broadcast( H_STAR_STAR.Buffer(), n*n, 0, comm );
         if( print )
             H_STAR_STAR.Print("H[* ,* ]");
 
@@ -101,8 +101,8 @@ main( int argc, char* argv[] )
             // Copy the data into a sequential matrix if we are the root matrix
             if( commRank == 0 )
             {
-                wLocal = w_STAR_STAR.LocalMatrix();
-                XLocal = X_STAR_STAR.LocalMatrix();
+                wLocal = w_STAR_STAR.Matrix();
+                XLocal = X_STAR_STAR.Matrix();
                 if( print )
                 {
                     wLocal.Print("Eigenvalues on root process");

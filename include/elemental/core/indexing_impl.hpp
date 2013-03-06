@@ -48,10 +48,10 @@ inline Int RawGCD( Int a, Int b )
 }
 
 template<typename Int>
-inline Int LocalLength( Int n, Int shift, Int stride )
+inline Int Length( Int n, Int shift, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("LocalLength");
+    PushCallStack("Length");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
     if( shift < 0 || shift >= stride )
@@ -65,24 +65,24 @@ inline Int LocalLength( Int n, Int shift, Int stride )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawLocalLength( n, shift, stride );
+    return RawLength( n, shift, stride );
 }
 
 template<typename Int>
-inline Int RawLocalLength( Int n, Int shift, Int stride )
+inline Int RawLength( Int n, Int shift, Int stride )
 {
     return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
 }
 
 template<typename Int>
 inline Int 
-LocalLength( Int n, Int rank, Int alignment, Int stride )
+Length( Int n, Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("LocalLength");
+    PushCallStack("Length");
 #endif
     Int shift = Shift( rank, alignment, stride );
-    Int localLength = LocalLength( n, shift, stride );
+    Int localLength = Length( n, shift, stride );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -90,30 +90,30 @@ LocalLength( Int n, Int rank, Int alignment, Int stride )
 }
 
 template<typename Int>
-inline Int RawLocalLength
+inline Int RawLength
 ( Int n, Int rank, Int alignment, Int stride )
 {
     Int shift = RawShift( rank, alignment, stride );
-    Int localLength = RawLocalLength( n, shift, stride );
+    Int localLength = RawLength( n, shift, stride );
     return localLength;
 }
 
 template<typename Int>
-inline Int MaxLocalLength( Int n, Int stride )
+inline Int MaxLength( Int n, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("MaxLocalLength");
+    PushCallStack("MaxLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
     if( stride <= 0 )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawMaxLocalLength( n, stride );
+    return RawMaxLength( n, stride );
 }
 
 template<typename Int>
-inline Int RawMaxLocalLength( Int n, Int stride )
+inline Int RawMaxLength( Int n, Int stride )
 {
     return ( n > 0 ? (n - 1)/stride + 1 : 0 );
 }

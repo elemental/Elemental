@@ -86,16 +86,16 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             U11_STAR_STAR = U11;
             Trsv
             ( UPPER, NORMAL, diag,
-              U11_STAR_STAR.LockedLocalMatrix(),
-              x1_STAR_STAR.LocalMatrix() );
+              U11_STAR_STAR.LockedMatrix(),
+              x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
             x1_MR_STAR = x1_STAR_STAR;
             Gemv
             ( NORMAL, F(-1), 
-              U01.LockedLocalMatrix(), 
-              x1_MR_STAR.LockedLocalMatrix(),
-              F(1), z0_MC_STAR.LocalMatrix() );
+              U01.LockedMatrix(), 
+              x1_MR_STAR.LockedMatrix(),
+              F(1), z0_MC_STAR.Matrix() );
             //----------------------------------------------------------------//
             x1_MR_STAR.FreeAlignments();
 
@@ -159,16 +159,16 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             U11_STAR_STAR = U11;
             Trsv
             ( UPPER, NORMAL, diag,
-              U11_STAR_STAR.LockedLocalMatrix(),
-              x1_STAR_STAR.LocalMatrix() );
+              U11_STAR_STAR.LockedMatrix(),
+              x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MR = x1_STAR_STAR;
             Gemv
             ( NORMAL, F(-1), 
-              U01.LockedLocalMatrix(), 
-              x1_STAR_MR.LockedLocalMatrix(),
-              F(1), z0_STAR_MC.LocalMatrix() );
+              U01.LockedMatrix(), 
+              x1_STAR_MR.LockedMatrix(),
+              F(1), z0_STAR_MC.Matrix() );
             //----------------------------------------------------------------//
             x1_STAR_MR.FreeAlignments();
             z1.FreeAlignments(); 

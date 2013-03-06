@@ -298,7 +298,7 @@ TrmmLLTCOld
         LocalGemm
         ( orientation, NORMAL, T(1), X2, L21_MC_STAR, T(0), D1Trans_MR_STAR );
         D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
-        Transpose( D1Trans_MR_MC.LocalMatrix(), D1.LocalMatrix(), conjugate );
+        Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//
         D1.FreeAlignments();

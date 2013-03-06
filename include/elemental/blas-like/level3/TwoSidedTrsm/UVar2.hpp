@@ -235,8 +235,8 @@ TwoSidedTrsmUVar2
         LocalGemm
         ( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, F(0), X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
-        Adjoint( X12Adj_MR_MC.LockedLocalMatrix(), X12Local );
-        Axpy( F(-1), X12Local, A12.LocalMatrix() );
+        Adjoint( X12Adj_MR_MC.LockedMatrix(), X12Local );
+        Axpy( F(-1), X12Local, A12.Matrix() );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;

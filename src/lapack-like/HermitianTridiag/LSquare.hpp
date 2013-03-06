@@ -101,7 +101,7 @@ void HermitianTridiagLSquare( DistMatrix<R>& A )
         else
         {
             A11_STAR_STAR = A11;
-            HermitianTridiag( LOWER, A11_STAR_STAR.LocalMatrix() );
+            HermitianTridiag( LOWER, A11_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;
         }
 
@@ -232,8 +232,7 @@ void HermitianTridiagLSquare
             t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
 
             HermitianTridiag
-            ( LOWER, A11_STAR_STAR.LocalMatrix(), 
-              t1_STAR_STAR.LocalMatrix() );
+            ( LOWER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
 
             A11 = A11_STAR_STAR;
             t1 = t1_STAR_STAR;

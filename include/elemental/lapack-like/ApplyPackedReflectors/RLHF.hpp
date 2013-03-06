@@ -169,8 +169,8 @@ ApplyPackedReflectorsRLHF
         HPan_STAR_VR = HPanCopy;
         Syrk
         ( UPPER, NORMAL,
-          R(1), HPan_STAR_VR.LockedLocalMatrix(),
-          R(0), SInv_STAR_STAR.LocalMatrix() );
+          R(1), HPan_STAR_VR.LockedMatrix(),
+          R(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOverGrid();
         HalveMainDiagonal( SInv_STAR_STAR );
 
@@ -382,8 +382,8 @@ ApplyPackedReflectorsRLHF
         HPan_STAR_VR = HPanCopy;
         Herk
         ( UPPER, NORMAL,
-          C(1), HPan_STAR_VR.LockedLocalMatrix(),
-          C(0), SInv_STAR_STAR.LocalMatrix() );
+          C(1), HPan_STAR_VR.LockedMatrix(),
+          C(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );

@@ -99,7 +99,7 @@ void HermitianTridiagU( DistMatrix<R>& A )
         else
         {
             A11_STAR_STAR = A11;
-            HermitianTridiag( UPPER, A11_STAR_STAR.LocalMatrix() );
+            HermitianTridiag( UPPER, A11_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;
         }
 
@@ -226,8 +226,7 @@ void HermitianTridiagU
             t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
 
             HermitianTridiag
-            ( UPPER, A11_STAR_STAR.LocalMatrix(), 
-              t1_STAR_STAR.LocalMatrix() );
+            ( UPPER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
 
             A11 = A11_STAR_STAR;
             t1 = t1_STAR_STAR;

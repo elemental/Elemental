@@ -54,8 +54,8 @@ inline void HermitianSVD
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
         const R sigma = s_MR_STAR.GetLocal( jLocal, 0 );
-        F* UCol = U.LocalBuffer( 0, jLocal );
-        const F* VCol = V.LockedLocalBuffer( 0, jLocal );
+        F* UCol = U.Buffer( 0, jLocal );
+        const F* VCol = V.LockedBuffer( 0, jLocal );
         if( sigma >= 0 )
             for( int iLocal=0; iLocal<localHeight; ++iLocal )
                 UCol[iLocal] = VCol[iLocal];

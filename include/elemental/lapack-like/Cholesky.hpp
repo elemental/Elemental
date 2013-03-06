@@ -35,7 +35,7 @@ LocalCholesky
 #ifndef RELEASE
     PushCallStack("internal::LocalCholesky");
 #endif
-    Cholesky( uplo, A.LocalMatrix() );
+    Cholesky( uplo, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

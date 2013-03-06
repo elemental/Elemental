@@ -22,24 +22,22 @@ template<typename Int>
 Int RawGCD( Int a, Int b ); 
 
 template<typename Int>
-Int LocalLength( Int n, Int shift, Int numProcs );
+Int Length( Int n, Int shift, Int numProcs );
 
 template<typename Int>
-Int RawLocalLength( Int n, Int shift, Int numProcs );
+Int RawLength( Int n, Int shift, Int numProcs );
 
 template<typename Int>
-Int LocalLength
-( Int n, Int rank, Int firstRank, Int numProcs );
+Int Length( Int n, Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
-Int RawLocalLength
-( Int n, Int rank, Int firstRank, Int numProcs );
+Int RawLength( Int n, Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
-Int MaxLocalLength( Int n, Int numProcs );
+Int MaxLength( Int n, Int numProcs );
 
 template<typename Int>
-Int RawMaxLocalLength( Int n, Int numProcs );
+Int RawMaxLength( Int n, Int numProcs );
 
 template<typename Int>
 Int Shift( Int rank, Int firstRank, Int numProcs );

@@ -280,7 +280,7 @@ TrmmLUNCOld
         LocalGemm
         ( TRANSPOSE, TRANSPOSE, T(1), X2, U12_STAR_MC, T(0), D1Trans_MR_STAR );
         D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
-        Transpose( D1Trans_MR_MC.LocalMatrix(), D1.LocalMatrix() );
+        Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//
         D1.FreeAlignments();

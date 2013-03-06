@@ -73,11 +73,11 @@ SimpleSVDUpper
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VTrans
-    Matrix<Real>& ULocal = U_VC_STAR.LocalMatrix();
-    Matrix<Real>& VTransLocal = VTrans_STAR_VC.LocalMatrix();
+    Matrix<Real>& ULocal = U_VC_STAR.Matrix();
+    Matrix<Real>& VTransLocal = VTrans_STAR_VC.Matrix();
     lapack::BidiagQRAlg
     ( uplo, k, VTransLocal.Width(), ULocal.Height(),
-      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       VTransLocal.Buffer(), VTransLocal.LDim(), 
       ULocal.Buffer(), ULocal.LDim() );
 
@@ -174,11 +174,11 @@ SimpleSVDUpper
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VAdj
-    Matrix<C>& ULocal = U_VC_STAR.LocalMatrix();
-    Matrix<C>& VAdjLocal = VAdj_STAR_VC.LocalMatrix();
+    Matrix<C>& ULocal = U_VC_STAR.Matrix();
+    Matrix<C>& VAdjLocal = VAdj_STAR_VC.Matrix();
     lapack::BidiagQRAlg
     ( uplo, k, VAdjLocal.Width(), ULocal.Height(),
-      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       VAdjLocal.Buffer(), VAdjLocal.LDim(), 
       ULocal.Buffer(), ULocal.LDim() );
 
@@ -288,12 +288,12 @@ SimpleSVDUpper
     FLA_Bsvd_v_opd_var1
     ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
       numAccum, maxNumIts,
-      d_STAR_STAR.LocalBuffer(), 1,
-      e_STAR_STAR.LocalBuffer(), 1,
+      d_STAR_STAR.Buffer(), 1,
+      e_STAR_STAR.Buffer(), 1,
       &GBuffer[0], 1, k-1,
       &HBuffer[0], 1, k-1,
-      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
-      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
+      U_VC_STAR.Buffer(), 1, U_VC_STAR.LDim(),
+      V_VC_STAR.Buffer(), 1, V_VC_STAR.LDim(),
       bAlg );
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
@@ -401,12 +401,12 @@ SimpleSVDUpper
     FLA_Bsvd_v_opz_var1
     ( k, U_VC_STAR.LocalHeight(), V_VC_STAR.LocalHeight(), 
       numAccum, maxNumIts,
-      d_STAR_STAR.LocalBuffer(), 1,
-      e_STAR_STAR.LocalBuffer(), 1,
+      d_STAR_STAR.Buffer(), 1,
+      e_STAR_STAR.Buffer(), 1,
       &GBuffer[0], 1, k-1,
       &HBuffer[0], 1, k-1,
-      U_VC_STAR.LocalBuffer(), 1, U_VC_STAR.LocalLDim(),
-      V_VC_STAR.LocalBuffer(), 1, V_VC_STAR.LocalLDim(),
+      U_VC_STAR.Buffer(), 1, U_VC_STAR.LDim(),
+      V_VC_STAR.Buffer(), 1, V_VC_STAR.LDim(),
       bAlg );
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
@@ -545,7 +545,7 @@ SimpleSingularValuesUpper
     // Compute the singular values of the bidiagonal matrix
     lapack::BidiagQRAlg
     ( uplo, k, 0, 0,
-      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       (Real*)0, 1, (Real*)0, 1 );
 
     // Copy out the appropriate subset of the singular values
@@ -595,7 +595,7 @@ SimpleSingularValuesUpper
     // Compute the singular values of the bidiagonal matrix
     lapack::BidiagQRAlg
     ( uplo, k, 0, 0,
-      d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       (C*)0, 1, (C*)0, 1 );
 
     // Copy out the appropriate subset of the singular values

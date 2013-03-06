@@ -190,8 +190,8 @@ PanelLU
         {
             sendBufFloat[0] = A.GetLocal(pivotRow,a10.Width());
 
-            const int ALDim = A.LocalLDim();
-            const F* ABuffer = A.LocalBuffer(pivotRow,0);
+            const int ALDim = A.LDim();
+            const F* ABuffer = A.Buffer(pivotRow,0);
             for( int j=0; j<width; ++j )
                 sendBufFloat[j+1] = ABuffer[j*ALDim];
         }
@@ -200,8 +200,8 @@ PanelLU
             const int localRow = ((pivotRow-A.Height())-colShift)/r;
             sendBufFloat[0] = b1.GetLocal(localRow,0);
 
-            const int BLDim = B.LocalLDim();
-            const F* BBuffer = B.LocalBuffer(localRow,0);
+            const int BLDim = B.LDim();
+            const F* BBuffer = B.Buffer(localRow,0);
             for( int j=0; j<width; ++j )
                 sendBufFloat[j+1] = BBuffer[j*BLDim];
         }
@@ -218,9 +218,9 @@ PanelLU
         // Copy the current row into the pivot row
         if( pivotRow < A.Height() )
         {
-            const int ALDim = A.LocalLDim();
-            F* ASetBuffer = A.LocalBuffer(pivotRow,0);
-            const F* AGetBuffer = A.LocalBuffer(currentRow,0);
+            const int ALDim = A.LDim();
+            F* ASetBuffer = A.Buffer(pivotRow,0);
+            const F* AGetBuffer = A.Buffer(currentRow,0);
             for( int j=0; j<width; ++j )
                 ASetBuffer[j*ALDim] = AGetBuffer[j*ALDim];
         }
@@ -231,10 +231,10 @@ PanelLU
             {
                 const int localRow = ((pivotRow-A.Height())-colShift) / r;
 
-                const int ALDim = A.LocalLDim();
-                const int BLDim = B.LocalLDim();
-                F* BBuffer = B.LocalBuffer(localRow,0);
-                const F* ABuffer = A.LocalBuffer(currentRow,0);
+                const int ALDim = A.LDim();
+                const int BLDim = B.LDim();
+                F* BBuffer = B.Buffer(localRow,0);
+                const F* ABuffer = A.Buffer(currentRow,0);
                 for( int j=0; j<width; ++j )
                     BBuffer[j*BLDim] = ABuffer[j*ALDim];
             }
@@ -242,8 +242,8 @@ PanelLU
 
         // Copy the pivot row into the current row
         {
-            F* ABuffer = A.LocalBuffer(currentRow,0);
-            const int ALDim = A.LocalLDim();
+            F* ABuffer = A.Buffer(currentRow,0);
+            const int ALDim = A.LDim();
             for( int j=0; j<width; ++j )
                 ABuffer[j*ALDim] = recvBufFloat[j+1];
         }
@@ -253,10 +253,10 @@ PanelLU
         if( alpha == F(0) )
             throw SingularMatrixException();
         const F alpha11Inv = F(1) / alpha;
-        Scale( alpha11Inv, a21.LocalMatrix() );
-        Scale( alpha11Inv, b1.LocalMatrix()  );
-        Geru( F(-1), a21.LocalMatrix(), a12.LocalMatrix(), A22.LocalMatrix() );
-        Geru( F(-1), b1.LocalMatrix(), a12.LocalMatrix(), B2.LocalMatrix() );
+        Scale( alpha11Inv, a21.Matrix() );
+        Scale( alpha11Inv, b1.Matrix()  );
+        Geru( F(-1), a21.Matrix(), a12.Matrix(), A22.Matrix() );
+        Geru( F(-1), b1.Matrix(), a12.Matrix(), B2.Matrix() );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal

@@ -78,9 +78,9 @@ Geru
         x_MC_STAR = x;
         y_MR_STAR = y;
         Geru
-        ( alpha, x_MC_STAR.LockedLocalMatrix(),
-                 y_MR_STAR.LockedLocalMatrix(),
-                 A.LocalMatrix() );
+        ( alpha, x_MC_STAR.LockedMatrix(),
+                 y_MR_STAR.LockedMatrix(),
+                 A.Matrix() );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         y_MR_STAR.FreeAlignments();
@@ -98,9 +98,9 @@ Geru
         x_MC_STAR = x;
         y_STAR_MR = y;
         Geru
-        ( alpha, x_MC_STAR.LockedLocalMatrix(),
-                 y_STAR_MR.LockedLocalMatrix(),
-                 A.LocalMatrix() );
+        ( alpha, x_MC_STAR.LockedMatrix(),
+                 y_STAR_MR.LockedMatrix(),
+                 A.Matrix() );
         //--------------------------------------------------------------------//
         x_MC_STAR.FreeAlignments();
         y_STAR_MR.FreeAlignments();
@@ -118,9 +118,9 @@ Geru
         x_STAR_MC = x;
         y_MR_STAR = y;
         Geru
-        ( alpha, x_STAR_MC.LockedLocalMatrix(),
-                 y_MR_STAR.LockedLocalMatrix(),
-                 A.LocalMatrix() );
+        ( alpha, x_STAR_MC.LockedMatrix(),
+                 y_MR_STAR.LockedMatrix(),
+                 A.Matrix() );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         y_MR_STAR.FreeAlignments();
@@ -138,9 +138,9 @@ Geru
         x_STAR_MC = x;
         y_STAR_MR = y;
         Geru
-        ( alpha, x_STAR_MC.LockedLocalMatrix(),
-                 y_STAR_MR.LockedLocalMatrix(),
-                 A.LocalMatrix() );
+        ( alpha, x_STAR_MC.LockedMatrix(),
+                 y_STAR_MR.LockedMatrix(),
+                 A.Matrix() );
         //--------------------------------------------------------------------//
         x_STAR_MC.FreeAlignments();
         y_STAR_MR.FreeAlignments();

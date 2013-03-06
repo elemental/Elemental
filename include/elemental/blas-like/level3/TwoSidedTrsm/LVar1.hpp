@@ -192,7 +192,7 @@ TwoSidedTrsmLVar1
         Z10Adj_MR_MC = Z10Adj;
         Z10Adj_MR_MC.SumScatterUpdate( F(1), Z10Adj_MR_STAR );
         Y10.ResizeTo( A10.Height(), A10.Width() );
-        Adjoint( Z10Adj_MR_MC.LocalMatrix(), Y10.LocalMatrix() );
+        Adjoint( Z10Adj_MR_MC.Matrix(), Y10.Matrix() );
 
         // A10 := A10 inv(L00)'
         // This is the bottleneck because A10 only has blocksize rows
@@ -207,8 +207,8 @@ TwoSidedTrsmLVar1
         Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL,
-          F(-1), A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(), 
-          F(0), X11_STAR_STAR.LocalMatrix() );
+          F(-1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(), 
+          F(0), X11_STAR_STAR.Matrix() );
         A11.SumScatterUpdate( F(1), X11_STAR_STAR );
 
         // A11 := inv(L11) A11 inv(L11)'

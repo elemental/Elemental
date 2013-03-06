@@ -125,8 +125,7 @@ inline void LocalGemm
 #endif
     Gemm
     ( orientationOfA , orientationOfB,
-      alpha, A.LockedLocalMatrix(), B.LockedLocalMatrix(),
-      beta, C.LocalMatrix() );
+      alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

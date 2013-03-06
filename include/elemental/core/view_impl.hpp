@@ -65,7 +65,7 @@ inline void View
     {
         A.colShift_ = B.ColShift();
         A.rowShift_ = B.RowShift();
-        View( A.LocalMatrix(), B.LocalMatrix() );
+        View( A.Matrix(), B.Matrix() );
     }
     else
     {
@@ -116,7 +116,7 @@ inline void LockedView
     {
         A.colShift_ = B.ColShift();
         A.rowShift_ = B.RowShift();
-        LockedView( A.LocalMatrix(), B.LockedLocalMatrix() );
+        LockedView( A.Matrix(), B.LockedMatrix() );
     }
     else 
     {
@@ -192,14 +192,14 @@ inline void View
         A.colShift_ = Shift( colRank, A.ColAlignment(), colStride );
         A.rowShift_ = Shift( rowRank, A.RowAlignment(), rowStride );
 
-        const Int localHeightBehind = LocalLength(i,B.ColShift(),colStride);
-        const Int localWidthBehind  = LocalLength(j,B.RowShift(),rowStride);
+        const Int localHeightBehind = Length(i,B.ColShift(),colStride);
+        const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
 
-        const Int localHeight = LocalLength( height, A.ColShift(), colStride );
-        const Int localWidth  = LocalLength( width,  A.RowShift(), rowStride );
+        const Int localHeight = Length( height, A.ColShift(), colStride );
+        const Int localWidth  = Length( width,  A.RowShift(), rowStride );
 
         View
-        ( A.LocalMatrix(), B.LocalMatrix(), 
+        ( A.Matrix(), B.Matrix(), 
           localHeightBehind, localWidthBehind, localHeight, localWidth );
     }
     else
@@ -277,14 +277,14 @@ inline void LockedView
         A.colShift_ = Shift( colRank, A.ColAlignment(), colStride );
         A.rowShift_ = Shift( rowRank, A.RowAlignment(), rowStride );
 
-        const Int localHeightBehind = LocalLength(i,B.ColShift(),colStride);
-        const Int localWidthBehind  = LocalLength(j,B.RowShift(),rowStride);
+        const Int localHeightBehind = Length(i,B.ColShift(),colStride);
+        const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
 
-        const Int localHeight = LocalLength( height, A.ColShift(), colStride );
-        const Int localWidth  = LocalLength( width,  A.RowShift(), rowStride );
+        const Int localHeight = Length( height, A.ColShift(), colStride );
+        const Int localWidth  = Length( width,  A.RowShift(), rowStride );
 
         LockedView
-        ( A.LocalMatrix(), B.LockedLocalMatrix(), 
+        ( A.Matrix(), B.LockedMatrix(), 
           localHeightBehind, localWidthBehind, localHeight, localWidth );
     }
     else
@@ -345,7 +345,7 @@ inline void View1x2
     {
         A.colShift_ = BL.ColShift();
         A.rowShift_ = BL.RowShift();
-        View1x2( A.LocalMatrix(), BL.LocalMatrix(), BR.LocalMatrix() );
+        View1x2( A.Matrix(), BL.Matrix(), BR.Matrix() );
     }
     else
     {
@@ -408,8 +408,7 @@ inline void LockedView1x2
     {
         A.colShift_ = BL.ColShift();
         A.rowShift_ = BL.RowShift();
-        LockedView1x2
-        ( A.LocalMatrix(), BL.LockedLocalMatrix(), BR.LockedLocalMatrix() );
+        LockedView1x2( A.Matrix(), BL.LockedMatrix(), BR.LockedMatrix() );
     }
     else
     {
@@ -471,7 +470,7 @@ inline void View2x1
     {
         A.colShift_ = BT.ColShift();
         A.rowShift_ = BT.RowShift();
-        View2x1( A.LocalMatrix(), BT.LocalMatrix(), BB.LocalMatrix() );
+        View2x1( A.Matrix(), BT.Matrix(), BB.Matrix() );
     }
     else
     {
@@ -534,8 +533,7 @@ inline void LockedView2x1
     {
         A.colShift_ = BT.ColShift();
         A.rowShift_ = BT.RowShift();
-        LockedView2x1
-        ( A.LocalMatrix(), BT.LockedLocalMatrix(), BB.LockedLocalMatrix() );
+        LockedView2x1( A.Matrix(), BT.LockedMatrix(), BB.LockedMatrix() );
     }
     else
     {
@@ -607,8 +605,8 @@ inline void View2x2
         A.colShift_ = BTL.ColShift();
         A.rowShift_ = BTL.RowShift();
         View2x2
-        ( A.LocalMatrix(), BTL.LocalMatrix(), BTR.LocalMatrix(),
-                           BBL.LocalMatrix(), BBR.LocalMatrix() ); 
+        ( A.Matrix(), BTL.Matrix(), BTR.Matrix(),
+                      BBL.Matrix(), BBR.Matrix() ); 
     }
     else
     {
@@ -685,8 +683,8 @@ inline void LockedView2x2
         A.colShift_ = BTL.ColShift();
         A.rowShift_ = BTL.RowShift();
         LockedView2x2
-        ( A.LocalMatrix(), BTL.LockedLocalMatrix(), BTR.LockedLocalMatrix(),
-                           BBL.LockedLocalMatrix(), BBR.LockedLocalMatrix() );
+        ( A.Matrix(), BTL.LockedMatrix(), BTR.LockedMatrix(),
+                      BBL.LockedMatrix(), BBR.LockedMatrix() );
     }
     else
     {

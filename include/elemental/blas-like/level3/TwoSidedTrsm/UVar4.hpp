@@ -207,12 +207,12 @@ TwoSidedTrsmUVar4
         // Y12 := A11 U12
         U12Trans_VR_STAR = U12Trans_MR_STAR;
         Zeros( A12.Height(), A12.Width(), U12_STAR_VR );
-        Transpose( U12Trans_VR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix() );
+        Transpose( U12Trans_VR_STAR.Matrix(), U12_STAR_VR.Matrix() );
         Zeros( A12.Height(), A12.Width(), Y12_STAR_VR );
         Hemm
         ( LEFT, UPPER, 
-          F(1), A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(), 
-          F(0), Y12_STAR_VR.LocalMatrix() );
+          F(1), A11_STAR_STAR.Matrix(), U12_STAR_VR.Matrix(), 
+          F(0), Y12_STAR_VR.Matrix() );
 
         // A12 := inv(U11)' A12
         A12_STAR_VR = A12;

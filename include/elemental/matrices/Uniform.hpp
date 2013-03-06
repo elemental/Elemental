@@ -93,8 +93,8 @@ struct MakeUniformHelper<T,MC,STAR>
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
             // Unpack
-            T* localBuffer = A.LocalBuffer();
-            const int ldim = A.LocalLDim();
+            T* localBuffer = A.Buffer();
+            const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
@@ -161,8 +161,8 @@ struct MakeUniformHelper<T,MR,STAR>
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
         // Unpack
-        T* localBuffer = A.LocalBuffer();
-        const int ldim = A.LocalLDim();
+        T* localBuffer = A.Buffer();
+        const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for COLLAPSE(2)
 #endif
@@ -194,8 +194,8 @@ struct MakeUniformHelper<T,STAR,MC>
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
         // Unpack
-        T* localBuffer = A.LocalBuffer();
-        const int ldim = A.LocalLDim();
+        T* localBuffer = A.Buffer();
+        const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
@@ -247,8 +247,8 @@ struct MakeUniformHelper<T,STAR,MR>
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
         // Unpack
-        T* localBuffer = A.LocalBuffer();
-        const int ldim = A.LocalLDim();
+        T* localBuffer = A.Buffer();
+        const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
@@ -285,8 +285,8 @@ struct MakeUniformHelper<T,STAR,STAR>
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
 
             // Unpack
-            T* localBuffer = A.LocalBuffer();
-            const int ldim = A.LocalLDim();
+            T* localBuffer = A.Buffer();
+            const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif

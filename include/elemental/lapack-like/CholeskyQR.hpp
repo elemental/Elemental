@@ -56,11 +56,10 @@ CholeskyQR( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
     if( height < width )
         throw std::logic_error("A^H A will be singular");
     Zeros( width, width, R );
-    Herk( UPPER, ADJOINT, F(1), A.LocalMatrix(), F(0), R.LocalMatrix() );
+    Herk( UPPER, ADJOINT, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOverGrid();
-    Cholesky( UPPER, R.LocalMatrix() );
-    Trsm
-    ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.LocalMatrix(), A.LocalMatrix() );
+    Cholesky( UPPER, R.Matrix() );
+    Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

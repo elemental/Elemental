@@ -58,16 +58,16 @@ public:
     Int DiagonalLength( Int offset=0 ) const;
     Int LocalHeight() const;
     Int LocalWidth() const;
-    Int LocalLDim() const;
+    Int LDim() const;
     size_t AllocatedMemory() const;
 
     const elem::Grid& Grid() const;
 
-          T* LocalBuffer( Int iLocal=0, Int jLocal=0 );
-    const T* LockedLocalBuffer( Int iLocal=0, Int jLocal=0 ) const;
+          T* Buffer( Int iLocal=0, Int jLocal=0 );
+    const T* LockedBuffer( Int iLocal=0, Int jLocal=0 ) const;
 
-          Matrix<T,Int>& LocalMatrix();
-    const Matrix<T,Int>& LockedLocalMatrix() const;
+          elem::Matrix<T,Int>& Matrix();
+    const elem::Matrix<T,Int>& LockedMatrix() const;
 
     //
     // I/O
@@ -198,7 +198,7 @@ protected:
     bool viewing_, lockedView_;
     Int height_, width_;
     Memory<T> auxMemory_;
-    Matrix<T,Int> localMatrix_;
+    elem::Matrix<T,Int> matrix_;
     
     bool constrainedColAlignment_, constrainedRowAlignment_;
     Int colAlignment_, rowAlignment_;

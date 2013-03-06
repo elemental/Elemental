@@ -92,8 +92,8 @@ CholeskyLVar3Square( DistMatrix<F>& A )
             { 
                 const int size = A11.Height()*A22.LocalWidth();
                 MemCopy
-                ( A21Adj_STAR_MR.LocalBuffer(), 
-                  A21Trans_STAR_MC.LocalBuffer(), size );
+                ( A21Adj_STAR_MR.Buffer(), 
+                  A21Trans_STAR_MC.Buffer(), size );
             }
             else
             {
@@ -102,8 +102,8 @@ CholeskyLVar3Square( DistMatrix<F>& A )
                 // We know that the ldim is the height since we have manually 
                 // created both temporary matrices.
                 mpi::SendRecv 
-                ( A21Trans_STAR_MC.LocalBuffer(), sendSize, transposeRank, 0,
-                  A21Adj_STAR_MR.LocalBuffer(),  recvSize, transposeRank, 0,
+                ( A21Trans_STAR_MC.Buffer(), sendSize, transposeRank, 0,
+                  A21Adj_STAR_MR.Buffer(),  recvSize, transposeRank, 0,
                   g.VCComm() );
             }
             Conjugate( A21Adj_STAR_MR );

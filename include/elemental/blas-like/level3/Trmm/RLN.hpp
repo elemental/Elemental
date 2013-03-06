@@ -187,7 +187,7 @@ TrmmRLNA
         ( TRANSPOSE, diag, alpha, L, X1_STAR_MC, Z1Trans_MR_STAR );
 
         Z1Trans_MR_MC.SumScatterFrom( Z1Trans_MR_STAR );
-        Transpose( Z1Trans_MR_MC.LocalMatrix(), X1.LocalMatrix() );
+        Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
         //--------------------------------------------------------------------//
         Z1Trans_MR_MC.FreeAlignments();
 

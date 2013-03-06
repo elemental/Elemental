@@ -49,8 +49,8 @@ main( int argc, char* argv[] )
             const int gridWidth = grid.Width();
             const int gridRow = grid.Row();
             const int gridCol = grid.Col();
-            const int localHeight = LocalLength( n, gridRow, gridHeight );
-            const int localWidth = LocalLength( n, gridCol, gridWidth );
+            const int localHeight = Length( n, gridRow, gridHeight );
+            const int localWidth = Length( n, gridCol, gridWidth );
             std::vector<double> localData( localHeight*localWidth );
 
             // Fill local data for identity

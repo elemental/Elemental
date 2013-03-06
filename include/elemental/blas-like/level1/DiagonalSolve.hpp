@@ -125,7 +125,7 @@ DiagonalSolve
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
             DiagonalSolve
-            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+            ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
               checkIfSingular );
         }
         else
@@ -134,7 +134,7 @@ DiagonalSolve
             d_W_STAR = d;
             DiagonalSolve
             ( LEFT, orientation,
-              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+              d_W_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
     else
@@ -142,7 +142,7 @@ DiagonalSolve
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
             DiagonalSolve
-            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),
               checkIfSingular );
         }
         else
@@ -151,7 +151,7 @@ DiagonalSolve
             d_Z_STAR = d;
             DiagonalSolve
             ( RIGHT, orientation,
-              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+              d_Z_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
 #ifndef RELEASE
@@ -177,7 +177,7 @@ DiagonalSolve
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
             DiagonalSolve
-            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+            ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
               checkIfSingular );
         }
         else
@@ -186,7 +186,7 @@ DiagonalSolve
             d_W_STAR = d;
             DiagonalSolve
             ( LEFT, orientation,
-              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+              d_W_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
     else
@@ -194,7 +194,7 @@ DiagonalSolve
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
             DiagonalSolve
-            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix(),
+            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),
               checkIfSingular );
         }
         else
@@ -203,7 +203,7 @@ DiagonalSolve
             d_Z_STAR = d;
             DiagonalSolve
             ( RIGHT, orientation,
-              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+              d_Z_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
 #ifndef RELEASE

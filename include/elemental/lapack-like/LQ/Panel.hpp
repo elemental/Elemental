@@ -124,16 +124,14 @@ PanelLQ( DistMatrix<Real>& A )
 
         Gemv
         ( NORMAL,
-          Real(1), ABottomPan.LockedLocalMatrix(),
-                   aTopRow_STAR_MR.LockedLocalMatrix(),
-          Real(0), z_MC_STAR.LocalMatrix() );
+          Real(1), ABottomPan.LockedMatrix(), aTopRow_STAR_MR.LockedMatrix(),
+          Real(0), z_MC_STAR.Matrix() );
         z_MC_STAR.SumOverRow();
 
         Ger
         ( -tau,
-          z_MC_STAR.LockedLocalMatrix(),
-          aTopRow_STAR_MR.LockedLocalMatrix(),
-          ABottomPan.LocalMatrix() );
+          z_MC_STAR.LockedMatrix(), aTopRow_STAR_MR.LockedMatrix(),
+          ABottomPan.Matrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
@@ -313,16 +311,16 @@ PanelLQ
 
         Gemv
         ( NORMAL,
-          C(1), ABottomPan.LockedLocalMatrix(),
-                aTopRowConj_STAR_MR.LockedLocalMatrix(),
-          C(0), z_MC_STAR.LocalMatrix() );
+          C(1), ABottomPan.LockedMatrix(),
+                aTopRowConj_STAR_MR.LockedMatrix(),
+          C(0), z_MC_STAR.Matrix() );
         z_MC_STAR.SumOverRow();
 
         Ger
         ( -Conj(tau),
-          z_MC_STAR.LockedLocalMatrix(),
-          aTopRowConj_STAR_MR.LockedLocalMatrix(),
-          ABottomPan.LocalMatrix() );
+          z_MC_STAR.LockedMatrix(),
+          aTopRowConj_STAR_MR.LockedMatrix(),
+          ABottomPan.Matrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);

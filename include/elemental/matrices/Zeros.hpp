@@ -62,7 +62,7 @@ MakeZeros( DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("MakeZeros");
 #endif
-    Zero( A.LocalMatrix() );
+    Zero( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

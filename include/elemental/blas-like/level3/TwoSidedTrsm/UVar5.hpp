@@ -188,8 +188,8 @@ TwoSidedTrsmUVar5
         Zeros( A12.Height(), A12.Width(), Y12_STAR_VR );
         Hemm
         ( LEFT, UPPER,
-          F(1), A11_STAR_STAR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),
-          F(0), Y12_STAR_VR.LocalMatrix() );
+          F(1), A11_STAR_STAR.Matrix(), U12_STAR_VR.Matrix(),
+          F(0), Y12_STAR_VR.Matrix() );
         Y12 = Y12_STAR_VR;
 
         // A12 := inv(U11)' A12

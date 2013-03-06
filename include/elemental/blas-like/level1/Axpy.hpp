@@ -98,14 +98,14 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
     if( X.ColAlignment() == Y.ColAlignment() &&
         X.RowAlignment() == Y.RowAlignment() )
     {
-        Axpy( alpha, X.LockedLocalMatrix(), Y.LocalMatrix() );
+        Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
     }
     else
     {
         DistMatrix<T,U,V> XCopy( X.Grid() );
         XCopy.AlignWith( Y );
         XCopy = X;
-        Axpy( alpha, XCopy.LockedLocalMatrix(), Y.LocalMatrix() );
+        Axpy( alpha, XCopy.LockedMatrix(), Y.Matrix() );
     }
 #ifndef RELEASE
     PopCallStack();

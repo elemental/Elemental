@@ -110,8 +110,7 @@ DiagonalScale
     {
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
-            DiagonalScale
-            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
         }
         else
         {
@@ -119,7 +118,7 @@ DiagonalScale
             d_W_STAR = d;
             DiagonalScale
             ( LEFT, orientation,
-              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+              d_W_STAR.LockedMatrix(), X.Matrix() );
         }
     }
     else
@@ -127,15 +126,14 @@ DiagonalScale
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
             DiagonalScale
-            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
         }
         else
         {
             DistMatrix<T,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
             DiagonalScale
-            ( RIGHT, orientation,
-              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+            ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
         }
     }
 #ifndef RELEASE
@@ -159,32 +157,28 @@ DiagonalScale
     {
         if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
         {
-            DiagonalScale
-            ( LEFT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
         }
         else
         {
             DistMatrix<R,W,STAR> d_W_STAR( X.Grid() );
             d_W_STAR = d;
             DiagonalScale
-            ( LEFT, orientation,
-              d_W_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+            ( LEFT, orientation, d_W_STAR.LockedMatrix(), X.Matrix() );
         }
     }
     else
     {
         if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
         {
-            DiagonalScale
-            ( RIGHT, orientation, d.LockedLocalMatrix(), X.LocalMatrix() );
+            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
         }
         else
         {
             DistMatrix<R,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
             DiagonalScale
-            ( RIGHT, orientation,
-              d_Z_STAR.LockedLocalMatrix(), X.LocalMatrix() );
+            ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
         }
     }
 #ifndef RELEASE

@@ -21,7 +21,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 : viewing_(false), lockedView_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
-  localMatrix_(localHeight,localWidth), 
+  matrix_(localHeight,localWidth), 
   constrainedColAlignment_(constrainedColAlignment), 
   constrainedRowAlignment_(constrainedRowAlignment),
   colAlignment_(colAlignment), rowAlignment_(rowAlignment),
@@ -41,7 +41,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 : viewing_(false), lockedView_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
-  localMatrix_(localHeight,localWidth,ldim), 
+  matrix_(localHeight,localWidth,ldim), 
   constrainedColAlignment_(constrainedColAlignment), 
   constrainedRowAlignment_(constrainedRowAlignment),
   colAlignment_(colAlignment), rowAlignment_(rowAlignment),
@@ -61,7 +61,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 : viewing_(true), lockedView_(true), 
   height_(height), width_(width), 
   auxMemory_(), 
-  localMatrix_(localHeight,localWidth,buffer,ldim), 
+  matrix_(localHeight,localWidth,buffer,ldim), 
   constrainedColAlignment_(true), constrainedRowAlignment_(true),
   colAlignment_(colAlignment), rowAlignment_(rowAlignment),
   colShift_(colShift), rowShift_(rowShift),
@@ -80,7 +80,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
 : viewing_(true), lockedView_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
-  localMatrix_(localHeight,localWidth,buffer,ldim), 
+  matrix_(localHeight,localWidth,buffer,ldim), 
   constrainedColAlignment_(true), constrainedRowAlignment_(true),
   colAlignment_(colAlignment), rowAlignment_(rowAlignment),
   colShift_(colShift), rowShift_(rowShift),
@@ -105,7 +105,7 @@ template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::AssertNotStoringData() const
 {
-    if( localMatrix_.MemorySize() > 0 )
+    if( matrix_.MemorySize() > 0 )
         throw std::logic_error
         ("Assertion that matrix not be storing data failed");
 }
@@ -406,65 +406,63 @@ AbstractDistMatrix<T,Int>::Grid() const
 template<typename T,typename Int>
 size_t
 AbstractDistMatrix<T,Int>::AllocatedMemory() const
-{ return localMatrix_.MemorySize(); }
+{ return matrix_.MemorySize(); }
 
 template<typename T,typename Int>
 Int
 AbstractDistMatrix<T,Int>::LocalHeight() const
-{ return localMatrix_.Height(); }
+{ return matrix_.Height(); }
 
 template<typename T,typename Int>
 Int
 AbstractDistMatrix<T,Int>::LocalWidth() const
-{ return localMatrix_.Width(); }
+{ return matrix_.Width(); }
 
 template<typename T,typename Int>
 Int
-AbstractDistMatrix<T,Int>::LocalLDim() const
-{ return localMatrix_.LDim(); }
+AbstractDistMatrix<T,Int>::LDim() const
+{ return matrix_.LDim(); }
 
 template<typename T,typename Int>
 T
 AbstractDistMatrix<T,Int>::GetLocal( Int i, Int j ) const
-{ return localMatrix_.Get(i,j); }
+{ return matrix_.Get(i,j); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocal( Int iLocal, Int jLocal, T alpha )
-{ localMatrix_.Set(iLocal,jLocal,alpha); }
+{ matrix_.Set(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocal( Int iLocal, Int jLocal, T alpha )
-{ localMatrix_.Update(iLocal,jLocal,alpha); }
+{ matrix_.Update(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 T*
-AbstractDistMatrix<T,Int>::LocalBuffer
-( Int iLocal, Int jLocal )
-{ return localMatrix_.Buffer(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::Buffer( Int iLocal, Int jLocal )
+{ return matrix_.Buffer(iLocal,jLocal); }
 
 template<typename T,typename Int>
 const T*
-AbstractDistMatrix<T,Int>::LockedLocalBuffer
-( Int iLocal, Int jLocal ) const
-{ return localMatrix_.LockedBuffer(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::LockedBuffer( Int iLocal, Int jLocal ) const
+{ return matrix_.LockedBuffer(iLocal,jLocal); }
 
 template<typename T,typename Int>
-Matrix<T,Int>&
-AbstractDistMatrix<T,Int>::LocalMatrix()
-{ return localMatrix_; }
+elem::Matrix<T,Int>&
+AbstractDistMatrix<T,Int>::Matrix()
+{ return matrix_; }
 
 template<typename T,typename Int>
-const Matrix<T,Int>&
-AbstractDistMatrix<T,Int>::LockedLocalMatrix() const
-{ return localMatrix_; }
+const elem::Matrix<T,Int>&
+AbstractDistMatrix<T,Int>::LockedMatrix() const
+{ return matrix_; }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::Empty()
 {
-    localMatrix_.Empty();
+    matrix_.Empty();
     lockedView_ = false;
     viewing_ = false;
     height_ = 0;
@@ -479,7 +477,7 @@ template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
-    localMatrix_.Empty();
+    matrix_.Empty();
     lockedView_ = false;
     viewing_ = false;
     height_ = 0;
@@ -537,36 +535,36 @@ AbstractDistMatrix<T,Int>::Write
 template<typename T,typename Int>
 typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
-{ return localMatrix_.GetRealPart(iLocal,jLocal); }
+{ return matrix_.GetRealPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 typename Base<T>::type
 AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
-{ return localMatrix_.GetImagPart(iLocal,jLocal); }
+{ return matrix_.GetImagPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ localMatrix_.SetRealPart(iLocal,jLocal,alpha); }
+{ matrix_.SetRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ localMatrix_.SetImagPart(iLocal,jLocal,alpha); }
+{ matrix_.SetImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalRealPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ localMatrix_.UpdateRealPart(iLocal,jLocal,alpha); }
+{ matrix_.UpdateRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalImagPart
 ( Int iLocal, Int jLocal, typename Base<T>::type alpha )
-{ localMatrix_.UpdateImagPart(iLocal,jLocal,alpha); }
+{ matrix_.UpdateImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void

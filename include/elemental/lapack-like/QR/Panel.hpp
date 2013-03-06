@@ -130,16 +130,16 @@ PanelQR( DistMatrix<Real>& A )
 
         Gemv
         ( TRANSPOSE, 
-          Real(1), ARightPan.LockedLocalMatrix(), 
-                   aLeftCol_MC_STAR.LockedLocalMatrix(),
-          Real(0), z_MR_STAR.LocalMatrix() );
+          Real(1), ARightPan.LockedMatrix(), 
+                   aLeftCol_MC_STAR.LockedMatrix(),
+          Real(0), z_MR_STAR.Matrix() );
         z_MR_STAR.SumOverCol(); 
 
         Ger
         ( -tau, 
-          aLeftCol_MC_STAR.LockedLocalMatrix(), 
-          z_MR_STAR.LockedLocalMatrix(),
-          ARightPan.LocalMatrix() );
+          aLeftCol_MC_STAR.LockedMatrix(), 
+          z_MR_STAR.LockedMatrix(),
+          ARightPan.Matrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
@@ -322,16 +322,16 @@ PanelQR
 
         Gemv
         ( ADJOINT, 
-          C(1), ARightPan.LockedLocalMatrix(), 
-                aLeftCol_MC_STAR.LockedLocalMatrix(),
-          C(0), z_MR_STAR.LocalMatrix() );
+          C(1), ARightPan.LockedMatrix(), 
+                aLeftCol_MC_STAR.LockedMatrix(),
+          C(0), z_MR_STAR.Matrix() );
         z_MR_STAR.SumOverCol(); 
 
         Ger
         ( -Conj(tau), 
-          aLeftCol_MC_STAR.LockedLocalMatrix(), 
-          z_MR_STAR.LockedLocalMatrix(),
-          ARightPan.LocalMatrix() );
+          aLeftCol_MC_STAR.LockedMatrix(), 
+          z_MR_STAR.LockedMatrix(),
+          ARightPan.Matrix() );
 
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);

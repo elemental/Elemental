@@ -193,7 +193,7 @@ TrmmRUTA
 
         Z1Trans.SumScatterFrom( Z1Trans_MC_STAR );
         Z1Trans_MR_MC = Z1Trans;
-        Transpose( Z1Trans_MR_MC.LocalMatrix(), X1.LocalMatrix(), conjugate );
+        Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
         //--------------------------------------------------------------------//
         Z1Trans_MR_MC.FreeAlignments();
 

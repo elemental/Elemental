@@ -38,7 +38,7 @@ MakeReal( DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("MakeReal");
 #endif
-    MakeReal( A.LocalMatrix() );
+    MakeReal( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

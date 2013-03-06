@@ -188,8 +188,8 @@ TwoSidedTrsmLVar5
         Zeros( A21.Height(), A21.Width(), Y21_VC_STAR );
         Hemm
         ( RIGHT, LOWER, 
-          F(1), A11_STAR_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(), 
-          F(0), Y21_VC_STAR.LocalMatrix() );
+          F(1), A11_STAR_STAR.Matrix(), L21_VC_STAR.Matrix(), 
+          F(0), Y21_VC_STAR.Matrix() );
         Y21 = Y21_VC_STAR;
 
         // A21 := A21 inv(L11)'

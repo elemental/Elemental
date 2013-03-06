@@ -41,11 +41,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -87,11 +87,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();    
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();    
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -131,11 +131,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();    
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();    
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -172,11 +172,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();    
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();    
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -217,11 +217,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();    
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();    
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )
@@ -260,11 +260,11 @@ SkewHermitianEig
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int ALDim = A.LocalLDim();
-    const int GLDim = G.LocalLDim();    
+    const int ALDim = A.LDim();
+    const int GLDim = G.LDim();    
     const Complex<double> negativeImagOne(0,-1.);
-    const double* GBuffer = G.LocalBuffer();
-    Complex<double>* ABuffer = A.LocalBuffer();
+    const double* GBuffer = G.Buffer();
+    Complex<double>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( int j=0; j<localWidth; ++j )
         for( int i=0; i<localHeight; ++i )

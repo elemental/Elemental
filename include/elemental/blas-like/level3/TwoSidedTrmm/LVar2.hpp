@@ -229,8 +229,8 @@ TwoSidedTrmmLVar2
         Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, ADJOINT,
-          F(1), A21_VC_STAR.LocalMatrix(), L21_VC_STAR.LocalMatrix(),
-          F(0), X11_STAR_STAR.LocalMatrix() );
+          F(1), A21_VC_STAR.Matrix(), L21_VC_STAR.Matrix(),
+          F(0), X11_STAR_STAR.Matrix() );
         A11.SumScatterUpdate( F(1), X11_STAR_STAR );
 
         // A21 := A21 + 1/2 Y21

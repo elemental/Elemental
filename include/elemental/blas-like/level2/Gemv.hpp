@@ -34,8 +34,8 @@ inline void LocalGemv
 #endif
     Gemv
     ( orientation ,
-      alpha, A.LockedLocalMatrix(), x.LockedLocalMatrix(),
-      beta,                         y.LocalMatrix() );
+      alpha, A.LockedMatrix(), x.LockedMatrix(),
+      beta,                    y.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

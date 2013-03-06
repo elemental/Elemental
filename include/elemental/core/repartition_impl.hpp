@@ -51,8 +51,7 @@ RepartitionUp
 {
 #ifndef RELEASE
     PushCallStack("RepartitionUp [DistMatrix]");
-    if( (AT.LocalMatrix().Buffer() + AT.LocalHeight()) != 
-         AB.LocalMatrix().Buffer() )
+    if( (AT.Matrix().Buffer() + AT.LocalHeight()) != AB.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 2x1 array of distributed matrices");
 #endif
@@ -97,8 +96,8 @@ LockedRepartitionUp
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUp [DistMatrix]");
-    if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
-         AB.LockedLocalMatrix().LockedBuffer() )
+    if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
+         AB.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 2x1 array of distributed matrices");
 #endif
@@ -147,8 +146,8 @@ RepartitionDown
 {
 #ifndef RELEASE
     PushCallStack("RepartitionDown [DistMatrix]");
-    if( (AT.LocalMatrix().Buffer() + AT.LocalHeight()) != 
-         AB.LocalMatrix().Buffer() )
+    if( (AT.Matrix().Buffer() + AT.LocalHeight()) != 
+         AB.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 2x1 array of distributed matrices");
 #endif
@@ -193,8 +192,8 @@ LockedRepartitionDown
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDown [DistMatrix]");
-    if( (AT.LockedLocalMatrix().LockedBuffer() + AT.LocalHeight()) != 
-         AB.LockedLocalMatrix().LockedBuffer() )
+    if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
+         AB.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 2x1 array of distributed matrices");
 #endif
@@ -241,8 +240,8 @@ RepartitionLeft
 {
 #ifndef RELEASE
     PushCallStack("RepartitionLeft [DistMatrix]");
-    if( (AL.LocalMatrix().Buffer() + AL.LocalWidth()*AL.LocalLDim())
-         != AR.LocalMatrix().Buffer() )
+    if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
+         AR.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 1x2 array of distributed matrices");
 #endif
@@ -285,8 +284,8 @@ LockedRepartitionLeft
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionLeft [DistMatrix]");
-    if( (AL.LockedLocalMatrix().LockedBuffer() + AL.LocalWidth()*AL.LocalLDim())
-         != AR.LockedLocalMatrix().LockedBuffer() )
+    if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
+         AR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 1x1 array of distributed matrices");
 #endif
@@ -333,8 +332,8 @@ RepartitionRight
 {
 #ifndef RELEASE
     PushCallStack("RepartitionRight [DistMatrix]");
-    if( (AL.LocalMatrix().Buffer() + AL.LocalWidth()*AL.LocalLDim()) 
-         != AR.LocalMatrix().Buffer() )
+    if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
+         AR.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 1x2 array of distributed matrices");
 #endif
@@ -377,8 +376,8 @@ LockedRepartitionRight
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionRight [DistMatrix]");
-    if( (AL.LockedLocalMatrix().LockedBuffer() + AL.LocalWidth()*AL.LocalLDim())
-         != AR.LockedLocalMatrix().LockedBuffer() )
+    if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
+         AR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 1x2 DistMatrices in LockedRepartitionRight");
 #endif
@@ -437,14 +436,14 @@ RepartitionUpDiagonal
 {
 #ifndef RELEASE
     PushCallStack("RepartitionUpDiagonal [DistMatrix]");
-    if( (ATL.LocalMatrix().Buffer() + ATL.LocalHeight()) != 
-         ABL.LocalMatrix().Buffer() ||
-        (ATR.LocalMatrix().Buffer() + ATR.LocalHeight()) != 
-         ABR.LocalMatrix().Buffer() ||
-        (ATL.LocalMatrix().Buffer() + ATL.LocalWidth()*ATL.LocalLDim())
-         != ATR.LocalMatrix().Buffer() ||
-        (ABL.LocalMatrix().Buffer() + ABL.LocalWidth()*ABL.LocalLDim())
-         != ABR.LocalMatrix().Buffer() )
+    if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
+         ABL.Matrix().Buffer() ||
+        (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
+         ABR.Matrix().Buffer() ||
+        (ATL.Matrix().Buffer() + ATL.LocalWidth()*ATL.LDim()) !=
+         ATR.Matrix().Buffer() ||
+        (ABL.Matrix().Buffer() + ABL.LocalWidth()*ABL.LDim()) !=
+         ABR.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 2x2 grid of distributed matrices");
 #endif
@@ -506,16 +505,16 @@ LockedRepartitionUpDiagonal
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionUpDiagonal [DistMatrix]");
-    if( (ATL.LockedLocalMatrix().LockedBuffer()+ATL.LocalHeight()) != 
-         ABL.LockedLocalMatrix().LockedBuffer() ||
-        (ATR.LockedLocalMatrix().LockedBuffer()+ATR.LocalHeight()) != 
-         ABR.LockedLocalMatrix().LockedBuffer() ||
-        (ATL.LockedLocalMatrix().LockedBuffer()+
-         ATL.LocalWidth()*ATL.LocalLDim()) != 
-         ATR.LockedLocalMatrix().LockedBuffer() ||
-        (ABL.LockedLocalMatrix().LockedBuffer()+
-         ABL.LocalWidth()*ABL.LocalLDim()) !=
-         ABR.LockedLocalMatrix().LockedBuffer() )
+    if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
+         ABL.LockedMatrix().LockedBuffer() ||
+        (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
+         ABR.LockedMatrix().LockedBuffer() ||
+        (ATL.LockedMatrix().LockedBuffer()+
+         ATL.LocalWidth()*ATL.LDim()) != 
+         ATR.LockedMatrix().LockedBuffer() ||
+        (ABL.LockedMatrix().LockedBuffer()+
+         ABL.LocalWidth()*ABL.LDim()) !=
+         ABR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 2x2 grid of distributed matrices");
 #endif
@@ -581,14 +580,14 @@ RepartitionDownDiagonal
 {
 #ifndef RELEASE
     PushCallStack("RepartitionDownDiagonal [DistMatrix]");
-    if( (ATL.LocalMatrix().Buffer() + ATL.LocalHeight()) != 
-         ABL.LocalMatrix().Buffer() ||
-        (ATR.LocalMatrix().Buffer() + ATR.LocalHeight()) != 
-         ABR.LocalMatrix().Buffer() ||
-        (ATL.LocalMatrix().Buffer() + ATL.LocalWidth()*ATL.LocalLDim()) !=
-         ATR.LocalMatrix().Buffer() ||
-        (ABL.LocalMatrix().Buffer() + ABL.LocalWidth()*ABL.LocalLDim()) != 
-         ABR.LocalMatrix().Buffer() )
+    if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
+         ABL.Matrix().Buffer() ||
+        (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
+         ABR.Matrix().Buffer() ||
+        (ATL.Matrix().Buffer() + ATL.LocalWidth()*ATL.LDim()) !=
+         ATR.Matrix().Buffer() ||
+        (ABL.Matrix().Buffer() + ABL.LocalWidth()*ABL.LDim()) != 
+         ABR.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 2x2 grid of distributed matrices");
 #endif
@@ -650,16 +649,16 @@ LockedRepartitionDownDiagonal
 {
 #ifndef RELEASE
     PushCallStack("LockedRepartitionDownDiagonal [DistMatrix]");
-    if( (ATL.LockedLocalMatrix().LockedBuffer()+ATL.LocalHeight()) != 
-         ABL.LockedLocalMatrix().LockedBuffer() ||
-        (ATR.LockedLocalMatrix().LockedBuffer()+ATR.LocalHeight()) != 
-         ABR.LockedLocalMatrix().LockedBuffer() ||
-        (ATL.LockedLocalMatrix().LockedBuffer()+
-         ATL.LocalWidth()*ATL.LocalLDim()) !=
-         ATR.LockedLocalMatrix().LockedBuffer() ||
-        (ABL.LockedLocalMatrix().LockedBuffer()+
-         ABL.LocalWidth()*ABL.LocalLDim()) !=
-         ABR.LockedLocalMatrix().LockedBuffer() )
+    if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
+         ABL.LockedMatrix().LockedBuffer() ||
+        (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
+         ABR.LockedMatrix().LockedBuffer() ||
+        (ATL.LockedMatrix().LockedBuffer()+
+         ATL.LocalWidth()*ATL.LDim()) !=
+         ATR.LockedMatrix().LockedBuffer() ||
+        (ABL.LockedMatrix().LockedBuffer()+
+         ABL.LocalWidth()*ABL.LDim()) !=
+         ABR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
         ("Noncontiguous 2x2 grid of distributed matrices");
 #endif

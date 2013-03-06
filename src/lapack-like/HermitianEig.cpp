@@ -46,10 +46,10 @@ void InPlaceRedist
     const int colAlignment = paddedZ.ColAlignment();
 
     const int localWidthOfInput = 
-        LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
+        Length(width,g.VRRank(),rowAlignmentOfInput,p);
 
-    const int maxHeight = MaxLocalLength(height,r);
-    const int maxWidth = MaxLocalLength(width,p);
+    const int maxHeight = MaxLength(height,r);
+    const int maxWidth = MaxLength(width,p);
     const int portionSize = 
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
@@ -67,7 +67,7 @@ void InPlaceRedist
         R* data = &sendBuffer[k*portionSize];
 
         const int thisColShift = Shift(k,colAlignment,r);
-        const int thisLocalHeight = LocalLength(height,thisColShift,r);
+        const int thisLocalHeight = Length(height,thisColShift,r);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
@@ -84,7 +84,7 @@ void InPlaceRedist
       recvBuffer, portionSize, g.ColComm() );
 
     // Unpack
-    const int localHeight = LocalLength(height,row,colAlignment,r);
+    const int localHeight = Length(height,row,colAlignment,r);
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -95,7 +95,7 @@ void InPlaceRedist
         const int thisRank = col+k*c;
         const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = LocalLength(width,thisRowShift,p);
+        const int thisLocalWidth = Length(width,thisRowShift,p);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
@@ -103,7 +103,7 @@ void InPlaceRedist
         for( int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);
-            R* thisCol = paddedZ.LocalBuffer(0,thisRowOffset+j*r);
+            R* thisCol = paddedZ.Buffer(0,thisRowOffset+j*r);
             MemCopy( thisCol, dataCol, localHeight );
         }
     }
@@ -128,10 +128,10 @@ void InPlaceRedist
     const int colAlignment = paddedZ.ColAlignment();
 
     const int localWidthOfInput = 
-        LocalLength(width,g.VRRank(),rowAlignmentOfInput,p);
+        Length(width,g.VRRank(),rowAlignmentOfInput,p);
 
-    const int maxHeight = MaxLocalLength(height,r);
-    const int maxWidth = MaxLocalLength(width,p);
+    const int maxHeight = MaxLength(height,r);
+    const int maxWidth = MaxLength(width,p);
     const int portionSize = 
         std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
     
@@ -149,7 +149,7 @@ void InPlaceRedist
         R* data = &sendBuffer[k*portionSize];
 
         const int thisColShift = Shift(k,colAlignment,r);
-        const int thisLocalHeight = LocalLength(height,thisColShift,r);
+        const int thisLocalHeight = Length(height,thisColShift,r);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
@@ -166,7 +166,7 @@ void InPlaceRedist
       recvBuffer, portionSize, g.ColComm() );
 
     // Unpack
-    const int localHeight = LocalLength(height,row,colAlignment,r);
+    const int localHeight = Length(height,row,colAlignment,r);
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -177,7 +177,7 @@ void InPlaceRedist
         const int thisRank = col+k*c;
         const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = LocalLength(width,thisRowShift,p);
+        const int thisLocalWidth = Length(width,thisRowShift,p);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
@@ -185,7 +185,7 @@ void InPlaceRedist
         for( int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);
-            R* thisCol = (R*)paddedZ.LocalBuffer(0,thisRowOffset+j*r);
+            R* thisCol = (R*)paddedZ.Buffer(0,thisRowOffset+j*r);
             for( int i=0; i<localHeight; ++i )
             {
                 thisCol[2*i] = dataCol[i];
@@ -247,8 +247,8 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
-    const int K = MaxLocalLength(k,g.Size())*g.Size(); 
+    const int N = MaxLength(n,g.Height())*g.Height();
+    const int K = MaxLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -305,20 +305,19 @@ void HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix
-        R* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -413,8 +412,8 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
-    const int K = MaxLocalLength(k,g.Size())*g.Size(); 
+    const int N = MaxLength(n,g.Height())*g.Height();
+    const int K = MaxLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -471,20 +470,19 @@ void HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix 
-        R* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(), 
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -577,12 +575,12 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int N = MaxLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = MaxLocalLength(n,g.Size())*g.Size();
+        const int K = MaxLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
             ("paddedZ was a view but was not properly padded");
@@ -629,8 +627,8 @@ void HermitianEig
     {
         // Get an estimate of the amount of memory to allocate
         std::vector<R> dVector(n), eVector(n), wVector(n);
-        elem::MemCopy( &dVector[0], d_STAR_STAR.LocalBuffer(), n );
-        elem::MemCopy( &eVector[0], e_STAR_STAR.LocalBuffer(), n );
+        elem::MemCopy( &dVector[0], d_STAR_STAR.Buffer(), n );
+        elem::MemCopy( &eVector[0], e_STAR_STAR.Buffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
         ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
           lowerBound, upperBound );
@@ -641,26 +639,25 @@ void HermitianEig
         int k = estimate.numGlobalEigenvalues;
         if( !paddedZ.Viewing() )
         {
-            const int K = MaxLocalLength(k,g.Size())*g.Size(); 
+            const int K = MaxLength(k,g.Size())*g.Size(); 
             paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
 
         // Grab a pointer into the paddedZ local matrix
-        R* paddedZBuffer = paddedZ.LocalBuffer();
+        R* paddedZBuffer = paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
         k = info.numGlobalEigenvalues;
@@ -790,7 +787,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -873,7 +870,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -949,7 +946,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -993,8 +990,8 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
-    const int K = MaxLocalLength(k,g.Size())*g.Size();
+    const int N = MaxLength(n,g.Height())*g.Height();
+    const int K = MaxLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -1052,20 +1049,19 @@ void HermitianEig
     // then redistribute into Z[MC,MR] in place, panel by panel
     {
         // Grab a pointer into the paddedZ local matrix
-        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
         
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1162,8 +1158,8 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
-    const int K = MaxLocalLength(k,g.Size())*g.Size();
+    const int N = MaxLength(n,g.Height())*g.Height();
+    const int K = MaxLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
@@ -1221,20 +1217,19 @@ void HermitianEig
     // then redistribute into Z[MC,MR]
     {
         // Grab a pointer into the paddedZ local matrix
-        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -1329,12 +1324,12 @@ void HermitianEig
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLocalLength(n,g.Height())*g.Height();
+    const int N = MaxLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = MaxLocalLength(n,g.Size())*g.Size();
+        const int K = MaxLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             throw std::logic_error
             ("paddedZ was a view but was not properly padded");
@@ -1382,8 +1377,8 @@ void HermitianEig
     {
         // Get an estimate of the amount of memory to allocate
         std::vector<R> dVector(n), eVector(n), wVector(n);
-        elem::MemCopy( &dVector[0], d_STAR_STAR.LocalBuffer(), n );
-        elem::MemCopy( &eVector[0], e_STAR_STAR.LocalBuffer(), n );
+        elem::MemCopy( &dVector[0], d_STAR_STAR.Buffer(), n );
+        elem::MemCopy( &eVector[0], e_STAR_STAR.Buffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
         ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
           lowerBound, upperBound );
@@ -1394,26 +1389,25 @@ void HermitianEig
         int k = estimate.numGlobalEigenvalues;
         if( !paddedZ.Viewing() )
         {
-            const int K = MaxLocalLength(k,g.Size())*g.Size();
+            const int K = MaxLength(k,g.Size())*g.Size();
             paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
 
         // Grab a pointer into the paddedZ local matrix
-        R* paddedZBuffer = (R*)paddedZ.LocalBuffer();
+        R* paddedZBuffer = (R*)paddedZ.Buffer();
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 
-            2*paddedZ.LocalLDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = LocalLength(k,g.VRRank(),g.Size());
+        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
         const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
           lowerBound, upperBound );
 
@@ -1547,7 +1541,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1631,7 +1625,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1708,7 +1702,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.LocalBuffer(), e_STAR_STAR.LocalBuffer(),
+        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]

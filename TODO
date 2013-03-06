@@ -17,7 +17,6 @@ Functionality
 
 Maintenance
 ===========
-- Rename LocalBuffer to Buffer (and LocalMatrix to Matrix)
 - Separate out local blas-like and lapack-like operations
 - Move HilbertSchmidt, FrobeniusNorm, and Hadamard into blas-like
 - Switch to C++11 for better 64-bit integer and std::complex support, as well as

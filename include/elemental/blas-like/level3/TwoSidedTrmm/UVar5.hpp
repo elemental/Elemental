@@ -181,8 +181,8 @@ TwoSidedTrmmUVar5
         Zeros( A01.Height(), A01.Width(), Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER,
-          F(1), A11_STAR_STAR.LocalMatrix(), U01_VC_STAR.LocalMatrix(),
-          F(0), Y01_VC_STAR.LocalMatrix() );
+          F(1), A11_STAR_STAR.Matrix(), U01_VC_STAR.Matrix(),
+          F(0), Y01_VC_STAR.Matrix() );
         Y01 = Y01_VC_STAR;
 
         // A01 := U00 A01

@@ -214,7 +214,7 @@ TwoSidedTrmmUVar2
         Z12Adj_MR_MC = Z12Adj;
         Z12Adj_MR_MC.SumScatterUpdate( F(1), Z12Adj_MR_STAR );
         Y12.ResizeTo( A12.Height(), A12.Width() );
-        Adjoint( Z12Adj_MR_MC.LockedLocalMatrix(), Y12.LocalMatrix() );
+        Adjoint( Z12Adj_MR_MC.LockedMatrix(), Y12.Matrix() );
 
         // A12 := U11 A12
         A12_STAR_VR = A12;
@@ -237,8 +237,8 @@ TwoSidedTrmmUVar2
         Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( UPPER, NORMAL,
-          F(1), A12_STAR_VR.LocalMatrix(), U12_STAR_VR.LocalMatrix(),
-          F(0), X11_STAR_STAR.LocalMatrix() );
+          F(1), A12_STAR_VR.Matrix(), U12_STAR_VR.Matrix(),
+          F(0), X11_STAR_STAR.Matrix() );
         A11.SumScatterUpdate( F(1), X11_STAR_STAR );
 
         // A12 := A12 + 1/2 Y12

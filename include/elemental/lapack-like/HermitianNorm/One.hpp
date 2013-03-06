@@ -86,7 +86,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = LocalLength(j+1,colShift,r);
+            int numUpperRows = Length(j+1,colShift,r);
             myPartialUpperColSums[jLocal] = 0;
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
                 myPartialUpperColSums[jLocal] += 
@@ -95,7 +95,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numLowerCols = LocalLength(i+1,rowShift,c);
+            int numLowerCols = Length(i+1,rowShift,c);
             myPartialStrictlyUpperRowSums[iLocal] = 0;
             for( int jLocal=numLowerCols; jLocal<localWidth; ++jLocal )
                 myPartialStrictlyUpperRowSums[iLocal] += 
@@ -132,7 +132,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = Length(j,colShift,r);
             myPartialLowerColSums[jLocal] = 0;
             for( int iLocal=numStrictlyUpperRows; iLocal<localHeight; ++iLocal )
                 myPartialLowerColSums[jLocal] += 
@@ -141,7 +141,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             int i = colShift + iLocal*r;
-            int numStrictlyLowerCols = LocalLength(i,rowShift,c);
+            int numStrictlyLowerCols = Length(i,rowShift,c);
             myPartialStrictlyLowerRowSums[iLocal] = 0;
             for( int jLocal=0; jLocal<numStrictlyLowerCols; ++jLocal )
                 myPartialStrictlyLowerRowSums[iLocal] += 

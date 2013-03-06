@@ -68,7 +68,7 @@ inline void
 ComposePivots
 ( const DistMatrix<int,STAR,STAR>& p, 
   std::vector<int>& image, std::vector<int>& preimage )
-{ ComposePivots( p.LockedLocalMatrix(), image, preimage ); }
+{ ComposePivots( p.LockedMatrix(), image, preimage ); }
 
 // Meant for composing the pivots from a panel factorization, where b pivots
 // were performed in an n x n matrix. 
@@ -129,7 +129,7 @@ inline void
 ComposePanelPivots
 ( const DistMatrix<int,STAR,STAR>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
-{ ComposePanelPivots( p.LockedLocalMatrix(), pivotOffset, image, preimage ); }
+{ ComposePanelPivots( p.LockedMatrix(), pivotOffset, image, preimage ); }
 
 } // namespace internal
 

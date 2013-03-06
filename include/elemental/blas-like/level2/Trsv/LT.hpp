@@ -96,16 +96,16 @@ TrsvLT
             L11_STAR_STAR = L11;
             Trsv
             ( LOWER, orientation, diag,
-              L11_STAR_STAR.LockedLocalMatrix(),
-              x1_STAR_STAR.LocalMatrix() );
+              L11_STAR_STAR.LockedMatrix(),
+              x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
             x1_MC_STAR = x1_STAR_STAR;
             Gemv
             ( orientation, F(-1), 
-              L10.LockedLocalMatrix(), 
-              x1_MC_STAR.LockedLocalMatrix(),
-              F(1), z0_MR_STAR.LocalMatrix() );
+              L10.LockedMatrix(), 
+              x1_MC_STAR.LockedMatrix(),
+              F(1), z0_MR_STAR.Matrix() );
             //----------------------------------------------------------------//
             x1_MC_STAR.FreeAlignments();
             z1.FreeAlignments();
@@ -162,16 +162,16 @@ TrsvLT
             L11_STAR_STAR = L11;
             Trsv
             ( LOWER, orientation, diag,
-              L11_STAR_STAR.LockedLocalMatrix(),
-              x1_STAR_STAR.LocalMatrix() );
+              L11_STAR_STAR.LockedMatrix(),
+              x1_STAR_STAR.Matrix() );
             x1 = x1_STAR_STAR;
 
             x1_STAR_MC = x1_STAR_STAR;
             Gemv
             ( orientation, F(-1), 
-              L10.LockedLocalMatrix(), 
-              x1_STAR_MC.LockedLocalMatrix(),
-              F(1), z0_STAR_MR.LocalMatrix() );
+              L10.LockedMatrix(), 
+              x1_STAR_MC.LockedMatrix(),
+              F(1), z0_STAR_MR.Matrix() );
             //----------------------------------------------------------------//
             x1_STAR_MC.FreeAlignments();
 

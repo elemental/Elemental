@@ -190,9 +190,8 @@ TwoSidedTrmmLVar4
         Zeros( A10.Height(), A10.Width(), Y10_STAR_VR );
         Hemm
         ( LEFT, LOWER,
-          F(1), A11_STAR_STAR.LockedLocalMatrix(),
-                L10_STAR_VR.LockedLocalMatrix(),
-          F(0), Y10_STAR_VR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LockedMatrix(), L10_STAR_VR.LockedMatrix(),
+          F(0), Y10_STAR_VR.Matrix() );
 
         // A10 := A10 + 1/2 Y10
         A10_STAR_VR = A10;

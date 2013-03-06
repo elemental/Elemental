@@ -34,7 +34,7 @@ LocalTriangularInverse
 #ifndef RELEASE
     PushCallStack("internal::LocalTriangularInverse");
 #endif
-    TriangularInverse( uplo, diag, A.LocalMatrix() );
+    TriangularInverse( uplo, diag, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

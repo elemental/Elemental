@@ -204,14 +204,14 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
         const Int colShift = Shift( myRow, colAlignment, r );
         const Int rowShift = Shift( myCol, rowAlignment, c );
 
-        const Int localHeight = LocalLength( height, colShift, r );
-        const Int localWidth = LocalLength( width, rowShift, c );
-        const Int iLocalOffset = LocalLength( i, Y.ColShift(), r );
-        const Int jLocalOffset = LocalLength( j, Y.RowShift(), c );
+        const Int localHeight = Length( height, colShift, r );
+        const Int localWidth = Length( width, rowShift, c );
+        const Int iLocalOffset = Length( i, Y.ColShift(), r );
+        const Int jLocalOffset = Length( j, Y.RowShift(), c );
 
         for( Int t=0; t<localWidth; ++t )
         {
-            T* YCol = Y.LocalBuffer(iLocalOffset,jLocalOffset+t);
+            T* YCol = Y.Buffer(iLocalOffset,jLocalOffset+t);
             const T* XCol = &XBuffer[t*localHeight];
             for( Int s=0; s<localHeight; ++s )
                 YCol[s] += alpha*XCol[s];
@@ -265,10 +265,10 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
         const Int colShift = Shift( myRow, colAlignment, r );
         const Int rowShift = Shift( myCol, rowAlignment, c );
 
-        const Int iLocalOffset = LocalLength( i, X.ColShift(), r );
-        const Int jLocalOffset = LocalLength( j, X.RowShift(), c );
-        const Int localHeight = LocalLength( height, colShift, r );
-        const Int localWidth = LocalLength( width, rowShift, c );
+        const Int iLocalOffset = Length( i, X.ColShift(), r );
+        const Int jLocalOffset = Length( j, X.RowShift(), c );
+        const Int localHeight = Length( height, colShift, r );
+        const Int localWidth = Length( width, rowShift, c );
         const Int numEntries = localHeight*localWidth;
 
         const Int bufferSize = 2*sizeof(Int) + numEntries*sizeof(T);
@@ -288,7 +288,7 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
         for( Int t=0; t<localWidth; ++t )
         {
             T* sendCol = &sendData[t*localHeight];
-            const T* XCol = X.LockedLocalBuffer(iLocalOffset,jLocalOffset+t);
+            const T* XCol = X.LockedBuffer(iLocalOffset,jLocalOffset+t);
             MemCopy( sendCol, XCol, localHeight );
         }
 
@@ -580,8 +580,8 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
     {
         const Int colShift = Shift( receivingRow, colAlignment, r );
         const Int rowShift = Shift( receivingCol, rowAlignment, c );
-        const Int localHeight = LocalLength( height, colShift, r );
-        const Int localWidth = LocalLength( width, rowShift, c );
+        const Int localHeight = Length( height, colShift, r );
+        const Int localWidth = Length( width, rowShift, c );
         const Int numEntries = localHeight*localWidth;
 
         if( numEntries != 0 )
@@ -710,8 +710,8 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
             const Int rowAlignment = (X.RowAlignment()+j) % c;
             const Int colShift = Shift( row, colAlignment, r );
             const Int rowShift = Shift( col, rowAlignment, c );
-            const Int localHeight = LocalLength( height, colShift, r );
-            const Int localWidth = LocalLength( width, rowShift, c );
+            const Int localHeight = Length( height, colShift, r );
+            const Int localWidth = Length( width, rowShift, c );
 
             // Unpack the local matrix
             for( Int t=0; t<localWidth; ++t )

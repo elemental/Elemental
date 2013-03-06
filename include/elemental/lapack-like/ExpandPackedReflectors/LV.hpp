@@ -226,8 +226,8 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
         HPan_VC_STAR = HPan;
         Syrk
         ( UPPER, TRANSPOSE, 
-          R(1), HPan_VC_STAR.LockedLocalMatrix(), 
-          R(0), SInv_STAR_STAR.LocalMatrix() );
+          R(1), HPan_VC_STAR.LockedMatrix(), 
+          R(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOverGrid();
         HalveMainDiagonal( SInv_STAR_STAR );
 
@@ -511,8 +511,8 @@ ExpandPackedReflectorsLV
         HPan_VC_STAR = HPan;
         Herk
         ( UPPER, ADJOINT, 
-          C(1), HPan_VC_STAR.LockedLocalMatrix(), 
-          C(0), SInv_STAR_STAR.LocalMatrix() );
+          C(1), HPan_VC_STAR.LockedMatrix(), 
+          C(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );

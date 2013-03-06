@@ -104,8 +104,8 @@ MakeTrapezoidal
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
 
-    T* localBuffer = A.LocalBuffer();
-    const int ldim = A.LocalLDim();
+    T* buffer = A.Buffer();
+    const int ldim = A.LDim();
 
     if( uplo == LOWER )
     {
@@ -123,8 +123,8 @@ MakeTrapezoidal
             {
                 const int boundary = std::min( lastZeroRow+1, height );
                 const int numZeroRows =
-                    RawLocalLength( boundary, colShift, colStride );
-                MemZero( &localBuffer[jLocal*ldim], numZeroRows );
+                    RawLength( boundary, colShift, colStride );
+                MemZero( &buffer[jLocal*ldim], numZeroRows );
             }
         }
     }
@@ -140,10 +140,10 @@ MakeTrapezoidal
                 ( side==LEFT ? std::max(j-offset+1,0)
                              : std::max(j-offset+height-width+1,0) );
             const int numNonzeroRows =
-                RawLocalLength(firstZeroRow,colShift,colStride);
+                RawLength(firstZeroRow,colShift,colStride);
             if( numNonzeroRows < localHeight )
             {
-                T* col = &localBuffer[numNonzeroRows+jLocal*ldim];
+                T* col = &buffer[numNonzeroRows+jLocal*ldim];
                 MemZero( col, localHeight-numNonzeroRows );
             }
         }

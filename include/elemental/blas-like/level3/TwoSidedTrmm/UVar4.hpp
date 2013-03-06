@@ -190,9 +190,8 @@ TwoSidedTrmmUVar4
         Zeros( A01.Height(), A01.Width(), Y01_VC_STAR );
         Hemm
         ( RIGHT, UPPER, 
-          F(1), A11_STAR_STAR.LockedLocalMatrix(), 
-                U01_VC_STAR.LockedLocalMatrix(), 
-          F(0), Y01_VC_STAR.LocalMatrix() );
+          F(1), A11_STAR_STAR.LockedMatrix(), U01_VC_STAR.LockedMatrix(), 
+          F(0), Y01_VC_STAR.Matrix() );
 
         // A01 := A01 + 1/2 Y01
         A01_VC_STAR = A01;

@@ -66,7 +66,7 @@ to be available for all matrix distributions.
 
       Return the local width of the matrix.
 
-   .. cpp:function:: int LocalLDim() const
+   .. cpp:function:: int LDim() const
 
       Return the local leading dimension of the matrix.
 
@@ -79,22 +79,22 @@ to be available for all matrix distributions.
 
       Return the grid that this distributed matrix is distributed over.
 
-   .. cpp:function:: T* LocalBuffer( int iLocal=0, int jLocal=0 )
+   .. cpp:function:: T* Buffer( int iLocal=0, int jLocal=0 )
 
       Return a pointer to the portion of the local buffer that stores entry 
       `(iLocal,jLocal)`.
 
-   .. cpp:function:: const T* LockedLocalBuffer( int iLocal=0, int jLocal=0 ) const
+   .. cpp:function:: const T* LockedBuffer( int iLocal=0, int jLocal=0 ) const
 
       Return a pointer to the portion of the local buffer that stores entry
       `(iLocal,jLocal)`, but do not allow for the data to be modified through
       the returned pointer.
 
-   .. cpp:function:: Matrix<T>& LocalMatrix()
+   .. cpp:function:: elem::Matrix<T>& Matrix()
 
       Return a reference to the local matrix.
 
-   .. cpp:function:: const Matrix<T>& LockedLocalMatrix() const
+   .. cpp:function:: const elem::Matrix<T>& LockedMatrix() const
 
       Return an unmodifiable reference to the local matrix.
 

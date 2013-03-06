@@ -29,8 +29,7 @@ LocalTrmm
         ("Distribution of RHS must conform with that of triangle");
 #endif
     Trmm
-    ( side, uplo, orientation, diag,
-      alpha, A.LockedLocalMatrix(), B.LocalMatrix() );
+    ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -138,7 +138,7 @@ HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numUpperRows = LocalLength(j+1,colShift,r);
+            int numUpperRows = Length(j+1,colShift,r);
             for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
             {
                 int i = colShift + iLocal*r;
@@ -173,7 +173,7 @@ HermitianFrobeniusNorm
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
         {
             int j = rowShift + jLocal*c;
-            int numStrictlyUpperRows = LocalLength(j,colShift,r);
+            int numStrictlyUpperRows = Length(j,colShift,r);
             for( int iLocal=numStrictlyUpperRows; 
                  iLocal<A.LocalHeight(); ++iLocal )
             {

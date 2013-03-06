@@ -65,9 +65,9 @@ GemvT
         x_MC_STAR = x;
         Gemv
         ( orientation,
-          alpha, A.LockedLocalMatrix(), 
-                 x_MC_STAR.LockedLocalMatrix(),
-          T(0),  z_MR_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(), 
+                 x_MC_STAR.LockedMatrix(),
+          T(0),  z_MR_STAR.Matrix() );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
@@ -94,9 +94,9 @@ GemvT
         x_MC_STAR = x;
         Gemv
         ( orientation,
-          alpha, A.LockedLocalMatrix(),
-                 x_MC_STAR.LockedLocalMatrix(),
-          T(0),  z_MR_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(),
+                 x_MC_STAR.LockedMatrix(),
+          T(0),  z_MR_STAR.Matrix() );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
@@ -123,9 +123,9 @@ GemvT
         x_STAR_MC = x;
         Gemv
         ( orientation,
-          alpha, A.LockedLocalMatrix(), 
-                 x_STAR_MC.LockedLocalMatrix(),
-          T(0),  z_MR_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(), 
+                 x_STAR_MC.LockedMatrix(),
+          T(0),  z_MR_STAR.Matrix() );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
@@ -152,9 +152,9 @@ GemvT
         x_STAR_MC = x;
         Gemv
         ( orientation,
-          alpha, A.LockedLocalMatrix(),
-                 x_STAR_MC.LockedLocalMatrix(),
-          T(0),  z_MR_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(),
+                 x_STAR_MC.LockedMatrix(),
+          T(0),  z_MR_STAR.Matrix() );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
@@ -211,9 +211,9 @@ GemvT
     x_MC_STAR = x;
     Gemv
     ( orientation,
-      alpha, A.LockedLocalMatrix(), 
-             x_MC_STAR.LockedLocalMatrix(),
-      T(0),  z_MR_STAR.LocalMatrix() );
+      alpha, A.LockedMatrix(), 
+             x_MC_STAR.LockedMatrix(),
+      T(0),  z_MR_STAR.Matrix() );
     z_VR_STAR.SumScatterFrom( z_MR_STAR );
     z = z_VR_STAR;
     Axpy( T(1), z, y );

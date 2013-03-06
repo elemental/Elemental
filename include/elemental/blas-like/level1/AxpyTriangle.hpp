@@ -68,17 +68,16 @@ AxpyTriangle
         const int rowShift = X.RowShift();
         const int colStride = X.ColStride();
         const int rowStride = X.RowStride();
-        const T* XBuffer = X.LockedLocalBuffer();
-        T* YBuffer = Y.LocalBuffer();
-        const int XLDim = X.LocalLDim();
-        const int YLDim = Y.LocalLDim();
+        const T* XBuffer = X.LockedBuffer();
+        T* YBuffer = Y.Buffer();
+        const int XLDim = X.LDim();
+        const int YLDim = Y.LDim();
         if( uplo == UPPER )
         {
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
             {
                 const int j = rowShift + jLocal*rowStride;        
-                const int localHeightAbove = 
-                    LocalLength( j+1, colShift, colStride );
+                const int localHeightAbove = Length( j+1, colShift, colStride );
                 blas::Axpy
                 ( localHeightAbove, alpha, 
                   &XBuffer[jLocal*XLDim], 1, &YBuffer[jLocal*YLDim], 1 );
@@ -89,8 +88,7 @@ AxpyTriangle
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
             {
                 const int j = rowShift + jLocal*rowStride;
-                const int localHeightAbove = 
-                    LocalLength( j, colShift, colStride );
+                const int localHeightAbove = Length( j, colShift, colStride );
                 const int localHeightBelow = localHeight - localHeightAbove;
                 blas::Axpy
                 ( localHeightBelow, alpha, 
@@ -104,7 +102,7 @@ AxpyTriangle
         DistMatrix<T,U,V> XCopy( X.Grid() );
         XCopy.AlignWith( Y );
         XCopy = X;
-        AxpyTriangle( uplo, alpha, XCopy.LockedLocalMatrix(), Y.LocalMatrix() );
+        AxpyTriangle( uplo, alpha, XCopy.LockedMatrix(), Y.Matrix() );
     }
 #ifndef RELEASE
     PopCallStack();

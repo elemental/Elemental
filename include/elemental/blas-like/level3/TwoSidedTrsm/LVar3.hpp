@@ -236,8 +236,8 @@ TwoSidedTrsmLVar3
         Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
         Her2k
         ( LOWER, NORMAL, 
-          F(1), A10_STAR_VR.LocalMatrix(), L10_STAR_VR.LocalMatrix(),
-          F(0), X11_STAR_STAR.LocalMatrix() );
+          F(1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(),
+          F(0), X11_STAR_STAR.Matrix() );
         MakeTriangular( LOWER, X11_STAR_STAR );
         A11.SumScatterUpdate( F(-1), X11_STAR_STAR );
 

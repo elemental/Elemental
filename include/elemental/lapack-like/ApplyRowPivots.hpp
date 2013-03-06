@@ -307,16 +307,16 @@ ApplyRowPivots
 #endif
 
     // Fill vectors with the send data
-    const int ALDim = A.LocalLDim();
+    const int ALDim = A.LDim();
     std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(r,0);
-    const int localHeight = LocalLength( b, colShift, r );
+    const int localHeight = Length( b, colShift, r );
     for( int iLocal=0; iLocal<localHeight; ++iLocal )
     {
         const int sendRow = image[colShift+iLocal*r];
         const int sendTo = (colAlignment+sendRow) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        const F* ABuffer = A.LocalBuffer(iLocal,0);
+        const F* ABuffer = A.Buffer(iLocal,0);
         for( int jLocal=0; jLocal<localWidth; ++jLocal )
             sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
         offsets[sendTo] += localWidth;
@@ -332,7 +332,7 @@ ApplyRowPivots
                 const int recvTo = (colAlignment+i) % r;
                 const int iLocal = (recvRow-colShift) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                const F* ABuffer = A.LocalBuffer(iLocal,0);
+                const F* ABuffer = A.Buffer(iLocal,0);
                 for( int jLocal=0; jLocal<localWidth; ++jLocal )
                     sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
                 offsets[recvTo] += localWidth;
@@ -359,7 +359,7 @@ ApplyRowPivots
             {
                 const int offset = recvDispls[k]+offsets[k];
                 const int iLocal = (sendRow-colShift) / r;
-                F* ABuffer = A.LocalBuffer(iLocal,0);
+                F* ABuffer = A.Buffer(iLocal,0);
                 for( int jLocal=0; jLocal<localWidth; ++jLocal )
                     ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
                 offsets[k] += localWidth;
@@ -377,7 +377,7 @@ ApplyRowPivots
                 const int recvFrom = (colAlignment+recvRow) % r; 
                 const int iLocal = (i-colShift) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                F* ABuffer = A.LocalBuffer(iLocal,0);
+                F* ABuffer = A.Buffer(iLocal,0);
                 for( int jLocal=0; jLocal<localWidth; ++jLocal )
                     ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
                 offsets[recvFrom] += localWidth;

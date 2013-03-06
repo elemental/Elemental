@@ -291,9 +291,9 @@ PanelBidiagU
         if( thisIsMyRow )
         {
             const int localWidth = a12.LocalWidth();
-            R* a12Buffer = a12.LocalBuffer();
-            const R* q21Buffer = q21_MR_MC.LockedLocalBuffer();
-            const int a12LDim = a12.LocalLDim();
+            R* a12Buffer = a12.Buffer();
+            const R* q21Buffer = q21_MR_MC.LockedBuffer();
+            const int a12LDim = a12.LDim();
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
@@ -341,7 +341,7 @@ PanelBidiagU
         LocalGemv( NORMAL, R(-1), X20, s01_MR_STAR, R(1), s21_MC_STAR );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
-        Scale( tauP, x21.LocalMatrix() );
+        Scale( tauP, x21.Matrix() );
         //--------------------------------------------------------------------//
         // Auxilliary alignments
         sB1_MR_STAR.FreeAlignments();
@@ -717,9 +717,9 @@ PanelBidiagU
         if( thisIsMyRow )
         {
             const int localWidth = a12.LocalWidth();
-            C* a12Buffer = a12.LocalBuffer();
-            const C* q21Buffer = q21_MR_MC.LockedLocalBuffer();
-            const int a12LDim = a12.LocalLDim();
+            C* a12Buffer = a12.Buffer();
+            const C* q21Buffer = q21_MR_MC.LockedBuffer();
+            const int a12LDim = a12.LDim();
             for( int jLocal=0; jLocal<localWidth; ++jLocal )
                 a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
         }
@@ -771,7 +771,7 @@ PanelBidiagU
         LocalGemv( NORMAL, C(-1), X20, s01_MR_STAR, C(1), s21_MC_STAR );
         // Sum the partial contributions into x21
         x21.SumScatterFrom( s21_MC_STAR );
-        Scale( tauP, x21.LocalMatrix() );
+        Scale( tauP, x21.Matrix() );
 
         // Undo the in-place conjugation of a12
         Conjugate( a12 );

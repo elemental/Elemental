@@ -144,7 +144,7 @@ LocalTwoSidedTrmm
 #ifndef RELEASE
     PushCallStack("internal::LocalTwoSidedTrmm");
 #endif
-    TwoSidedTrmm( uplo, diag, A.LocalMatrix(), B.LockedLocalMatrix() );
+    TwoSidedTrmm( uplo, diag, A.Matrix(), B.LockedMatrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

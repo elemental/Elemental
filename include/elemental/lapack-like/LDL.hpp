@@ -40,7 +40,7 @@ LocalLDL
 #endif
     if( !d.Viewing() )
         d.ResizeTo( A.Height(), 1 );
-    LDLVar3( orientation, A.LocalMatrix(), d.LocalMatrix() );
+    LDLVar3( orientation, A.Matrix(), d.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

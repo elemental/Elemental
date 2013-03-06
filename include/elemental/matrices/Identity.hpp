@@ -66,7 +66,7 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 #ifndef RELEASE
     PushCallStack("MakeIdentity");
 #endif
-    Zero( I.LocalMatrix() );
+    Zero( I.Matrix() );
 
     const int localHeight = I.LocalHeight();
     const int localWidth = I.LocalWidth();

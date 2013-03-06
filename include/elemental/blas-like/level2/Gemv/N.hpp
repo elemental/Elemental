@@ -60,9 +60,9 @@ GemvN
         x_MR_STAR = x;
         Gemv
         ( NORMAL,
-          alpha, A.LockedLocalMatrix(), 
-                 x_MR_STAR.LockedLocalMatrix(),
-          T(0),  z_MC_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(), 
+                 x_MR_STAR.LockedMatrix(),
+          T(0),  z_MC_STAR.Matrix() );
         y.SumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
         x_MR_STAR.FreeAlignments();
@@ -84,9 +84,9 @@ GemvN
         x_MR_STAR = x;
         Gemv
         ( NORMAL,
-          alpha, A.LockedLocalMatrix(),
-                 x_MR_STAR.LockedLocalMatrix(),
-          T(0),  z_MC_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(),
+                 x_MR_STAR.LockedMatrix(),
+          T(0),  z_MC_STAR.Matrix() );
         z.SumScatterFrom( z_MC_STAR );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
@@ -109,9 +109,9 @@ GemvN
         x_STAR_MR = x;
         Gemv
         ( NORMAL,
-          alpha, A.LockedLocalMatrix(), 
-                 x_STAR_MR.LockedLocalMatrix(),
-          T(0),  z_MC_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(), 
+                 x_STAR_MR.LockedMatrix(),
+          T(0),  z_MC_STAR.Matrix() );
         y.SumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
         x_STAR_MR.FreeAlignments();
@@ -133,9 +133,9 @@ GemvN
         x_STAR_MR = x;
         Gemv
         ( NORMAL,
-          alpha, A.LockedLocalMatrix(),
-                 x_STAR_MR.LockedLocalMatrix(),
-          T(0),  z_MC_STAR.LocalMatrix() );
+          alpha, A.LockedMatrix(),
+                 x_STAR_MR.LockedMatrix(),
+          T(0),  z_MC_STAR.Matrix() );
         z.SumScatterFrom( z_MC_STAR );
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
@@ -187,9 +187,9 @@ GemvN
     x_MR_STAR = x;
     Gemv
     ( NORMAL,
-      alpha, A.LockedLocalMatrix(), 
-             x_MR_STAR.LockedLocalMatrix(),
-      T(0),  z_MC_STAR.LocalMatrix() );
+      alpha, A.LockedMatrix(), 
+             x_MR_STAR.LockedMatrix(),
+      T(0),  z_MC_STAR.Matrix() );
     y.SumScatterUpdate( T(1), z_MC_STAR );
     //--------------------------------------------------------------------//
     x_MR_STAR.FreeAlignments();

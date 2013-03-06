@@ -66,8 +66,8 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
 
-    T* localBuffer = A.LocalBuffer();
-    const int ldim = A.LocalLDim();
+    T* buffer = A.Buffer();
+    const int ldim = A.LDim();
 
     if( uplo == LOWER )
     {
@@ -83,8 +83,8 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
             {
                 const int boundary = std::min( lastZeroRow+1, height );
                 const int numZeroRows =
-                    RawLocalLength( boundary, colShift, colStride );
-                MemZero( &localBuffer[jLocal*ldim], numZeroRows );
+                    RawLength( boundary, colShift, colStride );
+                MemZero( &buffer[jLocal*ldim], numZeroRows );
             }
         }
     }
@@ -98,10 +98,10 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
             const int j = rowShift + jLocal*rowStride;
             const int firstZeroRow = j+1;
             const int numNonzeroRows =
-                RawLocalLength(firstZeroRow,colShift,colStride);
+                RawLength(firstZeroRow,colShift,colStride);
             if( numNonzeroRows < localHeight )
             {
-                T* col = &localBuffer[numNonzeroRows+jLocal*ldim];
+                T* col = &buffer[numNonzeroRows+jLocal*ldim];
                 MemZero( col, localHeight-numNonzeroRows );
             }
         }

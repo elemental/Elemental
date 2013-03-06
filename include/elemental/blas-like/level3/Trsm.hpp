@@ -31,7 +31,7 @@ LocalTrsm
 #endif
     Trsm
     ( side, uplo, orientation, diag,
-      alpha, A.LockedLocalMatrix(), X.LocalMatrix(), checkIfSingular );
+      alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
 #ifndef RELEASE
     PopCallStack();
 #endif

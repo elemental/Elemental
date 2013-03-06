@@ -38,7 +38,7 @@ Zero( DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     PushCallStack("Zero");
 #endif
-    Zero( A.LocalMatrix() );
+    Zero( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

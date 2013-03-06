@@ -113,26 +113,26 @@ LocalSymvColAccumulateL
         MakeTriangular( LOWER, D11 );
         Gemv
         ( NORMAL, 
-          alpha, D11.LockedLocalMatrix(), 
-                 x1_MR_STAR.LockedLocalMatrix(),
-          T(1),  z1_MC_STAR.LocalMatrix() );
+          alpha, D11.LockedMatrix(), 
+                 x1_MR_STAR.LockedMatrix(),
+          T(1),  z1_MC_STAR.Matrix() );
         SetDiagonal( D11, T(0) );
         Gemv
         ( orientation,
-          alpha, D11.LockedLocalMatrix(),
-                 x1_MC_STAR.LockedLocalMatrix(),
-          T(1),  z1_MR_STAR.LocalMatrix() );
+          alpha, D11.LockedMatrix(),
+                 x1_MC_STAR.LockedMatrix(),
+          T(1),  z1_MR_STAR.Matrix() );
 
         Gemv
         ( NORMAL,
-          alpha, A21.LockedLocalMatrix(),
-                 x1_MR_STAR.LockedLocalMatrix(),
-          T(1),  z2_MC_STAR.LocalMatrix() );
+          alpha, A21.LockedMatrix(),
+                 x1_MR_STAR.LockedMatrix(),
+          T(1),  z2_MC_STAR.Matrix() );
         Gemv
         ( orientation,
-          alpha, A21.LockedLocalMatrix(),
-                 x2_MC_STAR.LockedLocalMatrix(),
-          T(1),  z1_MR_STAR.LocalMatrix() );
+          alpha, A21.LockedMatrix(),
+                 x2_MC_STAR.LockedMatrix(),
+          T(1),  z1_MR_STAR.Matrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -239,26 +239,26 @@ LocalSymvRowAccumulateL
         MakeTriangular( LOWER, D11 );
         Gemv
         ( NORMAL, 
-          alpha, D11.LockedLocalMatrix(), 
-                 x1_STAR_MR.LockedLocalMatrix(),
-          T(1),  z1_STAR_MC.LocalMatrix() );
+          alpha, D11.LockedMatrix(), 
+                 x1_STAR_MR.LockedMatrix(),
+          T(1),  z1_STAR_MC.Matrix() );
         SetDiagonal( D11, T(0) );
         Gemv
         ( orientation,
-          alpha, D11.LockedLocalMatrix(),
-                 x1_STAR_MC.LockedLocalMatrix(),
-          T(1),  z1_STAR_MR.LocalMatrix() );
+          alpha, D11.LockedMatrix(),
+                 x1_STAR_MC.LockedMatrix(),
+          T(1),  z1_STAR_MR.Matrix() );
 
         Gemv
         ( NORMAL,
-          alpha, A21.LockedLocalMatrix(),
-                 x1_STAR_MR.LockedLocalMatrix(),
-          T(1),  z2_STAR_MC.LocalMatrix() );
+          alpha, A21.LockedMatrix(),
+                 x1_STAR_MR.LockedMatrix(),
+          T(1),  z2_STAR_MC.Matrix() );
         Gemv
         ( orientation,
-          alpha, A21.LockedLocalMatrix(),
-                 x2_STAR_MC.LockedLocalMatrix(),
-          T(1),  z1_STAR_MR.LocalMatrix() );
+          alpha, A21.LockedMatrix(),
+                 x2_STAR_MC.LockedMatrix(),
+          T(1),  z1_STAR_MR.Matrix() );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

@@ -24,7 +24,7 @@ LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 #ifndef RELEASE
     PushCallStack("internal::LocalHPDInverse");
 #endif
-    HPDInverse( uplo, A.LocalMatrix() );
+    HPDInverse( uplo, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

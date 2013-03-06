@@ -26,7 +26,7 @@ LocalTrtrmm
 #ifndef RELEASE
     PushCallStack("internal::LocalTrtrmm");
 #endif
-    Trtrmm( orientation, uplo, A.LocalMatrix() );
+    Trtrmm( orientation, uplo, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

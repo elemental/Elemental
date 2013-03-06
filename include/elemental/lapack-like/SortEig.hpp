@@ -62,7 +62,7 @@ SortEig( DistMatrix<R,VR,STAR>& w )
 
     // Gather a full copy of w on each process and locally sort
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
-    R* wBuffer = w_STAR_STAR.LocalBuffer();
+    R* wBuffer = w_STAR_STAR.Buffer();
     std::sort( &wBuffer[0], &wBuffer[k] );
 
     // Refill the distributed w with the sorted values
@@ -141,8 +141,8 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
     {
         const int source = pairs[j].index;
         MemCopy
-        ( ZPerm_VC_STAR.LocalBuffer(0,j), 
-          Z_VC_STAR.LockedLocalBuffer(0,source), nLocal );
+        ( ZPerm_VC_STAR.Buffer(0,j), 
+          Z_VC_STAR.LockedBuffer(0,source), nLocal );
         w_STAR_STAR.SetLocal(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();
@@ -223,8 +223,8 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
     {
         const int source = pairs[j].index;
         MemCopy
-        ( ZPerm_VC_STAR.LocalBuffer(0,j), 
-          Z_VC_STAR.LockedLocalBuffer(0,source), mLocal );
+        ( ZPerm_VC_STAR.Buffer(0,j), 
+          Z_VC_STAR.LockedBuffer(0,source), mLocal );
         w_STAR_STAR.SetLocal(j,0,pairs[j].value);
     }
     Z_VC_STAR.Empty();

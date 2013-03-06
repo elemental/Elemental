@@ -77,7 +77,7 @@ Transpose
         A.ColAlignment() == B.RowAlignment() &&
         A.RowAlignment() == B.ColAlignment() )
     {
-        Transpose( A.LockedLocalMatrix(), B.LocalMatrix(), conjugate );
+        Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }
     else
     {
@@ -96,7 +96,7 @@ Transpose
                 B.AlignRowsWith( C );
             B.ResizeTo( A.Width(), A.Height() );
         }
-        Transpose( C.LockedLocalMatrix(), B.LocalMatrix(), conjugate );
+        Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
     }
 #ifndef RELEASE
     PopCallStack();

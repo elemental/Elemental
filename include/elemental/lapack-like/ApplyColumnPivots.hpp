@@ -302,13 +302,13 @@ ApplyColumnPivots
     // Fill vectors with the send data
     std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(c,0);
-    const int localWidth = LocalLength( b, rowShift, c );
+    const int localWidth = Length( b, rowShift, c );
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
         const int sendCol = image[rowShift+jLocal*c];
         const int sendTo = (rowAlignment+sendCol) % c;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        MemCopy( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight );
+        MemCopy( &sendData[offset], A.Buffer(0,jLocal), localHeight );
         offsets[sendTo] += localHeight;
     }
     for( int j=0; j<b; ++j )
@@ -322,8 +322,7 @@ ApplyColumnPivots
                 const int recvTo = (rowAlignment+j) % c;
                 const int jLocal = (recvCol-rowShift) / c;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                MemCopy
-                ( &sendData[offset], A.LocalBuffer(0,jLocal), localHeight );
+                MemCopy( &sendData[offset], A.Buffer(0,jLocal), localHeight );
                 offsets[recvTo] += localHeight;
             }
         }
@@ -348,8 +347,7 @@ ApplyColumnPivots
             {
                 const int offset = recvDispls[k]+offsets[k];
                 const int jLocal = (sendCol-rowShift) / c;
-                MemCopy
-                ( A.LocalBuffer(0,jLocal), &recvData[offset], localHeight );
+                MemCopy( A.Buffer(0,jLocal), &recvData[offset], localHeight );
                 offsets[k] += localHeight;
             }
         }
@@ -365,8 +363,7 @@ ApplyColumnPivots
                 const int recvFrom = (rowAlignment+recvCol) % c; 
                 const int jLocal = (j-rowShift) / c;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                MemCopy
-                ( A.LocalBuffer(0,jLocal), &recvData[offset], localHeight );
+                MemCopy( A.Buffer(0,jLocal), &recvData[offset], localHeight );
                 offsets[recvFrom] += localHeight;
             }
         }

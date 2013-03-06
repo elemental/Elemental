@@ -63,7 +63,7 @@ void TestCorrectness
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
             const double omega = w_MR_STAR.GetLocal(jLocal,0);
-            blas::Scal( Y.LocalHeight(), omega, Y.LocalBuffer(0,jLocal), 1 );
+            blas::Scal( Y.LocalHeight(), omega, Y.Buffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, -1., AOrig, X, 1., Y );
@@ -282,7 +282,7 @@ void TestCorrectness
         {
             const double omega = w_MR_STAR.GetLocal(jLocal,0);
             blas::Scal
-            ( 2*Y.LocalHeight(), omega, (double*)Y.LocalBuffer(0,jLocal), 1 );
+            ( 2*Y.LocalHeight(), omega, (double*)Y.Buffer(0,jLocal), 1 );
         }
         // Y := Y - AX = BXW - AX
         Hemm

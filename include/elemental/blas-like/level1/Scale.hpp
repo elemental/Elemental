@@ -52,12 +52,12 @@ Scal( typename Base<T>::type alpha, Matrix<T>& X )
 template<typename T,Distribution U,Distribution V>
 inline void
 Scale( T alpha, DistMatrix<T,U,V>& A )
-{ Scale( alpha, A.LocalMatrix() ); }
+{ Scale( alpha, A.Matrix() ); }
 
 template<typename T,Distribution U,Distribution V>
 inline void
 Scale( typename Base<T>::type alpha, DistMatrix<T,U,V>& A )
-{ Scale( T(alpha), A.LocalMatrix() ); }
+{ Scale( T(alpha), A.Matrix() ); }
 
 template<typename T,Distribution U,Distribution V>
 inline void

@@ -65,7 +65,7 @@ ColReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
     const int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);
-    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
+    R localNorm = Nrm2( x.LockedMatrix() ); 
     mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
     R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
@@ -106,7 +106,7 @@ ColReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        localNorm = Nrm2( x.LockedLocalMatrix() );
+        localNorm = Nrm2( x.LockedMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
         norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( alpha <= 0 )
@@ -156,7 +156,7 @@ ColReflector
     const int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);
-    R localNorm = Nrm2( x.LockedLocalMatrix() ); 
+    R localNorm = Nrm2( x.LockedMatrix() ); 
     mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
     R norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
 
@@ -197,7 +197,7 @@ ColReflector
             beta *= invOfSafeInv;
         } while( Abs(beta) < safeInv );
 
-        localNorm = Nrm2( x.LockedLocalMatrix() );
+        localNorm = Nrm2( x.LockedMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, colComm );
         norm = blas::Nrm2( gridHeight, &localNorms[0], 1 );
         if( alpha.real <= 0 )

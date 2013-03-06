@@ -28,7 +28,7 @@ LocalLU( DistMatrix<F,STAR,STAR>& A )
 #ifndef RELEASE
     PushCallStack("internal::LocalLU");
 #endif
-    LU( A.LocalMatrix() );
+    LU( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
