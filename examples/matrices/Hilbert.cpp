@@ -14,7 +14,6 @@
 #include "elemental/lapack-like/HermitianNorm/Two.hpp"
 #include "elemental/lapack-like/HilbertSchmidt.hpp"
 #include "elemental/lapack-like/HPDDeterminant.hpp"
-#include "elemental/lapack-like/LogBarrier.hpp"
 #include "elemental/matrices/Hilbert.hpp"
 using namespace elem;
 
@@ -42,7 +41,6 @@ main( int argc, char* argv[] )
         // but it serves as an example of each function's usage
         const double cond = ConditionNumber( H );
         const double det = HPDDeterminant( LOWER, H );
-        const double logBarrier = LogBarrier( LOWER, H );
         const double hilbertSchmidt = HilbertSchmidt( H, H );
         const double twoNorm = HermitianTwoNorm( LOWER, H );
         const double frobNorm = HermitianFrobeniusNorm( LOWER, H );
@@ -52,7 +50,6 @@ main( int argc, char* argv[] )
         {
             std::cout << "kappa_2(H)   = " << cond << "\n"
                       << "det(H)       = " << det << "\n"
-                      << "-log(det(H)) = " << logBarrier << "\n"
                       << "Tr(H' H)     = " << hilbertSchmidt << "\n"
                       << "|| H ||_F    = " << frobNorm << "\n"
                       << "|| H ||_*    = " << nuclearNorm << "\n"

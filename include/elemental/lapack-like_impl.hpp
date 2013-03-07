@@ -39,8 +39,6 @@
 #include "./lapack-like/HPSDSquareRoot.hpp"
 #include "./lapack-like/Inverse.hpp"
 #include "./lapack-like/LDL.hpp"
-#include "./lapack-like/LogBarrier.hpp"
-#include "./lapack-like/LogDetDivergence.hpp"
 #include "./lapack-like/LQ.hpp"
 #include "./lapack-like/LU.hpp"
 #include "./lapack-like/Norm.hpp"

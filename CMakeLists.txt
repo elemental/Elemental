@@ -499,13 +499,14 @@ endif()
 # Build the example drivers if necessary
 if(ELEM_EXAMPLES)
   set(EXAMPLE_DIR ${PROJECT_SOURCE_DIR}/examples)
-  set(EXAMPLE_TYPES core blas-like lapack-like matrices)
+  set(EXAMPLE_TYPES convex core blas-like lapack-like matrices)
 
+  set(convex_EXAMPLES LogDetDivergence)
   set(core_EXAMPLES Constructors)
   set(blas-like_EXAMPLES Gemv)
   set(lapack-like_EXAMPLES 
     GaussianElimination HermitianQDWH HouseholderSolve HPDInverse 
-    KyFanAndSchatten LDL LDLInverse LogDetDivergence Polar Pseudoinverse QDWH 
+    KyFanAndSchatten LDL LDLInverse Polar Pseudoinverse QDWH 
     SequentialQR QR SequentialSVD SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel

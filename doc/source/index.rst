@@ -14,5 +14,6 @@ Welcome to Elemental's documentation!
    core
    blas-like
    lapack-like
+   convex
    matrices
    indices

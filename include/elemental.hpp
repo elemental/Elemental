@@ -18,6 +18,7 @@
 #include "elemental/core.hpp"
 #include "elemental/blas-like.hpp"
 #include "elemental/lapack-like.hpp"
+#include "elemental/convex.hpp"
 #include "elemental/matrices.hpp"
 
 #endif // ifndef ELEMENTAL_HPP

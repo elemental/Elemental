@@ -7,17 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEMENTAL_LITE_HPP
-#define ELEMENTAL_LITE_HPP
+#ifndef CONVEX_HPP
+#define CONVEX_HPP
 
-#include "elemental/config.h"
-#ifdef HAVE_F90_INTERFACE
-# include "elemental/FCMangle.h"
-#endif
-#include "elemental/core.hpp"
-
-#include "elemental/blas-like_decl.hpp"
-#include "elemental/lapack-like_decl.hpp"
 #include "elemental/convex_decl.hpp"
+#include "elemental/convex_impl.hpp"
 
-#endif // ifndef ELEMENTAL_LITE_HPP
+#endif // ifndef CONVEX_HPP
