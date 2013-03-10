@@ -18,7 +18,7 @@ int Blocksize();
 /* Process grid management */
 const Grid* DefaultGrid();
 Grid* CreateGrid( MPI_Comm comm );
-void FreeGrid( Grid** grid );
+void FreeGrid( Grid* grid );
 int GridHeight( const Grid* grid );
 int GridWidth( const Grid* grid );
 int GridSize( const Grid* grid );
@@ -41,8 +41,8 @@ void AttachToCpxDistMat
 void UniformDistMat( DistMatrix<double>* A, int height, int width );
 void UniformCpxDistMat
 ( DistMatrix<Complex<double> >* A, int height, int width );
-void FreeDistMat( DistMatrix<double>** A );
-void FreeCpxDistMat( DistMatrix<Complex<double> >** A );
+void FreeDistMat( DistMatrix<double>* A );
+void FreeCpxDistMat( DistMatrix<Complex<double> >* A );
 void PrintDistMat( const DistMatrix<double>* A );
 void PrintCpxDistMat( const DistMatrix<Complex<double> >* A );
 
@@ -50,8 +50,8 @@ void PrintCpxDistMat( const DistMatrix<Complex<double> >* A );
 DistMatrix<double,VC,STAR>* CreateDistMat_VC_STAR( const Grid* grid );
 DistMatrix<Complex<double>,VC,STAR>* 
 CreateCpxDistMat_VC_STAR( const Grid* grid );
-void FreeDistMat_VC_STAR( DistMatrix<double,VC,STAR>** A );
-void FreeCpxDistMat_VC_STAR( DistMatrix<Complex<double>,VC,STAR>** A );
+void FreeDistMat_VC_STAR( DistMatrix<double,VC,STAR>* A );
+void FreeCpxDistMat_VC_STAR( DistMatrix<Complex<double>,VC,STAR>* A );
 void PrintDistMat_VC_STAR( const DistMatrix<double,VC,STAR>* A );
 void PrintCpxDistMat_VC_STAR( const DistMatrix<Complex<double>,VC,STAR>* A );
 
@@ -59,8 +59,8 @@ void PrintCpxDistMat_VC_STAR( const DistMatrix<Complex<double>,VC,STAR>* A );
 DistMatrix<double,VR,STAR>* CreateDistMat_VR_STAR( const Grid* grid );
 DistMatrix<Complex<double>,VR,STAR>* 
 CreateCpxDistMat_VR_STAR( const Grid* grid );
-void FreeDistMat_VR_STAR( DistMatrix<double,VR,STAR>** A );
-void FreeCpxDistMat_VR_STAR( DistMatrix<Complex<double>,VR,STAR>** A );
+void FreeDistMat_VR_STAR( DistMatrix<double,VR,STAR>* A );
+void FreeCpxDistMat_VR_STAR( DistMatrix<Complex<double>,VR,STAR>* A );
 void PrintDistMat_VR_STAR( const DistMatrix<double,VR,STAR>* A );
 void PrintCpxDistMat_VR_STAR( const DistMatrix<Complex<double>,VR,STAR>* A );
 

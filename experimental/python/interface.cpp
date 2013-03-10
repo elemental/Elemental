@@ -12,10 +12,8 @@
 using namespace elem;
 
 extern "C" {
-#include "./elemental.h"
-}
 
-extern "C" {
+#include "./elemental.h"
 
 //
 // Environment controls
@@ -64,11 +62,8 @@ int GridCol( const Grid* grid )
 int GridRank( const Grid* grid )
 { return grid->Rank(); }
 
-void FreeGrid( Grid** grid )
-{
-    delete *grid;
-    *grid = 0; 
-}
+void FreeGrid( Grid* grid )
+{ delete grid; }
 
 //
 // Distributed matrix management
@@ -102,17 +97,11 @@ void UniformDistMat( DistMatrix<double>* A, int height, int width )
 void UniformCpxDistMat( DistMatrix<Complex<double> >* A, int height, int width )
 { Uniform( height, width, *A ); }
 
-void FreeDistMat( DistMatrix<double>** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeDistMat( DistMatrix<double>* A )
+{ delete A; }
 
-void FreeCpxDistMat( DistMatrix<Complex<double> >** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeCpxDistMat( DistMatrix<Complex<double> >* A )
+{ delete A; }
 
 void PrintDistMat( const DistMatrix<double>* A )
 { A->Print(); }
@@ -131,17 +120,11 @@ DistMatrix<Complex<double>,VC,STAR>*
 CreateCpxDistMat_VC_STAR( const Grid* grid )
 { return new DistMatrix<Complex<double>,VC,STAR>( *grid ); }
 
-void FreeDistMat_VC_STAR( DistMatrix<double,VC,STAR>** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeDistMat_VC_STAR( DistMatrix<double,VC,STAR>* A )
+{ delete A; }
 
-void FreeCpxDistMat_VC_STAR( DistMatrix<Complex<double>,VC,STAR>** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeCpxDistMat_VC_STAR( DistMatrix<Complex<double>,VC,STAR>* A )
+{ delete A; }
 
 void PrintDistMat_VC_STAR( const DistMatrix<double,VC,STAR>* A )
 { A->Print(); }
@@ -160,17 +143,11 @@ DistMatrix<Complex<double>,VR,STAR>*
 CreateCpxDistMat_VR_STAR( const Grid* grid )
 { return new DistMatrix<Complex<double>,VR,STAR>( *grid ); }
 
-void FreeDistMat_VR_STAR( DistMatrix<double,VR,STAR>** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeDistMat_VR_STAR( DistMatrix<double,VR,STAR>* A )
+{ delete A; }
 
-void FreeCpxDistMat_VR_STAR( DistMatrix<Complex<double>,VR,STAR>** A )
-{
-    delete *A;
-    *A = 0;
-}
+void FreeCpxDistMat_VR_STAR( DistMatrix<Complex<double>,VR,STAR>* A )
+{ delete A; }
 
 void PrintDistMat_VR_STAR( const DistMatrix<double,VR,STAR>* A )
 { A->Print(); }
