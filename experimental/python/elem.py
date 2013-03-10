@@ -35,7 +35,9 @@ class DistMat(object):
   def Attach(self,height,width,colAlign,rowAlign,buf,ldim,grid):
     lib.AttachToDistMat(self.obj,height,width,colAlign,rowAlign,buf,ldim,grid)
     self.grid = grid
-  def Print(self):
+  def Print(self,string):
+    if self.grid.Rank() == 0:
+      print string
     lib.PrintDistMat(self.obj)
   def MakeUniform(self,height,width):
     lib.UniformDistMat(self.obj,height,width)
@@ -49,12 +51,46 @@ class DistMat(object):
     V = DistMat(self.grid) 
     lib.SVD( self.obj, s.obj, V.obj )
     return s, V
+  def ExplicitQR(self):
+    R = DistMat(self.grid)
+    lib.ExplicitQR( self.obj, R.obj )
+    return R
+
+class CpxDistMat(object):
+  def __init__(self,grid):
+    self.obj = lib.CreateCpxDistMat(grid.obj)
+    self.grid = grid
+  def Attach(self,height,width,colAlign,rowAlign,buf,ldim,grid):
+    lib.AttachToCpxDistMat(self.obj,height,width,colAlign,rowAlign,buf,ldim,grid)
+    self.grid = grid
+  def Print(self,string):
+    if self.grid.Rank() == 0:
+      print string
+    lib.PrintCpxDistMat(self.obj)
+  def MakeUniform(self,height,width):
+    lib.UniformCpxDistMat(self.obj,height,width)
+  def Free(self):
+    lib.FreeCpxDistMat( self.obj )
+    self.obj = 0
+  def Grid(self):
+    return self.grid
+  def SVD(self):
+    s = DistMat_VR_STAR(self.grid)
+    V = CpxDistMat(self.grid) 
+    lib.CpxSVD( self.obj, s.obj, V.obj )
+    return s, V
+  def ExplicitQR(self):
+    R = CpxDistMat(self.grid)
+    lib.CpxExplicitQR( self.obj, R.obj )
+    return R
 
 class DistMat_VR_STAR(object):
   def __init__(self,grid):
     self.obj = lib.CreateDistMat_VR_STAR(grid.obj)
     self.grid = grid
-  def Print(self):
+  def Print(self,string):
+    if self.grid.Rank() == 0:
+      print string
     lib.PrintDistMat_VR_STAR(self.obj)
   def Free(self):
     lib.FreeDistMat_VR_STAR( self.obj )

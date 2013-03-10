@@ -64,6 +64,11 @@ void FreeCpxDistMat_VR_STAR( DistMatrix<Complex<double>,VR,STAR>* A );
 void PrintDistMat_VR_STAR( const DistMatrix<double,VR,STAR>* A );
 void PrintCpxDistMat_VR_STAR( const DistMatrix<Complex<double>,VR,STAR>* A );
 
+/* QR factorization */
+void ExplicitQR( DistMatrix<double>* A, DistMatrix<double>* R );
+void CpxExplicitQR
+( DistMatrix<Complex<double> >* A, DistMatrix<Complex<double> >* R );
+
 /* Singular Value Decomposition */
 void SVD
 ( DistMatrix<double>* A, 

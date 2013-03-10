@@ -156,26 +156,29 @@ void PrintCpxDistMat_VR_STAR( const DistMatrix<Complex<double>,VR,STAR>* A )
 { A->Print(); }
 
 //
+// QR factorization
+//
+
+void ExplicitQR( DistMatrix<double>* A, DistMatrix<double>* R )
+{ elem::ExplicitQR( *A, *R ); }
+
+void CpxExplicitQR
+( DistMatrix<Complex<double> >* A, DistMatrix<Complex<double> >* R )
+{ elem::ExplicitQR( *A, *R ); }
+
+//
 // Singular Value Decomposition
 //
 
 void SVD
 ( DistMatrix<double>* A, DistMatrix<double,VR,STAR>* s, DistMatrix<double>* V )
-{
-    s->SetGrid( A->Grid() );
-    V->SetGrid( A->Grid() );
-    elem::SVD( *A, *s, *V );
-}
+{ elem::SVD( *A, *s, *V ); }
 
 void CpxSVD
 ( DistMatrix<Complex<double> >* A, 
   DistMatrix<double,VR,STAR>* s, 
   DistMatrix<Complex<double> >* V )
-{
-    s->SetGrid( A->Grid() );
-    V->SetGrid( A->Grid() );
-    elem::SVD( *A, *s, *V );
-}
+{ elem::SVD( *A, *s, *V ); }
 
 //
 // Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
@@ -184,60 +187,36 @@ void CpxSVD
 void SymmetricAxBx
 ( DistMatrix<double>* A, DistMatrix<double>* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<double>* X )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X ); }
 
 void SymmetricAxBxRange
 ( DistMatrix<double>* A, DistMatrix<double>* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<double>* X,
   double a, double b )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b ); }
 
 void SymmetricAxBxIndices
 ( DistMatrix<double>* A, DistMatrix<double>* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<double>* X,
   int a, int b )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b ); }
 
 void HermitianAxBx
 ( DistMatrix<Complex<double> >* A, DistMatrix<Complex<double> >* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<Complex<double> >* X )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X ); }
 
 void HermitianAxBxRange
 ( DistMatrix<Complex<double> >* A, DistMatrix<Complex<double> >* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<Complex<double> >* X,
   double a, double b )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b ); }
 
 void HermitianAxBxIndices
 ( DistMatrix<Complex<double> >* A, DistMatrix<Complex<double> >* B,
   DistMatrix<double,VR,STAR>* w, DistMatrix<Complex<double> >* X,
   int a, int b )
-{
-    w->SetGrid( A->Grid() );
-    X->SetGrid( A->Grid() );
-    HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b );
-}
+{ HermitianGenDefiniteEig( AXBX, LOWER, *A, *B, *w, *X, a, b ); }
 
 //
 // Utilities

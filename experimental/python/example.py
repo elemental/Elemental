@@ -3,28 +3,27 @@ import elem
 elem.Initialize()
 
 grid = elem.Grid()
-rank = grid.Rank()
-
-if rank == 0:
-  print "Constructing DistMat"
 A = elem.DistMat( grid )
-
-if rank == 0:
-  print "Making uniform"
 A.MakeUniform( 8, 8 )
+A.Print("Original A")
 
+rank = grid.Rank()
 if rank == 0:
-  print "Printing A" 
-A.Print()
-
-if rank == 0:
-  print "Running SVD"
+  print "Running SVD..."
 [s,V] = A.SVD()
 
+A.Print("U")
+s.Print("s")
+V.Print("V")
+
+A.MakeUniform( 8, 8 )
+A.Print("New A")
+
 if rank == 0:
-  print "Printing SVD"
-A.Print()
-s.Print()
-V.Print()
+  print "Running QR..."
+R = A.ExplicitQR()
+
+A.Print("Q")
+R.Print("R")
 
 elem.Finalize()
