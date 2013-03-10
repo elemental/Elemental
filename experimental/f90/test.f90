@@ -24,20 +24,20 @@ program main
   integer :: comm = MPI_COMM_WORLD ! global communicator
 
   ! Initialize Elemental and MPI
-  call initialize()
+  call elem_initialize()
 
   ! Create a process grid and extract the relevant information
-  call create_grid( comm, grid )
-  call grid_height( grid, r )
-  call grid_width( grid, c )
-  call grid_size( grid, p )
-  call grid_row( grid, row )
-  call grid_col( grid, col )
-  call grid_rank( grid, rank )
+  call elem_create_grid( comm, grid )
+  call elem_grid_height( grid, r )
+  call elem_grid_width( grid, c )
+  call elem_grid_size( grid, p )
+  call elem_grid_row( grid, row )
+  call elem_grid_col( grid, col )
+  call elem_grid_rank( grid, rank )
 
   ! Create buffers for passing into data for distributed matrices 
-  call local_length( n, row, r, localHeight )
-  call local_length( n, col, c, localWidth )
+  call elem_length( n, row, r, localHeight )
+  call elem_length( n, col, c, localWidth )
   allocate(ALocal(localHeight,localWidth))
   allocate(BLocal(localHeight,localWidth))
 
@@ -64,46 +64,47 @@ program main
   end do
 
   ! Register the distributed matrices, A and B, with Elemental 
-  call register_real_dist_mat( &
+  call elem_register_dist_mat( &
     n, n, zeroInt, zeroInt, ALocal, localHeight, grid, a )
-  call register_real_dist_mat( &
+  call elem_register_dist_mat( &
     n, n, zeroInt, zeroInt, BLocal, localHeight, grid, b )
 
   ! I do not know of a good way to flush the output from F90, as the flush
   ! command is not standard. Thus, I chose not to write to stdout from F90.
 
   ! Print the input matrices 
-  call print_real_dist_mat( A )
-  call print_real_dist_mat( B )
+  call elem_print_dist_mat( A )
+  call elem_print_dist_mat( B )
 
   ! Set the algorithmic blocksize to 'nb'
-  call set_blocksize( nb )
+  call elem_set_blocksize( nb )
 
   ! For tuning purposes choose one of the following
   ! (see http://elemental.googlecode.com/hg/doc/build/html/advanced/tuning.html
   !  for more details)
   !
-  !call set_normal_tridiag_approach
-  call set_square_tridiag_approach
-  !call set_default_tridiag_approach
+  !call elem_set_normal_tridiag_approach
+  call elem_set_square_tridiag_approach
+  !call elem_set_default_tridiag_approach
   !
   ! and then choose one of the following
   !
-  call set_row_major_tridiag_subgrid
-  !call set_col_major_tridiag_subgrid
+  call elem_set_row_major_tridiag_subgrid
+  !call elem_set_col_major_tridiag_subgrid
   !
-  ! For sufficiently large numbers of processes, 'set_square_tridiag_approach'
+  ! For sufficiently large numbers of processes, 
+  ! 'elem_set_square_tridiag_approach'
   ! will be the fastest, but whether a row-major or column-major ordering of 
   ! the subgrid is best depends upon your network (hence the second choice).
 
   ! Given the pencil (A,B), solve for (w,X) such that AX=BX diag(w)
-  call symmetric_axbx( A, B, w, X )
+  call elem_symmetric_axbx( A, B, w, X )
 
   ! Print the eigenvalues and eigenvectors
-  call print_real_dist_mat( X )
-  call print_real_dist_col_vec( w )
+  call elem_print_dist_mat( X )
+  call elem_print_dist_mat_vr_star( w )
 
   ! Shut down Elemental and MPI
-  call finalize()
+  call elem_finalize()
 
  end

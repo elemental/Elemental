@@ -14,9 +14,9 @@ int
 main( int argc, char* argv[] )
 {    
     /* Handles for Elemental C++ objects */
-    GridHandle grid;
-    RealDistMatHandle A, B, X;
-    RealDistColVecHandle w;
+    ElemGrid grid;
+    ElemDistMat A, B, X;
+    ElemDistMat_VR_STAR w;
 
     /* Process grid information */
     int gridHeight, gridWidth, gridRow, gridCol, gridRank;
@@ -36,19 +36,19 @@ main( int argc, char* argv[] )
     MPI_Comm comm = MPI_COMM_WORLD; /* global communicator */
 
     /* Initialize Elemental and MPI */
-    Initialize( &argc, &argv );
+    ElemInitialize( &argc, &argv );
 
     /* Create a process grid and extract the relevant information */
-    grid = CreateGrid( comm );
-    gridHeight = GridHeight( grid );
-    gridWidth = GridWidth( grid );
-    gridRow = GridRow( grid );
-    gridCol = GridCol( grid );
-    gridRank = GridRank( grid );
+    grid = ElemCreateGrid( comm );
+    gridHeight = ElemGridHeight( grid );
+    gridWidth = ElemGridWidth( grid );
+    gridRow = ElemGridRow( grid );
+    gridCol = ElemGridCol( grid );
+    gridRank = ElemGridRank( grid );
 
     /* Create buffers for passing into data for distributed matrices */
-    localHeight = LocalLength( n, gridRow, gridHeight );
-    localWidth = LocalLength( n, gridCol, gridWidth );
+    localHeight = ElemLength( n, gridRow, gridHeight );
+    localWidth = ElemLength( n, gridCol, gridWidth );
     ABuffer = (double*)malloc(localHeight*localWidth*sizeof(double));
     BBuffer = (double*)malloc(localHeight*localWidth*sizeof(double));
 
@@ -78,35 +78,35 @@ main( int argc, char* argv[] )
     }
 
     /* Register the distributed matrices, A and B, with Elemental */
-    A = RegisterRealDistMat( n, n, 0, 0, ABuffer, localHeight, grid );
-    B = RegisterRealDistMat( n, n, 0, 0, BBuffer, localHeight, grid );
+    A = ElemRegisterDistMat( n, n, 0, 0, ABuffer, localHeight, grid );
+    B = ElemRegisterDistMat( n, n, 0, 0, BBuffer, localHeight, grid );
 
     /* Print the input matrices */
     if( gridRank == 0 )
         printf("A:\n");
-    PrintRealDistMat( A );
+    ElemPrintDistMat( A );
     if( gridRank == 0 )
         printf("B:\n");
-    PrintRealDistMat( B );
+    ElemPrintDistMat( B );
 
     /* Set the algorithmic blocksize to 'nb' */
-    SetBlocksize( nb );
+    ElemSetBlocksize( nb );
 
     /* Run the eigensolver */
     if( gridRank == 0 )
         printf("Solving for (w,X) in AX=BXW\n");
-    SymmetricAxBx( A, B, &w, &X );
+    ElemSymmetricAxBx( A, B, &w, &X );
 
     /* Print the eigenvalues and eigenvectors */
     if( gridRank == 0 )
         printf("X:\n");
-    PrintRealDistMat( X );
+    ElemPrintDistMat( X );
     if( gridRank == 0 )
         printf("w:\n");
-    PrintRealDistColVec( w );
+    ElemPrintDistMat_VR_STAR( w );
 
     /* Shut down Elemental and MPI */
-    Finalize();
+    ElemFinalize();
 
     return 0;
 }

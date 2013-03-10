@@ -55,10 +55,10 @@ void InitB( DistMatrix<double,MC,MR>& B, bool print )
 
     if( depthRank == 0 )
     {
-        if( B.LocalHeight() != B.LocalLDim() )
-            throw std::logic_error("Local ldim of B was too large");
+        if( B.LocalHeight() != B.LDim() )
+            throw std::logic_error("Ldim of B was too large");
 
-        double* localBuffer = B.LocalBuffer();
+        double* localBuffer = B.Buffer();
         const int localSize = B.LocalHeight()*B.LocalWidth();
         for( int iLocal=0; iLocal<localSize; ++iLocal )
             localBuffer[iLocal] = iLocal*meshSize + rank;
@@ -114,7 +114,7 @@ void DepthBroadcast
     const int depthRank = rank / meshSize;
 
     const int localSize = A.LocalHeight()*A.LocalWidth();
-    if( A.LocalHeight() != A.LocalLDim() )
+    if( A.LocalHeight() != A.LDim() )
         throw std::logic_error("Leading dimension did not match local height");
 
     B.Empty();
@@ -123,10 +123,10 @@ void DepthBroadcast
 
     // Have the root pack the broadcast data
     if( depthRank == 0 )
-        MemCopy( B.LocalBuffer(), A.LockedLocalBuffer(), localSize );
+        MemCopy( B.Buffer(), A.LockedBuffer(), localSize );
 
     // Broadcast from the root
-    mpi::Broadcast( B.LocalBuffer(), localSize, 0, depthComm );
+    mpi::Broadcast( B.Buffer(), localSize, 0, depthComm );
 }
 
 /*
@@ -153,8 +153,8 @@ void DistributeCols
 
     // For now, we will make B as large as A...
     // TODO: NOT DO THIS
-    if( A.LocalHeight() != A.LocalLDim() )
-        throw std::logic_error("Local height did not match local ldim");
+    if( A.LocalHeight() != A.LDim() )
+        throw std::logic_error("Local height did not match ldim");
     B.Empty();
     B.AlignWith( A );
     Zeros( A.Height(), A.Width(), B );
@@ -162,8 +162,8 @@ void DistributeCols
     // Scatter
     const int localColOffset = (A.LocalWidth()/depthSize)*depthRank;
     mpi::Scatter
-    ( A.LockedLocalBuffer(), recvCount, 
-      B.LocalBuffer(0,localColOffset), recvCount, 0, depthComm );
+    ( A.LockedBuffer(), recvCount, 
+      B.Buffer(0,localColOffset), recvCount, 0, depthComm );
 }
 
 /*
@@ -219,8 +219,7 @@ void DistributeRows
 
             // TODO: Avoid the extra copy...
             DistMatrix<double,MC,MR> A1Contig( A1 );
-            MemCopy
-            ( &(sendBuf[offset]), A1Contig.LockedLocalBuffer(), dataSize );
+            MemCopy( &sendBuf[offset], A1Contig.LockedBuffer(), dataSize );
 
             SlideLockedPartitionDown
             ( AT,  A0, 
@@ -253,8 +252,7 @@ void DistributeRows
     MemZero( &newData[0], sendCount );
     const int offset = depthRank*recvCount;
 
-    MemCopy
-    ( &(newData[offset]), dataBlockTrans.LockedLocalBuffer(), recvCount );
+    MemCopy( &newData[offset], dataBlockTrans.LockedBuffer(), recvCount );
 
     DistMatrix<double,MC,MR> 
         tmpTrans
@@ -324,16 +322,15 @@ void SumContributions
     A.AlignWith( APartial );
     A.ResizeTo( APartial.Height(), APartial.Width() );
 
-    if( APartial.LocalHeight() != APartial.LocalLDim() )
+    if( APartial.LocalHeight() != APartial.LDim() )
         throw std::logic_error
         ("APartial did not have matching local height/ldim");
-    if( A.LocalHeight() != A.LocalLDim() )
+    if( A.LocalHeight() != A.LDim() )
         throw std::logic_error("A did not have matching local height/ldim");
 
     const int dataSize = APartial.LocalHeight()*APartial.LocalWidth();
     mpi::AllReduce
-    ( APartial.LockedLocalBuffer(), A.LocalBuffer(), dataSize, 
-      mpi::SUM, depthComm );
+    ( APartial.LockedBuffer(), A.Buffer(), dataSize, mpi::SUM, depthComm );
 }
 
 int main( int argc, char* argv[] )

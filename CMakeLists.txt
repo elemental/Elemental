@@ -567,33 +567,28 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
 
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
-  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c_interface")
+  set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
 
   # Build the experimental C interface
   file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-    "experimental/c_interface/c_interface.cpp")
-  add_library(experimental-c-interface ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
+    "experimental/c/interface.cpp")
+  add_library(experimental-c ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
 
-  add_executable(experimental-c-interface-test 
-    ${EXPERIMENTAL_DIR}/c_interface/test.c)
-  target_link_libraries(experimental-c-interface-test 
-    experimental-c-interface elemental)
-  set_target_properties(experimental-c-interface-test 
-    PROPERTIES OUTPUT_NAME c_interface_test 
-    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+  add_executable(experimental-c-test ${EXPERIMENTAL_DIR}/c/test.c)
+  target_link_libraries(experimental-c-test experimental-c elemental)
+  set_target_properties(experimental-c-test 
+    PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(MPI_LINK_FLAGS)
-    set_target_properties(experimental-c-interface-test 
+    set_target_properties(experimental-c-test 
       PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
   endif()
-  install(TARGETS experimental-c-interface-test 
-    DESTINATION bin/experimental/c_interface)  
+  install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
   add_custom_command(
     OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
     COMMAND ${CMAKE_COMMAND} -E copy 
-            ${PROJECT_SOURCE_DIR}/experimental/c_interface/elemental.h
+            ${PROJECT_SOURCE_DIR}/experimental/c/elemental.h
             ${PROJECT_BINARY_DIR}/include/elemental.h
-    DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c_interface/elemental.h"
-  )
+    DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c/elemental.h")
   install(FILES ${PROJECT_BINARY_DIR}/include/elemental.h 
     DESTINATION include/elemental.h)
 
@@ -624,27 +619,22 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
 
     include_directories(${MPI_Fortran_INCLUDE_PATH})
     set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
-    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90_interface")
+    set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
 
     # Build the experimental F90 interface
     file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-      "experimental/f90_interface/f90_interface.cpp")
-    add_library(experimental-f90-interface 
-      ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
+      "experimental/f90/interface.cpp")
+    add_library(experimental-f90 ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
 
-    add_executable(experimental-f90-interface-test 
-      ${EXPERIMENTAL_DIR}/f90_interface/test.f90)
-    target_link_libraries(experimental-f90-interface-test 
-      experimental-f90-interface elemental)
-    set_target_properties(experimental-f90-interface-test 
-      PROPERTIES OUTPUT_NAME f90_interface_test 
-      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90)
+    target_link_libraries(experimental-f90-test experimental-f90 elemental)
+    set_target_properties(experimental-f90-test 
+      PROPERTIES OUTPUT_NAME f90_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
-      set_target_properties(experimental-f90-interface-test 
+      set_target_properties(experimental-f90-test 
         PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
     endif()
-    install(TARGETS experimental-f90-interface-test 
-      DESTINATION bin/experimental/f90_interface)  
+    install(TARGETS experimental-f90-test DESTINATION bin/experimental/f90)  
   endif()
 endif()
 
