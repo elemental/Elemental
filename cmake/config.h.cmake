@@ -49,7 +49,7 @@
 #cmakedefine HAVE_MPI_IN_PLACE
 #cmakedefine HAVE_MPI3_NONBLOCKING_COLLECTIVES
 #cmakedefine HAVE_MPIX_NONBLOCKING_COLLECTIVES
-#cmakedefine REDUCE_SCATTER_BLOCK_VIA_ALL_REDUCE
+#cmakedefine REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
 #cmakedefine USE_BYTE_ALLGATHERS
 
 /* Advanced configuration options */
