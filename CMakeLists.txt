@@ -322,7 +322,7 @@ check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
 check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
 
 # Check for MPI_IN_PLACE (essentially MPI2 support)
-include(CheckCXXSourceCompiles)
+include(CheckCSourceCompiles)
 set(MPI_IN_PLACE_CODE
     "#include \"mpi.h\"
      int main( int argc, char* argv[] )
@@ -335,12 +335,10 @@ set(MPI_IN_PLACE_CODE
          return 0;
      }
     ")
-set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
-set(CMAKE_REQUIRED_INCLUDES ${MPI_CXX_INCLUDE_PATH})
-set(CMAKE_REQUIRED_LIBRARIES ${MPI_CXX_LIBRARIES})
-check_cxx_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
+check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
 
 # Look for restrict support
+include(CheckCXXSourceCompiles)
 set(RESTRICT_CODE
     "int main(void)
      {
@@ -610,7 +608,6 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
          return 0;
      }
     ")
-    include(CheckCSourceCompiles)
     check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
     if(NOT HAVE_MPI_COMM_F2C)  
       message(WARNING 
