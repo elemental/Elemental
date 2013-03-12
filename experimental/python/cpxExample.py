@@ -3,7 +3,7 @@ import elem
 elem.Initialize()
 
 grid = elem.Grid()
-A = elem.DistMat( grid )
+A = elem.CpxDistMat( grid )
 A.Resize(8,8)
 localHeight = A.LocalHeight()
 localWidth = A.LocalWidth()
@@ -15,31 +15,31 @@ rowStride = A.RowStride()
 #  j = rowShift + jLocal*rowStride
 #  for iLocal in xrange(0,localHeight):
 #    i = colShift + iLocal*colStride
-#    A.SetLocal(iLocal,jLocal,i-j)
+#    A.SetLocal(iLocal,jLocal,(i-j)+(i+j)*1j)
 data = A.Data()
 ldim = A.LDim()
 for jLocal in xrange(0,localWidth):
   j = rowShift + jLocal*rowStride
   for iLocal in xrange(0,localHeight):
     i = colShift + iLocal*colStride
-    data[iLocal+jLocal*ldim] = i-j
+    data[iLocal+jLocal*ldim] = (i-j)+(i+j)*1j
 A.Print("Original A")
 
 rank = grid.Rank()
 if rank == 0:
   print "Running SVD..."
-[s,V] = elem.SVD(A)
+[s,V] = elem.CpxSVD(A)
 
 A.Print("U")
 s.Print("s")
 V.Print("V")
 
-elem.UniformDistMat( A, 8, 8 )
+elem.UniformCpxDistMat( A, 8, 8 )
 A.Print("New A")
 
 if rank == 0:
   print "Running QR..."
-R = elem.ExplicitQR(A)
+R = elem.CpxExplicitQR(A)
 
 A.Print("Q")
 R.Print("R")

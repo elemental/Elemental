@@ -1,6 +1,17 @@
-import ctypes, sys
-from ctypes import cdll
+import ctypes, numpy, sys
+from ctypes import byref, cdll, c_double, pointer, POINTER
 lib = cdll.LoadLibrary('./libElem.so')
+lib.MatBuffer.restype = POINTER(c_double)
+lib.CpxMatBuffer.restype = POINTER(c_double)
+lib.DistMatBuffer.restype = POINTER(c_double)
+lib.CpxDistMatBuffer.restype = POINTER(c_double)
+lib.DistMatBuffer_VC_STAR.restype = POINTER(c_double)
+lib.CpxDistMatBuffer_VC_STAR.restype = POINTER(c_double)
+lib.DistMatBuffer_VR_STAR.restype = POINTER(c_double)
+lib.CpxDistMatBuffer_VR_STAR.restype = POINTER(c_double)
+
+buffer_from_memory = ctypes.pythonapi.PyBuffer_FromReadWriteMemory
+buffer_from_memory.restype = ctypes.py_object
 
 #
 # Core components
@@ -11,8 +22,8 @@ def Initialize():
   _argv = ""
   for arg in sys.argv:
     _argv += arg + ' '
-  argv = ctypes.pointer(ctypes.c_char_p(_argv))
-  lib.Initialize( ctypes.byref(argc), ctypes.byref(argv) )
+  argv = pointer(ctypes.c_char_p(_argv))
+  lib.Initialize( byref(argc), byref(argv) )
 
 def Finalize():
   lib.Finalize()
@@ -64,7 +75,13 @@ class Mat(object):
   def Get(self,i,j):
     return lib.GetMatEntry(self.obj,i,j)
   def Set(self,i,j,alpha):
-    lib.SetMatEntry(self.obj,i,j,alpha)
+    lib.SetMatEntry(self.obj,i,j,c_double(alpha))
+  def Data(self):
+    ldim = lib.MatLDim(self.obj)
+    width = lib.MatWidth(self.obj)
+    rawBuf = lib.MatBuffer(self.obj)
+    buf = buffer_from_memory(rawBuf,8*ldim*width)
+    return numpy.frombuffer(buf,float)
 
 class CpxMat(object):
   def __init__(self):
@@ -85,7 +102,21 @@ class CpxMat(object):
     return lib.CpxMatWidth(self.obj)
   def LDim(self):
     return lib.CpxMatLDim(self.obj)
-  # TODO: Figure out how to pass complex values
+  def Get(self,i,j):
+    real = c_double
+    imag = c_double
+    lib.GetCpxMatEntry(self.obj,i,j,byref(real),byref(imag))
+    return real + imag*1j
+  def Set(self,i,j,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetCpxMatEntry(self.obj,i,j,real,imag)
+  def Data(self):
+    ldim = lib.CpxMatLDim(self.obj)
+    width = lib.CpxMatWidth(self.obj)
+    rawBuf = lib.CpxMatBuffer(self.obj)
+    buf = buffer_from_memory(rawBuf,16*ldim*width)
+    return numpy.frombuffer(buf,complex)
 
 class DistMat(object):
   def __init__(self,grid):
@@ -126,11 +157,17 @@ class DistMat(object):
   def Get(self,i,j):
     return lib.GetDistMatEntry(self.obj,i,j)
   def Set(self,i,j,alpha):
-    lib.SetDistMatEntry(self.obj,i,j,alpha)
+    lib.SetDistMatEntry(self.obj,i,j,c_double(alpha))
   def GetLocal(self,iLocal,jLocal):
     return lib.GetLocalDistMatEntry(self.obj,iLocal,jLocal)
   def SetLocal(self,iLocal,jLocal,alpha):
-    lib.SetLocalDistMatEntry(self.obj,iLocal,jLocal,alpha)
+    lib.SetLocalDistMatEntry(self.obj,iLocal,jLocal,c_double(alpha))
+  def Data(self):
+    ldim = lib.DistMatLDim(self.obj)
+    localWidth = lib.DistMatLocalWidth(self.obj)
+    rawBuf = lib.DistMatBuffer(self.obj)
+    buf = buffer_from_memory(rawBuf,8*ldim*localWidth)
+    return numpy.frombuffer(buf,float)
 
 class CpxDistMat(object):
   def __init__(self,grid):
@@ -168,6 +205,30 @@ class CpxDistMat(object):
     return lib.CpxDistMatColStride(self.obj)
   def RowStride(self):
     return lib.CpxDistMatRowStride(self.obj) 
+  def Get(self,i,j):
+    real = c_double
+    imag = c_double
+    lib.GetCpxDistMatEntry(self.obj,i,j,byref(real),byref(imag))
+    return real + imag*1j
+  def Set(self,i,j,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetCpxDistMatEntry(self.obj,i,j,real,imag)
+  def GetLocal(self,iLocal,jLocal):
+    real = c_double
+    imag = c_double
+    lib.GetLocalCpxDistMatEntry(self.obj,iLocal,jLocal,byref(real),byref(imag))
+    return real + imag*1j
+  def SetLocal(self,iLocal,jLocal,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetLocalCpxDistMatEntry(self.obj,iLocal,jLocal,real,imag)
+  def Data(self):
+    ldim = lib.CpxDistMatLDim(self.obj)
+    localWidth = lib.CpxDistMatLocalWidth(self.obj)
+    rawBuf = lib.CpxDistMatBuffer(self.obj)
+    buf = buffer_from_memory(rawBuf,16*ldim*localWidth)
+    return numpy.frombuffer(buf,complex)
 
 class DistMat_VC_STAR(object):
   def __init__(self,grid):
@@ -205,11 +266,17 @@ class DistMat_VC_STAR(object):
   def Get(self,i,j):
     return lib.GetDistMatEntry_VC_STAR(self.obj,i,j)
   def Set(self,i,j,alpha):
-    lib.SetDistMatEntry_VC_STAR(self.obj,i,j,alpha)
+    lib.SetDistMatEntry_VC_STAR(self.obj,i,j,c_double(alpha))
   def GetLocal(self,iLocal,jLocal):
     return lib.GetLocalDistMatEntry_VC_STAR(self.obj,iLocal,jLocal)
   def SetLocal(self,iLocal,jLocal,alpha):
-    lib.SetLocalDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,alpha)
+    lib.SetLocalDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,c_double(alpha))
+  def Data(self):
+    ldim = lib.DistMatLDim_VC_STAR(self.obj)
+    localWidth = lib.DistMatLocalWidth_VC_STAR(self.obj)
+    rawBuf = lib.DistMatBuffer_VC_STAR(self.obj)
+    buf = buffer_from_memory(rawBuf,8*ldim*localWidth)
+    return numpy.frombuffer(buf,float)
 
 class CpxDistMat_VC_STAR(object):
   def __init__(self,grid):
@@ -244,7 +311,31 @@ class CpxDistMat_VC_STAR(object):
     return lib.CpxDistMatColStride_VC_STAR(self.obj)
   def RowStride(self):
     return lib.CpxDistMatRowStride_VC_STAR(self.obj) 
-  # TODO: Figure out how to pass complex data
+  def Get(self,i,j):
+    real = c_double
+    imag = c_double
+    lib.GetCpxDistMatEntry_VC_STAR(self.obj,i,j,byref(real),byref(imag))
+    return real + imag*1j
+  def Set(self,i,j,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetCpxDistMatEntry_VC_STAR(self.obj,i,j,real,imag)
+  def GetLocal(self,iLocal,jLocal):
+    real = c_double
+    imag = c_double
+    lib.GetLocalCpxDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,\
+      byref(real),byref(imag))
+    return real + imag*1j
+  def SetLocal(self,iLocal,jLocal,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetLocalCpxDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,real,imag)
+  def Data(self):
+    ldim = lib.CpxDistMatLDim_VC_STAR(self.obj)
+    localWidth = lib.CpxDistMatLocalWidth_VC_STAR(self.obj)
+    rawBuf = lib.CpxDistMatBuffer_VC_STAR(self.obj)
+    buf = buffer_from_memory(rawBuf,16*ldim*localWidth)
+    return numpy.frombuffer(buf,complex)
 
 class DistMat_VR_STAR(object):
   def __init__(self,grid):
@@ -282,11 +373,17 @@ class DistMat_VR_STAR(object):
   def Get(self,i,j):
     return lib.GetDistMatEntry_VR_STAR(self.obj,i,j)
   def Set(self,i,j,alpha):
-    lib.SetDistMatEntry_VR_STAR(self.obj,i,j,alpha)
+    lib.SetDistMatEntry_VR_STAR(self.obj,i,j,c_double(alpha))
   def GetLocal(self,iLocal,jLocal):
     return lib.GetLocalDistMatEntry_VR_STAR(self.obj,iLocal,jLocal)
   def SetLocal(self,iLocal,jLocal,alpha):
-    lib.SetLocalDistMatEntry_VR_STAR(self.obj,iLocal,jLocal,alpha)
+    lib.SetLocalDistMatEntry_VR_STAR(self.obj,iLocal,jLocal,c_double(alpha))
+  def Data(self):
+    ldim = lib.DistMatLDim_VR_STAR(self.obj)
+    localWidth = lib.DistMatLocalWidth_VR_STAR(self.obj)
+    rawBuf = lib.DistMatBuffer_VR_STAR(self.obj)
+    buf = buffer_from_memory(rawBuf,8*ldim*localWidth)
+    return numpy.frombuffer(buf,float)
 
 class CpxDistMat_VR_STAR(object):
   def __init__(self,grid):
@@ -321,7 +418,31 @@ class CpxDistMat_VR_STAR(object):
     return lib.CpxDistMatColStride_VR_STAR(self.obj)
   def RowStride(self):
     return lib.CpxDistMatRowStride_VR_STAR(self.obj) 
-  # TODO: Figure out how to pass complex data
+  def Get(self,i,j):
+    real = c_double
+    imag = c_double
+    lib.GetCpxDistMatEntry_VC_STAR(self.obj,i,j,byref(real),byref(imag))
+    return real + imag*1j
+  def Set(self,i,j,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetCpxDistMatEntry_VC_STAR(self.obj,i,j,real,imag)
+  def GetLocal(self,iLocal,jLocal):
+    real = c_double
+    imag = c_double
+    lib.GetLocalCpxDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,\
+      byref(real),byref(imag))
+    return real + imag*1j
+  def SetLocal(self,iLocal,jLocal,alpha):
+    real = c_double(alpha.real)
+    imag = c_double(alpha.imag)
+    lib.SetLocalCpxDistMatEntry_VC_STAR(self.obj,iLocal,jLocal,real,imag)
+  def Data(self):
+    ldim = lib.CpxDistMatLDim_VC_STAR(self.obj)
+    localWidth = lib.CpxDistMatLocalWidth_VC_STAR(self.obj)
+    rawBuf = lib.CpxDistMatBuffer_VC_STAR(self.obj)
+    buf = buffer_from_memory(rawBuf,16*ldim*localWidth)
+    return numpy.frombuffer(buf,complex)
 
 #
 # LAPACK-like routines

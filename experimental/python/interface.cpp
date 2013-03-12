@@ -125,6 +125,24 @@ ELEMPY_API double GetMatEntry( const Mat* A, int i, int j )
 ELEMPY_API void SetMatEntry( Mat* A, int i, int j, double alpha )
 { A->Set( i, j, alpha ); }
 
+ELEMPY_API void GetCpxMatEntry
+( const CpxMat* A, int i, int j, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->Get( i, j );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetCpxMatEntry
+( CpxMat* A, int i, int j, double real, double imag )
+{ A->Set( i, j, Complex<double>(real,imag) ); }
+
+ELEMPY_API void* MatBuffer( Mat* A )
+{ return A->Buffer(); }
+
+ELEMPY_API void* CpxMatBuffer( CpxMat* A )
+{ return A->Buffer(); }
+
 //
 // Distributed matrix management
 //
@@ -237,6 +255,36 @@ ELEMPY_API void
 SetLocalDistMatEntry( DistMat* A, int iLocal, int jLocal, double alpha )
 { A->SetLocal( iLocal, jLocal, alpha ); }
 
+ELEMPY_API void GetCpxDistMatEntry
+( const CpxDistMat* A, int i, int j, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->Get( i, j );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetCpxDistMatEntry
+( CpxDistMat* A, int i, int j, double real, double imag )
+{ A->Set( i, j, Complex<double>(real,imag) ); }
+
+ELEMPY_API void GetLocalCpxDistMatEntry
+( const CpxDistMat* A, int iLocal, int jLocal, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->GetLocal( iLocal, jLocal );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetLocalCpxDistMatEntry
+( CpxDistMat* A, int iLocal, int jLocal, double real, double imag )
+{ A->SetLocal( iLocal, jLocal, Complex<double>(real,imag) ); }
+
+ELEMPY_API void* DistMatBuffer( DistMat* A )
+{ return A->Buffer(); }
+
+ELEMPY_API void* CpxDistMatBuffer( CpxDistMat* A )
+{ return A->Buffer(); }
+
 //
 // [VC,* ] management
 //
@@ -337,6 +385,37 @@ ELEMPY_API void SetLocalDistMatEntry_VC_STAR
 ( DistMat_VC_STAR* A, int iLocal, int jLocal, double alpha )
 { A->SetLocal( iLocal, jLocal, alpha ); }
 
+ELEMPY_API void GetCpxDistMatEntry_VC_STAR
+( const CpxDistMat_VC_STAR* A, int i, int j, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->Get( i, j );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetCpxDistMatEntry_VC_STAR
+( CpxDistMat_VC_STAR* A, int i, int j, double real, double imag )
+{ A->Set( i, j, Complex<double>(real,imag) ); }
+
+ELEMPY_API void GetLocalCpxDistMatEntry_VC_STAR
+( const CpxDistMat_VC_STAR* A, 
+  int iLocal, int jLocal, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->GetLocal( iLocal, jLocal );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetLocalCpxDistMatEntry_VC_STAR
+( CpxDistMat_VC_STAR* A, int iLocal, int jLocal, double real, double imag )
+{ A->SetLocal( iLocal, jLocal, Complex<double>(real,imag) ); }
+
+ELEMPY_API void* DistMatBuffer_VC_STAR( DistMat_VC_STAR* A )
+{ return A->Buffer(); }
+
+ELEMPY_API void* CpxDistMatBuffer_VC_STAR( CpxDistMat_VC_STAR* A )
+{ return A->Buffer(); }
+
 //
 // [VR,* ] management
 //
@@ -436,6 +515,37 @@ ELEMPY_API double GetLocalDistMatEntry_VR_STAR
 ELEMPY_API void SetLocalDistMatEntry_VR_STAR
 ( DistMat_VR_STAR* A, int iLocal, int jLocal, double alpha )
 { A->SetLocal( iLocal, jLocal, alpha ); }
+
+ELEMPY_API void GetCpxDistMatEntry_VR_STAR
+( const CpxDistMat_VR_STAR* A, int i, int j, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->Get( i, j );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetCpxDistMatEntry_VR_STAR
+( CpxDistMat_VR_STAR* A, int i, int j, double real, double imag )
+{ A->Set( i, j, Complex<double>(real,imag) ); }
+
+ELEMPY_API void GetLocalCpxDistMatEntry_VR_STAR
+( const CpxDistMat_VR_STAR* A, 
+  int iLocal, int jLocal, double* real, double* imag )
+{ 
+    const Complex<double>& alpha = A->GetLocal( iLocal, jLocal );
+    *real = RealPart(alpha);
+    *imag = ImagPart(alpha);
+}
+    
+ELEMPY_API void SetLocalCpxDistMatEntry_VR_STAR
+( CpxDistMat_VR_STAR* A, int iLocal, int jLocal, double real, double imag )
+{ A->SetLocal( iLocal, jLocal, Complex<double>(real,imag) ); }
+
+ELEMPY_API void* DistMatBuffer_VR_STAR( DistMat_VR_STAR* A )
+{ return A->Buffer(); }
+
+ELEMPY_API void* CpxDistMatBuffer_VR_STAR( CpxDistMat_VR_STAR* A )
+{ return A->Buffer(); }
 
 //
 // QR factorization
