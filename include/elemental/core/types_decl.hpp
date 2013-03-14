@@ -92,8 +92,7 @@ enum NormType
     MAX_NORM,           // Maximum entry-wise magnitude
     NUCLEAR_NORM,       // One-norm of the singular values
     FROBENIUS_NORM,     // Two-norm of the singular values
-    TWO_NORM,           // Infinity-norm of the singular values
-    ZERO_NORM           // Number of nonzeros in matrix (not really norm)
+    TWO_NORM            // Infinity-norm of the singular values
 };
 }
 using namespace norm_type_wrapper;
