@@ -12,5 +12,7 @@
 
 #include "elemental/convex/LogBarrier.hpp"
 #include "elemental/convex/LogDetDivergence.hpp"
+#include "elemental/convex/SingularValueSoftThreshold.hpp"
+#include "elemental/convex/SoftThreshold.hpp"
 
 #endif // ifndef CONVEX_IMPL_HPP

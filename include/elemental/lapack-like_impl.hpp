@@ -59,4 +59,17 @@
 #include "./lapack-like/TwoNormLowerBound.hpp"
 #include "./lapack-like/TwoNormUpperBound.hpp"
 
+#include "./lapack-like/Norm/Entrywise.hpp"
+#include "./lapack-like/Norm/KyFan.hpp"
+#include "./lapack-like/Norm/Schatten.hpp"
+#include "./lapack-like/Norm/Zero.hpp"
+
+#include "./lapack-like/HermitianNorm/Entrywise.hpp"
+#include "./lapack-like/HermitianNorm/KyFan.hpp"
+#include "./lapack-like/HermitianNorm/Schatten.hpp"
+
+#include "./lapack-like/SymmetricNorm/Entrywise.hpp"
+#include "./lapack-like/SymmetricNorm/KyFan.hpp"
+#include "./lapack-like/SymmetricNorm/Schatten.hpp"
+
 #endif // ifndef LAPACK_IMPL_HPP
