@@ -160,8 +160,8 @@ main( int argc, char* argv[] )
             else
             {
                 if( commRank == 0 )
-                    std::cout << numIts << ": || E ||_F = " << frobE 
-                              << std::endl;
+                    std::cout << numIts << ": || E ||_F / || M ||_F = " 
+                              << frobE/frobM << std::endl;
             }
             
             // Y := Y + tau E
