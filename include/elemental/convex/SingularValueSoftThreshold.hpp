@@ -17,7 +17,7 @@
 namespace elem {
 
 template<typename F>
-inline void
+inline int
 SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
 {
 #ifndef RELEASE
@@ -33,13 +33,16 @@ SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
     SoftThreshold( s, tau );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+
+    const int rank = ZeroNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return rank;
 }
 
 template<typename F>
-inline void
+inline int
 SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
 {
 #ifndef RELEASE
@@ -55,9 +58,12 @@ SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
     SoftThreshold( s, tau );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+
+    const int rank = ZeroNorm( s );
 #ifndef RELEASE
     PopCallStack();
 #endif
+    return rank;
 }
 
 } // namespace elem
