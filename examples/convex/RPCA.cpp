@@ -12,13 +12,13 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/EntrywiseOne.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
+#include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/convex/SingularValueSoftThreshold.hpp"
 #include "elemental/matrices/Uniform.hpp"
 #include <set>
 using namespace elem;
-
-// NOTE: Loosely based on the algorithm given in 
 
 // Corrupt a percentage of the entries with uniform samples from the unit ball
 template<typename F>
@@ -57,6 +57,21 @@ int Corrupt( DistMatrix<F>& A, double percentCorrupt )
     return numCorrupt;
 }
 
+template<typename F,Distribution U,Distribution V>
+void Sign( DistMatrix<F,U,V>& A )
+{
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const F alpha = A.GetLocal( iLocal, jLocal );
+            A.SetLocal( iLocal, jLocal, alpha/Abs(alpha) );
+        }
+    }
+}
+
 template<typename F>
 void RPCA_ADMM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
@@ -66,6 +81,15 @@ void RPCA_ADMM
   int maxIts,
   bool print )
 {
+    typedef typename Base<F>::type R;
+
+    if( beta <= R(0) )
+        throw std::logic_error("beta cannot be non-positive");
+    if( tau <= R(0) )
+        throw std::logic_error("tau cannot be non-positive");
+    if( tol <= R(0) )
+        throw std::logic_error("tol cannot be non-positive");
+
     const int m = M.Height();
     const int n = M.Width();
     const int commRank = mpi::CommRank( M.Grid().Comm() );
@@ -80,23 +104,25 @@ void RPCA_ADMM
     int numIts = 0;
     while( true )
     {
+        ++numIts;
+
         // ST_{tau/beta}(M - L + Y/beta)
         S = M;
-        Axpy( -1., L, S );
-        Axpy( 1./beta, Y, S );
+        Axpy( F(-1), L, S );
+        Axpy( F(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
         const int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
-        Axpy( -1., S, L );
-        Axpy( 1./beta, Y, L );
-        const int rank = SingularValueSoftThreshold( L, 1./beta );
+        Axpy( F(-1), S, L );
+        Axpy( F(1)/beta, Y, L );
+        const int rank = SingularValueSoftThreshold( L, R(1)/beta );
       
         // E := M - (L + S)
         E = M;    
-        Axpy( -1., L, E );
-        Axpy( -1., S, E );
+        Axpy( F(-1), L, E );
+        Axpy( F(-1), S, E );
         const double frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
@@ -126,7 +152,124 @@ void RPCA_ADMM
         
         // Y := Y + beta E
         Axpy( beta, E, Y );
+    }
+}
+
+// If 'beta' or 'tau' is passed in as zero, then an estimate is used instead
+template<typename F>
+void RPCA_ALM
+( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
+  typename Base<F>::type beta, 
+  typename Base<F>::type tau, 
+  typename Base<F>::type rho,
+  typename Base<F>::type tol, 
+  int maxIts,
+  bool print )
+{
+    typedef typename Base<F>::type R;
+
+    const int m = M.Height();
+    const int n = M.Width();
+    const int commRank = mpi::CommRank( M.Grid().Comm() );
+
+    if( tol <= R(0) )
+        throw std::logic_error("tol cannot be non-positive");
+    if( tau < R(0) )
+        throw std::logic_error("tau cannot be negative");
+    else if( tau == R(0) )
+        tau = R(1) / sqrt(R(1)*m);
+
+    DistMatrix<F> Y( M );
+    Sign( Y );
+    const R twoNorm = TwoNorm( Y );
+    const R maxNorm = MaxNorm( Y );
+    const R infNorm = maxNorm / tau; 
+    const R dualNorm = std::max( twoNorm, infNorm );
+    Scale( F(1)/dualNorm, Y );
+
+    if( beta < R(0) )
+        throw std::logic_error("beta cannot be negative");
+    else if( beta == R(0) )
+        beta = R(1) / (2*twoNorm);
+
+    const double frobM = FrobeniusNorm( M );
+    if( commRank == 0 )
+        std::cout << "|| M ||_F = " << frobM << std::endl;
+
+    int numIts=0, numPrimalIts=0;
+    DistMatrix<F> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
+    while( true )
+    {
         ++numIts;
+       
+        int rank, numNonzeros;
+        while( true )
+        {
+            ++numPrimalIts;
+
+            LLast = L;
+            SLast = S;
+
+            // ST_{tau/beta}(M - L + Y/beta)
+            S = M;
+            Axpy( F(-1), L, S );
+            Axpy( F(1)/beta, Y, S );
+            SoftThreshold( S, tau/beta );
+            numNonzeros = ZeroNorm( S );
+
+            // SVT_{1/beta}(M - S + Y/beta)
+            L = M;
+            Axpy( F(-1), S, L );
+            Axpy( F(1)/beta, Y, L );
+            rank = SingularValueSoftThreshold( L, R(1)/beta );
+      
+            Axpy( F(-1), L, LLast );
+            Axpy( F(-1), S, SLast );
+            const R frobLDiff = FrobeniusNorm( LLast );
+            const R frobSDiff = FrobeniusNorm( SLast );
+
+            if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
+            {
+                if( commRank == 0 )
+                    std::cout << "Primal loop converged" << std::endl;
+                break;
+            }
+        }
+
+        // E := M - (L + S)
+        E = M;    
+        Axpy( -1., L, E );
+        Axpy( -1., S, E );
+        const double frobE = FrobeniusNorm( E );
+
+        if( frobE/frobM <= tol )            
+        {
+            if( commRank == 0 )
+                std::cout << "Converged after " << numIts << " iterations and "
+                          << numPrimalIts << " primal iterations with rank=" 
+                          << rank << ", numNonzeros=" << numNonzeros << " and "
+                          << "|| E ||_F / || M ||_F = " << frobE/frobM
+                          << std::endl;
+            break;
+        }
+        else if( numIts >= maxIts )
+        {
+            if( commRank == 0 )
+                std::cout << "Aborting after " << maxIts << " iterations"
+                          << std::endl;
+            break;
+        }
+        else
+        {
+            if( commRank == 0 )
+                std::cout << numIts << ": || E ||_F / || M ||_F = " 
+                          << frobE/frobM << ", rank=" << rank 
+                          << ", numNonzeros=" << numNonzeros << std::endl;
+        }
+        
+        // Y := Y + beta E
+        Axpy( beta, E, Y );
+        beta *= rho;
     }
 }
 
@@ -146,8 +289,10 @@ main( int argc, char* argv[] )
             Input("--percentCorrupt","percentage of corrupted entries",10.);
         const double tau = Input("--tau","sparse weighting factor",0.1);
         const double beta = Input("--beta","step size",1.);
+        const double rho = Input("--rho","stepsize multiple in ALM",6.);
         const int maxIts = Input("--maxIts","maximum iterations",1000);
         const double tol = Input("--tol","tolerance",1.e-6);
+        const bool useALM = Input("--useALM","use ALM algorithm?",true);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
         PrintInputReport();
@@ -183,7 +328,11 @@ main( int argc, char* argv[] )
         DistMatrix<double> L, S;
         Zeros( m, n, L );
         Zeros( m, n, S ); 
-        RPCA_ADMM( M, L, S, beta, tau, tol, maxIts, print );
+
+        if( useALM )
+            RPCA_ALM( M, L, S, beta, tau, rho, tol, maxIts, print );
+        else
+            RPCA_ADMM( M, L, S, beta, tau, tol, maxIts, print );
 
         if( print )
         {
