@@ -17,7 +17,7 @@ numbers where the :math:`(i,j)` entry is equal to :math:`i-j` would be:
      Matrix<double> A( m, n );
      for( int j=0; j<n; ++j )
          for( int i=0; i<m; ++i )
-             A.Set( i, j, (double)i-j );
+             A.Set( i, j, double(i-j) );
      
 The underlying data storage is simply a contiguous buffer that stores entries 
 in a column-major fashion with an arbitrary leading dimension. For modifiable
@@ -37,7 +37,7 @@ of the first code sample as follows:
      const int ldim = A.LDim();
      for( int j=0; j<n; ++j )
          for( int i=0; i<m; ++i )
-             buffer[i+j*ldim] = (double)i-j;
+             buffer[i+j*ldim] = double(i-j);
 
 For constant instances of the :cpp:type:`Matrix\<T>` class, a ``const`` pointer
 to the underlying data can similarly be returned with a call to 
@@ -56,7 +56,8 @@ to view the bottom-right :math:`6 \times 7` submatrix using
 
      #include "elemental.hpp"
      ...
-     Matrix<Complex<double> > ABR( A, 1, 2, 3, 4 );
+     Matrix<Complex<double> > ABR;
+     View( ABR, A, 1, 2, 3, 4 );
 
 since the bottom-right :math:`3 \times 4` submatrix beings at index 
 :math:`(1,2)`. In general, to view the :math:`M \times N` submatrix starting
