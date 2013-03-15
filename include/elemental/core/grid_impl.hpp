@@ -17,7 +17,7 @@ inline int
 Grid::FindFactor( int p )
 {
     int factor = int(sqrt(double(p)));
-    while( factor % p != 0 )
+    while( p % factor != 0 )
         ++factor;
     return factor;
 }

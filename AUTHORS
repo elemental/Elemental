@@ -5,7 +5,8 @@ Jack Poulson:
   The complement of the following contributions.
 
 Matthias Petschow, Paolo Bientinesi, and RWTH Aachen University:
-  The PMRRR library for hybrid symmetric tridiagonal eigensolutions.
+  The PMRRR library for hybrid symmetric tridiagonal eigensolutions and a bug
+  fix for the Grid class.
 
 Univ. of Tennessee, Univ. of California Berkeley, and NAG Ltd.:
   The serial code for the safe inversion process during the calculation of 
