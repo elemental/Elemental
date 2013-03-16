@@ -19,6 +19,17 @@
 #include "elemental/matrices/Uniform.hpp"
 using namespace elem;
 
+//
+// This driver generates a random low-rank matrix and then randomly corrupts
+// a large percentage of the entries (by default 10%). Robust Principal 
+// Component Analysis (RPCA) is then used to recover both the underlying 
+// low-rank and sparse matrices.
+//
+// Please see <http://perception.csl.illinois.edu/matrix-rank/sample_code.html>
+// for references and documentation on the Augmented Lagrange Multiplier (ALM) 
+// and Alternating Direction Method of Multipliers (ADMM) for Robust PCA.
+//
+
 // Corrupt a portion of the entries with uniform samples from the unit ball
 template<typename F>
 int Corrupt( DistMatrix<F>& A, double probCorrupt )
@@ -93,7 +104,7 @@ void RPCA_ADMM
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
     Zeros( m, n, Y );
 
-    const double frobM = FrobeniusNorm( M );
+    const R frobM = FrobeniusNorm( M );
     if( commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << std::endl;
 
@@ -119,7 +130,7 @@ void RPCA_ADMM
         E = M;    
         Axpy( F(-1), L, E );
         Axpy( F(-1), S, E );
-        const double frobE = FrobeniusNorm( E );
+        const R frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
         {
@@ -188,7 +199,7 @@ void RPCA_ALM
     else if( beta == R(0) )
         beta = R(1) / (2*twoNorm);
 
-    const double frobM = FrobeniusNorm( M );
+    const R frobM = FrobeniusNorm( M );
     if( commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << std::endl;
 
@@ -248,7 +259,7 @@ void RPCA_ALM
         E = M;    
         Axpy( -1., L, E );
         Axpy( -1., S, E );
-        const double frobE = FrobeniusNorm( E );
+        const R frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
         {
