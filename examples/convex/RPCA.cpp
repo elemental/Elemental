@@ -17,38 +17,34 @@
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/convex/SingularValueSoftThreshold.hpp"
 #include "elemental/matrices/Uniform.hpp"
-#include <set>
 using namespace elem;
 
-// Corrupt a percentage of the entries with uniform samples from the unit ball
+// Corrupt a portion of the entries with uniform samples from the unit ball
 template<typename F>
-int Corrupt( DistMatrix<F>& A, double percentCorrupt )
+int Corrupt( DistMatrix<F>& A, double probCorrupt )
 {
 #ifndef RELEASE
     PushCallStack("Corrupt");
 #endif
+    typedef typename Base<F>::type R;
+
+    int numLocalCorrupt = 0;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    const int localSize = localHeight*localWidth;
-    int numLocalCorrupt = (percentCorrupt/100.)*localSize;
-    int numLocalCollisions = 0;
-    std::set<int> localIndices;
-    for( int k=0; k<numLocalCorrupt; ++k )
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        const int localIndex = rand() % localSize;
-        if( localIndices.count(localIndex) != 0 )
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
-            ++numLocalCollisions;
-            continue;
-        } 
-        const int iLocal = localIndex % localHeight;
-        const int jLocal = localIndex / localHeight;
-        const F perturb = SampleUnitBall<F>();
-        A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)+perturb );
+            if( Abs(SampleUnitBall<R>()) <= probCorrupt )
+            {
+                ++numLocalCorrupt;
+                const F perturb = SampleUnitBall<F>();
+                A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)+perturb );
+            }
+        }
     }
     
     int numCorrupt;
-    numLocalCorrupt -= numLocalCollisions;
     mpi::AllReduce
     ( &numLocalCorrupt, &numCorrupt, 1, mpi::SUM, A.Grid().VCComm() );
 #ifndef RELEASE
@@ -234,6 +230,18 @@ void RPCA_ALM
                     std::cout << "Primal loop converged" << std::endl;
                 break;
             }
+            else 
+            {
+                if( commRank == 0 )
+                    std::cout << "  " << numPrimalIts 
+                              << ": \n"
+                              << "   || Delta L ||_F / || M ||_F = " 
+                              << frobLDiff/frobM << "\n"
+                              << "   || Delta S ||_F / || M ||_F = "
+                              << frobSDiff/frobM << "\n"
+                              << "   rank=" << rank
+                              << ", numNonzeros=" << numNonzeros << std::endl;
+            } 
         }
 
         // E := M - (L + S)
@@ -262,7 +270,7 @@ void RPCA_ALM
         else
         {
             if( commRank == 0 )
-                std::cout << numIts << ": || E ||_F / || M ||_F = " 
+                std::cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
                           << frobE/frobM << ", rank=" << rank 
                           << ", numNonzeros=" << numNonzeros << std::endl;
         }
@@ -280,13 +288,15 @@ main( int argc, char* argv[] )
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
 
+    typedef Complex<double> C;
+
     try
     {
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
         const int rank = Input("--rank","rank of structured matrix",10);
-        const double percentCorrupt = 
-            Input("--percentCorrupt","percentage of corrupted entries",10.);
+        const double probCorrupt = 
+            Input("--probCorrupt","probability of corruption",0.1);
         const double tau = Input("--tau","sparse weighting factor",0.1);
         const double beta = Input("--beta","step size",1.);
         const double rho = Input("--rho","stepsize multiple in ALM",6.);
@@ -297,13 +307,13 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> LTrue;
+        DistMatrix<C> LTrue;
         {
-            DistMatrix<double> U, V;
+            DistMatrix<C> U, V;
             Uniform( m, rank, U );
             Uniform( n, rank, V );
             Zeros( m, n, LTrue );
-            Gemm( NORMAL, ADJOINT, 1./std::max(m,n), U, V, 0., LTrue );
+            Gemm( NORMAL, ADJOINT, C(1./std::max(m,n)), U, V, C(0), LTrue );
         }
         const double frobLTrue = FrobeniusNorm( LTrue );
         if( commRank == 0 )
@@ -311,9 +321,9 @@ main( int argc, char* argv[] )
         if( print )
             LTrue.Print("True L");
 
-        DistMatrix<double> STrue;
+        DistMatrix<C> STrue;
         Zeros( m, n, STrue );
-        const int numCorrupt = Corrupt( STrue, percentCorrupt );
+        const int numCorrupt = Corrupt( STrue, probCorrupt );
         const double frobSTrue = FrobeniusNorm( STrue );
         if( commRank == 0 )
             std::cout << "number of corrupted entries: " << numCorrupt << "\n"
@@ -322,10 +332,10 @@ main( int argc, char* argv[] )
             STrue.Print("True S");
 
         // M = LTrue + STrue
-        DistMatrix<double> M( LTrue );
-        Axpy( 1., STrue, M );
+        DistMatrix<C> M( LTrue );
+        Axpy( C(1), STrue, M );
 
-        DistMatrix<double> L, S;
+        DistMatrix<C> L, S;
         Zeros( m, n, L );
         Zeros( m, n, S ); 
 
@@ -339,14 +349,16 @@ main( int argc, char* argv[] )
             L.Print("L");
             S.Print("S"); 
         }
-        Axpy( -1., LTrue, L );
-        Axpy( -1., STrue, S );
+        Axpy( C(-1), LTrue, L );
+        Axpy( C(-1), STrue, S );
         const double frobLDiff = FrobeniusNorm( L );
         const double frobSDiff = FrobeniusNorm( S );
         if( commRank == 0 )
-            std::cout << "|| L - LTrue ||_F / || LTrue ||_F = " 
+            std::cout << "\n"
+                      << "Error in computed decomposition:\n"
+                      << "  || L - LTrue ||_F / || LTrue ||_F = " 
                       << frobLDiff/frobLTrue << "\n"
-                      << "|| S - STrue ||_F / || STrue ||_F = " 
+                      << "  || S - STrue ||_F / || STrue ||_F = " 
                       << frobSDiff/frobSTrue << "\n"
                       << std::endl;
         if( print )
