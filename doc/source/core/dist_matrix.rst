@@ -251,7 +251,7 @@ to be available for all matrix distributions.
 
       Return whether or not this matrix is viewing another.
 
-   .. cpp:function:: bool LockedView() const
+   .. cpp:function:: bool Locked() const
 
       Return whether or not this matrix is viewing another in a manner
       that does not allow for modifying the viewed data.

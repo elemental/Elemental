@@ -18,7 +18,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
   Int colShift, Int rowShift, 
   Int localHeight, Int localWidth,
   const elem::Grid& grid )
-: viewing_(false), lockedView_(false), 
+: viewing_(false), locked_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
   matrix_(localHeight,localWidth), 
@@ -38,7 +38,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
   Int localHeight, Int localWidth,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(false), lockedView_(false), 
+: viewing_(false), locked_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
   matrix_(localHeight,localWidth,ldim), 
@@ -58,7 +58,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
   const T* buffer,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(true), lockedView_(true), 
+: viewing_(true), locked_(true), 
   height_(height), width_(width), 
   auxMemory_(), 
   matrix_(localHeight,localWidth,buffer,ldim), 
@@ -77,7 +77,7 @@ AbstractDistMatrix<T,Int>::AbstractDistMatrix
   T* buffer,
   Int ldim,
   const elem::Grid& grid )
-: viewing_(true), lockedView_(false), 
+: viewing_(true), locked_(false), 
   height_(height), width_(width), 
   auxMemory_(), 
   matrix_(localHeight,localWidth,buffer,ldim), 
@@ -94,9 +94,9 @@ AbstractDistMatrix<T,Int>::~AbstractDistMatrix()
 #ifndef RELEASE
 template<typename T,typename Int>
 void
-AbstractDistMatrix<T,Int>::AssertNotLockedView() const
+AbstractDistMatrix<T,Int>::AssertNotLocked() const
 {
-    if( viewing_ && lockedView_ )
+    if( viewing_ && locked_ )
         throw std::logic_error
         ("Assertion that matrix not be a locked view failed");
 }
@@ -342,8 +342,8 @@ AbstractDistMatrix<T,Int>::Viewing() const
 
 template<typename T,typename Int>
 bool
-AbstractDistMatrix<T,Int>::LockedView() const
-{ return lockedView_; }
+AbstractDistMatrix<T,Int>::Locked() const
+{ return locked_; }
 
 template<typename T,typename Int>
 Int
@@ -463,7 +463,7 @@ void
 AbstractDistMatrix<T,Int>::Empty()
 {
     matrix_.Empty();
-    lockedView_ = false;
+    locked_ = false;
     viewing_ = false;
     height_ = 0;
     width_ = 0;
@@ -478,7 +478,7 @@ void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
     matrix_.Empty();
-    lockedView_ = false;
+    locked_ = false;
     viewing_ = false;
     height_ = 0;
     width_ = 0;

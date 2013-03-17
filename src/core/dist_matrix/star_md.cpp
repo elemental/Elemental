@@ -497,7 +497,7 @@ DistMatrix<T,STAR,MD,Int>::LockedAttach
     this->diagPath_ = grid.DiagPath(rowAlignmentVC);
     this->rowAlignment_ = grid.DiagPathRank(rowAlignmentVC);
     this->viewing_ = true;
-    this->lockedView_ = true;
+    this->locked_ = true;
     this->SetRowShift();
     if( this->Participating() )
     {
@@ -515,7 +515,7 @@ DistMatrix<T,STAR,MD,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD]::ResizeTo");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
@@ -620,7 +620,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [MC,MR]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -638,7 +638,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [MC,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -656,7 +656,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,MR]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -674,7 +674,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [MD,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -692,7 +692,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,MD]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -735,7 +735,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [MR,MC]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -753,7 +753,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [MR,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -771,7 +771,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,MC]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -789,7 +789,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [VC,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -807,7 +807,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,VC]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -825,7 +825,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [VR,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -843,7 +843,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,VR]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
@@ -861,7 +861,7 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("[* ,MD] = [* ,* ]");
-    this->AssertNotLockedView();
+    this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );

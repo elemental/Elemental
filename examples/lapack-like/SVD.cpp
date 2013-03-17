@@ -42,6 +42,9 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
 
         Grid g( comm );
+        if( commRank == 0 )
+            std::cout << "Grid is " 
+                      << g.Height() << " x " << g.Width() << std::endl;
         DistMatrix<C> A( g );
         Uniform( m, n, A );
 

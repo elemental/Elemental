@@ -103,7 +103,7 @@ public:
     //
 
     bool Viewing() const;
-    bool LockedView() const;
+    bool Locked() const;
 
     void Attach( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
@@ -120,7 +120,7 @@ public:
     void ResizeTo( Int height, Int width, Int ldim );
 
 private:
-    bool viewing_, lockedView_;
+    bool viewing_, locked_;
     Int height_, width_, ldim_;
     T* data_;
     const T* lockedData_;

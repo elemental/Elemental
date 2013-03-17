@@ -255,7 +255,7 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
 
       Return whether or not this matrix is currently viewing another matrix.
 
-   .. cpp:function:: bool LockedView() const
+   .. cpp:function:: bool Locked() const
 
       Return whether or not we can modify the data we are viewing.
 

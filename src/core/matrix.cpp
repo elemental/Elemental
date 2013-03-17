@@ -16,14 +16,14 @@ namespace elem {
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix()
-: viewing_(false), lockedView_(false),
+: viewing_(false), locked_(false),
   height_(0), width_(0), ldim_(1), data_(0), lockedData_(0),
   memory_()
 { }
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix( Int height, Int width )
-: viewing_(false), lockedView_(false),
+: viewing_(false), locked_(false),
   height_(height), width_(width), ldim_(std::max(height,1)), lockedData_(0)
 {
 #ifndef RELEASE
@@ -41,7 +41,7 @@ Matrix<T,Int>::Matrix( Int height, Int width )
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, Int ldim )
-: viewing_(false), lockedView_(false),
+: viewing_(false), locked_(false),
   height_(height), width_(width), ldim_(ldim), lockedData_(0)
 {
 #ifndef RELEASE
@@ -69,7 +69,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim )
-: viewing_(true), lockedView_(true),
+: viewing_(true), locked_(true),
   height_(height), width_(width), ldim_(ldim), data_(0), lockedData_(buffer)
 {
 #ifndef RELEASE
@@ -93,7 +93,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, T* buffer, Int ldim )
-: viewing_(true), lockedView_(false),
+: viewing_(true), locked_(false),
   height_(height), width_(width), ldim_(ldim), data_(buffer), lockedData_(0)
 {
 #ifndef RELEASE
@@ -117,7 +117,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( const Matrix<T,Int>& A )
-: viewing_(false), lockedView_(false), 
+: viewing_(false), locked_(false), 
   height_(0), width_(0), ldim_(1), data_(0), lockedData_(0)
 {
 #ifndef RELEASE
@@ -176,7 +176,7 @@ Matrix<T,Int>::Buffer()
 {
 #ifndef RELEASE
     PushCallStack("Matrix::Buffer");
-    if( lockedView_ )
+    if( locked_ )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
     PopCallStack();
@@ -188,7 +188,7 @@ template<typename T,typename Int>
 const T*
 Matrix<T,Int>::LockedBuffer() const
 {
-    if( lockedView_ )
+    if( locked_ )
         return lockedData_;
     else
         return data_;
@@ -202,7 +202,7 @@ Matrix<T,Int>::Buffer( Int i, Int j )
     PushCallStack("Matrix::Buffer");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( lockedView_ )
+    if( locked_ )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
     PopCallStack();
@@ -220,7 +220,7 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
         throw std::logic_error("Indices must be non-negative");
     PopCallStack();
 #endif
-    if( lockedView_ )
+    if( locked_ )
         return &lockedData_[i+j*ldim_];
     else
         return &data_[i+j*ldim_];
@@ -317,7 +317,7 @@ Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetDiagonal");
-    if( d.LockedView() )
+    if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
         (d.Height() != DiagonalLength(offset) || d.Width() != 1 ))
@@ -564,7 +564,7 @@ Matrix<T,Int>::GetRealPartOfDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealPartOfDiagonal");
-    if( d.LockedView() )
+    if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
         (d.Height() != DiagonalLength(offset) || d.Width() != 1))
@@ -591,7 +591,7 @@ Matrix<T,Int>::GetImagPartOfDiagonal
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagPartOfDiagonal");
-    if( d.LockedView() )
+    if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
         (d.Height() != DiagonalLength(offset) || d.Width() != 1))
@@ -720,7 +720,7 @@ Matrix<T,Int>::Attach
     ldim_ = ldim;
     data_ = buffer;
     viewing_ = true;
-    lockedView_ = false;
+    locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -741,7 +741,7 @@ Matrix<T,Int>::LockedAttach
     ldim_ = ldim;
     lockedData_ = buffer;
     viewing_ = true;
-    lockedView_ = true;
+    locked_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -758,8 +758,8 @@ Matrix<T,Int>::Viewing() const
 
 template<typename T,typename Int>
 bool
-Matrix<T,Int>::LockedView() const
-{ return lockedView_; }
+Matrix<T,Int>::Locked() const
+{ return locked_; }
 
 //
 // Utilities
@@ -771,7 +771,7 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     PushCallStack("Matrix::operator=");
-    if( lockedView_ )
+    if( locked_ )
         throw std::logic_error("Cannot assign to a locked view");
     if( viewing_ && ( A.Height() != Height() || A.Width() != Width() ) )
         throw std::logic_error
@@ -807,7 +807,7 @@ Matrix<T,Int>::Empty()
     data_ = 0;
     lockedData_ = 0;
     viewing_ = false;
-    lockedView_ = false;
+    locked_ = false;
 }
 
 template<typename T,typename Int>

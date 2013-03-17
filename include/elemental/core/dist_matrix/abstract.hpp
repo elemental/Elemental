@@ -39,7 +39,7 @@ public:
     //-----------------------------------------------------------------------//
 
 #ifndef RELEASE
-    void AssertNotLockedView() const;
+    void AssertNotLocked() const;
     void AssertNotStoringData() const;
     void AssertValidEntry( Int i, Int j ) const;
     void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
@@ -123,7 +123,7 @@ public:
     //
 
     bool Viewing() const;
-    bool LockedView() const;
+    bool Locked() const;
 
     //
     // Utilities
@@ -195,7 +195,7 @@ public:
     virtual void ResizeTo( Int height, Int width ) = 0;
 
 protected:
-    bool viewing_, lockedView_;
+    bool viewing_, locked_;
     Int height_, width_;
     Memory<T> auxMemory_;
     elem::Matrix<T,Int> matrix_;
@@ -256,14 +256,14 @@ protected:
     friend void View
     ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B );
     template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void elem::LockedView
+    friend void LockedView
     ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B );
     template<typename S,Distribution U,Distribution V,typename Ord> 
     friend void View
     ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B,
       Ord i, Ord j, Ord height, Ord width );
     template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void elem::LockedView
+    friend void LockedView
     ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B,
       Ord i, Ord j, Ord height, Ord width );
     template<typename S,Distribution U,Distribution V,typename Ord> 

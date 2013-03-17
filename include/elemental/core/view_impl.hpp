@@ -40,7 +40,7 @@ inline void View
     A.ldim_ = B.LDim();
     A.data_ = B.Buffer();
     A.viewing_ = true;
-    A.lockedView_ = false;
+    A.locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -90,7 +90,7 @@ inline void LockedView
     A.ldim_ = B.LDim();
     A.lockedData_ = B.LockedBuffer();
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -111,7 +111,7 @@ inline void LockedView
     A.rowAlignment_ = B.RowAlignment();
     HandleDiagPath( A, B );
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
     if( A.Participating() )
     {
         A.colShift_ = B.ColShift();
@@ -155,7 +155,7 @@ inline void View
     A.ldim_ = B.LDim();
     A.data_ = B.Buffer(i,j);
     A.viewing_ = true;
-    A.lockedView_ = false;
+    A.locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -239,7 +239,7 @@ inline void LockedView
     A.ldim_ = B.LDim();
     A.lockedData_ = B.LockedBuffer(i,j);
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -270,7 +270,7 @@ inline void LockedView
     A.rowAlignment_ = (B.RowAlignment()+j) % rowStride;
     HandleDiagPath( A, B );
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 
     if( A.Participating() )
     {
@@ -317,7 +317,7 @@ inline void View1x2
     A.ldim_ = BL.LDim();
     A.data_ = BL.Buffer();
     A.viewing_ = true;
-    A.lockedView_ = false;
+    A.locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -378,7 +378,7 @@ inline void LockedView1x2
     A.ldim_ = BL.LDim();
     A.lockedData_ = BL.LockedBuffer();
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 #ifndef RELEASE
     PopCallStack(); 
 #endif
@@ -403,7 +403,7 @@ inline void LockedView1x2
     A.rowAlignment_ = BL.RowAlignment();
     HandleDiagPath( A, BL );
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
     if( A.Participating() )
     {
         A.colShift_ = BL.ColShift();
@@ -441,7 +441,7 @@ inline void View2x1
     A.ldim_ = BT.LDim();
     A.data_ = BT.Buffer();
     A.viewing_ = true;
-    A.lockedView_ = false;
+    A.locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -503,7 +503,7 @@ inline void LockedView2x1
     A.ldim_ = BT.LDim();
     A.lockedData_ = BT.LockedBuffer();
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -528,7 +528,7 @@ inline void LockedView2x1
     A.rowAlignment_ = BT.RowAlignment();
     HandleDiagPath( A, BT );
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
     if( A.Participating() )
     {
         A.colShift_ = BT.ColShift();
@@ -573,7 +573,7 @@ inline void View2x2
     A.ldim_ = BTL.LDim();
     A.data_ = BTL.Buffer();
     A.viewing_ = true;
-    A.lockedView_ = false;
+    A.locked_ = false;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -648,7 +648,7 @@ inline void LockedView2x2
     A.ldim_ = BTL.LDim();
     A.lockedData_ = BTL.LockedBuffer();
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -677,7 +677,7 @@ inline void LockedView2x2
     A.rowAlignment_ = BTL.RowAlignment();
     HandleDiagPath( A, BTL );
     A.viewing_ = true;
-    A.lockedView_ = true;
+    A.locked_ = true;
     if( A.Participating() )
     {
         A.colShift_ = BTL.ColShift();
