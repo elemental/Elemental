@@ -195,9 +195,9 @@ private:
       Matrix<T,Int>& BTL, Matrix<T,Int>& BTR,
       Matrix<T,Int>& BBL, Matrix<T,Int>& BBR );
 
-    friend void elem::LockedView<T,Int>
+    friend void LockedView<T,Int>
     ( Matrix<T,Int>& A, const Matrix<T,Int>& B );
-    friend void elem::LockedView<T,Int>
+    friend void LockedView<T,Int>
     (       Matrix<T,Int>& A, 
       const Matrix<T,Int>& B, Int i, Int j, Int height, Int width );
     friend void LockedView1x2<T,Int>
