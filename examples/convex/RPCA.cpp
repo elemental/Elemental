@@ -79,6 +79,7 @@ void Sign( DistMatrix<F,U,V>& A )
     }
 }
 
+// If 'tau' is passed in as zero, it is set to 1/sqrt(max(m,n))
 template<typename F>
 void RPCA_ADMM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
@@ -89,17 +90,20 @@ void RPCA_ADMM
   bool print )
 {
     typedef typename Base<F>::type R;
-
-    if( beta <= R(0) )
-        throw std::logic_error("beta cannot be non-positive");
-    if( tau <= R(0) )
-        throw std::logic_error("tau cannot be non-positive");
-    if( tol <= R(0) )
-        throw std::logic_error("tol cannot be non-positive");
-
     const int m = M.Height();
     const int n = M.Width();
     const int commRank = mpi::CommRank( M.Grid().Comm() );
+
+    // If tau is not specified, then set it to 1/sqrt(max(m,n))
+    if( tau == R(0) )
+        tau = R(1)/sqrt(R(std::max(m,n)));
+
+    if( beta <= R(0) )
+        throw std::logic_error("beta cannot be non-positive");
+    if( tau <=  R(0) )
+        throw std::logic_error("tau cannot be non-positive");
+    if( tol <= R(0) )
+        throw std::logic_error("tol cannot be non-positive");
 
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
     Zeros( m, n, Y );
@@ -179,12 +183,14 @@ void RPCA_ALM
     const int n = M.Width();
     const int commRank = mpi::CommRank( M.Grid().Comm() );
 
+    // If tau is unspecified, set it to 1/sqrt(max(m,n))
+    if( tau == R(0) )
+        tau = R(1) / sqrt(R(std::max(m,n)));
+
     if( tol <= R(0) )
         throw std::logic_error("tol cannot be non-positive");
-    if( tau < R(0) )
-        throw std::logic_error("tau cannot be negative");
-    else if( tau == R(0) )
-        tau = R(1) / sqrt(R(1)*m);
+    if( tau <= R(0) )
+        throw std::logic_error("tau cannot be non-positive");
 
     DistMatrix<F> Y( M );
     Sign( Y );
@@ -194,10 +200,12 @@ void RPCA_ALM
     const R dualNorm = std::max( twoNorm, infNorm );
     Scale( F(1)/dualNorm, Y );
 
-    if( beta < R(0) )
-        throw std::logic_error("beta cannot be negative");
-    else if( beta == R(0) )
+    // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
+    if( beta == R(0) )
         beta = R(1) / (2*twoNorm);
+
+    if( beta <= R(0) )
+        throw std::logic_error("beta cannot be non-positive");
 
     const R frobM = FrobeniusNorm( M );
     if( commRank == 0 )
@@ -308,7 +316,7 @@ main( int argc, char* argv[] )
         const int rank = Input("--rank","rank of structured matrix",10);
         const double probCorrupt = 
             Input("--probCorrupt","probability of corruption",0.1);
-        const double tau = Input("--tau","sparse weighting factor",0.1);
+        const double tau = Input("--tau","sparse weighting factor",0.);
         const double beta = Input("--beta","step size",1.);
         const double rho = Input("--rho","stepsize multiple in ALM",6.);
         const int maxIts = Input("--maxIts","maximum iterations",1000);
