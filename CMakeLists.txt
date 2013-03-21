@@ -571,6 +571,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
   file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
     "experimental/c/interface.cpp")
   add_library(experimental-c ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
+  install(TARGETS experimental-c DESTINATION lib)
 
   add_executable(experimental-c-test ${EXPERIMENTAL_DIR}/c/test.c)
   target_link_libraries(experimental-c-test experimental-c elemental)
@@ -581,12 +582,14 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
       PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
   endif()
   install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
-  add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
+  add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
     COMMAND ${CMAKE_COMMAND} -E copy 
             ${PROJECT_SOURCE_DIR}/experimental/c/elemental.h
             ${PROJECT_BINARY_DIR}/include/elemental.h
     DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c/elemental.h")
+  add_custom_target(c_elemental 
+    DEPENDS ${PROJECT_BINARY_DIR}/include/elemental.h)
+  add_dependencies(experimental-c-test c_elemental)
   install(FILES ${PROJECT_BINARY_DIR}/include/elemental.h 
     DESTINATION include/elemental.h)
 
@@ -622,6 +625,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
     file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
       "experimental/f90/interface.cpp")
     add_library(experimental-f90 ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
+    install(TARGETS experimental-f90 DESTINATION lib)
 
     add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90)
     target_link_libraries(experimental-f90-test experimental-f90 elemental)

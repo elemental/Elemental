@@ -30,5 +30,7 @@ else
   THREAD_INIT = @CMAKE_THREAD_LIBS_INIT@
   PMRRR_LIBS = -lpmrrr ${LAPACK_ADDONS} ${THREAD_INIT}
 endif
+ELEM_C = -lexperimental-c
+ELEM_F90 = -lexperimental-f90
 ELEM_LIBS = -lelemental -lplcg ${PMRRR_LIBS} -lelem-dummy-lib \
             ${MATH_LIBS} ${MPI_CXX_LIBS}
