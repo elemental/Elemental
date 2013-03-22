@@ -211,10 +211,8 @@ if(HYBRID)
       set(HAVE_OPENMP TRUE)
     else()
       set(OpenMP_CXX_FLAGS "" CACHE STRING "OpenMP CXX FLAGS")
-      message(
-        FATAL_ERROR
-        "Hybrid build failed because OpenMP support was not detected. Please try specifying OpenMP_CXX_FLAGS."
-      )
+      message(FATAL_ERROR
+        "Hybrid build failed because OpenMP support not detected. Please specify OpenMP_CXX_FLAGS.")
     endif()
   endif()
 endif()
@@ -244,8 +242,7 @@ elseif(APPLE)
 else()
   # Look for default BLAS and LAPACK
   if(REFERENCE_ROOT)
-    message(STATUS 
-      "Will search REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
+    message(STATUS "Searching REFERENCE_ROOT=${REFERENCE_ROOT} for math libs")
   endif()
   set(REFERENCE_REQUIRED LAPACK BLAS)
   find_library(BLAS_LIB NAMES blas PATHS ${REFERENCE_ROOT})
@@ -264,8 +261,7 @@ else()
   if(REFERENCE_FOUND)
     message(WARNING "Using reference BLAS/LAPACK.")
   else()
-    message(FATAL_ERROR 
-      "Could not find BLAS/LAPACK libraries. Please specify MATH_LIBS")
+    message(FATAL_ERROR "Could not find BLAS/LAPACK. Please specify MATH_LIBS")
   endif()
 endif()
 
@@ -273,31 +269,27 @@ endif()
 # We currently only handle whether or not there is an underscore appended.
 include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
-check_function_exists(daxpy HAVE_DAXPY)
+check_function_exists(daxpy  HAVE_DAXPY)
+check_function_exists(daxpy_ HAVE_DAXPY_POST)
 if(HAVE_DAXPY)
   set(BLAS_POST FALSE)
   set(BLAS_DEFS "")
+elseif(HAVE_DAXPY_POST)
+  set(BLAS_POST TRUE)
+  set(BLAS_DEFS "-DBLAS_POST")
 else()
-  check_function_exists(daxpy_ HAVE_DAXPY_POST)
-  if(HAVE_DAXPY_POST)
-    set(BLAS_POST TRUE)
-    set(BLAS_DEFS "-DBLAS_POST")
-  else()
-    message(FATAL_ERROR "Could not determine BLAS format.")
-  endif()
+  message(FATAL_ERROR "Could not determine BLAS format.")
 endif()
-check_function_exists(dpotrf HAVE_DPOTRF)
+check_function_exists(dpotrf  HAVE_DPOTRF)
+check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
 if(HAVE_DPOTRF)
   set(LAPACK_POST FALSE)
   set(LAPACK_DEFS "")
+elseif(HAVE_DPOTRF_POST)
+  set(LAPACK_POST TRUE)
+  set(LAPACK_DEFS "-DLAPACK_POST")
 else()
-  check_function_exists(dpotrf_ HAVE_DPOTRF_POST)
-  if(HAVE_DPOTRF_POST)
-    set(LAPACK_POST TRUE)
-    set(LAPACK_DEFS "-DLAPACK_POST")
-  else()
-    message(FATAL_ERROR "Could not determine LAPACK format.")
-  endif()
+  message(FATAL_ERROR "Could not determine LAPACK format.")
 endif()
 
 # Check whether or not the FLAME bidiagonal QR routines are available
@@ -308,18 +300,14 @@ check_function_exists(FLA_Bsvd_v_opd_var1 HAVE_FLA_BSVD)
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
-check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
+check_function_exists(MPI_Reduce_scatter       HAVE_MPI_REDUCE_SCATTER)
 check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
+check_function_exists(MPI_Comm_set_errhandler  HAVE_MPI_COMM_SET_ERRHANDLER)
+check_function_exists(MPI_Iallgather  HAVE_MPI3_NONBLOCKING_COLLECTIVES)
+check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
 if(NOT HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
 endif()
-
-# Look for namechanges from MPI 3
-check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
-
-# Check for nonblocking collectives
-check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
-check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
 
 # Check for MPI_IN_PLACE (essentially MPI2 support)
 include(CheckCSourceCompiles)
@@ -347,26 +335,22 @@ set(RESTRICT_CODE
      }")
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
 check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
+set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
+check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
 if(HAVE___restrict__)
   set(RESTRICT "__restrict__")
   message(STATUS "Using __restrict__ keyword.")
+elseif(HAVE___restrict)
+  set(RESTRICT "__restrict")
+  message(STATUS "Using __restrict keyword.")
+elseif(HAVE_restrict)
+  set(RESTRICT "restrict")
+  message(STATUS "Using restrict keyword.")
 else()
-  set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
-  check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict)
-  if(HAVE___restrict)
-    set(RESTRICT "__restrict")
-    message(STATUS "Using __restrict keyword.")
-  else()
-    set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=restrict")
-    check_cxx_source_compiles("${RESTRICT_CODE}" HAVE_restrict)
-    if(HAVE_restrict)
-      set(RESTRICT "restrict")
-      message(STATUS "Using restrict keyword.")
-    else()
-      set(RESTRICT "")
-      message(STATUS "Could not find a restrict keyword.")
-    endif()
-  endif()
+  set(RESTRICT "")
+  message(STATUS "Could not find a restrict keyword.")
 endif()
 
 # Add the Parallel Linear Congruential Generator (PLCG) project
@@ -384,11 +368,10 @@ else()
 endif()
 
 # Create the Elemental configuration header
-configure_file( 
-  ${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
-  ${PROJECT_BINARY_DIR}/include/elemental/config.h)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
+               ${PROJECT_BINARY_DIR}/include/elemental/config.h)
 install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
-  DESTINATION include/elemental)
+        DESTINATION include/elemental)
 
 # Create a file which can be included in Makefile's.
 # This is meant to be analogous to PETSc's 'conf/petscvariables' file
@@ -408,17 +391,17 @@ set(LAPACK_ADDONS_STRING)
 foreach(LIB ${LAPACK_ADDONS_LIBS})
   set(LAPACK_ADDONS_STRING "${LAPACK_ADDONS_STRING} ${LIB}")
 endforeach()
-configure_file(
-  ${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
-  ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
+               ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 
+# HERE
+
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
-file(GLOB_RECURSE ELEMENTAL_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-  "src/*.c" "src/*.cpp")
-file(GLOB_RECURSE ELEMENTAL_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
+file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
+file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-set(ELEMENTAL_SRC "${ELEMENTAL_CPP};${ELEMENTAL_HEADERS}")
+set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS}")
 
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
@@ -428,7 +411,7 @@ install(TARGETS elem-dummy-lib DESTINATION lib)
 
 # The main library
 if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
+  add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
   target_link_libraries(elemental pmrrr plcg elem-dummy-lib)
   if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
@@ -438,15 +421,17 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
     set(MPI_LINK_FLAGS "${MPI_C_LINK_FLAGS}")
   endif()
 else()
-  add_library(elemental ${LIBRARY_TYPE} ${ELEMENTAL_SRC})
+  add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
   target_link_libraries(elemental plcg elem-dummy-lib)
-  set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
+  if(MPI_CXX_LINK_FLAGS)
+    set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
+  endif()
 endif()
 install(TARGETS elemental DESTINATION lib)
 
 # Define the header-file preparation rules
 set(PREPARED_HEADERS)
-foreach(HEADER ${ELEMENTAL_HEADERS})
+foreach(HEADER ${ELEM_HEADERS})
   add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/${HEADER}
             ${PROJECT_BINARY_DIR}/${HEADER}

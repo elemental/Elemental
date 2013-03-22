@@ -1,6 +1,6 @@
 #
-#  Copyright (c) 2009-2012, Jack Poulson
-#                     2012, Jed Brown 
+#  Copyright (c) 2009-2013, Jack Poulson
+#                     2013, Jed Brown 
 #  All rights reserved.
 #
 #  This file is part of Elemental and is under the BSD 2-Clause License, 
@@ -44,6 +44,8 @@ elseif(HAVE_DPOTRF_POST)
   check_function_exists(claqr0_ LAPACK_3_1)
   check_function_exists(cuncsd_ LAPACK_3_3)
 endif()
+# Attempt to detect whether or not we have MKL
+check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
@@ -54,10 +56,6 @@ if(NOT HAVE_MPI_QUERY_THREAD)
   set(FAILED_PMRRR TRUE PARENT_SCOPE)
   return()
 endif()
-
-# Attempt to detect whether or not we have MKL
-set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
-check_function_exists(mkl_set_num_threads MATH_HAS_MKL)
 
 if(PURE)
   if(MATH_HAS_MKL)
@@ -197,9 +195,8 @@ set(PMRRR_SRC "${PMRRR_C};${PMRRR_H}")
 set(MISSING_LAPACK ${MISSING_LAPACK} PARENT_SCOPE)
 if(MISSING_LAPACK)
   add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
-  target_link_libraries(
-    pmrrr lapack-addons ${MPI_C_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}
-  )
+  target_link_libraries(pmrrr lapack-addons ${MPI_C_LIBRARIES} 
+    ${CMAKE_THREAD_LIBS_INIT})
   install(TARGETS pmrrr lapack-addons DESTINATION lib)
 else()
   add_library(pmrrr ${LIBRARY_TYPE} ${PMRRR_SRC})
@@ -211,12 +208,10 @@ set(CMAKE_THREAD_LIBS_INIT ${CMAKE_THREAD_LIBS_INIT} PARENT_SCOPE)
 # Define the header-preparation rules
 set(PREPARED_HEADERS)
 foreach(HEADER ${PMRRR_H})
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
+  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}
             ${CMAKE_CURRENT_BINARY_DIR}/${HEADER}
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}"
-  )
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${HEADER}")
   list(APPEND PREPARED_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HEADER})
 
   get_filename_component(HEADER_PATH ${HEADER} PATH)
