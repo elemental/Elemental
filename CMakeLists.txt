@@ -395,8 +395,6 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/elemvariables.cmake
                ${PROJECT_BINARY_DIR}/conf/elemvariables @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 
-# HERE
-
 # Grab all of the .c, .cpp, .h, and .hpp Elemental files
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
