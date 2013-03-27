@@ -222,6 +222,15 @@ directly).
    The maximum singular value. This is equivalent to the KyFan norm with `k` 
    equal to one and the Schatten norm with :math:`p=\infty`.
 
+.. cpp:function:: int ZeroNorm( const Matrix<F>& A )
+.. cpp:function:: int ZeroNorm( const DistMatrix<F>& A )
+.. cpp:function:: int HermitianZeroNorm( const Matrix<F>& A )
+.. cpp:function:: int HermitianZeroNorm( const DistMatrix<F>& A )
+.. cpp:function:: int SymmetricZeroNorm( const Matrix<F>& A )
+.. cpp:function:: int SymmetricZeroNorm( const DistMatrix<F>& A )
+
+   Return the number of nonzero entries in the matrix.
+
 Two-norm estimates
 ------------------
 Since the two-norm is extremely useful, but expensive to compute, it is useful
