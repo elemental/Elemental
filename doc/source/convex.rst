@@ -32,3 +32,17 @@ In particular, if we set :math:`Z = L_B^{-1} L_A`, where :math:`A=L_A L_A^H` and
 .. cpp:function:: typename Base<F>::type LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 .. cpp:function:: typename Base<F>::type LogDetDivergence( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 
+Singular-value soft-thresholding
+--------------------------------
+Overwrites :math:`A` with :math:`U S_{\tau}(\Sigma) V^H`, where :math:`U \Sigma V^H` is the singular-value decomposition of :math:`A` upon input and :math:`S_{\tau}` performs soft-thresholding with parameter :math:`\tau`.
+The return value is the rank of the soft-thresholded matrix.
+
+.. cpp:function:: int SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
+.. cpp:function:: int SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
+
+Soft-thresholding
+-----------------
+Overwrites each entry of :math:`A` with its soft-thresholded value.
+
+.. cpp:function:: void SoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
+.. cpp:function:: void SoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
