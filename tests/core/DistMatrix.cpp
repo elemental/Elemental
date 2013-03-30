@@ -60,8 +60,10 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.Comm() );
 
     if( summedErrorFlag == 0 )
+    {
         if( commRank == 0 )
             std::cout << "PASSED" << std::endl;
+    }
     else
         throw std::logic_error("Redistribution failed");
 #ifndef RELEASE
