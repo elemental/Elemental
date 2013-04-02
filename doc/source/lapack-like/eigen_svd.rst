@@ -374,7 +374,7 @@ flips introduced by negative eigenvalues.
    singular vector matrices, :math:`U` and :math:`V`, such that 
    :math:`A=U \mathrm{diag}(s) V^H`.
 
-.. cpp:function:: void HermitianSingularValues( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+.. cpp:function:: void HermitianSVD( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 
    Return the singular values of :math:`A` in `s`. Note that the appropriate 
    triangle of `A` is overwritten during computation.
@@ -426,9 +426,9 @@ non-negative entries.
 
    Overwrites `A` with :math:`U`, `s` with the diagonal entries of :math:`\Sigma`, and `V` with :math:`V`. 
 
-.. cpp:function:: void SingularValues( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
+.. cpp:function:: void SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
 
-.. cpp:function:: void SingularValues( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+.. cpp:function:: void SVD( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 
    Forms the singular values of :math:`A` in `s`. Note that `A` is overwritten in order to compute the singular values.
 

@@ -27,7 +27,7 @@ SymmetricSchattenNorm
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     // TODO: Think of how to make this more stable
     const int k = s.Height();
@@ -53,7 +53,7 @@ SymmetricSchattenNorm
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     // TODO: Think of how to make this more stable
     const int kLocal = s.LocalHeight();

@@ -817,13 +817,13 @@ void QRSVD
 }
 
 //
-// Compute singular values with QR algorithm
+// Compute singular values (with the QR algorithm)
 //
 
-void SingularValues( int m, int n, float* A, int lda, float* s )
+void SVD( int m, int n, float* A, int lda, float* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SingularValues");
+    PushCallStack("lapack::SVD");
 #endif
     if( m==0 || n==0 )
     {
@@ -861,10 +861,10 @@ void SingularValues( int m, int n, float* A, int lda, float* s )
 #endif
 }
 
-void SingularValues( int m, int n, double* A, int lda, double* s )
+void SVD( int m, int n, double* A, int lda, double* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SingularValues");
+    PushCallStack("lapack::SVD");
 #endif
     if( m==0 || n==0 )
     {
@@ -902,10 +902,10 @@ void SingularValues( int m, int n, double* A, int lda, double* s )
 #endif
 }
 
-void SingularValues( int m, int n, scomplex* A, int lda, float* s )
+void SVD( int m, int n, scomplex* A, int lda, float* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SingularValues");
+    PushCallStack("lapack::SVD");
 #endif
     if( m==0 || n==0 )
     {
@@ -945,10 +945,10 @@ void SingularValues( int m, int n, scomplex* A, int lda, float* s )
 #endif
 }
 
-void SingularValues( int m, int n, dcomplex* A, int lda, double* s )
+void SVD( int m, int n, dcomplex* A, int lda, double* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SingularValues");
+    PushCallStack("lapack::SVD");
 #endif
     if( m==0 || n==0 )
     {

@@ -27,7 +27,7 @@ SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
     const R norm = MaxNorm( s );
 #ifndef RELEASE
     PopCallStack();
@@ -46,7 +46,7 @@ SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
     const R norm = MaxNorm( s );
 #ifndef RELEASE
     PopCallStack();

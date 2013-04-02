@@ -92,8 +92,8 @@ QR-based SVD
 Computes the singular value decomposition of a general matrix by running the 
 QR algorithm on the condensed bidiagonal matrix.
 
-.. cpp:function:: void lapack::SingularValues( int m, int n, R* A, int lda, R* s )
-.. cpp:function:: void lapack::SingularValues( int m, int n, Complex<R>* A, int lda, R* s )
+.. cpp:function:: void lapack::SVD( int m, int n, R* A, int lda, R* s )
+.. cpp:function:: void lapack::SVD( int m, int n, Complex<R>* A, int lda, R* s )
 
 Computes the singular values of a general matrix by running the QR algorithm
 on the condensed bidiagonal matrix.

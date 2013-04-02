@@ -69,12 +69,12 @@ inline void HermitianSVD
 }
 
 template<typename F>
-inline void HermitianSingularValues
+inline void HermitianSVD
 ( UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSingularValues");
+    PushCallStack("HermitianSVD");
 #endif
     typedef typename Base<F>::type R;
 

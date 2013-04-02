@@ -35,14 +35,14 @@ HermitianSchattenNorm
 // TODO: Enable sequential MRRR
 /*
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif // ifdef HAVE_PMRRR
 */
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     // TODO: Think of how to make this more stable
     const int k = s.Height();
@@ -69,10 +69,10 @@ HermitianSchattenNorm
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif // ifdef HAVE_PMRRR
 
     // TODO: Think of how to make this more stable

@@ -127,13 +127,13 @@ void QRSVD
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva );
 
 //
-// Compute the singular values of a general matrix using the QR algorithm
+// Compute the singular values of a general matrix (using the QR algorithm)
 //
 
-void SingularValues( int m, int n, float* A, int lda, float* s );
-void SingularValues( int m, int n, double* A, int lda, double* s );
-void SingularValues( int m, int n, scomplex* A, int lda, float* s );
-void SingularValues( int m, int n, dcomplex* A, int lda, double* s );
+void SVD( int m, int n, float* A, int lda, float* s );
+void SVD( int m, int n, double* A, int lda, double* s );
+void SVD( int m, int n, scomplex* A, int lda, float* s );
+void SVD( int m, int n, dcomplex* A, int lda, double* s );
 
 //
 // Compute the SVD of a bidiagonal matrix using the QR algorithm

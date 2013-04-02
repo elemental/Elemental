@@ -27,6 +27,3 @@ Jed Brown and Argonne National Laboratory:
 Jeff Hammond and Argonne National Laboratory:
   Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q, and an 
   improvement for Elemental's threading support.
-
-Jack Poulson, Lexing Ying, and The University of Texas at Austin:
-  The parallel linear congruential generator.

@@ -1,0 +1,28 @@
+NOTE: This list of references will hopefully grow very soon. I would like to
+      move towards making Elemental (and all of my open source efforts) closer
+      to a publication.
+
+[1] Tony F. Chan, "An improved algorithm for computing the Singular Value
+    Decomposition", ACM Transactions on Mathematical Software, Vol. 8, No. 1, 
+    pp. 72--83, 1982.
+    http://www.stat.uchicago.edu/~lekheng/courses/324/chan.pdf
+
+    NOTE: This paper introduced the idea of using a QR decomposition as a first
+          step in the SVD of a non-square matrix in order to accelerate the 
+          computation.
+
+[2] Gene H. Golub and Christian Reinsch, "Singular value decomposition and 
+    least squares solutions", Numerische Mathematik, Vol. 14, No. 5, 
+    pp. 403--420, 1970.
+
+    NOTE: This paper introduced the standard algorithm for computing the SVD.
+
+[3] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
+    Numerical Algorithms, 42:31--61, 2006.
+    http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
+
+    NOTE: This paper could serve as a foundation for achieving high absolute
+          accuracy in a cross-product based algorithm for computing the SVD.
+          Such an approach should be more scalable than the current 
+          bidiagonalization-based approach.
+

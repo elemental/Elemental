@@ -33,14 +33,14 @@ HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 // TODO: Enable support for sequential MRRR
 /*
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif
 */
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
     const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
@@ -59,10 +59,10 @@ HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif
     const R norm = InfinityNorm( s );
 #ifndef RELEASE

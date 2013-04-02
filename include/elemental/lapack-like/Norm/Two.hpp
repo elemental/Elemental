@@ -25,7 +25,7 @@ TwoNorm( const Matrix<F>& A )
     typedef typename Base<F>::type R;
     Matrix<F> B( A );
     Matrix<R> s;
-    SingularValues( B, s );
+    SVD( B, s );
     const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();
@@ -43,7 +43,7 @@ TwoNorm( const DistMatrix<F,U,V>& A )
     typedef typename Base<F>::type R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
+    SVD( B, s );
     const R norm = InfinityNorm( s );
 #ifndef RELEASE
     PopCallStack();

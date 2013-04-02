@@ -35,14 +35,14 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 // TODO: Enable sequential MRRR
 /*
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif // ifdef HAVE_PMRRR
 */
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     R norm = 0;
     for( int j=k-1; j>=0; --j )
@@ -67,10 +67,10 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
 #ifdef HAVE_PMRRR
-    HermitianSingularValues( uplo, B, s );
+    HermitianSVD( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 #endif // ifdef HAVE_PMRRR
 
     R localNorm = 0;

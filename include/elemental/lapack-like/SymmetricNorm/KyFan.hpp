@@ -29,7 +29,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     R norm = 0;
     for( int j=k-1; j>=0; --j )
@@ -54,7 +54,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
-    SingularValues( B, s );
+    SVD( B, s );
 
     R localNorm = 0;
     DistMatrix<R,VR,STAR> sTop( A.Grid() );

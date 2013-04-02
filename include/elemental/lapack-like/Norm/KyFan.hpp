@@ -27,7 +27,7 @@ KyFanNorm( const Matrix<F>& A, int k )
     typedef typename Base<F>::type R;
     Matrix<F> B( A );
     Matrix<R> s;
-    SingularValues( B, s );
+    SVD( B, s );
 
     R norm = 0;
     for( int j=k-1; j>=0; --j )
@@ -51,7 +51,7 @@ KyFanNorm( const DistMatrix<F,U,V>& A, int k )
     typedef typename Base<F>::type R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
+    SVD( B, s );
 
     R localNorm = 0;
     DistMatrix<R,VR,STAR> sTop( A.Grid() );

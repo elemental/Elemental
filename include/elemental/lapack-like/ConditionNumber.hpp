@@ -25,7 +25,7 @@ ConditionNumber( const Matrix<F>& A )
 
     Matrix<F> B( A );
     Matrix<R> s;
-    SingularValues( B, s );
+    SVD( B, s );
 
     R cond = 1;
     const int numVals = s.Height();
@@ -48,7 +48,7 @@ ConditionNumber( const DistMatrix<F,U,V>& A )
 
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-    SingularValues( B, s );
+    SVD( B, s );
 
     R cond = 1;
     const int numVals = s.Height();
