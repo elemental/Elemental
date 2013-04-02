@@ -11,18 +11,6 @@
 option(HAVE_SPINLOCKS "Enable if pthread lib supports spinlocks" OFF)
 MARK_AS_ADVANCED(HAVE_SPINLOCKS)
 
-if(DEBUG)
-  set(C_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
-    "C optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
-  set(Fortran_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
-    "Fortran optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
-else()
-  set(C_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
-    "C optimization flags for ${UPPER_BUILD_TYPE} mode")
-  set(Fortran_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
-    "Fortran optimization flags for ${UPPER_BUILD_TYPE} mode")
-endif()
-
 # Search the BLAS/LAPACK libs for  to test whether it is a new enough version
 # for our purposes. If the LAPACK library is version 3.1 or later, then 
 # dstemr will support subset computations. However, dlamch only became 
@@ -53,7 +41,6 @@ set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
 check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
 if(NOT HAVE_MPI_QUERY_THREAD)
   message(WARNING "Do not have MPI_Query_thread, so cannot build PMRRR")
-  set(FAILED_PMRRR TRUE PARENT_SCOPE)
   return()
 endif()
 
@@ -85,7 +72,6 @@ if(MISSING_LAPACK)
     if(NOT CMAKE_Fortran_COMPILER_SUPPORTS_F90)
       message(WARNING 
         "${CMAKE_Fortran_COMPILER} does not support F90, so PMRRR cannot be built")
-      set(FAILED_PMRRR TRUE PARENT_SCOPE)
       return()
     endif()
 
@@ -143,7 +129,6 @@ if(MISSING_LAPACK)
     add_library(lapack-addons ${LIBRARY_TYPE} ${LAPACK_ADDON_SRC})
     target_link_libraries(lapack-addons ${LAPACK_ADDONS_LIBS})
   else()
-    set(FAILED_PMRRR TRUE PARENT_SCOPE)
     message(WARNING "F90 compiler not found; cannot build PMRRR using the supplied MATH_LIBS")
     return()
   endif()
@@ -167,7 +152,6 @@ endif()
 # Ensure that an MPI C compiler was found
 if(NOT MPI_C_FOUND)
   message(WARNING "No MPI C compiler was found, so PMRRR cannot be built")
-  set(FAILED_PMRRR TRUE PARENT_SCOPE)
   return()
 endif()
 include_directories(${MPI_C_INCLUDE_PATH})
@@ -181,7 +165,6 @@ if(NOT CMAKE_THREAD_LIBS_INIT)
   find_package(Threads)
   if(NOT CMAKE_USE_PTHREADS_INIT)
     message(WARNING "Could not find a pthreads library, cannot build PMRRR")
-    set(FAILED_PMRRR TRUE PARENT_SCOPE)
     return()
   endif()
 endif()
@@ -224,3 +207,6 @@ add_dependencies(pmrrr prepare_pmrrr_headers)
 
 # Make sure that the PMRRR headers can be found
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
+
+# Make sure Elemental knows that we have succeeded
+set(HAVE_PMRRR TRUE PARENT_SCOPE)

@@ -12,9 +12,9 @@
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 
-#ifndef WITHOUT_PMRRR
-#include "elemental/lapack-like/HermitianSVD.hpp"
-#endif // ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
+  #include "elemental/lapack-like/HermitianSVD.hpp"
+#endif // ifdef HAVE_PMRRR
 #include "elemental/lapack-like/SVD.hpp"
 
 namespace elem {
@@ -34,12 +34,12 @@ HermitianSchattenNorm
 
 // TODO: Enable sequential MRRR
 /*
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-#endif // ifndef WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 */
     MakeHermitian( uplo, B );
     SingularValues( B, s );
@@ -68,12 +68,12 @@ HermitianSchattenNorm
 
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
     SingularValues( B, s );
-#endif // ifndef WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
     // TODO: Think of how to make this more stable
     const int kLocal = s.LocalHeight();

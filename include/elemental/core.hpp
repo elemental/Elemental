@@ -69,8 +69,7 @@
 #include "elemental/core/imports/blas.hpp"
 #include "elemental/core/imports/lapack.hpp"
 #include "elemental/core/imports/flame.hpp"
-#include "elemental/core/imports/plcg.hpp"
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
   #include "elemental/core/imports/pmrrr.hpp"
 #endif
 #include "elemental/core/imports/choice.hpp"

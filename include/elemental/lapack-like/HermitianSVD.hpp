@@ -10,7 +10,7 @@
 #ifndef LAPACK_HERMITIANSVD_HPP
 #define LAPACK_HERMITIANSVD_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 namespace elem {
 
@@ -95,6 +95,6 @@ inline void HermitianSingularValues
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HERMITIANSVD_HPP

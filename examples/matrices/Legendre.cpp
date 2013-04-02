@@ -30,7 +30,7 @@ main( int argc, char* argv[] )
         DistMatrix<double> J;
         Legendre( n, J );
 
-#ifdef WITHOUT_PMRRR
+#ifndef HAVE_PMRRR
         if( print )
             J.Print("Jacobi matrix for Legendre polynomials");
 #else

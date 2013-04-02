@@ -10,7 +10,7 @@
 #ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP
 #define LAPACK_HERMITIANGENDEFINITEEIG_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -446,6 +446,6 @@ HermitianGenDefiniteEig
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP

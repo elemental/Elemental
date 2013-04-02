@@ -10,7 +10,7 @@
 #ifndef LAPACK_HPSDSQUAREROOT_HPP
 #define LAPACK_HPSDSQUAREROOT_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
@@ -79,6 +79,6 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HPSDSQUAREROOT_HPP

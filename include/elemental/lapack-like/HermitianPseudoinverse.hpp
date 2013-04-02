@@ -10,7 +10,7 @@
 #ifndef LAPACK_HERMITIANPSEUDOINVERSE_HPP
 #define LAPACK_HERMITIANPSEUDOINVERSE_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
@@ -63,6 +63,6 @@ HermitianPseudoinverse
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HERMITIANPSEUDOINVERSE_HPP

@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.5)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 78-dev)
+set(Elemental_VERSION_MINOR 79-dev)
 
 ################################################################################
 # Common build options                                                         #
@@ -161,14 +161,19 @@ endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} UPPER_BUILD_TYPE)
 
 # Set the basic compile flags from the build type
-if(NOT WIN32 AND NOT CXX_FLAGS_${UPPER_BUILD_TYPE})
-  if(DEBUG)
-    set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
-      "CXX optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
-  else()
-    set(CXX_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
-      "CXX optimization flags for ${UPPER_BUILD_TYPE} mode")
-  endif()
+if(NOT WIN32) # I forget why we need this guard
+  set(LANGUAGES CXX C Fortran)
+  foreach(LANG ${LANGUAGES})
+    if(NOT ${LANG}_FLAGS_${UPPER_BUILD_TYPE})
+      if(DEBUG)
+        set(${LANG}_FLAGS_${UPPER_BUILD_TYPE} "-O2 -g" CACHE STRING
+          "${LANG} optimization/debug flags for ${UPPER_BUILD_TYPE} mode")
+      else()
+        set(${LANG}_FLAGS_${UPPER_BUILD_TYPE} "-O3" CACHE STRING
+          "${LANG} optimization flags for ${UPPER_BUILD_TYPE} mode")
+      endif()
+    endif()
+  endforeach()
 endif()
 
 # Go ahead and check for Fortran, but keep in mind that CMake's 'OPTIONAL' 
@@ -313,26 +318,20 @@ endif()
 include(CheckCSourceCompiles)
 set(MPI_IN_PLACE_CODE
     "#include \"mpi.h\"
-     int main( int argc, char* argv[] )
+     int main( int argc, char* argv[] ) 
      {
          MPI_Init( &argc, &argv );
          float a;
          MPI_Allreduce
          ( MPI_IN_PLACE, &a, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD );
-         MPI_Finalize();
-         return 0;
-     }
-    ")
+         MPI_Finalize(); 
+         return 0; 
+     }")
 check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
 
 # Look for restrict support
 include(CheckCXXSourceCompiles)
-set(RESTRICT_CODE
-    "int main(void)
-     {
-         int* RESTRICT a;
-         return 0;
-     }")
+set(RESTRICT_CODE "int main(void) { int* RESTRICT a; return 0; }")
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
 check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")
@@ -353,18 +352,11 @@ else()
   message(STATUS "Could not find a restrict keyword.")
 endif()
 
-# Add the Parallel Linear Congruential Generator (PLCG) project
-add_subdirectory(external/plcg)
-
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
+set(HAVE_PMRRR FALSE)
 if(BUILD_PMRRR)
   add_subdirectory(external/pmrrr)
-endif()
-if(BUILD_PMRRR AND NOT FAILED_PMRRR)
-  set(WITHOUT_PMRRR FALSE)
-else()
-  set(WITHOUT_PMRRR TRUE)
 endif()
 
 # Create the Elemental configuration header
@@ -408,9 +400,9 @@ target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
 install(TARGETS elem-dummy-lib DESTINATION lib)
 
 # The main library
-if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+if(HAVE_PMRRR)
   add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental pmrrr plcg elem-dummy-lib)
+  target_link_libraries(elemental pmrrr elem-dummy-lib)
   if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
   elseif(MPI_CXX_LINK_FLAGS)
@@ -420,7 +412,7 @@ if(BUILD_PMRRR AND NOT FAILED_PMRRR)
   endif()
 else()
   add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental plcg elem-dummy-lib)
+  target_link_libraries(elemental elem-dummy-lib)
   if(MPI_CXX_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
   endif()
@@ -457,7 +449,7 @@ if(ELEM_TESTS)
   set(lapack-like_TESTS 
     ApplyPackedReflectors Cholesky CholeskyQR HermitianTridiag LDL LU LQ QR
     SequentialLU TriangularInverse)
-  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  if(HAVE_PMRRR)
     list(APPEND lapack-like_TESTS HermitianEig HermitianGenDefiniteEig)
   endif()
 
@@ -493,7 +485,7 @@ if(ELEM_EXAMPLES)
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum
     Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson Zeros)
-  if(BUILD_PMRRR AND NOT FAILED_PMRRR)
+  if(HAVE_PMRRR)
     list(APPEND lapack-like_EXAMPLES
       HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig
       ComplexHermitianFunction RealHermitianFunction HermitianPseudoinverse
@@ -540,7 +532,7 @@ if(ELEM_EXPERIMENTAL)
 endif()
 
 # Build experimental drivers that DO require an eigensolver
-if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
+if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
   if(NOT MPI_C_FOUND)
     message(FATAL_ERROR "Could not build C interface without C MPI")
   endif()
@@ -592,8 +584,7 @@ if(ELEM_EXPERIMENTAL AND BUILD_PMRRR AND NOT FAILED_PMRRR)
          MPI_Comm comm = MPI_Comm_f2c( fint );
          MPI_Finalize();
          return 0;
-     }
-    ")
+     }")
     check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
     if(NOT HAVE_MPI_COMM_F2C)  
       message(WARNING 

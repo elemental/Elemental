@@ -10,7 +10,7 @@
 #ifndef LAPACK_HPSDCHOLESKY_HPP
 #define LAPACK_HPSDCHOLESKY_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
@@ -80,6 +80,6 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HPSDCHOLESKY_HPP

@@ -12,9 +12,9 @@
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 
-#ifndef WITHOUT_PMRRR
-#include "elemental/lapack-like/HermitianSVD.hpp"
-#endif // ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
+  #include "elemental/lapack-like/HermitianSVD.hpp"
+#endif // ifdef HAVE_PMRRR
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
@@ -32,7 +32,7 @@ HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
     Matrix<R> s;
 // TODO: Enable support for sequential MRRR
 /*
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );
@@ -58,7 +58,7 @@ HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
     typedef typename Base<F>::type R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
     HermitianSingularValues( uplo, B, s );
 #else
     MakeHermitian( uplo, B );

@@ -109,15 +109,17 @@ void Initialize( int& argc, char**& argv )
     internal::CreatePivotOp<Complex<float> >();
     internal::CreatePivotOp<Complex<double> >();
 
-    // Seed the parallel random number generator, PLCG
-    plcg::UInt64 seed;
-    seed.d[0] = time(0);
-    seed.d[1] = time(0);
+    // Seed the random number generators using Katzgrabber's approach
+    // from "Random Numbers in Scientific Computing: An Introduction"
+    // NOTE: srand no longer needed after C++11
     const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
-    const unsigned size = mpi::CommSize( mpi::COMM_WORLD );
-    mpi::Broadcast
-    ( (byte*)seed.d, 2*sizeof(unsigned), 0, mpi::COMM_WORLD );
-    plcg::SeedParallelLcg( rank, size, seed );
+    const long secs = time(NULL);
+    const long seed = abs(((secs*181)*((rank-83)*359))%104729);
+#ifdef WIN32
+    srand( seed );
+#else
+    srand48( seed );
+#endif
 }
 
 void Finalize()

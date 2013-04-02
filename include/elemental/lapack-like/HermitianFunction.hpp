@@ -287,7 +287,7 @@ ReformNormalMatrix
 
 } // namespace hermitian_eig
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 //
 // Modify the eigenvalues of A with the real-valued function f, which will 
@@ -370,7 +370,7 @@ ComplexHermitianFunction
 #endif
 }
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

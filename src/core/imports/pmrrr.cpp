@@ -8,7 +8,7 @@
 */
 #include "elemental.hpp"
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 extern "C" {
 
@@ -292,4 +292,4 @@ Info Eig
 } // namespace pmrrr
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR

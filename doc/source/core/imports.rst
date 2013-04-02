@@ -15,6 +15,5 @@ works.
    imports/blas
    imports/lapack
    imports/mpi
-   imports/plcg
    imports/pmrrr
    imports/flame

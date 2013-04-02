@@ -41,7 +41,7 @@
 #cmakedefine LAPACK_POST
 #cmakedefine HAVE_OPENMP
 #cmakedefine HAVE_F90_INTERFACE
-#cmakedefine WITHOUT_PMRRR
+#cmakedefine HAVE_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine HAVE_FLA_BSVD
 #cmakedefine HAVE_MPI_REDUCE_SCATTER_BLOCK

@@ -78,7 +78,7 @@ MakeHermitianUniformSpectrum
     const int n = A.Height();
     std::vector<F> d( n );
     for( int j=0; j<n; ++j )
-        d[j] = lower + (upper-lower)*plcg::SerialUniform<R>();
+        d[j] = lower + (upper-lower)*Uniform();
     Diagonal( d, A );
 
     // Form u 
@@ -138,7 +138,7 @@ MakeHermitianUniformSpectrum
     const int n = A.Height();
     std::vector<F> d( n );
     for( int j=0; j<n; ++j )
-        d[j] = lower + (upper-lower)*plcg::SerialUniform<R>();
+        d[j] = lower + (upper-lower)*Uniform();
     DistMatrix<F> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );

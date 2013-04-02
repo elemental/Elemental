@@ -75,7 +75,7 @@ main( int argc, char* argv[] )
             AEven.Print("AEven");
             AOdd.Print("AOdd");
         }
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
         DistMatrix<double,VR,STAR> wEven, wOdd;
         DistMatrix<double> XEven, XOdd;
         HermitianEig( LOWER, AEven, wEven, XEven );

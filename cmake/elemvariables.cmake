@@ -17,8 +17,8 @@ MPI_CXX_LIBS = @MPI_CXX_LIBS@
 ELEM_COMPILE_FLAGS = ${CXX_FLAGS} -I${ELEM_INC} ${MPI_CXX_INCLUDE_STRING}
 ELEM_LINK_FLAGS = -L${ELEM_LIB} ${MPI_CXX_LINK_FLAGS}
 
-WITHOUT_PMRRR = @WITHOUT_PMRRR@
-ifeq (${WITHOUT_PMRRR},TRUE)
+HAVE_PMRRR = @HAVE_PMRRR@
+ifeq (${HAVE_PMRRR},FALSE)
   PMRRR_LIBS = 
 else
   MISSING_LAPACK = @MISSING_LAPACK@
@@ -32,5 +32,5 @@ else
 endif
 ELEM_C = -lexperimental-c
 ELEM_F90 = -lexperimental-f90
-ELEM_LIBS = -lelemental -lplcg ${PMRRR_LIBS} -lelem-dummy-lib \
+ELEM_LIBS = -lelemental ${PMRRR_LIBS} -lelem-dummy-lib \
             ${MATH_LIBS} ${MPI_CXX_LIBS}

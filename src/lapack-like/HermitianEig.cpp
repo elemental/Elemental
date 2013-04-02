@@ -8,7 +8,7 @@
 */
 #include "elemental-lite.hpp"
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
@@ -32,7 +32,7 @@ void InPlaceRedist
 ( DistMatrix<R>& paddedZ,
   int height,
   int width,
-  int rowAlignmentOfInput,
+  int rowAlign,
   const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
@@ -44,9 +44,7 @@ void InPlaceRedist
     const int col = g.Col();
     const int rowShift = paddedZ.RowShift();
     const int colAlignment = paddedZ.ColAlignment();
-
-    const int localWidthOfInput = 
-        Length(width,g.VRRank(),rowAlignmentOfInput,p);
+    const int localWidth = Length(width,g.VRRank(),rowAlign,p);
 
     const int maxHeight = MaxLength(height,r);
     const int maxWidth = MaxLength(width,p);
@@ -72,7 +70,7 @@ void InPlaceRedist
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int j=0; j<localWidthOfInput; ++j )
+        for( int j=0; j<localWidth; ++j )
             for( int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
                     readBuffer[thisColShift+i*r+j*height];
@@ -93,7 +91,7 @@ void InPlaceRedist
         const R* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
-        const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowShift = Shift(thisRank,rowAlign,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
         const int thisLocalWidth = Length(width,thisRowShift,p);
 
@@ -114,7 +112,7 @@ void InPlaceRedist
 ( DistMatrix<Complex<R> >& paddedZ,
   int height,
   int width,
-  int rowAlignmentOfInput,
+  int rowAlign,
   const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
@@ -126,9 +124,7 @@ void InPlaceRedist
     const int col = g.Col();
     const int rowShift = paddedZ.RowShift();
     const int colAlignment = paddedZ.ColAlignment();
-
-    const int localWidthOfInput = 
-        Length(width,g.VRRank(),rowAlignmentOfInput,p);
+    const int localWidth = Length(width,g.VRRank(),rowAlign,p);
 
     const int maxHeight = MaxLength(height,r);
     const int maxWidth = MaxLength(width,p);
@@ -154,7 +150,7 @@ void InPlaceRedist
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int j=0; j<localWidthOfInput; ++j )
+        for( int j=0; j<localWidth; ++j )
             for( int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
                     readBuffer[thisColShift+i*r+j*height];
@@ -175,7 +171,7 @@ void InPlaceRedist
         const R* data = &recvBuffer[k*portionSize];
 
         const int thisRank = col+k*c;
-        const int thisRowShift = Shift(thisRank,rowAlignmentOfInput,p);
+        const int thisRowShift = Shift(thisRank,rowAlign,p);
         const int thisRowOffset = (thisRowShift-rowShift) / c;
         const int thisLocalWidth = Length(width,thisRowShift,p);
 
@@ -1724,4 +1720,4 @@ void HermitianEig
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR

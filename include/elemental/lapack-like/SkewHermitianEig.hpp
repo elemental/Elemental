@@ -10,7 +10,7 @@
 #ifndef LAPACK_SKEWHERMITIANEIG_HPP
 #define LAPACK_SKEWHERMITIANEIG_HPP
 
-#ifndef WITHOUT_PMRRR
+#ifdef HAVE_PMRRR
 
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 
@@ -454,6 +454,6 @@ SkewHermitianEig
 
 } // namespace elem
 
-#endif // WITHOUT_PMRRR
+#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_SKEWHERMITIANEIG_HPP
