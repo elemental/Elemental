@@ -19,9 +19,12 @@ struct IndexValuePair {
     int index;
     R value;    
 
-    static bool Compare
+    static bool Lesser
     ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
     { return a.value < b.value; }
+    static bool Greater
+    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
+    { return a.value > b.value; }
 };
 
 template<typename R>
@@ -29,23 +32,29 @@ struct IndexValuePair<Complex<R> > {
     int index;
     Complex<R> value;    
 
-    static bool Compare
+    static bool Lesser
     ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
     { return Abs(a.value) < Abs(b.value); }
+    static bool Greater
+    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
+    { return Abs(a.value) > Abs(b.value); }
 };
 
 } // namespace internal
 
 template<typename R>
 inline void
-SortEig( Matrix<R>& w )
+SortEig( Matrix<R>& w, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
 #endif
     R* wBuffer = w.Buffer();
     const int k = w.Height();
-    std::sort( &wBuffer[0], &wBuffer[k] );
+    if( ascending )
+        std::sort( &wBuffer[0], &wBuffer[k] );
+    else
+        std::sort( &wBuffer[0], &wBuffer[k], std::greater<R>() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -53,7 +62,7 @@ SortEig( Matrix<R>& w )
 
 template<typename R>
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w )
+SortEig( DistMatrix<R,VR,STAR>& w, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -63,7 +72,10 @@ SortEig( DistMatrix<R,VR,STAR>& w )
     // Gather a full copy of w on each process and locally sort
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
     R* wBuffer = w_STAR_STAR.Buffer();
-    std::sort( &wBuffer[0], &wBuffer[k] );
+    if( ascending )
+        std::sort( &wBuffer[0], &wBuffer[k] );
+    else
+        std::sort( &wBuffer[0], &wBuffer[k], std::greater<R>() );
 
     // Refill the distributed w with the sorted values
     w = w_STAR_STAR;
@@ -74,7 +86,7 @@ SortEig( DistMatrix<R,VR,STAR>& w )
 
 template<typename R>
 inline void
-SortEig( Matrix<R>& w, Matrix<R>& Z )
+SortEig( Matrix<R>& w, Matrix<R>& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -91,8 +103,12 @@ SortEig( Matrix<R>& w, Matrix<R>& Z )
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort
-    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+    if( ascending )
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Lesser );
+    else
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Greater );
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
     Matrix<R> ZPerm( n, k );
@@ -110,7 +126,7 @@ SortEig( Matrix<R>& w, Matrix<R>& Z )
 
 template<typename R>
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
+SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -131,8 +147,12 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort
-    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+    if( ascending )
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Lesser );
+    else
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Greater );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const int nLocal = Z_VC_STAR.LocalHeight();
@@ -156,7 +176,7 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<R>& Z )
 
 template<typename R> 
 inline void
-SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z )
+SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -173,8 +193,12 @@ SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z )
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort
-    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+    if( ascending )
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Lesser );
+    else
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Greater );
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
     Matrix<Complex<R> > ZPerm( n, k );
@@ -192,7 +216,8 @@ SortEig( Matrix<R>& w, Matrix<Complex<R> >& Z )
 
 template<typename R> 
 inline void
-SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
+SortEig
+( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("SortEig");
@@ -213,8 +238,12 @@ SortEig( DistMatrix<R,VR,STAR>& w, DistMatrix<Complex<R> >& Z )
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
-    std::sort
-    ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Compare );
+    if( ascending )
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Lesser );
+    else
+        std::sort
+        ( pairs.begin(), pairs.end(), internal::IndexValuePair<R>::Greater );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const int mLocal = Z_VC_STAR.LocalHeight();

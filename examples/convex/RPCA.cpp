@@ -236,8 +236,10 @@ void RPCA_ALM
             L = M;
             Axpy( F(-1), S, L );
             Axpy( F(1)/beta, Y, L );
+            if( commRank == 0 )
+                std::cout << "beta=" << beta << std::endl;
             rank = SingularValueSoftThreshold( L, R(1)/beta );
-      
+
             Axpy( F(-1), L, LLast );
             Axpy( F(-1), S, SLast );
             const R frobLDiff = FrobeniusNorm( LLast );

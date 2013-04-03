@@ -154,6 +154,9 @@ ThresholdedWide
                 V.SetLocal( iLocal, jLocal, V.GetLocal(iLocal,jLocal)/sigma );
         }
     }
+
+    // A := U
+    A = U;
 #ifndef RELEASE
     PopCallStack();
 #endif
