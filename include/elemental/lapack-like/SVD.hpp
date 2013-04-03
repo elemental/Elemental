@@ -11,6 +11,7 @@
 #define LAPACK_SVD_HPP
 
 #include "elemental/lapack-like/SVD/Chan.hpp"
+#include "elemental/lapack-like/SVD/Thresholded.hpp"
 
 namespace elem {
 

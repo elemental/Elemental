@@ -53,8 +53,7 @@ SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
     DistMatrix<R,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );
 
-    // TODO: Exploit zeros in soft-thresholded singular values (with custom SVD)
-    SVD( U, s, V );
+    svd::Thresholded( U, s, V, tau );
     SoftThreshold( s, tau );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
