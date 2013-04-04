@@ -575,8 +575,8 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int rowShift = RawShift( k, colAlignmentOfA, r );
-            const Int localWidth = RawLength( width, rowShift, r );
+            const Int rowShift = Shift_( k, colAlignmentOfA, r );
+            const Int localWidth = Length_( width, rowShift, r );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -673,8 +673,8 @@ DistMatrix<T,MR,STAR,Int>::TransposeFrom
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int rowShift = RawShift( k, colAlignmentOfA, r );
-            const Int localWidth = RawLength( width, rowShift, r );
+            const Int rowShift = Shift_( k, colAlignmentOfA, r );
+            const Int localWidth = Length_( width, rowShift, r );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
@@ -806,9 +806,9 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
         {
             const T* data = &sendBuf[k*portionSize];
 
-            const Int shift = RawShift(myCol+c*k,colAlignment,p);
+            const Int shift = Shift_(myCol+c*k,colAlignment,p);
             const Int offset = (shift-colShift) / c;
-            const Int thisLocalHeight = RawLength(height,shift,p);
+            const Int thisLocalHeight = Length_(height,shift,p);
 
             for( Int iLocal=0; iLocal<thisLocalHeight; ++iLocal )
                 thisBuffer[offset+iLocal*r] = data[iLocal];
@@ -979,8 +979,8 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int rowShift = RawShift( k, rowAlignmentOfA, r );
-            const Int localWidth = RawLength( width, rowShift, r );
+            const Int rowShift = Shift_( k, rowAlignmentOfA, r );
+            const Int localWidth = Length_( width, rowShift, r );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -1060,8 +1060,8 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int rowShift = RawShift( k, rowAlignmentOfA, r );
-            const Int localWidth = RawLength( width, rowShift, r );
+            const Int rowShift = Shift_( k, rowAlignmentOfA, r );
+            const Int localWidth = Length_( width, rowShift, r );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
@@ -1337,9 +1337,9 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int colShiftOfA = RawShift( col+c*k, colAlignmentOfA, p );
+            const Int colShiftOfA = Shift_( col+c*k, colAlignmentOfA, p );
             const Int colOffset = (colShiftOfA-colShift) / c;
-            const Int localHeight = RawLength( height, colShiftOfA, p );
+            const Int localHeight = Length_( height, colShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -1421,9 +1421,9 @@ DistMatrix<T,MR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int colShiftOfA = RawShift( col+c*k, colAlignment, p );
+            const Int colShiftOfA = Shift_( col+c*k, colAlignment, p );
             const Int colOffset = (colShiftOfA-colShift) / c;
-            const Int localHeight = RawLength( height, colShiftOfA, p );
+            const Int localHeight = Length_( height, colShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for 

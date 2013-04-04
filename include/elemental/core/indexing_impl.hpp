@@ -35,16 +35,16 @@ inline Int GCD( Int a, Int b )
     if( a < 0 || b < 0 )
         throw std::logic_error("GCD called with negative argument");
 #endif
-    return RawGCD( a, b );
+    return GCD_( a, b );
 }
 
 template<typename Int>
-inline Int RawGCD( Int a, Int b )
+inline Int GCD_( Int a, Int b )
 {
     if( b == 0 )
         return a;
     else
-        return RawGCD( b, a-b*(a/b) );
+        return GCD_( b, a-b*(a/b) );
 }
 
 template<typename Int>
@@ -65,11 +65,11 @@ inline Int Length( Int n, Int shift, Int stride )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawLength( n, shift, stride );
+    return Length_( n, shift, stride );
 }
 
 template<typename Int>
-inline Int RawLength( Int n, Int shift, Int stride )
+inline Int Length_( Int n, Int shift, Int stride )
 {
     return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
 }
@@ -90,11 +90,11 @@ Length( Int n, Int rank, Int alignment, Int stride )
 }
 
 template<typename Int>
-inline Int RawLength
+inline Int Length_
 ( Int n, Int rank, Int alignment, Int stride )
 {
-    Int shift = RawShift( rank, alignment, stride );
-    Int localLength = RawLength( n, shift, stride );
+    Int shift = Shift_( rank, alignment, stride );
+    Int localLength = Length_( n, shift, stride );
     return localLength;
 }
 
@@ -109,11 +109,11 @@ inline Int MaxLength( Int n, Int stride )
         throw std::logic_error("Modulus must be positive");
     PopCallStack();
 #endif
-    return RawMaxLength( n, stride );
+    return MaxLength_( n, stride );
 }
 
 template<typename Int>
-inline Int RawMaxLength( Int n, Int stride )
+inline Int MaxLength_( Int n, Int stride )
 {
     return ( n > 0 ? (n - 1)/stride + 1 : 0 );
 }
@@ -142,11 +142,11 @@ inline Int Shift( Int rank, Int alignment, Int stride )
         throw std::logic_error("Stride must be positive");
     PopCallStack();
 #endif
-    return RawShift( rank, alignment, stride );
+    return Shift_( rank, alignment, stride );
 }
 
 template<typename Int>
-inline Int RawShift( Int rank, Int alignment, Int stride )
+inline Int Shift_( Int rank, Int alignment, Int stride )
 {
     return (rank + stride - alignment) % stride;
 }

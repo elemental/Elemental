@@ -17,33 +17,28 @@ Int DiagonalLength( Int height, Int width, Int offset=0 );
 
 template<typename Int>
 Int GCD( Int a, Int b ); 
-
 template<typename Int>
-Int RawGCD( Int a, Int b ); 
+Int GCD_( Int a, Int b ); 
 
 template<typename Int>
 Int Length( Int n, Int shift, Int numProcs );
-
 template<typename Int>
-Int RawLength( Int n, Int shift, Int numProcs );
+Int Length_( Int n, Int shift, Int numProcs );
 
 template<typename Int>
 Int Length( Int n, Int rank, Int firstRank, Int numProcs );
-
 template<typename Int>
-Int RawLength( Int n, Int rank, Int firstRank, Int numProcs );
+Int Length_( Int n, Int rank, Int firstRank, Int numProcs );
 
 template<typename Int>
 Int MaxLength( Int n, Int numProcs );
-
 template<typename Int>
-Int RawMaxLength( Int n, Int numProcs );
+Int MaxLength_( Int n, Int numProcs );
 
 template<typename Int>
 Int Shift( Int rank, Int firstRank, Int numProcs );
-
 template<typename Int>
-Int RawShift( Int rank, Int firstRank, Int numProcs );
+Int Shift_( Int rank, Int firstRank, Int numProcs );
 
 } // namespace elem
 

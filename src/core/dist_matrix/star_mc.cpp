@@ -670,9 +670,9 @@ DistMatrix<T,STAR,MC,Int>::TransposeFrom
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int colShiftOfA = RawShift( row+k*r, colAlignmentOfA, p );
+            const Int colShiftOfA = Shift_( row+k*r, colAlignmentOfA, p );
             const Int rowOffset = (colShiftOfA-rowShift) / r;
-            const Int localWidth = RawLength( width, colShiftOfA, p );
+            const Int localWidth = Length_( width, colShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -770,9 +770,9 @@ DistMatrix<T,STAR,MC,Int>::TransposeFrom
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int colShiftOfA = RawShift(row+r*k,rowAlignment,p);
+            const Int colShiftOfA = Shift_(row+r*k,rowAlignment,p);
             const Int rowOffset = (colShiftOfA-rowShift) / r;
-            const Int localWidth = RawLength( width, colShiftOfA, p );
+            const Int localWidth = Length_( width, colShiftOfA, p );
             
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -937,9 +937,9 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
         {
             const T* data = &sendBuf[k*portionSize];
 
-            const Int shift = RawShift(myRow+r*k,rowAlignment,p);
+            const Int shift = Shift_(myRow+r*k,rowAlignment,p);
             const Int offset = (shift-rowShift) / r;
-            const Int thisLocalWidth = RawLength(width,shift,p);
+            const Int thisLocalWidth = Length_(width,shift,p);
 
             for( Int jLocal=0; jLocal<thisLocalWidth; ++jLocal )
                 thisBuffer[(offset+jLocal*c)*thisLDim] = data[jLocal];
@@ -1095,8 +1095,8 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int colShift = RawShift( k, colAlignmentOfA, c );
-            const Int localHeight = RawLength( height, colShift, c );
+            const Int colShift = Shift_( k, colAlignmentOfA, c );
+            const Int localHeight = Length_( height, colShift, c );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for 
@@ -1177,8 +1177,8 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int colShift = RawShift( k, colAlignmentOfA, c );
-            const Int localHeight = RawLength( height, colShift, c );
+            const Int colShift = Shift_( k, colAlignmentOfA, c );
+            const Int localHeight = Length_( height, colShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for 
 #endif
@@ -1428,9 +1428,9 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         {
             const T* data = &gatheredData[k*portionSize];
 
-            const Int rowShiftOfA = RawShift( row+k*r, rowAlignmentOfA, p );
+            const Int rowShiftOfA = Shift_( row+k*r, rowAlignmentOfA, p );
             const Int rowOffset = (rowShiftOfA-rowShift) / r;
-            const Int localWidth = RawLength( width, rowShiftOfA, p );
+            const Int localWidth = Length_( width, rowShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -1511,9 +1511,9 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int rowShiftOfA = RawShift(row+r*k,rowAlignment,p);
+            const Int rowShiftOfA = Shift_(row+r*k,rowAlignment,p);
             const Int rowOffset = (rowShiftOfA-rowShift) / r;
-            const Int localWidth = RawLength( width, rowShiftOfA, p );
+            const Int localWidth = Length_( width, rowShiftOfA, p );
             
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for

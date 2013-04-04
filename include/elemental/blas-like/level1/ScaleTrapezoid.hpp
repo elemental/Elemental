@@ -114,7 +114,7 @@ ScaleTrapezoid
             int j = rowShift + jLocal*rowStride;
             int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
             int boundary = std::min( lastRow+1, height );
-            int numRows = RawLength( boundary, colShift, colStride );
+            int numRows = Length_( boundary, colShift, colStride );
             T* col = &buffer[jLocal*ldim];
             for( int iLocal=0; iLocal<numRows; ++iLocal )
                 col[iLocal] *= alpha;
@@ -133,7 +133,7 @@ ScaleTrapezoid
             int firstRow =
                 ( side==LEFT ? std::max(j-offset,0)
                              : std::max(j-offset+height-width,0) );
-            int numZeroRows = RawLength( firstRow, colShift, colStride );
+            int numZeroRows = Length_( firstRow, colShift, colStride );
             T* col = &buffer[numZeroRows+jLocal*ldim];
             for( int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
                 col[iLocal] *= alpha;

@@ -929,8 +929,8 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             {
                 const T* data = &gatheredData[k*portionSize];
 
-                const Int rowShift = RawShift( k, rowAlignmentOfA, c );
-                const Int localWidth = RawLength( width, rowShift, c );
+                const Int rowShift = Shift_( k, rowAlignmentOfA, c );
+                const Int localWidth = Length_( width, rowShift, c );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
                 #pragma omp parallel for
@@ -1044,8 +1044,8 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             {
                 const T* data = &secondBuffer[k*portionSize];
 
-                const Int rowShift = RawShift( k, rowAlignmentOfA, c ); 
-                const Int localWidth = RawLength( width, rowShift, c );
+                const Int rowShift = Shift_( k, rowAlignmentOfA, c ); 
+                const Int localWidth = Length_( width, rowShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
                 #pragma omp parallel for
 #endif
@@ -1411,9 +1411,9 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
         {
             const T* data = &gatheredData[k*portionSize];    
 
-            const Int colShiftOfA = RawShift( row+r*k, colAlignmentOfA, p );
+            const Int colShiftOfA = Shift_( row+r*k, colAlignmentOfA, p );
             const Int colOffset = (colShiftOfA-colShift) / r;
-            const Int localHeight = RawLength( height, colShiftOfA, p );
+            const Int localHeight = Length_( height, colShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
@@ -1495,9 +1495,9 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
         {
             const T* data = &secondBuffer[k*portionSize];
 
-            const Int colShiftOfA = RawShift( row+r*k, colAlignment, p );
+            const Int colShiftOfA = Shift_( row+r*k, colAlignment, p );
             const Int colOffset = (colShiftOfA-colShift) / r;
-            const Int localHeight = RawLength( height, colShiftOfA, p );
+            const Int localHeight = Length_( height, colShiftOfA, p );
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
