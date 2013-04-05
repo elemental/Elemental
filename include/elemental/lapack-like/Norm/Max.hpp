@@ -37,6 +37,63 @@ MaxNorm( const Matrix<F>& A )
     return maxAbs;
 }
 
+template<typename F>
+inline typename Base<F>::type
+HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianMaxNorm");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
+    typedef typename Base<F>::type R;
+    R maxAbs = 0;
+    const int height = A.Height();
+    const int width = A.Width();
+    if( uplo == UPPER )
+    {
+        for( int j=0; j<width; ++j )
+        {
+            for( int i=0; i<=j; ++i )
+            {
+                const R thisAbs = Abs(A.Get(i,j));
+                maxAbs = std::max( maxAbs, thisAbs );
+            }
+        }
+    }
+    else
+    {
+        for( int j=0; j<width; ++j )
+        {
+            for( int i=j; i<height; ++i )
+            {
+                const R thisAbs = Abs(A.Get(i,j));
+                maxAbs = std::max( maxAbs, thisAbs );
+            }
+        }
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return maxAbs;
+}
+
+template<typename F>
+inline typename Base<F>::type
+SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricMaxNorm");
+#endif
+    typedef typename Base<F>::type R;
+    const R norm = HermitianMaxNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline typename Base<F>::type
 MaxNorm( const DistMatrix<F,U,V>& A )
@@ -64,6 +121,75 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     PopCallStack();
 #endif
     return maxAbs;
+}
+
+template<typename F>
+inline typename Base<F>::type
+HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianMaxNorm");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square.");
+
+    const int r = A.Grid().Height();
+    const int c = A.Grid().Width();
+    const int colShift = A.ColShift();
+    const int rowShift = A.RowShift();
+
+    typedef typename Base<F>::type R;
+    R localMaxAbs = 0;
+    const int localWidth = A.LocalWidth();
+    if( uplo == UPPER )
+    {
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            int j = rowShift + jLocal*c;
+            int numUpperRows = Length(j+1,colShift,r);
+            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
+            {
+                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
+                localMaxAbs = std::max( localMaxAbs, thisAbs );
+            }
+        }
+    }
+    else
+    {
+        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        {
+            int j = rowShift + jLocal*c;
+            int numStrictlyUpperRows = Length(j,colShift,r);
+            for( int iLocal=numStrictlyUpperRows;
+                 iLocal<A.LocalHeight(); ++iLocal )
+            {
+                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
+                localMaxAbs = std::max( localMaxAbs, thisAbs );
+            }
+        }
+    }
+
+    R maxAbs;
+    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return maxAbs;
+}
+
+template<typename F>
+inline typename Base<F>::type
+SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricMaxNorm");
+#endif
+    typedef typename Base<F>::type R;
+    const R norm = HermitianMaxNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
 }
 
 } // namespace elem

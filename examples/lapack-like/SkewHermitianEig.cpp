@@ -13,7 +13,6 @@
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/SkewHermitianEig.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/SortEig.hpp"
 #include "elemental/matrices/Identity.hpp"

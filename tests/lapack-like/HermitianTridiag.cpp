@@ -10,8 +10,8 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;

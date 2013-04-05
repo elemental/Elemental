@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level3/Hemm.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/HPDInverse.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"

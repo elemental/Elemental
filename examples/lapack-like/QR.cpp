@@ -8,8 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/ExplicitQR.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -40,7 +39,7 @@ main( int argc, char* argv[] )
 
         // Compute the QR decomposition of A, but do not overwrite A
         DistMatrix<C> Q( A ), R(g);
-        ExplicitQR( Q, R );
+        qr::Explicit( Q, R );
 
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F
         DistMatrix<C> E( A );

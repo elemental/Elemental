@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_EXPLICITLQ_HPP
-#define LAPACK_EXPLICITLQ_HPP
+#ifndef LAPACK_LQ_EXPLICIT_HPP
+#define LAPACK_LQ_EXPLICIT_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
@@ -16,12 +16,11 @@
 #include "elemental/matrices/Identity.hpp"
 
 namespace elem {
-
-namespace internal {
+namespace lq {
 
 template<typename Real>
 inline void
-ExplicitLQHelper( Matrix<Real>& A )
+ExplicitHelper( Matrix<Real>& A )
 {
     LQ( A );
 
@@ -34,7 +33,7 @@ ExplicitLQHelper( Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Real>& A )
+ExplicitHelper( DistMatrix<Real>& A )
 {
     LQ( A );
 
@@ -49,7 +48,7 @@ ExplicitLQHelper( DistMatrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( Matrix<Complex<Real> >& A )
+ExplicitHelper( Matrix<Complex<Real> >& A )
 {
     Matrix<Complex<Real> > t;
     LQ( A, t );
@@ -64,7 +63,7 @@ ExplicitLQHelper( Matrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Complex<Real> >& A )
+ExplicitHelper( DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
@@ -81,7 +80,7 @@ ExplicitLQHelper( DistMatrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( Matrix<Real>& L, Matrix<Real>& A )
+ExplicitHelper( Matrix<Real>& L, Matrix<Real>& A )
 {
     LQ( A );
     L = A;
@@ -96,7 +95,7 @@ ExplicitLQHelper( Matrix<Real>& L, Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
+ExplicitHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
 {
     LQ( A );
     L = A;
@@ -112,7 +111,7 @@ ExplicitLQHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
+ExplicitHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
 {
     Matrix<Complex<Real> > t;
     LQ( A, t );
@@ -129,7 +128,7 @@ ExplicitLQHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitLQHelper
+ExplicitHelper
 ( DistMatrix<Complex<Real> >& L, DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
@@ -146,16 +145,14 @@ ExplicitLQHelper
     A = Q;
 }
 
-} // namespace internal
-
 template<typename F> 
 inline void
-ExplicitLQ( Matrix<F>& A )
+Explicit( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitLQ");
+    PushCallStack("lq::Explicit");
 #endif
-    internal::ExplicitLQHelper( A );
+    ExplicitHelper( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -163,12 +160,12 @@ ExplicitLQ( Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitLQ( DistMatrix<F>& A )
+Explicit( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitLQ");
+    PushCallStack("lq::Explicit");
 #endif
-    internal::ExplicitLQHelper( A );
+    ExplicitHelper( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -176,12 +173,12 @@ ExplicitLQ( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitLQ( Matrix<F>& L, Matrix<F>& A )
+Explicit( Matrix<F>& L, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitLQ");
+    PushCallStack("lq::Explicit");
 #endif
-    internal::ExplicitLQHelper( L, A );
+    ExplicitHelper( L, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -189,17 +186,18 @@ ExplicitLQ( Matrix<F>& L, Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitLQ( DistMatrix<F>& L, DistMatrix<F>& A )
+Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitLQ");
+    PushCallStack("lq::Explicit");
 #endif
-    internal::ExplicitLQHelper( L, A );
+    ExplicitHelper( L, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace lq
 } // namespace elem
 
-#endif // ifndef LAPACK_EXPLICITLQ_HPP
+#endif // ifndef LAPACK_LQ_EXPLICIT_HPP

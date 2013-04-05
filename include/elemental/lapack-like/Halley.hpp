@@ -16,7 +16,7 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Identity.hpp"
 
@@ -79,7 +79,7 @@ int Halley( Matrix<F>& A, typename Base<F>::type upperBound )
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Gemm( NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else
@@ -159,7 +159,7 @@ int Halley
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Gemm( NORMAL, ADJOINT, F(a-b/c)/Sqrt(c), QT, QB, F(b/c), A );
         }
         else

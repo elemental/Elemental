@@ -19,6 +19,9 @@
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 
+#include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
+#include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
+
 namespace elem {
 
 template<typename F>
@@ -61,6 +64,88 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
     return norm;
 }
 
+template<typename F>
+inline typename Base<F>::type
+SymmetricNorm
+( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricNorm");
+#endif
+    typename Base<F>::type norm = 0;
+    switch( type )
+    {
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM:
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = SymmetricEntrywiseOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = SymmetricInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = SymmetricMaxNorm( uplo, A );
+        break;
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
+    case NUCLEAR_NORM:
+        norm = SymmetricNuclearNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = SymmetricTwoNorm( uplo, A );
+        break;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
+template<typename F>
+inline typename Base<F>::type
+HermitianNorm
+( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianNorm");
+#endif
+    typename Base<F>::type norm = 0;
+    switch( type )
+    {
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM:
+        norm = HermitianFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = HermitianEntrywiseOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = HermitianInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = HermitianMaxNorm( uplo, A );
+        break;
+    case ONE_NORM:
+        norm = HermitianOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
+    case NUCLEAR_NORM:
+        norm = HermitianNuclearNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = HermitianTwoNorm( uplo, A );
+        break;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
 template<typename F,Distribution U,Distribution V> 
 inline typename Base<F>::type
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
@@ -93,6 +178,88 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
         break;
     case TWO_NORM:
         norm = TwoNorm( A );
+        break;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
+template<typename F>
+inline typename Base<F>::type
+SymmetricNorm
+( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricNorm");
+#endif
+    typename Base<F>::type norm = 0;
+    switch( type )
+    {
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM:
+        norm = SymmetricFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = SymmetricEntrywiseOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = SymmetricInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = SymmetricMaxNorm( uplo, A );
+        break;
+    case ONE_NORM:
+        norm = SymmetricOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
+    case NUCLEAR_NORM:
+        norm = SymmetricNuclearNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = SymmetricTwoNorm( uplo, A );
+        break;
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
+}
+
+template<typename F>
+inline typename Base<F>::type
+HermitianNorm
+( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianNorm");
+#endif
+    typename Base<F>::type norm = 0;
+    switch( type )
+    {
+    // The following norms are rather cheap to compute
+    case FROBENIUS_NORM:
+        norm = HermitianFrobeniusNorm( uplo, A );
+        break;
+    case ENTRYWISE_ONE_NORM:
+        norm = HermitianEntrywiseOneNorm( uplo, A );
+        break;
+    case INFINITY_NORM:
+        norm = HermitianInfinityNorm( uplo, A );
+        break;
+    case MAX_NORM:
+        norm = HermitianMaxNorm( uplo, A );
+        break;
+    case ONE_NORM:
+        norm = HermitianOneNorm( uplo, A );
+        break;
+    // The following norms make use of an SVD
+    case NUCLEAR_NORM:
+        norm = HermitianNuclearNorm( uplo, A );
+        break;
+    case TWO_NORM:
+        norm = HermitianTwoNorm( uplo, A );
         break;
     }
 #ifndef RELEASE

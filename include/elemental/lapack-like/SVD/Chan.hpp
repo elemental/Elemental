@@ -14,7 +14,6 @@
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/ExplicitQR.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
 #include "elemental/lapack-like/SVD/GolubReinsch.hpp"
@@ -43,7 +42,7 @@ ChanUpper
     if( m > heightRatio*n )
     {
         DistMatrix<F> R(g);
-        ExplicitQR( A, R );
+        qr::Explicit( A, R );
         svd::GolubReinschUpper( R, s, V );
         // Unfortunately, extra memory is used in forming A := A R,
         // where A has been overwritten with the Q from the QR factorization

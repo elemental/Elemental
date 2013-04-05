@@ -10,6 +10,8 @@
 #ifndef LAPACK_NORM_INFINITY_HPP
 #define LAPACK_NORM_INFINITY_HPP
 
+#include "elemental/lapack-like/Norm/One.hpp"
+
 namespace elem {
 
 template<typename F> 
@@ -34,6 +36,36 @@ InfinityNorm( const Matrix<F>& A )
     PopCallStack();
 #endif
     return maxRowSum;
+}
+
+template<typename F>
+inline typename Base<F>::type
+HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianInfinityNorm");
+#endif
+    typedef typename Base<F>::type R;
+    R maxRowSum = HermitianOneNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return maxRowSum;
+}
+
+template<typename F>
+inline typename Base<F>::type
+SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricInfinityNorm");
+#endif
+    typedef typename Base<F>::type R;
+    const R norm = HermitianInfinityNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -74,6 +106,37 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     PopCallStack();
 #endif
     return maxRowSum;
+}
+
+template<typename F>
+inline typename Base<F>::type
+HermitianInfinityNorm
+( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("HermitianInfinityNorm");
+#endif
+    typedef typename Base<F>::type R;
+    R maxRowSum = HermitianOneNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return maxRowSum;
+}
+
+template<typename F>
+inline typename Base<F>::type
+SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("SymmetricInfinityNorm");
+#endif
+    typedef typename Base<F>::type R;
+    const R norm = HermitianInfinityNorm( uplo, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return norm;
 }
 
 } // namespace elem

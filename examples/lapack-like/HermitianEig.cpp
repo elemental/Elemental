@@ -11,7 +11,6 @@
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/SortEig.hpp"
 #include "elemental/matrices/Identity.hpp"

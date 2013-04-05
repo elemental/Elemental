@@ -4,9 +4,8 @@ Functionality
 - Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
-- Compressed SVD and pseudoinverse solves which avoid unnecessary 
-  backtransformations
-- Implement sequential versions of Trr2k (and other routines)
+- Compressed pseudoinverse solves which avoid unnecessary backtransformations
+- Implement sequential versions of Trr2k and HermitianEig
 - Add wrappers for more LAPACK eigensolvers
 - More explicit expansions of packed Householder reflectors
 - More TwoSidedTrmm/TwoSidedTrsm routines
@@ -17,9 +16,10 @@ Functionality
 Maintenance
 ===========
 - Separate out local blas-like and lapack-like operations
+- Move most functions out of 'elem::internal' namespace and into a namespace
+  corresponding to its particular class of algorithm, e.g., elem::svd
+- Further improvements for the speed of the build process
+- Consistent handling of unblocked routines
+- Standardize on impl/decl pairs
 - Switch to C++11 for better 64-bit integer and std::complex support, as well as
   std::thread, extern templates, and syntactic sugar
-- Speeding up the build process (by switching away from monolithic headers)
-- Consistent handling of unblocked routines
-- Make namespacing of internal functions consistent
-- Standardize on impl/decl pairs

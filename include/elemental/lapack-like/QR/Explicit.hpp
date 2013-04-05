@@ -7,20 +7,19 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_EXPLICITQR_HPP
-#define LAPACK_EXPLICITQR_HPP
+#ifndef LAPACK_QR_EXPLICIT_HPP
+#define LAPACK_QR_EXPLICIT_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ExpandPackedReflectors.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
 namespace elem {
-
-namespace internal {
+namespace qr {
 
 template<typename Real>
 inline void
-ExplicitQRHelper( Matrix<Real>& A )
+ExplicitHelper( Matrix<Real>& A )
 {
     QR( A );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
@@ -28,7 +27,7 @@ ExplicitQRHelper( Matrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Real>& A )
+ExplicitHelper( DistMatrix<Real>& A )
 {
     QR( A );
     ExpandPackedReflectors( LOWER, VERTICAL, 0, A );
@@ -36,7 +35,7 @@ ExplicitQRHelper( DistMatrix<Real>& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( Matrix<Complex<Real> >& A )
+ExplicitHelper( Matrix<Complex<Real> >& A )
 {
     Matrix<Complex<Real> > t;
     QR( A, t );
@@ -45,7 +44,7 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Complex<Real> >& A )
+ExplicitHelper( DistMatrix<Complex<Real> >& A )
 {
     const Grid& g = A.Grid();
     DistMatrix<Complex<Real>,MD,STAR> t( g );
@@ -55,7 +54,7 @@ ExplicitQRHelper( DistMatrix<Complex<Real> >& A )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( Matrix<Real>& A, Matrix<Real>& R )
+ExplicitHelper( Matrix<Real>& A, Matrix<Real>& R )
 {
     QR( A );
     Matrix<Real> AT,
@@ -70,7 +69,7 @@ ExplicitQRHelper( Matrix<Real>& A, Matrix<Real>& R )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
+ExplicitHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
 {
     const Grid& g = A.Grid();
     QR( A );
@@ -86,7 +85,7 @@ ExplicitQRHelper( DistMatrix<Real>& A, DistMatrix<Real>& R )
 
 template<typename Real>
 inline void
-ExplicitQRHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
+ExplicitHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
 {
     Matrix<Complex<Real> > t;
     QR( A, t );
@@ -102,7 +101,7 @@ ExplicitQRHelper( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& R )
 
 template<typename Real>
 inline void
-ExplicitQRHelper
+ExplicitHelper
 ( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& R )
 {
     const Grid& g = A.Grid();
@@ -118,16 +117,14 @@ ExplicitQRHelper
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
 
-} // namespace internal
-
 template<typename F> 
 inline void
-ExplicitQR( Matrix<F>& A )
+Explicit( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitQR");
+    PushCallStack("qr::Explicit");
 #endif
-    internal::ExplicitQRHelper( A );
+    ExplicitHelper( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -135,12 +132,12 @@ ExplicitQR( Matrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitQR( DistMatrix<F>& A )
+Explicit( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitQR");
+    PushCallStack("qr::Explicit");
 #endif
-    internal::ExplicitQRHelper( A );
+    ExplicitHelper( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -148,12 +145,12 @@ ExplicitQR( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-ExplicitQR( Matrix<F>& A, Matrix<F>& R )
+Explicit( Matrix<F>& A, Matrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitQR");
+    PushCallStack("qr::Explicit");
 #endif
-    internal::ExplicitQRHelper( A, R );
+    ExplicitHelper( A, R );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -161,17 +158,18 @@ ExplicitQR( Matrix<F>& A, Matrix<F>& R )
 
 template<typename F> 
 inline void
-ExplicitQR( DistMatrix<F>& A, DistMatrix<F>& R )
+Explicit( DistMatrix<F>& A, DistMatrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("ExplicitQR");
+    PushCallStack("qr::Explicit");
 #endif
-    internal::ExplicitQRHelper( A, R );
+    ExplicitHelper( A, R );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_EXPLICITQR_HPP
+#endif // ifndef LAPACK_QR_EXPLICIT_HPP

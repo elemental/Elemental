@@ -16,6 +16,7 @@
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
+namespace qr {
 
 // NOTE: This version is designed for tall-skinny matrices and is much less
 //       numerically stable than Householder-based QR factorizations
@@ -26,10 +27,10 @@ namespace elem {
 
 template<typename F> 
 inline void
-CholeskyQR( Matrix<F>& A, Matrix<F>& R )
+Cholesky( Matrix<F>& A, Matrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("CholeskyQR");
+    PushCallStack("qr::Cholesky");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -37,7 +38,7 @@ CholeskyQR( Matrix<F>& A, Matrix<F>& R )
         throw std::logic_error("A^H A will be singular");
     Zeros( width, width, R );
     Herk( UPPER, ADJOINT, F(1), A, F(0), R );
-    Cholesky( UPPER, R );
+    elem::Cholesky( UPPER, R );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
 #ifndef RELEASE
     PopCallStack();
@@ -46,10 +47,10 @@ CholeskyQR( Matrix<F>& A, Matrix<F>& R )
 
 template<typename F> 
 inline void
-CholeskyQR( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
+Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
 {
 #ifndef RELEASE
-    PushCallStack("CholeskyQR");
+    PushCallStack("qr::Cholesky");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -58,13 +59,14 @@ CholeskyQR( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
     Zeros( width, width, R );
     Herk( UPPER, ADJOINT, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOverGrid();
-    Cholesky( UPPER, R.Matrix() );
+    elem::Cholesky( UPPER, R.Matrix() );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
+} // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_QR_HPP
+#endif // ifndef LAPACK_QR_CHOLESKY_HPP

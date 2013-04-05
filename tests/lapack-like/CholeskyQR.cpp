@@ -8,13 +8,10 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/CholeskyQR.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
-#include "elemental/lapack-like/HermitianNorm/One.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
@@ -89,7 +86,7 @@ void TestQR
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    CholeskyQR( Q, R );
+    qr::Cholesky( Q, R );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double mD = double(m);

@@ -16,8 +16,8 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/ExplicitQR.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/matrices/Identity.hpp"
 
 namespace elem {
@@ -105,7 +105,7 @@ int HermitianQDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -210,7 +210,7 @@ int HermitianQDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else

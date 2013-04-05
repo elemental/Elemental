@@ -13,7 +13,7 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
-#include "elemental/lapack-like/HermitianNorm/Max.hpp"
+#include "elemental/lapack-like/Norm/Max.hpp"
 
 namespace elem {
 

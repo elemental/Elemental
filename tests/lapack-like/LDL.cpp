@@ -12,8 +12,6 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Symm.hpp"
 #include "elemental/blas-like/level3/Trmm.hpp"
-#include "elemental/lapack-like/HermitianNorm/Infinity.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"

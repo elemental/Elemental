@@ -9,10 +9,9 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Halley.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/QDWH.hpp"
-#include "elemental/lapack-like/TwoNormUpperBound.hpp"
+#include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;

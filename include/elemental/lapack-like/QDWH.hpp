@@ -16,7 +16,7 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
-#include "elemental/lapack-like/ExplicitQR.hpp"
+#include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Identity.hpp"
 
@@ -105,7 +105,7 @@ int QDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -204,7 +204,7 @@ int QDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            ExplicitQR( Q );
+            qr::Explicit( Q );
             Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else

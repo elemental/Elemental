@@ -9,11 +9,11 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/ConditionNumber.hpp"
-#include "elemental/lapack-like/HermitianNorm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianNorm/Nuclear.hpp"
-#include "elemental/lapack-like/HermitianNorm/Two.hpp"
 #include "elemental/lapack-like/HilbertSchmidt.hpp"
 #include "elemental/lapack-like/HPDDeterminant.hpp"
+#include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/Nuclear.hpp"
+#include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/matrices/Hilbert.hpp"
 using namespace elem;
 

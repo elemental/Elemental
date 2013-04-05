@@ -13,9 +13,9 @@
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
+#include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
 #include "elemental/lapack-like/SVD.hpp"
-#include "elemental/lapack-like/TwoNormLowerBound.hpp"
-#include "elemental/lapack-like/TwoNormUpperBound.hpp"
 #include "elemental/matrices.hpp"
 using namespace std;
 using namespace elem;
