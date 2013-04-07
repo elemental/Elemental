@@ -10,10 +10,9 @@
 #ifndef LAPACK_POLAR_HPP
 #define LAPACK_POLAR_HPP
 
-#include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
-#include "elemental/lapack-like/SVD.hpp"
-#include "elemental/matrices/Zeros.hpp"
+#include "elemental/lapack-like/Polar/SVD.hpp"
+#include "elemental/lapack-like/Polar/Halley.hpp"
+#include "elemental/lapack-like/Polar/QDWH.hpp"
 
 namespace elem {
 
@@ -22,6 +21,8 @@ namespace elem {
 // Hermitian positive semi-definite. On exit, A is overwritten with Q.
 //
 
+// TODO: HermitianPolar
+
 template<typename F>
 inline void
 Polar( Matrix<F>& A, Matrix<F>& P )
@@ -29,22 +30,7 @@ Polar( Matrix<F>& A, Matrix<F>& P )
 #ifndef RELEASE
     PushCallStack("Polar");
 #endif
-    typedef typename Base<F>::type R;
-    const int n = A.Width();
-
-    // Get the SVD of A
-    Matrix<R> s;
-    Matrix<F> U, V;
-    U = A;
-    SVD( U, s, V );
-
-    // Form Q := U V^H in A
-    MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
-
-    // Form P := V Sigma V^H in P
-    Zeros( n, n, P );
-    hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
+    polar::SVD( A, P );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -57,23 +43,7 @@ Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 #ifndef RELEASE
     PushCallStack("Polar");
 #endif
-    typedef typename Base<F>::type R;
-    const Grid& g = A.Grid();
-    const int n = A.Width();
-
-    // Get the SVD of A
-    DistMatrix<R,VR,STAR> s(g);
-    DistMatrix<F> U(g), V(g);
-    U = A;
-    SVD( U, s, V );
-
-    // Form Q := U V^H in A
-    MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
-
-    // Form P := V Sigma V^H in P
-    Zeros( n, n, P );
-    hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
+    polar::SVD( A, P );
 #ifndef RELEASE
     PopCallStack();
 #endif

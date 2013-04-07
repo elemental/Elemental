@@ -14,10 +14,6 @@
 #include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
-#ifdef HAVE_PMRRR
-# include "elemental/lapack-like/HermitianSVD.hpp"
-#endif
-
 namespace elem {
 
 template<typename F> 
@@ -56,18 +52,7 @@ HermitianSchattenNorm
 
     Matrix<F> B( A );
     Matrix<R> s;
-
-// TODO: Enable sequential MRRR
-/*
-#ifdef HAVE_PMRRR
     HermitianSVD( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SVD( B, s );
-#endif // ifdef HAVE_PMRRR
-*/
-    MakeHermitian( uplo, B );
-    SVD( B, s );
 
     // TODO: Think of how to make this more stable
     const int k = s.Height();
@@ -145,12 +130,7 @@ HermitianSchattenNorm
 
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-#ifdef HAVE_PMRRR
     HermitianSVD( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SVD( B, s );
-#endif // ifdef HAVE_PMRRR
 
     // TODO: Think of how to make this more stable
     const int kLocal = s.LocalHeight();

@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
@@ -80,8 +80,8 @@ main( int argc, char* argv[] )
         DistMatrix<double> XEven, XOdd;
         HermitianEig( LOWER, AEven, wEven, XEven );
         HermitianEig( LOWER, AOdd,  wOdd,  XOdd  );
-        SortEig( wEven, XEven );
-        SortEig( wOdd,  XOdd  );
+        hermitian_eig::Sort( wEven, XEven );
+        hermitian_eig::Sort( wOdd,  XOdd  );
         if( print )
         {
             XEven.Print("XEven");

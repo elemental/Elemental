@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 using namespace std;
 using namespace elem;
 
@@ -83,7 +83,7 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, H, w_VR_STAR, X );
 
         // Sort the eigensolution
-        SortEig( w_VR_STAR, X );
+        hermitian_eig::Sort( w_VR_STAR, X );
         if( print )
         {
             w_VR_STAR.Print("Eigenvalues of H");

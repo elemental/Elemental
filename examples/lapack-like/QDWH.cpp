@@ -8,10 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/Halley.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/QDWH.hpp"
 #include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
+#include "elemental/lapack-like/Polar.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -51,7 +50,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const int numItsQDWH = QDWH( Q, lowerBound, upperBound );
+        const int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
@@ -75,7 +74,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a standard QR-based Halley
         // iteration
         Q = A;
-        const int numItsHalley = Halley( Q, upperBound );
+        const int numItsHalley = polar::Halley( Q, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 

@@ -8,8 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianHalley.hpp"
-#include "elemental/lapack-like/HermitianQDWH.hpp"
+#include "elemental/lapack-like/Polar.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
@@ -51,7 +50,7 @@ main( int argc, char* argv[] )
         // Halley (QDWH) iteration
         Q = A;
         const int numItsQDWH = 
-            HermitianQDWH( LOWER, Q, lowerBound, upperBound );
+            hermitian_polar::QDWH( LOWER, Q, lowerBound, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
@@ -75,7 +74,8 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a standard QR-based Halley
         // iteration
         Q = A;
-        const int numItsHalley = HermitianHalley( LOWER, Q, upperBound );
+        const int numItsHalley = 
+            hermitian_polar::Halley( LOWER, Q, upperBound );
         Zeros( n, n, P );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 

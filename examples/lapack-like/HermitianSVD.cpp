@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianSVD.hpp"
+#include "elemental/lapack-like/SVD.hpp"
 #include "elemental/lapack-like/Trace.hpp"
 using namespace std;
 using namespace elem;

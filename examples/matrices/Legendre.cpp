@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
 #include "elemental/matrices/Zeros.hpp"
 using namespace elem;
@@ -44,7 +44,7 @@ main( int argc, char* argv[] )
         DistMatrix<double,VR,STAR> points;
         DistMatrix<double> X;
         HermitianEig( LOWER, J, points, X );
-        SortEig( points, X );
+        hermitian_eig::Sort( points, X );
         if( print )
             points.Print("points");
         DistMatrix<double> firstRow;

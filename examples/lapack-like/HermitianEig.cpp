@@ -12,7 +12,7 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Identity.hpp"
 using namespace std;
 using namespace elem;
@@ -93,7 +93,7 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, H, w, X ); // only use lower half of H
 
         // Optional: sort the eigenpairs
-        SortEig( w, X );
+        hermitian_eig::Sort( w, X );
 
         if( print )
         {

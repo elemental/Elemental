@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/SortEig.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/lapack-like/Trace.hpp"
 using namespace std;
 using namespace elem;
@@ -106,7 +106,7 @@ main( int argc, char* argv[] )
         }
 
         // Sort the eigensolution,
-        SortEig( w, X );
+        hermitian_eig::Sort( w, X );
 
         if( print )
         {

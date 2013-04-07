@@ -14,10 +14,6 @@
 #include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
-#ifdef HAVE_PMRRR
-# include "elemental/lapack-like/HermitianSVD.hpp"
-#endif
-
 namespace elem {
 
 template<typename F> 
@@ -57,17 +53,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     typedef typename Base<F>::type R;
     Matrix<F> B( A );
     Matrix<R> s;
-// TODO: Enable sequential MRRR
-/*
-#ifdef HAVE_PMRRR
     HermitianSVD( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SVD( B, s );
-#endif // ifdef HAVE_PMRRR
-*/
-    MakeHermitian( uplo, B );
-    SVD( B, s );
 
     R norm = 0;
     for( int j=k-1; j>=0; --j )
@@ -145,12 +131,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
     typedef typename Base<F>::type R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
-#ifdef HAVE_PMRRR
     HermitianSVD( uplo, B, s );
-#else
-    MakeHermitian( uplo, B );
-    SVD( B, s );
-#endif // ifdef HAVE_PMRRR
 
     R localNorm = 0;
     DistMatrix<R,VR,STAR> sTop( A.Grid() );
