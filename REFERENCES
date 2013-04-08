@@ -17,7 +17,12 @@ NOTE: This list of references will hopefully grow very soon. I would like to
 
     NOTE: This paper introduced the standard algorithm for computing the SVD.
 
-[3] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
+[3] Gene H. Golub and Charles F. van Loan, "Matrix Computations", 3rd edition,
+    Johns Hopkins University Press, Baltimore, 1996.
+
+    NOTE: Added for definition of Kahan matrix (pg. 260)
+
+[4] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
     Numerical Algorithms, 42:31--61, 2006.
     http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
 
