@@ -1,6 +1,5 @@
 Functionality
 =============
-- Add Kahan matrix
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form

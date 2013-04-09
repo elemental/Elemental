@@ -1,6 +1,6 @@
-NOTE: This list of references will hopefully grow very soon. I would like to
-      move towards making Elemental (and all of my open source efforts) closer
-      to a publication.
+NOTE: This list is new will hopefully grow rapidly. I would like to move towards
+      making Elemental (and my other open source efforts) closer to 
+      publications.
 
 [1] Tony F. Chan, "An improved algorithm for computing the Singular Value
     Decomposition", ACM Transactions on Mathematical Software, Vol. 8, No. 1, 
@@ -22,7 +22,14 @@ NOTE: This list of references will hopefully grow very soon. I would like to
 
     NOTE: Added for definition of Kahan matrix (pg. 260)
 
-[4] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
+[4] Ming Gu and Stanley Eisenstat, "Efficient algorithms for computing a strong
+    rank-revealing QR factorization", SIAM Journal on Scientific Computing, 
+    Vol. 17, Issue 4, pp. 848--869, 1996.
+
+    NOTE: Standard reference for RRQR factorizations, which will hopefully be
+          added to Elemental in the near future.
+
+[5] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
     Numerical Algorithms, 42:31--61, 2006.
     http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
 
@@ -30,4 +37,3 @@ NOTE: This list of references will hopefully grow very soon. I would like to
           accuracy in a cross-product based algorithm for computing the SVD.
           Such an approach should be more scalable than the current 
           bidiagonalization-based approach.
-

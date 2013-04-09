@@ -483,8 +483,9 @@ if(ELEM_EXAMPLES)
     SequentialQR QR SequentialSVD SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
-    HermitianUniformSpectrum Hilbert Identity Legendre NormalUniformSpectrum
-    Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson Zeros)
+    HermitianUniformSpectrum Hilbert Identity Kahan Legendre 
+    NormalUniformSpectrum Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson 
+    Zeros)
   if(HAVE_PMRRR)
     list(APPEND lapack-like_EXAMPLES
       HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig

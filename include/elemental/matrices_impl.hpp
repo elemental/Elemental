@@ -22,6 +22,7 @@
 #include "./matrices/Hankel.hpp"
 #include "./matrices/Hilbert.hpp"
 #include "./matrices/Identity.hpp"
+#include "./matrices/Kahan.hpp"
 #include "./matrices/Legendre.hpp"
 #include "./matrices/Ones.hpp"
 #include "./matrices/OneTwoOne.hpp"
