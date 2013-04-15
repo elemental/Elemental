@@ -132,8 +132,10 @@ MakeNormalUniformSpectrum
     // Form d and D
     const int n = A.Height();
     std::vector<C> d( n );
-    for( int j=0; j<n; ++j )
-        d[j] = center + radius*SampleUnitBall<C>();
+    if( grid.Rank() == 0 )
+        for( int j=0; j<n; ++j )
+            d[j] = center + radius*SampleUnitBall<C>();
+    mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<C> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );

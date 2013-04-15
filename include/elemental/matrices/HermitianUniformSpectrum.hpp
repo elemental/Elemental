@@ -137,8 +137,10 @@ MakeHermitianUniformSpectrum
     // Form d and D
     const int n = A.Height();
     std::vector<F> d( n );
-    for( int j=0; j<n; ++j )
-        d[j] = lower + (upper-lower)*Uniform();
+    if( grid.Rank() == 0 )
+        for( int j=0; j<n; ++j )
+            d[j] = lower + (upper-lower)*Uniform();
+    mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
     if( standardDist )
         Diagonal( d, A );
