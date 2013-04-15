@@ -229,7 +229,6 @@ template void Trr2k
   float alpha, const DistMatrix<float>& A, const DistMatrix<float>& B,
                const DistMatrix<float>& C, const DistMatrix<float>& D,
   float beta,        DistMatrix<float>& E );
-namespace internal {
 template void LocalTrr2k
 ( UpperOrLower uplo,
   float alpha, const DistMatrix<float,MC,  STAR>& A, 
@@ -374,7 +373,6 @@ template void LocalTrr2k
                const DistMatrix<float,STAR,MC>& C, 
                const DistMatrix<float,MR,STAR>& D,
   float beta,        DistMatrix<float,MC,  MR>& E  );
-} // namespace internal
 #ifndef DISABLE_COMPLEX
 template void Trr2k
 ( UpperOrLower uplo,
@@ -385,7 +383,6 @@ template void Trr2k
                         const DistMatrix<Complex<float> >& C, 
                         const DistMatrix<Complex<float> >& D,
   Complex<float> beta,        DistMatrix<Complex<float> >& E );
-namespace internal {
 template void LocalTrr2k
 ( UpperOrLower uplo,
   Complex<float> alpha, const DistMatrix<Complex<float>,MC,  STAR>& A, 
@@ -530,7 +527,6 @@ template void LocalTrr2k
                         const DistMatrix<Complex<float>,STAR,MC>& C, 
                         const DistMatrix<Complex<float>,MR,STAR>& D,
   Complex<float> beta,        DistMatrix<Complex<float>,MC,  MR>& E  );
-} // namespace internal
 #endif // ifndef DISABLE_COMPLEX
 #endif // ifndef DISABLE_FLOAT
 
@@ -541,7 +537,6 @@ template void Trr2k
   double alpha, const DistMatrix<double>& A, const DistMatrix<double>& B,
                const DistMatrix<double>& C, const DistMatrix<double>& D,
   double beta,        DistMatrix<double>& E );
-namespace internal {
 template void LocalTrr2k
 ( UpperOrLower uplo,
   double alpha, const DistMatrix<double,MC,  STAR>& A, 
@@ -686,7 +681,6 @@ template void LocalTrr2k
                 const DistMatrix<double,STAR,MC>& C, 
                 const DistMatrix<double,MR,STAR>& D,
   double beta,        DistMatrix<double,MC,  MR>& E  );
-} // namespace internal
 #ifndef DISABLE_COMPLEX
 template void Trr2k
 ( UpperOrLower uplo,
@@ -697,7 +691,6 @@ template void Trr2k
                          const DistMatrix<Complex<double> >& C, 
                          const DistMatrix<Complex<double> >& D,
   Complex<double> beta,        DistMatrix<Complex<double> >& E );
-namespace internal {
 template void LocalTrr2k
 ( UpperOrLower uplo,
   Complex<double> alpha, const DistMatrix<Complex<double>,MC,  STAR>& A, 
@@ -842,7 +835,6 @@ template void LocalTrr2k
                          const DistMatrix<Complex<double>,STAR,MC>& C, 
                          const DistMatrix<Complex<double>,MR,STAR>& D,
   Complex<double> beta,        DistMatrix<Complex<double>,MC,  MR>& E  );
-} // namespace internal
 #endif // ifndef DISABLE_COMPLEX
 
 } // namespace elem

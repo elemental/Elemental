@@ -17,8 +17,6 @@
 
 namespace elem {
 
-namespace internal {
-
 template<typename T,Distribution AColDist,Distribution ARowDist,
                     Distribution xColDist,Distribution xRowDist,
                     Distribution yColDist,Distribution yRowDist>
@@ -29,7 +27,7 @@ inline void LocalGemv
   T beta,        DistMatrix<T,yColDist,yRowDist>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalGemv");
+    PushCallStack("LocalGemv");
     // TODO: Add error checking here
 #endif
     Gemv
@@ -40,8 +38,6 @@ inline void LocalGemv
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 template<typename T>
 inline void

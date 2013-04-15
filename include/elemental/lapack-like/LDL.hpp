@@ -12,19 +12,15 @@
 
 // TODO: Reorganize LDL implementation?
 namespace elem {
-namespace internal {
 template<typename F>
 void LocalLDL
 ( Orientation orientation, 
   DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d );
-} // namespace internal 
 } // namespace elem
 
 #include "./LDL/Var3.hpp"
 
 namespace elem {
-
-namespace internal {
 
 template<typename F>
 inline void
@@ -33,20 +29,18 @@ LocalLDL
   DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalLDL");
+    PushCallStack("LocalLDL");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
         throw std::logic_error
         ("d must be a column vector of the same height as A");
 #endif
     if( !d.Viewing() )
         d.ResizeTo( A.Height(), 1 );
-    LDLVar3( orientation, A.Matrix(), d.Matrix() );
+    internal::LDLVar3( orientation, A.Matrix(), d.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 template<typename F>
 inline void

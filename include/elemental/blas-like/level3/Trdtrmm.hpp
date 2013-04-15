@@ -11,7 +11,6 @@
 #define BLAS_TRDTRMM_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename T>
 inline void
@@ -19,7 +18,7 @@ LocalTrdtrmm
 ( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrdtrmm");
+    PushCallStack("LocalTrdtrmm");
 #endif
     Trdtrmm( orientation, uplo, A.Matrix() );
 #ifndef RELEASE
@@ -27,7 +26,6 @@ LocalTrdtrmm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./Trdtrmm/Unblocked.hpp"

@@ -11,7 +11,6 @@
 #define BLAS_TRMM_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename T,Distribution BColDist,Distribution BRowDist>
 inline void
@@ -22,7 +21,7 @@ LocalTrmm
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrmm");
+    PushCallStack("LocalTrmm");
     if( (side == LEFT && BColDist != STAR) ||
         (side == RIGHT && BRowDist != STAR) )
         throw std::logic_error
@@ -35,7 +34,6 @@ LocalTrmm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./Trmm/LLN.hpp"

@@ -7,23 +7,24 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SOLVEAFTERCHOLESKY_HPP
-#define LAPACK_SOLVEAFTERCHOLESKY_HPP
+#ifndef LAPACK_CHOLESKY_SOLVEAFTER_HPP
+#define LAPACK_CHOLESKY_SOLVEAFTER_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
+namespace cholesky {
 
 template<typename F> 
 inline void
-SolveAfterCholesky
+SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterCholesky");
+    PushCallStack("cholesky::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -78,12 +79,12 @@ SolveAfterCholesky
 
 template<typename F> 
 inline void
-SolveAfterCholesky
+SolveAfter
 ( UpperOrLower uplo, Orientation orientation, 
   const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterLU");
+    PushCallStack("cholesky::SolveAfter");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -138,6 +139,7 @@ SolveAfterCholesky
 #endif
 }
 
+} // namespace cholesky
 } // namespace elem
 
-#endif // ifndef LAPACK_SOLVEAFTERCHOLESKY_HPP
+#endif // ifndef LAPACK_CHOLESKY_SOLVEAFTER_HPP

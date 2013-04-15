@@ -83,14 +83,13 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
         //           | u |
         alpha11.Set(0,0,R(1));
         aB1_MC_STAR = aB1;
-        internal::LocalGemv
-        ( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), x12Trans_MR_STAR );
+        LocalGemv( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), x12Trans_MR_STAR );
         x12Trans_MR_STAR.SumOverCol();
 
         // Update AB2 := AB2 - tauQ aB1 x12
         //             = AB2 - tauQ aB1 aB1^T AB2
         //             = (I - tauQ aB1 aB1^T) AB2
-        internal::LocalGer( -tauQ, aB1_MC_STAR, x12Trans_MR_STAR, AB2 );
+        LocalGer( -tauQ, aB1_MC_STAR, x12Trans_MR_STAR, AB2 );
 
         // Put epsilonQ back instead of the temporary value, 1
         if( thisIsMyCol && thisIsMyRow )
@@ -113,14 +112,13 @@ inline void UnblockedBidiagU( DistMatrix<R>& A )
             //             | v |                                 | v |
             alpha12L.Set(0,0,R(1));
             a12_STAR_MR = a12;
-            internal::LocalGemv
-            ( NORMAL, R(1), A22, a12_STAR_MR, R(0), w21_MC_STAR );
+            LocalGemv( NORMAL, R(1), A22, a12_STAR_MR, R(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
             // A22 := A22 - tauP w21 a12
             //      = A22 - tauP A22 a12^T a12
             //      = A22 (I - tauP a12^T a12)
-            internal::LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
+            LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
 
             // Put epsilonP back instead of the temporary value, 1
             if( nextIsMyCol && thisIsMyRow )
@@ -228,14 +226,13 @@ inline void UnblockedBidiagU
         //           | u |
         alpha11.Set(0,0,C(1));
         aB1_MC_STAR = aB1;
-        internal::LocalGemv
-        ( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), x12Adj_MR_STAR );
+        LocalGemv( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), x12Adj_MR_STAR );
         x12Adj_MR_STAR.SumOverCol();
 
         // Update AB2 := AB2 - conj(tauQ) aB1 x12
         //             = AB2 - conj(tauQ) aB1 aB1^H AB2 
         //             = (I - conj(tauQ) aB1 aB1^H) AB2
-        internal::LocalGer( -Conj(tauQ), aB1_MC_STAR, x12Adj_MR_STAR, AB2 );
+        LocalGer( -Conj(tauQ), aB1_MC_STAR, x12Adj_MR_STAR, AB2 );
 
         // Put epsilonQ back instead of the temporary value, 1
         if( thisIsMyCol && thisIsMyRow )
@@ -263,8 +260,7 @@ inline void UnblockedBidiagU
             //             | v |                                 | v |
             alpha12L.Set(0,0,C(1));
             a12_STAR_MR = a12;
-            internal::LocalGemv
-            ( NORMAL, C(1), A22, a12_STAR_MR, C(0), w21_MC_STAR );
+            LocalGemv( NORMAL, C(1), A22, a12_STAR_MR, C(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
             // A22 := A22 - tauP w21 conj(a12)
@@ -273,7 +269,7 @@ inline void UnblockedBidiagU
             //      = A22 conj(I - conj(tauP) a12^H a12)
             // which compensates for the fact that the reflector was generated
             // on the conjugated a12.
-            internal::LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
+            LocalGer( -tauP, w21_MC_STAR, a12_STAR_MR, A22 );
 
             // Put epsilonP back instead of the temporary value, 1
             if( nextIsMyCol && thisIsMyRow )

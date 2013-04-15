@@ -13,7 +13,6 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 
 namespace elem {
-namespace internal {
 
 template<typename T,Distribution AColDist,Distribution ARowDist,
                     Distribution BColDist,Distribution BRowDist,
@@ -25,7 +24,7 @@ inline void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalGemm");
+    PushCallStack("LocalGemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( AColDist != CColDist ||
@@ -131,7 +130,6 @@ inline void LocalGemm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./Gemm/NN.hpp"

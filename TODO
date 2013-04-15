@@ -1,5 +1,6 @@
 Functionality
 =============
+- Add support for BLIS and fused Trmv's
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Pivoted QR and LQ decompositions 
 - Lower version of reduction to bidiagonal form
@@ -15,6 +16,8 @@ Functionality
 
 Maintenance
 ===========
+- Think of better names/organization for GaussianElimination and 
+  HouseholderSolve
 - Separate out local blas-like and lapack-like operations
 - Move most functions out of 'elem::internal' namespace and into a namespace
   corresponding to its particular class of algorithm, e.g., elem::svd

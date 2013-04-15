@@ -14,27 +14,25 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
 
-#include "./LU/Local.hpp"
-#include "./LU/Panel.hpp"
+#include "elemental/lapack-like/LU/Local.hpp"
+#include "elemental/lapack-like/LU/Panel.hpp"
+
+#include "elemental/lapack-like/LU/SolveAfter.hpp"
 
 namespace elem {
-
-namespace internal {
 
 template<typename F>
 inline void
 LocalLU( DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalLU");
+    PushCallStack("LocalLU");
 #endif
     LU( A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 // Performs LU factorization without pivoting
 
@@ -120,23 +118,22 @@ LU( DistMatrix<F>& A )
         A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        internal::LocalLU( A11_STAR_STAR );
+        LocalLU( A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
         A21_MC_STAR = A21;
-        internal::LocalTrsm
+        LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A21_MC_STAR );
         A21 = A21_MC_STAR;
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
-        internal::LocalGemm
-        ( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
         A12_STAR_VR.FreeAlignments();
@@ -314,12 +311,11 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
         A12_STAR_VR = A12;
-        internal::LocalTrsm
+        LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
         A12_STAR_MR = A12_STAR_VR;
-        internal::LocalGemm
-        ( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
+        LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
 
         A11 = A11_STAR_STAR;
         A12 = A12_STAR_MR;

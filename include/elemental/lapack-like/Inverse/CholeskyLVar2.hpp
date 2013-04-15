@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HPDINVERSE_UVAR2_HPP
-#define LAPACK_HPDINVERSE_UVAR2_HPP
+#ifndef LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
+#define LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -18,20 +18,20 @@
 #include "elemental/lapack-like/TriangularInverse.hpp"
 
 namespace elem {
-namespace internal {
+namespace hpd_inverse {
 
 //
-// This approach is based upon the reordered Variant 2 algorithm from Fig. 9 in 
-// Bientinesi et al.'s "Families of Algorithms Related to the Inversion of 
-// a Symmetric Positive Definite Matrix".
+// This approach is based upon a (conjugate)-transposition of the reordered 
+// Variant 2 algorithm from Fig. 9 in Bientinesi et al.'s "Families of 
+// Algorithms Related to the Inversion of a Symmetric Positive Definite Matrix".
 //
 
 template<typename F> 
 inline void
-HPDInverseUVar2( Matrix<F>& A )
+CholeskyLVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HPDInverseUVar2");
+    PushCallStack("hpd_inverse::CholeskyLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -54,16 +54,16 @@ HPDInverseUVar2( Matrix<F>& A )
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         //--------------------------------------------------------------------//
-        Cholesky( UPPER, A11 );
-        Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A01 );
-        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
-        Herk( UPPER, NORMAL, F(1), A01, F(1), A00 );
-        Gemm( NORMAL, NORMAL, F(-1), A01, A12, F(1), A02 );
-        Herk( UPPER, ADJOINT, F(-1), A12, F(1), A22 );
-        Trsm( RIGHT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A01 );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(-1), A11, A12 );
-        TriangularInverse( UPPER, NON_UNIT, A11 );
-        Trtrmm( ADJOINT, UPPER, A11 );
+        Cholesky( LOWER, A11 );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
+        Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
+        Herk( LOWER, ADJOINT, F(1), A10, F(1), A00 );
+        Gemm( NORMAL, NORMAL, F(-1), A21, A10, F(1), A20 );
+        Herk( LOWER, NORMAL, F(-1), A21, F(1), A22 );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A10 );
+        Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11, A21 );
+        TriangularInverse( LOWER, NON_UNIT, A11 );
+        Trtrmm( ADJOINT, LOWER, A11 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDownDiagonal
@@ -79,10 +79,10 @@ HPDInverseUVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-HPDInverseUVar2( DistMatrix<F>& A )
+CholeskyLVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HPDInverseUVar2");
+    PushCallStack("hpd_inverse::CholeskyLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -96,14 +96,13 @@ HPDInverseUVar2( DistMatrix<F>& A )
 
     // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,VC,  STAR> A01_VC_STAR(g);
-    DistMatrix<F,VR,  STAR> A01_VR_STAR(g);
-    DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
-    DistMatrix<F,STAR,MC  > A01Trans_STAR_MC(g);
-    DistMatrix<F,MR,  STAR> A01_MR_STAR(g);
-    DistMatrix<F,STAR,MR  > A01Adj_STAR_MR(g);
-    DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
-    DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
+    DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
+    DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
+    DistMatrix<F,STAR,MC  > A10_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A10_STAR_MR(g);
+    DistMatrix<F,STAR,MC  > A21Trans_STAR_MC(g);
+    DistMatrix<F,VR,  STAR> A21_VR_STAR(g);
+    DistMatrix<F,STAR,MR  > A21Adj_STAR_MR(g);
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -117,62 +116,62 @@ HPDInverseUVar2( DistMatrix<F>& A )
                /**/       A10, /**/ A11, A12,
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
-        A01_VC_STAR.AlignWith( A00 );
-        A12_STAR_VR.AlignWith( A02 );
-        A01Trans_STAR_MC.AlignWith( A00 );
-        A01_VR_STAR.AlignWith( A00 );
-        A01Adj_STAR_MR.AlignWith( A00 );
-        A12_STAR_MR.AlignWith( A02 );
-        A12_STAR_MC.AlignWith( A22 );
+        A10_STAR_VR.AlignWith( A00 );
+        A21_VC_STAR.AlignWith( A20 );
+        A10_STAR_MC.AlignWith( A00 );
+        A10_STAR_MR.AlignWith( A00 );
+        A21Trans_STAR_MC.AlignWith( A20 );
+        A21_VR_STAR.AlignWith( A22 );
+        A21Adj_STAR_MR.AlignWith( A22 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
-        LocalCholesky( UPPER, A11_STAR_STAR );
+        LocalCholesky( LOWER, A11_STAR_STAR );
 
-        A01_VC_STAR = A01;
+        A10_STAR_VR = A10;
         LocalTrsm
-        ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A01_VC_STAR );
+        ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A10_STAR_VR );
 
-        A12_STAR_VR = A12;
+        A21_VC_STAR = A21;
         LocalTrsm
-        ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
+        ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
 
-        A01Trans_STAR_MC.TransposeFrom( A01_VC_STAR );
-        A01_VR_STAR = A01_VC_STAR;
-        A01Adj_STAR_MR.AdjointFrom( A01_VR_STAR );
+        A10_STAR_MC = A10_STAR_VR;
+        A10_STAR_MR = A10_STAR_VR;
         LocalTrrk
-        ( UPPER, TRANSPOSE,
-          F(1), A01Trans_STAR_MC, A01Adj_STAR_MR, F(1), A00 );
+        ( LOWER, ADJOINT,
+          F(1), A10_STAR_MC, A10_STAR_MR, F(1), A00 );
 
-        A12_STAR_MR = A12_STAR_VR;
+        A21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         LocalGemm
-        ( TRANSPOSE, NORMAL, F(-1), A01Trans_STAR_MC, A12_STAR_MR, F(1), A02 );
+        ( TRANSPOSE, NORMAL, F(-1), A21Trans_STAR_MC, A10_STAR_MR, F(1), A20 );
 
-        A12_STAR_MC = A12_STAR_VR;
+        A21_VR_STAR = A21_VC_STAR;
+        A21Adj_STAR_MR.AdjointFrom( A21_VR_STAR );
         LocalTrrk
-        ( UPPER, ADJOINT,
-          F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
+        ( LOWER, TRANSPOSE,
+          F(-1), A21Trans_STAR_MC, A21Adj_STAR_MR, F(1), A22 );
 
         LocalTrsm
-        ( RIGHT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A01_VC_STAR );
+        ( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A10_STAR_VR );
 
         LocalTrsm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, F(-1), A11_STAR_STAR, A12_STAR_VR );
+        ( RIGHT, LOWER, NORMAL, NON_UNIT, F(-1), A11_STAR_STAR, A21_VC_STAR );
 
-        LocalTriangularInverse( UPPER, NON_UNIT, A11_STAR_STAR );
+        LocalTriangularInverse( LOWER, NON_UNIT, A11_STAR_STAR );
 
-        LocalTrtrmm( ADJOINT, UPPER, A11_STAR_STAR );
+        LocalTrtrmm( ADJOINT, LOWER, A11_STAR_STAR );
 
         A11 = A11_STAR_STAR;
-        A01 = A01_VC_STAR;
-        A12 = A12_STAR_VR;
+        A10 = A10_STAR_VR;
+        A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A01_VC_STAR.FreeAlignments();
-        A12_STAR_VR.FreeAlignments();
-        A01Trans_STAR_MC.FreeAlignments();
-        A01_VR_STAR.FreeAlignments();
-        A01Adj_STAR_MR.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A12_STAR_MC.FreeAlignments();
+        A10_STAR_VR.FreeAlignments();
+        A21_VC_STAR.FreeAlignments();
+        A10_STAR_MC.FreeAlignments();
+        A10_STAR_MR.FreeAlignments();
+        A21Trans_STAR_MC.FreeAlignments();
+        A21_VR_STAR.FreeAlignments();
+        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -185,7 +184,7 @@ HPDInverseUVar2( DistMatrix<F>& A )
 #endif
 }
 
-} // namespace internal
+} // namespace hpd_inverse
 } // namespace elem
 
-#endif // ifndef LAPACK_HPDINVERSE_UVAR2_HPP
+#endif // ifndef LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP

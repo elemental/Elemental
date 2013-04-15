@@ -11,34 +11,18 @@
 #define LAPACK_TRIANGULARINVERSE_HPP
 
 namespace elem {
-namespace internal {
 template<typename F>
 inline void
 LocalTriangularInverse
 ( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A );
-} // namespace internal
 } // namespace elem
 
-#include "./TriangularInverse/LVar3.hpp"
-#include "./TriangularInverse/UVar3.hpp"
+#include "elemental/lapack-like/TriangularInverse/LVar3.hpp"
+#include "elemental/lapack-like/TriangularInverse/UVar3.hpp"
 
 namespace elem {
 
 namespace internal {
-
-template<typename F>
-inline void
-LocalTriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A )
-{
-#ifndef RELEASE
-    PushCallStack("internal::LocalTriangularInverse");
-#endif
-    TriangularInverse( uplo, diag, A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
 
 template<typename F>
 inline void
@@ -99,6 +83,20 @@ TriangularInverse
     PushCallStack("TriangularInverse");
 #endif
     internal::TriangularInverseVar3( uplo, diag, A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename F>
+inline void
+LocalTriangularInverse
+( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    PushCallStack("LocalTriangularInverse");
+#endif
+    TriangularInverse( uplo, diag, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif

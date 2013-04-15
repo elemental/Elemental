@@ -2,8 +2,16 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
       making Elemental (and my other open source efforts) closer to 
       publications.
 
-[1] Tony F. Chan, "An improved algorithm for computing the Singular Value
-    Decomposition", ACM Transactions on Mathematical Software, Vol. 8, No. 1, 
+[1] Paolo Bientinesi, Brian Gunter, and Robert A. van de Geijn, 
+    "Families of algorithms related to the inversion of a Symmetric Positive
+     Definite matrix", ACM Transactions on Mathematical Software, Vol. 35, 
+    Issue 1, pp. 3:1--3:22, 2008.
+
+    NOTE: The variant 2 algorithm from Fig. 9 was parallelized for Elemental's
+          HPD inversion.
+
+[2] Tony F. Chan, "An improved algorithm for computing the Singular Value
+    Decomposition", ACM Transactions on Mathematical Software, Vol. 8, Issue 1, 
     pp. 72--83, 1982.
     http://www.stat.uchicago.edu/~lekheng/courses/324/chan.pdf
 
@@ -11,25 +19,25 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
           step in the SVD of a non-square matrix in order to accelerate the 
           computation.
 
-[2] Gene H. Golub and Christian Reinsch, "Singular value decomposition and 
+[3] Gene H. Golub and Christian Reinsch, "Singular value decomposition and 
     least squares solutions", Numerische Mathematik, Vol. 14, No. 5, 
     pp. 403--420, 1970.
 
     NOTE: This paper introduced the standard algorithm for computing the SVD.
 
-[3] Gene H. Golub and Charles F. van Loan, "Matrix Computations", 3rd edition,
+[4] Gene H. Golub and Charles F. van Loan, "Matrix Computations", 3rd edition,
     Johns Hopkins University Press, Baltimore, 1996.
 
     NOTE: Added for definition of Kahan matrix (pg. 260)
 
-[4] Ming Gu and Stanley Eisenstat, "Efficient algorithms for computing a strong
+[5] Ming Gu and Stanley Eisenstat, "Efficient algorithms for computing a strong
     rank-revealing QR factorization", SIAM Journal on Scientific Computing, 
     Vol. 17, Issue 4, pp. 848--869, 1996.
 
     NOTE: Standard reference for RRQR factorizations, which will hopefully be
           added to Elemental in the near future.
 
-[5] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
+[6] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
     Numerical Algorithms, 42:31--61, 2006.
     http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
 

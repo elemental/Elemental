@@ -16,23 +16,19 @@
 
 namespace elem {
 
-namespace internal {
-
 template<typename T>
 inline void
 LocalTrtrmm
 ( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrtrmm");
+    PushCallStack("LocalTrtrmm");
 #endif
     Trtrmm( orientation, uplo, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 template<typename T>
 inline void

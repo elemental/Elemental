@@ -12,8 +12,6 @@
 
 namespace elem {
 
-namespace internal {
-
 template<typename T,Distribution xColDist,Distribution xRowDist,
                     Distribution yColDist,Distribution yRowDist,
                     Distribution AColDist,Distribution ARowDist>
@@ -23,7 +21,7 @@ inline void LocalGer
                  DistMatrix<T,AColDist,ARowDist>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalGer");
+    PushCallStack("LocalGer");
     // TODO: Add error checking here
 #endif
     Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
@@ -31,8 +29,6 @@ inline void LocalGer
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 template<typename T>
 inline void

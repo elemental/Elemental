@@ -10,7 +10,7 @@
 #ifndef CONVEX_LOGBARRIER_HPP
 #define CONVEX_LOGBARRIER_HPP
 
-#include "elemental/lapack-like/HPDDeterminant.hpp"
+#include "elemental/lapack-like/Determinant.hpp"
 
 namespace elem {
 

@@ -11,7 +11,6 @@
 #define BLAS_TRSM_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F,Distribution XColDist,Distribution XRowDist>
 inline void
@@ -23,7 +22,7 @@ LocalTrsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrsm");
+    PushCallStack("LocalTrsm");
     if( (side == LEFT && XColDist != STAR) ||
         (side == RIGHT && XRowDist != STAR) )
         throw std::logic_error
@@ -37,7 +36,6 @@ LocalTrsm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./Trsm/LLN.hpp"

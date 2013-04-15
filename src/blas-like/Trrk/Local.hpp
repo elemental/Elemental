@@ -343,16 +343,16 @@ LocalTrrkKernel
     DBR.AlignWith( CBR );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
+        LocalGemm( NORMAL, NORMAL, alpha, AB, BL, T(1), CBL );
     else
-        internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
+        LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
     Zeros( CTL.Height(), CTL.Width(), DTL );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
+    LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
     Zeros( CBR.Height(), CBR.Width(), DBR );
-    internal::LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
+    LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -452,16 +452,16 @@ LocalTrrkKernel
     DBR.AlignWith( CBR );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
+        LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, T(1), CBL );
     else
-        internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
+        LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
     Zeros( CTL.Height(), CTL.Width(), DTL );
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
+    LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
     Zeros( CBR.Height(), CBR.Width(), DBR );
-    internal::LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
+    LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -549,16 +549,16 @@ LocalTrrkKernel
     DBR.AlignWith( CBR );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
+        LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, T(1), CBL );
     else
-        internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
+        LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
     Zeros( CTL.Height(), CTL.Width(), DTL );
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
+    LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
     Zeros( CBR.Height(), CBR.Width(), DBR );
-    internal::LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
+    LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -654,20 +654,16 @@ LocalTrrkKernel
     DBR.AlignWith( CBR );
     //------------------------------------------------------------------------//
     if( uplo == LOWER )
-        internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
+        LocalGemm( orientationOfA, orientationOfB, alpha, AR, BT, T(1), CBL );
     else
-        internal::LocalGemm
-        ( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
+        LocalGemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
     Zeros( CTL.Height(), CTL.Width(), DTL );
-    internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
+    LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
     Zeros( CBR.Height(), CBR.Width(), DBR );
-    internal::LocalGemm
-    ( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
+    LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 #ifndef RELEASE
@@ -728,58 +724,6 @@ void TrrkNN
 #endif
 }
 
-// Distributed C := alpha A B + beta C
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  T alpha, const DistMatrix<T,MC,  STAR>& A,
-           const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
-{
-    using namespace trrk;
-#ifndef RELEASE
-    PushCallStack("internal::LocalTrrk");
-    CheckInput( A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
-    {
-        LocalTrrkKernel( uplo, alpha, A, B, beta, C );
-    }
-    else
-    {
-        // Split C in four roughly equal pieces, perform a large gemm on corner
-        // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
-
-        const int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
-
-        if( uplo == LOWER )
-            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
-        else
-            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
-
-        // Recurse
-        LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
-        LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Local C := alpha A B^{T/H} + beta C
 template<typename T>
 void TrrkNT
@@ -833,62 +777,6 @@ void TrrkNT
 #endif
 }
 
-// Distributed C := alpha A B^{T/H} + beta C
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T,MC,STAR>& A,
-           const DistMatrix<T,MR,STAR>& B,
-  T beta,        DistMatrix<T>& C )
-{
-    using namespace trrk;
-#ifndef RELEASE
-    PushCallStack("internal::LocalTrrk");
-    CheckInput( orientationOfB, A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
-    {
-        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, beta, C );
-    }
-    else
-    {
-        // Split C in four roughly equal pieces, perform a large gemm on corner
-        // and recurse on CTL and CBR.
-        DistMatrix<T,MC,STAR> AT(g),
-                              AB(g);
-        DistMatrix<T,MR,STAR> BT(g), 
-                              BB(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
-
-        const int half = C.Height() / 2;
-        LockedPartitionDown
-        ( A, AT,
-             AB, half );
-        LockedPartitionDown
-        ( B, BT, 
-             BB, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
-
-        if( uplo == LOWER )
-            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
-        else
-            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
-
-        // Recurse
-        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
-        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
 // Local C := alpha A^{T/H} B + beta C
 template<typename T>
 void TrrkTN
@@ -930,56 +818,6 @@ void TrrkTN
         // Recurse
         TrrkTN( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
         TrrkTN( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
-    }
-#ifndef RELEASE
-    PopCallStack();
-#endif
-}
-
-// Distributed C := alpha A^{T/H} B + beta C
-template<typename T>
-void LocalTrrk
-( UpperOrLower uplo,
-  Orientation orientationOfA,
-  T alpha, const DistMatrix<T,STAR,MC>& A,
-           const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C )
-{
-    using namespace trrk;
-#ifndef RELEASE
-    PushCallStack("internal::LocalTrrk");
-    CheckInput( orientationOfA, A, B, C );
-#endif
-    const Grid& g = C.Grid();
-
-    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
-    {
-        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        // Split C in four roughly equal pieces, perform a large gemm on corner
-        // and recurse on CTL and CBR.
-        DistMatrix<T,STAR,MC> AL(g), AR(g);
-        DistMatrix<T,STAR,MR> BL(g), BR(g);
-        DistMatrix<T> CTL(g), CTR(g),
-                      CBL(g), CBR(g);
-
-        const int half = C.Height() / 2;
-        LockedPartitionRight( A, AL, AR, half );
-        LockedPartitionRight( B, BL, BR, half );
-        PartitionDownDiagonal
-        ( C, CTL, CTR,
-             CBL, CBR, half );
-
-        if( uplo == LOWER )
-            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
-        else
-            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
-
-        // Recurse
-        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
-        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
 #ifndef RELEASE
     PopCallStack();
@@ -1039,6 +877,166 @@ void TrrkTT
 #endif
 }
 
+} // namespace internal
+
+// Distributed C := alpha A B + beta C
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  T alpha, const DistMatrix<T,MC,  STAR>& A,
+           const DistMatrix<T,STAR,MR  >& B,
+  T beta,        DistMatrix<T,MC,  MR  >& C )
+{
+    using namespace trrk;
+#ifndef RELEASE
+    PushCallStack("LocalTrrk");
+    CheckInput( A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernel( uplo, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        DistMatrix<T,MC,STAR> AT(g),
+                              AB(g);
+        DistMatrix<T,STAR,MR> BL(g), BR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
+
+        const int half = C.Height() / 2;
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
+        LockedPartitionRight( B, BL, BR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            LocalGemm( NORMAL, NORMAL, alpha, AB, BL, beta, CBL );
+        else
+            LocalGemm( NORMAL, NORMAL, alpha, AT, BR, beta, CTR );
+
+        // Recurse
+        LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
+        LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A B^{T/H} + beta C
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfB,
+  T alpha, const DistMatrix<T,MC,STAR>& A,
+           const DistMatrix<T,MR,STAR>& B,
+  T beta,        DistMatrix<T>& C )
+{
+    using namespace trrk;
+#ifndef RELEASE
+    PushCallStack("LocalTrrk");
+    CheckInput( orientationOfB, A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernel( uplo, orientationOfB, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        DistMatrix<T,MC,STAR> AT(g),
+                              AB(g);
+        DistMatrix<T,MR,STAR> BT(g), 
+                              BB(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
+
+        const int half = C.Height() / 2;
+        LockedPartitionDown
+        ( A, AT,
+             AB, half );
+        LockedPartitionDown
+        ( B, BT, 
+             BB, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            LocalGemm( NORMAL, orientationOfB, alpha, AB, BT, beta, CBL );
+        else
+            LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, beta, CTR );
+
+        // Recurse
+        LocalTrrk( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
+        LocalTrrk( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+// Distributed C := alpha A^{T/H} B + beta C
+template<typename T>
+void LocalTrrk
+( UpperOrLower uplo,
+  Orientation orientationOfA,
+  T alpha, const DistMatrix<T,STAR,MC>& A,
+           const DistMatrix<T,STAR,MR>& B,
+  T beta,        DistMatrix<T,MC,  MR>& C )
+{
+    using namespace trrk;
+#ifndef RELEASE
+    PushCallStack("LocalTrrk");
+    CheckInput( orientationOfA, A, B, C );
+#endif
+    const Grid& g = C.Grid();
+
+    if( C.Height() < g.Width()*LocalTrrkBlocksize<T>() )
+    {
+        LocalTrrkKernel( uplo, orientationOfA, alpha, A, B, beta, C );
+    }
+    else
+    {
+        // Split C in four roughly equal pieces, perform a large gemm on corner
+        // and recurse on CTL and CBR.
+        DistMatrix<T,STAR,MC> AL(g), AR(g);
+        DistMatrix<T,STAR,MR> BL(g), BR(g);
+        DistMatrix<T> CTL(g), CTR(g),
+                      CBL(g), CBR(g);
+
+        const int half = C.Height() / 2;
+        LockedPartitionRight( A, AL, AR, half );
+        LockedPartitionRight( B, BL, BR, half );
+        PartitionDownDiagonal
+        ( C, CTL, CTR,
+             CBL, CBR, half );
+
+        if( uplo == LOWER )
+            LocalGemm( orientationOfA, NORMAL, alpha, AR, BL, beta, CBL );
+        else
+            LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, beta, CTR );
+
+        // Recurse
+        LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
+        LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
 template<typename T>
 void LocalTrrk
@@ -1050,7 +1048,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrrk");
+    PushCallStack("LocalTrrk");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -1100,8 +1098,6 @@ void LocalTrrk
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 } // namespace elem
 

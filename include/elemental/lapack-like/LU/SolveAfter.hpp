@@ -7,21 +7,22 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SOLVEAFTERLU_HPP
-#define LAPACK_SOLVEAFTERLU_HPP
+#ifndef LAPACK_LU_SOLVEAFTER_HPP
+#define LAPACK_LU_SOLVEAFTER_HPP
 
 #include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
 
 namespace elem {
+namespace lu {
 
 template<typename F> 
 inline void
-SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
+SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterLU");
+    PushCallStack("lu::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -60,11 +61,11 @@ SolveAfterLU( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 
 template<typename F> 
 inline void
-SolveAfterLU
+SolveAfter
 ( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterLU");
+    PushCallStack("lu::SolveAfter");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -105,12 +106,12 @@ SolveAfterLU
 
 template<typename F> 
 inline void
-SolveAfterLU
+SolveAfter
 ( Orientation orientation, 
   const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterLU");
+    PushCallStack("lu::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -155,12 +156,12 @@ SolveAfterLU
 
 template<typename F> 
 inline void
-SolveAfterLU
+SolveAfter
 ( Orientation orientation, 
   const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("SolveAfterLU");
+    PushCallStack("lu::SolveAfter");
     if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -205,6 +206,7 @@ SolveAfterLU
 #endif
 }
 
+} // namespace lu
 } // namespace elem
 
-#endif // ifndef LAPACK_SOLVEAFTERLU_HPP
+#endif // ifndef LAPACK_LU_SOLVEAFTER_HPP

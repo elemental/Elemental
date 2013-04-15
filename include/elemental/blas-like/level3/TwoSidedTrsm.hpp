@@ -136,6 +136,8 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 #endif
 }
 
+} // namespace internal
+
 template<typename F>
 inline void
 LocalTwoSidedTrsm
@@ -143,7 +145,7 @@ LocalTwoSidedTrsm
   DistMatrix<F,STAR,STAR>& A, const DistMatrix<F,STAR,STAR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTwoSidedTrsm");
+    PushCallStack("LocalTwoSidedTrsm");
 #endif
     TwoSidedTrsm( uplo, diag, A.Matrix(), B.LockedMatrix() );
 #ifndef RELEASE
@@ -151,7 +153,6 @@ LocalTwoSidedTrsm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./TwoSidedTrsm/LVar4.hpp"

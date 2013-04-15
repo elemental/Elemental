@@ -51,7 +51,7 @@ void TestCorrectness
     const Real oneNormOfA = OneNorm( A );
     const Real infNormOfA = InfinityNorm( A );
     const Real frobNormOfA = FrobeniusNorm( A );
-    internal::LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
+    LocalGemm( NORMAL, NORMAL, F(-1), Q, R, F(1), A );
     oneNormOfError = OneNorm( A );
     infNormOfError = InfinityNorm( A );
     frobNormOfError = FrobeniusNorm( A );

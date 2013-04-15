@@ -11,7 +11,6 @@
 #define BLAS_TRTRSM_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename F>
 inline void
@@ -23,7 +22,7 @@ LocalTrtrsm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrtrsm");
+    PushCallStack("LocalTrtrsm");
 #endif
     Trtrsm
     ( side, uplo, orientation, diag,
@@ -33,7 +32,6 @@ LocalTrtrsm
 #endif
 }
 
-} // namespace internal
 } // namespace elem
 
 #include "./Trtrsm/LLN.hpp"

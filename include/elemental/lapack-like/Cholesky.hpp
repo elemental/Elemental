@@ -12,20 +12,17 @@
 
 // TODO: Reorganize Cholesky implementation?
 namespace elem {
-namespace internal {
 template<typename F>
 void LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
-} // namespace internal 
 } // namespace elem
 
 #include "./Cholesky/LVar3.hpp"
 #include "./Cholesky/LVar3Square.hpp"
 #include "./Cholesky/UVar3.hpp"
 #include "./Cholesky/UVar3Square.hpp"
+#include "./Cholesky/SolveAfter.hpp"
 
 namespace elem {
-
-namespace internal {
 
 template<typename F>
 inline void
@@ -33,15 +30,13 @@ LocalCholesky
 ( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalCholesky");
+    PushCallStack("LocalCholesky");
 #endif
     Cholesky( uplo, A.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-
-} // namespace internal
 
 template<typename F>
 inline void
