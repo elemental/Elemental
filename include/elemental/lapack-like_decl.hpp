@@ -87,8 +87,6 @@ using namespace hermitian_gen_definite_eig_type_wrapper;
 // Utilities                                                                  //
 //----------------------------------------------------------------------------//
 
-namespace internal {
-
 template<typename F>
 void PivotFunc
 ( void* inData, void* outData, int* length, mpi::Datatype* datatype );
@@ -110,8 +108,6 @@ template<> void DestroyPivotOp<float>();
 template<> void DestroyPivotOp<double>();
 template<> void DestroyPivotOp<scomplex>();
 template<> void DestroyPivotOp<dcomplex>();
-
-} // namespace internal
 
 //----------------------------------------------------------------------------//
 // Tuning parameters                                                          //

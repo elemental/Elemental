@@ -14,10 +14,10 @@
 #include "elemental/lapack-like/Reflector/Col.hpp"
 
 namespace elem {
-namespace internal {
+namespace hermitian_tridiag {
 
 template<typename R> 
-void HermitianPanelTridiagUSquare
+void PanelUSquare
 ( DistMatrix<R>& A,
   DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
@@ -28,7 +28,7 @@ void HermitianPanelTridiagUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagUSquare");
+    PushCallStack("hermitian_tridiag::PanelUSquare");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -195,7 +195,7 @@ void HermitianPanelTridiagUSquare
                         a01Last_MC_STAR_Buffer[i]*w01LastBottomEntry;
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha01B, a01T );
+            tau = reflector::Col( alpha01B, a01T );
         }
 
         // Store the subdiagonal value and turn a01 into a proper scaled 
@@ -676,7 +676,7 @@ void HermitianPanelTridiagUSquare
 }
 
 template<typename R>
-void HermitianPanelTridiagUSquare
+void PanelUSquare
 ( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
@@ -688,7 +688,7 @@ void HermitianPanelTridiagUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagUSquare");
+    PushCallStack("hermitian_tridiag::PanelUSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -873,7 +873,7 @@ void HermitianPanelTridiagUSquare
                         a01Last_MC_STAR_Buffer[i]*Conj(w01LastBottomEntry);
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha01B, a01T );
+            tau = reflector::Col( alpha01B, a01T );
             if( g.Row() == alpha01B.ColAlignment() )
                 tau1.SetLocal(0,0,tau);
         }
@@ -1367,7 +1367,7 @@ void HermitianPanelTridiagUSquare
 #endif
 }
 
-} // namespace internal
+} // namespace hermitian_tridiag
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANTRIDIAG_PANELUSQUARE_HPP

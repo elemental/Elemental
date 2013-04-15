@@ -36,7 +36,7 @@ LocalLDL
 #endif
     if( !d.Viewing() )
         d.ResizeTo( A.Height(), 1 );
-    internal::LDLVar3( orientation, A.Matrix(), d.Matrix() );
+    ldl::Var3( orientation, A.Matrix(), d.Matrix() );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -77,7 +77,7 @@ LDLH( Matrix<F>& A, Matrix<F>& d )
 #ifndef RELEASE
     PushCallStack("LDLH");
 #endif
-    internal::LDLVar3( ADJOINT, A, d );
+    ldl::Var3( ADJOINT, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -90,7 +90,7 @@ LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 #ifndef RELEASE
     PushCallStack("LDLH");
 #endif
-    internal::LDLVar3( ADJOINT, A, d );
+    ldl::Var3( ADJOINT, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -131,7 +131,7 @@ LDLT( Matrix<F>& A, Matrix<F>& d )
 #ifndef RELEASE
     PushCallStack("LDLT");
 #endif
-    internal::LDLVar3( TRANSPOSE, A, d );
+    ldl::Var3( TRANSPOSE, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -144,7 +144,7 @@ LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 #ifndef RELEASE
     PushCallStack("LDLT");
 #endif
-    internal::LDLVar3( TRANSPOSE, A, d );
+    ldl::Var3( TRANSPOSE, A, d );
 #ifndef RELEASE
     PopCallStack();
 #endif

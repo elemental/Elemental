@@ -12,13 +12,13 @@
 #include "./PanelLSquare.hpp"
 
 namespace elem {
-namespace internal {
+namespace hermitian_tridiag {
 
 template<typename R> 
-void HermitianTridiagLSquare( DistMatrix<R>& A )
+void LSquare( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianTridiagLSquare");
+    PushCallStack("hermitian_tridiag::LSquare");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Grid().Height() != A.Grid().Width() )
@@ -69,7 +69,7 @@ void HermitianTridiagLSquare( DistMatrix<R>& A )
             APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
             WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
 
-            HermitianPanelTridiagLSquare
+            hermitian_tridiag::PanelLSquare
             ( ABR, WPan, 
               APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -117,12 +117,12 @@ void HermitianTridiagLSquare( DistMatrix<R>& A )
 }
 
 template<typename R> 
-void HermitianTridiagLSquare
+void LSquare
 ( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("internal::HermitianTridiagLSquare");
+    PushCallStack("hermitian_tridiag::LSquare");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
@@ -197,7 +197,7 @@ void HermitianTridiagLSquare
             APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
             WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
 
-            HermitianPanelTridiagLSquare
+            hermitian_tridiag::PanelLSquare
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
@@ -258,7 +258,7 @@ void HermitianTridiagLSquare
 #endif
 }
 
-} // namespace internal
+} // namespace hermitian_tridiag
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANTRIDIAG_LSQUARE_HPP

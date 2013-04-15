@@ -10,19 +10,118 @@
 #ifndef LAPACK_BIDIAG_L_HPP
 #define LAPACK_BIDIAG_L_HPP
 
+#include "elemental/blas-like/level1/Conjugate.hpp"
+#include "elemental/blas-like/level2/Gemv.hpp"
+#include "elemental/blas-like/level2/Ger.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/Bidiag/LUnb.hpp"
 #include "elemental/lapack-like/Bidiag/PanelL.hpp"
-#include "elemental/lapack-like/Bidiag/UnblockedL.hpp"
+#include "elemental/lapack-like/Reflector.hpp"
 
 namespace elem {
-namespace internal {
+namespace bidiag {
+
+template<typename R>
+inline void L( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("bidiag::L");
+    if( A.Height() > A.Width() )
+        throw std::logic_error("A must be at least as wide as it is tall");
+#endif
+    // Matrix views 
+    Matrix<R>
+        ATL, ATR,  A00, a01,     A02,  alpha21T,  a1R,
+        ABL, ABR,  a10, alpha11, a12,  a21B,      A2R,
+                   A20, a21,     A22;
+
+    // Temporary matrices
+    Matrix<R> x12Trans, w21;
+
+    PushBlocksizeStack( 1 );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
+
+        x12Trans.ResizeTo( a12.Width(), 1 );
+        w21.ResizeTo( a21.Height(), 1 );
+        //--------------------------------------------------------------------//
+
+        // Find tauP, v, and epsilonP such that
+        //     I - tauP | 1 | | 1, v^T | | alpha11 | = | epsilonP |
+        //              | v |            |  a12^T  | = |    0     |
+        const R tauP = Reflector( alpha11, a12 );
+        const R epsilonP = alpha11.Get(0,0);
+
+        // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
+        //             | v |                                 | v |
+        alpha11.Set(0,0,R(1));
+        Gemv( NORMAL, R(1), A2R, a1R, R(0), w21 );
+
+        // A2R := A2R - tauP w21 a1R
+        //      = A2R - tauP A2R a1R^T a1R
+        //      = A2R (I - tauP a1R^T a1R)
+        Ger( -tauP, w21, a1R, A2R );
+
+        // Put epsilonP back instead of the temporary value, 1
+        alpha11.Set(0,0,epsilonP);
+
+        if( A22.Height() != 0 )
+        {
+            // Expose the subvector we seek to zero, a21B
+            PartitionDown
+            ( a21, alpha21T,
+                   a21B );
+
+            // Find tauQ, u, and epsilonQ such that
+            //     I - tauQ | 1 | | 1, u^T | | alpha21T | = | epsilonQ |
+            //              | u |            |   a21B   | = |    0     |
+            const R tauQ = Reflector( alpha21T, a21B );
+            const R epsilonQ = alpha21T.Get(0,0);
+
+            // Set a21 = | 1 | and form x12^T = (a21^T A22)^T = A22^T a21
+            //           | u |
+            alpha21T.Set(0,0,R(1));
+            Gemv( TRANSPOSE, R(1), A22, a21, R(0), x12Trans );
+
+            // A22 := A22 - tauQ a21 x12
+            //      = A22 - tauQ a21 a21^T A22
+            //      = (I - tauQ a21 a21^T) A22
+            Ger( -tauQ, a21, x12Trans, A22 );
+
+            // Put epsilonQ back instead of the temporary value, 1
+            alpha21T.Set(0,0,epsilonQ);
+        }
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+    }
+    PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 template<typename R>
 inline void 
-BidiagL( DistMatrix<R>& A )
+L( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::BidiagL");
+    PushCallStack("bidiag::L");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -70,8 +169,7 @@ BidiagL( DistMatrix<R>& A )
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            PanelBidiagL
-            ( ABR, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
+            bidiag::PanelL( ABR, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
             ( AColPan_MC_STAR, A11_MC_STAR,
@@ -102,7 +200,7 @@ BidiagL( DistMatrix<R>& A )
         }
         else
         {
-            bidiag::UnblockedBidiagL( ABR );
+            bidiag::LUnb( ABR );
         }
 
         SlidePartitionDownDiagonal
@@ -116,15 +214,140 @@ BidiagL( DistMatrix<R>& A )
 #endif
 }
 
+template<typename R>
+inline void L
+( Matrix<Complex<R> >& A,
+  Matrix<Complex<R> >& tP,
+  Matrix<Complex<R> >& tQ )
+{
+#ifndef RELEASE
+    PushCallStack("bidiag::L");
+#endif
+    const int tPHeight = A.Height();
+    const int tQHeight = std::max(A.Height()-1,0);
+#ifndef RELEASE
+    if( A.Height() > A.Width() )
+        throw std::logic_error("A must be at least as wide as it is tall");
+    if( tP.Viewing() && (tP.Height() != tPHeight || tP.Width() != 1) )
+        throw std::logic_error("tP is the wrong height");
+    if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
+        throw std::logic_error("tQ is the wrong height");
+#endif
+    typedef Complex<R> C;
+
+    if( !tP.Viewing() )
+        tP.ResizeTo( tPHeight, 1 );
+    if( !tQ.Viewing() )
+        tQ.ResizeTo( tQHeight, 1 );
+
+    // Matrix views 
+    Matrix<C>
+        ATL, ATR,  A00, a01,     A02,  alpha21T,  a1R,
+        ABL, ABR,  a10, alpha11, a12,  a21B,      A2R,
+                   A20, a21,     A22;
+
+    // Temporary matrices
+    Matrix<C> x12Adj, w21;
+
+    PushBlocksizeStack( 1 );
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() < A.Height() )
+    {
+        RepartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
+         /*************/ /**********************/
+               /**/       a10, /**/ alpha11, a12,
+          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+
+        View1x2( a1R, alpha11, a12 );
+        View1x2( A2R, a21, A22 );
+
+        x12Adj.ResizeTo( a12.Width(), 1 );
+        w21.ResizeTo( a21.Height(), 1 );
+        //--------------------------------------------------------------------//
+
+        // Due to deficiencies in the BLAS ?gemv routines, this section is 
+        // easier if we temporarily conjugate a1R = | alpha11, a12 |
+        Conjugate( a1R );
+
+        // Find tauP, v, and epsilonP such that
+        //     I - conj(tauP) | 1 | | 1, v^H | | alpha11 | = | epsilonP | 
+        //                    | v |            |   a12^T |   |    0     |
+        const C tauP = Reflector( alpha11, a12 );
+        const C epsilonP = alpha11.Get(0,0);
+        tP.Set(A00.Height(),0,tauP);
+
+        // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
+        //             | v |                                 | v |
+        alpha11.Set(0,0,C(1));
+        Gemv( NORMAL, C(1), A2R, a1R, C(0), w21 );
+
+        // A2R := A2R - tauP w21 conj(a1R)
+        //      = A2R - tauP A2R a1R^T conj(a1R)
+        //      = A22 (I - tauP a1R^T conj(a1R))
+        //      = A22 conj(I - conj(tauP) a1R^H a1R)
+        // which compensates for the fact that the reflector was generated
+        // on the conjugated a1R.
+        Ger( -tauP, w21, a1R, A2R );
+
+        // Put epsilonP back instead of the temporary value, 1
+        alpha11.Set(0,0,epsilonP);
+
+        // Undo the temporary conjugation
+        Conjugate( a1R );
+
+        if( A22.Height() != 0 )
+        {
+            // Expose the subvector we seek to zero, a21B
+            PartitionDown
+            ( a21, alpha21T,
+                   a21B );
+
+            // Find tauQ, u, and epsilonQ such that
+            //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
+            //                    | u |            |   a21B   | = |    0     |
+            const C tauQ = Reflector( alpha21T, a21B );
+            const C epsilonQ = alpha21T.Get(0,0);
+            tQ.Set(A00.Height(),0,tauQ);
+
+            // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
+            //           | u |
+            alpha21T.Set(0,0,C(1));
+            Gemv( ADJOINT, C(1), A22, a21, C(0), x12Adj );
+
+            // A22 := A22 - conj(tauQ) a21 x12 
+            //      = A22 - conj(tauQ) a21 a21^H A22
+            //      = (I - conj(tauQ) a21 a21^H) A22
+            Ger( -Conj(tauQ), a21, x12Adj, A22 );
+
+            // Put epsilonQ back instead of the temporary value, 1
+            alpha21T.Set(0,0,epsilonQ);
+        }
+        //--------------------------------------------------------------------//
+
+        SlidePartitionDownDiagonal
+        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
+               /**/       a10, alpha11, /**/ a12,
+         /*************/ /**********************/
+          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+    }
+    PopBlocksizeStack();
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
 template<typename R> 
 inline void
-BidiagL
+L
 ( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R>,STAR,STAR>& tP,
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("internal::BidiagL");
+    PushCallStack("bidiag::L");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         throw std::logic_error
         ("{A,tP,tQ} must be distributed over the same grid");
@@ -213,7 +436,7 @@ BidiagL
             AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
             ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
 
-            PanelBidiagL
+            bidiag::PanelL
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
             PartitionDown
@@ -245,7 +468,7 @@ BidiagL
         }
         else
         {
-            bidiag::UnblockedBidiagL( ABR, tP1, tQ1 );
+            bidiag::LUnb( ABR, tP1, tQ1 );
         }
 
         SlidePartitionDown
@@ -275,7 +498,7 @@ BidiagL
 #endif
 }
 
-} // namespace internal
+} // namespace bidiag
 } // namespace elem
 
 #endif // ifndef LAPACK_BIDIAG_L_HPP

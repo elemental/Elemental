@@ -52,24 +52,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLLVF( offset, H, A );
+                apply_packed_reflectors::LLVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLLVB( offset, H, A );
+                apply_packed_reflectors::LLVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLLHF( offset, H, A );
+                apply_packed_reflectors::LLHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsLLHB( offset, H, A );
+                apply_packed_reflectors::LLHB( offset, H, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLUVF( offset, H, A );
+                apply_packed_reflectors::LUVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLUVB( offset, H, A );
+                apply_packed_reflectors::LUVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLUHF( offset, H, A );
+                apply_packed_reflectors::LUHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsLUHB( offset, H, A );
+                apply_packed_reflectors::LUHB( offset, H, A );
         }
     }
     else
@@ -77,24 +77,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRLVF( offset, H, A );
+                apply_packed_reflectors::RLVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRLVB( offset, H, A );
+                apply_packed_reflectors::RLVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRLHF( offset, H, A );
+                apply_packed_reflectors::RLHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsRLHB( offset, H, A );
+                apply_packed_reflectors::RLHB( offset, H, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRUVF( offset, H, A );
+                apply_packed_reflectors::RUVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRUVB( offset, H, A );
+                apply_packed_reflectors::RUVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRUHF( offset, H, A );
+                apply_packed_reflectors::RUHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsRUHB( offset, H, A );
+                apply_packed_reflectors::RUHB( offset, H, A );
         }
     }
 #ifndef RELEASE
@@ -126,24 +126,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLLVF( offset, H, A );
+                apply_packed_reflectors::LLVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLLVB( offset, H, A );
+                apply_packed_reflectors::LLVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLLHF( offset, H, A );
+                apply_packed_reflectors::LLHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsLLHB( offset, H, A );
+                apply_packed_reflectors::LLHB( offset, H, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLUVF( offset, H, A );
+                apply_packed_reflectors::LUVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLUVB( offset, H, A );
+                apply_packed_reflectors::LUVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLUHF( offset, H, A );
+                apply_packed_reflectors::LUHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsLUHB( offset, H, A );
+                apply_packed_reflectors::LUHB( offset, H, A );
         }
     }
     else
@@ -151,24 +151,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRLVF( offset, H, A );
+                apply_packed_reflectors::RLVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRLVB( offset, H, A );
+                apply_packed_reflectors::RLVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRLHF( offset, H, A );
+                apply_packed_reflectors::RLHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsRLHB( offset, H, A );
+                apply_packed_reflectors::RLHB( offset, H, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRUVF( offset, H, A );
+                apply_packed_reflectors::RUVF( offset, H, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRUVB( offset, H, A );
+                apply_packed_reflectors::RUVB( offset, H, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRUHF( offset, H, A );
+                apply_packed_reflectors::RUHF( offset, H, A );
             else
-                internal::ApplyPackedReflectorsRUHB( offset, H, A );
+                apply_packed_reflectors::RUHB( offset, H, A );
         }
     }
 #ifndef RELEASE
@@ -195,32 +195,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLLVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLLVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLLHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsLLHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHB( conjugation, offset, H, t, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLUVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLUVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLUHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsLUHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHB( conjugation, offset, H, t, A );
         }
     }
     else
@@ -228,32 +220,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRLVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRLVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRLHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsRLHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHB( conjugation, offset, H, t, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRUVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRUVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRUHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsRUHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
         }
     }
 #ifndef RELEASE
@@ -280,32 +264,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLLVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLLVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLLHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsLLHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LLHB( conjugation, offset, H, t, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsLUVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsLUVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsLUHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsLUHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::LUHB( conjugation, offset, H, t, A );
         }
     }
     else
@@ -313,32 +289,24 @@ ApplyPackedReflectors
         if( uplo == LOWER )
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRLVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRLVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRLHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsRLHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RLHB( conjugation, offset, H, t, A );
         }
         else
         {
             if( dir == VERTICAL && order == FORWARD )
-                internal::ApplyPackedReflectorsRUVF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVF( conjugation, offset, H, t, A );
             else if( dir == VERTICAL )
-                internal::ApplyPackedReflectorsRUVB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUVB( conjugation, offset, H, t, A );
             else if( order == FORWARD )
-                internal::ApplyPackedReflectorsRUHF
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHF( conjugation, offset, H, t, A );
             else
-                internal::ApplyPackedReflectorsRUHB
-                ( conjugation, offset, H, t, A );
+                apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
         }
     }
 #ifndef RELEASE

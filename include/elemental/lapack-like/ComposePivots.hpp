@@ -74,15 +74,13 @@ ComposePivots
 // were performed in an n x n matrix. 
 // Requires O(b^2) work.
 
-namespace internal {
-
 inline void
-ComposePanelPivots
+ComposePivots
 ( const Matrix<int>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ComposePanelPivots");
+    PushCallStack("ComposePivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -126,12 +124,10 @@ ComposePanelPivots
 }
 
 inline void
-ComposePanelPivots
+ComposePivots
 ( const DistMatrix<int,STAR,STAR>& p, int pivotOffset,
   std::vector<int>& image, std::vector<int>& preimage )
-{ ComposePanelPivots( p.LockedMatrix(), pivotOffset, image, preimage ); }
-
-} // namespace internal
+{ ComposePivots( p.LockedMatrix(), pivotOffset, image, preimage ); }
 
 } // namespace elem
 

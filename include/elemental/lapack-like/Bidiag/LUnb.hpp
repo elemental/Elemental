@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_UNBLOCKEDL_HPP
-#define LAPACK_BIDIAG_UNBLOCKEDL_HPP
+#ifndef LAPACK_BIDIAG_LUNB_HPP
+#define LAPACK_BIDIAG_LUNB_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -20,10 +20,10 @@ namespace elem {
 namespace bidiag {
 
 template<typename R>
-inline void UnblockedBidiagL( DistMatrix<R>& A )
+inline void LUnb( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::UnblockedBidiagL");
+    PushCallStack("bidiag::LUnb");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -142,13 +142,13 @@ inline void UnblockedBidiagL( DistMatrix<R>& A )
 }
 
 template<typename R> 
-inline void UnblockedBidiagL
+inline void LUnb
 ( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,MD,STAR>& tP,
   DistMatrix<Complex<R>,MD,STAR>& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::UnblockedBidiagL");
+    PushCallStack("bidiag::LUnb");
 #endif
     const int tPHeight = A.Height();
     const int tQHeight = std::max(A.Height()-1,0);
@@ -295,4 +295,4 @@ inline void UnblockedBidiagL
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_UNBLOCKEDL_HPP
+#endif // ifndef LAPACK_BIDIAG_LUNB_HPP

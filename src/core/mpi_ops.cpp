@@ -23,8 +23,7 @@ namespace elem {
 
 template<typename T>
 void
-internal::PivotFunc
-( void* inData, void* outData, int* length, mpi::Datatype* datatype )
+PivotFunc( void* inData, void* outData, int* length, mpi::Datatype* datatype )
 {           
     if( *length == 0 )
         return;
@@ -50,10 +49,10 @@ internal::PivotFunc
 }
 
 template<>
-void internal::CreatePivotOp<float>()
+void CreatePivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::CreatePivotOp<float>");
+    PushCallStack("CreatePivotOp<float>");
     if( ::createdPivotOpFloat )
         throw std::logic_error("Already created pivot op");
 #endif
@@ -66,10 +65,10 @@ void internal::CreatePivotOp<float>()
 }
 
 template<>
-void internal::CreatePivotOp<double>()
+void CreatePivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::CreatePivotOp<double>");
+    PushCallStack("CreatePivotOp<double>");
     if( ::createdPivotOpDouble )
         throw std::logic_error("Already created pivot op");
 #endif  
@@ -82,10 +81,10 @@ void internal::CreatePivotOp<double>()
 }
 
 template<>
-void internal::CreatePivotOp<Complex<float> >()
+void CreatePivotOp<Complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::CreatePivotOp");
+    PushCallStack("CreatePivotOp");
     if( ::createdPivotOpScomplex )
         throw std::logic_error("Alread created pivot op");
 #endif
@@ -99,10 +98,10 @@ void internal::CreatePivotOp<Complex<float> >()
 }
 
 template<>
-void internal::CreatePivotOp<Complex<double> >()
+void CreatePivotOp<Complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::CreatePivotOp");
+    PushCallStack("CreatePivotOp");
     if( ::createdPivotOpDcomplex )
         throw std::logic_error("Already created pivot op");
 #endif
@@ -116,10 +115,10 @@ void internal::CreatePivotOp<Complex<double> >()
 }
 
 template<>
-void internal::DestroyPivotOp<float>()
+void DestroyPivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::DestroyPivotOp<float>");
+    PushCallStack("DestroyPivotOp<float>");
     if( ! ::createdPivotOpFloat )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -132,10 +131,10 @@ void internal::DestroyPivotOp<float>()
 }
 
 template<>
-void internal::DestroyPivotOp<double>()
+void DestroyPivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::DestroyPivotOp<double>");
+    PushCallStack("DestroyPivotOp<double>");
     if( ! ::createdPivotOpDouble )
         throw std::logic_error("Have not created ths pivot op");
 #endif
@@ -148,10 +147,10 @@ void internal::DestroyPivotOp<double>()
 }
 
 template<>
-void internal::DestroyPivotOp<Complex<float> >()
+void DestroyPivotOp<Complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::DestroyPivotOp");
+    PushCallStack("DestroyPivotOp");
     if( ! ::createdPivotOpScomplex )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -164,10 +163,10 @@ void internal::DestroyPivotOp<Complex<float> >()
 }
 
 template<>
-void internal::DestroyPivotOp<Complex<double> >()
+void DestroyPivotOp<Complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::DestroyPivotOp");
+    PushCallStack("DestroyPivotOp");
     if( ! ::createdPivotOpDcomplex )
         throw std::logic_error("Have not created this pivot op");
 #endif
@@ -180,10 +179,10 @@ void internal::DestroyPivotOp<Complex<double> >()
 }
 
 template<>
-mpi::Op internal::PivotOp<float>()
+mpi::Op PivotOp<float>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::PivotOp<float>");
+    PushCallStack("PivotOp<float>");
     if( ! ::createdPivotOpFloat )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -192,10 +191,10 @@ mpi::Op internal::PivotOp<float>()
 }
 
 template<>
-mpi::Op internal::PivotOp<double>()
+mpi::Op PivotOp<double>()
 {
 #ifndef RELEASE
-    PushCallStack("internal::PivotOp<double>");
+    PushCallStack("PivotOp<double>");
     if( ! ::createdPivotOpDouble )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -204,10 +203,10 @@ mpi::Op internal::PivotOp<double>()
 }
 
 template<>
-mpi::Op internal::PivotOp<Complex<float> >()
+mpi::Op PivotOp<Complex<float> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::PivotOp");
+    PushCallStack("PivotOp");
     if( ! ::createdPivotOpScomplex )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -216,10 +215,10 @@ mpi::Op internal::PivotOp<Complex<float> >()
 }
 
 template<>
-mpi::Op internal::PivotOp<Complex<double> >()
+mpi::Op PivotOp<Complex<double> >()
 {
 #ifndef RELEASE
-    PushCallStack("internal::PivotOp");
+    PushCallStack("PivotOp");
     if( ! ::createdPivotOpDcomplex )
         throw std::logic_error("Tried to return uncreated pivot op");
     PopCallStack();
@@ -227,20 +226,20 @@ mpi::Op internal::PivotOp<Complex<double> >()
     return ::pivotOpDcomplex;
 }
 
+template void
+PivotFunc<float>
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+
+template void
+PivotFunc<double>
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+
+template void
+PivotFunc<elem::Complex<float> >
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+
+template void
+PivotFunc<elem::Complex<double> >
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+
 } // namespace elem
-
-template void
-elem::internal::PivotFunc<float>
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );
-
-template void
-elem::internal::PivotFunc<double>
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );
-
-template void
-elem::internal::PivotFunc<elem::Complex<float> >
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );
-
-template void
-elem::internal::PivotFunc<elem::Complex<double> >
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );

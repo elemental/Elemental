@@ -14,14 +14,14 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
-namespace internal {
+namespace triangular_inverse {
 
 template<typename F>
 inline void
-TriangularInverseUVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
+UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TriangularInverseUVar3Unb");
+    PushCallStack("triangular_inverse::UVar3Unb");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -51,10 +51,10 @@ TriangularInverseUVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 
 template<typename F>
 inline void
-TriangularInverseUVar3( UnitOrNonUnit diag, Matrix<F>& U )
+UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TriangularInverseUVar3");
+    PushCallStack("triangular_inverse::UVar3");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -80,7 +80,7 @@ TriangularInverseUVar3( UnitOrNonUnit diag, Matrix<F>& U )
         Trsm( RIGHT, UPPER, NORMAL, diag, F(-1), U11, U01 );
         Gemm( NORMAL, NORMAL, F(1), U01, U12, F(1), U02 );
         Trsm( LEFT, UPPER, NORMAL, diag, F(1), U11, U12 );
-        TriangularInverseUVar3Unb( diag, U11 );
+        UVar3Unb( diag, U11 );
         //--------------------------------------------------------------------//
 
         SlidePartitionUpDiagonal
@@ -96,10 +96,10 @@ TriangularInverseUVar3( UnitOrNonUnit diag, Matrix<F>& U )
 
 template<typename F>
 inline void
-TriangularInverseUVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
+UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TriangularInverseUVar3");
+    PushCallStack("triangular_inverse::UVar3");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -169,7 +169,7 @@ TriangularInverseUVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 #endif
 }
 
-} // namespace internal
+} // namespace triangular_inverse
 } // namespace elem
 
 #endif // ifndef LAPACK_TRIANGULARINVERSE_UVAR3_HPP

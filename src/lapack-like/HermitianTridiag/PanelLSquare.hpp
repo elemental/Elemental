@@ -14,10 +14,10 @@
 #include "elemental/lapack-like/Reflector/Col.hpp"
 
 namespace elem {
-namespace internal {
+namespace hermitian_tridiag {
 
 template<typename R> 
-void HermitianPanelTridiagLSquare
+void PanelLSquare
 ( DistMatrix<R>& A,
   DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
@@ -31,7 +31,7 @@ void HermitianPanelTridiagLSquare
     const Grid& g = A.Grid();
 
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagLSquare");
+    PushCallStack("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -200,7 +200,7 @@ void HermitianPanelTridiagLSquare
                         a21Last_MC_STAR_Buffer[i]*w21LastFirstEntry;
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha21T, a21B );
+            tau = reflector::Col( alpha21T, a21B );
         }
 
         // Store the subdiagonal value and turn a21 into a proper scaled 
@@ -698,7 +698,7 @@ void HermitianPanelTridiagLSquare
 }
 
 template<typename R>
-void HermitianPanelTridiagLSquare
+void PanelLSquare
 ( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
@@ -715,7 +715,7 @@ void HermitianPanelTridiagLSquare
     const Grid& g = A.Grid();
 
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagLSquare");
+    PushCallStack("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid");
@@ -902,7 +902,7 @@ void HermitianPanelTridiagLSquare
                         a21Last_MC_STAR_Buffer[i]*Conj(w21LastFirstEntry);
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha21T, a21B );
+            tau = reflector::Col( alpha21T, a21B );
             if( g.Row() == alpha21T.ColAlignment() )
                 tau1.SetLocal(0,0,tau);
         }
@@ -1416,7 +1416,7 @@ void HermitianPanelTridiagLSquare
 #endif
 }
 
-} // namespace internal
+} // namespace hermitian_tridiag
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANTRIDIAG_PANELLSQUARE_HPP

@@ -14,14 +14,14 @@
 #include "elemental/blas-like/level2/Geru.hpp"
 
 namespace elem {
-namespace internal {
+namespace lu {
 
 template<typename F>
 inline void
-PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
+Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
 {
 #ifndef RELEASE
-    PushCallStack("internal::PanelLU");
+    PushCallStack("lu::Panel");
     if( A.Width() != p.Height() || p.Width() != 1 )
         throw std::logic_error("p must be a vector that conforms with A");
 #endif
@@ -96,14 +96,14 @@ PanelLU( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
 
 template<typename F>
 inline void
-PanelLU
+Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
   DistMatrix<int,STAR,STAR>& p, 
   int pivotOffset=0 )
 {
 #ifndef RELEASE
-    PushCallStack("internal::PanelLU");
+    PushCallStack("lu::Panel");
     if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
         throw std::logic_error
         ("Matrices must be distributed over the same grid");
@@ -276,7 +276,7 @@ PanelLU
 #endif
 }
 
-} // namespace internal
+} // namespace lu
 } // namespace elem
 
 #endif // ifndef LAPACK_LU_PANEL_HPP

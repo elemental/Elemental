@@ -323,13 +323,13 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
     if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
     {
         if( g.Col() == x.RowAlignment() )
-            tau = internal::ColReflector( chi, x );
+            tau = reflector::Col( chi, x );
         mpi::Broadcast( &tau, 1, x.RowAlignment(), g.RowComm() );
     }
     else
     {
         if( g.Row() == x.ColAlignment() )
-            tau = internal::RowReflector( chi, x );
+            tau = reflector::Row( chi, x );
         mpi::Broadcast( &tau, 1, x.ColAlignment(), g.ColComm() );
     }
 #ifndef RELEASE

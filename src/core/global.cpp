@@ -104,10 +104,10 @@ void Initialize( int& argc, char**& argv )
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
     // Build the pivot operations needed by the distributed LU
-    internal::CreatePivotOp<float>();
-    internal::CreatePivotOp<double>();
-    internal::CreatePivotOp<Complex<float> >();
-    internal::CreatePivotOp<Complex<double> >();
+    CreatePivotOp<float>();
+    CreatePivotOp<double>();
+    CreatePivotOp<Complex<float> >();
+    CreatePivotOp<Complex<double> >();
 
     // Seed the random number generators using Katzgrabber's approach
     // from "Random Numbers in Scientific Computing: An Introduction"
@@ -144,10 +144,10 @@ void Finalize()
         if( ::elemInitializedMpi )
         {
             // Destroy the pivot ops needed by the distributed LU
-            internal::DestroyPivotOp<float>();
-            internal::DestroyPivotOp<double>();
-            internal::DestroyPivotOp<Complex<float> >();
-            internal::DestroyPivotOp<Complex<double> >();
+            DestroyPivotOp<float>();
+            DestroyPivotOp<double>();
+            DestroyPivotOp<Complex<float> >();
+            DestroyPivotOp<Complex<double> >();
 
             // Delete the default grid
             delete ::defaultGrid;

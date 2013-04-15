@@ -10,15 +10,32 @@
 #ifndef LAPACK_BIDIAG_HPP
 #define LAPACK_BIDIAG_HPP
 
-#include "./Bidiag/Local.hpp"
 #include "./Bidiag/PanelL.hpp"
 #include "./Bidiag/PanelU.hpp"
-#include "./Bidiag/UnblockedL.hpp"
-#include "./Bidiag/UnblockedU.hpp"
 #include "./Bidiag/L.hpp"
+#include "./Bidiag/LUnb.hpp"
 #include "./Bidiag/U.hpp"
+#include "./Bidiag/UUnb.hpp"
 
 namespace elem {
+
+template<typename R>
+inline void
+Bidiag( Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Bidiag");
+#endif
+    if( IsComplex<R>::val )
+        throw std::logic_error("Called real routine with complex datatype");
+    if( A.Height() >= A.Width() )
+        bidiag::U( A );
+    else
+        bidiag::L( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
 
 template<typename R> 
 inline void Bidiag( DistMatrix<R>& A )
@@ -29,9 +46,27 @@ inline void Bidiag( DistMatrix<R>& A )
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
     if( A.Height() >= A.Width() )
-        internal::BidiagU( A );
+        bidiag::U( A );
     else
-        internal::BidiagL( A );
+        bidiag::L( A );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void Bidiag
+( Matrix<Complex<R> >& A,
+  Matrix<Complex<R> >& tP,
+  Matrix<Complex<R> >& tQ )
+{
+#ifndef RELEASE
+    PushCallStack("Bidiag");
+#endif
+    if( A.Height() >= A.Width() )
+        bidiag::U( A, tP, tQ );
+    else
+        bidiag::L( A, tP, tQ );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -47,9 +82,9 @@ inline void Bidiag
     PushCallStack("Bidiag");
 #endif
     if( A.Height() >= A.Width() )
-        internal::BidiagU( A, tP, tQ );
+        bidiag::U( A, tP, tQ );
     else
-        internal::BidiagL( A, tP, tQ );
+        bidiag::L( A, tP, tQ );
 #ifndef RELEASE
     PopCallStack();
 #endif

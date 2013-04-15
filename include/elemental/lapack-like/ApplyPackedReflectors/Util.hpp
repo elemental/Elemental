@@ -11,7 +11,6 @@
 #define LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
 
 namespace elem {
-namespace internal {
 
 template<typename R> 
 inline void 
@@ -109,7 +108,6 @@ FixDiagonal
 #endif
 }
 
-} // internal
-} // elem
+} // namespace elem
 
 #endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP

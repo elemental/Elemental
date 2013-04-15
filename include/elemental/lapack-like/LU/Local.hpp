@@ -14,17 +14,16 @@
 #include "elemental/blas-like/level2/Geru.hpp"
 
 namespace elem {
-
-namespace internal {
+namespace lu {
 
 // Local LU _without_ partial pivoting
 
 template<typename F> 
 inline void
-LUUnb_FLAME( Matrix<F>& A )
+UnbFLAME( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LUUnb_FLAME");
+    PushCallStack("UnbFLAME");
 #endif
     // Matrix views 
     Matrix<F>
@@ -66,10 +65,10 @@ LUUnb_FLAME( Matrix<F>& A )
 
 template<typename F>
 inline void
-LUUnb( Matrix<F>& A )
+Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LUUnb");
+    PushCallStack("Unb");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -90,8 +89,7 @@ LUUnb( Matrix<F>& A )
 #endif
 }
 
-} // namespace internal
-
+} // namespace lu
 } // namespace elem
 
 #endif // ifndef LAPACK_LU_LOCAL_HPP

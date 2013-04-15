@@ -11,11 +11,11 @@
 #define LAPACK_BIDIAG_PANELL_HPP
 
 namespace elem {
-namespace internal {
+namespace bidiag {
 
 template<typename R>
 inline void 
-PanelBidiagL
+PanelL
 ( DistMatrix<R>& A, 
   DistMatrix<R>& X, 
   DistMatrix<R>& Y,
@@ -23,7 +23,7 @@ PanelBidiagL
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR )
 {
 #ifndef RELEASE
-    PushCallStack("internal::PanelBidiagL");
+    PushCallStack("bidiag::PanelL");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -54,7 +54,7 @@ PanelBidiagL
 
 template<typename R> 
 inline void
-PanelBidiagL
+PanelL
 ( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
@@ -63,9 +63,8 @@ PanelBidiagL
   DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {
-
 #ifndef RELEASE
-    PushCallStack("internal::BidiagL");
+    PushCallStack("bidiag::PanelL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -99,7 +98,7 @@ PanelBidiagL
 #endif
 }
 
-} // namespace internal
+} // namespace bidiag
 } // namespace elem
 
 #endif // ifndef LAPACK_BIDIAG_PANELL_HPP

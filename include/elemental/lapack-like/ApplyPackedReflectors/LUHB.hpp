@@ -19,7 +19,7 @@
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
-namespace internal {
+namespace apply_packed_reflectors {
 
 //
 // Since applying Householder transforms from vectors stored bottom-to-top
@@ -41,11 +41,10 @@ namespace internal {
 
 template<typename R> 
 inline void
-ApplyPackedReflectorsLUHB
-( int offset, const Matrix<R>& H, Matrix<R>& A )
+LUHB( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ApplyPackedReflectorsLUHB");
+    PushCallStack("apply_packed_reflectors::LUHB");
     if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Height() )
@@ -107,13 +106,13 @@ ApplyPackedReflectorsLUHB
 
 template<typename R> 
 inline void
-ApplyPackedReflectorsLUHB
+LUHB
 ( int offset, 
   const DistMatrix<R>& H,
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ApplyPackedReflectorsLUHB");
+    PushCallStack("apply_packed_reflectors::LUHB");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset < 0 || offset > H.Width() )
@@ -202,14 +201,14 @@ ApplyPackedReflectorsLUHB
 
 template<typename R> 
 inline void
-ApplyPackedReflectorsLUHB
+LUHB
 ( Conjugation conjugation, int offset, 
   const Matrix<Complex<R> >& H,
   const Matrix<Complex<R> >& t,
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ApplyPackedReflectorsLUHB");
+    PushCallStack("apply_packed_reflectors::LUHB");
     if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Height() )
@@ -294,14 +293,14 @@ ApplyPackedReflectorsLUHB
 
 template<typename R> 
 inline void
-ApplyPackedReflectorsLUHB
+LUHB
 ( Conjugation conjugation, int offset, 
   const DistMatrix<Complex<R> >& H,
   const DistMatrix<Complex<R>,MD,STAR>& t,
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ApplyPackedReflectorsLUHB");
+    PushCallStack("apply_packed_reflectors::LUHB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
@@ -415,7 +414,7 @@ ApplyPackedReflectorsLUHB
 #endif
 }
 
-} // namespace internal
+} // namespace apply_packed_reflectors
 } // namespace elem
 
 #endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_LUHB_HPP

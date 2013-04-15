@@ -22,20 +22,19 @@ LocalTriangularInverse
 
 namespace elem {
 
-namespace internal {
+namespace triangular_inverse {
 
 template<typename F>
 inline void
-TriangularInverseVar3
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
+Var3( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TriangularInverseVar3");
+    PushCallStack("triangular_inverse::Var3");
 #endif
     if( uplo == LOWER )
-        TriangularInverseLVar3( diag, A );
+        LVar3( diag, A );
     else
-        TriangularInverseUVar3( diag, A );
+        UVar3( diag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -43,32 +42,30 @@ TriangularInverseVar3
 
 template<typename F>
 inline void
-TriangularInverseVar3
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+Var3( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TriangularInverseVar3");
+    PushCallStack("triangular_inverse::Var3");
 #endif
     if( uplo == LOWER )
-        TriangularInverseLVar3( diag, A );
+        LVar3( diag, A );
     else
-        TriangularInverseUVar3( diag, A );
+        UVar3( diag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
 
-} // namespace internal
+} // namespace triangular_inverse
 
 template<typename F>
 inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
+TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("TriangularInverse");
 #endif
-    internal::TriangularInverseVar3( uplo, diag, A );
+    triangular_inverse::Var3( uplo, diag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -76,13 +73,12 @@ TriangularInverse
 
 template<typename F>
 inline void
-TriangularInverse
-( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
+TriangularInverse( UpperOrLower uplo, UnitOrNonUnit diag, DistMatrix<F>& A  )
 {
 #ifndef RELEASE
     PushCallStack("TriangularInverse");
 #endif
-    internal::TriangularInverseVar3( uplo, diag, A );
+    triangular_inverse::Var3( uplo, diag, A );
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -62,7 +62,7 @@ LU( Matrix<F>& A )
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         //--------------------------------------------------------------------//
-        internal::LUUnb( A11 );
+        lu::Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
@@ -206,8 +206,8 @@ LU( Matrix<F>& A, Matrix<int>& p )
 
         const int pivotOffset = A01.Height();
         //--------------------------------------------------------------------//
-        internal::PanelLU( ABRL, p1, pivotOffset );
-        internal::ComposePanelPivots( p1, pivotOffset, image, preimage );
+        lu::Panel( ABRL, p1, pivotOffset );
+        ComposePivots( p1, pivotOffset, image, preimage );
         ApplyRowPivots( ABL, image, preimage );
         ApplyRowPivots( ABRR, image, preimage );
 
@@ -302,10 +302,8 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
         //--------------------------------------------------------------------//
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
-        internal::PanelLU
-        ( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
-        internal::ComposePanelPivots
-        ( p1_STAR_STAR, pivotOffset, image, preimage );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
+        ComposePivots( p1_STAR_STAR, pivotOffset, image, preimage );
         ApplyRowPivots( AB, image, preimage );
 
         // Perhaps we should give up perfectly distributing this operation since

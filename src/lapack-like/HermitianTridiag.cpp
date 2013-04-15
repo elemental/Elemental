@@ -8,7 +8,14 @@
 */
 #include "elemental-lite.hpp"
 
-#include "./HermitianTridiag/Local.hpp"
+#include "./HermitianTridiag/PanelL.hpp"
+#include "./HermitianTridiag/PanelLSquare.hpp"
+#include "./HermitianTridiag/PanelU.hpp"
+#include "./HermitianTridiag/PanelUSquare.hpp"
+#include "./HermitianTridiag/L.hpp"
+#include "./HermitianTridiag/LSquare.hpp"
+#include "./HermitianTridiag/U.hpp"
+#include "./HermitianTridiag/USquare.hpp"
 
 namespace elem {
 
@@ -21,9 +28,9 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
     if( uplo == LOWER )
-        hermitian_tridiag::HermitianTridiagL( A );
+        hermitian_tridiag::L( A );
     else
-        hermitian_tridiag::HermitianTridiagU( A );
+        hermitian_tridiag::U( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -37,26 +44,13 @@ void HermitianTridiag
     PushCallStack("HermitianTridiag");
 #endif
     if( uplo == LOWER )
-        hermitian_tridiag::HermitianTridiagL( A, t );
+        hermitian_tridiag::L( A, t );
     else
-        hermitian_tridiag::HermitianTridiagU( A, t );
+        hermitian_tridiag::U( A, t );
 #ifndef RELEASE
     PopCallStack();
 #endif
 }
-
-} // namespace elem
-
-#include "./HermitianTridiag/PanelL.hpp"
-#include "./HermitianTridiag/PanelLSquare.hpp"
-#include "./HermitianTridiag/PanelU.hpp"
-#include "./HermitianTridiag/PanelUSquare.hpp"
-#include "./HermitianTridiag/L.hpp"
-#include "./HermitianTridiag/LSquare.hpp"
-#include "./HermitianTridiag/U.hpp"
-#include "./HermitianTridiag/USquare.hpp"
-
-namespace elem {
 
 template<typename R>
 void
@@ -74,9 +68,9 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            internal::HermitianTridiagL( A );
+            hermitian_tridiag::L( A );
         else 
-            internal::HermitianTridiagU( A );
+            hermitian_tridiag::U( A );
     }
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
@@ -110,9 +104,9 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( uplo == LOWER )
-            internal::HermitianTridiagLSquare( ASquare );
+            hermitian_tridiag::LSquare( ASquare );
         else
-            internal::HermitianTridiagUSquare( ASquare ); 
+            hermitian_tridiag::USquare( ASquare ); 
         A = ASquare;
 
         mpi::GroupFree( squareGroup );
@@ -124,16 +118,16 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                internal::HermitianTridiagLSquare( A );
+                hermitian_tridiag::LSquare( A );
             else
-                internal::HermitianTridiagUSquare( A );
+                hermitian_tridiag::USquare( A );
         }
         else
         {
             if( uplo == LOWER )
-                internal::HermitianTridiagL( A );
+                hermitian_tridiag::L( A );
             else
-                internal::HermitianTridiagU( A );
+                hermitian_tridiag::U( A );
         }
     }
 #ifndef RELEASE
@@ -160,9 +154,9 @@ HermitianTridiag
     {
         // Use the pipelined algorithm for nonsquare meshes
         if( uplo == LOWER )
-            internal::HermitianTridiagL( A, t );
+            hermitian_tridiag::L( A, t );
         else
-            internal::HermitianTridiagU( A, t );
+            hermitian_tridiag::U( A, t );
     }
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
@@ -197,9 +191,9 @@ HermitianTridiag
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
         if( uplo == LOWER )
-            internal::HermitianTridiagLSquare( ASquare, tSquare );
+            hermitian_tridiag::LSquare( ASquare, tSquare );
         else
-            internal::HermitianTridiagUSquare( ASquare, tSquare ); 
+            hermitian_tridiag::USquare( ASquare, tSquare ); 
         A = ASquare;
         t = tSquare;
 
@@ -212,16 +206,16 @@ HermitianTridiag
         if( g.Height() == g.Width() )
         {
             if( uplo == LOWER )
-                internal::HermitianTridiagLSquare( A, t );
+                hermitian_tridiag::LSquare( A, t );
             else
-                internal::HermitianTridiagUSquare( A, t ); 
+                hermitian_tridiag::USquare( A, t ); 
         }
         else
         {
             if( uplo == LOWER )
-                internal::HermitianTridiagL( A, t );
+                hermitian_tridiag::L( A, t );
             else
-                internal::HermitianTridiagU( A, t );
+                hermitian_tridiag::U( A, t );
         }
     }
 #ifndef RELEASE

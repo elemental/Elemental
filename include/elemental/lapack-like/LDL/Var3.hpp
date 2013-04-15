@@ -14,15 +14,15 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
-namespace internal {
+namespace ldl {
 
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-LDLVar3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("LDLVar3Unb");
+    PushCallStack("ldl::Var3Unb");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
@@ -84,10 +84,10 @@ LDLVar3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
-LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("LDLVar3");
+    PushCallStack("ldl::Var3");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
@@ -132,11 +132,11 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
           dB,  d2 );
 
         //--------------------------------------------------------------------//
-        LDLVar3Unb( orientation, A11, d1 );
+        ldl::Var3Unb( orientation, A11, d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
-        TrrkNT( LOWER, orientation, F(-1), S21, A21, F(1), A22 );
+        internal::TrrkNT( LOWER, orientation, F(-1), S21, A21, F(1), A22 );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
@@ -158,11 +158,10 @@ LDLVar3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 
 template<typename F>
 inline void
-LDLVar3
-( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LDLVar3");
+    PushCallStack("ldl::Var3");
     if( orientation == NORMAL )
         throw std::logic_error("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
@@ -270,7 +269,7 @@ LDLVar3
 #endif
 }
 
-} // namespace internal
+} // namespace ldl
 } // namespace elem
 
 #endif // ifndef LAPACK_LDL_VAR3_HPP

@@ -15,10 +15,10 @@
 #include "elemental/lapack-like/Reflector/Col.hpp"
 
 namespace elem {
-namespace internal {
+namespace hermitian_tridiag {
 
 template<typename R>
-void HermitianPanelTridiagU
+void PanelU
 ( DistMatrix<R>& A,
   DistMatrix<R>& W,
   DistMatrix<R,MC,STAR>& APan_MC_STAR, 
@@ -29,7 +29,7 @@ void HermitianPanelTridiagU
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagU");
+    PushCallStack("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -188,7 +188,7 @@ void HermitianPanelTridiagU
                         a01Last_MC_STAR_Buffer[i]*w01LastBottomEntry;
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha01B, a01T );
+            tau = reflector::Col( alpha01B, a01T );
         }
 
         // Store the subdiagonal value and turn a01 into a proper reflector
@@ -410,7 +410,7 @@ void HermitianPanelTridiagU
         PopBlocksizeStack();
         Zero( p01_MC_STAR );
         Zero( q01_MR_STAR );
-        LocalSymvColAccumulateU
+        internal::LocalSymvColAccumulateU
         ( R(1), A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR );
         PushBlocksizeStack( 1 );
 
@@ -697,7 +697,7 @@ void HermitianPanelTridiagU
 }
 
 template<typename R>
-void HermitianPanelTridiagU
+void PanelU
 ( DistMatrix<Complex<R> >& A,
   DistMatrix<Complex<R> >& W,
   DistMatrix<Complex<R>,MD,STAR>& t,
@@ -709,7 +709,7 @@ void HermitianPanelTridiagU
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("internal::HermitianPanelTridiagU");
+    PushCallStack("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -889,7 +889,7 @@ void HermitianPanelTridiagU
                         a01Last_MC_STAR_Buffer[i]*Conj(w01LastBottomEntry);
             }
             // Compute the Householder reflector
-            tau = ColReflector( alpha01B, a01T );
+            tau = reflector::Col( alpha01B, a01T );
             if( g.Row() == alpha01B.ColAlignment() )
                 tau1.SetLocal(0,0,tau);
         }
@@ -1116,7 +1116,7 @@ void HermitianPanelTridiagU
         PopBlocksizeStack();
         Zero( p01_MC_STAR );
         Zero( q01_MR_STAR );
-        LocalSymvColAccumulateU
+        internal::LocalSymvColAccumulateU
         ( C(1), A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
         PushBlocksizeStack( 1 );
 
@@ -1409,7 +1409,7 @@ void HermitianPanelTridiagU
 #endif
 }
 
-} // namespace internal
+} // namespace hermitian_tridiag
 } // namespace elem
 
 #endif // ifndef LAPACK_HERMITIANTRIDIAG_PANELU_HPP

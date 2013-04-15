@@ -17,11 +17,11 @@
 #include "elemental/lapack-like/Reflector.hpp"
 
 namespace elem {
-namespace internal {
+namespace bidiag {
 
 template<typename R>
 inline void 
-PanelBidiagU
+PanelU
 ( DistMatrix<R>& A, 
   DistMatrix<R>& X, 
   DistMatrix<R>& Y,
@@ -30,7 +30,7 @@ PanelBidiagU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("internal::PanelBidiagU");
+    PushCallStack("bidiag::PanelU");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -226,7 +226,7 @@ PanelBidiagU
         R tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = ColReflector( alpha11, a21 );
+            tauQ = reflector::Col( alpha11, a21 );
             if( thisIsMyRow )
             {
                 // Store delta and force | alpha11 | = | 1 |
@@ -304,7 +304,7 @@ PanelBidiagU
         R tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = RowReflector( alpha12L, a12R );
+            tauP = reflector::Row( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 // Store epsilon and force | alpha12L | = | 1 |
@@ -409,7 +409,7 @@ PanelBidiagU
 
 template<typename R> 
 inline void
-PanelBidiagU
+PanelU
 ( DistMatrix<Complex<R> >& A, 
   DistMatrix<Complex<R>,MD,  STAR>& tP,
   DistMatrix<Complex<R>,MD,  STAR>& tQ,
@@ -420,7 +420,7 @@ PanelBidiagU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("internal::BidiagU");
+    PushCallStack("bidiag::PanelU");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -646,7 +646,7 @@ PanelBidiagU
         C tauQ = 0;
         if( thisIsMyCol )
         {
-            tauQ = ColReflector( alpha11, a21 );
+            tauQ = reflector::Col( alpha11, a21 );
             if( thisIsMyRow )
             {
                 tauQ1.SetLocal(0,0,tauQ);
@@ -730,7 +730,7 @@ PanelBidiagU
         C tauP = 0;
         if( thisIsMyRow )
         {
-            tauP = RowReflector( alpha12L, a12R );
+            tauP = reflector::Row( alpha12L, a12R );
             if( nextIsMyCol )
             {
                 tauP1.SetLocal(0,0,tauP);
@@ -853,7 +853,7 @@ PanelBidiagU
 #endif
 }
 
-} // namespace internal
+} // namespace bidiag
 } // namespace elem
 
 #endif // ifndef LAPACK_BIDIAG_PANELU_HPP

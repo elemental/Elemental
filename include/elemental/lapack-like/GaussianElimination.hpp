@@ -68,8 +68,8 @@ ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
                 A22 );
 
         //--------------------------------------------------------------------//
-        PanelLU( APan, p1, A00.Height() );
-        ComposePanelPivots( p1, A00.Height(), image, preimage );
+        lu::Panel( APan, p1, A00.Height() );
+        ComposePivots( p1, A00.Height(), image, preimage );
         ApplyRowPivots( BB, image, preimage );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
@@ -173,8 +173,8 @@ ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
         A21_MC_STAR = A21;
-        PanelLU( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, A00.Height() );
-        ComposePanelPivots( p1_STAR_STAR, A00.Height(), image, preimage );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, A00.Height() );
+        ComposePivots( p1_STAR_STAR, A00.Height(), image, preimage );
         ApplyRowPivots( APan, image, preimage );
         ApplyRowPivots( BB,   image, preimage );
 

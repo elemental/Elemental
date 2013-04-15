@@ -19,7 +19,7 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 
 namespace elem {
-namespace internal {
+namespace reflector {
 
 //
 // Follows the LAPACK convention of defining tau such that
@@ -51,10 +51,10 @@ namespace internal {
 
 template<typename R> 
 inline R
-RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
+Row( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
 #ifndef RELEASE
-    PushCallStack("internal::RowReflector");
+    PushCallStack("reflector::Row");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -140,11 +140,10 @@ RowReflector( DistMatrix<R>& chi, DistMatrix<R>& x )
 
 template<typename R>
 inline Complex<R>
-RowReflector
-( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
+Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
 #ifndef RELEASE
-    PushCallStack("internal::RowReflector");    
+    PushCallStack("reflector::Row");    
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -229,7 +228,7 @@ RowReflector
     return tau;
 }
 
-} // namespace internal
+} // namespace reflector
 } // namespace elem
 
 #endif // ifndef LAPACK_REFLECTOR_ROW_HPP
