@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HOUSEHOLDERSOLVE_HPP
-#define LAPACK_HOUSEHOLDERSOLVE_HPP
+#ifndef LAPACK_LEASTSQUARES_HPP
+#define LAPACK_LEASTSQUARES_HPP
 
 #include "elemental/blas-like/level1/Zero.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -20,13 +20,13 @@ namespace elem {
 
 template<typename R>
 inline void
-HouseholderSolve
+LeastSquares
 ( Orientation orientation, 
   Matrix<R>& A, const Matrix<R>& B,
                       Matrix<R>& X )
 {
 #ifndef RELEASE
-    PushCallStack("HouseholderSolve");
+    PushCallStack("LeastSquares");
 #endif
     // TODO: Add scaling
     const int m = A.Height();
@@ -132,13 +132,13 @@ HouseholderSolve
 
 template<typename R>
 inline void
-HouseholderSolve
+LeastSquares
 ( Orientation orientation, 
   DistMatrix<R>& A, const DistMatrix<R>& B,
                           DistMatrix<R>& X )
 {
 #ifndef RELEASE
-    PushCallStack("HouseholderSolve");
+    PushCallStack("LeastSquares");
     if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
 #endif
@@ -249,14 +249,14 @@ HouseholderSolve
 
 template<typename R> 
 inline void
-HouseholderSolve
+LeastSquares
 ( Orientation orientation, 
   Matrix<Complex<R> >& A, 
   const Matrix<Complex<R> >& B,
         Matrix<Complex<R> >& X )
 {
 #ifndef RELEASE
-    PushCallStack("HouseholderSolve");
+    PushCallStack("LeastSquares");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
 #endif
@@ -375,14 +375,14 @@ HouseholderSolve
 
 template<typename R> 
 inline void
-HouseholderSolve
+LeastSquares
 ( Orientation orientation, 
   DistMatrix<Complex<R> >& A, 
   const DistMatrix<Complex<R> >& B,
         DistMatrix<Complex<R> >& X )
 {
 #ifndef RELEASE
-    PushCallStack("HouseholderSolve");
+    PushCallStack("LeastSquares");
     if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
     if( orientation == TRANSPOSE )
@@ -504,4 +504,4 @@ HouseholderSolve
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HOUSEHOLDERSOLVE_HPP
+#endif // ifndef LAPACK_LEASTSQUARES_HPP

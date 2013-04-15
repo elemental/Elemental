@@ -132,6 +132,26 @@ matrices.
 
    Set the matrix ``A`` to be identity-like.
 
+Kahan
+-----
+For any pair :math:`(\phi,\zeta)` such that :math:`|\phi|^2+|\zeta|^2=1`, 
+the corresponding :math:`n \times n` Kahan matrix is given by:
+
+.. math::
+
+   K = \text{diag}(1,\phi,\ldots,\phi^{n-1}) \begin{pmatrix} 
+   1      & -\zeta & -\zeta & \cdots & -\zeta \\
+   0      & 1      & -\zeta & \cdots & -\zeta \\
+          & \ddots &        & \vdots & \vdots \\
+   \vdots &        &        & 1      & -\zeta \\
+   0      &        & \cdots &        & 1 \end{pmatrix}
+
+.. cpp:function:: void Kahan( F phi, int n, Matrix<F>& A )
+.. cpp:function:: void Kahan( F phi, int n, DistMatrix<F>& A )
+
+   Sets the matrix ``A`` equal to the :math:`n \times n` Kahan matrix with 
+   the specified value for :math:`\phi`.
+
 Legendre
 --------
 The :math:`n \times n` tridiagonal Jacobi matrix associated with the Legendre

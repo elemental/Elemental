@@ -478,9 +478,9 @@ if(ELEM_EXAMPLES)
   set(core_EXAMPLES Constructors)
   set(blas-like_EXAMPLES Gemv)
   set(lapack-like_EXAMPLES 
-    GaussianElimination HermitianQDWH HouseholderSolve HPDInverse 
-    KyFanAndSchatten LDL LDLInverse Polar Pseudoinverse QDWH 
-    SequentialQR QR SequentialSVD SimpleSVD SVD)
+    GaussianElimination HermitianQDWH HPDInverse KyFanAndSchatten LDL LDLInverse
+    LeastSquares Polar Pseudoinverse QDWH SequentialQR QR SequentialSVD 
+    SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Kahan Legendre 

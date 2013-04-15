@@ -32,10 +32,10 @@ Hermitian positive-definite matrix :math:`A` as
 where :math:`L` is the lower Cholesky factor of :math:`A` (the upper Cholesky
 factor is computed in the case of upper-triangular storage). Rather than 
 performing Cholesky factorization, triangular inversion, and then the Hermitian
-triangular outer product in sequence, this routine makes use of the single-sweep 
-algorithm described in Bientinesi et al.'s "Families of algorithms related to the 
-inversion of a symmetric positive definite matrix", in particular, the variant 2
-algorithm from Fig. 9. 
+triangular outer product in sequence, this routine makes use of the single-sweep
+algorithm described in Bientinesi et al.'s "Families of algorithms related to 
+the inversion of a symmetric positive definite matrix", in particular, the 
+variant 2 algorithm from Fig. 9. 
 
 If the matrix is found to not be HPD, then a :cpp:type:`NonHPDMatrixException`
 is thrown.

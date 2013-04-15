@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HouseholderSolve.hpp"
+#include "elemental/lapack-like/LeastSquares.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
@@ -64,12 +64,12 @@ main( int argc, char* argv[] )
             // Perform the QR/LQ factorization and solve
             if( commRank == 0 )
             {
-                std::cout << "Starting HouseholderSolve...";
+                std::cout << "Starting LeastSquares...";
                 std::cout.flush();
             }
             mpi::Barrier( comm );
             double startTime = mpi::Time();
-            HouseholderSolve( orientation, A, B, X );
+            LeastSquares( orientation, A, B, X );
             mpi::Barrier( comm );
             double stopTime = mpi::Time();
             if( commRank == 0 )
