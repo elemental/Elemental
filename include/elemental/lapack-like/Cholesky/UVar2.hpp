@@ -16,14 +16,14 @@
 #include "elemental/lapack-like/Cholesky/UVar3.hpp"
 
 namespace elem {
-namespace internal {
+namespace cholesky {
 
 template<typename F> 
 inline void
-CholeskyUVar2( Matrix<F>& A )
+UVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyUVar2");
+    PushCallStack("cholesky::UVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -48,7 +48,7 @@ CholeskyUVar2( Matrix<F>& A )
 
         //--------------------------------------------------------------------//
         Herk( UPPER, ADJOINT, F(-1), A01, F(1), A11 );
-        CholeskyUVar3Unb( A11 );
+        cholesky::UVar3Unb( A11 );
         Gemm( ADJOINT, NORMAL, F(-1), A02, A01, F(1), A12 );
         Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11, A12 );
         //--------------------------------------------------------------------//
@@ -66,10 +66,10 @@ CholeskyUVar2( Matrix<F>& A )
 
 template<typename F> 
 inline void
-CholeskyUVar2( DistMatrix<F>& A )
+UVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyUVar2");
+    PushCallStack("cholesky::UVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -156,7 +156,7 @@ CholeskyUVar2( DistMatrix<F>& A )
 #endif
 }
 
-} // namespace internal
+} // namespace cholesky
 } // namespace elem
 
 #endif // ifndef LAPACK_CHOLESKY_UVAR2_HPP

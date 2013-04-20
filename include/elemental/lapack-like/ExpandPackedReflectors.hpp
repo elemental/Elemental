@@ -33,7 +33,7 @@ ExpandPackedReflectors
         throw std::logic_error("Called real routine with complex datatype");
 
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( offset, H );
+        expand_packed_reflectors::LV( offset, H );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE
@@ -58,7 +58,7 @@ ExpandPackedReflectors
         throw std::logic_error("Called real routine with complex datatype");
 
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( offset, H );
+        expand_packed_reflectors::LV( offset, H );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE
@@ -76,7 +76,7 @@ ExpandPackedReflectors
     PushCallStack("ExpandPackedReflectors");
 #endif
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( conjugation, offset, H, t );
+        expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE
@@ -96,7 +96,7 @@ ExpandPackedReflectors
     PushCallStack("ExpandPackedReflectors");
 #endif
     if( uplo == LOWER && dir == VERTICAL )
-        internal::ExpandPackedReflectorsLV( conjugation, offset, H, t );
+        expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
         throw std::logic_error("This option is not yet supported");
 #ifndef RELEASE

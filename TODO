@@ -4,6 +4,7 @@ Functionality
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Add transpose option to LeastSquares
 - Pivoted QR and LQ decompositions 
+- Pivoted LDL and LU with full pivoting
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
 - Compressed pseudoinverse solves which avoid unnecessary backtransformations

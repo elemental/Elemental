@@ -26,8 +26,7 @@ namespace elem {
 
 template<typename F>
 inline void
-LocalCholesky
-( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
     PushCallStack("LocalCholesky");
@@ -48,9 +47,9 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
         throw std::logic_error("A must be square");
 #endif
     if( uplo == LOWER )
-        internal::CholeskyLVar3( A );
+        cholesky::LVar3( A );
     else
-        internal::CholeskyUVar3( A );
+        cholesky::UVar3( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -68,16 +67,16 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     if( g.Height() == g.Width() )
     {
         if( uplo == LOWER )
-            internal::CholeskyLVar3Square( A );
+            cholesky::LVar3Square( A );
         else
-            internal::CholeskyUVar3Square( A );
+            cholesky::UVar3Square( A );
     }
     else
     {
         if( uplo == LOWER )
-            internal::CholeskyLVar3( A );
+            cholesky::LVar3( A );
         else
-            internal::CholeskyUVar3( A );
+            cholesky::UVar3( A );
     }
 #ifndef RELEASE
     PopCallStack();

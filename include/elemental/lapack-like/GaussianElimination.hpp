@@ -15,14 +15,13 @@
 
 namespace elem {
 
-namespace internal {
-
+// Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
 inline void
-ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
+RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ReduceToRowEchelon");
+    PushCallStack("RowEchelon");
     if( A.Height() != B.Height() )
         throw std::logic_error("A and B must be the same height");
 #endif
@@ -31,7 +30,6 @@ ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
         ATL, ATR,  A00, A01, A02,  APan,
         ABL, ABR,  A10, A11, A12,
                    A20, A21, A22;
-
     Matrix<F>
         BT,  B0,
         BB,  B1,
@@ -96,12 +94,13 @@ ReduceToRowEchelon( Matrix<F>& A, Matrix<F>& B )
 #endif
 }
 
+// Short-circuited form of LU factorization with partial pivoting
 template<typename F> 
 inline void
-ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
+RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ReduceToRowEchelon");
+    PushCallStack("RowEchelon");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != B.Height() )
@@ -228,8 +227,6 @@ ReduceToRowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 #endif
 }
 
-} // namespace internal
-
 template<typename F> 
 inline void
 GaussianElimination( Matrix<F>& A, Matrix<F>& B )
@@ -241,7 +238,7 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
     if( A.Height() != B.Height() )
         throw std::logic_error("A and B must be the same height");
 #endif
-    internal::ReduceToRowEchelon( A, B );
+    RowEchelon( A, B );
     if( B.Width() == 1 )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
@@ -264,7 +261,7 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
     if( A.Height() != B.Height() )
         throw std::logic_error("A and B must be the same height");
 #endif
-    internal::ReduceToRowEchelon( A, B );
+    RowEchelon( A, B );
     if( B.Width() == 1 )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else

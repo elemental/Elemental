@@ -22,7 +22,7 @@
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
-namespace internal {
+namespace expand_packed_reflectors {
 
 //
 // Since applying Householder transforms from vectors stored right-to-left
@@ -43,10 +43,10 @@ namespace internal {
 
 template<typename R> 
 inline void
-ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
+LV( int offset, Matrix<R>& H )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ExpandPackedReflectorsLV");
+    PushCallStack("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
 #endif
@@ -145,10 +145,10 @@ ExpandPackedReflectorsLV( int offset, Matrix<R>& H )
 
 template<typename R> 
 inline void
-ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
+LV( int offset, DistMatrix<R>& H )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ExpandPackedReflectorsLV");
+    PushCallStack("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
 #endif
@@ -279,12 +279,12 @@ ExpandPackedReflectorsLV( int offset, DistMatrix<R>& H )
 
 template<typename R>
 inline void
-ExpandPackedReflectorsLV
+LV
 ( Conjugation conjugation, int offset,
   Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ExpandPackedReflectorsLLVB");
+    PushCallStack("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( t.Height() != H.DiagonalLength( offset ) )
@@ -406,12 +406,12 @@ ExpandPackedReflectorsLV
 
 template<typename R> 
 inline void
-ExpandPackedReflectorsLV
+LV
 ( Conjugation conjugation, int offset, 
   DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("internal::ExpandPackedReflectorsLV");
+    PushCallStack("expand_packed_reflectors::LV");
     if( H.Grid() != t.Grid() )
         throw std::logic_error("H and t must be distributed over same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -569,7 +569,7 @@ ExpandPackedReflectorsLV
 #endif
 }
 
-} // namespace internal
+} // namespace expand_packed_reflectors
 } // namespace elem
 
 #endif // ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP

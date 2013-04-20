@@ -14,14 +14,14 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
-namespace internal {
+namespace cholesky {
 
 template<typename F>
 inline void
-CholeskyLVar3Unb( Matrix<F>& A )
+LVar3Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyLVar3Unb");
+    PushCallStack("cholesky::LVar3Unb");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -53,10 +53,10 @@ CholeskyLVar3Unb( Matrix<F>& A )
 
 template<typename F>
 inline void
-CholeskyLVar3( Matrix<F>& A )
+LVar3( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyLVar3");
+    PushCallStack("cholesky::LVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -80,7 +80,7 @@ CholeskyLVar3( Matrix<F>& A )
           ABL, /**/ ABR,  A20, /**/ A21, A22 );
 
         //--------------------------------------------------------------------//
-        CholeskyLVar3Unb( A11 );
+        cholesky::LVar3Unb( A11 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
         Herk( LOWER, NORMAL, F(-1), A21, F(1), A22 );
         //--------------------------------------------------------------------//
@@ -98,10 +98,10 @@ CholeskyLVar3( Matrix<F>& A )
 
 template<typename F>
 inline void
-CholeskyLVar3( DistMatrix<F>& A )
+LVar3( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyLVar3");
+    PushCallStack("cholesky::LVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -174,7 +174,7 @@ CholeskyLVar3( DistMatrix<F>& A )
 #endif
 } 
 
-} // namespace internal
+} // namespace cholesky
 } // namespace elem
 
 #endif // ifndef LAPACK_CHOLESKY_LVAR3_HPP

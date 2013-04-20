@@ -1,0 +1,29 @@
+Journal publications
+====================
+
+[1] Matthias Petscho, Elmar Peise, and Paolo Bientinesi, "High-performance 
+    solvers for dense Hermitian eigenproblems", SIAM Journal on Scientific 
+    Computing, Vol. 35, No. 1, pp. C1--C22, 2013.
+
+    NOTE: Detailed benchmarks of Elemental's MRRR-based Hermitian eigensolvers.
+
+[2] Jack Poulson, Bryan Marker, Robert A. van de Geijn, Jeff R. Hammond, and 
+    Nichols A. Romero, "Elemental: A new framework for distributed memory dense
+    matrix computations", ACM Transactions on Mathematical Software, Vol. 39,
+    Issue 2, pp. 13:1--13:24, 2013.
+
+    NOTE: The first major publication on Elemental, which includes numerous 
+          benchmarks on Blue Gene/P.
+
+Preprints
+=========
+
+[3] Jack Poulson, Robert A. van de Geijn, and Jeffrey Bennighof, "(Parallel) 
+    algorithms for two-sided triangular solves and matrix multiplication", 
+    In Limbo.
+    http://www.cs.utexas.edu/users/flame/pubs/ElementalGenEig.pdf
+
+[4] Martin D. Schatz, Jack Poulson, and Robert A. van de Geijn, "Scalable 
+    Universal Matrix Multiplication Algorithms: 2D and 3D variations on a 
+    theme", Submitted to ACM Transactions on Mathematical Software.
+    http://www.cs.utexas.edu/users/flame/pubs/SUMMA2d3dTOMS.pdf

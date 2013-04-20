@@ -14,14 +14,14 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
-namespace internal {
+namespace cholesky {
 
 template<typename F>
 inline void
-CholeskyUVar3Square( DistMatrix<F>& A )
+UVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("internal::CholeskyUVar3Square");
+    PushCallStack("cholesky::UVar3Square");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices.");
@@ -124,7 +124,7 @@ CholeskyUVar3Square( DistMatrix<F>& A )
 #endif
 }
 
-} // namespace internal
+} // namespace cholesky
 } // namespace elem
 
 #endif // ifndef LAPACK_CHOLESKY_UVAR3SQUARE_HPP
