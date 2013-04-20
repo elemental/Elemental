@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 Nrm2( const Matrix<F>& x )
 {
 #ifndef RELEASE
@@ -23,7 +23,7 @@ Nrm2( const Matrix<F>& x )
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("Expected vector input");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     R norm;
     if( x.Width() == 1 )
@@ -37,7 +37,7 @@ Nrm2( const Matrix<F>& x )
 }
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 Nrm2( const DistMatrix<F>& x )
 {
 #ifndef RELEASE
@@ -45,7 +45,7 @@ Nrm2( const DistMatrix<F>& x )
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = FrobeniusNorm( x );
 #ifndef RELEASE
     PopCallStack();

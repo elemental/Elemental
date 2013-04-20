@@ -37,7 +37,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 #ifndef RELEASE
     PushCallStack("Corrupt");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     int numLocalCorrupt = 0;
     const int localHeight = A.LocalHeight();
@@ -83,13 +83,13 @@ void Sign( DistMatrix<F,U,V>& A )
 template<typename F>
 void RPCA_ADMM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
-  typename Base<F>::type beta, 
-  typename Base<F>::type tau, 
-  typename Base<F>::type tol, 
+  BASE(F) beta, 
+  BASE(F) tau, 
+  BASE(F) tol, 
   int maxIts,
   bool print )
 {
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int m = M.Height();
     const int n = M.Width();
     const int commRank = mpi::CommRank( M.Grid().Comm() );
@@ -170,14 +170,10 @@ void RPCA_ADMM
 template<typename F>
 void RPCA_ALM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
-  typename Base<F>::type beta, 
-  typename Base<F>::type tau, 
-  typename Base<F>::type rho,
-  typename Base<F>::type tol, 
-  int maxIts,
-  bool print )
+  BASE(F) beta, BASE(F) tau, BASE(F) rho, BASE(F) tol, 
+  int maxIts, bool print )
 {
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = M.Height();
     const int n = M.Width();

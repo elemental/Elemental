@@ -25,8 +25,7 @@ namespace elem {
 template<typename F>
 inline void
 HermitianUniformSpectrum
-( int n, Matrix<F>& A, 
-  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
+( int n, Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -41,8 +40,7 @@ HermitianUniformSpectrum
 template<typename F,Distribution U,Distribution V>
 inline void
 HermitianUniformSpectrum
-( int n, DistMatrix<F,U,V>& A, 
-  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
+( int n, DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -56,15 +54,14 @@ HermitianUniformSpectrum
 
 template<typename F>
 inline void
-MakeHermitianUniformSpectrum
-( Matrix<F>& A, typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
+MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const bool isComplex = IsComplex<F>::val;
 
     // Sample the diagonal matrix D from the half-open interval (lower,upper]
@@ -114,8 +111,7 @@ MakeHermitianUniformSpectrum
 template<typename F,Distribution U,Distribution V>
 inline void
 MakeHermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, 
-  typename Base<F>::type lower=0, typename Base<F>::type upper=1 )
+( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeHermitianUniformSpectrum");
@@ -123,7 +119,7 @@ MakeHermitianUniformSpectrum
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 

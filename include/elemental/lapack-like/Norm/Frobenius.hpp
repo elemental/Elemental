@@ -13,13 +13,13 @@
 namespace elem {
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 FrobeniusNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("FrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R scale = 0;
     R scaledSquare = 1;
     const int width = A.Width();
@@ -53,7 +53,7 @@ FrobeniusNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -62,7 +62,7 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R scale = 0;
     R scaledSquare = 1;
     const int height = A.Height();
@@ -154,13 +154,13 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricFrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianFrobeniusNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
@@ -169,13 +169,13 @@ SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
+inline BASE(F)
 FrobeniusNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("FrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R localScale = 0;
     R localScaledSquare = 1;
     const int localHeight = A.LocalHeight();
@@ -226,7 +226,7 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
@@ -241,7 +241,7 @@ HermitianFrobeniusNorm
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R localScale = 0;
     R localScaledSquare = 1;
     const int localWidth = A.LocalWidth();
@@ -342,13 +342,13 @@ HermitianFrobeniusNorm
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricFrobeniusNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianFrobeniusNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();

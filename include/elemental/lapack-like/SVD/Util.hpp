@@ -18,10 +18,9 @@ namespace svd {
 
 template<typename F>
 inline void
-CheckScale
-( DistMatrix<F>& A, bool& needRescaling, typename Base<F>::type& scale )
+CheckScale( DistMatrix<F>& A, bool& needRescaling, BASE(F)& scale )
 {
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     scale = 1;
     needRescaling = false;
@@ -47,13 +46,12 @@ CheckScale
 
 template<typename F>
 inline void
-DivideAndConquerSVD
-( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
+DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::DivideAndConquerSVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();
@@ -74,12 +72,12 @@ DivideAndConquerSVD
 
 template<typename F>
 inline void
-QRSVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V )
+QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("svd::QRSVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();

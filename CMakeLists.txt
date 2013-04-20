@@ -297,6 +297,19 @@ else()
   message(FATAL_ERROR "Could not determine LAPACK format.")
 endif()
 
+# Ensure that we have a relatively new version of LAPACK
+if(HAVE_DPOTRF)
+  check_function_exists(dsyevr HAVE_DSYEVR)
+  if(NOT HAVE_DSYEVR)
+    message(FATAL_ERROR "LAPACK is missing dsyevr")
+  endif()
+else()
+  check_function_exists(dsyevr_ HAVE_DSYEVR_POST)
+  if(NOT HAVE_DSYEVR_POST)
+    message(FATAL_ERROR "LAPACK is missing dsyevr_")
+  endif()
+endif()
+
 # Check whether or not the FLAME bidiagonal QR routines are available
 set(CMAKE_REQUIRED_LIBRARIES ${MATH_LIBS})
 check_function_exists(FLA_Bsvd_v_opd_var1 HAVE_FLA_BSVD)

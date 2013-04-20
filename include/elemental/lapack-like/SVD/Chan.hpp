@@ -24,9 +24,7 @@ namespace svd {
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
@@ -142,9 +140,7 @@ ChanUpper
 template<typename F>
 inline void
 Chan
-( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
@@ -152,7 +148,7 @@ Chan
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint for SVD");
 #endif
-    typedef typename Base<F>::type Real;
+    typedef BASE(F) Real;
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
@@ -190,14 +186,12 @@ Chan
 template<typename F>
 inline void
 Chan
-( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  double heightRatio=1.2 )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
     PushCallStack("svd::Chan");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;

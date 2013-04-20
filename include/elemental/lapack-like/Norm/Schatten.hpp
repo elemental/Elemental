@@ -17,13 +17,13 @@
 namespace elem {
 
 template<typename F> 
-inline typename Base<F>::type
-SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
+inline BASE(F)
+SchattenNorm( const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("SchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -41,14 +41,14 @@ SchattenNorm( const Matrix<F>& A, typename Base<F>::type p )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     Matrix<F> B( A );
     Matrix<R> s;
@@ -67,14 +67,14 @@ HermitianSchattenNorm
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricSchattenNorm
-( UpperOrLower uplo, const Matrix<F>& A, typename Base<F>::type p )
+( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricSchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -93,13 +93,13 @@ SymmetricSchattenNorm
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
-SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+inline BASE(F)
+SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("SchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -119,14 +119,14 @@ SchattenNorm( const DistMatrix<F,U,V>& A, typename Base<F>::type p )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
@@ -147,14 +147,14 @@ HermitianSchattenNorm
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricSchattenNorm
-( UpperOrLower uplo, const DistMatrix<F,U,V>& A, typename Base<F>::type p )
+( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricSchattenNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

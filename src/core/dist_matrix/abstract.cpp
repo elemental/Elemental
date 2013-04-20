@@ -533,37 +533,37 @@ AbstractDistMatrix<T,Int>::Write
 //
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
 { return matrix_.GetRealPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
 { return matrix_.GetImagPart(iLocal,jLocal); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalRealPart
-( Int iLocal, Int jLocal, typename Base<T>::type alpha )
+( Int iLocal, Int jLocal, BASE(T) alpha )
 { matrix_.SetRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalImagPart
-( Int iLocal, Int jLocal, typename Base<T>::type alpha )
+( Int iLocal, Int jLocal, BASE(T) alpha )
 { matrix_.SetImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalRealPart
-( Int iLocal, Int jLocal, typename Base<T>::type alpha )
+( Int iLocal, Int jLocal, BASE(T) alpha )
 { matrix_.UpdateRealPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalImagPart
-( Int iLocal, Int jLocal, typename Base<T>::type alpha )
+( Int iLocal, Int jLocal, BASE(T) alpha )
 { matrix_.UpdateImagPart(iLocal,jLocal,alpha); }
 
 template<typename T,typename Int>

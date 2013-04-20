@@ -10,8 +10,6 @@
 #ifndef LAPACK_HPSDCHOLESKY_HPP
 #define LAPACK_HPSDCHOLESKY_HPP
 
-#ifdef HAVE_PMRRR
-
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/HPSDSquareRoot.hpp"
@@ -25,6 +23,60 @@ namespace elem {
 // matrix.
 //
 
+template<typename R>
+inline void
+HPSDCholesky( UpperOrLower uplo, Matrix<R>& A )
+{
+#ifndef RELEASE
+    PushCallStack("HPSDCholesky");
+#endif
+    HPSDSquareRoot( uplo, A );
+    MakeHermitian( uplo, A );
+
+    if( uplo == LOWER )
+    {
+        LQ( A );
+        MakeTriangular( LOWER, A );
+    }
+    else
+    {
+        QR( A );
+        MakeTriangular( UPPER, A );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+template<typename R>
+inline void
+HPSDCholesky( UpperOrLower uplo, Matrix<Complex<R> >& A )
+{
+#ifndef RELEASE
+    PushCallStack("HPSDCholesky");
+#endif
+    HPSDSquareRoot( uplo, A );
+    MakeHermitian( uplo, A );
+
+    const Grid& g = A.Grid();
+    if( uplo == LOWER )
+    {
+        Matrix<Complex<R> > t;
+        LQ( A, t );
+        MakeTriangular( LOWER, A );
+    }
+    else
+    {
+        Matrix<Complex<R> > t;
+        QR( A, t );
+        MakeTriangular( UPPER, A );
+    }
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifdef HAVE_PMRRR
 template<typename R>
 inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
@@ -77,9 +129,8 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
     PopCallStack();
 #endif
 }
+#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
-
-#endif // ifdef HAVE_PMRRR
 
 #endif // ifndef LAPACK_HPSDCHOLESKY_HPP

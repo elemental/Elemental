@@ -20,7 +20,7 @@ void TestTrsv
 ( bool print, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   int n, const Grid& g )
 {
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> A(g), x(g), y(g);
 
     // Generate random A and x

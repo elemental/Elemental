@@ -27,7 +27,7 @@ LUPartialPiv( Matrix<F>& A )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
     const R scale(n);
     SafeProduct<F> det( n );
@@ -72,7 +72,7 @@ LUPartialPiv( DistMatrix<F>& A )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
     const R scale(n);
     SafeProduct<F> det( n );

@@ -14,14 +14,14 @@ namespace elem {
 
 template<typename F>
 inline F
-SoftThreshold( F alpha, typename Base<F>::type tau )
+SoftThreshold( F alpha, BASE(F) tau )
 {
 #ifndef RELEASE
     PushCallStack("SoftThreshold");
     if( tau < 0 )
         throw std::logic_error("Negative threshold does not make sense");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R scale = Abs(alpha);
     const F thresholdVal = ( scale <= tau ? F(0) : alpha-(alpha/scale)*tau );
 #ifndef RELEASE
@@ -32,7 +32,7 @@ SoftThreshold( F alpha, typename Base<F>::type tau )
 
 template<typename F>
 inline void
-SoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
+SoftThreshold( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     PushCallStack("SoftThreshold");
@@ -49,7 +49,7 @@ SoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-SoftThreshold( DistMatrix<F,U,V>& A, typename Base<F>::type tau )
+SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     PushCallStack("SoftThreshold");

@@ -106,17 +106,13 @@ public:
     // logically applies to real data.
     //
 
-    typename Base<T>::type GetLocalRealPart( Int iLocal, Int jLocal ) const;
-    typename Base<T>::type GetLocalImagPart( Int iLocal, Int jLocal ) const;
-    void SetLocalRealPart
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    void UpdateLocalRealPart
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    BASE(T) GetLocalRealPart( Int iLocal, Int jLocal ) const;
+    BASE(T) GetLocalImagPart( Int iLocal, Int jLocal ) const;
+    void SetLocalRealPart( Int iLocal, Int jLocal, BASE(T) alpha );
+    void UpdateLocalRealPart( Int iLocal, Int jLocal, BASE(T) alpha );
     // Only valid for complex data
-    void SetLocalImagPart
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
-    void UpdateLocalImagPart
-    ( Int iLocal, Int jLocal, typename Base<T>::type alpha );
+    void SetLocalImagPart( Int iLocal, Int jLocal, BASE(T) alpha );
+    void UpdateLocalImagPart( Int iLocal, Int jLocal, BASE(T) alpha );
 
     //
     // Viewing 
@@ -177,16 +173,14 @@ public:
     // logically applies to real data.
     //
 
-    virtual typename Base<T>::type GetRealPart( Int i, Int j ) const = 0;
-    virtual typename Base<T>::type GetImagPart( Int i, Int j ) const = 0;
-    virtual void SetRealPart( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual BASE(T) GetRealPart( Int i, Int j ) const = 0;
+    virtual BASE(T) GetImagPart( Int i, Int j ) const = 0;
+    virtual void SetRealPart( Int i, Int j, BASE(T) alpha ) = 0;
     // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, typename Base<T>::type alpha ) = 0;
-    virtual void UpdateRealPart
-    ( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void SetImagPart( Int i, Int j, BASE(T) alpha ) = 0;
+    virtual void UpdateRealPart( Int i, Int j, BASE(T) alpha ) = 0;
     // Only valid for complex data
-    virtual void UpdateImagPart
-    ( Int i, Int j, typename Base<T>::type alpha ) = 0;
+    virtual void UpdateImagPart( Int i, Int j, BASE(T) alpha ) = 0;
 
     //
     // Utilities

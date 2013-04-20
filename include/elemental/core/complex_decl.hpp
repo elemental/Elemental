@@ -173,6 +173,7 @@ template<typename R>
 struct Base { typedef R type; };
 template<typename R>
 struct Base<Complex<R> > { typedef R type; };
+#define BASE(F) typename Base<F>::type 
 
 // For querying whether or not a scalar is complex,
 // e.g., IsComplex<Scalar>::val

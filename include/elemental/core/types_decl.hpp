@@ -24,7 +24,7 @@ template<typename F,typename Int=int>
 struct SafeProduct
 {
     F rho;
-    typename Base<F>::type kappa;
+    BASE(F) kappa;
     Int n;
 
     SafeProduct( Int numEntries );

@@ -15,7 +15,7 @@ namespace elem {
 // Draw each entry from a uniform PDF over the closed unit ball.
 template<typename T>
 inline void
-MakeUniform( Matrix<T>& A, T center=0, typename Base<T>::type radius=1 )
+MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("MakeUniform");
@@ -33,7 +33,7 @@ MakeUniform( Matrix<T>& A, T center=0, typename Base<T>::type radius=1 )
 template<typename T>
 inline void
 Uniform
-( int m, int n, Matrix<T>& A, T center=0, typename Base<T>::type radius=1 )
+( int m, int n, Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");
@@ -50,15 +50,13 @@ namespace internal {
 template<typename T,Distribution U,Distribution V>
 struct MakeUniformHelper
 {
-    static void Func
-    ( DistMatrix<T,U,V>& A, T center, typename Base<T>::type radius );  
+    static void Func( DistMatrix<T,U,V>& A, T center, BASE(T) radius );  
 };
 
 template<typename T>
 struct MakeUniformHelper<T,MC,MR>
 {
-    static void Func
-    ( DistMatrix<T,MC,MR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,MC,MR>& A, T center, BASE(T) radius )
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
@@ -71,8 +69,7 @@ struct MakeUniformHelper<T,MC,MR>
 template<typename T>
 struct MakeUniformHelper<T,MC,STAR>
 {
-    static void Func
-    ( DistMatrix<T,MC,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,MC,STAR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
         if( grid.InGrid() )
@@ -111,8 +108,7 @@ struct MakeUniformHelper<T,MC,STAR>
 template<typename T>
 struct MakeUniformHelper<T,MD,STAR>
 {
-    static void Func
-    ( DistMatrix<T,MD,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,MD,STAR>& A, T center, BASE(T) radius )
     {
         if( A.Participating() )
         {
@@ -128,8 +124,7 @@ struct MakeUniformHelper<T,MD,STAR>
 template<typename T>
 struct MakeUniformHelper<T,MR,MC>
 {
-    static void Func
-    ( DistMatrix<T,MR,MC>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,MR,MC>& A, T center, BASE(T) radius )
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
@@ -142,8 +137,7 @@ struct MakeUniformHelper<T,MR,MC>
 template<typename T>
 struct MakeUniformHelper<T,MR,STAR>
 {
-    static void Func
-    ( DistMatrix<T,MR,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,MR,STAR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
         const int n = A.Width();
@@ -175,8 +169,7 @@ struct MakeUniformHelper<T,MR,STAR>
 template<typename T>
 struct MakeUniformHelper<T,STAR,MC>
 {
-    static void Func
-    ( DistMatrix<T,STAR,MC>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,MC>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -211,8 +204,7 @@ struct MakeUniformHelper<T,STAR,MC>
 template<typename T>
 struct MakeUniformHelper<T,STAR,MD>
 {
-    static void Func
-    ( DistMatrix<T,STAR,MD>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,MD>& A, T center, BASE(T) radius )
     {
         if( A.Participating() )
         {
@@ -228,8 +220,7 @@ struct MakeUniformHelper<T,STAR,MD>
 template<typename T>
 struct MakeUniformHelper<T,STAR,MR>
 {
-    static void Func
-    ( DistMatrix<T,STAR,MR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,MR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -264,8 +255,7 @@ struct MakeUniformHelper<T,STAR,MR>
 template<typename T>
 struct MakeUniformHelper<T,STAR,STAR>
 {
-    static void Func
-    ( DistMatrix<T,STAR,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,STAR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
         const int m = A.Height();
@@ -303,8 +293,7 @@ struct MakeUniformHelper<T,STAR,STAR>
 template<typename T>
 struct MakeUniformHelper<T,STAR,VC>
 {
-    static void Func
-    ( DistMatrix<T,STAR,VC>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,VC>& A, T center, BASE(T) radius )
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
@@ -317,8 +306,7 @@ struct MakeUniformHelper<T,STAR,VC>
 template<typename T>
 struct MakeUniformHelper<T,STAR,VR>
 {
-    static void Func
-    ( DistMatrix<T,STAR,VR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,STAR,VR>& A, T center, BASE(T) radius )
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
@@ -331,8 +319,7 @@ struct MakeUniformHelper<T,STAR,VR>
 template<typename T>
 struct MakeUniformHelper<T,VC,STAR>
 {
-    static void Func
-    ( DistMatrix<T,VC,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,VC,STAR>& A, T center, BASE(T) radius )
     {
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
@@ -345,8 +332,7 @@ struct MakeUniformHelper<T,VC,STAR>
 template<typename T>
 struct MakeUniformHelper<T,VR,STAR>
 {
-    static void Func
-    ( DistMatrix<T,VR,STAR>& A, T center, typename Base<T>::type radius )
+    static void Func( DistMatrix<T,VR,STAR>& A, T center, BASE(T) radius )
     {
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
@@ -360,8 +346,7 @@ struct MakeUniformHelper<T,VR,STAR>
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeUniform
-( DistMatrix<T,U,V>& A, T center=0, typename Base<T>::type radius=1 )
+MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");
@@ -374,9 +359,7 @@ MakeUniform
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Uniform
-( int m, int n, DistMatrix<T,U,V>& A, 
-  T center=0, typename Base<T>::type radius=1 )
+Uniform( int m, int n, DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");

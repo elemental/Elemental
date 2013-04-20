@@ -13,6 +13,7 @@
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/HermitianEig.hpp"
 
 namespace elem {
 
@@ -25,13 +26,13 @@ inline void
 ReformHermitianMatrix
 ( UpperOrLower uplo,
         Matrix<F>& A,
-  const Matrix<typename Base<F>::type>& w,
+  const Matrix<BASE(F)>& w,
   const Matrix<F>& Z )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformHermitianMatrix");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     Matrix<F> ZL, ZR,
               Z0, Z1, Z2;
@@ -85,14 +86,14 @@ inline void
 ReformHermitianMatrix
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
-  const DistMatrix<typename Base<F>::type,VR,STAR>& w,
+  const DistMatrix<BASE(F),VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     DistMatrix<F> ZL(g), ZR(g),
                   Z0(g), Z1(g), Z2(g);
@@ -286,13 +287,44 @@ ReformNormalMatrix
 
 } // namespace hermitian_eig
 
-#ifdef HAVE_PMRRR
-
 //
 // Modify the eigenvalues of A with the real-valued function f, which will 
 // therefore result in a Hermitian matrix, which we store in-place.
 //
 
+template<typename F,class RealFunctor>
+inline void
+RealHermitianFunction
+( UpperOrLower uplo, Matrix<F>& A, const RealFunctor& f )
+{
+#ifndef RELEASE
+    PushCallStack("RealHermitianFunction");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square");
+    typedef BASE(F) R;
+
+    // Get the EVD of A
+    Matrix<R> w;
+    Matrix<F> Z;
+    HermitianEig( uplo, A, w, Z );
+
+    // Replace w with f(w)
+    const int n = w.Height();
+    for( int i=0; i<n; ++i )
+    {
+        const R omega = w.Get(i,0);
+        w.Set(i,0,f(omega));
+    }
+
+    // Form the custom outer product, Z Omega Z^T
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifdef HAVE_PMRRR
 template<typename F,class RealFunctor>
 inline void
 RealHermitianFunction
@@ -303,7 +335,7 @@ RealHermitianFunction
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -325,6 +357,7 @@ RealHermitianFunction
     PopCallStack();
 #endif
 }
+#endif // ifdef HAVE_PMRRR
 
 //
 // Modify the eigenvalues of A with the complex-valued function f, which will
@@ -333,6 +366,40 @@ RealHermitianFunction
 // symmetric matrix as input and produces a complex normal matrix.
 //
 
+template<typename R,class ComplexFunctor>
+inline void
+ComplexHermitianFunction
+( UpperOrLower uplo, Matrix<Complex<R> >& A, const ComplexFunctor& f )
+{
+#ifndef RELEASE
+    PushCallStack("ComplexHermitianFunction");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Hermitian matrices must be square");
+    typedef Complex<R> C;
+
+    // Get the EVD of A
+    Matrix<R> w;
+    Matrix<C> Z;
+    HermitianEig( uplo, A, w, Z );
+
+    // Form f(w)
+    const int n = w.Height();
+    Matrix<C> fw( n, 1 );
+    for( int i=0; i<n; ++i )
+    {
+        const R omega = w.Get(i,0);
+        fw.Set(i,0,f(omega));
+    }
+
+    // Form the custom outer product, Z f(Omega) Z^H
+    hermitian_function::ReformNormalMatrix( A, fw, Z );
+#ifndef RELEASE
+    PopCallStack();
+#endif
+}
+
+#ifdef HAVE_PMRRR
 template<typename R,class ComplexFunctor>
 inline void
 ComplexHermitianFunction
@@ -368,7 +435,6 @@ ComplexHermitianFunction
     PopCallStack();
 #endif
 }
-
 #endif // ifdef HAVE_PMRRR
 
 } // namespace elem

@@ -74,29 +74,23 @@ public:
     // logically apply to real data.
     //
 
-    typename Base<T>::type GetRealPart( Int i, Int j ) const;
-    typename Base<T>::type GetImagPart( Int i, Int j ) const;
-    void SetRealPart( Int i, Int j, typename Base<T>::type alpha );
+    BASE(T) GetRealPart( Int i, Int j ) const;
+    BASE(T) GetImagPart( Int i, Int j ) const;
+    void SetRealPart( Int i, Int j, BASE(T) alpha );
     // Only valid for complex data
-    void SetImagPart( Int i, Int j, typename Base<T>::type alpha );
-    void UpdateRealPart( Int i, Int j, typename Base<T>::type alpha );
+    void SetImagPart( Int i, Int j, BASE(T) alpha );
+    void UpdateRealPart( Int i, Int j, BASE(T) alpha );
     // Only valid for complex data
-    void UpdateImagPart( Int i, Int j, typename Base<T>::type alpha );
+    void UpdateImagPart( Int i, Int j, BASE(T) alpha );
 
-    void GetRealPartOfDiagonal
-    ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( Matrix<typename Base<T>::type>& d, Int offset=0 ) const;
-    void SetRealPartOfDiagonal
-    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
+    void GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
+    void SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
     // Only valid for complex data
-    void SetImagPartOfDiagonal
-    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
-    void UpdateRealPartOfDiagonal
-    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
+    void SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
+    void UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
     // Only valid for complex data
-    void UpdateImagPartOfDiagonal
-    ( const Matrix<typename Base<T>::type>& d, Int offset=0 );
+    void UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
 
     //
     // Viewing other matrix instances (or buffers)

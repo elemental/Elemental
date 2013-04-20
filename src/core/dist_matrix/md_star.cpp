@@ -890,14 +890,14 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 //
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,MD,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::GetRealPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner of entry (i,j) and broadcast from it
     const elem::Grid& g = this->Grid();
@@ -921,14 +921,14 @@ DistMatrix<T,MD,STAR,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,MD,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::GetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner of entry (i,j) and broadcast from it
     const elem::Grid& g = this->Grid();
@@ -953,13 +953,13 @@ DistMatrix<T,MD,STAR,Int>::GetImagPart( Int i, Int j ) const
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MD,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::SetRealPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
@@ -980,13 +980,13 @@ DistMatrix<T,MD,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MD,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
 
@@ -1009,14 +1009,13 @@ DistMatrix<T,MD,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MD,STAR,Int>::UpdateRealPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::UpdateRealPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
@@ -1037,14 +1036,13 @@ DistMatrix<T,MD,STAR,Int>::UpdateRealPart
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MD,STAR,Int>::UpdateImagPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MD,STAR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MD,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
 

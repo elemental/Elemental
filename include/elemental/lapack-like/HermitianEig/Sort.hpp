@@ -84,12 +84,12 @@ Sort( DistMatrix<R,VR,STAR>& w, bool ascending=true )
 
 template<typename F>
 inline void
-Sort( Matrix<typename Base<F>::type>& w, Matrix<F>& Z, bool ascending=true )
+Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_eig::Sort");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = Z.Height();
     const int k = Z.Width();
 
@@ -123,14 +123,12 @@ Sort( Matrix<typename Base<F>::type>& w, Matrix<F>& Z, bool ascending=true )
 
 template<typename F>
 inline void
-Sort
-( DistMatrix<typename Base<F>::type,VR,STAR>& w, 
-  DistMatrix<F>& Z, bool ascending=true )
+Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_eig::Sort");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = Z.Height();
     const int k = Z.Width();
     const Grid& g = Z.Grid();

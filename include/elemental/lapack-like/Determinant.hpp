@@ -181,14 +181,13 @@ inline F Determinant( const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type HPDDeterminant
-( UpperOrLower uplo, const Matrix<F>& A )
+inline BASE(F) HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
-    typename Base<F>::type det = Exp(safeDet.kappa*safeDet.n);
+    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -196,14 +195,13 @@ inline typename Base<F>::type HPDDeterminant
 }
 
 template<typename F>
-inline typename Base<F>::type HPDDeterminant
-( UpperOrLower uplo, const DistMatrix<F>& A )
+inline BASE(F) HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
-    typename Base<F>::type det = Exp(safeDet.kappa*safeDet.n);
+    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -239,14 +237,14 @@ inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
-    typename Base<F>::type det = Exp(safeDet.kappa*safeDet.n);
+    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -254,14 +252,14 @@ HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
-    typename Base<F>::type det = Exp(safeDet.kappa*safeDet.n);
+    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
 #ifndef RELEASE
     PopCallStack();
 #endif

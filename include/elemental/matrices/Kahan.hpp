@@ -51,7 +51,7 @@ MakeKahan( F phi, Matrix<F>& A )
 #ifndef RELEASE
     PushCallStack("MakeKahan");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();
@@ -82,7 +82,7 @@ MakeKahan( F phi, DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     PushCallStack("MakeKahan");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();

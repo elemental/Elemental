@@ -13,13 +13,13 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 OneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("OneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R maxColSum = 0;
     const int height = A.Height();
     const int width = A.Width();
@@ -37,13 +37,13 @@ OneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
     R maxColSum = 0;
@@ -79,13 +79,13 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
@@ -94,14 +94,14 @@ SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 OneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("OneNorm");
 #endif
     // Compute the partial column sums defined by our local matrix, A[U,V]
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     std::vector<R> myPartialColSums( localWidth );
@@ -134,13 +134,13 @@ OneNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("HermitianOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     if( A.Height() != A.Width() )
         throw std::runtime_error("Hermitian matrices must be square.");
@@ -257,13 +257,13 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();

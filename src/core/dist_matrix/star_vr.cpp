@@ -1543,7 +1543,7 @@ DistMatrix<T,STAR,VR,Int>::SumScatterUpdate
 //
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,STAR,VR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1553,7 +1553,7 @@ DistMatrix<T,STAR,VR,Int>::GetRealPart( Int i, Int j ) const
     if( !this->Participating() )
         throw std::logic_error("Should only call with processes in grid");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
@@ -1574,7 +1574,7 @@ DistMatrix<T,STAR,VR,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,STAR,VR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1584,7 +1584,7 @@ DistMatrix<T,STAR,VR,Int>::GetImagPart( Int i, Int j ) const
     if( !this->Participating() )
         throw std::logic_error("Should only call with processes in grid");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner rank of entry (i,j) and broadcast from that
     // process over the entire g
@@ -1606,8 +1606,7 @@ DistMatrix<T,STAR,VR,Int>::GetImagPart( Int i, Int j ) const
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,VR,Int>::SetRealPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,VR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetRealPart");
@@ -1628,8 +1627,7 @@ DistMatrix<T,STAR,VR,Int>::SetRealPart
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,VR,Int>::SetImagPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,VR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::SetImagPart");
@@ -1653,8 +1651,7 @@ DistMatrix<T,STAR,VR,Int>::SetImagPart
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,VR,Int>::UpdateRealPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,VR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::UpdateRealPart");
@@ -1675,8 +1672,7 @@ DistMatrix<T,STAR,VR,Int>::UpdateRealPart
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,VR,Int>::UpdateImagPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,STAR,VR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[* ,VR]::UpdateImagPart");

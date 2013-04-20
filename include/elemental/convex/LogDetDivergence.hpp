@@ -19,7 +19,7 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
@@ -30,7 +30,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
         throw std::logic_error
         ("A and B must be square matrices of the same size");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
 
     Matrix<F> ACopy( A ), BCopy( B );
@@ -64,7 +64,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 }
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 LogDetDivergence
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
@@ -78,7 +78,7 @@ LogDetDivergence
         throw std::logic_error
         ("A and B must be square matrices of the same size");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
     const Grid& g = A.Grid();
 

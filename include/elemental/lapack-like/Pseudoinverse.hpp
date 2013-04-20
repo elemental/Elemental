@@ -29,7 +29,7 @@ Pseudoinverse( Matrix<F>& A )
 #ifndef RELEASE
     PushCallStack("Pseudoinverse");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();
@@ -75,7 +75,7 @@ Pseudoinverse( DistMatrix<F>& A )
 #ifndef RELEASE
     PushCallStack("Pseudoinverse");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const Grid& g = A.Grid();
     const int m = A.Height();

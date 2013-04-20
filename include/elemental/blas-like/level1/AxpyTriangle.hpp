@@ -41,7 +41,7 @@ AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
 template<typename T>
 inline void
 AxpyTriangle
-( UpperOrLower uplo, typename Base<T>::type alpha, 
+( UpperOrLower uplo, BASE(T) alpha, 
   const Matrix<T>& X, Matrix<T>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
 
@@ -112,7 +112,7 @@ AxpyTriangle
 template<typename T,Distribution U,Distribution V>
 inline void
 AxpyTriangle
-( UpperOrLower uplo, typename Base<T>::type alpha,
+( UpperOrLower uplo, BASE(T) alpha,
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
 

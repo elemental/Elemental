@@ -30,7 +30,7 @@ SVD( Matrix<F>& A, Matrix<F>& P )
 #ifndef RELEASE
     PushCallStack("polar::SVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Width();
 
     // Get the SVD of A
@@ -58,7 +58,7 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
 #ifndef RELEASE
     PushCallStack("polar::SVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int n = A.Width();
 

@@ -161,6 +161,27 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w );
 void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w );
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
 
+//
+// Compute the eigenpairs of a Hermitian matrix
+//
+
+int HermitianEig
+( char job, char range, char uplo, int n, float* A, int lda,
+  float vl, float vu, int il, int iu, float abstol,
+  float* w, float* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, double* A, int lda,
+  double vl, double vu, int il, int iu, double abstol,
+  double* w, double* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, scomplex* A, int lda,
+  float vl, float vu, int il, int iu, float abstol,
+  float* w, scomplex* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, dcomplex* A, int lda,
+  double vl, double vu, int il, int iu, double abstol,
+  double* w, dcomplex* Z, int ldz );
+
 } // namespace lapack
 } // namespace elem
 

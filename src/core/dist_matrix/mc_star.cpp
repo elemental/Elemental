@@ -1636,7 +1636,7 @@ DistMatrix<T,MC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 //
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1645,7 +1645,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
     if( !this->Participating() )
         throw std::logic_error("Should only be called by grid members");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner row of entry (i,j) and broadcast from that
     // row within each process column
@@ -1666,7 +1666,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -1675,7 +1675,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
     if( !this->Participating() )
         throw std::logic_error("Should only be called by grid members");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     // We will determine the owner row of entry (i,j) and broadcast from that
     // row within each process column
@@ -1697,7 +1697,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPart( Int i, Int j ) const
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealPart");
@@ -1716,7 +1716,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPart( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagPart");
@@ -1738,8 +1738,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPart( Int i, Int j, typename Base<T>::type u )
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MC,STAR,Int>::UpdateRealPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::UpdateRealPart");
@@ -1758,8 +1757,7 @@ DistMatrix<T,MC,STAR,Int>::UpdateRealPart
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MC,STAR,Int>::UpdateImagPart
-( Int i, Int j, typename Base<T>::type u )
+DistMatrix<T,MC,STAR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::UpdateImagPart");
@@ -1782,7 +1780,7 @@ DistMatrix<T,MC,STAR,Int>::UpdateImagPart
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
-( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
+( DistMatrix<BASE(T),MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
@@ -1804,7 +1802,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
         !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
@@ -1856,7 +1854,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
-( DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset ) const
+( DistMatrix<BASE(T),MC,STAR,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
@@ -1878,7 +1876,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
         !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
@@ -1930,7 +1928,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
-( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
+( DistMatrix<BASE(T),STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetRealPartOfDiagonal");
@@ -1952,7 +1950,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
         !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
@@ -2004,7 +2002,7 @@ DistMatrix<T,MC,STAR,Int>::GetRealPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
-( DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset ) const
+( DistMatrix<BASE(T),STAR,MC,Int>& d, Int offset ) const
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::GetImagPartOfDiagonal");
@@ -2026,7 +2024,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
         !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the offset diag");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( !d.Viewing() )
@@ -2078,7 +2076,7 @@ DistMatrix<T,MC,STAR,Int>::GetImagPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
-( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
+( const DistMatrix<BASE(T),MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
@@ -2098,7 +2096,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( g.InGrid() )
@@ -2140,7 +2138,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
-( const DistMatrix<typename Base<T>::type,MC,STAR,Int>& d, Int offset )
+( const DistMatrix<BASE(T),MC,STAR,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
@@ -2160,7 +2158,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( g.InGrid() )
@@ -2202,7 +2200,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
-( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
+( const DistMatrix<BASE(T),STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetRealPartOfDiagonal");
@@ -2222,7 +2220,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const elem::Grid& g = this->Grid();
     if( g.InGrid() )
@@ -2266,7 +2264,7 @@ DistMatrix<T,MC,STAR,Int>::SetRealPartOfDiagonal
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
-( const DistMatrix<typename Base<T>::type,STAR,MC,Int>& d, Int offset )
+( const DistMatrix<BASE(T),STAR,MC,Int>& d, Int offset )
 {
 #ifndef RELEASE
     PushCallStack("[MC,* ]::SetImagPartOfDiagonal");
@@ -2286,7 +2284,7 @@ DistMatrix<T,MC,STAR,Int>::SetImagPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
     if( !IsComplex<T>::val )
         throw std::logic_error("Called complex-only routine with real data");
 

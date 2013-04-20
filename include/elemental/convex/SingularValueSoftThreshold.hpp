@@ -18,12 +18,12 @@ namespace elem {
 
 template<typename F>
 inline int
-SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
+SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     PushCallStack("SingularValueSoftThreshold");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> U( A );
     Matrix<R> s;
     Matrix<F> V;
@@ -43,12 +43,12 @@ SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
 
 template<typename F>
 inline int
-SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
+SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
     PushCallStack("SingularValueSoftThreshold");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> U( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );

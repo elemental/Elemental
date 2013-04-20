@@ -17,7 +17,7 @@
 namespace elem {
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 KyFanNorm( const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
@@ -26,7 +26,7 @@ KyFanNorm( const Matrix<F>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
@@ -41,7 +41,7 @@ KyFanNorm( const Matrix<F>& A, int k )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
@@ -50,7 +50,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
@@ -65,7 +65,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
@@ -74,7 +74,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
@@ -90,7 +90,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
+inline BASE(F)
 KyFanNorm( const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
@@ -99,7 +99,7 @@ KyFanNorm( const DistMatrix<F,U,V>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
@@ -119,7 +119,7 @@ KyFanNorm( const DistMatrix<F,U,V>& A, int k )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
@@ -128,7 +128,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
@@ -148,7 +148,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
@@ -157,7 +157,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );

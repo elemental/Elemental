@@ -13,13 +13,13 @@
 namespace elem {
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 EntrywiseOneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("EntrywiseOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R norm = 0;
     const int width = A.Width();
     const int height = A.Height();
@@ -33,7 +33,7 @@ EntrywiseOneNorm( const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -42,7 +42,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R norm = 0;
     const int height = A.Height();
     const int width = A.Width();
@@ -81,13 +81,13 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricEntrywiseOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianEntrywiseOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();
@@ -96,13 +96,13 @@ SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
+inline BASE(F)
 EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("EntrywiseOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R localSum = 0;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
@@ -120,7 +120,7 @@ EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -134,7 +134,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     R localSum = 0;
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
@@ -182,13 +182,13 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricEntrywiseOneNorm");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R norm = HermitianEntrywiseOneNorm( uplo, A );
 #ifndef RELEASE
     PopCallStack();

@@ -380,7 +380,7 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -395,7 +395,7 @@ Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-typename Base<T>::type
+BASE(T)
 Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
@@ -411,8 +411,7 @@ Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::SetRealPart
-( Int i, Int j, typename Base<T>::type alpha )
+Matrix<T,Int>::SetRealPart( Int i, Int j, BASE(T) alpha )
 { SetRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -450,8 +449,7 @@ Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::SetImagPart
-( Int i, Int j, typename Base<T>::type alpha ) 
+Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha ) 
 { SetImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -485,8 +483,7 @@ Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::UpdateRealPart
-( Int i, Int j, typename Base<T>::type alpha )
+Matrix<T,Int>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 { UpdateRealPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -524,8 +521,7 @@ Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::UpdateImagPart
-( Int i, Int j, typename Base<T>::type alpha ) 
+Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha ) 
 { UpdateImagPartHelper<T>::Func( *this, i, j, alpha ); }
 
 template<typename T,typename Int>
@@ -559,8 +555,7 @@ Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::GetRealPartOfDiagonal
-( Matrix<typename Base<T>::type>& d, Int offset ) const
+Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetRealPartOfDiagonal");
@@ -586,8 +581,7 @@ Matrix<T,Int>::GetRealPartOfDiagonal
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::GetImagPartOfDiagonal
-( Matrix<typename Base<T>::type>& d, Int offset ) const
+Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::GetImagPartOfDiagonal");
@@ -613,8 +607,7 @@ Matrix<T,Int>::GetImagPartOfDiagonal
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::SetRealPartOfDiagonal
-( const Matrix<typename Base<T>::type>& d, Int offset )
+Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetRealPartOfDiagonal");
@@ -635,8 +628,7 @@ Matrix<T,Int>::SetRealPartOfDiagonal
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::SetImagPartOfDiagonal
-( const Matrix<typename Base<T>::type>& d, Int offset )
+Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::SetImagPartOfDiagonal");
@@ -660,8 +652,7 @@ Matrix<T,Int>::SetImagPartOfDiagonal
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::UpdateRealPartOfDiagonal
-( const Matrix<typename Base<T>::type>& d, Int offset )
+Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateRealPartOfDiagonal");
@@ -682,8 +673,7 @@ Matrix<T,Int>::UpdateRealPartOfDiagonal
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::UpdateImagPartOfDiagonal
-( const Matrix<typename Base<T>::type>& d, Int offset )
+Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     PushCallStack("Matrix::UpdateImagPartOfDiagonal");

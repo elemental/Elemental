@@ -15,13 +15,13 @@
 namespace elem {
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 ConditionNumber( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("ConditionNumber");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     Matrix<F> B( A );
     Matrix<R> s;
@@ -38,13 +38,13 @@ ConditionNumber( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
+inline BASE(F)
 ConditionNumber( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     PushCallStack("ConditionNumber");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );

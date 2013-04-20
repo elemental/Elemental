@@ -26,7 +26,7 @@ CholeskyUVar3Unb( Matrix<F>& A )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int n = A.Height();
     const int lda = A.LDim();

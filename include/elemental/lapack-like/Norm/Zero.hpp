@@ -21,7 +21,6 @@ ZeroNorm( const Matrix<F>& A )
 #ifndef RELEASE
     PushCallStack("ZeroNorm");
 #endif
-    typedef typename Base<F>::type R;
     int numNonzeros = 0;
     const int height = A.Height();
     const int width = A.Width();

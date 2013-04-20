@@ -10,6 +10,8 @@
 #ifndef LAPACK_SVD_HPP
 #define LAPACK_SVD_HPP
 
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/lapack-like/HermitianEig.hpp"
 #include "elemental/lapack-like/SVD/Chan.hpp"
 #include "elemental/lapack-like/SVD/Thresholded.hpp"
 
@@ -22,9 +24,7 @@ namespace elem {
 
 template<typename F>
 inline void
-SVD
-( Matrix<F>& A, Matrix<typename Base<F>::type>& s, Matrix<F>& V, 
-  bool useQR=false )
+SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -41,16 +41,41 @@ SVD
 template<typename F>
 inline void HermitianSVD
 ( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<typename Base<F>::type>& s,
-  Matrix<F>& U, Matrix<F>& V )
+  Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSVD");
 #endif
-    // TODO: Make use of a sequential Hermitian eigensolver
+#if 1
+    typedef BASE(F) R;
+
+    // Grab an eigenvalue decomposition of A
+    HermitianEig( uplo, A, s, V );
+
+    // Set the singular values to the absolute value of the eigenvalues
+    for( int i=0; i<s.Height(); ++i )
+        s.Set(i,0,Abs(s.Get(i,0)));
+
+    // Copy V into U (flipping the sign as necessary)
+    const int n = A.Height();
+    U.ResizeTo( n, n );
+    for( int j=0; j<n; ++j )
+    {
+        const R sigma = s.Get( j, 0 );
+        F* UCol = U.Buffer( 0, j );
+        const F* VCol = V.LockedBuffer( 0, j );
+        if( sigma >= 0 )
+            for( int i=0; i<n; ++i )
+                UCol[i] = VCol[i];
+        else
+            for( int i=0; i<n; ++i )
+                UCol[i] = -VCol[i];
+    }
+#else
     U = A;
     MakeHermitian( uplo, U );
     SVD( U, s, V );
+#endif 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -59,9 +84,7 @@ inline void HermitianSVD
 template<typename F>
 inline void
 SVD
-( DistMatrix<F>& A,
-  DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F>& V,
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& V,
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
@@ -76,15 +99,14 @@ SVD
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s,
-  DistMatrix<F>& U, DistMatrix<F>& V )
+( UpperOrLower uplo, DistMatrix<F>& A, 
+  DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
@@ -136,12 +158,12 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
+SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
     const int m = A.Height();
     const int n = A.Width();
@@ -155,15 +177,22 @@ SVD( Matrix<F>& A, Matrix<typename Base<F>::type>& s )
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo,
-  Matrix<F>& A, Matrix<typename Base<F>::type>& s )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSVD");
 #endif
-    // TODO: Make use of a sequential Hermitian eigensolver
+#if 1
+    // Grab the eigenvalues of A
+    HermitianEig( uplo, A, s );
+
+    // Set the singular values to the absolute value of the eigenvalues
+    for( int i=0; i<s.Height(); ++i )
+        s.Set(i,0,Abs(s.Get(i,0)));
+#else
     MakeHermitian( uplo, A );
     SVD( A, s );
+#endif 
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -171,9 +200,7 @@ inline void HermitianSVD
 
 template<typename F>
 inline void
-SVD
-( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s, 
-  double heightRatio=1.2 )
+SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
     PushCallStack("SVD");
@@ -187,16 +214,15 @@ SVD
 
 template<typename F>
 inline void HermitianSVD
-( UpperOrLower uplo,
-  DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& s )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
 #ifndef RELEASE
     PushCallStack("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
 
-    // Grab an eigenvalue decomposition of A
+    // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
     // Replace the eigenvalues with their absolute values

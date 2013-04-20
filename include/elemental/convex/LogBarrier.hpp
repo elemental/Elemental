@@ -15,14 +15,14 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type 
+inline BASE(F) 
 LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
-    typename Base<F>::type barrier = -safeDet.kappa*safeDet.n;
+    BASE(F) barrier = -safeDet.kappa*safeDet.n;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -30,14 +30,14 @@ LogBarrier( UpperOrLower uplo, const Matrix<F>& A )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
-    typename Base<F>::type barrier = -safeDet.kappa*safeDet.n;
+    BASE(F) barrier = -safeDet.kappa*safeDet.n;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -45,14 +45,14 @@ LogBarrier( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 }
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
-    typename Base<F>::type barrier = -safeDet.kappa*safeDet.n;
+    BASE(F) barrier = -safeDet.kappa*safeDet.n;
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -60,14 +60,14 @@ LogBarrier( UpperOrLower uplo, const DistMatrix<F>& A )
 }
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
     PushCallStack("LogBarrier");
 #endif
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
-    typename Base<F>::type barrier = -safeDet.kappa*safeDet.n;
+    BASE(F) barrier = -safeDet.kappa*safeDet.n;
 #ifndef RELEASE
     PopCallStack();
 #endif

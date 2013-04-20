@@ -125,6 +125,34 @@ void LAPACK(zhseqr)
   elem::dcomplex* w, elem::dcomplex* Z, const int* ldz,
   elem::dcomplex* work, const int* lwork, int* info );
 
+// Hermitian eigensolvers (via MRRR)
+void LAPACK(ssyevr)
+( const char* job, const char* range, const char* uplo, const int* n,
+  float* A, const int* lda, const float* vl, const float* vu, 
+  const int* il, const int* iu, const float* abstol, int * m, 
+  float* w, float* Z, const int* ldz, int* isuppz, 
+  float* work, const int* lwork, int* iwork, const int* liwork, int* info );
+void LAPACK(dsyevr)
+( const char* job, const char* range, const char* uplo, const int* n,
+  double* A, const int* lda, const double* vl, const double* vu, 
+  const int* il, const int* iu, const double* abstol, int * m, 
+  double* w, double* Z, const int* ldz, int* isuppz, 
+  double* work, const int* lwork, int* iwork, const int* liwork, int* info );
+void LAPACK(cheevr)
+( const char* job, const char* range, const char* uplo, const int* n,
+  elem::scomplex* A, const int* lda, const float* vl, const float* vu, 
+  const int* il, const int* iu, const float* abstol, int* m,
+  float* w, elem::scomplex* Z, const int* ldz, int* isuppz, 
+  elem::scomplex* work, const int* lwork, float* rwork, const int* lrwork, 
+  int* iwork, const int* liwork, int* info );
+void LAPACK(zheevr)
+( const char* job, const char* range, const char* uplo, const int* n,
+  elem::dcomplex* A, const int* lda, const double* vl, const double* vu, 
+  const int* il, const int* iu, const double* abstol, int* m,
+  double* w, elem::dcomplex* Z, const int* ldz, int* isuppz, 
+  elem::dcomplex* work, const int* lwork, double* rwork, const int* lrwork, 
+  int* iwork, const int* liwork, int* info );
+
 } // extern "C"
 
 namespace elem {
@@ -1162,6 +1190,200 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
 #ifndef RELEASE
     PopCallStack();
 #endif
+}
+
+int HermitianEig
+( char job, char range, char uplo, int n, float* A, int lda, 
+  float vl, float vu, int il, int iu, float abstol, 
+  float* w, float* Z, int ldz )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return 0;
+    }
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    float dummyWork;
+    LAPACK(ssyevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyIwork, &liwork, &info );
+
+    lwork = dummyWork;
+    liwork = dummyIwork;
+    std::vector<float> work(lwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(ssyevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &work[0], &lwork, &iwork[0], &liwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+        throw std::runtime_error("ssyevr's failed");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return m;
+}
+
+int HermitianEig
+( char job, char range, char uplo, int n, double* A, int lda, 
+  double vl, double vu, int il, int iu, double abstol, 
+  double* w, double* Z, int ldz )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return 0;
+    }
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    double dummyWork;
+    LAPACK(dsyevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyIwork, &liwork, &info );
+
+    lwork = dummyWork;
+    liwork = dummyIwork;
+    std::vector<double> work(lwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(dsyevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &work[0], &lwork, &iwork[0], &liwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+        throw std::runtime_error("dsyevr's failed");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return m;
+}
+
+int HermitianEig
+( char job, char range, char uplo, int n, scomplex* A, int lda, 
+  float vl, float vu, int il, int iu, float abstol, 
+  float* w, scomplex* Z, int ldz )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return 0;
+    }
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, lrwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    float dummyRwork;
+    scomplex dummyWork;
+    LAPACK(cheevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyRwork, &lrwork,
+      &dummyIwork, &liwork, &info );
+
+    lwork = dummyWork.real;
+    lrwork = dummyRwork;
+    liwork = dummyIwork;
+    std::vector<scomplex> work(lwork);
+    std::vector<float> rwork(lrwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(cheevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &work[0], &lwork, &rwork[0], &lrwork,
+      &iwork[0], &liwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+        throw std::runtime_error("cheevr's failed");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return m;
+}
+
+int HermitianEig
+( char job, char range, char uplo, int n, dcomplex* A, int lda, 
+  double vl, double vu, int il, int iu, double abstol, 
+  double* w, dcomplex* Z, int ldz )
+{
+#ifndef RELEASE
+    PushCallStack("lapack::HermitianEig");
+#endif
+    if( n == 0 )
+    {
+#ifndef RELEASE
+        PopCallStack();
+#endif
+        return 0;
+    }
+
+    std::vector<int> isuppz( 2*n );
+
+    int lwork=-1, lrwork=-1, liwork=-1, m, info;
+    int dummyIwork;
+    double dummyRwork;
+    dcomplex dummyWork;
+    LAPACK(zheevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyRwork, &lrwork,
+      &dummyIwork, &liwork, &info );
+
+    lwork = dummyWork.real;
+    lrwork = dummyRwork;
+    liwork = dummyIwork;
+    std::vector<dcomplex> work(lwork);
+    std::vector<double> rwork(lrwork);
+    std::vector<int> iwork(liwork);
+    LAPACK(zheevr)
+    ( &job, &range, &uplo, &n, A, &lda, &vl, &vu, &il, &iu, &abstol, &m,
+      w, Z, &ldz, &isuppz[0], &work[0], &lwork, &rwork[0], &lrwork,
+      &iwork[0], &liwork, &info );
+    if( info < 0 )
+    {
+        std::ostringstream msg;
+        msg << "Argument " << -info << " had illegal value";
+        throw std::logic_error( msg.str().c_str() );
+    }
+    else if( info > 0 )
+        throw std::runtime_error("zheevr's failed");
+#ifndef RELEASE
+    PopCallStack();
+#endif
+    return m;
 }
 
 } // namespace lapack

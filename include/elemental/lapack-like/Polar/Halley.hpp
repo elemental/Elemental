@@ -34,12 +34,12 @@ namespace polar {
 
 template<typename F>
 inline int 
-Halley( Matrix<F>& A, typename Base<F>::type upperBound )
+Halley( Matrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("polar::Halley");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int height = A.Height();
     const int width = A.Width();
     const R oneHalf = R(1)/R(2);
@@ -113,13 +113,12 @@ Halley( Matrix<F>& A, typename Base<F>::type upperBound )
 
 template<typename F>
 inline int 
-Halley
-( DistMatrix<F>& A, typename Base<F>::type upperBound )
+Halley( DistMatrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("polar::Halley");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int height = A.Height();
     const int width = A.Width();
@@ -198,14 +197,14 @@ namespace hermitian_polar {
 
 template<typename F>
 inline int
-Halley( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type upperBound )
+Halley( UpperOrLower uplo, Matrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_polar::Halley");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must equal width");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int height = A.Height();
     const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
@@ -280,14 +279,14 @@ Halley( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type upperBound )
 
 template<typename F>
 inline int
-Halley( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type upperBound )
+Halley( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_polar::Halley");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must equal width");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int height = A.Height();
     const R oneHalf = R(1)/R(2);

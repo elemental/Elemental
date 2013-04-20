@@ -133,14 +133,14 @@ public:
     // logically applies to real data.
     //
 
-    virtual typename Base<T>::type GetRealPart( Int i, Int j ) const;
-    virtual typename Base<T>::type GetImagPart( Int i, Int j ) const;
-    virtual void SetRealPart( Int i, Int j, typename Base<T>::type u );
+    virtual BASE(T) GetRealPart( Int i, Int j ) const;
+    virtual BASE(T) GetImagPart( Int i, Int j ) const;
+    virtual void SetRealPart( Int i, Int j, BASE(T) u );
     // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, typename Base<T>::type u );
-    virtual void UpdateRealPart( Int i, Int j, typename Base<T>::type u );
+    virtual void SetImagPart( Int i, Int j, BASE(T) u );
+    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
     // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, typename Base<T>::type u );
+    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [MR,MC] distribution                              //
@@ -184,23 +184,23 @@ public:
     //
 
     void GetRealPartOfDiagonal
-    ( DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 ) const;
     void SetRealPartOfDiagonal
-    ( const DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal
-    ( const DistMatrix<typename Base<T>::type,MD,STAR,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal
-    ( const DistMatrix<typename Base<T>::type,STAR,MD,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 );
 
 private:
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;

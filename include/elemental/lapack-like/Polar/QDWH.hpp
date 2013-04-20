@@ -40,15 +40,12 @@ namespace polar {
 
 template<typename F>
 inline int 
-QDWH
-( Matrix<F>& A, 
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type upperBound )
+QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("polar::QDWH");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int height = A.Height();
     const int width = A.Width();
     const R oneHalf = R(1)/R(2);
@@ -139,15 +136,12 @@ QDWH
 
 template<typename F>
 inline int 
-QDWH
-( DistMatrix<F>& A, 
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type upperBound )
+QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("polar::QDWH");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int height = A.Height();
     const int width = A.Width();
@@ -243,10 +237,7 @@ namespace hermitian_polar {
 
 template<typename F>
 inline int
-QDWH
-( UpperOrLower uplo, Matrix<F>& A,
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type upperBound )
+QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_polar::QDWH");
@@ -254,7 +245,7 @@ QDWH
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must be same as width");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int height = A.Height();
     const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
@@ -349,9 +340,7 @@ QDWH
 template<typename F>
 inline int
 QDWH
-( UpperOrLower uplo, DistMatrix<F>& A,
-  typename Base<F>::type lowerBound,
-  typename Base<F>::type upperBound )
+( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
     PushCallStack("hermitian_polar::QDWH");
@@ -359,7 +348,7 @@ QDWH
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must be same as width");
 
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int height = A.Height();
     const R oneHalf = R(1)/R(2);

@@ -25,13 +25,13 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -65,14 +65,14 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -106,14 +106,14 @@ SymmetricNorm
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("HermitianNorm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -147,13 +147,13 @@ HermitianNorm
 }
 
 template<typename F,Distribution U,Distribution V> 
-inline typename Base<F>::type
+inline BASE(F)
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("Norm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -187,14 +187,14 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("SymmetricNorm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute
@@ -228,14 +228,14 @@ SymmetricNorm
 }
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
     PushCallStack("HermitianNorm");
 #endif
-    typename Base<F>::type norm = 0;
+    BASE(F) norm = 0;
     switch( type )
     {
     // The following norms are rather cheap to compute

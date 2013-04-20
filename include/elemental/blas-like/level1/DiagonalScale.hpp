@@ -61,12 +61,12 @@ template<typename T>
 inline void
 DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<typename Base<T>::type>& d, Matrix<T>& X )
+  const Matrix<BASE(T)>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalScale");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     const int m = X.Height();
     const int n = X.Width();
@@ -146,12 +146,12 @@ template<typename T,Distribution U,Distribution V,
 inline void
 DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const DistMatrix<typename Base<T>::type,U,V>& d, DistMatrix<T,W,Z>& X )
+  const DistMatrix<BASE(T),U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
     PushCallStack("DiagonalScale");
 #endif
-    typedef typename Base<T>::type R;
+    typedef BASE(T) R;
 
     if( side == LEFT )
     {

@@ -25,7 +25,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
     const R scale = R(n)/R(2);
     SafeProduct<F> det( n );
@@ -65,7 +65,7 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const int n = A.Height();
     const R scale = R(n)/R(2);
     SafeProduct<F> det( n );

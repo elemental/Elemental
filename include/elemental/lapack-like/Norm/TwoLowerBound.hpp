@@ -18,13 +18,13 @@
 namespace elem {
 
 template<typename F>
-inline typename Base<F>::type
+inline BASE(F)
 TwoNormLowerBound( const Matrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("TwoNormLowerBound");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R m = A.Height();
     const R n = A.Width();
 
@@ -42,13 +42,13 @@ TwoNormLowerBound( const Matrix<F>& A )
 }
 
 template<typename F> 
-inline typename Base<F>::type
+inline BASE(F)
 TwoNormLowerBound( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("TwoNormLowerBound");
 #endif
-    typedef typename Base<F>::type R;
+    typedef BASE(F) R;
     const R m = A.Height();
     const R n = A.Width();
 

@@ -36,7 +36,7 @@ Scale( T alpha, Matrix<T>& X )
 
 template<typename T>
 inline void
-Scale( typename Base<T>::type alpha, Matrix<T>& X )
+Scale( BASE(T) alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
 
 template<typename T>
@@ -46,7 +46,7 @@ Scal( T alpha, Matrix<T>& X )
 
 template<typename T>
 inline void
-Scal( typename Base<T>::type alpha, Matrix<T>& X )
+Scal( BASE(T) alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
 
 template<typename T,Distribution U,Distribution V>
@@ -56,7 +56,7 @@ Scale( T alpha, DistMatrix<T,U,V>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Scale( typename Base<T>::type alpha, DistMatrix<T,U,V>& A )
+Scale( BASE(T) alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
 
 template<typename T,Distribution U,Distribution V>
@@ -66,7 +66,7 @@ Scal( T alpha, DistMatrix<T,U,V>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Scal( typename Base<T>::type alpha, DistMatrix<T,U,V>& A )
+Scal( BASE(T) alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A ); }
 
 } // namespace elem
