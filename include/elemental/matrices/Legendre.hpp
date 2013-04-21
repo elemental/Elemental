@@ -10,11 +10,13 @@
 #ifndef MATRICES_LEGENDRE_HPP
 #define MATRICES_LEGENDRE_HPP
 
+#include "elemental/matrices/Zeros.hpp"
+
 namespace elem {
 
 template<typename F> 
 inline void
-Legendre( int n, Matrix<F>& A )
+Legendre( Matrix<F>& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("Legendre");
@@ -28,7 +30,7 @@ Legendre( int n, Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V> 
 inline void
-Legendre( int n, DistMatrix<F,U,V>& A )
+Legendre( DistMatrix<F,U,V>& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("Legendre");

@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> A;
-        Zeros( m, n, A );
+        Zeros( A, m, n );
         if( print )
             A.Print("Zeros matrix:");
     }

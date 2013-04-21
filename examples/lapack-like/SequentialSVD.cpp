@@ -57,49 +57,49 @@ main( int argc, char* argv[] )
                     std::cout << "Testing DiscreteFourier " 
                               << qrString << std::endl;
                 n = k;
-                DiscreteFourier( n, A ); 
+                DiscreteFourier( A, n ); 
                 break;
             case HILBERT:     
                 if( commRank == 0 )
                     std::cout << "Testing Hilbert " << qrString << std::endl;
                 n = k;
-                Hilbert( n, A ); 
+                Hilbert( A, n ); 
                 break;
             case IDENTITY:    
                 if( commRank == 0 )
                     std::cout << "Testing Identity " << qrString << std::endl;
                 n = k;
-                Identity( n, n, A ); 
+                Identity( A, n, n ); 
                 break;
             case ONES:        
                 if( commRank == 0 )
                     std::cout << "Testing Ones " << qrString << std::endl;
                 n = k;
-                Ones( n, n, A ); 
+                Ones( A, n, n ); 
                 break;
             case ONE_TWO_ONE: 
                 if( commRank == 0 )
                     std::cout << "Testing OneTwoOne " << qrString << std::endl;
                 n = k;
-                OneTwoOne( n, A ); 
+                OneTwoOne( A, n ); 
                 break;
             case UNIFORM:     
                 if( commRank == 0 )
                     std::cout << "Testing Uniform " << qrString << std::endl;
                 n = k;
-                Uniform( n, n, A ); 
+                Uniform( A, n, n ); 
                 break;
             case WILKINSON:   
                 if( commRank == 0 )
                     std::cout << "Testing Wilkinson " << qrString << std::endl;
-                Wilkinson( k, A ); 
+                Wilkinson( A, k ); 
                 n = 2*k+1;
                 break;
             case ZEROS:       
                 if( commRank == 0 )
                     std::cout << "Testing Zeros " << qrString << std::endl;
                 n = k;
-                Zeros( n, n, A ); 
+                Zeros( A, n, n ); 
                 break;
             };
 

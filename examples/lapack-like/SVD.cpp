@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
             std::cout << "Grid is " 
                       << g.Height() << " x " << g.Width() << std::endl;
         DistMatrix<C> A( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
 
         if( print )
             A.Print("A");

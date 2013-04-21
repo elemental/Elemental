@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
                 std::cout << "Iteration " << k << std::endl;
 
             DistMatrix<double> A(g);
-            Zeros( m, n, A );
+            Zeros( A, m, n );
 
             AxpyInterface<double> interface;
             interface.Attach( LOCAL_TO_GLOBAL, A );
@@ -54,7 +54,7 @@ main( int argc, char* argv[] )
             Matrix<double> Y;
             if( commRank == 0 )
             {
-                Zeros( m, n, Y );
+                Zeros( Y, m, n );
                 interface.Axpy( 1.0, Y, 0, 0 );
             }
             interface.Detach();

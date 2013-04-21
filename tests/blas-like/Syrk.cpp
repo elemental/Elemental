@@ -22,10 +22,10 @@ void TestSyrk
     DistMatrix<T> A(g), C(g);
 
     if( orientation == NORMAL )
-        Uniform( m, k, A );
+        Uniform( A, m, k );
     else
-        Uniform( k, m, A );
-    Uniform( m, m, C );
+        Uniform( A, k, m );
+    Uniform( C, m, m );
     MakeTriangular( uplo, C );
     if( print )
     {

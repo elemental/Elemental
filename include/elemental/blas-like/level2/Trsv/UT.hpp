@@ -61,7 +61,7 @@ TrsvUT
                               z2_MR_STAR(g);
 
         z_MR_STAR.AlignWith( U );
-        Zeros( x.Height(), 1, z_MR_STAR );
+        Zeros( z_MR_STAR, x.Height(), 1 );
 
         // Start the algorithm
         PartitionDown
@@ -137,7 +137,7 @@ TrsvUT
                               z2_STAR_MR(g);
 
         z_STAR_MR.AlignWith( U );
-        Zeros( 1, x.Width(), z_STAR_MR );
+        Zeros( z_STAR_MR, 1, x.Width() );
 
         // Start the algorithm
         PartitionRight( x,  xL, xR, 0 );

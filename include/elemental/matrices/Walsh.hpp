@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-Walsh( int k, Matrix<T>& A, bool binary=false )
+Walsh( Matrix<T>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
     PushCallStack("Walsh");
@@ -61,7 +61,7 @@ Walsh( int k, Matrix<T>& A, bool binary=false )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Walsh( int k, DistMatrix<T,U,V>& A, bool binary=false )
+Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
     PushCallStack("Walsh");

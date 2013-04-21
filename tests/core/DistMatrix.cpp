@@ -91,7 +91,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
 
     // Communicate from A[MC,MR] 
-    Uniform( m, n, A_MC_MR );
+    Uniform( A_MC_MR, m, n );
     Check( A_MC_STAR,   A_MC_MR );
     Check( A_STAR_MR,   A_MC_MR );
     Check( A_MR_MC,     A_MC_MR );
@@ -104,7 +104,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_MC_MR );
 
     // Communicate from A[MC,*]
-    Uniform( m, n, A_MC_STAR );
+    Uniform( A_MC_STAR, m, n );
     Check( A_MC_MR,     A_MC_STAR );
     Check( A_STAR_MR,   A_MC_STAR );
     Check( A_MR_MC,     A_MC_STAR );
@@ -117,7 +117,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_MC_STAR );
 
     // Communicate from A[*,MR]
-    Uniform( m, n, A_STAR_MR );
+    Uniform( A_STAR_MR, m, n );
     Check( A_MC_MR,     A_STAR_MR );
     Check( A_MC_STAR,   A_STAR_MR );
     Check( A_MR_MC,     A_STAR_MR );
@@ -130,7 +130,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_STAR_MR );
     
     // Communicate from A[MR,MC]
-    Uniform( m, n, A_MR_MC );
+    Uniform( A_MR_MC, m, n );
     Check( A_MC_MR,     A_MR_MC );
     Check( A_MC_STAR,   A_MR_MC );
     Check( A_STAR_MR,   A_MR_MC );
@@ -143,7 +143,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_MR_MC );
 
     // Communicate from A[MR,*]
-    Uniform( m, n, A_MR_STAR );
+    Uniform( A_MR_STAR, m, n );
     Check( A_MC_MR,     A_MR_STAR );
     Check( A_MC_STAR,   A_MR_STAR );
     Check( A_STAR_MR,   A_MR_STAR );
@@ -156,7 +156,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_MR_STAR );
 
     // Communicate from A[*,MC]
-    Uniform( m, n, A_STAR_MC );
+    Uniform( A_STAR_MC, m, n );
     Check( A_MC_MR,     A_STAR_MC );
     Check( A_MC_STAR,   A_STAR_MC );
     Check( A_STAR_MR,   A_STAR_MC );
@@ -169,7 +169,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_STAR_MC );
  
     // Communicate from A[VC,*]
-    Uniform( m, n, A_VC_STAR );
+    Uniform( A_VC_STAR, m, n );
     Check( A_MC_MR,     A_VC_STAR );
     Check( A_MC_STAR,   A_VC_STAR );
     Check( A_STAR_MR,   A_VC_STAR );
@@ -182,7 +182,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_VC_STAR );
 
     // Communicate from A[*,VC]
-    Uniform( m, n, A_STAR_VC );
+    Uniform( A_STAR_VC, m, n );
     Check( A_MC_MR,     A_STAR_VC );
     Check( A_MC_STAR,   A_STAR_VC );
     Check( A_STAR_MR,   A_STAR_VC );
@@ -195,7 +195,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_STAR_VC );
 
     // Communicate from A[VR,*]
-    Uniform( m, n, A_VR_STAR );
+    Uniform( A_VR_STAR, m, n );
     Check( A_MC_MR,     A_VR_STAR );
     Check( A_MC_STAR,   A_VR_STAR );
     Check( A_STAR_MR,   A_VR_STAR );
@@ -208,7 +208,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_VR_STAR );
 
     // Communicate from A[*,VR]
-    Uniform( m, n, A_STAR_VR );
+    Uniform( A_STAR_VR, m, n );
     Check( A_MC_MR,     A_STAR_VR );
     Check( A_MC_STAR,   A_STAR_VR );
     Check( A_STAR_MR,   A_STAR_VR );
@@ -221,7 +221,7 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_STAR, A_STAR_VR );
 
     // Communicate from A[*,*]
-    Uniform( m, n, A_STAR_STAR );
+    Uniform( A_STAR_STAR, m, n );
     Check( A_MC_MR,   A_STAR_STAR );
     Check( A_MC_STAR, A_STAR_STAR );
     Check( A_STAR_MR, A_STAR_STAR );

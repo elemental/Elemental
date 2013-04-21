@@ -29,9 +29,9 @@ void TestCorrectness
 
     const int k=100;
     DistMatrix<F> X(g), Y(g), Z(g);
-    Uniform( m, k, X );
+    Uniform( X, m, k );
     Y = X;
-    Zeros( m, k, Z );
+    Zeros( Z, m, k );
 
     if( uplo == LOWER )
     {
@@ -110,8 +110,8 @@ void TestTwoSidedTrmm
 {
     DistMatrix<F> A(g), B(g), AOrig(g);
 
-    Zeros( m, m, A );
-    Zeros( m, m, B );
+    Zeros( A, m, m );
+    Zeros( B, m, m );
     MakeHermitianUniformSpectrum( A, 1, 10 );
     MakeHermitianUniformSpectrum( B, 1, 10 );
     MakeTriangular( uplo, B );

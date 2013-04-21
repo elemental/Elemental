@@ -67,7 +67,7 @@ TwoSidedTrsmUVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         //--------------------------------------------------------------------//
         // Y01 := A00 U01
-        Zeros( A01.Height(), A01.Width(), Y01 );
+        Zeros( Y01, A01.Height(), A01.Width() );
         Hemm( LEFT, UPPER, F(1), A00, U01, F(0), Y01 );
 
         // A01 := inv(U00)' A01
@@ -180,8 +180,8 @@ TwoSidedTrsmUVar1
         U01_MC_STAR = U01;
         U01_VR_STAR = U01_MC_STAR;
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        Zeros( A01.Height(), A01.Width(), Z01_MC_STAR );
-        Zeros( A01.Height(), A01.Width(), Z01_MR_STAR );
+        Zeros( Z01_MC_STAR, A01.Height(), A01.Width() );
+        Zeros( Z01_MR_STAR, A01.Height(), A01.Width() );
         LocalSymmetricAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, Z01_MC_STAR, Z01_MR_STAR );
@@ -200,7 +200,7 @@ TwoSidedTrsmUVar1
         // A11 := A11 - (U01' A01 + A01' U01)
         A01_VC_STAR = A01;
         U01_VC_STAR = U01_MC_STAR;
-        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
+        Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
         Her2k
         ( UPPER, ADJOINT,
           F(-1), A01_VC_STAR.Matrix(), U01_VC_STAR.Matrix(),

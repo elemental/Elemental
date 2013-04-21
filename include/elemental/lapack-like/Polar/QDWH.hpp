@@ -114,7 +114,7 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            Identity( C, width, width );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -211,7 +211,7 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            Identity( C, width, width );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -315,7 +315,7 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
             //       e.g., by halving the work in the first Herk through 
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
-            Identity( height, height, C );
+            Identity( C, height, height );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -419,7 +419,7 @@ QDWH
             //       e.g., by halving the work in the first Herk through 
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
-            Identity( height, height, C );
+            Identity( C, height, height );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;

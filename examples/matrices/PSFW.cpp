@@ -37,8 +37,8 @@ main( int argc, char* argv[] )
         const int nOdd = n/2;
         const int nEven = n - nOdd;
         DistMatrix<double> AEven, AOdd;
-        Zeros( nEven, nEven, AEven );
-        Zeros( nOdd, nOdd, AOdd );
+        Zeros( AEven, nEven, nEven );
+        Zeros( AOdd, nOdd, nOdd );
         
         // Fill AEven and AOdd
         for( int k=0; k<n; ++k )

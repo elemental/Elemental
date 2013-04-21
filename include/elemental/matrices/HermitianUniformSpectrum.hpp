@@ -25,7 +25,7 @@ namespace elem {
 template<typename F>
 inline void
 HermitianUniformSpectrum
-( int n, Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
+( Matrix<F>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -40,7 +40,7 @@ HermitianUniformSpectrum
 template<typename F,Distribution U,Distribution V>
 inline void
 HermitianUniformSpectrum
-( int n, DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     PushCallStack("HermitianUniformSpectrum");
@@ -76,7 +76,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     std::vector<F> d( n );
     for( int j=0; j<n; ++j )
         d[j] = lower + (upper-lower)*Uniform();
-    Diagonal( d, A );
+    Diagonal( A, d );
 
     // Form u 
     Matrix<F> u( n, 1 );
@@ -139,11 +139,11 @@ MakeHermitianUniformSpectrum
     mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
     if( standardDist )
-        Diagonal( d, A );
+        Diagonal( A, d );
     else
     {
         ABackup.AlignWith( A );
-        Diagonal( d, ABackup );
+        Diagonal( ABackup, d );
     }
 
     // Form u 
@@ -152,7 +152,7 @@ MakeHermitianUniformSpectrum
         u.AlignWith( A );
     else
         u.AlignWith( ABackup );
-    Uniform( n, 1, u );
+    Uniform( u, n, 1 );
     const R origNorm = Nrm2( u );
     Scale( 1/origNorm, u );
 

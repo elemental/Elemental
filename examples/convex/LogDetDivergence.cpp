@@ -29,8 +29,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> A, B;
-        HermitianUniformSpectrum( n, A, lower, upper );
-        HermitianUniformSpectrum( n, B, lower, upper );
+        HermitianUniformSpectrum( A, n, lower, upper );
+        HermitianUniformSpectrum( B, n, lower, upper );
         if( print )
         {
             A.Print("A");

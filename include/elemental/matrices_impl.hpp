@@ -19,6 +19,8 @@
 #include "./matrices/Circulant.hpp"
 #include "./matrices/Diagonal.hpp"
 #include "./matrices/DiscreteFourier.hpp"
+#include "./matrices/ExtendedKahan.hpp"
+#include "./matrices/GKS.hpp"
 #include "./matrices/Hankel.hpp"
 #include "./matrices/Hilbert.hpp"
 #include "./matrices/Identity.hpp"

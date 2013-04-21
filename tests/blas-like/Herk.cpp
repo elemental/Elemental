@@ -21,10 +21,10 @@ void TestHerk
     DistMatrix<T> A(g), C(g);
 
     if( orientation == NORMAL )
-        Uniform( m, k, A );
+        Uniform( A, m, k );
     else
-        Uniform( k, m, A );
-    HermitianUniformSpectrum( m, C, 1, 10 );
+        Uniform( A, k, m );
+    HermitianUniformSpectrum( C, m, 1, 10 );
     if( print )
     {
         A.Print("A");

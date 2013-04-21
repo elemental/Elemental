@@ -44,7 +44,7 @@ SVD( Matrix<F>& A, Matrix<F>& P )
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
     // Form P := V Sigma V^H in P
-    Zeros( n, n, P );
+    Zeros( P, n, n );
     hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
 #ifndef RELEASE
     PopCallStack();
@@ -73,7 +73,7 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
     // Form P := V Sigma V^H in P
-    Zeros( n, n, P );
+    Zeros( P, n, n );
     hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
 #ifndef RELEASE
     PopCallStack();

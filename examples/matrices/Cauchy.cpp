@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
             y[j] = j+m;
 
         DistMatrix<double> A;
-        Cauchy( x, y, A );
+        Cauchy( A, x, y );
         if( print )
             A.Print("Cauchy matrix:");
     }

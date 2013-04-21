@@ -10,7 +10,6 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
-#include "elemental/matrices/Zeros.hpp"
 using namespace elem;
 
 int 
@@ -28,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> J;
-        Legendre( n, J );
+        Legendre( J, n );
 
 #ifndef HAVE_PMRRR
         if( print )

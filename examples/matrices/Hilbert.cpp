@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> H;
-        Hilbert( n, H );
+        Hilbert( H, n );
         if( print )
             H.Print("Hilbert matrix:");
 

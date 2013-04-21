@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> A;
-        OneTwoOne( n, A );
+        OneTwoOne( A, n );
         if( print )
             A.Print("1-2-1 matrix:");
     }

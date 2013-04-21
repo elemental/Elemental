@@ -61,7 +61,7 @@ TrsvLT
                               z1_MR_STAR(g);
 
         z_MR_STAR.AlignWith( L );
-        Zeros( x.Height(), 1, z_MR_STAR );
+        Zeros( z_MR_STAR, x.Height(), 1 );
 
         // Start the algorithm
         PartitionUp
@@ -136,7 +136,7 @@ TrsvLT
                               z1_STAR_MR(g);
 
         z_STAR_MR.AlignWith( L );
-        Zeros( 1, x.Width(), z_STAR_MR );
+        Zeros( z_STAR_MR, 1, x.Width() );
 
         // Start the algorithm
         PartitionLeft( x,  xL, xR, 0 );

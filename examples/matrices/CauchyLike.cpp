@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
             y[j] = j+m;
 
         DistMatrix<double> A;
-        CauchyLike( r, s, x, y, A );
+        CauchyLike( A, r, s, x, y );
         if( print )
             A.Print("CauchyLike matrix:");
     }

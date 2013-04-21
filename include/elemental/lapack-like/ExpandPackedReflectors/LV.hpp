@@ -106,7 +106,7 @@ LV( int offset, Matrix<R>& H )
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         MakeZeros( ZOld );
-        Zeros( HPanWidth, HPanWidth, SInv );
+        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         Syrk( UPPER, TRANSPOSE, R(1), HPan, R(0), SInv );
         HalveMainDiagonal( SInv );
@@ -221,7 +221,7 @@ LV( int offset, DistMatrix<R>& H )
         PartitionLeft
         ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
         MakeZeros( ZOld_STAR_MR );
-        Zeros( HPanWidth, HPanWidth, SInv_STAR_STAR );
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPan_VC_STAR = HPan;
         Syrk
@@ -361,7 +361,7 @@ LV
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         MakeZeros( ZOld );
-        Zeros( HPanWidth, HPanWidth, SInv );
+        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         Herk( UPPER, ADJOINT, C(1), HPan, C(0), SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -506,7 +506,7 @@ LV
         PartitionLeft
         ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
         MakeZeros( ZOld_STAR_MR );
-        Zeros( HPanWidth, HPanWidth, SInv_STAR_STAR );
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPan_VC_STAR = HPan;
         Herk

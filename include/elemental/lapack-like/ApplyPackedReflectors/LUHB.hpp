@@ -78,8 +78,8 @@ LUHB( int offset, const Matrix<R>& H, Matrix<R>& A )
 
         View( ABottom, A, leftover, 0, HPanWidth, A.Width() );
 
-        Zeros( HPanHeight, ABottom.Width(), Z );
-        Zeros( HPanHeight, HPanHeight, SInv );
+        Zeros( Z, HPanHeight, ABottom.Width() );
+        Zeros( SInv, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
@@ -157,8 +157,8 @@ LUHB
         HPan_STAR_MC.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Zeros( HPanHeight, ABottom.Width(), Z_STAR_MR );
-        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPanHeight, ABottom.Width() );
+        Zeros( SInv_STAR_STAR, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
@@ -259,8 +259,8 @@ LUHB
 
         View( ABottom, A, leftover, 0, HPanWidth, A.Width() );
 
-        Zeros( HPanHeight, ABottom.Width(), Z );
-        Zeros( HPanHeight, HPanHeight, SInv );
+        Zeros( Z, HPanHeight, ABottom.Width() );
+        Zeros( SInv, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );
@@ -365,8 +365,8 @@ LUHB
         HPan_STAR_MC.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Zeros( HPanHeight, ABottom.Width(), Z_STAR_MR );
-        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPanHeight, ABottom.Width() );
+        Zeros( SInv_STAR_STAR, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, UPPER, offset, HPanCopy );

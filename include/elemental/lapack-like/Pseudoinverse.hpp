@@ -61,7 +61,7 @@ Pseudoinverse( Matrix<F>& A )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Zeros( n, m, A );
+    Zeros( A, n, m );
     Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
 #ifndef RELEASE
     PopCallStack();
@@ -108,7 +108,7 @@ Pseudoinverse( DistMatrix<F>& A )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Zeros( n, m, A );
+    Zeros( A, n, m );
     Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
 #ifndef RELEASE
     PopCallStack();

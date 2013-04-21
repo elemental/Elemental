@@ -45,11 +45,11 @@ main( int argc, char* argv[] )
 
         if( conjugate )
         {
-            HermitianUniformSpectrum( n, A, -30, -20 );
+            HermitianUniformSpectrum( A, n, -30, -20 );
         }
         else
         {
-            Uniform( n, n, A );
+            Uniform( A, n, n );
             DistMatrix<C> ATrans( g );
             Transpose( A, ATrans );
             Axpy( C(1), ATrans, A );
@@ -67,7 +67,7 @@ main( int argc, char* argv[] )
 
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E( g );
-        Identity( n, n, E );
+        Identity( E, n, n );
         if( conjugate )
             Hemm( LEFT, LOWER, C(-1), invA, A, C(1), E );
         else

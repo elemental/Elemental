@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         const Grid grid( comm );
         {
             DistMatrix<double> X(grid);
-            Identity( n, n, X );
+            Identity( X, n, n );
             if( print )
                 X.Print("Built-in identity");
         }

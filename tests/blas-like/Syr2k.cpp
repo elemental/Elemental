@@ -23,15 +23,15 @@ void TestSyr2k
 
     if( orientation == NORMAL )
     {
-        Uniform( m, k, A );
-        Uniform( m, k, B );
+        Uniform( A, m, k );
+        Uniform( B, m, k );
     }
     else
     {
-        Uniform( k, m, A );
-        Uniform( k, m, B );
+        Uniform( A, k, m );
+        Uniform( B, k, m );
     }
-    Uniform( m, m, C );
+    Uniform( C, m, m );
     MakeTriangular( uplo, C );
     if( print )
     {

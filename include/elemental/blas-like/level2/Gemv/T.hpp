@@ -58,7 +58,7 @@ GemvT
         Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( A.Width(), 1, z_MR_STAR );
+        Zeros( z_MR_STAR, A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
@@ -204,7 +204,7 @@ GemvT
     Scale( beta, y );
     x_MC_STAR.AlignWith( A );
     z_MR_STAR.AlignWith( A );
-    Zeros( A.Width(), 1, z_MR_STAR );
+    Zeros( z_MR_STAR, A.Width(), 1 );
     z_VR_STAR.AlignWith( A );
     z.AlignWith( y );
     //--------------------------------------------------------------------//

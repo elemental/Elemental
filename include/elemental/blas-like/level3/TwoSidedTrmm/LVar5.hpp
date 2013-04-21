@@ -69,7 +69,7 @@ TwoSidedTrmmLVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         //--------------------------------------------------------------------//
         // Y10 := A11 L10
-        Zeros( A10.Height(), A10.Width(), Y10 );
+        Zeros( Y10, A10.Height(), A10.Width() );
         Hemm( LEFT, LOWER, F(1), A11, L10, F(0), Y10 );
 
         // A10 := A10 L00
@@ -178,7 +178,7 @@ TwoSidedTrmmLVar5
         // Y10 := A11 L10
         A11_STAR_STAR = A11;
         L10_STAR_VR = L10;
-        Zeros( A10.Height(), A10.Width(), Y10_STAR_VR );
+        Zeros( Y10_STAR_VR, A10.Height(), A10.Width() );
         Hemm
         ( LEFT, LOWER, 
           F(1), A11_STAR_STAR.Matrix(), L10_STAR_VR.Matrix(),

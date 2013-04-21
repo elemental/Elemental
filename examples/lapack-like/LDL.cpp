@@ -45,11 +45,11 @@ main( int argc, char* argv[] )
         DistMatrix<C> A( g );
         if( conjugate )
         {
-            HermitianUniformSpectrum( n, A, -30, -20 );
+            HermitianUniformSpectrum( A, n, -30, -20 );
         }
         else
         {
-            Uniform( n, n, A );
+            Uniform( A, n, n );
             DistMatrix<C> ATrans( g );
             Transpose( A, ATrans );
             Axpy( C(1), ATrans, A );

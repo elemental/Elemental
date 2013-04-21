@@ -37,9 +37,9 @@ main( int argc, char* argv[] )
         Grid g( comm );
     
         DistMatrix<C> L(g), A(g);
-        Uniform( n, n, L );
+        Uniform( L, n, n );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
-        Zeros( n, n, A );
+        Zeros( A, n, n );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
 
         if( print )

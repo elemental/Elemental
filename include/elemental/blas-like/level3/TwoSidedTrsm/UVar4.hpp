@@ -77,7 +77,7 @@ TwoSidedTrsmUVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         Gemm( NORMAL, NORMAL, F(-1), A01, U12, F(1), A02 );
 
         // Y12 := A11 U12
-        Zeros( A12.Height(), A12.Width(), Y12 );
+        Zeros( Y12, A12.Height(), A12.Width() );
         Hemm( LEFT, UPPER, F(1), A11, U12, F(0), Y12 );
 
         // A12 := inv(U11)' A12
@@ -206,9 +206,9 @@ TwoSidedTrsmUVar4
 
         // Y12 := A11 U12
         U12Trans_VR_STAR = U12Trans_MR_STAR;
-        Zeros( A12.Height(), A12.Width(), U12_STAR_VR );
+        Zeros( U12_STAR_VR, A12.Height(), A12.Width() );
         Transpose( U12Trans_VR_STAR.Matrix(), U12_STAR_VR.Matrix() );
-        Zeros( A12.Height(), A12.Width(), Y12_STAR_VR );
+        Zeros( Y12_STAR_VR, A12.Height(), A12.Width() );
         Hemm
         ( LEFT, UPPER, 
           F(1), A11_STAR_STAR.Matrix(), U12_STAR_VR.Matrix(), 

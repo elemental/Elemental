@@ -251,8 +251,8 @@ SymmLLA
           C0, /**/ C1, C2 );
 
         Z1.AlignWith( C1 );
-        Zeros( C1.Height(), C1.Width(), Z1_MC_STAR );
-        Zeros( C1.Height(), C1.Width(), Z1_MR_STAR );
+        Zeros( Z1_MC_STAR, C1.Height(), C1.Width() );
+        Zeros( Z1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;

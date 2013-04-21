@@ -73,7 +73,7 @@ TwoSidedTrmmLVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         //--------------------------------------------------------------------//
         // Y10 := A11 L10
-        Zeros( A10.Height(), A10.Width(), Y10 );
+        Zeros( Y10, A10.Height(), A10.Width() );
         Hemm( LEFT, LOWER, F(1), A11, L10, F(0), Y10 );
 
         // A10 := A10 + 1/2 Y10
@@ -187,7 +187,7 @@ TwoSidedTrmmLVar4
         A11_STAR_STAR = A11;
         L10Adj_MR_STAR.AdjointFrom( L10 );
         L10_STAR_VR.AdjointFrom( L10Adj_MR_STAR );
-        Zeros( A10.Height(), A10.Width(), Y10_STAR_VR );
+        Zeros( Y10_STAR_VR, A10.Height(), A10.Width() );
         Hemm
         ( LEFT, LOWER,
           F(1), A11_STAR_STAR.LockedMatrix(), L10_STAR_VR.LockedMatrix(),

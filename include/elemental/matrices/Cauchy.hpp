@@ -14,8 +14,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-Cauchy
-( const std::vector<F>& x, const std::vector<F>& y, Matrix<F>& A )
+Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
     PushCallStack("Cauchy");
@@ -49,8 +48,7 @@ Cauchy
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Cauchy
-( const std::vector<F>& x, const std::vector<F>& y, DistMatrix<F,U,V>& A )
+Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
     PushCallStack("Cauchy");

@@ -33,20 +33,20 @@ main( int argc, char* argv[] )
         std::vector<Complex<double> > a( n );
         for( int j=0; j<n; ++j )
             a[j] = j;
-        Circulant( a, A );
+        Circulant( A, a );
         if( print )
             A.Print("Circulant matrix:");
 
         // Create a discrete Fourier matrix, which can be used to diagonalize
         // circulant matrices
         DistMatrix<Complex<double> > F;
-        DiscreteFourier( n, F );
+        DiscreteFourier( F, n );
         if( print )
             F.Print("DFT matrix (F):");
         
         // Form B := A F
         DistMatrix<Complex<double> > B;
-        Zeros( n, n, B );
+        Zeros( B, n, n );
         Gemm( NORMAL, NORMAL, 
               Complex<double>(1), A, F, Complex<double>(0), B );
 

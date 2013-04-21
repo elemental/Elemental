@@ -179,7 +179,7 @@ TrmmRLNA
           XB,  X2 );
 
         Z1Trans_MR_MC.AlignWith( X1 );
-        Zeros( X1.Width(), X1.Height(), Z1Trans_MR_STAR );
+        Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
         //--------------------------------------------------------------------//
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
@@ -260,7 +260,7 @@ TrmmRLNCOld
 
         L21_MR_STAR.AlignWith( X2 );
         D1_MC_STAR.AlignWith( X1 );
-        Zeros( X1.Height(), X1.Width(), D1_MC_STAR );
+        Zeros( D1_MC_STAR, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         L11_STAR_STAR = L11;

@@ -30,7 +30,7 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     DistMatrix<F> X(g), Y(g);
-    Uniform( m, 100, X );
+    Uniform( X, m, 100 );
     Y = X;
 
     // Since A o A^-1 = I, test the change introduced by the approximate comp.
@@ -67,7 +67,7 @@ void TestTriangularInverse
   UpperOrLower uplo, UnitOrNonUnit diag, int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
-    HermitianUniformSpectrum( m, A, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1, 10 );
     MakeTriangular( uplo, A );
     if( testCorrectness )
     {

@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> W;
-        Wilkinson( k, W );
+        Wilkinson( W, k );
         if( print )
             W.Print("Wilkinson matrix");
     }

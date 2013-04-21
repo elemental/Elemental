@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-OneTwoOne( int n, Matrix<T>& A )
+OneTwoOne( Matrix<T>& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("OneTwoOne");
@@ -30,7 +30,7 @@ OneTwoOne( int n, Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V> 
 inline void
-OneTwoOne( int n, DistMatrix<T,U,V>& A )
+OneTwoOne( DistMatrix<T,U,V>& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("OneTwoOne");

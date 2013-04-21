@@ -32,7 +32,7 @@ void TestCorrectness
 
     // Generate random right-hand sides
     Matrix<F> X, Y;
-    Uniform( m, 100, X );
+    Uniform( X, m, 100 );
     Y = X;
     if( pivoted )
         ApplyRowPivots( Y, p );
@@ -70,7 +70,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, int m )
     Matrix<F> A, ARef;
     Matrix<int> p;
 
-    Uniform( m, m, A );
+    Uniform( A, m, m );
     if( testCorrectness )
     {
         cout << "  Making copy of original matrix...";

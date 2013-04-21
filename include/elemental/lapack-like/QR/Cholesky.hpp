@@ -36,7 +36,7 @@ Cholesky( Matrix<F>& A, Matrix<F>& R )
     const int width = A.Width();
     if( height < width )
         throw std::logic_error("A^H A will be singular");
-    Zeros( width, width, R );
+    Zeros( R, width, width );
     Herk( UPPER, ADJOINT, F(1), A, F(0), R );
     elem::Cholesky( UPPER, R );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
@@ -56,7 +56,7 @@ Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
     const int width = A.Width();
     if( height < width )
         throw std::logic_error("A^H A will be singular");
-    Zeros( width, width, R );
+    Zeros( R, width, width );
     Herk( UPPER, ADJOINT, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOverGrid();
     elem::Cholesky( UPPER, R.Matrix() );

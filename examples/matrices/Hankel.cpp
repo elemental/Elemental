@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
             a[j] = j;
 
         DistMatrix<double> H;
-        Hankel( m, n, a, H );
+        Hankel( H, m, n, a );
         if( print )
             H.Print("Hankel matrix:");
     }

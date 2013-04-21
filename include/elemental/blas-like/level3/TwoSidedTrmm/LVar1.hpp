@@ -69,7 +69,7 @@ TwoSidedTrmmLVar1( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         //--------------------------------------------------------------------//
         // Y21 := A22 L21
-        Zeros( A21.Height(), A21.Width(), Y21 );
+        Zeros( Y21, A21.Height(), A21.Width() );
         Hemm( LEFT, LOWER, F(1), A22, L21, F(0), Y21 );
 
         // A21 := A21 L11
@@ -183,8 +183,8 @@ TwoSidedTrmmLVar1
         L21_VC_STAR = L21_MC_STAR;
         L21_VR_STAR = L21_VC_STAR;
         L21Adj_STAR_MR.AdjointFrom( L21_VR_STAR );
-        Zeros( A21.Height(), A21.Width(), Z21_MC_STAR );
-        Zeros( A21.Height(), A21.Width(), Z21_MR_STAR );
+        Zeros( Z21_MC_STAR, A21.Height(), A21.Width() );
+        Zeros( Z21_MR_STAR, A21.Height(), A21.Width() );
         LocalSymmetricAccumulateLL
         ( ADJOINT, 
           F(1), A22, L21_MC_STAR, L21Adj_STAR_MR, Z21_MC_STAR, Z21_MR_STAR );
@@ -209,7 +209,7 @@ TwoSidedTrmmLVar1
 
         // A11 := A11 + (A21' L21 + L21' A21)
         A21_VC_STAR = A21;
-        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
+        Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
         Her2k
         ( LOWER, ADJOINT,
           F(1), A21_VC_STAR.Matrix(), L21_VC_STAR.Matrix(),

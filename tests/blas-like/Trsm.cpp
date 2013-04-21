@@ -23,10 +23,10 @@ void TestTrsm
     DistMatrix<F> A(g), X(g);
 
     if( side == LEFT )
-        HermitianUniformSpectrum( m, A, 1, 10 );
+        HermitianUniformSpectrum( A, m, 1, 10 );
     else
-        HermitianUniformSpectrum( n, A, 1, 10 );
-    Uniform( m, n, X );
+        HermitianUniformSpectrum( A, n, 1, 10 );
+    Uniform( X, m, n );
 
     if( print )
     {

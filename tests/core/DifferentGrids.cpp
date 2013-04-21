@@ -45,7 +45,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<double> A(grid), ASqrt(sqrtGrid);
 
-        Identity( m, n, A );
+        Identity( A, m, n );
         if( print )
             A.Print("A");
 

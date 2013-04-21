@@ -22,10 +22,10 @@ void TestTrmm
     DistMatrix<T> A(g), X(g);
 
     if( side == LEFT )
-        Uniform( m, m, A );
+        Uniform( A, m, m );
     else
-        Uniform( n, n, A );
-    Uniform( m, n, X );
+        Uniform( A, n, n );
+    Uniform( X, m, n );
 
     if( print )
     {

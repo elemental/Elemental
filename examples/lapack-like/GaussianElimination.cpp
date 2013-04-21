@@ -47,8 +47,8 @@ main( int argc, char* argv[] )
         DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
         for( int test=0; test<3; ++test )
         {
-            Uniform( n, n,      A );
-            Uniform( n, numRhs, B );
+            Uniform( A, n, n );
+            Uniform( B, n, numRhs );
             ACopy = A;
             X = B;
 

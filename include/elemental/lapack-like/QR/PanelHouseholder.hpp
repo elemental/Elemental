@@ -50,7 +50,7 @@ PanelHouseholder( Matrix<Real>& A )
         View2x1( ARightPan, a12,
                             A22 );
 
-        Zeros( ARightPan.Width(), 1, z );
+        Zeros( z, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         const Real tau = Reflector( alpha11, a21 );
         const Real alpha = alpha11.Get(0,0);
@@ -113,7 +113,7 @@ PanelHouseholder( DistMatrix<Real>& A )
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );
-        Zeros( ARightPan.Width(), 1, z_MR_STAR );
+        Zeros( z_MR_STAR, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         const Real tau = Reflector( alpha11, a21 );
 
@@ -211,7 +211,7 @@ PanelHouseholder
         View2x1( ARightPan, a12,
                             A22 );
 
-        Zeros( ARightPan.Width(), 1, z );
+        Zeros( z, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );
@@ -304,7 +304,7 @@ PanelHouseholder
 
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );
-        Zeros( ARightPan.Width(), 1, z_MR_STAR );
+        Zeros( z_MR_STAR, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a21 );
         tau1.Set( 0, 0, tau );

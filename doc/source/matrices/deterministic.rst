@@ -13,8 +13,8 @@ vectors :math:`x` and :math:`y` such that
 where :math:`\chi_i` is the :math:`i`'th entry of :math:`x` and :math:`\eta_j`
 is the :math:`j`'th entry of :math:`y`.
 
-.. cpp:function:: void Cauchy( const std::vector<F>& x, const std::vector<F>& y, Matrix<F>& A )
-.. cpp:function:: void Cauchy( const std::vector<F>& x, const std::vector<F>& y, DistMatrix<F,U,V>& A )
+.. cpp:function:: void Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
+.. cpp:function:: void Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
 
    Generate a Cauchy matrix using the defining vectors, :math:`x` and :math:`y`. 
 
@@ -31,8 +31,8 @@ where :math:`\rho_i` is the :math:`i`'th entry of :math:`r`, :math:`\psi_j` is t
 entry of :math:`s`, :math:`\chi_i` is the :math:`i`'th entry of :math:`x`, and :math:`\eta_j`
 is the :math:`j`'th entry of :math:`y`.
 
-.. cpp:function:: void CauchyLike( const std::vector<F>& r, const std::vector<F>& s, const std::vector<F>& x, const std::vector<F>& y, Matrix<F>& A )
-.. cpp:function:: void CauchyLike( const std::vector<F>& r, const std::vector<F>& s, const std::vector<F>& x, const std::vector<F>& y, DistMatrix<F,U,V>& A )
+.. cpp:function:: void CauchyLike( Matrix<F>& A, const std::vector<F>& r, const std::vector<F>& s, const std::vector<F>& x, const std::vector<F>& y )
+.. cpp:function:: void CauchyLike( DistMatrix<F,U,V>& A, const std::vector<F>& r, const std::vector<F>& s, const std::vector<F>& x, const std::vector<F>& y )
 
    Generate a Cauchy-like matrix using the defining vectors: :math:`r`, :math:`s`, :math:`x`, and :math:`y`.
 
@@ -47,8 +47,8 @@ such that
 
 where :math:`\beta_k` is the :math:`k`'th entry of vector :math:`b`.
 
-.. cpp:function:: void Circulant( const std::vector<T>& a, Matrix<T>& A )
-.. cpp:function:: void Circulant( const std::vector<T>& a, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Circulant( Matrix<T>& A, const std::vector<T>& a )
+.. cpp:function:: void Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 
    Generate a circulant matrix using the vector ``a``.
 
@@ -58,8 +58,8 @@ An :math:`n \times n` matrix :math:`A` is called *diagonal* if each entry :math:
 :math:`i \neq j`, is :math:`0`. They are therefore defined by the *diagonal* values, where 
 :math:`i = j`.
 
-.. cpp:function:: void Diagonal( const std::vector<T>& d, Matrix<T>& D )
-.. cpp:function:: void Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
+.. cpp:function:: void Diagonal( Matrix<T>& D, const std::vector<T>& d )
+.. cpp:function:: void Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 
    Construct a diagonal matrix from the vector of diagonal values, :math:`d`.
 
@@ -71,8 +71,8 @@ The :math:`n \times n` *Discrete Fourier Transform* (DFT) matrix, say :math:`A`,
 
    \alpha_{i,j} = \frac{e^{-2\pi i j / n}}{\sqrt{n}}.
 
-.. cpp:function:: void DiscreteFourier( int n, Matrix<Complex<R> >& A )
-.. cpp:function:: void DiscreteFourier( int n, DistMatrix<Complex<R>,U,V>& A )
+.. cpp:function:: void DiscreteFourier( Matrix<Complex<R> >& A, int n )
+.. cpp:function:: void DiscreteFourier( DistMatrix<Complex<R>,U,V>& A, int n )
 
    Set the matrix ``A`` equal to the :math:`n \times n` DFT matrix.
 
@@ -81,6 +81,14 @@ The :math:`n \times n` *Discrete Fourier Transform* (DFT) matrix, say :math:`A`,
 
    Turn the existing :math:`n \times n` matrix ``A`` into a discrete Fourier 
    matrix.
+
+Extended Kahan
+--------------
+**TODO**
+
+Golub/Klema/Stewart 
+-------------------
+**TODO**
 
 Hankel
 ------
@@ -94,8 +102,8 @@ exists a vector :math:`b` such that
 where :math:`\alpha_{i,j}` is the :math:`(i,j)` entry of :math:`A` and 
 :math:`\beta_k` is the :math:`k`'th entry of the vector :math:`b`.
 
-.. cpp:function:: void Hankel( int m, int n, const std::vector<T>& b, Matrix<T>& A )
-.. cpp:function:: void Hankel( int m, int n, const std::vector<T>& b, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Hankel( Matrix<T>& A, int m, int n, const std::vector<T>& b )
+.. cpp:function:: void Hankel( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& b )
 
    Create an :math:`m \times n` Hankel matrix from the generate vector, 
    :math:`b`.
@@ -105,8 +113,8 @@ Hilbert
 The Hilbert matrix of order :math:`n` is the :math:`n \times n` matrix where
 entry :math:`(i,j)` is equal to :math:`1/(i+j+1)`.
 
-.. cpp:function:: void Hilbert( int n, Matrix<F>& A )
-.. cpp:function:: void Hilbert( int n, DistMatrix<F,U,V>& A )
+.. cpp:function:: void Hilbert( Matrix<F>& A, int n )
+.. cpp:function:: void Hilbert( DistMatrix<F,U,V>& A, int n )
 
    Generate the :math:`n \times n` Hilbert matrix ``A``.
 
@@ -122,8 +130,8 @@ The :math:`n \times n` *identity matrix* is simply defined by setting entry
 reasons, we generalize this definition to nonsquare, :math:`m \times n`, 
 matrices.
 
-.. cpp:function:: void Identity( int m, int n, Matrix<T>& A )
-.. cpp:function:: void Identity( int m, int n, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Identity( Matrix<T>& A, int m, int n )
+.. cpp:function:: void Identity( DistMatrix<T,U,V>& A, int m, int n )
 
    Set the matrix ``A`` equal to the :math:`m \times n` identity(-like) matrix.
 
@@ -146,8 +154,8 @@ the corresponding :math:`n \times n` Kahan matrix is given by:
    \vdots &        &        & 1      & -\zeta \\
    0      &        & \cdots &        & 1 \end{pmatrix}
 
-.. cpp:function:: void Kahan( F phi, int n, Matrix<F>& A )
-.. cpp:function:: void Kahan( F phi, int n, DistMatrix<F>& A )
+.. cpp:function:: void Kahan( Matrix<F>& A, int n, F phi )
+.. cpp:function:: void Kahan( DistMatrix<F>& A, int n, F phi )
 
    Sets the matrix ``A`` equal to the :math:`n \times n` Kahan matrix with 
    the specified value for :math:`\phi`.
@@ -169,8 +177,8 @@ Gaussian quadrature of order :math:`n`. The corresponding weights may be found
 by doubling the square of the first entry of the corresponding normalized 
 eigenvector.
 
-.. cpp:function:: void Legendre( int n, Matrix<F>& A )
-.. cpp:function:: void Legendre( int n, DistMatrix<F,U,V>& A )
+.. cpp:function:: void Legendre( Matrix<F>& A, int n )
+.. cpp:function:: void Legendre( DistMatrix<F,U,V>& A, int n )
 
    Sets the matrix ``A`` equal to the :math:`n \times n` Jacobi matrix.
 
@@ -178,8 +186,8 @@ Ones
 ----
 Create an :math:`m \times n` matrix of all ones.
 
-.. cpp:function:: void Ones( int m, int n, Matrix<T>& A )
-.. cpp:function:: void Ones( int m, int n, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Ones( Matrix<T>& A, int m, int n )
+.. cpp:function:: void Ones( DistMatrix<T,U,V>& A, int m, int n )
 
    Set the matrix ``A`` to be an :math:`m \times n` matrix of all ones.
 
@@ -195,8 +203,8 @@ OneTwoOne
 A "1-2-1" matrix is tridiagonal with a diagonal of all twos and sub- and 
 super-diagonals of all ones.
 
-.. cpp:function:: void OneTwoOne( int n, Matrix<T>& A )
-.. cpp:function:: void OneTwoOne( int n, DistMatrix<T,U,V>& A )
+.. cpp:function:: void OneTwoOne( Matrix<T>& A, int n )
+.. cpp:function:: void OneTwoOne( DistMatrix<T,U,V>& A, int n )
 
    Set ``A`` to a :math:`n \times n` "1-2-1" matrix.
 
@@ -215,16 +223,10 @@ An :math:`m \times n` matrix is *Toeplitz* if there exists a vector :math:`b` su
 
 where :math:`\beta_k` is the :math:`k`'th entry of :math:`b`.
 
-.. cpp:function:: void Toeplitz( int m, int n, const std::vector<T>& b, Matrix<T>& A )
-.. cpp:function:: void Toeplitz( int m, int n, const std::vector<T>& b, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Toeplitz( Matrix<T>& A, int m, int n, const std::vector<T>& b )
+.. cpp:function:: void Toeplitz( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& b )
 
    Build the matrix ``A`` using the generating vector :math:`b`.
-
-.. cpp:function:: void MakeToeplitz( const std::vector<T>& b, Matrix<T>& A )
-.. cpp:function:: void MakeToeplitz( const std::vector<T>& b, DistMatrix<T,U,V>& A )
-
-   Turn the matrix ``A`` into a Toeplitz matrix defined from the generating 
-   vector :math:`b`.
 
 Walsh
 -----
@@ -244,8 +246,8 @@ and
 A *binary* Walsh matrix changes the bottom-right entry of :math:`W_1` from 
 :math:`-1` to :math:`0`.
 
-.. cpp:function:: void Walsh( int k, Matrix<T>& W, bool binary=false )
-.. cpp:function:: void Walsh( int k, DistMatrix<T,U,V>& W, bool binary=false )
+.. cpp:function:: void Walsh( Matrix<T>& W, int k, bool binary=false )
+.. cpp:function:: void Walsh( DistMatrix<T,U,V>& W, int k, bool binary=false )
 
    Set the matrix :math:`W` equal to the :math:`k`'th (possibly binary) Walsh 
    matrix.
@@ -260,8 +262,8 @@ A *Wilkinson matrix* of order :math:`k` is a tridiagonal matrix with diagonal
 
 and sub- and super-diagonals of all ones.
 
-.. cpp:function:: void Wilkinson( int k, Matrix<T>& W )
-.. cpp:function:: void Wilkinson( int k, DistMatrix<T,U,V>& W )
+.. cpp:function:: void Wilkinson( Matrix<T>& W, int k )
+.. cpp:function:: void Wilkinson( DistMatrix<T,U,V>& W, int k )
 
    Set the matrix :math:`W` equal to the :math:`k`'th Wilkinson matrix.
 
@@ -269,8 +271,8 @@ Zeros
 -----
 Create an :math:`m \times n` matrix of all zeros.
 
-.. cpp:function:: void Zeros( int m, int n, Matrix<T>& A )
-.. cpp:function:: void Zeros( int m, int n, DistMatrix<T,U,V>& A )
+.. cpp:function:: void Zeros( Matrix<T>& A, int m, int n )
+.. cpp:function:: void Zeros( DistMatrix<T,U,V>& A, int m, int n )
 
    Set the matrix ``A`` to be an :math:`m \times n` matrix of all zeros. 
 

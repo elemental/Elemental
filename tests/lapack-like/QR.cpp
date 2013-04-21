@@ -34,7 +34,7 @@ void TestCorrectness
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<R> Z(g);
-    Identity( m, n, Z );
+    Identity( Z, m, n );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, Z );
     ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, Z );
 
@@ -43,7 +43,7 @@ void TestCorrectness
 
     // Form Identity
     DistMatrix<R> X(g);
-    Identity( minDim, minDim, X );
+    Identity( X, minDim, minDim );
 
     // Form X := I - Q^H Q
     Axpy( R(-1), ZUpper, X );
@@ -104,7 +104,7 @@ void TestCorrectness
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<C> Z(g);
-    Identity( m, n, Z );
+    Identity( Z, m, n );
     ApplyPackedReflectors
     ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
@@ -115,7 +115,7 @@ void TestCorrectness
 
     // Form Identity
     DistMatrix<C> X(g);
-    Identity( minDim, minDim, X );
+    Identity( X, minDim, minDim );
 
     // Form X := I - Q^H Q
     Axpy( C(-1), ZUpper, X );
@@ -166,7 +166,7 @@ void TestRealQR
 {
     DistMatrix<R> A(g), AOrig(g);
 
-    Uniform( m, n, A );
+    Uniform( A, m, n );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -215,7 +215,7 @@ void TestComplexQR
     DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,MD,STAR> t(g);
 
-    Uniform( m, n, A );
+    Uniform( A, m, n );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

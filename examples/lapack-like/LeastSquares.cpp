@@ -53,12 +53,12 @@ main( int argc, char* argv[] )
         {
             const int k = ( orientation==NORMAL ? m : n );
             const int N = ( orientation==NORMAL ? n : m );
-            Uniform( m, n, A );
-            Zeros( k, numRhs, B );
+            Uniform( A, m, n );
+            Zeros( B, k, numRhs );
             ACopy = A;
 
             // Form B in the range of op(A)
-            Uniform( N, numRhs, Z );
+            Uniform( Z, N, numRhs );
             Gemm( orientation, NORMAL, F(1), A, Z, F(0), B );
 
             // Perform the QR/LQ factorization and solve

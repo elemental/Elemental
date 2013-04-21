@@ -65,8 +65,8 @@ GolubReinschUpper
     DistMatrix<Real,STAR,VC> VTrans_STAR_VC( g );
     U_VC_STAR.AlignWith( A );
     VTrans_STAR_VC.AlignWith( V );
-    Identity( m, k, U_VC_STAR );
-    Identity( k, n, VTrans_STAR_VC );
+    Identity( U_VC_STAR, m, k );
+    Identity( VTrans_STAR_VC, k, n );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VTrans
@@ -166,8 +166,8 @@ GolubReinschUpper
     DistMatrix<C,STAR,VC> VAdj_STAR_VC( g );
     U_VC_STAR.AlignWith( A );
     VAdj_STAR_VC.AlignWith( V );
-    Identity( m, k, U_VC_STAR );
-    Identity( k, n, VAdj_STAR_VC );
+    Identity( U_VC_STAR, m, k );
+    Identity( VAdj_STAR_VC, k, n );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VAdj
@@ -271,8 +271,8 @@ GolubReinschUpper
     DistMatrix<Real,VC,STAR> V_VC_STAR( g );
     U_VC_STAR.AlignWith( A );
     V_VC_STAR.AlignWith( V );
-    Identity( m, k, U_VC_STAR );
-    Identity( n, k, V_VC_STAR );
+    Identity( U_VC_STAR, m, k );
+    Identity( V_VC_STAR, n, k );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and V
@@ -384,8 +384,8 @@ GolubReinschUpper
     DistMatrix<C,VC,STAR> V_VC_STAR( g );
     U_VC_STAR.AlignWith( A );
     V_VC_STAR.AlignWith( V );
-    Identity( m, k, U_VC_STAR );
-    Identity( n, k, V_VC_STAR );
+    Identity( U_VC_STAR, m, k );
+    Identity( V_VC_STAR, n, k );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and V

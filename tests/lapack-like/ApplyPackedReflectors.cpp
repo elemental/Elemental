@@ -172,8 +172,8 @@ void TestRealUT
   const Grid& g )
 {
     DistMatrix<R> H(g), A(g);
-    Uniform( m, m, H );
-    Uniform( m, m, A );
+    Uniform( H, m, m );
+    Uniform( A, m, m );
     if( printMatrices )
     {
         H.Print("H");
@@ -213,8 +213,8 @@ void TestComplexUT
     typedef Complex<R> C;
 
     DistMatrix<C> H(g), A(g);
-    Uniform( m, m, H );
-    Uniform( m, m, A );
+    Uniform( H, m, m );
+    Uniform( A, m, m );
 
     const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<C,MD,STAR> t(g);

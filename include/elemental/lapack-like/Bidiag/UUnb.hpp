@@ -64,8 +64,8 @@ inline void UUnb( DistMatrix<R>& A )
         a12_STAR_MR.AlignWith( a12 );
         x12Trans_MR_STAR.AlignWith( AB2 );
         w21_MC_STAR.AlignWith( A22 );
-        Zeros( a12.Width(), 1, x12Trans_MR_STAR );
-        Zeros( a21.Height(), 1, w21_MC_STAR );
+        Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() );
@@ -206,8 +206,8 @@ inline void UUnb
         a12_STAR_MR.AlignWith( a12 );
         x12Adj_MR_STAR.AlignWith( AB2 );
         w21_MC_STAR.AlignWith( A22 );
-        Zeros( a12.Width(), 1, x12Adj_MR_STAR );
-        Zeros( a21.Height(), 1, w21_MC_STAR );
+        Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() );

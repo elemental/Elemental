@@ -69,7 +69,7 @@ TwoSidedTrmmUVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         //--------------------------------------------------------------------//
         // Y01 := U01 A11
-        Zeros( A01.Height(), A01.Width(), Y01 );
+        Zeros( Y01, A01.Height(), A01.Width() );
         Hemm( RIGHT, UPPER, F(1), A11, U01, F(0), Y01 );
 
         // A01 := U00 A01
@@ -178,7 +178,7 @@ TwoSidedTrmmUVar5
         // Y01 := U01 A11
         A11_STAR_STAR = A11;
         U01_VC_STAR = U01;
-        Zeros( A01.Height(), A01.Width(), Y01_VC_STAR );
+        Zeros( Y01_VC_STAR, A01.Height(), A01.Width() );
         Hemm
         ( RIGHT, UPPER,
           F(1), A11_STAR_STAR.Matrix(), U01_VC_STAR.Matrix(),

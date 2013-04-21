@@ -84,7 +84,7 @@ GemmTTA
           C0, /**/ C1, C2 );
 
         D1.AlignWith( C1 );  
-        Zeros( C1.Height(), C1.Width(), D1_MR_STAR );
+        Zeros( D1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_STAR_MC = B1; // B1[*,MC] <- B1[MC,MR]
 
@@ -185,7 +185,7 @@ GemmTTB
           CB,  C2 );
 
         D1.AlignWith( C1 );
-        Zeros( C1.Height(), C1.Width(), D1_STAR_MC );
+        Zeros( D1_STAR_MC, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1;
         if( orientationOfA == ADJOINT )

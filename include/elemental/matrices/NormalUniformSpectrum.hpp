@@ -25,7 +25,7 @@ namespace elem {
 template<typename R>
 inline void
 NormalUniformSpectrum
-( int n, Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
+( Matrix<Complex<R> >& A, int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("NormalUniformSpectrum");
@@ -40,7 +40,7 @@ NormalUniformSpectrum
 template<typename R,Distribution U,Distribution V>
 inline void
 NormalUniformSpectrum
-( int n, DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
+( DistMatrix<Complex<R>,U,V>& A, int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("NormalUniformSpectrum");
@@ -76,7 +76,7 @@ MakeNormalUniformSpectrum
     std::vector<C> d( n );
     for( int j=0; j<n; ++j )
         d[j] = center + radius*SampleUnitBall<C>();
-    Diagonal( d, A );
+    Diagonal( A, d );
 
     // Form u 
     Matrix<C> u( n, 1 );
@@ -138,11 +138,11 @@ MakeNormalUniformSpectrum
     mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<C> ABackup( grid );
     if( standardDist )
-        Diagonal( d, A );
+        Diagonal( A, d );
     else
     {
         ABackup.AlignWith( A );
-        Diagonal( d, ABackup );
+        Diagonal( ABackup, d );
     }
 
     // Form u 
@@ -151,7 +151,7 @@ MakeNormalUniformSpectrum
         u.AlignWith( A );
     else
         u.AlignWith( ABackup );
-    Uniform( n, 1, u );
+    Uniform( u, n, 1 );
     const R origNorm = Nrm2( u );
     Scale( 1/origNorm, u );
 

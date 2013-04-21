@@ -72,7 +72,7 @@ GemmNNA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        Zeros( C1.Height(), C1.Width(), D1_MC_STAR );
+        Zeros( D1_MC_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_VR_STAR = B1;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
@@ -162,7 +162,7 @@ GemmNNB
                C1,
           CB,  C2 );
 
-        Zeros( C1.Width(), C1.Height(), D1Trans_MR_STAR );
+        Zeros( D1Trans_MR_STAR, C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
         A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
@@ -351,7 +351,7 @@ GemmNNDot
                 ( C1L, /**/ C1R,
                   C10, /**/ C11, C12 );
 
-                Zeros( C11.Height(), C11.Width(), C11_STAR_STAR );
+                Zeros( C11_STAR_STAR, C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_STAR = B1;
                 LocalGemm
@@ -438,7 +438,7 @@ GemmNNDot
                         C11,
                   C1B,  C21 );
 
-                Zeros( C11.Height(), C11.Width(), C11_STAR_STAR );
+                Zeros( C11_STAR_STAR, C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_STAR_VR = A1;
                 LocalGemm

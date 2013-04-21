@@ -55,7 +55,7 @@ void TestCorrectness
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm( LEFT, uplo, 1., BOrig, X, 0., Y );
         for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
         {
@@ -96,7 +96,7 @@ void TestCorrectness
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
@@ -115,7 +115,7 @@ void TestCorrectness
         // Set Y := BX
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm( LEFT, uplo, 1., BOrig, X, 0., Y );
         // Set Z := AY = ABX
         DistMatrix<double> Z( n, k, g );
@@ -162,7 +162,7 @@ void TestCorrectness
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, 1., B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
@@ -179,7 +179,7 @@ void TestCorrectness
         // Set Y := AX
         DistMatrix<double> Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm( LEFT, uplo, 1., AOrig, X, 0., Y );
         // Set Z := BY = BAX
         DistMatrix<double> Z( n, k, g );
@@ -226,7 +226,7 @@ void TestCorrectness
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, 1., B, Z );
         else
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, 1., B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk( uplo, ADJOINT, -1., Z, 1., Y );
         oneNormOfError = OneNorm( Y );
         infNormOfError = InfinityNorm( Y );
@@ -270,7 +270,7 @@ void TestCorrectness
         // Set Y := BXW, where W is the diagonal eigenvalue matrix
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), BOrig, X, 
@@ -318,7 +318,7 @@ void TestCorrectness
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -338,7 +338,7 @@ void TestCorrectness
         // Set Y := BX
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), BOrig, X, 
@@ -391,7 +391,7 @@ void TestCorrectness
             Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trmm( LEFT, UPPER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -411,7 +411,7 @@ void TestCorrectness
         // Set Y := AX
         DistMatrix<Complex<double> > Y( g );
         Y.AlignWith( X );
-        Zeros( n, k, Y );
+        Zeros( Y, n, k );
         Hemm
         ( LEFT, uplo, 
           Complex<double>(1), AOrig, X, 
@@ -464,7 +464,7 @@ void TestCorrectness
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, Complex<double>(1), B, Z );
         else
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, Complex<double>(1), B, Z );
-        Identity( k, k, Y );
+        Identity( Y, k, k );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(-1), Z, 
@@ -490,18 +490,18 @@ void TestHermitianGenDefiniteEigDouble
     DistMatrix<double,VR,STAR> w(g);
     DistMatrix<double> X(g);
 
-    HermitianUniformSpectrum( m, A, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1, 10 );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        Zeros( m, m, B );
+        Zeros( B, m, m );
         DistMatrix<double> C(g);
-        Uniform( m, m, C );
+        Uniform( C, m, m );
         Herk( uplo, ADJOINT, 1., C, 0., B );
     }
     else
-        HermitianUniformSpectrum( m, B, 1, 10 );
+        HermitianUniformSpectrum( B, m, 1, 10 );
 
     if( testCorrectness && !onlyEigvals )
     {
@@ -577,21 +577,21 @@ void TestHermitianGenDefiniteEigDoubleComplex
     DistMatrix<double,VR,STAR> w(g);
     DistMatrix<Complex<double> > X(g);
 
-    HermitianUniformSpectrum( m, A, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1, 10 );
     if( eigType == BAX )
     {
         // Because we will multiply by L three times, generate HPD B more 
         // carefully than just adding m to its diagonal entries.
-        Zeros( m, m, B );
+        Zeros( B, m, m );
         DistMatrix<Complex<double> > C(g);
-        Uniform( m, m, C );
+        Uniform( C, m, m );
         Herk
         ( uplo, ADJOINT, 
           Complex<double>(1), C, 
           Complex<double>(0), B );
     }
     else
-        HermitianUniformSpectrum( m, B, 1, 10 );
+        HermitianUniformSpectrum( B, m, 1, 10 );
 
     if( testCorrectness && !onlyEigvals )
     {

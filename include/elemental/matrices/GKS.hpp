@@ -7,20 +7,25 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HILBERT_HPP
-#define MATRICES_HILBERT_HPP
+#ifndef MATRICES_GKS_HPP
+#define MATRICES_GKS_HPP
+
+// The Golub Klema Stewart matrix is upper-triangular with 1/sqrt(j) on its 
+// j'th diagonal entry and -1/sqrt(j) elsewhere in the upper triangle.
+// 
+// It was originally introduced as an example of where greedy RRQR fails.
 
 namespace elem {
 
 template<typename F>
 inline void
-Hilbert( Matrix<F>& A, int n )
+GKS( Matrix<F>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    PushCallStack("GKS");
 #endif
     A.ResizeTo( n, n );
-    MakeHilbert( A );
+    MakeGKS( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -28,13 +33,13 @@ Hilbert( Matrix<F>& A, int n )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Hilbert( DistMatrix<F,U,V>& A, int n )
+GKS( DistMatrix<F,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    PushCallStack("GKS");
 #endif
     A.ResizeTo( n, n );
-    MakeHilbert( A );
+    MakeGKS( A );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -42,20 +47,24 @@ Hilbert( DistMatrix<F,U,V>& A, int n )
 
 template<typename F> 
 inline void
-MakeHilbert( Matrix<F>& A )
+MakeGKS( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    PushCallStack("MakeGKS");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        throw std::logic_error("Cannot make a non-square matrix GKS");
 
-    const F one = F(1);
+    MakeZeros( A );
     for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
-            A.Set( i, j, one/(i+j+1) );
+    {
+        const F jDiag = F(1)/Sqrt(F(j));
+        for( int i=0; i<j; ++i )
+            A.Set( i, j, -jDiag );
+        A.Set( j, j, jDiag );
+    }
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -63,17 +72,16 @@ MakeHilbert( Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-MakeHilbert( DistMatrix<F,U,V>& A )
+MakeGKS( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    PushCallStack("MakeGKS");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        throw std::logic_error("Cannot make a non-square matrix GKS");
 
-    const F one = F(1);
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();
@@ -83,10 +91,16 @@ MakeHilbert( DistMatrix<F,U,V>& A )
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
         const int j = rowShift + jLocal*rowStride;
+        const F jDiag = F(1)/Sqrt(F(j));
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const int i = colShift + iLocal*colStride;
-            A.SetLocal( iLocal, jLocal, one/(i+j+1) );
+            if( i < j )
+                A.SetLocal( iLocal, jLocal, -jDiag );
+            else if( i == j )
+                A.SetLocal( iLocal, jLocal, jDiag );
+            else
+                A.SetLocal( iLocal, jLocal, 0 );
         }
     }
 #ifndef RELEASE
@@ -96,4 +110,4 @@ MakeHilbert( DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HILBERT_HPP
+#endif // ifndef MATRICES_GKS_HPP

@@ -167,7 +167,7 @@ void TestRealLQ
 ( bool testCorrectness, bool print, int m, int n, const Grid& g )
 {
     DistMatrix<R> A(g), AOrig(g);
-    Uniform( m, n, A );
+    Uniform( A, m, n );
 
     if( testCorrectness )
     {
@@ -214,7 +214,7 @@ void TestComplexLQ
 {
     typedef Complex<R> C;
     DistMatrix<C> A(g), AOrig(g);
-    Uniform( m, n, A );
+    Uniform( A, m, n );
 
     if( testCorrectness )
     {

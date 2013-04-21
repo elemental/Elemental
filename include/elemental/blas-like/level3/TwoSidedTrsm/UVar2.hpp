@@ -69,7 +69,7 @@ TwoSidedTrsmUVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         //--------------------------------------------------------------------//
         // Y01 := A00 U01
-        Zeros( A01.Height(), A01.Width(), Y01 );
+        Zeros( Y01, A01.Height(), A01.Width() );
         Hemm( LEFT, UPPER, F(1), A00, U01, F(0), Y01 );
 
         // A01 := A01 - 1/2 Y01
@@ -195,8 +195,8 @@ TwoSidedTrsmUVar2
         U01_MC_STAR = U01;
         U01_VR_STAR = U01_MC_STAR;
         U01Adj_STAR_MR.AdjointFrom( U01_VR_STAR );
-        Zeros( A01.Height(), A01.Width(), Y01_MR_STAR );
-        Zeros( A01.Height(), A01.Width(), F01_MC_STAR );
+        Zeros( Y01_MR_STAR, A01.Height(), A01.Width() );
+        Zeros( F01_MC_STAR, A01.Height(), A01.Width() );
         LocalSymmetricAccumulateLU
         ( ADJOINT, 
           F(1), A00, U01_MC_STAR, U01Adj_STAR_MR, F01_MC_STAR, Y01_MR_STAR );
@@ -205,7 +205,7 @@ TwoSidedTrsmUVar2
         Y01.SumScatterUpdate( F(1), F01_MC_STAR );
 
         // X11 := U01' A01
-        Zeros( A11.Height(), A11.Width(), X11_STAR_MR );
+        Zeros( X11_STAR_MR, A11.Height(), A11.Width() );
         LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, F(0), X11_STAR_MR );
 
         // A01 := A01 - Y01
@@ -231,7 +231,7 @@ TwoSidedTrsmUVar2
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - A02' U01
-        Zeros( A12.Width(), A12.Height(), X12Adj_MR_STAR );
+        Zeros( X12Adj_MR_STAR, A12.Width(), A12.Height() );
         LocalGemm
         ( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, F(0), X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );

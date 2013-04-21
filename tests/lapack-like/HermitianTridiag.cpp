@@ -49,7 +49,7 @@ void TestCorrectness
     // Zero B and then fill its tridiagonal
     DistMatrix<R> B(g);
     B.AlignWith( A );
-    Zeros( m, m, B );
+    Zeros( B, m, m );
     B.SetDiagonal( d );
     B.SetDiagonal( e, subdiagonal );
     B.SetDiagonal( eOpposite, -subdiagonal );
@@ -121,7 +121,7 @@ void TestCorrectness
     // Zero B and then fill its tridiagonal
     DistMatrix<C> B(g);
     B.AlignWith( A );
-    Zeros( m, m, B );
+    Zeros( B, m, m );
     B.SetRealPartOfDiagonal( d );
     B.SetRealPartOfDiagonal( e, subdiagonal );
     B.SetRealPartOfDiagonal( eOpposite, -subdiagonal );
@@ -171,7 +171,7 @@ void TestRealHermitianTridiag
 {
     DistMatrix<R> A(g), AOrig(g);
 
-    HermitianUniformSpectrum( m, A, -10, 10 );
+    HermitianUniformSpectrum( A, m, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -218,7 +218,7 @@ void TestComplexHermitianTridiag
     DistMatrix<C> A(g), AOrig(g);
     DistMatrix<C,STAR,STAR> t(g);
 
-    HermitianUniformSpectrum( m, A, -10, 10 );
+    HermitianUniformSpectrum( A, m, -10, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

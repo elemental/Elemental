@@ -46,7 +46,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<double> X(g);
-    Identity( k, k, X );
+    Identity( X, k, k );
     Herk( uplo, ADJOINT, -1., Z, 1., X );
     double oneNormOfError = OneNorm( X );
     double infNormOfError = InfinityNorm( X );
@@ -60,7 +60,7 @@ void TestCorrectness
     }
     // Set X := AZ
     X.AlignWith( Z );
-    Zeros( n, k, X );
+    Zeros( X, n, k );
     Hemm( LEFT, uplo, 1., AOrig, Z, 0., X );
     // Set X := X - ZW = AZ - ZW
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
@@ -120,7 +120,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
     DistMatrix<Complex<double> > X( g );
-    Identity( k, k, X );
+    Identity( X, k, k );
     Herk
     ( uplo, ADJOINT, 
       Complex<double>(-1), Z, 
@@ -137,7 +137,7 @@ void TestCorrectness
     }
     // X := AZ
     X.AlignWith( Z );
-    Zeros( n, k, X );
+    Zeros( X, n, k );
     Hemm
     ( LEFT, uplo, 
       Complex<double>(1), AOrig, Z, 
@@ -184,9 +184,9 @@ void TestHermitianEigDouble
     DistMatrix<double,VR,STAR> w(g);
 
     if( clustered )
-        Wilkinson( m/2, A );
+        Wilkinson( A, m/2 );
     else
-        HermitianUniformSpectrum( m, A, -10, 10 );
+        HermitianUniformSpectrum( A, m, -10, 10 );
     if( testCorrectness && !onlyEigvals )
     {
         if( g.Rank() == 0 )
@@ -252,9 +252,9 @@ void TestHermitianEigDoubleComplex
     DistMatrix<double,VR,STAR> w(g);
 
     if( clustered )
-        Wilkinson( m/2, A );
+        Wilkinson( A, m/2 );
     else
-        HermitianUniformSpectrum( m, A, -10, 10 );
+        HermitianUniformSpectrum( A, m, -10, 10 );
     if( testCorrectness && !onlyEigvals )
     {
         if( g.Rank() == 0 )

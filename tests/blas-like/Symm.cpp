@@ -22,11 +22,11 @@ void TestSymm
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
-        Uniform( m, m, A );
+        Uniform( A, m, m );
     else
-        Uniform( n, n, A );
-    Uniform( m, n, B );
-    Uniform( m, n, C );
+        Uniform( A, n, n );
+    Uniform( B, m, n );
+    Uniform( C, m, n );
     if( print )
     {
         A.Print("A");

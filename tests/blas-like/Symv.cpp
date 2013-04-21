@@ -20,9 +20,9 @@ void TestSymv
 {
     DistMatrix<T> A(g), x(g), y(g);
 
-    Uniform( m, m, A );
-    Uniform( m, 1, x );
-    Uniform( m, 1, y ); 
+    Uniform( A, m, m );
+    Uniform( x, m, 1 );
+    Uniform( y, m, 1 ); 
     if( print )
     {
         A.Print("A");

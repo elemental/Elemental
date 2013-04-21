@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename R>
 inline void
-DiscreteFourier( int n, Matrix<Complex<R> >& A )
+DiscreteFourier( Matrix<Complex<R> >& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("DiscreteFourier");
@@ -28,7 +28,7 @@ DiscreteFourier( int n, Matrix<Complex<R> >& A )
 
 template<typename R,Distribution U,Distribution V>
 inline void
-DiscreteFourier( int n, DistMatrix<Complex<R>,U,V>& A )
+DiscreteFourier( DistMatrix<Complex<R>,U,V>& A, int n )
 {
 #ifndef RELEASE
     PushCallStack("DiscreteFourier");

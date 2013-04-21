@@ -15,9 +15,9 @@ namespace elem {
 template<typename F> 
 inline void
 CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s,
-  const std::vector<F>& x, const std::vector<F>& y, 
-  Matrix<F>& A )
+( Matrix<F>& A,
+  const std::vector<F>& r, const std::vector<F>& s,
+  const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
     PushCallStack("CauchyLike");
@@ -55,9 +55,9 @@ CauchyLike
 template<typename F,Distribution U,Distribution V>
 inline void
 CauchyLike
-( const std::vector<F>& r, const std::vector<F>& s, 
-  const std::vector<F>& x, const std::vector<F>& y, 
-  DistMatrix<F,U,V>& A )
+( DistMatrix<F,U,V>& A,
+  const std::vector<F>& r, const std::vector<F>& s, 
+  const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
     PushCallStack("CauchyLike");

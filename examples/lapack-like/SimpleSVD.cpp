@@ -18,7 +18,7 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     DistMatrix<C> A;
-    Uniform( m, n, A );
+    Uniform( A, m, n );
 
     DistMatrix<C> U, V;
     DistMatrix<R,VR,STAR> s;

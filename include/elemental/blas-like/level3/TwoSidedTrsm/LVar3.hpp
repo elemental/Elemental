@@ -52,7 +52,7 @@ TwoSidedTrsmLVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     // We will use an entire extra matrix as temporary storage. If this is not
     // acceptable, use TwoSidedTrsmLVar4 instead.
     Matrix<F> Y;
-    Zeros( A.Height(), A.Width(), Y );
+    Zeros( Y, A.Height(), A.Width() );
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -186,7 +186,7 @@ TwoSidedTrsmLVar3
     // acceptable, use TwoSidedTrsmLVar4 instead.
     DistMatrix<F> Y(g);
     Y.AlignWith( A );
-    Zeros( A.Height(), A.Width(), Y );
+    Zeros( Y, A.Height(), A.Width() );
 
     PartitionDownDiagonal
     ( A, ATL, ATR,
@@ -233,7 +233,7 @@ TwoSidedTrsmLVar3
         // A11 := A11 - (A10 L10' + L10 A10')
         A10_STAR_VR = A10;
         L10_STAR_VR = L10;
-        Zeros( A11.Height(), A11.Width(), X11_STAR_STAR );
+        Zeros( X11_STAR_STAR, A11.Height(), A11.Width() );
         Her2k
         ( LOWER, NORMAL, 
           F(1), A10_STAR_VR.Matrix(), L10_STAR_VR.Matrix(),
@@ -249,7 +249,7 @@ TwoSidedTrsmLVar3
 
         // A21 := A21 - A20 L10'
         L10_STAR_MR = L10_STAR_VR;
-        Zeros( A21.Height(), A21.Width(), X21_MC_STAR );
+        Zeros( X21_MC_STAR, A21.Height(), A21.Width() );
         LocalGemm
         ( NORMAL, ADJOINT, F(1), A20, L10_STAR_MR, F(0), X21_MC_STAR );
         A21.SumScatterUpdate( F(-1), X21_MC_STAR );
@@ -280,7 +280,7 @@ TwoSidedTrsmLVar3
         LocalGemm( NORMAL, NORMAL, F(1), L21_MC_STAR, A11_STAR_MR, F(0), Y21 );
 
         // Y21 := Y21 + L20 A10'
-        Zeros( A21.Height(), A21.Width(), Z21_MC_STAR );
+        Zeros( Z21_MC_STAR, A21.Height(), A21.Width() );
         LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, F(0), Z21_MC_STAR );
         Y21.SumScatterUpdate( F(1), Z21_MC_STAR );
         //--------------------------------------------------------------------//

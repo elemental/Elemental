@@ -260,8 +260,8 @@ SymmRUA
           CB,  C2 );
 
         Z1Trans_MR_MC.AlignWith( C1 );
-        Zeros( C1.Width(), C1.Height(), Z1Trans_MC_STAR );
-        Zeros( C1.Width(), C1.Height(), Z1Trans_MR_STAR );
+        Zeros( Z1Trans_MC_STAR, C1.Width(), C1.Height() );
+        Zeros( Z1Trans_MR_STAR, C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.TransposeFrom( B1, conjugate );
         B1Trans_VC_STAR = B1Trans_MR_STAR;

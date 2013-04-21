@@ -29,7 +29,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> X;
-        HermitianUniformSpectrum( n, X, lower, upper );
+        HermitianUniformSpectrum( X, n, lower, upper );
         if( print )
             X.Print("X");
     }

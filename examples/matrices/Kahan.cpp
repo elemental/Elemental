@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> A;
-        Kahan( phi, n, A );
+        Kahan( A, n, phi );
         if( print )
             A.Print("Kahan");
     }

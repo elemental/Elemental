@@ -81,7 +81,7 @@ GemmNTA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        Zeros( C1.Height(), C1.Width(), D1_MC_STAR );
+        Zeros( D1_MC_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.TransposeFrom( B1, conjugate );
 
@@ -179,7 +179,7 @@ GemmNTB
           CB,  C2 );
 
         D1.AlignWith( C1 );
-        Zeros( C1.Height(), C1.Width(), D1_STAR_MC );
+        Zeros( D1_STAR_MC, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         A1Trans_MR_STAR.TransposeFrom( A1 );
 

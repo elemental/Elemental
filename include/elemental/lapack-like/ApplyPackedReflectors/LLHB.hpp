@@ -79,8 +79,8 @@ LLHB( int offset, const Matrix<R>& H, Matrix<R>& A )
 
         View( ATop, A, 0, 0, HPanWidth, A.Width() );
 
-        Zeros( HPanHeight, ATop.Width(), Z );
-        Zeros( HPanHeight, HPanHeight, SInv );
+        Zeros( Z, HPanHeight, ATop.Width() );
+        Zeros( SInv, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -159,8 +159,8 @@ LLHB
         HPan_STAR_MC.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPanHeight, ATop.Width(), Z_STAR_MR );
-        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPanHeight, ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -261,8 +261,8 @@ LLHB
 
         View( ATop, A, 0, 0, HPanWidth, A.Width() );
 
-        Zeros( HPanHeight, ATop.Width(), Z );
-        Zeros( HPanHeight, HPanHeight, SInv );
+        Zeros( Z, HPanHeight, ATop.Width() );
+        Zeros( SInv, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -368,8 +368,8 @@ LLHB
         HPan_STAR_MC.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPanHeight, ATop.Width(), Z_STAR_MR );
-        Zeros( HPanHeight, HPanHeight, SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPanHeight, ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPanHeight, HPanHeight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );

@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
 
         if( print )
             A.Print("A");

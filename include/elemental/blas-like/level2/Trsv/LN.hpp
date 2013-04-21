@@ -56,7 +56,7 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
                               z2_MC_STAR(g);
 
         z_MC_STAR.AlignWith( L );
-        Zeros( x.Height(), 1, z_MC_STAR );
+        Zeros( z_MC_STAR, x.Height(), 1 );
 
         // Start the algorithm
         PartitionDown
@@ -129,7 +129,7 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
                               z2_STAR_MC(g);
 
         z_STAR_MC.AlignWith( L );
-        Zeros( 1, x.Width(), z_STAR_MC );
+        Zeros( z_STAR_MC, 1, x.Width() );
 
         // Start the algorithm
         PartitionRight( x,  xL, xR, 0 );

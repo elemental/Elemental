@@ -33,7 +33,7 @@ MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 template<typename T>
 inline void
 Uniform
-( int m, int n, Matrix<T>& A, T center=0, BASE(T) radius=1 )
+( Matrix<T>& A, int m, int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");
@@ -359,7 +359,7 @@ MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Uniform( int m, int n, DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
+Uniform( DistMatrix<T,U,V>& A, int m, int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     PushCallStack("Uniform");

@@ -149,7 +149,7 @@ LUPartialPiv( DistMatrix<F>& A )
         Zero( A21 );
 
         // Perform the lazy update of A1
-        Zeros( A.Height(), A01.Width(), Z1 );
+        Zeros( Z1, A.Height(), A01.Width() );
         LocalGemm( NORMAL, TRANSPOSE, F(-1), A2, L21Trans_STAR_MR, F(0), Z1 );
         A1.SumScatterUpdate( F(1), Z1 );
 

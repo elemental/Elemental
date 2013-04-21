@@ -185,7 +185,7 @@ TrmmRUTA
           XB,  X2 );
 
         Z1Trans_MR_MC.AlignWith( X1 );
-        Zeros( X1.Width(), X1.Height(), Z1Trans_MC_STAR );
+        Zeros( Z1Trans_MC_STAR, X1.Width(), X1.Height() );
         //--------------------------------------------------------------------//
         X1Trans_MR_STAR.TransposeFrom( X1, conjugate );
         LocalTrmmAccumulateRUT
@@ -270,7 +270,7 @@ TrmmRUTC
 
         U12Trans_MR_STAR.AlignWith( X2 );
         D1_MC_STAR.AlignWith( X1 );
-        Zeros( X1.Height(), X1.Width(), D1_MC_STAR );
+        Zeros( D1_MC_STAR, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;

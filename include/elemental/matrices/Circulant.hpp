@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-Circulant( const std::vector<T>& a, Matrix<T>& A )
+Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
     PushCallStack("Circulant");
@@ -31,7 +31,7 @@ Circulant( const std::vector<T>& a, Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Circulant( const std::vector<T>& a, DistMatrix<T,U,V>& A )
+Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
     PushCallStack("Circulant");

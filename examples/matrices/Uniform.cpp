@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> X;
-        Uniform( m, n, X );
+        Uniform( X, m, n );
         if( print )
             X.Print("X");
     }

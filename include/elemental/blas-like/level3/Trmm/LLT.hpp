@@ -195,7 +195,7 @@ TrmmLLTA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        Zeros( X1.Height(), X1.Width(), Z1_MR_STAR );
+        Zeros( Z1_MR_STAR, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
         LocalTrmmAccumulateLLT
@@ -285,8 +285,8 @@ TrmmLLTCOld
         D1Trans_MR_STAR.AlignWith( X1 );
         D1Trans_MR_MC.AlignWith( X1 );
         D1.AlignWith( X1 );
-        Zeros( X1.Width(), X1.Height(), D1Trans_MR_STAR );
-        Zeros( X1.Height(), X1.Width(), D1 );
+        Zeros( D1Trans_MR_STAR, X1.Width(), X1.Height() );
+        Zeros( D1, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;

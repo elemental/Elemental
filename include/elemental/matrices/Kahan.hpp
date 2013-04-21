@@ -18,13 +18,13 @@ namespace elem {
 
 template<typename F>
 inline void
-Kahan( F phi, int n, Matrix<F>& A )
+Kahan( Matrix<F>& A, int n, F phi )
 {
 #ifndef RELEASE
     PushCallStack("Kahan");
 #endif
     A.ResizeTo( n, n );
-    MakeKahan( phi, A );
+    MakeKahan( A, phi );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -32,13 +32,13 @@ Kahan( F phi, int n, Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Kahan( F phi, int n, DistMatrix<F,U,V>& A )
+Kahan( DistMatrix<F,U,V>& A, int n, F phi )
 {
 #ifndef RELEASE
     PushCallStack("Kahan");
 #endif
     A.ResizeTo( n, n );
-    MakeKahan( phi, A );
+    MakeKahan( A, phi );
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -46,7 +46,7 @@ Kahan( F phi, int n, DistMatrix<F,U,V>& A )
 
 template<typename F> 
 inline void
-MakeKahan( F phi, Matrix<F>& A )
+MakeKahan( Matrix<F>& A, F phi )
 {
 #ifndef RELEASE
     PushCallStack("MakeKahan");
@@ -57,8 +57,8 @@ MakeKahan( F phi, Matrix<F>& A )
     const int n = A.Width();
     if( m != n )
         throw std::logic_error("Cannot make a non-square matrix Kahan");
-    if( Abs(phi) >= R(1) )
-        throw std::logic_error("Phi must be in (0,1)");
+    if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
+        throw std::logic_error("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(1-phi*Conj(phi));
 
@@ -77,7 +77,7 @@ MakeKahan( F phi, Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-MakeKahan( F phi, DistMatrix<F,U,V>& A )
+MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
 #ifndef RELEASE
     PushCallStack("MakeKahan");
@@ -88,8 +88,8 @@ MakeKahan( F phi, DistMatrix<F,U,V>& A )
     const int n = A.Width();
     if( m != n )
         throw std::logic_error("Cannot make a non-square matrix Kahan");
-    if( Abs(phi) >= R(1) )
-        throw std::logic_error("Phi must be in (0,1)");
+    if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
+        throw std::logic_error("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(1-phi*Conj(phi));
 

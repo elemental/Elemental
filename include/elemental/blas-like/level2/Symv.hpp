@@ -111,8 +111,8 @@ Symv
         z_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
         z.AlignWith( y );
-        Zeros( y.Height(), 1, z_MC_STAR );
-        Zeros( y.Height(), 1, z_MR_STAR );
+        Zeros( z_MC_STAR, y.Height(), 1 );
+        Zeros( z_MR_STAR, y.Height(), 1 );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
@@ -154,8 +154,8 @@ Symv
         z_MR_STAR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        Zeros( y.Width(), 1, z_MC_STAR );
-        Zeros( y.Width(), 1, z_MR_STAR );
+        Zeros( z_MC_STAR, y.Width(), 1 );
+        Zeros( z_MR_STAR, y.Width(), 1 );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
         x_MR_STAR = x_MC_STAR;
@@ -199,8 +199,8 @@ Symv
         z_STAR_MR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        Zeros( 1, y.Height(), z_STAR_MC );
-        Zeros( 1, y.Height(), z_STAR_MR );
+        Zeros( z_STAR_MC, 1, y.Height() );
+        Zeros( z_STAR_MR, 1, y.Height() );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;
@@ -244,8 +244,8 @@ Symv
         z_STAR_MR.AlignWith( A );
         z.AlignWith( y );
         z_MR_MC.AlignWith( y );
-        Zeros( 1, y.Width(), z_STAR_MC );
-        Zeros( 1, y.Width(), z_STAR_MR );
+        Zeros( z_STAR_MC, 1, y.Width() );
+        Zeros( z_STAR_MR, 1, y.Width() );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         x_STAR_MC = x_STAR_MR;

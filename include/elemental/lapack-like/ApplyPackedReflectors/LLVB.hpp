@@ -89,8 +89,8 @@ LLVB( int offset, const Matrix<R>& H, Matrix<R>& A )
         View2x1( ABottom, A1,
                           A2 );
 
-        Zeros( HPanWidth, ABottom.Width(), Z );
-        Zeros( HPanWidth, HPanWidth, SInv );
+        Zeros( Z, HPanWidth, ABottom.Width() );
+        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
@@ -186,8 +186,8 @@ LLVB
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Zeros( HPanWidth, ABottom.Width(), Z_STAR_MR );
-        Zeros( HPanWidth, HPanWidth, SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPanWidth, ABottom.Width() );
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
@@ -306,8 +306,8 @@ LLVB
         View2x1( ABottom, A1,
                           A2 );
 
-        Zeros( HPan.Width(), ABottom.Width(), Z );
-        Zeros( HPan.Width(), HPan.Width(), SInv );
+        Zeros( Z, HPan.Width(), ABottom.Width() );
+        Zeros( SInv, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
@@ -429,8 +429,8 @@ LLVB
         HPan_MC_STAR.AlignWith( ABottom );
         Z_STAR_MR.AlignWith( ABottom );
         Z_STAR_VR.AlignWith( ABottom );
-        Zeros( HPan.Width(), ABottom.Width(), Z_STAR_MR );
-        Zeros( HPan.Width(), HPan.Width(), SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPan.Width(), ABottom.Width() );
+        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );

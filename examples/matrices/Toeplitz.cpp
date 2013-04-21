@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
             a[j] = j;
 
         DistMatrix<double> A;
-        Toeplitz( m, n, a, A );
+        Toeplitz( A, m, n, a );
         if( print )
             A.Print("Toeplitz matrix:");
     }

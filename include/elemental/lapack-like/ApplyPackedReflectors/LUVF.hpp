@@ -90,8 +90,8 @@ LUVF( int offset, const Matrix<R>& H, Matrix<R>& A )
         View2x1( ATop, A0, 
                        A1 );
 
-        Zeros( HPan.Width(), ATop.Width(), Z );
-        Zeros( HPan.Width(), HPan.Width(), SInv );
+        Zeros( Z, HPan.Width(), ATop.Width() );
+        Zeros( SInv, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );
@@ -188,8 +188,8 @@ LUVF
         HPan_MC_STAR.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPan.Width(), ATop.Width(), Z_STAR_MR );
-        Zeros( HPan.Width(), HPan.Width(), SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPan.Width(), ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );
@@ -309,8 +309,8 @@ LUVF
         View2x1( ATop, A0,
                        A1 );
 
-        Zeros( HPan.Width(), ATop.Width(), Z );
-        Zeros( HPan.Width(), HPan.Width(), SInv );
+        Zeros( Z, HPan.Width(), ATop.Width() );
+        Zeros( SInv, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );
@@ -434,8 +434,8 @@ LUVF
         HPan_MC_STAR.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPan.Width(), ATop.Width(), Z_STAR_MR );
-        Zeros( HPan.Width(), HPan.Width(), SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPan.Width(), ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, UPPER, offset, HPanCopy );

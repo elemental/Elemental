@@ -21,6 +21,7 @@
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
+#include "elemental/matrices/Zeros.hpp"
 #include <algorithm>
 
 namespace elem {
@@ -38,7 +39,7 @@ UnitaryCoherence( Matrix<F>& U )
 
     // Z := U U' in n^2 r work
     Matrix<F> Z;
-    Zeros( n, n, Z );
+    Zeros( Z, n, n );
     Herk( UPPER, NORMAL, F(1), U, F(0), Z );
 
     // Now make Z explicitly Hermitian so that our job is easier
@@ -72,7 +73,7 @@ UnitaryCoherence( DistMatrix<F>& U )
 
     // Z := U U' in n^2 r work
     DistMatrix<F> Z( grid );
-    Zeros( n, n, Z );
+    Zeros( Z, n, n );
     Herk( UPPER, NORMAL, F(1), U, F(0), Z );
 
     // Now make Z explicitly Hermitian so that our job is easier

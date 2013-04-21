@@ -60,8 +60,8 @@ inline void LUnb( DistMatrix<R>& A )
         a1R_STAR_MR.AlignWith( A2R );
         x12Trans_MR_STAR.AlignWith( A22 );
         w21_MC_STAR.AlignWith( A2R );
-        Zeros( a12.Width(), 1, x12Trans_MR_STAR );
-        Zeros( a21.Height(), 1, w21_MC_STAR );
+        Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );
@@ -201,8 +201,8 @@ inline void LUnb
         a1R_STAR_MR.AlignWith( A2R );
         x12Adj_MR_STAR.AlignWith( A22 );
         w21_MC_STAR.AlignWith( A2R );
-        Zeros( a12.Width(), 1, x12Adj_MR_STAR );
-        Zeros( a21.Height(), 1, w21_MC_STAR );
+        Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );

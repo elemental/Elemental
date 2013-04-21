@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;
@@ -33,7 +34,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         Matrix<C> A;
-        Uniform( m, n, A );
+        Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the QR decomposition of A, but do not overwrite A
@@ -47,7 +48,7 @@ main( int argc, char* argv[] )
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
         const int k = std::min(m,n);
-        Identity( k, k, E );
+        Identity( E, k, k );
         Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 

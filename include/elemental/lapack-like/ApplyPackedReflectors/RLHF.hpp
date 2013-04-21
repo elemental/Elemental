@@ -78,8 +78,8 @@ RLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
 
         View( ALeft, A, 0, 0, A.Height(), HPanWidth );
 
-        Zeros( ALeft.Height(), HPan.Height(), Z );
-        Zeros( HPan.Height(), HPan.Height(), SInv );
+        Zeros( Z, ALeft.Height(), HPan.Height() );
+        Zeros( SInv, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -158,8 +158,8 @@ RLHF
         HPan_STAR_MR.AlignWith( ALeft );
         ZTrans_STAR_MC.AlignWith( ALeft );
         ZTrans_STAR_VC.AlignWith( ALeft );
-        Zeros( HPan.Height(), ALeft.Height(), ZTrans_STAR_MC );
-        Zeros( HPan.Height(), HPan.Height(), SInv_STAR_STAR );
+        Zeros( ZTrans_STAR_MC, HPan.Height(), ALeft.Height() );
+        Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -264,8 +264,8 @@ RLHF
 
         View( ALeft, A, 0, 0, A.Height(), HPanWidth );
 
-        Zeros( ALeft.Height(), HPan.Height(), Z );
-        Zeros( HPan.Height(), HPan.Height(), SInv );
+        Zeros( Z, ALeft.Height(), HPan.Height() );
+        Zeros( SInv, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -371,8 +371,8 @@ RLHF
         HPan_STAR_MR.AlignWith( ALeft );
         ZAdj_STAR_MC.AlignWith( ALeft );
         ZAdj_STAR_VC.AlignWith( ALeft );
-        Zeros( HPan.Height(), ALeft.Height(), ZAdj_STAR_MC );
-        Zeros( HPan.Height(), HPan.Height(), SInv_STAR_STAR );
+        Zeros( ZAdj_STAR_MC, HPan.Height(), ALeft.Height() );
+        Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );

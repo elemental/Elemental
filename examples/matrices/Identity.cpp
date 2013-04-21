@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> I;
-        Identity( n, n, I );
+        Identity( I, n, n );
         if( print )
             I.Print("Identity");
     }

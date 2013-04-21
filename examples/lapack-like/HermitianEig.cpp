@@ -110,7 +110,7 @@ main( int argc, char* argv[] )
         const R frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X
-        Identity( n, n, E );
+        Identity( E, n, n );
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
         const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 

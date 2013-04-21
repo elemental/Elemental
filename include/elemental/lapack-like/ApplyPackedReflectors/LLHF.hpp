@@ -92,8 +92,8 @@ LLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
         View2x1( ATop, A0,
                        A1 );
 
-        Zeros( HPan.Height(), ATop.Width(), Z );
-        Zeros( HPan.Height(), HPan.Height(), SInv );
+        Zeros( Z, HPan.Height(), ATop.Width() );
+        Zeros( SInv, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -191,8 +191,8 @@ LLHF
         HPan_STAR_MC.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPan.Height(), ATop.Width(), Z_STAR_MR );
-        Zeros( HPan.Height(), HPan.Height(), SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPan.Height(), ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -312,8 +312,8 @@ LLHF
         View2x1( ATop, A0,
                        A1 );
 
-        Zeros( HPan.Height(), ATop.Width(), Z );
-        Zeros( HPan.Height(), HPan.Height(), SInv );
+        Zeros( Z, HPan.Height(), ATop.Width() );
+        Zeros( SInv, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );
@@ -437,8 +437,8 @@ LLHF
         HPan_STAR_MC.AlignWith( ATop );
         Z_STAR_MR.AlignWith( ATop );
         Z_STAR_VR.AlignWith( ATop );
-        Zeros( HPan.Height(), ATop.Width(), Z_STAR_MR );
-        Zeros( HPan.Height(), HPan.Height(), SInv_STAR_STAR );
+        Zeros( Z_STAR_MR, HPan.Height(), ATop.Width() );
+        Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( RIGHT, LOWER, offset, HPanCopy );

@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
 
         const Complex<double> center( realCenter, imagCenter );
         DistMatrix<Complex<double> > X;
-        NormalUniformSpectrum( n, X, center, radius );
+        NormalUniformSpectrum( X, n, center, radius );
         if( print )
             X.Print("X");
     }

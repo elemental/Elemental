@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Identity( int m, int n, Matrix<T>& I )
+Identity( Matrix<T>& I, int m, int n )
 {
 #ifndef RELEASE
     PushCallStack("Identity");
@@ -30,7 +30,7 @@ Identity( int m, int n, Matrix<T>& I )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Identity( int m, int n, DistMatrix<T,U,V>& I )
+Identity( DistMatrix<T,U,V>& I, int m, int n )
 {
 #ifndef RELEASE
     PushCallStack("Identity");

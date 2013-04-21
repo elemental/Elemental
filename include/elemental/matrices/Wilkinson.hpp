@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-Wilkinson( int k, Matrix<T>& A )
+Wilkinson( Matrix<T>& A, int k )
 {
 #ifndef RELEASE
     PushCallStack("Wilkinson");
@@ -44,7 +44,7 @@ Wilkinson( int k, Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Wilkinson( int k, DistMatrix<T,U,V>& A )
+Wilkinson( DistMatrix<T,U,V>& A, int k )
 {
 #ifndef RELEASE
     PushCallStack("Wilkinson");

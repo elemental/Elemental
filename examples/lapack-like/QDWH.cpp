@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
         const R lowerBound = 1e-7;
         const R frobA = FrobeniusNorm( A );
         const R upperBound = TwoNormUpperBound( A );
@@ -51,14 +51,14 @@ main( int argc, char* argv[] )
         // Halley (QDWH) iteration
         Q = A;
         const int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound );
-        Zeros( n, n, P );
+        Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
         const R frobQDWH = FrobeniusNorm( B );
-        Identity( n, n, B );
+        Identity( B, n, n );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( g.Rank() == 0 )
@@ -75,14 +75,14 @@ main( int argc, char* argv[] )
         // iteration
         Q = A;
         const int numItsHalley = polar::Halley( Q, upperBound );
-        Zeros( n, n, P );
+        Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
         // Check and report the overall and orthogonality error
         B = A; 
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
         const R frobHalley = FrobeniusNorm( B );
-        Identity( n, n, B );
+        Identity( B, n, n );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobHalleyOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( g.Rank() == 0 )

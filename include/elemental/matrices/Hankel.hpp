@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-Hankel( int m, int n, const std::vector<T>& a, Matrix<T>& A )
+Hankel( Matrix<T>& A, int m, int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
     PushCallStack("Hankel");
@@ -25,7 +25,7 @@ Hankel( int m, int n, const std::vector<T>& a, Matrix<T>& A )
     A.ResizeTo( m, n );
 
     for( int j=0; j<n; ++j )
-        for( int i=0; i<n; ++i )
+        for( int i=0; i<m; ++i )
             A.Set( i, j, a[i+j] );
 #ifndef RELEASE
     PopCallStack();
@@ -34,7 +34,7 @@ Hankel( int m, int n, const std::vector<T>& a, Matrix<T>& A )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Hankel( int m, int n, const std::vector<T>& a, DistMatrix<T,U,V>& A )
+Hankel( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
     PushCallStack("Hankel");

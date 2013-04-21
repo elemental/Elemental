@@ -29,7 +29,7 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     DistMatrix<F> X(g), Y(g);
-    Uniform( m, 100, X );
+    Uniform( X, m, 100 );
     Y = X;
 
     if( uplo == LOWER )
@@ -95,7 +95,7 @@ void TestCholesky
 {
     DistMatrix<F> A(g), AOrig(g);
 
-    HermitianUniformSpectrum( m, A, 1, 10 );
+    HermitianUniformSpectrum( A, m, 1, 10 );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

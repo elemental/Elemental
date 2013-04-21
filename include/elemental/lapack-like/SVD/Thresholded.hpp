@@ -43,7 +43,7 @@ ThresholdedTall
 
     // C := A^H A
     Matrix<F> C;
-    Zeros( n, n, C );
+    Zeros( C, n, n );
     Herk( LOWER, ADJOINT, F(1), A, F(0), C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -56,7 +56,7 @@ ThresholdedTall
 
     // Y := A V
     Matrix<F> Y;
-    Zeros( m, k, Y );
+    Zeros( Y, m, k );
     Gemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
@@ -102,7 +102,7 @@ ThresholdedTall
 
     // C := A^H A
     DistMatrix<F> C( g );
-    Zeros( n, n, C );
+    Zeros( C, n, n );
     Herk( LOWER, ADJOINT, F(1), A, F(0), C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -118,7 +118,7 @@ ThresholdedTall
     // Y := A V
     const int k = V.Width();
     DistMatrix<F> Y( g );
-    Zeros( m, k, Y );
+    Zeros( Y, m, k );
     Gemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
 
     // Set each column of A to be the corresponding normalized column of Y
@@ -169,7 +169,7 @@ ThresholdedWide
 
     // C := A A^H
     Matrix<F> C;
-    Zeros( m, m, C );
+    Zeros( C, m, m );
     Herk( LOWER, NORMAL, F(1), A, F(0), C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
@@ -182,7 +182,7 @@ ThresholdedWide
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
     // (Sigma V) := A^H U
-    Zeros( n, k, V );
+    Zeros( V, n, k );
     Gemm( ADJOINT, NORMAL, F(1), A, U, F(0), V );
 
     // Divide each column of (Sigma V) by sigma
@@ -228,7 +228,7 @@ ThresholdedWide
 
     // C := A A^H
     DistMatrix<F> C( g );
-    Zeros( m, m, C );
+    Zeros( C, m, m );
     Herk( LOWER, NORMAL, F(1), A, F(0), C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
@@ -244,7 +244,7 @@ ThresholdedWide
 
     // (Sigma V) := A^H U
     const int k = U.Width();
-    Zeros( n, k, V );
+    Zeros( V, n, k );
     Gemm( ADJOINT, NORMAL, F(1), A, U, F(0), V );
 
     // Divide each column of (Sigma V) by sigma

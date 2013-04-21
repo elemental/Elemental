@@ -77,7 +77,7 @@ GemmTNA
           C0, /**/ C1, C2 );
 
         D1.AlignWith( C1 );
-        Zeros( C1.Height(), C1.Width(), D1_MR_STAR );
+        Zeros( D1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1; // B1[MC,*] <- B1[MC,MR]
 
@@ -168,7 +168,7 @@ GemmTNB
                C1,
           CB,  C2 );
 
-        Zeros( C1.Width(), C1.Height(), D1AdjOrTrans_MR_STAR );
+        Zeros( D1AdjOrTrans_MR_STAR, C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; // A1[MC,*] <- A1[MC,MR]
 

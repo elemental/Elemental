@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
             d[j] = j;
 
         DistMatrix<double> D;
-        Diagonal( d, D );
+        Diagonal( D, d );
         if( print )
             D.Print("D:");
     }

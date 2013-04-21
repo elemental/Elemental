@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<double> A;
-        Ones( m, n, A );
+        Ones( A, m, n );
         if( print )
             A.Print("Ones matrix:");
     }

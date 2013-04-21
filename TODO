@@ -18,6 +18,8 @@ Functionality
 
 Maintenance
 ===========
+- Think of way to avoid need for explicitly zeroing matrices before calling
+  BLAS routines with beta=0
 - Document routines added after sequential HermitianEig
 - Document HermitianSign and UnitaryCoherence
 - Separate out local blas-like and lapack-like operations

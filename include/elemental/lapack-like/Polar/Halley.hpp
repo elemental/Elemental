@@ -91,7 +91,7 @@ Halley( Matrix<F>& A, BASE(F) upperBound )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            Identity( C, width, width );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -171,7 +171,7 @@ Halley( DistMatrix<F>& A, BASE(F) upperBound )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( width, width, C );
+            Identity( C, width, width );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -255,7 +255,7 @@ Halley( UpperOrLower uplo, Matrix<F>& A, BASE(F) upperBound )
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             MakeHermitian( uplo, A );
-            Identity( height, height, C );
+            Identity( C, height, height );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -338,7 +338,7 @@ Halley( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) upperBound )
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
             MakeHermitian( uplo, A );
-            Identity( height, height, C );
+            Identity( C, height, height );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;

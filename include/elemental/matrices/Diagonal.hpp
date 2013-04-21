@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-Diagonal( const std::vector<T>& d, Matrix<T>& D )
+Diagonal( Matrix<T>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
     PushCallStack("Diagonal");
@@ -34,7 +34,7 @@ Diagonal( const std::vector<T>& d, Matrix<T>& D )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Diagonal( const std::vector<T>& d, DistMatrix<T,U,V>& D )
+Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
     PushCallStack("Diagonal");

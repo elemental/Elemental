@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g );
-        HermitianUniformSpectrum( n, A, R(1), R(20) );
+        HermitianUniformSpectrum( A, n, R(1), R(20) );
 
         if( print )
             A.Print("A");
@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
 
         // Form I - invA*A and print the relevant norms
         DistMatrix<C> E( g );
-        Identity( n, n, E );
+        Identity( E, n, n );
         Hemm( LEFT, uplo, C(-1), invA, A, C(1), E );
 
         const R frobNormA = HermitianFrobeniusNorm( uplo, A );

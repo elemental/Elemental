@@ -32,7 +32,7 @@ void TestCorrectness
     const int m = AOrig.Height();
 
     DistMatrix<F> X(g), Y(g);
-    Uniform( m, 100, X );
+    Uniform( X, m, 100 );
     Y = X;
 
     // Test correctness by comparing the application of AOrig against a 
@@ -75,9 +75,9 @@ void TestLDL
 {
     DistMatrix<F> A(g), AOrig(g);
     if( conjugated )
-        HermitianUniformSpectrum( m, A, -100, 100 );
+        HermitianUniformSpectrum( A, m, -100, 100 );
     else
-        Uniform( m, m, A );
+        Uniform( A, m, m );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

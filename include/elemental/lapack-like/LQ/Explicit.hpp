@@ -26,7 +26,7 @@ ExplicitHelper( Matrix<Real>& A )
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Real> Q;
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
     A = Q;
 }
@@ -41,7 +41,7 @@ ExplicitHelper( DistMatrix<Real>& A )
     const Grid& g = A.Grid();
     DistMatrix<Real> Q( g );
     Q.AlignWith( A );
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
     A = Q;
 }
@@ -55,7 +55,7 @@ ExplicitHelper( Matrix<Complex<Real> >& A )
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Complex<Real> > Q;
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
     A = Q;
@@ -72,7 +72,7 @@ ExplicitHelper( DistMatrix<Complex<Real> >& A )
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<Complex<Real> > Q( g );
     Q.AlignWith( A );
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
     A = Q;
@@ -88,7 +88,7 @@ ExplicitHelper( Matrix<Real>& L, Matrix<Real>& A )
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Real> Q;
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
     A = Q;
 }
@@ -104,7 +104,7 @@ ExplicitHelper( DistMatrix<Real>& L, DistMatrix<Real>& A )
     // TODO: Replace this with an in-place expansion of Q
     const Grid& g = A.Grid();
     DistMatrix<Real> Q( g );
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors( RIGHT, UPPER, HORIZONTAL, BACKWARD, 0, A, Q );
     A = Q;
 }
@@ -120,7 +120,7 @@ ExplicitHelper( Matrix<Complex<Real> >& L, Matrix<Complex<Real> >& A )
 
     // TODO: Replace this with an in-place expansion of Q
     Matrix<Complex<Real> > Q;
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
     A = Q;
@@ -139,7 +139,7 @@ ExplicitHelper
 
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<Complex<Real> > Q( g );
-    Identity( A.Height(), A.Width(), Q );
+    Identity( Q, A.Height(), A.Width() );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
     A = Q;

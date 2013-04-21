@@ -55,7 +55,7 @@ GemvN
         Scale( beta, y );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        Zeros( A.Height(), 1, z_MC_STAR );
+        Zeros( z_MC_STAR, A.Height(), 1 );
         //--------------------------------------------------------------------//
         x_MR_STAR = x;
         Gemv
@@ -77,7 +77,7 @@ GemvN
         Scale( beta, y );
         x_MR_STAR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        Zeros( A.Height(), 1, z_MC_STAR );
+        Zeros( z_MC_STAR, A.Height(), 1 );
         z.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
@@ -104,7 +104,7 @@ GemvN
         Scale( beta, y );
         x_STAR_MR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        Zeros( A.Height(), 1, z_MC_STAR );
+        Zeros( z_MC_STAR, A.Height(), 1 );
         //--------------------------------------------------------------------//
         x_STAR_MR = x;
         Gemv
@@ -126,7 +126,7 @@ GemvN
         Scale( beta, y );
         x_STAR_MR.AlignWith( A );
         z_MC_STAR.AlignWith( A );
-        Zeros( A.Height(), 1, z_MC_STAR );
+        Zeros( z_MC_STAR, A.Height(), 1 );
         z.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
@@ -182,7 +182,7 @@ GemvN
     Scale( beta, y );
     x_MR_STAR.AlignWith( A );
     z_MC_STAR.AlignWith( A );
-    Zeros( A.Height(), 1, z_MC_STAR );
+    Zeros( z_MC_STAR, A.Height(), 1 );
     //--------------------------------------------------------------------//
     x_MR_STAR = x;
     Gemv

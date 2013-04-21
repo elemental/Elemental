@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g ), Q( g ), P( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
 
         // Compute the polar decomp of A (but do not overwrite A)
         Q = A;

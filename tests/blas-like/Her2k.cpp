@@ -22,15 +22,15 @@ void TestHer2k
 
     if( orientation == NORMAL )
     {
-        Uniform( m, k, A );
-        Uniform( m, k, B );
+        Uniform( A, m, k );
+        Uniform( B, m, k );
     }
     else
     {
-        Uniform( k, m, A );
-        Uniform( k, m, B );
+        Uniform( A, k, m );
+        Uniform( B, k, m );
     }
-    HermitianUniformSpectrum( m, C, 1, 10 );
+    HermitianUniformSpectrum( C, m, 1, 10 );
     if( print )
     {
         A.Print("A");

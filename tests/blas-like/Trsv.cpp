@@ -24,8 +24,8 @@ void TestTrsv
     DistMatrix<F> A(g), x(g), y(g);
 
     // Generate random A and x
-    HermitianUniformSpectrum( n, A, 1, 10 );
-    Uniform( n, 1, x );
+    HermitianUniformSpectrum( A, n, 1, 10 );
+    Uniform( x, n, 1 );
     // Either y := op(L) x or y := op(U) x
     y = x;
     Trmm( LEFT, uplo, orientation, diag, F(1), A, y );

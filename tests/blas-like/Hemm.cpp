@@ -21,11 +21,11 @@ void TestHemm
     DistMatrix<T> A(g), B(g), C(g);
 
     if( side == LEFT )
-        HermitianUniformSpectrum( m, A, -10, 10 );
+        HermitianUniformSpectrum( A, m, -10, 10 );
     else
-        HermitianUniformSpectrum( n, A, -10, 10 );
-    Uniform( m, n, B );
-    Uniform( m, n, C );
+        HermitianUniformSpectrum( A, n, -10, 10 );
+    Uniform( B, m, n );
+    Uniform( C, m, n );
     if( print )
     {
         A.Print("A");

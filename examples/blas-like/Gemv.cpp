@@ -37,20 +37,20 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
 
         // Draw the entries of the original x and y from uniform distributions 
         // over the complex unit ball
         DistMatrix<C,VC,STAR> x( g ), y( g );
         if( orientation == NORMAL )
         {
-            Uniform( n, 1, x );
-            Uniform( m, 1, y );
+            Uniform( x, n, 1 );
+            Uniform( y, m, 1 );
         }
         else
         {
-            Uniform( m, 1, x );
-            Uniform( n, 1, y );
+            Uniform( x, m, 1 );
+            Uniform( y, n, 1 );
         }
 
         if( print )

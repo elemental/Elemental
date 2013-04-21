@@ -106,7 +106,7 @@ void RPCA_ADMM
         throw std::logic_error("tol cannot be non-positive");
 
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
-    Zeros( m, n, Y );
+    Zeros( Y, m, n );
 
     const R frobM = FrobeniusNorm( M );
     if( commRank == 0 )
@@ -327,9 +327,9 @@ main( int argc, char* argv[] )
         DistMatrix<C> LTrue;
         {
             DistMatrix<C> U, V;
-            Uniform( m, rank, U );
-            Uniform( n, rank, V );
-            Zeros( m, n, LTrue );
+            Uniform( U, m, rank );
+            Uniform( V, n, rank );
+            Zeros( LTrue, m, n );
             Gemm( NORMAL, ADJOINT, C(1./std::max(m,n)), U, V, C(0), LTrue );
         }
         const double frobLTrue = FrobeniusNorm( LTrue );
@@ -339,7 +339,7 @@ main( int argc, char* argv[] )
             LTrue.Print("True L");
 
         DistMatrix<C> STrue;
-        Zeros( m, n, STrue );
+        Zeros( STrue, m, n );
         const int numCorrupt = Corrupt( STrue, probCorrupt );
         const double frobSTrue = FrobeniusNorm( STrue );
         if( commRank == 0 )
@@ -353,8 +353,8 @@ main( int argc, char* argv[] )
         Axpy( C(1), STrue, M );
 
         DistMatrix<C> L, S;
-        Zeros( m, n, L );
-        Zeros( m, n, S ); 
+        Zeros( L, m, n );
+        Zeros( S, m, n ); 
 
         if( useALM )
             RPCA_ALM( M, L, S, beta, tau, rho, tol, maxIts, print );

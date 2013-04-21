@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
 
         Grid g( comm );
         DistMatrix<C> A( g );
-        Uniform( m, n, A );
+        Uniform( A, m, n );
 
         // Compute the pseudoinverseof A (but do not overwrite A)
         DistMatrix<C> pinvA( A );

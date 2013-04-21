@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         DistMatrix<Complex<double> > A;
-        DiscreteFourier( n, A );
+        DiscreteFourier( A, n );
         if( print )
             A.Print("DFT matrix:");
     }

@@ -21,15 +21,16 @@ main( int argc, char* argv[] )
     try
     {
         const int k = Input("--order","generate 2^k x 2^k matrix",4);
+        const bool binary = Input("--binary","binary data?",true);
         const bool print = Input("--print","print matrix?",true);
         ProcessInput();
         PrintInputReport();
 
-        // Generate a binary Walsh matrix of order k (a 2^k x 2^k matrix)
+        // Generate a Walsh matrix of order k (a 2^k x 2^k matrix)
         DistMatrix<double> W;
-        Walsh( k, W, true );
+        Walsh( W, k, binary );
         if( print )
-            W.Print("binary W(2^k)");
+            W.Print("W(2^k)");
     }
     catch( ArgException& e )
     {

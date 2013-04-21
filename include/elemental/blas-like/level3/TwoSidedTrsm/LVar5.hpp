@@ -70,7 +70,7 @@ TwoSidedTrsmLVar5( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         TwoSidedTrsmLUnb( diag, A11, L11 );
 
         // Y21 := L21 A11
-        Zeros( A21.Height(), A21.Width(), Y21 );
+        Zeros( Y21, A21.Height(), A21.Width() );
         Hemm( RIGHT, LOWER, F(1), A11, L21, F(0), Y21 );
 
         // A21 := A21 inv(L11)'
@@ -185,7 +185,7 @@ TwoSidedTrsmLVar5
 
         // Y21 := L21 A11
         L21_VC_STAR = L21;
-        Zeros( A21.Height(), A21.Width(), Y21_VC_STAR );
+        Zeros( Y21_VC_STAR, A21.Height(), A21.Width() );
         Hemm
         ( RIGHT, LOWER, 
           F(1), A11_STAR_STAR.Matrix(), L21_VC_STAR.Matrix(), 

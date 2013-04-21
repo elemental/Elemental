@@ -32,7 +32,7 @@ void TestCorrectness
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
     DistMatrix<F> Z(g);
-    Identity( n, n, Z );
+    Identity( Z, n, n );
     DistMatrix<F> Q_MC_MR( Q );
     Herk( UPPER, ADJOINT, F(-1), Q_MC_MR, F(1), Z );
     Real oneNormOfError = HermitianOneNorm( UPPER, Z );
@@ -74,7 +74,7 @@ void TestQR
     DistMatrix<F,VC,STAR> A(g), Q(g);
     DistMatrix<F,STAR,STAR> R(g);
 
-    Uniform( m, n, A );
+    Uniform( A, m, n );
     if( print )
         A.Print("A");
     Q = A;
