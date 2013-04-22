@@ -552,10 +552,10 @@ ELEMPY_API void* CpxDistMatBuffer_VR_STAR( CpxDistMat_VR_STAR* A )
 //
 
 ELEMPY_API void ExplicitQR( DistMat* A, DistMat* R )
-{ elem::ExplicitQR( *A, *R ); }
+{ elem::qr::Explicit( *A, *R ); }
 
 ELEMPY_API void CpxExplicitQR( CpxDistMat* A, CpxDistMat* R )
-{ elem::ExplicitQR( *A, *R ); }
+{ elem::qr::Explicit( *A, *R ); }
 
 //
 // Singular Value Decomposition
@@ -607,16 +607,16 @@ ELEMPY_API void HermitianAxBxIndices
 //
 
 ELEMPY_API void UniformMat( Mat* A, int height, int width )
-{ Uniform( height, width, *A ); }
+{ Uniform( *A, height, width ); }
 
 ELEMPY_API void UniformCpxMat( CpxMat* A, int height, int width )
-{ Uniform( height, width, *A ); }
+{ Uniform( *A, height, width ); }
 
 ELEMPY_API void UniformDistMat( DistMat* A, int height, int width )
-{ Uniform( height, width, *A ); }
+{ Uniform( *A, height, width ); }
 
 ELEMPY_API void UniformCpxDistMat( CpxDistMat* A, int height, int width )
-{ Uniform( height, width, *A ); }
+{ Uniform( *A, height, width ); }
 
 //
 // Utilities

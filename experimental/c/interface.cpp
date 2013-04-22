@@ -208,13 +208,13 @@ ElemCpxDistMat ElemCreateCpxDistMat( ElemGrid gridHandle )
 void ElemUniformDistMat( ElemDistMat AHandle, int height, int width )
 {
     DistMatrix<double>& A = GetDistMat( AHandle );
-    Uniform( height, width, A );
+    Uniform( A, height, width );
 }
 
 void ElemUniformCpxDistMat( ElemCpxDistMat AHandle, int height, int width )
 {
     DistMatrix<Complex<double> >& A = GetCpxDistMat( AHandle );
-    Uniform( height, width, A );
+    Uniform( A, height, width );
 }
 
 void ElemFreeDistMat( ElemDistMat A )

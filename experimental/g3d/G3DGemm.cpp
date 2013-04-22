@@ -98,7 +98,7 @@ void CopyOrReset
     else
     {
         B.AlignWith( A );
-        Zeros( A.Height(), A.Width(), B );
+        Zeros( B, A.Height(), A.Width() );
     }
 }
 
@@ -157,7 +157,7 @@ void DistributeCols
         throw std::logic_error("Local height did not match ldim");
     B.Empty();
     B.AlignWith( A );
-    Zeros( A.Height(), A.Width(), B );
+    Zeros( B, A.Height(), A.Width() );
 
     // Scatter
     const int localColOffset = (A.LocalWidth()/depthSize)*depthRank;
