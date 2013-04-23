@@ -3,7 +3,7 @@ import elem
 elem.Initialize()
 
 grid = elem.Grid()
-A = elem.DistMat( grid )
+A = elem.DistMat_VC_STAR( grid )
 A.Resize(8,8)
 localHeight = A.LocalHeight()
 localWidth = A.LocalWidth()

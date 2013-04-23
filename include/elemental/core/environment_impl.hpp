@@ -40,6 +40,18 @@ MemCopy( T* dest, const T* source, std::size_t numEntries )
 
 template<typename T>
 inline void
+MemSwap( T* a, T* b, T* temp, std::size_t numEntries )
+{
+    // temp := a
+    std::memcpy( temp, a, numEntries*sizeof(T) );
+    // a := b
+    std::memcpy( a, b, numEntries*sizeof(T) );
+    // b := temp
+    std::memcpy( b, temp, numEntries*sizeof(T) );
+}
+
+template<typename T>
+inline void
 StridedMemCopy
 (       T* dest,   std::size_t destStride, 
   const T* source, std::size_t sourceStride, std::size_t numEntries )

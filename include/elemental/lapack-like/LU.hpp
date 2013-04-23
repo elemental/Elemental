@@ -160,9 +160,9 @@ LU( Matrix<F>& A, Matrix<int>& p )
 #ifndef RELEASE
     PushCallStack("LU");
     if( p.Viewing() && 
-        (std::min(A.Height(),A.Width()) != p.Height() || p.Width() != 1) ) 
+        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) ) 
         throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A.");
+        ("p must be a vector of the same height as the min dimension of A");
 #endif
     if( !p.Viewing() )
         p.ResizeTo( std::min(A.Height(),A.Width()), 1 );

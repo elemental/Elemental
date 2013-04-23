@@ -42,6 +42,9 @@ void PopBlocksizeStack();
 template<typename T>
 void MemCopy( T* dest, const T* source, std::size_t numEntries );
 
+template<typename T>
+void MemSwap( T* a, T* b, T* temp, std::size_t numEntries );
+
 // Generalization of std::memcpy so that unit strides are not required
 template<typename T>
 void StridedMemCopy

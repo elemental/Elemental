@@ -2,23 +2,29 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
       making Elemental (and my other open source efforts) closer to 
       publications.
 
-[1] Paolo Bientinesi, Brian Gunter, and Robert A. van de Geijn, 
-    "Families of algorithms related to the inversion of a Symmetric Positive
-     Definite matrix", ACM Transactions on Mathematical Software, Vol. 35, 
-    Issue 1, pp. 3:1--3:22, 2008.
+[1] Paolo Bientinesi, Brian Gunter, and Robert A. van de Geijn, "Families of 
+    algorithms related to the inversion of a Symmetric Positive Definite 
+    matrix", ACM Transactions on Mathematical Software, Vol. 35, Issue 1, 
+    pp. 3:1--3:22, 2008.
 
     NOTE: The variant 2 single-sweep algorithm from Fig. 9 was parallelized for
           Elemental's HPD inversion.
 
-[2] Emmanuel J. Candes and Benjamin Recht, 
-    "Exact matrix completion via convex optimization",
-    Foundations of Computational Mathematics, Vol. 9, Issue 6, pp. 717--772, 
-    2009.
+[2] Peter A. Businger and Gene H. Golub, "Linear least squares solutions by 
+    Householder transformations", Numerische Mathematik, Vol. 7, pp. 269--276,
+    1965.
+
+    NOTE: This paper introduced the Businger-Golub algorithm for column-pivoted
+          QR decompositions.
+
+[3] Emmanuel J. Candes and Benjamin Recht, "Exact matrix completion via convex 
+    optimization", Foundations of Computational Mathematics, Vol. 9, Issue 6, 
+    pp. 717--772, 2009.
 
     NOTE: This paper is used for the definition of the coherence of a subspace
           with respect to the standard unit basis vectors.
 
-[3] Tony F. Chan, "An improved algorithm for computing the Singular Value
+[4] Tony F. Chan, "An improved algorithm for computing the Singular Value
     Decomposition", ACM Transactions on Mathematical Software, Vol. 8, Issue 1, 
     pp. 72--83, 1982.
     http://www.stat.uchicago.edu/~lekheng/courses/324/chan.pdf
@@ -27,36 +33,63 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
           step in the SVD of a non-square matrix in order to accelerate the 
           computation.
 
-[4] Gene H. Golub, Virginia Klema, and G. W. Stewart, "Rank degeneracy and least
+[5] Zlatko Drmac and Zvonimir Bujanovic, "On the failure of rank revealing QR
+    factorization software -- a case study", LAPACK Working Note 176, 2006.
+
+    NOTE: Elemental uses the same norm updating strategy as this paper and the
+          corresponding LAPACK implementation of dgeqpf.f
+
+[6] Gene H. Golub, Virginia Klema, and G. W. Stewart, "Rank degeneracy and least
     squares problems", Tech. Report STAN-CS-76-559, Computer Science Department,
     Stanford University, 1976.
     ftp://reports.stanford.edu/pub/cstr/reports/cs/tr/76/559/CS-TR-76-559.pdf
 
     NOTE: Introduced GKS matrix, which the greedy RRQR fails on.
 
-[5] Gene H. Golub and Christian Reinsch, "Singular value decomposition and 
+[7] Gene H. Golub and Christian Reinsch, "Singular value decomposition and 
     least squares solutions", Numerische Mathematik, Vol. 14, No. 5, 
     pp. 403--420, 1970.
 
     NOTE: This paper introduced the standard algorithm for computing the SVD.
 
-[6] Gene H. Golub and Charles F. van Loan, "Matrix Computations", 3rd edition,
+[8] Gene H. Golub and Charles F. van Loan, "Matrix Computations", 3rd edition,
     Johns Hopkins University Press, Baltimore, 1996.
 
     NOTE: Added for definition of Kahan matrix (pg. 260)
 
-[7] Ming Gu and Stanley Eisenstat, "Efficient algorithms for computing a strong
+[9] Ming Gu and Stanley Eisenstat, "Efficient algorithms for computing a strong
     rank-revealing QR factorization", SIAM Journal on Scientific Computing, 
     Vol. 17, Issue 4, pp. 848--869, 1996.
 
     NOTE: Standard reference for (strong) RRQR factorizations, which will 
           hopefully be added to Elemental in the near future.
 
-[8] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
-    Numerical Algorithms, 42:31--61, 2006.
-    http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
+[10] Bruce Hendrickson, Elizabeth Jessup, and Christopher Smith, "Towards an
+     efficient parallel eigensolver for dense symmetric matrices", SIAM Journal
+     on Scientific Computing, Vol. 20, Issue 3, pp. 1132--1154, 1999.
 
-    NOTE: This paper could serve as a foundation for achieving high absolute
-          accuracy in a cross-product based algorithm for computing the SVD.
-          Such an approach should be more scalable than the current 
-          bidiagonalization-based approach.
+     NOTE: One of the origins for the square-grid tridiagonalization algorithm 
+           used in Elemental (which was later refined by Stanley et al.).
+
+[11] Zhongxiao Jia, "Using cross-product matrices to compute the SVD",
+     Numerical Algorithms, 42:31--61, 2006.
+     http://faculty.math.tsinghua.edu.cn/~zjia/jianumalgo.pdf
+
+     NOTE: This could serve as a foundation for achieving high absolute accuracy
+           in a cross-product based algorithm for computing the SVD. Such an
+           approach should be more scalable than the current 
+           bidiagonalization-based approach.
+
+[12] Mark P. Sears, Ken Stanley, and Greg Henry, "Application of a high 
+     performance parallel eigensolver to electronic structure calculation", 
+     In Proceedings of the ACM/IEEE Conference on Supercomputing, IEEE 
+     Computer Society, 1998.
+
+     NOTE: Contains the main algorithm used for Elemental's two-sided triangular
+           solves.
+
+[13] Ken Stanley, "Execution time of symmetric eigensolvers", Ph.D. Thesis,
+     University of California at Berkeley, 1997.
+
+     NOTE: Contains the algorithm used for Elemental's square-grid 
+           tridiagonalization.
