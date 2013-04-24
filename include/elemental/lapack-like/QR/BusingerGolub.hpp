@@ -76,8 +76,8 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
-        Real* maxNorm = std::max_element( &norms[col], norms.end() );
-        const int pivotCol = maxNorm - norms.begin();
+        Real* maxNorm = std::max_element( &norms[col], &norms[n] );
+        const int pivotCol = maxNorm - &norms[0];
         if( col != pivotCol )
         {
             MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
@@ -207,8 +207,8 @@ BusingerGolub
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
-        Real* maxNorm = std::max_element( &norms[col], norms.end() );
-        const int pivotCol = maxNorm - norms.begin();
+        Real* maxNorm = std::max_element( &norms[col], &norms[n] );
+        const int pivotCol = maxNorm - &norms[0];
         if( col != pivotCol )
         {
             MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
