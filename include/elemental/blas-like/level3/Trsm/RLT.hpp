@@ -28,7 +28,7 @@ TrsmRLT
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmRLT");
+    CallStackEntry entry("internal::TrsmRLT");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmRLT expects a (Conjugate)Transpose option");
 #endif
@@ -109,9 +109,6 @@ TrsmRLT
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

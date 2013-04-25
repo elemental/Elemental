@@ -223,7 +223,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -233,9 +233,6 @@ void HermitianEig
     lapack::HermitianEig
     ( 'N', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), 0, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -245,7 +242,7 @@ void HermitianEig
   DistMatrix<double,VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     if( A.Height() != A.Width() )
@@ -309,9 +306,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -320,7 +314,7 @@ void HermitianEig
   DistMatrix<        double, VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -386,9 +380,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -401,7 +392,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -412,9 +403,6 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -425,7 +413,7 @@ void HermitianEig
   DistMatrix<double>& paddedZ )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
 
@@ -571,9 +559,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -583,7 +568,7 @@ void HermitianEig
   DistMatrix<Complex<double> >& paddedZ )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -732,9 +717,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -750,7 +732,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, int il, int iu )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -763,9 +745,6 @@ void HermitianEig
     lapack::HermitianEig
     ( 'N', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), 0, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -776,7 +755,7 @@ void HermitianEig
   int lowerBound, int upperBound ) 
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     if( A.Height() != A.Width() )
@@ -840,9 +819,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -852,7 +828,7 @@ void HermitianEig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -918,9 +894,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -938,7 +911,7 @@ void HermitianEig
   int il, int iu )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -952,9 +925,6 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -966,7 +936,7 @@ void HermitianEig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     if( A.Height() != A.Width() )
@@ -1112,9 +1082,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -1125,7 +1092,7 @@ void HermitianEig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -1275,9 +1242,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -1290,7 +1254,7 @@ void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, BASE(F) vl, BASE(F) vu )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -1301,9 +1265,6 @@ void HermitianEig
     ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
       w.Buffer(), 0, 1 );
     w.ResizeTo( numEigs, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -1314,7 +1275,7 @@ void HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     if( A.Height() != A.Width() )
@@ -1375,9 +1336,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -1387,7 +1345,7 @@ void HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -1450,9 +1408,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -1466,7 +1421,7 @@ void HermitianEig
   BASE(F) vl, BASE(F) vu )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
     const int n = A.Height();
@@ -1479,9 +1434,6 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -1493,7 +1445,7 @@ void HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     if( A.Height() != A.Width() )
@@ -1652,9 +1604,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HermitianEig
@@ -1665,7 +1614,7 @@ void HermitianEig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEig");
+    CallStackEntry entry("HermitianEig");
 #endif
     typedef double R;
     typedef Complex<double> C;
@@ -1828,9 +1777,6 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

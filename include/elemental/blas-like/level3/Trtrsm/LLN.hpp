@@ -23,7 +23,7 @@ inline void
 TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrtrsmLLNUnb");
+    CallStackEntry entry("internal::TrtrsmLLNUnb");
 #endif
     const bool isUnit = ( diag==UNIT );
     const int n = L.Height();
@@ -54,9 +54,6 @@ TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
         F* X2L = &XBuffer[i+1];
         blas::Geru( l21Height, i+1, F(-1), l21, 1, x1L, XLDim, X2L, XLDim );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -66,7 +63,7 @@ TrtrsmLLN
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrtrsmLLN");
+    CallStackEntry entry("internal::TrtrsmLLN");
 #endif
     // Matrix views
     Matrix<F> 
@@ -123,9 +120,6 @@ TrtrsmLLN
          /*************/ /******************/
           XBL, /**/ XBR,  X20, X21, /**/ X22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -135,7 +129,7 @@ TrtrsmLLN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrtrsmLLN");
+    CallStackEntry entry("internal::TrtrsmLLN");
 #endif
     const Grid& g = L.Grid();
 
@@ -222,9 +216,6 @@ TrtrsmLLN
          /*************/ /******************/
           XBL, /**/ XBR,  X20, X21, /**/ X22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

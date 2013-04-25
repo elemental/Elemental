@@ -44,7 +44,7 @@ Estimate EigEstimate
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::EigEstimate");
+    CallStackEntry entry("pmrrr::EigEstimate");
 #endif
     char jobz='C';
     char range='V';
@@ -66,9 +66,6 @@ Estimate EigEstimate
     Estimate estimate;
     estimate.numLocalEigenvalues = nz;
     mpi::AllReduce( &nz, &estimate.numGlobalEigenvalues, 1, mpi::SUM, comm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return estimate;
 }
 
@@ -76,7 +73,7 @@ Estimate EigEstimate
 Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     char jobz='N';
     char range='A';
@@ -100,10 +97,6 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 
@@ -112,7 +105,7 @@ Info Eig
 ( int n, double* d, double* e, double* w, double* Z, int ldz, mpi::Comm comm )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     char jobz='V';
     char range='A';
@@ -135,10 +128,6 @@ Info Eig
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 
@@ -148,7 +137,7 @@ Info Eig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     char jobz='N';
     char range='V';
@@ -171,10 +160,6 @@ Info Eig
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 
@@ -184,7 +169,7 @@ Info Eig
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     char jobz='V';
     char range='V';
@@ -206,10 +191,6 @@ Info Eig
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 
@@ -219,7 +200,7 @@ Info Eig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     ++lowerBound;
     ++upperBound;
@@ -244,10 +225,6 @@ Info Eig
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 
@@ -258,7 +235,7 @@ Info Eig
   int lowerBound, int upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("pmrrr::Eig");
+    CallStackEntry entry("pmrrr::Eig");
 #endif
     ++lowerBound;
     ++upperBound;
@@ -282,10 +259,6 @@ Info Eig
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return info;
 }
 

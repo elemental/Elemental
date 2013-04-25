@@ -844,7 +844,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -895,9 +895,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C D^{T/H}) + beta C
@@ -911,7 +908,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -965,9 +962,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C^{T/H} D) + beta E
@@ -981,7 +975,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1031,9 +1025,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C^{T/H} D^{T/H}) + beta E
@@ -1047,7 +1038,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1100,9 +1091,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C D) + beta C
@@ -1116,7 +1104,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1170,9 +1158,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C D^{T/H}) + beta C
@@ -1187,7 +1172,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1242,9 +1227,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D) + beta E
@@ -1258,7 +1240,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1311,9 +1293,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta C
@@ -1329,7 +1308,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1385,9 +1364,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C D) + beta E
@@ -1401,7 +1377,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1451,9 +1427,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C D^{T/H}) + beta E
@@ -1467,7 +1440,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1520,9 +1493,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D) + beta E
@@ -1537,7 +1507,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1584,9 +1554,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
@@ -1602,7 +1569,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1652,9 +1619,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D) + beta E
@@ -1668,7 +1632,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1721,9 +1685,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, NORMAL, alpha, CB, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta C
@@ -1739,7 +1700,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR  >& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1795,9 +1756,6 @@ LocalTrr2kKernel
     LocalGemm( NORMAL, orientationOfD, alpha, CB, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D) + beta E
@@ -1813,7 +1771,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1863,9 +1821,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, NORMAL, alpha, CR, DR, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta C
@@ -1880,7 +1835,7 @@ LocalTrr2kKernel
   T beta,        DistMatrix<T,MC,  MR>& E )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrr2kKernel");
+    CallStackEntry entry("LocalTrr2kKernel");
     CheckInput
     ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
       A, B, C, D, E );
@@ -1933,9 +1888,6 @@ LocalTrr2kKernel
     LocalGemm( orientationOfC, orientationOfD, alpha, CR, DB, T(1), FBR );
     AxpyTriangle( uplo, T(1), FBR, EBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace trr2k
@@ -1950,7 +1902,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -1998,9 +1950,6 @@ void LocalTrr2k
         LocalTrr2k( uplo, alpha, AT, BL, CT, DL, beta, ETL );
         LocalTrr2k( uplo, alpha, AB, BR, CB, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C D^{T/H}) + beta E
@@ -2014,7 +1963,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2065,9 +2014,6 @@ void LocalTrr2k
         LocalTrr2k( uplo, orientationOfD, alpha, AT, BL, CT, DT, beta, ETL );
         LocalTrr2k( uplo, orientationOfD, alpha, AB, BR, CB, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C^{T/H} D) + beta E
@@ -2081,7 +2027,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2128,9 +2074,6 @@ void LocalTrr2k
         LocalTrr2k( uplo, orientationOfC, alpha, AT, BL, CL, DL, beta, ETL );
         LocalTrr2k( uplo, orientationOfC, alpha, AB, BR, CR, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B + C^{T/H} D^{T/H}) + beta E
@@ -2145,7 +2088,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2202,9 +2145,6 @@ void LocalTrr2k
         ( uplo, orientationOfC, orientationOfD,
           alpha, AB, BR, CR, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C D) + beta E
@@ -2218,7 +2158,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2269,9 +2209,6 @@ void LocalTrr2k
         LocalTrr2k( uplo, orientationOfB, alpha, AT, BT, CT, DL, beta, ETL );
         LocalTrr2k( uplo, orientationOfB, alpha, AB, BB, CB, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C D^{T/H}) + beta E
@@ -2286,7 +2223,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2343,9 +2280,6 @@ void LocalTrr2k
         ( uplo, orientationOfB, orientationOfD,
           alpha, AB, BB, CB, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D) + beta E
@@ -2360,7 +2294,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2415,9 +2349,6 @@ void LocalTrr2k
         ( uplo, orientationOfB, orientationOfC,
           alpha, AB, BB, CR, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A B^{T/H} + C^{T/H} D^{T/H}) + beta E
@@ -2433,7 +2364,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfB, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2492,9 +2423,6 @@ void LocalTrr2k
         ( uplo, orientationOfB, orientationOfC, orientationOfD,
           alpha, AB, BB, CR, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C D) + beta E
@@ -2508,7 +2436,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2555,9 +2483,6 @@ void LocalTrr2k
         LocalTrr2k( uplo, orientationOfA, alpha, AL, BL, CT, DL, beta, ETL );
         LocalTrr2k( uplo, orientationOfA, alpha, AR, BR, CB, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C D^{T/H}) + beta E
@@ -2572,7 +2497,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2627,9 +2552,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfD,
           alpha, AR, BR, CB, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D) + beta E
@@ -2644,7 +2566,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2693,9 +2615,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfC, 
           alpha, AR, BR, CR, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B + C^{T/H} D^{T/H}) + beta E
@@ -2711,7 +2630,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfC, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2766,9 +2685,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfC, orientationOfD,
           alpha, AR, BR, CR, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D) + beta E
@@ -2783,7 +2699,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2840,9 +2756,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfB,
           alpha, AR, BB, CB, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C D^{T/H}) + beta E
@@ -2858,7 +2771,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfD, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2917,9 +2830,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfD,
           alpha, AR, BB, CB, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D) + beta E
@@ -2935,7 +2845,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput( orientationOfA, orientationOfB, orientationOfC, A, B, C, D, E );
 #endif
     const Grid& g = E.Grid();
@@ -2990,9 +2900,6 @@ void LocalTrr2k
         ( uplo, orientationOfA, orientationOfB, orientationOfC,
           alpha, AR, BB, CR, DR, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // E := alpha (A^{T/H} B^{T/H} + C^{T/H} D^{T/H}) + beta E
@@ -3009,7 +2916,7 @@ void LocalTrr2k
 {
     using namespace trr2k;
 #ifndef RELEASE
-    PushCallStack("LocalTrr2k");
+    CallStackEntry entry("LocalTrr2k");
     CheckInput
     ( orientationOfA, orientationOfB, orientationOfC, orientationOfD, 
       A, B, C, D, E );
@@ -3072,9 +2979,6 @@ void LocalTrr2k
           orientationOfA, orientationOfB, orientationOfC, orientationOfD,
           alpha, AR, BB, CR, DB, beta, EBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

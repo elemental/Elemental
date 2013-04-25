@@ -21,7 +21,7 @@ void Trr2kNNNN
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Trr2kNNNN");
+    CallStackEntry entry("internal::Trr2kNNNN");
     if( E.Height() != E.Width()  || A.Width()  != C.Width()  ||
         A.Height() != E.Height() || C.Height() != E.Height() ||
         B.Width()  != E.Width()  || D.Width()  != E.Width()  ||
@@ -108,9 +108,6 @@ void Trr2kNNNN
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

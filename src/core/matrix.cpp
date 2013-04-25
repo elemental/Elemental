@@ -27,15 +27,12 @@ Matrix<T,Int>::Matrix( Int height, Int width )
   height_(height), width_(width), ldim_(std::max(height,1)), lockedData_(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    CallStackEntry entry("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
     memory_.Require( ldim_*width );
     data_ = memory_.Buffer();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -45,7 +42,7 @@ Matrix<T,Int>::Matrix
   height_(height), width_(width), ldim_(ldim), lockedData_(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    CallStackEntry entry("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
@@ -61,9 +58,6 @@ Matrix<T,Int>::Matrix
 #endif
     memory_.Require( ldim*width );
     data_ = memory_.Buffer();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -73,7 +67,7 @@ Matrix<T,Int>::Matrix
   height_(height), width_(width), ldim_(ldim), data_(0), lockedData_(buffer)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    CallStackEntry entry("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
@@ -86,7 +80,6 @@ Matrix<T,Int>::Matrix
     if( ldim == 0 )
         throw std::logic_error
         ("Leading dimensions cannot be zero (for BLAS compatibility)");
-    PopCallStack();
 #endif
 }
 
@@ -97,7 +90,7 @@ Matrix<T,Int>::Matrix
   height_(height), width_(width), ldim_(ldim), data_(buffer), lockedData_(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix");
+    CallStackEntry entry("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
     if( ldim < height )
@@ -110,7 +103,6 @@ Matrix<T,Int>::Matrix
     if( ldim == 0 )
         throw std::logic_error
         ("Leading dimensions cannot be zero (for BLAS compatibility)");
-    PopCallStack();
 #endif
 }
 
@@ -121,16 +113,13 @@ Matrix<T,Int>::Matrix
   height_(0), width_(0), ldim_(1), data_(0), lockedData_(0)
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Matrix( const Matrix& )");
+    CallStackEntry entry("Matrix::Matrix( const Matrix& )");
 #endif
     if( &A != this )
         *this = A;
     else
         throw std::logic_error
         ("You just tried to construct a Matrix with itself!");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -175,11 +164,10 @@ T*
 Matrix<T,Int>::Buffer()
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
+    CallStackEntry entry("Matrix::Buffer");
     if( locked_ )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
-    PopCallStack();
 #endif
     return data_;
 }
@@ -199,13 +187,12 @@ T*
 Matrix<T,Int>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Buffer");
+    CallStackEntry entry("Matrix::Buffer");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
     if( locked_ )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
-    PopCallStack();
 #endif
     return &data_[i+j*ldim_];
 }
@@ -215,10 +202,9 @@ const T*
 Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::LockedBuffer");
+    CallStackEntry entry("Matrix::LockedBuffer");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    PopCallStack();
 #endif
     if( locked_ )
         return &lockedData_[i+j*ldim_];
@@ -235,7 +221,7 @@ void
 Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Print");
+    CallStackEntry entry("Matrix::Print");
 #endif
     if( msg != "" )
         os << msg << std::endl;
@@ -250,9 +236,6 @@ Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
         os << std::endl;
     }
     os << std::endl;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -269,9 +252,8 @@ T
 Matrix<T,Int>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Get");
+    CallStackEntry entry("Matrix::Get");
     AssertValidEntry( i, j );
-    PopCallStack();
 #endif
     if( lockedData_ )
         return lockedData_[i+j*ldim_];
@@ -284,15 +266,12 @@ void
 Matrix<T,Int>::Set( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Set");
+    CallStackEntry entry("Matrix::Set");
     AssertValidEntry( i, j );
     if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     data_[i+j*ldim_] = alpha;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -300,15 +279,12 @@ void
 Matrix<T,Int>::Update( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Update");
+    CallStackEntry entry("Matrix::Update");
     AssertValidEntry( i, j );
     if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     data_[i+j*ldim_] += alpha;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -316,7 +292,7 @@ void
 Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::GetDiagonal");
+    CallStackEntry entry("Matrix::GetDiagonal");
     if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
@@ -332,9 +308,6 @@ Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
     else
         for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, Get(j-offset,j) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -342,7 +315,7 @@ void
 Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::SetDiagonal");
+    CallStackEntry entry("Matrix::SetDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -353,9 +326,6 @@ Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             Set( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -363,7 +333,7 @@ void
 Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateDiagonal");
+    CallStackEntry entry("Matrix::UpdateDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -374,9 +344,6 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             Update( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -384,9 +351,8 @@ BASE(T)
 Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::GetRealPart");
+    CallStackEntry entry("Matrix::GetRealPart");
     AssertValidEntry( i, j );
-    PopCallStack();
 #endif
     if( lockedData_ )
         return RealPart(lockedData_[i+j*ldim_]);
@@ -399,9 +365,8 @@ BASE(T)
 Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::GetImagPart");
+    CallStackEntry entry("Matrix::GetImagPart");
     AssertValidEntry( i, j );
-    PopCallStack();
 #endif
     if( lockedData_ )
         return ImagPart(lockedData_[i+j*ldim_]);
@@ -421,11 +386,10 @@ Matrix<T,Int>::SetRealPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealPartHelper::Func");
+    CallStackEntry entry("Matrix::SetRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     parent.data_[i+j*parent.ldim_] = alpha;
 }
@@ -437,11 +401,10 @@ Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealPartHelper::Func");
+    CallStackEntry entry("Matrix::SetRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     const Z beta = parent.data_[i+j*parent.ldim_].imag;
     parent.data_[i+j*parent.ldim_] = Complex<Z>( alpha, beta );
@@ -459,7 +422,7 @@ Matrix<T,Int>::SetImagPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagPartHelper::Func");
+    CallStackEntry entry("Matrix::SetImagPartHelper::Func");
 #endif
     throw std::logic_error("Called complex-only routine with real datatype");
 }
@@ -471,11 +434,10 @@ Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagPartHelper::Func");
+    CallStackEntry entry("Matrix::SetImagPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     const Z beta = parent.data_[i+j*parent.ldim_].real;
     parent.data_[i+j*parent.ldim_] = Complex<Z>( beta, alpha );
@@ -493,11 +455,10 @@ Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealPartHelper::Func");
+    CallStackEntry entry("Matrix::UpdateRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     parent.data_[i+j*parent.ldim_] += alpha;
 }
@@ -509,11 +470,10 @@ Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealPartHelper::Func");
+    CallStackEntry entry("Matrix::UpdateRealPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
     parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real+alpha, beta.imag );
@@ -531,7 +491,7 @@ Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
 ( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagPartHelper::Func");
+    CallStackEntry entry("Matrix::UpdateImagPartHelper::Func");
 #endif
     throw std::logic_error("Called complex-only routine with real datatype");
 }
@@ -543,11 +503,10 @@ Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
 ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagPartHelper::Func");
+    CallStackEntry entry("Matrix::UpdateImagPartHelper::Func");
     parent.AssertValidEntry( i, j );
     if( parent.lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
-    PopCallStack();
 #endif
     const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
     parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real, beta.imag+alpha );
@@ -558,7 +517,7 @@ void
 Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::GetRealPartOfDiagonal");
+    CallStackEntry entry("Matrix::GetRealPartOfDiagonal");
     if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
@@ -574,9 +533,6 @@ Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
     else
         for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetRealPart(j-offset,j) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -584,7 +540,7 @@ void
 Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::GetImagPartOfDiagonal");
+    CallStackEntry entry("Matrix::GetImagPartOfDiagonal");
     if( d.Locked() )
         throw std::logic_error("d must not be a locked view");
     if( d.Viewing() && 
@@ -600,9 +556,6 @@ Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
     else
         for( Int j=0; j<diagLength; ++j )
             d.Set( j, 0, GetImagPart(j-offset,j) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -610,7 +563,7 @@ void
 Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::SetRealPartOfDiagonal");
+    CallStackEntry entry("Matrix::SetRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -621,9 +574,6 @@ Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             SetRealPart( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -631,7 +581,7 @@ void
 Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::SetImagPartOfDiagonal");
+    CallStackEntry entry("Matrix::SetImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -645,9 +595,6 @@ Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             SetImagPart( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -655,7 +602,7 @@ void
 Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateRealPartOfDiagonal");
+    CallStackEntry entry("Matrix::UpdateRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -666,9 +613,6 @@ Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             UpdateRealPart( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -676,7 +620,7 @@ void
 Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    PushCallStack("Matrix::UpdateImagPartOfDiagonal");
+    CallStackEntry entry("Matrix::UpdateImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
@@ -690,9 +634,6 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     else
         for( Int j=0; j<diagLength; ++j )
             UpdateImagPart( j-offset, j, d.Get(j,0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -701,7 +642,7 @@ Matrix<T,Int>::Attach
 ( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::Attach");
+    CallStackEntry entry("Matrix::Attach");
 #endif
     Empty();
 
@@ -711,9 +652,6 @@ Matrix<T,Int>::Attach
     data_ = buffer;
     viewing_ = true;
     locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -722,7 +660,7 @@ Matrix<T,Int>::LockedAttach
 ( Int height, Int width, const T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::LockedAttach");
+    CallStackEntry entry("Matrix::LockedAttach");
 #endif
     Empty();
 
@@ -732,9 +670,6 @@ Matrix<T,Int>::LockedAttach
     lockedData_ = buffer;
     viewing_ = true;
     locked_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -760,7 +695,7 @@ const Matrix<T,Int>&
 Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::operator=");
+    CallStackEntry entry("Matrix::operator=");
     if( locked_ )
         throw std::logic_error("Cannot assign to a locked view");
     if( viewing_ && ( A.Height() != Height() || A.Width() != Width() ) )
@@ -780,9 +715,6 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 #endif
     for( Int j=0; j<width; ++j )
         MemCopy( &data_[j*ldim], &data[j*ldimOfA], height );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return *this;
 }
 
@@ -805,7 +737,7 @@ void
 Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::ResizeTo(height,width)");
+    CallStackEntry entry("Matrix::ResizeTo(height,width)");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
     if( viewing_ && (height>height_ || width>width_) )
@@ -822,9 +754,6 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
 
     memory_.Require(ldim_*width);
     data_ = memory_.Buffer();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -832,7 +761,7 @@ void
 Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::ResizeTo(height,width,ldim)");
+    CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
     if( viewing_ && (height > height_ || width > width_ || ldim != ldim_) )
@@ -850,9 +779,6 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 
     memory_.Require(ldim*width);
     data_ = memory_.Buffer();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -860,7 +786,7 @@ void
 Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
 {
 #ifndef RELEASE
-    PushCallStack("Matrix::AssertValidEntry");
+    CallStackEntry entry("Matrix::AssertValidEntry");
 #endif
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
@@ -872,9 +798,6 @@ Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
             << " x " << this->Width() << " Matrix.";
         throw std::logic_error( msg.str() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template class Matrix<int,int>;

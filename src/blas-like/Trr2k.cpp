@@ -40,7 +40,7 @@ void Trr2k
   T beta,        Matrix<T>& E )
 {
 #ifndef RELEASE
-    PushCallStack("Trr2k");
+    CallStackEntry entry("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;
@@ -120,9 +120,6 @@ void Trr2k
     default:
         throw std::logic_error("Impossible subcase");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 */
 
@@ -136,7 +133,7 @@ void Trr2k
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    PushCallStack("Trr2k");
+    CallStackEntry entry("Trr2k");
 #endif
     const bool normalA = orientationOfA == NORMAL;
     const bool normalB = orientationOfB == NORMAL;
@@ -216,9 +213,6 @@ void Trr2k
     default:
         throw std::logic_error("Impossible subcase");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifndef DISABLE_FLOAT

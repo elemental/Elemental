@@ -17,7 +17,7 @@ inline void
 MakeReal( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeReal");
+    CallStackEntry entry("MakeReal");
 #endif
     T* ABuffer = A.Buffer();
     const int height = A.Height();
@@ -26,9 +26,6 @@ MakeReal( Matrix<T>& A )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             ABuffer[i+j*ldim] = RealPart(ABuffer[i+j*ldim]);
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -36,12 +33,9 @@ inline void
 MakeReal( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeReal");
+    CallStackEntry entry("MakeReal");
 #endif
     MakeReal( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

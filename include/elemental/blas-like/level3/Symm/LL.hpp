@@ -32,7 +32,7 @@ LocalSymmetricAccumulateLL
         DistMatrix<T,MR,  STAR>& Z_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalSymmetricAccumulateLL");
+    CallStackEntry entry("internal::LocalSymmetricAccumulateLL");
     if( A.Grid() != B_MC_STAR.Grid() ||
         B_MC_STAR.Grid() != BTrans_STAR_MR.Grid() ||
         BTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() ||
@@ -192,9 +192,6 @@ LocalSymmetricAccumulateLL
           ZB_MR_STAR,  Z2_MR_STAR );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -205,7 +202,7 @@ SymmLLA
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmLLA");
+    CallStackEntry entry("internal::SymmLLA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -276,9 +273,6 @@ SymmLLA
         ( CL,     /**/ CR,
           C0, C1, /**/ C2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -289,7 +283,7 @@ SymmLLC
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmLLC");
+    CallStackEntry entry("internal::SymmLLC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -400,9 +394,6 @@ SymmLLC
          /**/ /**/
           CB,  C2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -413,16 +404,13 @@ SymmLL
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SymmLL");
+    CallStackEntry entry("internal::SymmLL");
 #endif
     // TODO: Come up with a better routing mechanism
     if( A.Height() > 5*B.Width() )
         SymmLLA( alpha, A, B, beta, C, conjugate );
     else
         SymmLLC( alpha, A, B, beta, C, conjugate );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

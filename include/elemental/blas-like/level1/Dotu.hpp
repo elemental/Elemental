@@ -19,7 +19,7 @@ inline F
 Dotu( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Dotu");
+    CallStackEntry entry("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Matrices must be the same size");
@@ -29,9 +29,6 @@ Dotu( const Matrix<F>& A, const Matrix<F>& B )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             sum += A.Get(i,j)*B.Get(i,j);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return sum;
 }
 
@@ -40,7 +37,7 @@ inline F
 Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Dotu");
+    CallStackEntry entry("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Matrices must be the same size");
@@ -61,9 +58,6 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
     F sum;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, comm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return sum;
 }
 

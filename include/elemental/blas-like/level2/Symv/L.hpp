@@ -29,7 +29,7 @@ LocalSymvColAccumulateL
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalSymvColAccumulateL");
+    CallStackEntry entry("internal::LocalSymvColAccumulateL");
     if( A.Grid() != x_MC_STAR.Grid() ||
         x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
         x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
@@ -127,9 +127,6 @@ LocalSymvColAccumulateL
           xB_MC_STAR,  x2_MC_STAR );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -144,7 +141,7 @@ LocalSymvRowAccumulateL
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalSymvRowAccumulateL");
+    CallStackEntry entry("internal::LocalSymvRowAccumulateL");
     if( A.Grid() != x_STAR_MC.Grid() ||
         x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
         x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
@@ -235,9 +232,6 @@ LocalSymvRowAccumulateL
           x0_STAR_MC, x1_STAR_MC, /**/ x2_STAR_MC );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

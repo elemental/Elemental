@@ -30,7 +30,7 @@ TrsmLUTLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUTLarge");
+    CallStackEntry entry("internal::TrsmLUTLarge");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
@@ -109,9 +109,6 @@ TrsmLUTLarge
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // width(X) ~= p
@@ -123,7 +120,7 @@ TrsmLUTMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUTMedium");
+    CallStackEntry entry("internal::TrsmLUTMedium");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
@@ -211,9 +208,6 @@ TrsmLUTMedium
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // width(X) << p
@@ -225,7 +219,7 @@ TrsmLUTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUTSmall");
+    CallStackEntry entry("internal::TrsmLUTSmall");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -307,9 +301,6 @@ TrsmLUTSmall
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

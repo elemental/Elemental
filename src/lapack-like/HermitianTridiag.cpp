@@ -23,7 +23,7 @@ template<typename R>
 void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    CallStackEntry entry("HermitianTridiag");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -31,9 +31,6 @@ void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
         hermitian_tridiag::L( A );
     else
         hermitian_tridiag::U( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -41,15 +38,12 @@ void HermitianTridiag
 ( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    CallStackEntry entry("HermitianTridiag");
 #endif
     if( uplo == LOWER )
         hermitian_tridiag::L( A, t );
     else
         hermitian_tridiag::U( A, t );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -57,7 +51,7 @@ void
 HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    CallStackEntry entry("HermitianTridiag");
 #endif
     if( IsComplex<R>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -130,9 +124,6 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
                 hermitian_tridiag::U( A );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -143,7 +134,7 @@ HermitianTridiag
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTridiag");
+    CallStackEntry entry("HermitianTridiag");
 #endif
     typedef Complex<R> C;
 
@@ -218,9 +209,6 @@ HermitianTridiag
                 hermitian_tridiag::U( A, t );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifndef DISABLE_FLOAT

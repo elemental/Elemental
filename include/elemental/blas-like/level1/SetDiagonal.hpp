@@ -17,7 +17,7 @@ inline void
 SetDiagonal( Matrix<T>& A, T alpha )
 {
 #ifndef RELEASE
-    PushCallStack("SetDiagonal");
+    CallStackEntry entry("SetDiagonal");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -26,9 +26,6 @@ SetDiagonal( Matrix<T>& A, T alpha )
 #endif
     for( int j=0; j<std::min(height,width); ++j )
         A.Set(j,j,alpha);
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -36,7 +33,7 @@ inline void
 SetDiagonal( LeftOrRight side, int offset, Matrix<T>& A, T alpha )
 {
 #ifndef RELEASE
-    PushCallStack("SetDiagonal");
+    CallStackEntry entry("SetDiagonal");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -58,9 +55,6 @@ SetDiagonal( LeftOrRight side, int offset, Matrix<T>& A, T alpha )
                 A.Set(i,j,alpha);
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -68,7 +62,7 @@ inline void
 SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
 {
 #ifndef RELEASE
-    PushCallStack("SetDiagonal");
+    CallStackEntry entry("SetDiagonal");
 #endif
     const int height = A.Height();
     const int rowShift = A.RowShift();
@@ -85,9 +79,6 @@ SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
             A.SetLocal( iLocal, jLocal, alpha );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -95,7 +86,7 @@ inline void
 SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )
 {
 #ifndef RELEASE
-    PushCallStack("SetDiagonal");
+    CallStackEntry entry("SetDiagonal");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -130,9 +121,6 @@ SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

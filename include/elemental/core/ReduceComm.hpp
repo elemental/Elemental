@@ -17,7 +17,7 @@ inline mpi::Comm
 ReduceComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("ReduceComm");
+    CallStackEntry entry("ReduceComm");
 #endif
     mpi::Comm comm;
     if( U == MC && V == MR )
@@ -48,9 +48,6 @@ ReduceComm( const Grid& grid )
         comm = grid.VRComm();
     else
         throw std::logic_error("Invalid distribution");
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return comm;
 }
 
@@ -59,7 +56,7 @@ inline mpi::Comm
 ReduceColComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("ReduceColComm");
+    CallStackEntry entry("ReduceColComm");
 #endif
     mpi::Comm comm;
     switch( U )
@@ -71,9 +68,6 @@ ReduceColComm( const Grid& grid )
     case VR: comm = grid.VRComm(); break;
     case STAR: comm = mpi::COMM_SELF; break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return comm;
 }
 
@@ -82,7 +76,7 @@ inline mpi::Comm
 ReduceRowComm( const Grid& grid )
 {
 #ifndef RELEASE
-    PushCallStack("ReduceRowComm");
+    CallStackEntry entry("ReduceRowComm");
 #endif
     mpi::Comm comm;
     switch( V )
@@ -94,9 +88,6 @@ ReduceRowComm( const Grid& grid )
     case VR: comm = grid.VRComm(); break;
     case STAR: comm = mpi::COMM_SELF; break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return comm;
 }
 

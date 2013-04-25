@@ -27,7 +27,7 @@ inline void
 TwoSidedTrmmLVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrmmLVar2");
+    CallStackEntry entry("internal::TwoSidedTrmmLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -107,9 +107,6 @@ TwoSidedTrmmLVar2( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
          /*************/ /******************/
           LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -118,7 +115,7 @@ TwoSidedTrmmLVar2
 ( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrmmLVar2");
+    CallStackEntry entry("internal::TwoSidedTrmmLVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error( "A must be square." );
     if( L.Height() != L.Width() )
@@ -258,9 +255,6 @@ TwoSidedTrmmLVar2
          /*************/ /******************/
           LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

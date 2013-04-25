@@ -27,7 +27,7 @@ PartitionUp
         M& AB, Int heightAB )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUp [Matrix]");
+    CallStackEntry entry("PartitionUp [Matrix]");
     if( heightAB < 0 )
         throw std::logic_error
         ("Height of bottom partition must be non-negative");
@@ -36,9 +36,6 @@ PartitionUp
     const Int heightAT = A.Height()-heightAB;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -48,7 +45,7 @@ PartitionUp
          DM& AB, Int heightAB )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUp [DistMatrix]");
+    CallStackEntry entry("PartitionUp [DistMatrix]");
     if( heightAB < 0 )
         throw std::logic_error
         ("Height of bottom partition must be non-negative");
@@ -57,9 +54,6 @@ PartitionUp
     const Int heightAT = A.Height()-heightAB;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -69,7 +63,7 @@ LockedPartitionUp
               M& AB, Int heightAB )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUp [Matrix]");
+    CallStackEntry entry("LockedPartitionUp [Matrix]");
     if( heightAB < 0 )
         throw std::logic_error
         ("Height of bottom partition must be non-negative");
@@ -78,9 +72,6 @@ LockedPartitionUp
     const Int heightAT = A.Height()-heightAB;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -90,7 +81,7 @@ LockedPartitionUp
                DM& AB, Int heightAB )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUp [DistMatrix]");
+    CallStackEntry entry("LockedPartitionUp [DistMatrix]");
     if( heightAB < 0 )
         throw std::logic_error
         ("Height of bottom partition must be non-negative");
@@ -99,9 +90,6 @@ LockedPartitionUp
     const Int heightAT = A.Height()-heightAB;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -115,7 +103,7 @@ PartitionDown
         M& AB, Int heightAT ) 
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDown [Matrix]");
+    CallStackEntry entry("PartitionDown [Matrix]");
     if( heightAT < 0 )
         throw std::logic_error("Height of top partition must be non-negative");
 #endif
@@ -123,9 +111,6 @@ PartitionDown
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -135,7 +120,7 @@ PartitionDown
          DM& AB, Int heightAT )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDown [DistMatrix]");
+    CallStackEntry entry("PartitionDown [DistMatrix]");
     if( heightAT < 0 )
         throw std::logic_error("Height of top partition must be non-negative");
 #endif
@@ -143,9 +128,6 @@ PartitionDown
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -155,7 +137,7 @@ LockedPartitionDown
               M& AB, Int heightAT ) 
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDown [Matrix]");
+    CallStackEntry entry("LockedPartitionDown [Matrix]");
     if( heightAT < 0 )
         throw std::logic_error("Height of top partition must be non-negative");
 #endif
@@ -163,9 +145,6 @@ LockedPartitionDown
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -175,7 +154,7 @@ LockedPartitionDown
                DM& AB, Int heightAT )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDown [DistMatrix]");
+    CallStackEntry entry("LockedPartitionDown [DistMatrix]");
     if( heightAT < 0 )
         throw std::logic_error("Height of top partition must be non-negative");
 #endif
@@ -183,9 +162,6 @@ LockedPartitionDown
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -197,7 +173,7 @@ inline void
 PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionLeft [Matrix]");
+    CallStackEntry entry("PartitionLeft [Matrix]");
     if( widthAR < 0 )
         throw std::logic_error("Width of right partition must be non-negative");
 #endif
@@ -205,9 +181,6 @@ PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
     const Int widthAL = A.Width()-widthAR;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -215,7 +188,7 @@ inline void
 PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionLeft [DistMatrix]");
+    CallStackEntry entry("PartitionLeft [DistMatrix]");
     if( widthAR < 0 )
         throw std::logic_error("Width of right partition must be non-negative");
 #endif
@@ -223,9 +196,6 @@ PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
     const Int widthAL = A.Width()-widthAR;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -233,7 +203,7 @@ inline void
 LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionLeft [Matrix]");
+    CallStackEntry entry("LockedPartitionLeft [Matrix]");
     if( widthAR < 0 )
         throw std::logic_error("Width of right partition must be non-negative");
 #endif
@@ -241,9 +211,6 @@ LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
     const Int widthAL = A.Width()-widthAR;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -251,7 +218,7 @@ inline void
 LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionLeft [DistMatrix]");
+    CallStackEntry entry("LockedPartitionLeft [DistMatrix]");
     if( widthAR < 0 )
         throw std::logic_error("Width of right partition must be non-negative");
 #endif
@@ -259,9 +226,6 @@ LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
     const Int widthAL = A.Width()-widthAR;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -273,7 +237,7 @@ inline void
 PartitionRight( M& A, M& AL, M& AR, Int widthAL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionRight [Matrix]");
+    CallStackEntry entry("PartitionRight [Matrix]");
     if( widthAL < 0 )
         throw std::logic_error("Width of left partition must be non-negative");
 #endif
@@ -281,9 +245,6 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL )
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -291,7 +252,7 @@ inline void
 PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionRight [DistMatrix]");
+    CallStackEntry entry("PartitionRight [DistMatrix]");
     if( widthAL < 0 )
         throw std::logic_error("Width of left partition must be non-negative");
 #endif
@@ -299,9 +260,6 @@ PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -309,7 +267,7 @@ inline void
 LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionRight [Matrix]");
+    CallStackEntry entry("LockedPartitionRight [Matrix]");
     if( widthAL < 0 )
         throw std::logic_error("Width of left partition must be non-negative");
 #endif
@@ -317,9 +275,6 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -327,7 +282,7 @@ inline void
 LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionRight [DistMatrix]");
+    CallStackEntry entry("LockedPartitionRight [DistMatrix]");
     if( widthAL < 0 )
         throw std::logic_error("Width of left partition must be non-negative");
 #endif
@@ -335,9 +290,6 @@ LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -351,14 +303,11 @@ PartitionUpDiagonal
         M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("PartitionUpDiagonal [Matrix]");
 #endif
     PartitionUpLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -368,14 +317,11 @@ PartitionUpDiagonal
          DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionUpDiagonal [DistMatrix]");
 #endif
     PartitionUpLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -385,14 +331,11 @@ LockedPartitionUpDiagonal
               M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionUpDiagonal [Matrix]");
 #endif
     LockedPartitionUpLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -402,14 +345,11 @@ LockedPartitionUpDiagonal
                DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionUpDiagonal [DistMatrix]");
 #endif
     LockedPartitionUpLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -423,7 +363,7 @@ PartitionUpLeftDiagonal
         M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpLeftDiagonal [Matrix]");
+    CallStackEntry entry("PartitionUpLeftDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -436,9 +376,6 @@ PartitionUpLeftDiagonal
     View( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
     View( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
     View( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -448,7 +385,7 @@ PartitionUpLeftDiagonal
          DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpLeftDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionUpLeftDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -461,9 +398,6 @@ PartitionUpLeftDiagonal
     View( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
     View( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
     View( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -473,7 +407,7 @@ LockedPartitionUpLeftDiagonal
               M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpLeftDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionUpLeftDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -486,9 +420,6 @@ LockedPartitionUpLeftDiagonal
     LockedView( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
     LockedView( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
     LockedView( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -498,7 +429,7 @@ LockedPartitionUpLeftDiagonal
                DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpLeftDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionUpLeftDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -511,9 +442,6 @@ LockedPartitionUpLeftDiagonal
     LockedView( ATR, A, 0,       sizeATL, sizeATL,   remWidth );
     LockedView( ABL, A, sizeATL, 0,       remHeight, sizeATL  );
     LockedView( ABR, A, sizeATL, sizeATL, remHeight, remWidth );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -527,7 +455,7 @@ PartitionUpRightDiagonal
         M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpRightDiagonal [Matrix]");
+    CallStackEntry entry("PartitionUpRightDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -539,9 +467,6 @@ PartitionUpRightDiagonal
     View( ATR, A, 0,         remWidth, remHeight, diagABR  );
     View( ABL, A, remHeight, 0,        diagABR,   remWidth );
     View( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -551,7 +476,7 @@ PartitionUpRightDiagonal
          DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionUpRightDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionUpRightDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -563,9 +488,6 @@ PartitionUpRightDiagonal
     View( ATR, A, 0,         remWidth, remHeight, diagABR  );
     View( ABL, A, remHeight, 0,        diagABR,   remWidth );
     View( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -575,7 +497,7 @@ LockedPartitionUpRightDiagonal
               M& ABL, M& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpRightDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionUpRightDiagonal [Matrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -587,9 +509,6 @@ LockedPartitionUpRightDiagonal
     LockedView( ATR, A, 0,         remWidth, remHeight, diagABR  );
     LockedView( ABL, A, remHeight, 0,        diagABR,   remWidth );
     LockedView( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -599,7 +518,7 @@ LockedPartitionUpRightDiagonal
                DM& ABL, DM& ABR, Int diagABR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionUpRightDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionUpRightDiagonal [DistMatrix]");
     if( diagABR < 0 )
         throw std::logic_error("Bottom-right size must be non-negative");
 #endif
@@ -611,9 +530,6 @@ LockedPartitionUpRightDiagonal
     LockedView( ATR, A, 0,         remWidth, remHeight, diagABR  );
     LockedView( ABL, A, remHeight, 0,        diagABR,   remWidth );
     LockedView( ABR, A, remHeight, remWidth, diagABR,   diagABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -627,14 +543,11 @@ PartitionDownDiagonal
         M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("PartitionDownDiagonal [Matrix]");
 #endif
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagATL );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -644,14 +557,11 @@ PartitionDownDiagonal
          DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionDownDiagonal [DistMatrix]");
 #endif
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagATL );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -661,14 +571,11 @@ LockedPartitionDownDiagonal
               M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionDownDiagonal [Matrix]");
 #endif
     LockedPartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagATL );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -678,14 +585,11 @@ LockedPartitionDownDiagonal
                DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionDownDiagonal [DistMatrix]");
 #endif
     LockedPartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, diagATL );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -699,7 +603,7 @@ PartitionDownLeftDiagonal
         M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownLeftDiagonal [Matrix]");
+    CallStackEntry entry("PartitionDownLeftDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -711,9 +615,6 @@ PartitionDownLeftDiagonal
     View( ATR, A, 0,       diagATL, diagATL,   widthABR );
     View( ABL, A, diagATL, 0,       heightABR, diagATL  );
     View( ABR, A, diagATL, diagATL, heightABR, widthABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -723,7 +624,7 @@ PartitionDownLeftDiagonal
          DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownLeftDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionDownLeftDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -735,9 +636,6 @@ PartitionDownLeftDiagonal
     View( ATR, A, 0,       diagATL, diagATL,   widthABR );
     View( ABL, A, diagATL, 0,       heightABR, diagATL  );
     View( ABR, A, diagATL, diagATL, heightABR, widthABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -747,7 +645,7 @@ LockedPartitionDownLeftDiagonal
               M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownLeftDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionDownLeftDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -759,9 +657,6 @@ LockedPartitionDownLeftDiagonal
     LockedView( ATR, A, 0,       diagATL, diagATL,   widthABR );
     LockedView( ABL, A, diagATL, 0,       heightABR, diagATL  );
     LockedView( ABR, A, diagATL, diagATL, heightABR, widthABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -771,7 +666,7 @@ LockedPartitionDownLeftDiagonal
                DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownLeftDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionDownLeftDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -783,9 +678,6 @@ LockedPartitionDownLeftDiagonal
     LockedView( ATR, A, 0,       diagATL, diagATL,   widthABR );
     LockedView( ABL, A, diagATL, 0,       heightABR, diagATL  );
     LockedView( ABR, A, diagATL, diagATL, heightABR, widthABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -799,7 +691,7 @@ PartitionDownRightDiagonal
         M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownRightDiagonal [Matrix]");
+    CallStackEntry entry("PartitionDownRightDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -812,9 +704,6 @@ PartitionDownRightDiagonal
     View( ATR, A, 0,         remWidth, remHeight, sizeABR  );
     View( ABL, A, remHeight, 0,        sizeABR,   remWidth );
     View( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -824,7 +713,7 @@ PartitionDownRightDiagonal
          DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("PartitionDownRightDiagonal [DistMatrix]");
+    CallStackEntry entry("PartitionDownRightDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -837,9 +726,6 @@ PartitionDownRightDiagonal
     View( ATR, A, 0,         remWidth, remHeight, sizeABR  );
     View( ABL, A, remHeight, 0,        sizeABR,   remWidth );
     View( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -849,7 +735,7 @@ LockedPartitionDownRightDiagonal
               M& ABL, M& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownRightDiagonal [Matrix]");
+    CallStackEntry entry("LockedPartitionDownRightDiagonal [Matrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -862,9 +748,6 @@ LockedPartitionDownRightDiagonal
     LockedView( ATR, A, 0,         remWidth, remHeight, sizeABR  );
     LockedView( ABL, A, remHeight, 0,        sizeABR,   remWidth );
     LockedView( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T, Distribution U, Distribution V,typename Int>
@@ -874,7 +757,7 @@ LockedPartitionDownRightDiagonal
                DM& ABL, DM& ABR, Int diagATL )
 {
 #ifndef RELEASE
-    PushCallStack("LockedPartitionDownRightDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedPartitionDownRightDiagonal [DistMatrix]");
     if( diagATL < 0 )
         throw std::logic_error("Top-left size must be non-negative");
 #endif
@@ -887,9 +770,6 @@ LockedPartitionDownRightDiagonal
     LockedView( ATR, A, 0,         remWidth, remHeight, sizeABR  );
     LockedView( ABL, A, remHeight, 0,        sizeABR,   remWidth );
     LockedView( ABR, A, remHeight, remWidth, sizeABR,   sizeABR  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #undef DM

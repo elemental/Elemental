@@ -28,7 +28,7 @@ RepartitionUp
   M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionUp [Matrix]");
+    CallStackEntry entry("RepartitionUp [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
         throw std::logic_error("Noncontiguous 2x1 array of matrices");
 #endif
@@ -37,9 +37,6 @@ RepartitionUp
     View( A0, AT, 0,      0, offset,   AT.Width() );
     View( A1, AT, offset, 0, A1Height, AT.Width() );
     View( A2, AB );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -50,7 +47,7 @@ RepartitionUp
   DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionUp [DistMatrix]");
+    CallStackEntry entry("RepartitionUp [DistMatrix]");
     if( (AT.Matrix().Buffer() + AT.LocalHeight()) != AB.Matrix().Buffer() )
         throw std::logic_error
         ("Noncontiguous 2x1 array of distributed matrices");
@@ -60,9 +57,6 @@ RepartitionUp
     View( A0, AT, 0,      0, offset,   AT.Width() );
     View( A1, AT, offset, 0, A1Height, AT.Width() );
     View( A2, AB );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -73,7 +67,7 @@ LockedRepartitionUp
   const M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionUp [Matrix]");
+    CallStackEntry entry("LockedRepartitionUp [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
         throw std::logic_error("Noncontiguous 2x1 array of matrices");
 #endif
@@ -82,9 +76,6 @@ LockedRepartitionUp
     LockedView( A0, AT, 0,      0, offset,   AT.Width() );
     LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
     LockedView( A2, AB );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -95,7 +86,7 @@ LockedRepartitionUp
   const DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionUp [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionUp [DistMatrix]");
     if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
          AB.LockedMatrix().LockedBuffer() )
         throw std::logic_error
@@ -106,9 +97,6 @@ LockedRepartitionUp
     LockedView( A0, AT, 0,      0, offset,   AT.Width() );
     LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
     LockedView( A2, AB );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -123,7 +111,7 @@ RepartitionDown
   M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionDown [Matrix]");
+    CallStackEntry entry("RepartitionDown [Matrix]");
     if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
         throw std::logic_error("Noncontiguous 2x1 array of matrices");
 #endif
@@ -132,9 +120,6 @@ RepartitionDown
     View( A0, AT );
     View( A1, AB, 0,        0, A1Height, AB.Width() );
     View( A2, AB, A1Height, 0, offset,   AB.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -145,7 +130,7 @@ RepartitionDown
   DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionDown [DistMatrix]");
+    CallStackEntry entry("RepartitionDown [DistMatrix]");
     if( (AT.Matrix().Buffer() + AT.LocalHeight()) != 
          AB.Matrix().Buffer() )
         throw std::logic_error
@@ -156,9 +141,6 @@ RepartitionDown
     View( A0, AT );
     View( A1, AB, 0,        0, A1Height, AB.Width() );
     View( A2, AB, A1Height, 0, offset, AB.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -169,7 +151,7 @@ LockedRepartitionDown
   const M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionDown [Matrix]");
+    CallStackEntry entry("LockedRepartitionDown [Matrix]");
     if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
         throw std::logic_error("Noncontiguous 2x1 array of matrices");
 #endif
@@ -178,9 +160,6 @@ LockedRepartitionDown
     LockedView( A0, AT );
     LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
     LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -191,7 +170,7 @@ LockedRepartitionDown
   const DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionDown [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionDown [DistMatrix]");
     if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
          AB.LockedMatrix().LockedBuffer() )
         throw std::logic_error
@@ -202,9 +181,6 @@ LockedRepartitionDown
     LockedView( A0, AT );
     LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
     LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -218,7 +194,7 @@ RepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionLeft [Matrix]");
+    CallStackEntry entry("RepartitionLeft [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
         throw std::logic_error("Noncontiguous 1x2 array of matrices");
 #endif
@@ -227,9 +203,6 @@ RepartitionLeft
     View( A0, AL, 0, 0,      AL.Height(), offset   );
     View( A1, AL, 0, offset, AL.Height(), A1Width  );
     View( A2, AR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -239,7 +212,7 @@ RepartitionLeft
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionLeft [DistMatrix]");
+    CallStackEntry entry("RepartitionLeft [DistMatrix]");
     if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
          AR.Matrix().Buffer() )
         throw std::logic_error
@@ -250,9 +223,6 @@ RepartitionLeft
     View( A0, AL, 0, 0,      AL.Height(), offset  );
     View( A1, AL, 0, offset, AL.Height(), A1Width );
     View( A2, AR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -262,7 +232,7 @@ LockedRepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionLeft [Matrix]");
+    CallStackEntry entry("LockedRepartitionLeft [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
         throw std::logic_error("Noncontiguous 1x2 array of matrices");
 #endif
@@ -271,9 +241,6 @@ LockedRepartitionLeft
     LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
     LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
     LockedView( A2, AR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -283,7 +250,7 @@ LockedRepartitionLeft
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionLeft [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionLeft [DistMatrix]");
     if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
          AR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
@@ -294,9 +261,6 @@ LockedRepartitionLeft
     LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
     LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
     LockedView( A2, AR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -310,7 +274,7 @@ RepartitionRight
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionRight [Matrix]");
+    CallStackEntry entry("RepartitionRight [Matrix]");
     if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
         throw std::logic_error("Noncontiguous 1x2 array of matrices");
 #endif
@@ -319,9 +283,6 @@ RepartitionRight
     View( A0, AL );
     View( A1, AR, 0, 0,       AR.Height(), A1Width );
     View( A2, AR, 0, A1Width, AR.Height(), offset  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -331,7 +292,7 @@ RepartitionRight
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionRight [DistMatrix]");
+    CallStackEntry entry("RepartitionRight [DistMatrix]");
     if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
          AR.Matrix().Buffer() )
         throw std::logic_error
@@ -342,9 +303,6 @@ RepartitionRight
     View( A0, AL );
     View( A1, AR, 0, 0,       AR.Height(), A1Width );
     View( A2, AR, 0, A1Width, AR.Height(), offset  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -354,7 +312,7 @@ LockedRepartitionRight
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionRight [Matrix]");
+    CallStackEntry entry("LockedRepartitionRight [Matrix]");
     if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
         throw std::logic_error("Noncontiguous 1x2 array of matrices");
 #endif
@@ -363,9 +321,6 @@ LockedRepartitionRight
     LockedView( A0, AL );
     LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
     LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -375,7 +330,7 @@ LockedRepartitionRight
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionRight [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionRight [DistMatrix]");
     if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
          AR.LockedMatrix().LockedBuffer() )
         throw std::logic_error
@@ -386,9 +341,6 @@ LockedRepartitionRight
     LockedView( A0, AL );
     LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
     LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -403,7 +355,7 @@ RepartitionUpDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("RepartitionUpDiagonal [Matrix]");
     if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
         (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
@@ -422,9 +374,6 @@ RepartitionUpDiagonal
     View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
     View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
     View( A22, ABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -435,7 +384,7 @@ RepartitionUpDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("RepartitionUpDiagonal [DistMatrix]");
     if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
          ABL.Matrix().Buffer() ||
         (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
@@ -459,9 +408,6 @@ RepartitionUpDiagonal
     View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
     View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
     View( A22, ABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -472,7 +418,7 @@ LockedRepartitionUpDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("LockedRepartitionUpDiagonal [Matrix]");
     if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
         (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
@@ -491,9 +437,6 @@ LockedRepartitionUpDiagonal
     LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
     LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
     LockedView( A22, ABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -504,7 +447,7 @@ LockedRepartitionUpDiagonal
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionUpDiagonal [DistMatrix]");
     if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
          ABL.LockedMatrix().LockedBuffer() ||
         (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
@@ -530,9 +473,6 @@ LockedRepartitionUpDiagonal
     LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
     LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
     LockedView( A22, ABR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -547,7 +487,7 @@ RepartitionDownDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("RepartitionDownDiagonal [Matrix]");
     if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
         (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
         (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
@@ -566,9 +506,6 @@ RepartitionDownDiagonal
     View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
     View( A21, ABR, bsize, 0,     vOffset,      bsize       );
     View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -579,7 +516,7 @@ RepartitionDownDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("RepartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("RepartitionDownDiagonal [DistMatrix]");
     if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
          ABL.Matrix().Buffer() ||
         (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
@@ -603,9 +540,6 @@ RepartitionDownDiagonal
     View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
     View( A21, ABR, bsize, 0,     vOffset,      bsize       );
     View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -616,7 +550,7 @@ LockedRepartitionDownDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("LockedRepartitionDownDiagonal [Matrix]");
     if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
         (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
         (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
@@ -635,9 +569,6 @@ LockedRepartitionDownDiagonal
     LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
     LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
     LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -648,7 +579,7 @@ LockedRepartitionDownDiagonal
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    PushCallStack("LockedRepartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("LockedRepartitionDownDiagonal [DistMatrix]");
     if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
          ABL.LockedMatrix().LockedBuffer() ||
         (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
@@ -674,9 +605,6 @@ LockedRepartitionDownDiagonal
     LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
     LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
     LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #undef DM

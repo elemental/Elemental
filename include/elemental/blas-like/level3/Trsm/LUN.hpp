@@ -27,7 +27,7 @@ TrsmLUNLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUNLarge");
+    CallStackEntry entry("internal::TrsmLUNLarge");
 #endif
     const Grid& g = U.Grid();
 
@@ -101,9 +101,6 @@ TrsmLUNLarge
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -113,7 +110,7 @@ TrsmLUNMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUNMedium");
+    CallStackEntry entry("internal::TrsmLUNMedium");
 #endif
     const Grid& g = U.Grid();
 
@@ -188,9 +185,6 @@ TrsmLUNMedium
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -201,7 +195,7 @@ TrsmLUNSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLUNSmall");
+    CallStackEntry entry("internal::TrsmLUNSmall");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -279,9 +273,6 @@ TrsmLUNSmall
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

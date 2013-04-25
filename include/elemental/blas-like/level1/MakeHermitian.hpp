@@ -19,12 +19,9 @@ inline void
 MakeHermitian( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitian");
+    CallStackEntry entry("MakeHermitian");
 #endif
     MakeSymmetric( uplo, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -32,12 +29,9 @@ inline void
 MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitian");
+    CallStackEntry entry("MakeHermitian");
 #endif
     MakeSymmetric( uplo, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

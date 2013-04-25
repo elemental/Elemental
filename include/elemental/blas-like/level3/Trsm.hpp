@@ -22,7 +22,7 @@ LocalTrsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrsm");
+    CallStackEntry entry("LocalTrsm");
     if( (side == LEFT && XColDist != STAR) ||
         (side == RIGHT && XRowDist != STAR) )
         throw std::logic_error
@@ -31,9 +31,6 @@ LocalTrsm
     Trsm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -58,7 +55,7 @@ Trsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    PushCallStack("Trsm");
+    CallStackEntry entry("Trsm");
     if( A.Height() != A.Width() )
         throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
@@ -86,9 +83,6 @@ Trsm
     blas::Trsm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -100,7 +94,7 @@ Trsm
   bool checkIfSingular=false )
 {
 #ifndef RELEASE
-    PushCallStack("Trsm");
+    CallStackEntry entry("Trsm");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("A and B must use the same grid");
     if( A.Height() != A.Width() )
@@ -171,9 +165,6 @@ Trsm
             internal::TrsmRUT
             ( orientation, diag, alpha, A, B, checkIfSingular );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

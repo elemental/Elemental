@@ -54,12 +54,7 @@ void PanelL
     e.ResizeTo( panelSize, 1 );
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Matrix views 
     DistMatrix<R> 
@@ -708,9 +703,6 @@ void PanelL
     DistMatrix<R> expandedATL(g);
     View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetDiagonal( e, -1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -758,12 +750,7 @@ void PanelL
     e.ResizeTo( panelSize, 1 );
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Matrix views 
     DistMatrix<C> 
@@ -1437,9 +1424,6 @@ void PanelL
     DistMatrix<C> expandedATL(g);
     View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetRealPartOfDiagonal( e, -1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_tridiag

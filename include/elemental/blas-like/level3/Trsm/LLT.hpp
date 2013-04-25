@@ -30,7 +30,7 @@ TrsmLLTLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLTLarge");
+    CallStackEntry entry("internal::TrsmLLTLarge");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
@@ -108,9 +108,6 @@ TrsmLLTLarge
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // width(X) ~= p
@@ -122,7 +119,7 @@ TrsmLLTMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLTMedium");
+    CallStackEntry entry("internal::TrsmLLTMedium");
     if( orientation == NORMAL )
         throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
@@ -208,9 +205,6 @@ TrsmLLTMedium
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // TODO: Find a better name and/or namespace for this utility function
@@ -219,7 +213,7 @@ inline void AddInLocalData
 ( const DistMatrix<F,VC,STAR>& X1, DistMatrix<F,STAR,STAR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("internal::AddInLocalData");
+    CallStackEntry entry("internal::AddInLocalData");
 #endif
     const int width = X1.Width();
     const int localHeight = X1.LocalHeight();
@@ -232,9 +226,6 @@ inline void AddInLocalData
         for( int iLocal=0; iLocal<localHeight; ++iLocal )
             ZColBuffer[offset+stride*iLocal] += X1ColBuffer[iLocal];
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // width(X) << p
@@ -246,7 +237,7 @@ TrsmLLTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLTSmall");
+    CallStackEntry entry("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -328,9 +319,6 @@ TrsmLLTSmall
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -341,7 +329,7 @@ TrsmLLTSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLTSmall");
+    CallStackEntry entry("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -423,9 +411,6 @@ TrsmLLTSmall
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

@@ -28,7 +28,7 @@ GemmTTA
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTTA");
+    CallStackEntry entry("internal::GemmTTA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -111,9 +111,6 @@ GemmTTA
         ( CL,     /**/ CR,
           C0, C1, /**/ C2 ); 
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix B.
@@ -127,7 +124,7 @@ GemmTTB
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTTB");
+    CallStackEntry entry("internal::GemmTTB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -216,9 +213,6 @@ GemmTTB
          /**/ /**/
           CB,  C2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Transpose Transpose Gemm that avoids communicating the matrix C.
@@ -232,7 +226,7 @@ GemmTTC
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTTC");
+    CallStackEntry entry("internal::GemmTTC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -312,9 +306,6 @@ GemmTTC
         ( BL,     /**/ BR,
           B0, B1, /**/ B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -327,7 +318,7 @@ GemmTT
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTT");
+    CallStackEntry entry("internal::GemmTT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -351,9 +342,6 @@ GemmTT
     {
         GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

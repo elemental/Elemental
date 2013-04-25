@@ -19,7 +19,7 @@ DiagonalScale
   const Matrix<T>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalScale");
+    CallStackEntry entry("DiagonalScale");
 #endif
     const int m = X.Height();
     const int n = X.Width();
@@ -52,9 +52,6 @@ DiagonalScale
                     XBuffer[i] *= delta;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -64,7 +61,7 @@ DiagonalScale
   const Matrix<BASE(T)>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalScale");
+    CallStackEntry entry("DiagonalScale");
 #endif
     typedef BASE(T) R;
 
@@ -91,9 +88,6 @@ DiagonalScale
                 XBuffer[i] *= delta;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,
@@ -104,7 +98,7 @@ DiagonalScale
   const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalScale");
+    CallStackEntry entry("DiagonalScale");
 #endif
     if( side == LEFT )
     {
@@ -136,9 +130,6 @@ DiagonalScale
             ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,
@@ -149,7 +140,7 @@ DiagonalScale
   const DistMatrix<BASE(T),U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalScale");
+    CallStackEntry entry("DiagonalScale");
 #endif
     typedef BASE(T) R;
 
@@ -181,9 +172,6 @@ DiagonalScale
             ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -28,7 +28,7 @@ void PanelUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelUSquare");
+    CallStackEntry entry("hermitian_tridiag::PanelUSquare");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -43,12 +43,7 @@ void PanelUSquare
     const int r = g.Height();
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Find the process holding our transposed data
     int transposeRank;
@@ -662,9 +657,6 @@ void PanelUSquare
     }
 
     expandedABR.SetDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -680,7 +672,7 @@ void PanelUSquare
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelUSquare");
+    CallStackEntry entry("hermitian_tridiag::PanelUSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -700,12 +692,7 @@ void PanelUSquare
     const int r = g.Height();
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Find the process holding our transposed data
     int transposeRank;
@@ -1346,9 +1333,6 @@ void PanelUSquare
     }
 
     expandedABR.SetRealPartOfDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_tridiag

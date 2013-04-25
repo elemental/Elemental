@@ -23,7 +23,7 @@ Syr2kUN
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Syr2kUN");
+    CallStackEntry entry("internal::Syr2kUN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -98,9 +98,6 @@ Syr2kUN
         ( BL,     /**/ BR,
           B0, B1, /**/ B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

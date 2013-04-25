@@ -18,7 +18,7 @@ MakeTrapezoidal
 ( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeTrapezoidal");
+    CallStackEntry entry("MakeTrapezoidal");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -81,9 +81,6 @@ MakeTrapezoidal
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -93,7 +90,7 @@ MakeTrapezoidal
   DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeTrapezoidal");
+    CallStackEntry entry("MakeTrapezoidal");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -148,9 +145,6 @@ MakeTrapezoidal
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

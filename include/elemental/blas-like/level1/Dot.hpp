@@ -19,13 +19,9 @@ inline F
 Dot( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Dot");
+    CallStackEntry entry("Dot");
 #endif
-    const F innerProd = HilbertSchmidt( A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return innerProd;
+    return HilbertSchmidt( A, B );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -33,13 +29,9 @@ inline F
 Dot( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Dot");
+    CallStackEntry entry("Dot");
 #endif
-    const F innerProd = HilbertSchmidt( A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return innerProd;
+    return HilbertSchmidt( A, B );
 }
 
 } // namespace elem

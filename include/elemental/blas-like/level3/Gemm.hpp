@@ -24,7 +24,7 @@ inline void LocalGemm
   T beta,        DistMatrix<T,CColDist,CRowDist>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalGemm");
+    CallStackEntry entry("LocalGemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( AColDist != CColDist ||
@@ -125,9 +125,6 @@ inline void LocalGemm
     Gemm
     ( orientationOfA , orientationOfB,
       alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -146,7 +143,7 @@ Gemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Gemm");
+    CallStackEntry entry("Gemm");
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
         if( A.Height() != C.Height() ||
@@ -192,9 +189,6 @@ Gemm
     {
         Scale( beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 namespace internal {
@@ -209,7 +203,7 @@ GemmA
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmA");
+    CallStackEntry entry("internal::GemmA");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
@@ -227,9 +221,6 @@ GemmA
     {
         GemmTTA( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -242,7 +233,7 @@ GemmB
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmB");
+    CallStackEntry entry("internal::GemmB");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
@@ -260,9 +251,6 @@ GemmB
     {
         GemmTTB( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -275,7 +263,7 @@ GemmC
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmC");
+    CallStackEntry entry("internal::GemmC");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
@@ -293,9 +281,6 @@ GemmC
     {
         GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -308,7 +293,7 @@ GemmDot
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmDot");
+    CallStackEntry entry("internal::GemmDot");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
         GemmNNDot( alpha, A, B, beta, C );
@@ -330,9 +315,6 @@ GemmDot
                                    alpha, A, B, beta, C );
     }
     */
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal
@@ -347,7 +329,7 @@ Gemm
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Gemm");
+    CallStackEntry entry("Gemm");
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
@@ -366,9 +348,6 @@ Gemm
         internal::GemmTT
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -17,7 +17,7 @@ inline void
 Zero( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Zero");
+    CallStackEntry entry("Zero");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -26,9 +26,6 @@ Zero( Matrix<T>& A )
 #endif
     for( int j=0; j<width; ++j )
         MemZero( A.Buffer(0,j), height );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -36,12 +33,9 @@ inline void
 Zero( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Zero");
+    CallStackEntry entry("Zero");
 #endif
     Zero( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

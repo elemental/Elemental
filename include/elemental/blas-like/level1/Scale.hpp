@@ -17,7 +17,7 @@ inline void
 Scale( T alpha, Matrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("Scale");
+    CallStackEntry entry("Scale");
 #endif
     if( alpha != T(1) )
     {
@@ -29,9 +29,6 @@ Scale( T alpha, Matrix<T>& X )
             for( int j=0; j<X.Width(); ++j )
                 blas::Scal( X.Height(), alpha, X.Buffer(0,j), 1 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>

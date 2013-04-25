@@ -24,16 +24,13 @@ inline void
 Conjugate( Matrix<Complex<Z> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("Conjugate (in-place)");
+    CallStackEntry entry("Conjugate (in-place)");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set(i,j,Conj(A.Get(i,j)));
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -41,7 +38,7 @@ inline void
 Conjugate( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Conjugate");
+    CallStackEntry entry("Conjugate");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -49,9 +46,6 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             B.Set(i,j,Conj(A.Get(i,j)));
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -59,12 +53,9 @@ inline void
 Conjugate( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Conjugate (in-place)");
+    CallStackEntry entry("Conjugate (in-place)");
 #endif
     Conjugate( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,
@@ -73,13 +64,10 @@ inline void
 Conjugate( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Conjugate");
+    CallStackEntry entry("Conjugate");
 #endif
     B = A;
     Conjugate( B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

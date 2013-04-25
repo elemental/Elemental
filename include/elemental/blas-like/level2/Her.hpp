@@ -19,12 +19,9 @@ inline void
 Her( UpperOrLower uplo, T alpha, const Matrix<T>& x, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Her");
+    CallStackEntry entry("Her");
 #endif
     Syr( uplo, alpha, x, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -35,12 +32,9 @@ Her
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Her");
+    CallStackEntry entry("Her");
 #endif
     Syr( uplo, alpha, x, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -18,7 +18,7 @@ ScaleTrapezoid
 ( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ScaleTrapezoid");
+    CallStackEntry entry("ScaleTrapezoid");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -79,9 +79,6 @@ ScaleTrapezoid
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -91,7 +88,7 @@ ScaleTrapezoid
   DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ScaleTrapezoid");
+    CallStackEntry entry("ScaleTrapezoid");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -139,9 +136,6 @@ ScaleTrapezoid
                 col[iLocal] *= alpha;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

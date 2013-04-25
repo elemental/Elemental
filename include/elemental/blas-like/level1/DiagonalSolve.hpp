@@ -19,7 +19,7 @@ DiagonalSolve
   const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalSolve");
+    CallStackEntry entry("DiagonalSolve");
 #endif
     const int m = X.Height();
     const int n = X.Width();
@@ -58,9 +58,6 @@ DiagonalSolve
                     XBuffer[i] *= deltaInv;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -71,7 +68,7 @@ DiagonalSolve
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalSolve");
+    CallStackEntry entry("DiagonalSolve");
 #endif
     typedef BASE(F) R;
 
@@ -104,9 +101,6 @@ DiagonalSolve
                 XBuffer[i] *= deltaInv;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V,
@@ -118,7 +112,7 @@ DiagonalSolve
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalSolve");
+    CallStackEntry entry("DiagonalSolve");
 #endif
     if( side == LEFT )
     {
@@ -154,9 +148,6 @@ DiagonalSolve
               d_Z_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V,
@@ -168,7 +159,7 @@ DiagonalSolve
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("DiagonalSolve");
+    CallStackEntry entry("DiagonalSolve");
 #endif
     typedef BASE(F) R;
 
@@ -206,9 +197,6 @@ DiagonalSolve
               d_Z_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -17,7 +17,7 @@ inline void
 Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("Axpy");
+    CallStackEntry entry("Axpy");
 #endif
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
@@ -75,9 +75,6 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -90,7 +87,7 @@ inline void
 Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("Axpy");
+    CallStackEntry entry("Axpy");
     if( X.Grid() != Y.Grid() )
         throw std::logic_error
         ("X and Y must be distributed over the same grid");
@@ -107,9 +104,6 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
         XCopy = X;
         Axpy( alpha, XCopy.LockedMatrix(), Y.Matrix() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>

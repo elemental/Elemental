@@ -27,16 +27,13 @@ inline void LocalGemv
   T beta,        DistMatrix<T,yColDist,yRowDist>& y )
 {
 #ifndef RELEASE
-    PushCallStack("LocalGemv");
+    CallStackEntry entry("LocalGemv");
     // TODO: Add error checking here
 #endif
     Gemv
     ( orientation ,
       alpha, A.LockedMatrix(), x.LockedMatrix(),
       beta,                    y.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -46,7 +43,7 @@ Gemv
   T alpha, const Matrix<T>& A, const Matrix<T>& x, T beta, Matrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("Gemv");
+    CallStackEntry entry("Gemv");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
     {
@@ -100,9 +97,6 @@ Gemv
     {
         Scale( beta, y );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -114,15 +108,12 @@ Gemv
   T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("Gemv");
+    CallStackEntry entry("Gemv");
 #endif
     if( orientation == NORMAL )
         internal::GemvN( alpha, A, x, beta, y );
     else
         internal::GemvT( orientation, alpha, A, x, beta, y );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -134,15 +125,12 @@ Gemv
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("Gemv");
+    CallStackEntry entry("Gemv");
 #endif
     if( orientation == NORMAL )
         internal::GemvN( alpha, A, x, beta, y );
     else
         internal::GemvT( orientation, alpha, A, x, beta, y );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

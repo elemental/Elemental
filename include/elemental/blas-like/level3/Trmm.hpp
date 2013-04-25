@@ -21,7 +21,7 @@ LocalTrmm
                  DistMatrix<T,BColDist,BRowDist>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrmm");
+    CallStackEntry entry("LocalTrmm");
     if( (side == LEFT && BColDist != STAR) ||
         (side == RIGHT && BRowDist != STAR) )
         throw std::logic_error
@@ -29,9 +29,6 @@ LocalTrmm
 #endif
     Trmm
     ( side, uplo, orientation, diag, alpha, A.LockedMatrix(), B.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -55,7 +52,7 @@ Trmm
   T alpha, const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Trmm");
+    CallStackEntry entry("Trmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("Triangular matrix must be square");
     if( side == LEFT )
@@ -76,9 +73,6 @@ Trmm
     blas::Trmm
     ( sideChar, uploChar, transChar, diagChar, B.Height(), B.Width(),
       alpha, A.LockedBuffer(), A.LDim(), B.Buffer(), B.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -89,7 +83,7 @@ Trmm
   T alpha, const DistMatrix<T>& A, DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("Trmm");
+    CallStackEntry entry("Trmm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
@@ -119,9 +113,6 @@ Trmm
         else
             internal::TrmmRUT( orientation, diag, alpha, A, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

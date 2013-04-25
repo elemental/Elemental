@@ -21,13 +21,10 @@ inline void LocalGer
                  DistMatrix<T,AColDist,ARowDist>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalGer");
+    CallStackEntry entry("LocalGer");
     // TODO: Add error checking here
 #endif
     Ger( alpha, x.LockedMatrix(), y.LockedMatrix(), A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -35,7 +32,7 @@ inline void
 Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Ger");
+    CallStackEntry entry("Ger");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         throw std::logic_error("x and y must be vectors");
@@ -58,9 +55,6 @@ Ger( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
     blas::Ger
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
                    A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -76,7 +70,7 @@ Ger
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Ger");
+    CallStackEntry entry("Ger");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -176,9 +170,6 @@ Ger
         x_STAR_MC.FreeAlignments();
         y_STAR_MR.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>

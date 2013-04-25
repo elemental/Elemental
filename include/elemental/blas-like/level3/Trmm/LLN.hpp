@@ -33,7 +33,7 @@ LocalTrmmAccumulateLLN
         DistMatrix<T,MC,  STAR>& Z_MC_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrmmAccumulateLLN");
+    CallStackEntry entry("internal::LocalTrmmAccumulateLLN");
     if( L.Grid() != XTrans_STAR_MR.Grid() ||
         XTrans_STAR_MR.Grid() != Z_MC_STAR.Grid() )
         throw std::logic_error
@@ -136,9 +136,6 @@ LocalTrmmAccumulateLLN
           ZB_MC_STAR,  Z2_MC_STAR );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -149,7 +146,7 @@ TrmmLLNA
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLLNA");
+    CallStackEntry entry("internal::TrmmLLNA");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -197,9 +194,6 @@ TrmmLLNA
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -210,7 +204,7 @@ TrmmLLNCOld
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLLNCOld");
+    CallStackEntry entry("internal::TrmmLLNCOld");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -300,9 +294,6 @@ TrmmLLNCOld
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -313,7 +304,7 @@ TrmmLLNC
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLLNC");
+    CallStackEntry entry("internal::TrmmLLNC");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -395,9 +386,6 @@ TrmmLLNC
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Left Lower Normal (Non)Unit Trmm 
@@ -411,16 +399,13 @@ TrmmLLN
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLLN");
+    CallStackEntry entry("internal::TrmmLLN");
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Width() )
         TrmmLLNA( diag, alpha, L, X );
     else
         TrmmLLNC( diag, alpha, L, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

@@ -22,14 +22,11 @@ LocalTrtrsm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrtrsm");
+    CallStackEntry entry("LocalTrtrsm");
 #endif
     Trtrsm
     ( side, uplo, orientation, diag,
       alpha, A.LockedMatrix(), X.Matrix(), checkIfSingular );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -47,7 +44,7 @@ Trtrsm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("Trtrsm");
+    CallStackEntry entry("Trtrsm");
     if( A.Height() != A.Width() || X.Height() != X.Width() )
         throw std::logic_error("Triangular matrices must be square");
     if( A.Height() != X.Height() )
@@ -92,9 +89,6 @@ Trtrsm
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     */
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -106,7 +100,7 @@ Trtrsm
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
-    PushCallStack("Trtrsm");
+    CallStackEntry entry("Trtrsm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
@@ -147,9 +141,6 @@ Trtrsm
             ( orientation, diag, alpha, A, X, checkIfSingular );
     }
     */
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

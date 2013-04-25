@@ -33,7 +33,7 @@ LocalTrmmAccumulateRLT
         DistMatrix<T,MC,STAR>& ZTrans_MC_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrmmAccumulateRLT");
+    CallStackEntry entry("internal::LocalTrmmAccumulateRLT");
     if( L.Grid() != XTrans_MR_STAR.Grid() ||
         XTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() )
         throw std::logic_error
@@ -140,9 +140,6 @@ LocalTrmmAccumulateRLT
           ZBTrans_MC_STAR,  Z2Trans_MC_STAR );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -153,7 +150,7 @@ TrmmRLTA
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmRLTA");
+    CallStackEntry entry("internal::TrmmRLTA");
     if( L.Grid() != X.Grid() )
         throw std::logic_error("{L,X} must be distributed over the same grid");
 #endif
@@ -203,9 +200,6 @@ TrmmRLTA
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -217,7 +211,7 @@ TrmmRLTC
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmRLTC");
+    CallStackEntry entry("internal::TrmmRLTC");
     if( L.Grid() != X.Grid() )
         throw std::logic_error
         ("L and X must be distributed over the same grid");
@@ -296,9 +290,6 @@ TrmmRLTC
         ( XL, /**/     XR,
           X0, /**/ X1, X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Right Lower Adjoint/Transpose (Non)Unit Trmm
@@ -315,16 +306,13 @@ TrmmRLT
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmRLT");
+    CallStackEntry entry("internal::TrmmRLT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( L.Height() > 5*X.Height() )
         TrmmRLTA( orientation, diag, alpha, L, X );
     else
         TrmmRLTC( orientation, diag, alpha, L, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

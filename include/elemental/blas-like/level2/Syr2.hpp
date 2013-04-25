@@ -20,7 +20,7 @@ Syr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr2");
+    CallStackEntry entry("Syr2");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( (x.Width() != 1 && x.Height() != 1) ||
@@ -49,9 +49,6 @@ Syr2
           alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
                  A.Buffer(), A.LDim() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -64,7 +61,7 @@ Syr2
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr2");
+    CallStackEntry entry("Syr2");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -327,9 +324,6 @@ Syr2
         y_STAR_MC.FreeAlignments();
         y_STAR_MR.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

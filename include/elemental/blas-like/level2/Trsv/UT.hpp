@@ -24,7 +24,7 @@ TrsvUT
   const DistMatrix<F>& U, DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsvUT");
+    CallStackEntry entry("internal::TrsvUT");
     if( U.Grid() != x.Grid() )
         throw std::logic_error("{U,x} must be distributed over the same grid");
     if( orientation == NORMAL )
@@ -174,9 +174,6 @@ TrsvUT
               x0, x1, /**/ x2 );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

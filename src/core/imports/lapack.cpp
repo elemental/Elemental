@@ -323,15 +323,10 @@ void BidiagQRAlg
   float* d, float* e, float* VTrans, int ldVTrans, float* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::BidiagQRAlg");
+    CallStackEntry entry("lapack::BidiagQRAlg");
 #endif
     if( n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     int info;
     float* C=0;
@@ -352,9 +347,6 @@ void BidiagQRAlg
         msg << "sbdsqr had " << info << " elements of e not converge";
         throw std::runtime_error( msg.str().c_str() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void BidiagQRAlg
@@ -362,15 +354,10 @@ void BidiagQRAlg
   double* d, double* e, double* VTrans, int ldVTrans, double* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::BidiagQRAlg");
+    CallStackEntry entry("lapack::BidiagQRAlg");
 #endif
     if( n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     int info;
     double* C=0;
@@ -391,9 +378,6 @@ void BidiagQRAlg
         msg << "dbdsqr had " << info << " elements of e not converge";
         throw std::runtime_error( msg.str().c_str() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void BidiagQRAlg
@@ -401,15 +385,10 @@ void BidiagQRAlg
   float* d, float* e, scomplex* VAdj, int ldVAdj, scomplex* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::BidiagQRAlg");
+    CallStackEntry entry("lapack::BidiagQRAlg");
 #endif
     if( n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     int info;
     scomplex* C=0;
@@ -430,9 +409,6 @@ void BidiagQRAlg
         msg << "cbdsqr had " << info << " elements of e not converge";
         throw std::runtime_error( msg.str().c_str() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void BidiagQRAlg
@@ -440,15 +416,10 @@ void BidiagQRAlg
   double* d, double* e, dcomplex* VAdj, int ldVAdj, dcomplex* U, int ldU )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::BidiagQRAlg");
+    CallStackEntry entry("lapack::BidiagQRAlg");
 #endif
     if( n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     int info;
     dcomplex* C=0;
@@ -469,9 +440,6 @@ void BidiagQRAlg
         msg << "zbdsqr had " << info << " elements of e not converge";
         throw std::runtime_error( msg.str().c_str() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -483,15 +451,10 @@ void DivideAndConquerSVD
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSVD");
+    CallStackEntry entry("lapack::DivideAndConquerSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobz='S';
     int lwork=-1, info;
@@ -518,9 +481,6 @@ void DivideAndConquerSVD
     {
         throw std::runtime_error("sgesdd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void DivideAndConquerSVD
@@ -528,15 +488,10 @@ void DivideAndConquerSVD
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSVD");
+    CallStackEntry entry("lapack::DivideAndConquerSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobz='S';
     int lwork=-1, info;
@@ -563,9 +518,6 @@ void DivideAndConquerSVD
     {
         throw std::runtime_error("dgesdd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void DivideAndConquerSVD
@@ -573,15 +525,10 @@ void DivideAndConquerSVD
   float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSVD");
+    CallStackEntry entry("lapack::DivideAndConquerSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobz='S';
     int lwork=-1, info;
@@ -611,9 +558,6 @@ void DivideAndConquerSVD
     {
         throw std::runtime_error("cgesdd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void DivideAndConquerSVD
@@ -621,15 +565,10 @@ void DivideAndConquerSVD
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::DivideAndConquerSVD");
+    CallStackEntry entry("lapack::DivideAndConquerSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobz='S';
     int lwork=-1, info;
@@ -659,9 +598,6 @@ void DivideAndConquerSVD
     {
         throw std::runtime_error("zgesdd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -673,15 +609,10 @@ void QRSVD
   float* s, float* U, int ldu, float* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::QRSVD");
+    CallStackEntry entry("lapack::QRSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='S', jobvt='S';
     int lwork=-1, info;
@@ -706,9 +637,6 @@ void QRSVD
     {
         throw std::runtime_error("sgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void QRSVD
@@ -716,15 +644,10 @@ void QRSVD
   double* s, double* U, int ldu, double* VTrans, int ldvt )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::QRSVD");
+    CallStackEntry entry("lapack::QRSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='S', jobvt='S';
     int lwork=-1, info;
@@ -749,9 +672,6 @@ void QRSVD
     {
         throw std::runtime_error("dgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void QRSVD
@@ -759,15 +679,10 @@ void QRSVD
   float* s, scomplex* U, int ldu, scomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::QRSVD");
+    CallStackEntry entry("lapack::QRSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='S', jobva='S';
     int lwork=-1, info;
@@ -794,9 +709,6 @@ void QRSVD
     {
         throw std::runtime_error("cgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void QRSVD
@@ -804,15 +716,10 @@ void QRSVD
   double* s, dcomplex* U, int ldu, dcomplex* VAdj, int ldva )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::QRSVD");
+    CallStackEntry entry("lapack::QRSVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='S', jobva='S';
     int lwork=-1, info;
@@ -839,9 +746,6 @@ void QRSVD
     {
         throw std::runtime_error("zgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -851,15 +755,10 @@ void QRSVD
 void SVD( int m, int n, float* A, int lda, float* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SVD");
+    CallStackEntry entry("lapack::SVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='N', jobvt='N';
     int fakeLDim=1, lwork=-1, info;
@@ -884,23 +783,15 @@ void SVD( int m, int n, float* A, int lda, float* s )
     {
         throw std::runtime_error("sgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void SVD( int m, int n, double* A, int lda, double* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SVD");
+    CallStackEntry entry("lapack::SVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='N', jobvt='N';
     int fakeLDim=1, lwork=-1, info;
@@ -925,23 +816,15 @@ void SVD( int m, int n, double* A, int lda, double* s )
     {
         throw std::runtime_error("dgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void SVD( int m, int n, scomplex* A, int lda, float* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SVD");
+    CallStackEntry entry("lapack::SVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='N', jobva='N';
     int fakeLDim=1, lwork=-1, info;
@@ -968,23 +851,15 @@ void SVD( int m, int n, scomplex* A, int lda, float* s )
     {
         throw std::runtime_error("cgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void SVD( int m, int n, dcomplex* A, int lda, double* s )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::SVD");
+    CallStackEntry entry("lapack::SVD");
 #endif
     if( m==0 || n==0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char jobu='N', jobva='N';
     int fakeLDim=1, lwork=-1, info;
@@ -1011,9 +886,6 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
     {
         throw std::runtime_error("zgesvd's updating process failed");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // 
@@ -1023,15 +895,10 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
 void HessenbergEig( int n, float* H, int ldh, scomplex* w )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HessenbergEig");
+    CallStackEntry entry("lapack::HessenbergEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char job='E', compz='N';
     int ilo=1, ihi=n;
@@ -1060,23 +927,15 @@ void HessenbergEig( int n, float* H, int ldh, scomplex* w )
 
     for( int i=0; i<n; ++i )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HessenbergEig");
+    CallStackEntry entry("lapack::HessenbergEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char job='E', compz='N';
     int ilo=1, ihi=n;
@@ -1105,23 +964,15 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
     
     for( int i=0; i<n; ++i )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HessenbergEig");
+    CallStackEntry entry("lapack::HessenbergEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char job='E', compz='N';
     int ilo=1, ihi=n;
@@ -1146,23 +997,15 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
     {
         throw std::runtime_error("chseqr's failed to compute all eigenvalues");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HessenbergEig");
+    CallStackEntry entry("lapack::HessenbergEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     const char job='E', compz='N';
     int ilo=1, ihi=n;
@@ -1187,9 +1030,6 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
     {
         throw std::runtime_error("zhseqr's failed to compute all eigenvalues");
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 int HermitianEig
@@ -1198,15 +1038,10 @@ int HermitianEig
   float* w, float* Z, int ldz )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HermitianEig");
+    CallStackEntry entry("lapack::HermitianEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return 0;
-    }
 
     std::vector<int> isuppz( 2*n );
 
@@ -1232,9 +1067,6 @@ int HermitianEig
     }
     else if( info > 0 )
         throw std::runtime_error("ssyevr's failed");
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return m;
 }
 
@@ -1244,15 +1076,10 @@ int HermitianEig
   double* w, double* Z, int ldz )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HermitianEig");
+    CallStackEntry entry("lapack::HermitianEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return 0;
-    }
 
     std::vector<int> isuppz( 2*n );
 
@@ -1278,9 +1105,6 @@ int HermitianEig
     }
     else if( info > 0 )
         throw std::runtime_error("dsyevr's failed");
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return m;
 }
 
@@ -1290,15 +1114,10 @@ int HermitianEig
   float* w, scomplex* Z, int ldz )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HermitianEig");
+    CallStackEntry entry("lapack::HermitianEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return 0;
-    }
 
     std::vector<int> isuppz( 2*n );
 
@@ -1329,9 +1148,6 @@ int HermitianEig
     }
     else if( info > 0 )
         throw std::runtime_error("cheevr's failed");
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return m;
 }
 
@@ -1341,15 +1157,10 @@ int HermitianEig
   double* w, dcomplex* Z, int ldz )
 {
 #ifndef RELEASE
-    PushCallStack("lapack::HermitianEig");
+    CallStackEntry entry("lapack::HermitianEig");
 #endif
     if( n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return 0;
-    }
 
     std::vector<int> isuppz( 2*n );
 
@@ -1380,9 +1191,6 @@ int HermitianEig
     }
     else if( info > 0 )
         throw std::runtime_error("zheevr's failed");
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return m;
 }
 

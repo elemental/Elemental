@@ -23,7 +23,7 @@ inline void
 MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("MakeSymmetric");
+    CallStackEntry entry("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make non-square matrix symmetric");
@@ -43,9 +43,6 @@ MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
     Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -53,7 +50,7 @@ inline void
 MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("MakeSymmetric");
+    CallStackEntry entry("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make non-square matrix symmetric");
@@ -74,9 +71,6 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
     Axpy( T(1), ATrans, A );
 
     A.SetDiagonal( d );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

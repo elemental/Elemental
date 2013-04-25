@@ -24,7 +24,7 @@ void Trrk
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Trrk");
+    CallStackEntry entry("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         internal::TrrkNN( uplo, alpha, A, B, beta, C );
@@ -35,9 +35,6 @@ void Trrk
     else
         internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -47,7 +44,7 @@ void Trrk
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Trrk");
+    CallStackEntry entry("Trrk");
 #endif
     if( orientationOfA==NORMAL && orientationOfB==NORMAL )
         internal::TrrkNN( uplo, alpha, A, B, beta, C );
@@ -58,9 +55,6 @@ void Trrk
     else
         internal::TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, A, B, beta, C );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifndef DISABLE_FLOAT

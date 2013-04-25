@@ -21,12 +21,9 @@ Hemm
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Hemm");
+    CallStackEntry entry("Hemm");
 #endif
     Symm( side, uplo, alpha, A, B, beta, C, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -38,12 +35,9 @@ Hemm
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Hemm");
+    CallStackEntry entry("Hemm");
 #endif
     Symm( side, uplo, alpha, A, B, beta, C, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

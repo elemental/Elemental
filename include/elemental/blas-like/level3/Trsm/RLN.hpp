@@ -28,7 +28,7 @@ TrsmRLN
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmRLN");
+    CallStackEntry entry("internal::TrsmRLN");
 #endif
     const Grid& g = L.Grid();
 
@@ -96,9 +96,6 @@ TrsmRLN
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

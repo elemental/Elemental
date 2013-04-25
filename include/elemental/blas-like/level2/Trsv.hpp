@@ -24,7 +24,7 @@ Trsv
   const Matrix<F>& A, Matrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Trsv");
+    CallStackEntry entry("Trsv");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
@@ -41,9 +41,6 @@ Trsv
     blas::Trsv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -56,7 +53,7 @@ Trsv
         DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Trsv");
+    CallStackEntry entry("Trsv");
 #endif
     if( uplo == LOWER )
     {
@@ -72,9 +69,6 @@ Trsv
         else
             internal::TrsvUT( orientation, diag, A, x );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

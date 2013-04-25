@@ -32,7 +32,7 @@ inline void View
 ( Matrix<T,Int>& A, Matrix<T,Int>& B )
 {
 #ifndef RELEASE
-    PushCallStack("View");
+    CallStackEntry entry("View");
 #endif
     A.Empty();
     A.height_ = B.Height();
@@ -41,9 +41,6 @@ inline void View
     A.data_ = B.Buffer();
     A.viewing_ = true;
     A.locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -51,7 +48,7 @@ inline void View
 ( DistMatrix<T,U,V,Int>& A, DistMatrix<T,U,V,Int>& B )
 {
 #ifndef RELEASE
-    PushCallStack("View");
+    CallStackEntry entry("View");
 #endif
     A.Empty();
     A.grid_ = B.grid_;
@@ -72,9 +69,6 @@ inline void View
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -82,7 +76,7 @@ inline void LockedView
 ( Matrix<T,Int>& A, const Matrix<T,Int>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView");
+    CallStackEntry entry("LockedView");
 #endif
     A.Empty();
     A.height_ = B.Height();
@@ -91,9 +85,6 @@ inline void LockedView
     A.lockedData_ = B.LockedBuffer();
     A.viewing_ = true;
     A.locked_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -101,7 +92,7 @@ inline void LockedView
 ( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView");
+    CallStackEntry entry("LockedView");
 #endif
     A.Empty();
     A.grid_ = B.grid_;
@@ -123,9 +114,6 @@ inline void LockedView
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE 
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -134,7 +122,7 @@ inline void View
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
-    PushCallStack("View");
+    CallStackEntry entry("View");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
     if( height < 0 || width < 0 )
@@ -156,9 +144,6 @@ inline void View
     A.data_ = B.Buffer(i,j);
     A.viewing_ = true;
     A.locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -167,7 +152,7 @@ inline void View
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
-    PushCallStack("View");
+    CallStackEntry entry("View");
     B.AssertValidSubmatrix( i, j, height, width );
 #endif
     A.Empty();
@@ -207,9 +192,6 @@ inline void View
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -218,7 +200,7 @@ inline void LockedView
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView");
+    CallStackEntry entry("LockedView");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
     if( height < 0 || width < 0 )
@@ -240,9 +222,6 @@ inline void LockedView
     A.lockedData_ = B.LockedBuffer(i,j);
     A.viewing_ = true;
     A.locked_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -251,7 +230,7 @@ inline void LockedView
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView");
+    CallStackEntry entry("LockedView");
     B.AssertValidSubmatrix( i, j, height, width );
 #endif
     A.Empty();
@@ -292,9 +271,6 @@ inline void LockedView
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -303,7 +279,7 @@ inline void View1x2
   Matrix<T,Int>& BL, Matrix<T,Int>& BR )
 {
 #ifndef RELEASE
-    PushCallStack("View1x2");
+    CallStackEntry entry("View1x2");
     if( BL.Height() != BR.Height() )
         throw std::logic_error("1x2 must have consistent height to combine");
     if( BL.LDim() != BR.LDim() )
@@ -318,9 +294,6 @@ inline void View1x2
     A.data_ = BL.Buffer();
     A.viewing_ = true;
     A.locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -329,7 +302,7 @@ inline void View1x2
   DistMatrix<T,U,V,Int>& BL, DistMatrix<T,U,V,Int>& BR )
 {
 #ifndef RELEASE
-    PushCallStack("View1x2");
+    CallStackEntry entry("View1x2");
     AssertConforming1x2( BL, BR );
     BL.AssertSameGrid( BR.Grid() );
 #endif
@@ -352,9 +325,6 @@ inline void View1x2
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -364,7 +334,7 @@ inline void LockedView1x2
   const Matrix<T,Int>& BR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView1x2");
+    CallStackEntry entry("LockedView1x2");
     if( BL.Height() != BR.Height() )
         throw std::logic_error("1x2 must have consistent height to combine");
     if( BL.LDim() != BR.LDim() )
@@ -379,9 +349,6 @@ inline void LockedView1x2
     A.lockedData_ = BL.LockedBuffer();
     A.viewing_ = true;
     A.locked_ = true;
-#ifndef RELEASE
-    PopCallStack(); 
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -391,7 +358,7 @@ inline void LockedView1x2
   const DistMatrix<T,U,V,Int>& BR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView1x2");
+    CallStackEntry entry("LockedView1x2");
     AssertConforming1x2( BL, BR );
     BL.AssertSameGrid( BR.Grid() );
 #endif
@@ -415,9 +382,6 @@ inline void LockedView1x2
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -427,7 +391,7 @@ inline void View2x1
   Matrix<T,Int>& BB )
 {
 #ifndef RELEASE
-    PushCallStack("View2x1");
+    CallStackEntry entry("View2x1");
     if( BT.Width() != BB.Width() )
         throw std::logic_error("2x1 must have consistent width to combine");
     if( BT.LDim() != BB.LDim() )
@@ -442,9 +406,6 @@ inline void View2x1
     A.data_ = BT.Buffer();
     A.viewing_ = true;
     A.locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -454,7 +415,7 @@ inline void View2x1
   DistMatrix<T,U,V,Int>& BB )
 {
 #ifndef RELEASE
-    PushCallStack("View2x1");
+    CallStackEntry entry("View2x1");
     AssertConforming2x1( BT, BB );
     BT.AssertSameGrid( BB.Grid() );
 #endif
@@ -477,9 +438,6 @@ inline void View2x1
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -489,7 +447,7 @@ inline void LockedView2x1
   const Matrix<T,Int>& BB )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView2x1");
+    CallStackEntry entry("LockedView2x1");
     if( BT.Width() != BB.Width() )
         throw std::logic_error("2x1 must have consistent width to combine");
     if( BT.LDim() != BB.LDim() )
@@ -504,9 +462,6 @@ inline void LockedView2x1
     A.lockedData_ = BT.LockedBuffer();
     A.viewing_ = true;
     A.locked_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -516,7 +471,7 @@ inline void LockedView2x1
   const DistMatrix<T,U,V,Int>& BB )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView2x1");
+    CallStackEntry entry("LockedView2x1");
     AssertConforming2x1( BT, BB );
     BT.AssertSameGrid( BB.Grid() );
 #endif
@@ -540,9 +495,6 @@ inline void LockedView2x1
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -552,7 +504,7 @@ inline void View2x2
   Matrix<T,Int>& BBL, Matrix<T,Int>& BBR )
 {
 #ifndef RELEASE
-    PushCallStack("View2x2");
+    CallStackEntry entry("View2x2");
     if( BTL.Width() != BBL.Width()   ||
         BTR.Width() != BBR.Width()   ||
         BTL.Height() != BTR.Height() ||
@@ -574,9 +526,6 @@ inline void View2x2
     A.data_ = BTL.Buffer();
     A.viewing_ = true;
     A.locked_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -586,7 +535,7 @@ inline void View2x2
   DistMatrix<T,U,V,Int>& BBL, DistMatrix<T,U,V,Int>& BBR )
 {
 #ifndef RELEASE
-    PushCallStack("View2x2");
+    CallStackEntry entry("View2x2");
     AssertConforming2x2( BTL, BTR, BBL, BBR );
     BTL.AssertSameGrid( BTR.Grid() );
     BTL.AssertSameGrid( BBL.Grid() );
@@ -613,9 +562,6 @@ inline void View2x2
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -627,7 +573,7 @@ inline void LockedView2x2
   const Matrix<T,Int>& BBR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView2x2");
+    CallStackEntry entry("LockedView2x2");
     if( BTL.Width() != BBL.Width()   ||
         BTR.Width() != BBR.Width()   ||
         BTL.Height() != BTR.Height() ||
@@ -649,9 +595,6 @@ inline void LockedView2x2
     A.lockedData_ = BTL.LockedBuffer();
     A.viewing_ = true;
     A.locked_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -663,7 +606,7 @@ inline void LockedView2x2
   const DistMatrix<T,U,V,Int>& BBR )
 {
 #ifndef RELEASE
-    PushCallStack("LockedView2x2");
+    CallStackEntry entry("LockedView2x2");
     AssertConforming2x2( BTL, BTR, BBL, BBR );
     BTL.AssertSameGrid( BTR.Grid() );
     BTL.AssertSameGrid( BBL.Grid() );
@@ -691,9 +634,6 @@ inline void LockedView2x2
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

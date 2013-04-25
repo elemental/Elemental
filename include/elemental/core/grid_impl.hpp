@@ -26,7 +26,7 @@ inline
 Grid::Grid( mpi::Comm comm )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Grid");
+    CallStackEntry entry("Grid::Grid");
 #endif
     inGrid_ = true; // this is true by assumption for this constructor
 
@@ -46,17 +46,13 @@ Grid::Grid( mpi::Comm comm )
     width_ = size_ / height_;
 
     SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline 
 Grid::Grid( mpi::Comm comm, int height, int width )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Grid");
+    CallStackEntry entry("Grid::Grid");
 #endif
     inGrid_ = true; // this is true by assumption for this constructor
 
@@ -78,17 +74,13 @@ Grid::Grid( mpi::Comm comm, int height, int width )
         ("Process grid dimensions must be non-negative");
 
     SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline void 
 Grid::SetUpGrid()
 {
 #ifndef RELEASE
-    PushCallStack("Grid::SetUpGrid");
+    CallStackEntry entry("Grid::SetUpGrid");
 #endif
     if( size_ != height_*width_ )
     {
@@ -190,9 +182,6 @@ Grid::SetUpGrid()
     mpi::GroupTranslateRanks
     ( owningGroup_, size_, &ranks[0], viewingGroup_, 
       &vectorColToViewingMap_[0] );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline 
@@ -318,7 +307,7 @@ inline
 Grid::Grid( mpi::Comm viewers, mpi::Group owners )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Grid");
+    CallStackEntry entry("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
@@ -340,10 +329,6 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners )
     width_ = size_ / height_;
 
     SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Currently forces a columnMajor absolute rank on the grid
@@ -351,7 +336,7 @@ inline
 Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, int width )
 {
 #ifndef RELEASE
-    PushCallStack("Grid::Grid");
+    CallStackEntry entry("Grid::Grid");
 #endif
 
     // Extract our rank and the underlying group from the viewing comm
@@ -376,10 +361,6 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, int width )
         ("Process grid dimensions must be non-negative");
 
     SetUpGrid();
-
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline int 

@@ -22,7 +22,7 @@ inline bool
 AxpyInterface<T,Int>::Finished()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::Finished");
+    CallStackEntry entry("AxpyInterface::Finished");
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         throw std::logic_error("Not attached!");
 #endif
@@ -40,9 +40,6 @@ AxpyInterface<T,Int>::Finished()
             break;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return finished;
 }
 
@@ -51,7 +48,7 @@ inline void
 AxpyInterface<T,Int>::HandleEoms()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::HandleEoms");
+    CallStackEntry entry("AxpyInterface::HandleEoms");
 #endif
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
@@ -110,9 +107,6 @@ AxpyInterface<T,Int>::HandleEoms()
         mpi::Recv( &recvDummy_, 1, source, EOM_TAG, g.VCComm() );
         haveEomFrom_[source] = true;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -120,7 +114,7 @@ inline void
 AxpyInterface<T,Int>::HandleLocalToGlobalData()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::HandleLocalToGlobalData");
+    CallStackEntry entry("AxpyInterface::HandleLocalToGlobalData");
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     const Grid& g = Y.Grid();
@@ -220,9 +214,6 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
         // Free the memory for the recv buffer
         recvVector_.clear();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
     
 template<typename T,typename Int>
@@ -230,7 +221,7 @@ inline void
 AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::HandleGlobalToLocalRequest");
+    CallStackEntry entry("AxpyInterface::HandleGlobalToLocalRequest");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
     const Grid& g = X.Grid();
@@ -297,9 +288,6 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
         ( sendBuffer, bufferSize, source, DATA_REPLY_TAG, g.VCComm(), 
           replySendRequests_[source][index] );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -314,7 +302,7 @@ inline
 AxpyInterface<T,Int>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::AxpyInterface");
+    CallStackEntry entry("AxpyInterface::AxpyInterface");
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
@@ -348,9 +336,6 @@ AxpyInterface<T,Int>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
     replySendRequests_.resize( p );
 
     eomSendRequests_.resize( p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -359,7 +344,7 @@ AxpyInterface<T,Int>::AxpyInterface
 ( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::AxpyInterface");
+    CallStackEntry entry("AxpyInterface::AxpyInterface");
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
@@ -390,9 +375,6 @@ AxpyInterface<T,Int>::AxpyInterface
     replySendRequests_.resize( p );
 
     eomSendRequests_.resize( p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -431,7 +413,7 @@ inline void
 AxpyInterface<T,Int>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::Attach");
+    CallStackEntry entry("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         throw std::logic_error("Must detach before reattaching.");
@@ -464,9 +446,6 @@ AxpyInterface<T,Int>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
     replySendRequests_.resize( p );
 
     eomSendRequests_.resize( p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -474,7 +453,7 @@ inline void
 AxpyInterface<T,Int>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::Attach");
+    CallStackEntry entry("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
         throw std::logic_error("Must detach before reattaching.");
@@ -506,9 +485,6 @@ AxpyInterface<T,Int>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
     replySendRequests_.resize( p );
 
     eomSendRequests_.resize( p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -516,7 +492,7 @@ inline void
 AxpyInterface<T,Int>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::Axpy");
+    CallStackEntry entry("AxpyInterface::Axpy");
 #endif
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
@@ -524,9 +500,6 @@ AxpyInterface<T,Int>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
         AxpyGlobalToLocal( alpha, Z, i, j );
     else
         throw std::logic_error("Cannot axpy before attaching.");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -534,7 +507,7 @@ inline void
 AxpyInterface<T,Int>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::Axpy");
+    CallStackEntry entry("AxpyInterface::Axpy");
 #endif
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
@@ -542,9 +515,6 @@ AxpyInterface<T,Int>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
         throw std::logic_error("Cannot update a constant matrix.");
     else
         throw std::logic_error("Cannot axpy before attaching.");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Update Y(i:i+height-1,j:j+width-1) += alpha X, where X is height x width
@@ -554,7 +524,7 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, Int i, Int j )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::AxpyLocalToGlobal");
+    CallStackEntry entry("AxpyInterface::AxpyLocalToGlobal");
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
@@ -629,9 +599,6 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
         if( receivingRow == 0 )
             receivingCol = (receivingCol + 1) % c;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Update Y += alpha X(i:i+height-1,j:j+width-1), where X is the dist-matrix
@@ -641,7 +608,7 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, Int i, Int j )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::AxpyGlobalToLocal");
+    CallStackEntry entry("AxpyInterface::AxpyGlobalToLocal");
 #endif
     const DistMatrix<T,MC,MR>& X = *globalToLocalMat_;
 
@@ -725,9 +692,6 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
             ++numReplies;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -739,7 +703,7 @@ AxpyInterface<T,Int>::ReadyForSend
   std::deque<bool>& requestStatuses )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::ReadyForSend");
+    CallStackEntry entry("AxpyInterface::ReadyForSend");
 #endif
     const Int numCreated = sendVectors.size();
 #ifndef RELEASE
@@ -759,9 +723,6 @@ AxpyInterface<T,Int>::ReadyForSend
         {
             requestStatuses[i] = true;
             sendVectors[i].resize( sendSize );
-#ifndef RELEASE
-            PopCallStack();
-#endif
             return i;
         }
     }
@@ -771,9 +732,6 @@ AxpyInterface<T,Int>::ReadyForSend
     requests.push_back( mpi::REQUEST_NULL );
     requestStatuses.push_back( true );
 
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numCreated;
 }
 
@@ -782,7 +740,7 @@ inline void
 AxpyInterface<T,Int>::UpdateRequestStatuses()
 {
 #ifndef RELEASE
-    PushCallStack("AxpyInterface::UpdateRequestStatuses");
+    CallStackEntry entry("AxpyInterface::UpdateRequestStatuses");
 #endif
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
@@ -807,9 +765,6 @@ AxpyInterface<T,Int>::UpdateRequestStatuses()
                 sendingReply_[i][j] = 
                     !mpi::Test( replySendRequests_[i][j] );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -817,7 +772,7 @@ inline void
 AxpyInterface<T,Int>::Detach()
 {
 #ifndef RELEASE    
-    PushCallStack("AxpyInterface::Detach");
+    CallStackEntry entry("AxpyInterface::Detach");
 #endif
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
         throw std::logic_error("Must attach before detaching.");
@@ -856,9 +811,6 @@ AxpyInterface<T,Int>::Detach()
     replySendRequests_.clear();
 
     eomSendRequests_.clear();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

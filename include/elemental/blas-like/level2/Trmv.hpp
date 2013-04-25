@@ -21,7 +21,7 @@ Trmv
   const Matrix<T>& A, Matrix<T>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Trmv");
+    CallStackEntry entry("Trmv");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
     if( A.Height() != A.Width() )
@@ -38,9 +38,6 @@ Trmv
     blas::Trmv
     ( uploChar, transChar, diagChar, m,
       A.LockedBuffer(), A.LDim(), x.Buffer(), incx );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

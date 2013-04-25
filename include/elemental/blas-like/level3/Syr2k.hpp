@@ -25,7 +25,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr2k");
+    CallStackEntry entry("Syr2k");
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
@@ -58,9 +58,6 @@ Syr2k
                  B.LockedBuffer(), B.LDim(),
           beta,  C.Buffer(),       C.LDim() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -72,7 +69,7 @@ Syr2k
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr2k");
+    CallStackEntry entry("Syr2k");
 #endif
     if( uplo == LOWER && orientation == NORMAL )
         internal::Syr2kLN( alpha, A, B, beta, C, conjugate );
@@ -82,9 +79,6 @@ Syr2k
         internal::Syr2kUN( alpha, A, B, beta, C, conjugate );
     else
         internal::Syr2kUT( alpha, A, B, beta, C, conjugate );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

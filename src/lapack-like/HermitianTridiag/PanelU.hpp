@@ -29,7 +29,7 @@ void PanelU
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelU");
+    CallStackEntry entry("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -53,12 +53,7 @@ void PanelU
     e.ResizeTo( panelSize, 1 );
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Matrix views 
     DistMatrix<R> 
@@ -676,9 +671,6 @@ void PanelU
     }
 
     expandedABR.SetDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -694,7 +686,7 @@ void PanelU
     const int panelSize = W.Width();
     const int topSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelU");
+    CallStackEntry entry("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid.");
@@ -723,12 +715,7 @@ void PanelU
     e.ResizeTo( panelSize, 1 );
 
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Matrix views 
     DistMatrix<C> 
@@ -1374,9 +1361,6 @@ void PanelU
     }
 
     expandedABR.SetRealPartOfDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_tridiag

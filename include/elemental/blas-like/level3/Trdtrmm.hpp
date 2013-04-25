@@ -18,12 +18,9 @@ LocalTrdtrmm
 ( Orientation orientation, UpperOrLower uplo, DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrdtrmm");
+    CallStackEntry entry("LocalTrdtrmm");
 #endif
     Trdtrmm( orientation, uplo, A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -39,7 +36,7 @@ inline void
 Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Trdtrdmm");
+    CallStackEntry entry("Trdtrdmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
@@ -47,9 +44,6 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
         internal::TrdtrmmLVar1( orientation, A );
     else
         internal::TrdtrmmUVar1( orientation, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -57,7 +51,7 @@ inline void
 Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Trdtrmm");
+    CallStackEntry entry("Trdtrmm");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
@@ -65,9 +59,6 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
         internal::TrdtrmmLVar1( orientation, A );
     else
         internal::TrdtrmmUVar1( orientation, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

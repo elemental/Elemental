@@ -23,7 +23,7 @@ inline BASE(F)
 LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LogDetDivergence");
+    CallStackEntry entry("LogDetDivergence");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
@@ -56,11 +56,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     for( int i=0; i<n; ++i )
         logDet += 2*Log( RealPart(d.Get(i,0)) );
 
-    const R logDetDiv = frobNorm*frobNorm - logDet - R(n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return logDetDiv;
+    return frobNorm*frobNorm - logDet - R(n);
 }
 
 template<typename F>
@@ -69,7 +65,7 @@ LogDetDivergence
 ( UpperOrLower uplo, const DistMatrix<F>& A, const DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LogDetDivergence");
+    CallStackEntry entry("LogDetDivergence");
 #endif
     if( A.Grid() != B.Grid() )
         throw std::logic_error("A and B must use the same grid");
@@ -114,11 +110,7 @@ LogDetDivergence
     }
     mpi::AllReduce( &localLogDet, &logDet, 1, mpi::SUM, g.VCComm() );
 
-    const R logDetDiv = frobNorm*frobNorm - logDet - R(n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return logDetDiv;
+    return frobNorm*frobNorm - logDet - R(n);
 }
 
 } // namespace elem

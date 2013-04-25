@@ -22,7 +22,7 @@ void TrrkTT
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrrkTN");
+    CallStackEntry entry("internal::TrrkTN");
     if( C.Height() != C.Width() ||
         A.Width() != C.Height() || 
         B.Height() != C.Width() ||
@@ -83,9 +83,6 @@ void TrrkTT
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

@@ -21,12 +21,9 @@ Her2
   T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Her2");
+    CallStackEntry entry("Her2");
 #endif
     Syr2( uplo, alpha, x, y, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -38,12 +35,9 @@ Her2
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Her2");
+    CallStackEntry entry("Her2");
 #endif
     Syr2( uplo, alpha, x, y, A, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

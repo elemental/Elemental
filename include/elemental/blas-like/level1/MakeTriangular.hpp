@@ -17,7 +17,7 @@ inline void
 MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeTriangular");
+    CallStackEntry entry("MakeTriangular");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -46,9 +46,6 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
             MemZero( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -56,7 +53,7 @@ inline void
 MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeTriangular");
+    CallStackEntry entry("MakeTriangular");
 #endif
     const int height = A.Height();
     const int localHeight = A.LocalHeight();
@@ -106,9 +103,6 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -51,7 +51,7 @@ template<typename Int>
 inline Int Length( Int n, Int shift, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("Length");
+    CallStackEntry entry("Length");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
     if( shift < 0 || shift >= stride )
@@ -63,7 +63,6 @@ inline Int Length( Int n, Int shift, Int stride )
     }
     if( stride <= 0 )
         throw std::logic_error("Modulus must be positive");
-    PopCallStack();
 #endif
     return Length_( n, shift, stride );
 }
@@ -79,14 +78,10 @@ inline Int
 Length( Int n, Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("Length");
+    CallStackEntry entry("Length");
 #endif
     Int shift = Shift( rank, alignment, stride );
-    Int localLength = Length( n, shift, stride );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return localLength;
+    return Length( n, shift, stride );
 }
 
 template<typename Int>
@@ -102,12 +97,11 @@ template<typename Int>
 inline Int MaxLength( Int n, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("MaxLength");
+    CallStackEntry entry("MaxLength");
     if( n < 0 )
         throw std::logic_error("n must be non-negative");
     if( stride <= 0 )
         throw std::logic_error("Modulus must be positive");
-    PopCallStack();
 #endif
     return MaxLength_( n, stride );
 }
@@ -123,7 +117,7 @@ template<typename Int>
 inline Int Shift( Int rank, Int alignment, Int stride )
 {
 #ifndef RELEASE
-    PushCallStack("Shift");
+    CallStackEntry entry("Shift");
     if( rank < 0 || rank >= stride )
     {
         std::ostringstream msg;
@@ -140,7 +134,6 @@ inline Int Shift( Int rank, Int alignment, Int stride )
     }
     if( stride <= 0 )
         throw std::logic_error("Stride must be positive");
-    PopCallStack();
 #endif
     return Shift_( rank, alignment, stride );
 }

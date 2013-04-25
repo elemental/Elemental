@@ -28,7 +28,7 @@ TrsmLLNLarge
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLNLarge");
+    CallStackEntry entry("internal::TrsmLLNLarge");
 #endif
     const Grid& g = L.Grid();
 
@@ -103,9 +103,6 @@ TrsmLLNLarge
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // For medium numbers of RHS's, e.g., width(X) ~= p
@@ -117,7 +114,7 @@ TrsmLLNMedium
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLNMedium");
+    CallStackEntry entry("internal::TrsmLLNMedium");
 #endif
     const Grid& g = L.Grid();
 
@@ -191,9 +188,6 @@ TrsmLLNMedium
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // For small numbers of RHS's, e.g., width(X) < p
@@ -205,7 +199,7 @@ TrsmLLNSmall
   bool checkIfSingular )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsmLLNSmall");
+    CallStackEntry entry("internal::TrsmLLNSmall");
     if( L.ColAlignment() != X.ColAlignment() )
         throw std::logic_error("L and X are assumed to be aligned");
 #endif
@@ -271,9 +265,6 @@ TrsmLLNSmall
          /**/ /**/
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

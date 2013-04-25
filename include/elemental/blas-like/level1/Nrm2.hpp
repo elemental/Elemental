@@ -19,20 +19,15 @@ inline BASE(F)
 Nrm2( const Matrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Nrm2");
+    CallStackEntry entry("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("Expected vector input");
 #endif
-    typedef BASE(F) R;
-
-    R norm;
+    BASE(F) norm;
     if( x.Width() == 1 )
         norm = blas::Nrm2( x.Height(), x.LockedBuffer(), 1 );
     else
         norm = blas::Nrm2( x.Width(), x.LockedBuffer(), x.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -41,16 +36,11 @@ inline BASE(F)
 Nrm2( const DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Nrm2");
+    CallStackEntry entry("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
         throw std::logic_error("x must be a vector");
 #endif
-    typedef BASE(F) R;
-    const R norm = FrobeniusNorm( x );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return FrobeniusNorm( x );
 }
 
 } // namespace elem

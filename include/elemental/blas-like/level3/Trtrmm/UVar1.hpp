@@ -20,7 +20,7 @@ inline void
 TrtrmmUVar1( Orientation orientation, Matrix<T>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrtrmmUVar1");
+    CallStackEntry entry("internal::TrtrmmUVar1");
 #endif
      Matrix<T>
         UTL, UTR,  U00, U01, U02,
@@ -50,9 +50,6 @@ TrtrmmUVar1( Orientation orientation, Matrix<T>& U )
          /*************/ /******************/
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -60,7 +57,7 @@ inline void
 TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrtrmmUVar1");
+    CallStackEntry entry("internal::TrtrmmUVar1");
     if( U.Height() != U.Width() )
         throw std::logic_error("U must be square");
 #endif
@@ -119,9 +116,6 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
          /*************/ /******************/
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

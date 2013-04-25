@@ -17,7 +17,7 @@ inline void
 Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Geru");
+    CallStackEntry entry("Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
         throw std::logic_error("x and y must be vectors");
@@ -33,9 +33,6 @@ Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
     blas::Geru
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
                    A.Buffer(), A.LDim() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -46,7 +43,7 @@ Geru
                  DistMatrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Geru");
+    CallStackEntry entry("Geru");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
        throw std::logic_error("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
@@ -145,9 +142,6 @@ Geru
         x_STAR_MC.FreeAlignments();
         y_STAR_MR.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

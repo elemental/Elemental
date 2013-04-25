@@ -25,14 +25,11 @@ void Trr2kTTNT
   T beta,        DistMatrix<T>& E )
 {
 #ifndef RELEASE
-    PushCallStack("internal::Trr2kTTNT");
+    CallStackEntry entry("internal::Trr2kTTNT");
 #endif
     Trr2kNTTT
     ( uplo, orientationOfD, orientationOfA, orientationOfB,
       alpha, C, D, A, B, beta, E );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

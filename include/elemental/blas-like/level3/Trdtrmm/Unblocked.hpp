@@ -18,7 +18,7 @@ inline void
 TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrdtrmmLUnblocked");
+    CallStackEntry entry("internal::TrdtrmmLUnblocked");
     if( L.Height() != L.Width() )
         throw std::logic_error("L must be square");
     if( orientation == NORMAL )
@@ -65,9 +65,6 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
         // lambda11 := 1 / delta11
         LBuffer[j+j*ldim] = 1 / delta11;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -75,7 +72,7 @@ inline void
 TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrdtrmmUUnblocked");
+    CallStackEntry entry("internal::TrdtrmmUUnblocked");
     if( U.Height() != U.Width() )
         throw std::logic_error("U must be square");
     if( orientation == NORMAL )
@@ -122,9 +119,6 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
         // lambda11 := 1 / delta11
         UBuffer[j+j*ldim] = 1 / delta11;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

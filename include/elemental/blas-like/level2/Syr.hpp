@@ -19,7 +19,7 @@ Syr
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr");
+    CallStackEntry entry("Syr");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( x.Width() != 1 && x.Height() != 1 )
@@ -41,9 +41,6 @@ Syr
         blas::Syr
         ( uploChar, m, alpha, x.LockedBuffer(), incx, A.Buffer(), A.LDim() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -55,7 +52,7 @@ Syr
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Syr");
+    CallStackEntry entry("Syr");
     if( A.Grid() != x.Grid() )
         throw std::logic_error
         ("A and x must be distributed over the same grid");
@@ -169,9 +166,6 @@ Syr
         x_STAR_MC.FreeAlignments();
         x_STAR_MR.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

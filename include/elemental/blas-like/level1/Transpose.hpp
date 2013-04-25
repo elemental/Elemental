@@ -17,7 +17,7 @@ inline void
 Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Transpose");
+    CallStackEntry entry("Transpose");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -47,9 +47,6 @@ Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
             for( int i=0; i<m; ++i )
                 B.Set(j,i,A.Get(i,j));
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,
@@ -59,7 +56,7 @@ Transpose
 ( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B, bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Transpose");
+    CallStackEntry entry("Transpose");
 #endif
     if( B.Viewing() )
     {
@@ -98,9 +95,6 @@ Transpose
         }
         Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

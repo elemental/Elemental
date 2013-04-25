@@ -22,7 +22,7 @@ SyrkLT
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("internal::SyrkLT");
+    CallStackEntry entry("internal::SyrkLT");
     if( A.Grid() != C.Grid() )
         throw std::logic_error
         ("A and C must be distributed over the same grid");
@@ -80,9 +80,6 @@ SyrkLT
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

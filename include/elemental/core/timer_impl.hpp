@@ -26,31 +26,25 @@ inline void
 Timer::Start()
 {
 #ifndef RELEASE
-    PushCallStack("Timer::Start");
+    CallStackEntry entry("Timer::Start");
     if( running_ )
         throw std::logic_error("Forgot to stop timer before restarting");
 #endif
     lastStartTime_ = mpi::Time();
     running_ = true;
     running_ = true;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline void 
 Timer::Stop()
 {
 #ifndef RELEASE
-    PushCallStack("Timer::Stop");
+    CallStackEntry entry("Timer::Stop");
     if( !running_ )
         throw std::logic_error("Tried to stop a timer before starting it");
 #endif
     time_ += mpi::Time()-lastStartTime_;
     running_ = false;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 inline void 
@@ -65,10 +59,9 @@ inline double
 Timer::Time() const
 {
 #ifndef RELEASE
-    PushCallStack("Timer::Time");
+    CallStackEntry entry("Timer::Time");
     if( running_ )
         throw std::logic_error("Asked for time while still timing");
-    PopCallStack();
 #endif
     return time_;
 }

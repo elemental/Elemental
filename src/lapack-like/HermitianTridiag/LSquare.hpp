@@ -18,7 +18,7 @@ template<typename R>
 void LSquare( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::LSquare");
+    CallStackEntry entry("hermitian_tridiag::LSquare");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Grid().Height() != A.Grid().Width() )
@@ -111,9 +111,6 @@ void LSquare( DistMatrix<R>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -122,7 +119,7 @@ void LSquare
   DistMatrix<Complex<R>,STAR,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::LSquare");
+    CallStackEntry entry("hermitian_tridiag::LSquare");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
@@ -253,9 +250,6 @@ void LSquare
 
     // Redistribute from matrix-diagonal form to fully replicated
     t = tDiag;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_tridiag

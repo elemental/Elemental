@@ -17,7 +17,7 @@ inline void
 AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyTriangle");
+    CallStackEntry entry("AxpyTriangle");
     if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
         X.Height() != Y.Height() )
         throw std::logic_error("Nonconformal AxpyTriangle");
@@ -33,9 +33,6 @@ AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
         for( int j=0; j<X.Width(); ++j )
             blas::Axpy( n-j, alpha, X.LockedBuffer(j,j), 1, Y.Buffer(j,j), 1 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -51,7 +48,7 @@ AxpyTriangle
 ( UpperOrLower uplo, T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 {
 #ifndef RELEASE
-    PushCallStack("AxpyTriangle");
+    CallStackEntry entry("AxpyTriangle");
     if( X.Grid() != Y.Grid() )
         throw std::logic_error
         ("X and Y must be distributed over the same grid");
@@ -104,9 +101,6 @@ AxpyTriangle
         XCopy = X;
         AxpyTriangle( uplo, alpha, XCopy.LockedMatrix(), Y.Matrix() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>

@@ -268,7 +268,7 @@ TrrkNNKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("TrrkNNKernel");
+    CallStackEntry entry("TrrkNNKernel");
     CheckInputNN( A, B, C );
 #endif
     Matrix<T> AT,
@@ -302,9 +302,6 @@ TrrkNNKernel
     Gemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A B + beta C
@@ -317,7 +314,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkKernel");
+    CallStackEntry entry("LocalTrrkKernel");
     CheckInput( A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -355,9 +352,6 @@ LocalTrrkKernel
     LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A B^{T/H} + beta C
@@ -370,7 +364,7 @@ TrrkNTKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("TrrkNTKernel");
+    CallStackEntry entry("TrrkNTKernel");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     Matrix<T> AT,
@@ -407,9 +401,6 @@ TrrkNTKernel
     Gemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A B^{T/H} + beta C
@@ -423,7 +414,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkKernel");
+    CallStackEntry entry("LocalTrrkKernel");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -464,9 +455,6 @@ LocalTrrkKernel
     LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A^{T/H} B + beta C
@@ -479,7 +467,7 @@ TrrkTNKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("TrrkTNKernel");
+    CallStackEntry entry("TrrkTNKernel");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     Matrix<T> AL, AR;
@@ -510,9 +498,6 @@ TrrkTNKernel
     Gemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A^{T/H} B + beta C
@@ -526,7 +511,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T,MC,  MR>& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkKernel");
+    CallStackEntry entry("LocalTrrkKernel");
     CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -561,9 +546,6 @@ LocalTrrkKernel
     LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + beta C
@@ -577,7 +559,7 @@ TrrkTTKernel
   T beta,        Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("TrrkTTKernel");
+    CallStackEntry entry("TrrkTTKernel");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     Matrix<T> AL, AR;
@@ -611,9 +593,6 @@ TrrkTTKernel
     Gemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
@@ -628,7 +607,7 @@ LocalTrrkKernel
   T beta,        DistMatrix<T,MC,  MR  >& C )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTrrkKernel");
+    CallStackEntry entry("LocalTrrkKernel");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -666,9 +645,6 @@ LocalTrrkKernel
     LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace trrk
@@ -684,7 +660,7 @@ void TrrkNN
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("internal::TrrkNN");
+    CallStackEntry entry("internal::TrrkNN");
     CheckInputNN( A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -719,9 +695,6 @@ void TrrkNN
         TrrkNN( uplo, alpha, AT, BL, beta, CTL );
         TrrkNN( uplo, alpha, AB, BR, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A B^{T/H} + beta C
@@ -734,7 +707,7 @@ void TrrkNT
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("internal::TrrkNT");
+    CallStackEntry entry("internal::TrrkNT");
     CheckInputNT( orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -772,9 +745,6 @@ void TrrkNT
         TrrkNT( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
         TrrkNT( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A^{T/H} B + beta C
@@ -787,7 +757,7 @@ void TrrkTN
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("internal::TrrkTN");
+    CallStackEntry entry("internal::TrrkTN");
     CheckInputTN( orientationOfA, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -819,9 +789,6 @@ void TrrkTN
         TrrkTN( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
         TrrkTN( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Local C := alpha A^{T/H} B^{T/H} + beta C
@@ -834,7 +801,7 @@ void TrrkTT
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("internal::TrrkTT");
+    CallStackEntry entry("internal::TrrkTT");
     CheckInputTT( orientationOfA, orientationOfB, A, B, C );
 #endif
     if( C.Height() < LocalTrrkBlocksize<T>() )
@@ -872,9 +839,6 @@ void TrrkTT
         TrrkTT
         ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal
@@ -889,7 +853,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("LocalTrrk");
+    CallStackEntry entry("LocalTrrk");
     CheckInput( A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -926,9 +890,6 @@ void LocalTrrk
         LocalTrrk( uplo, alpha, AT, BL, beta, CTL );
         LocalTrrk( uplo, alpha, AB, BR, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A B^{T/H} + beta C
@@ -942,7 +903,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("LocalTrrk");
+    CallStackEntry entry("LocalTrrk");
     CheckInput( orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -982,9 +943,6 @@ void LocalTrrk
         LocalTrrk( uplo, orientationOfB, alpha, AT, BT, beta, CTL );
         LocalTrrk( uplo, orientationOfB, alpha, AB, BB, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A^{T/H} B + beta C
@@ -998,7 +956,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("LocalTrrk");
+    CallStackEntry entry("LocalTrrk");
     CheckInput( orientationOfA, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -1032,9 +990,6 @@ void LocalTrrk
         LocalTrrk( uplo, orientationOfA, alpha, AL, BL, beta, CTL );
         LocalTrrk( uplo, orientationOfA, alpha, AR, BR, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Distributed C := alpha A^{T/H} B^{T/H} + beta C
@@ -1048,7 +1003,7 @@ void LocalTrrk
 {
     using namespace trrk;
 #ifndef RELEASE
-    PushCallStack("LocalTrrk");
+    CallStackEntry entry("LocalTrrk");
     CheckInput( orientationOfA, orientationOfB, A, B, C );
 #endif
     const Grid& g = C.Grid();
@@ -1094,9 +1049,6 @@ void LocalTrrk
         LocalTrrk
         ( uplo, orientationOfA, orientationOfB, alpha, AR, BB, beta, CBR );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

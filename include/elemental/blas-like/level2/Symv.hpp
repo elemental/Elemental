@@ -29,7 +29,7 @@ Symv
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Symv");
+    CallStackEntry entry("Symv");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
@@ -58,9 +58,6 @@ Symv
           alpha, A.LockedBuffer(), A.LDim(), x.LockedBuffer(), incx,
           beta,  y.Buffer(), incy );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -73,7 +70,7 @@ Symv
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Symv");
+    CallStackEntry entry("Symv");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -272,9 +269,6 @@ Symv
         z.FreeAlignments();
         z_MR_MC.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

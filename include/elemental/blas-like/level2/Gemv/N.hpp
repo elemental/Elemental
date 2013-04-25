@@ -27,7 +27,7 @@ GemvN
   T beta,        DistMatrix<T>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemvN");
+    CallStackEntry entry("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -129,9 +129,6 @@ GemvN
         z.FreeAlignments();
         zTrans.FreeAlignments();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -142,7 +139,7 @@ GemvN
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemvN");
+    CallStackEntry entry("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
         throw std::logic_error
         ("{A,x,y} must be distributed over the same grid");
@@ -174,9 +171,6 @@ GemvN
     //--------------------------------------------------------------------//
     x_MR_STAR.FreeAlignments();
     z_MC_STAR.FreeAlignments();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

@@ -27,7 +27,7 @@ inline void
 TwoSidedTrsmUVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrsmUVar4");
+    CallStackEntry entry("internal::TwoSidedTrsmUVar4");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -133,9 +133,6 @@ TwoSidedTrsmUVar3( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
          /**********************************/
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -144,7 +141,7 @@ TwoSidedTrsmUVar3
 ( UnitOrNonUnit diag, DistMatrix<F>& A, const DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrsmUVar4");
+    CallStackEntry entry("internal::TwoSidedTrsmUVar4");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( U.Height() != U.Width() )
@@ -313,9 +310,6 @@ TwoSidedTrsmUVar3
          /**********************************/
           UBL, /**/ UBR,  U20, U21, /**/ U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

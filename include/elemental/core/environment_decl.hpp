@@ -240,6 +240,13 @@ public:
 void PushCallStack( std::string s );
 void PopCallStack();
 void DumpCallStack();
+
+class CallStackEntry 
+{
+public:
+    CallStackEntry( std::string s ) { PushCallStack(s); }
+    ~CallStackEntry() { PopCallStack(); }
+};
 #endif // ifndef RELEASE
 
 // We define an output stream that does nothing. This is done so that the 

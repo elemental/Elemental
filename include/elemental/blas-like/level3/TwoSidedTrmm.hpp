@@ -18,7 +18,7 @@ inline void
 TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrmmLUnb");
+    CallStackEntry entry("internal::TwoSidedTrmmLUnb");
 #endif
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
@@ -72,9 +72,6 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
             for( int k=0; k<a21Height; ++k )
                 a21[k] *= lambda11;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -82,7 +79,7 @@ inline void
 TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TwoSidedTrmmUUnb");
+    CallStackEntry entry("internal::TwoSidedTrmmUUnb");
 #endif
     // Use the Variant 4 algorithm
     const int n = A.Height();
@@ -130,9 +127,6 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
             for( int k=0; k<a21Height; ++k )
                 a12[k*lda] *= upsilon11;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal
@@ -144,12 +138,9 @@ LocalTwoSidedTrmm
   DistMatrix<T,STAR,STAR>& A, const DistMatrix<T,STAR,STAR>& B )
 {
 #ifndef RELEASE
-    PushCallStack("LocalTwoSidedTrmm");
+    CallStackEntry entry("LocalTwoSidedTrmm");
 #endif
     TwoSidedTrmm( uplo, diag, A.Matrix(), B.LockedMatrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem
@@ -165,15 +156,12 @@ TwoSidedTrmm
 ( UpperOrLower uplo, UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("TwoSidedTrmm");
+    CallStackEntry entry("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
         internal::TwoSidedTrmmLVar4( diag, A, B );
     else
         internal::TwoSidedTrmmUVar4( diag, A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T> 
@@ -183,15 +171,12 @@ TwoSidedTrmm
   DistMatrix<T>& A, const DistMatrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("TwoSidedTrmm");
+    CallStackEntry entry("TwoSidedTrmm");
 #endif
     if( uplo == LOWER )
         internal::TwoSidedTrmmLVar4( diag, A, B );
     else
         internal::TwoSidedTrmmUVar4( diag, A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

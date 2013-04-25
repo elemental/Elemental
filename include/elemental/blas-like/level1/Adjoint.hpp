@@ -19,12 +19,9 @@ inline void
 Adjoint( const Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Adjoint");
+    CallStackEntry entry("Adjoint");
 #endif
     Transpose( A, B, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,
@@ -33,12 +30,9 @@ inline void
 Adjoint( const DistMatrix<T,U,V>& A, DistMatrix<T,W,Z>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Adjoint");
+    CallStackEntry entry("Adjoint");
 #endif
     Transpose( A, B, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

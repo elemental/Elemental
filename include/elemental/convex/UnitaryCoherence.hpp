@@ -31,7 +31,7 @@ inline BASE(F)
 UnitaryCoherence( Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("UnitaryCoherence");
+    CallStackEntry entry("UnitaryCoherence");
 #endif
     typedef BASE(F) R;
     const int n = U.Height();
@@ -52,11 +52,7 @@ UnitaryCoherence( Matrix<F>& U )
         const R colNorm = blas::Nrm2( n, Z.LockedBuffer(0,j), 1 );
         maxColNorm = std::max( colNorm, maxColNorm );
     }
-    const R coherence = (n*maxColNorm*maxColNorm)/r;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return coherence;
+    return (n*maxColNorm*maxColNorm)/r;
 }
 
 template<typename F>
@@ -64,7 +60,7 @@ inline BASE(F)
 UnitaryCoherence( DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("UnitaryCoherence");
+    CallStackEntry entry("UnitaryCoherence");
 #endif
     typedef BASE(F) R;
     const Grid& grid = U.Grid();
@@ -96,11 +92,7 @@ UnitaryCoherence( DistMatrix<F>& U )
     mpi::AllReduce
     ( &maxLocalNormSquared, &maxNormSquared, 1, mpi::MAX, grid.RowComm() );
 
-    const R coherence = (n*maxNormSquared)/r;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return coherence;
+    return (n*maxNormSquared)/r;
 }
 
 } // namespace elem

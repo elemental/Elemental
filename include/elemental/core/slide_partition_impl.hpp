@@ -28,14 +28,11 @@ SlidePartitionUp
   M& AB, M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionUp [Matrix]");
+    CallStackEntry entry("SlidePartitionUp [Matrix]");
 #endif
     View( AT, A0 );
     View2x1( AB, A1,
                  A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -46,14 +43,11 @@ SlidePartitionUp
   DM& AB, DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionUp [DistMatrix]");
+    CallStackEntry entry("SlidePartitionUp [DistMatrix]");
 #endif
     View( AT, A0 );
     View2x1( AB, A1,
                  A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -64,14 +58,11 @@ SlideLockedPartitionUp
   M& AB, const M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionUp [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionUp [Matrix]");
 #endif
     LockedView( AT, A0 );
     LockedView2x1( AB, A1,
                        A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -82,14 +73,11 @@ SlideLockedPartitionUp
   DM& AB, const DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionUp [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionUp [DistMatrix]");
 #endif
     LockedView( AT, A0 );
     LockedView2x1( AB, A1,
                        A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -104,14 +92,11 @@ SlidePartitionDown
   M& AB, M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionDown [Matrix]");
+    CallStackEntry entry("SlidePartitionDown [Matrix]");
 #endif
     View2x1( AT, A0,
                  A1 );
     View( AB, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -122,14 +107,11 @@ SlidePartitionDown
   DM& AB, DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionDown [DistMatrix]");
+    CallStackEntry entry("SlidePartitionDown [DistMatrix]");
 #endif
     View2x1( AT, A0,
                  A1 );
     View( AB, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -140,14 +122,11 @@ SlideLockedPartitionDown
   M& AB, const M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionDown [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionDown [Matrix]");
 #endif
     LockedView2x1( AT, A0,
                        A1 );
     LockedView( AB, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -158,14 +137,11 @@ SlideLockedPartitionDown
   DM& AB, const DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionDown [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionDown [DistMatrix]");
 #endif
     LockedView2x1( AT, A0,
                        A1 );
     LockedView( AB, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -179,13 +155,10 @@ SlidePartitionLeft
   M& A0, M& A1, M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionLeft [Matrix]");
+    CallStackEntry entry("SlidePartitionLeft [Matrix]");
 #endif
     View( AL, A0 );
     View1x2( AR, A1, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -195,13 +168,10 @@ SlidePartitionLeft
   DM& A0, DM& A1, DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionLeft [DistMatrix]");
+    CallStackEntry entry("SlidePartitionLeft [DistMatrix]");
 #endif
     View( AL, A0 );
     View1x2( AR, A1, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -211,13 +181,10 @@ SlideLockedPartitionLeft
   const M& A0, const M& A1, const M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionLeft [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionLeft [Matrix]");
 #endif
     LockedView( AL, A0 );
     LockedView1x2( AR, A1, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -227,13 +194,10 @@ SlideLockedPartitionLeft
   const DM& A0, const DM& A1, const DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionLeft [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionLeft [DistMatrix]");
 #endif
     LockedView( AL, A0 );
     LockedView1x2( AR, A1, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -247,13 +211,10 @@ SlidePartitionRight
   M& A0, M& A1, M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionRight [Matrix]");
+    CallStackEntry entry("SlidePartitionRight [Matrix]");
 #endif
     View1x2( AL, A0, A1 );
     View( AR, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -263,13 +224,10 @@ SlidePartitionRight
   DM& A0, DM& A1, DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionRight [DistMatrix]");
+    CallStackEntry entry("SlidePartitionRight [DistMatrix]");
 #endif
     View1x2( AL, A0, A1 );
     View( AR, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -279,13 +237,10 @@ SlideLockedPartitionRight
   const M& A0, const M& A1, const M& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionRight [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionRight [Matrix]");
 #endif
     LockedView1x2( AL, A0, A1 );
     LockedView( AR, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -295,13 +250,10 @@ SlideLockedPartitionRight
   const DM& A0, const DM& A1, const DM& A2 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionRight [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionRight [DistMatrix]");
 #endif
     LockedView1x2( AL, A0, A1 );
     LockedView( AR, A2 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -316,7 +268,7 @@ SlidePartitionUpDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("SlidePartitionUpDiagonal [Matrix]");
 #endif
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
@@ -324,9 +276,6 @@ SlidePartitionUpDiagonal
                   A20 );
     View2x2( ABR, A11, A12,
                   A21, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -337,7 +286,7 @@ SlidePartitionUpDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("SlidePartitionUpDiagonal [DistMatrix]");
 #endif
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
@@ -345,9 +294,6 @@ SlidePartitionUpDiagonal
                   A20 );
     View2x2( ABR, A11, A12,
                   A21, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -358,7 +304,7 @@ SlideLockedPartitionUpDiagonal
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionUpDiagonal [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionUpDiagonal [Matrix]");
 #endif
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
@@ -366,9 +312,6 @@ SlideLockedPartitionUpDiagonal
                         A20 );
     LockedView2x2( ABR, A11, A12,
                         A21, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -379,7 +322,7 @@ SlideLockedPartitionUpDiagonal
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionUpDiagonal [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionUpDiagonal [DistMatrix]");
 #endif
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
@@ -387,9 +330,6 @@ SlideLockedPartitionUpDiagonal
                         A20 );
     LockedView2x2( ABR, A11, A12,
                         A21, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //
@@ -404,7 +344,7 @@ SlidePartitionDownDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("SlidePartitionDownDiagonal [Matrix]");
 #endif
     View2x2( ATL, A00, A01,
                   A10, A11 );
@@ -412,9 +352,6 @@ SlidePartitionDownDiagonal
                   A12 );
     View1x2( ABL, A20, A21 );
     View( ABR, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -425,7 +362,7 @@ SlidePartitionDownDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlidePartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("SlidePartitionDownDiagonal [DistMatrix]");
 #endif
     View2x2( ATL, A00, A01,
                   A10, A11 );
@@ -433,9 +370,6 @@ SlidePartitionDownDiagonal
                   A12 );
     View1x2( ABL, A20, A21 );
     View( ABR, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -446,7 +380,7 @@ SlideLockedPartitionDownDiagonal
   M& ABL, M& ABR, const M& A20, const M& A21, const M& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionDownDiagonal [Matrix]");
+    CallStackEntry entry("SlideLockedPartitionDownDiagonal [Matrix]");
 #endif
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
@@ -454,9 +388,6 @@ SlideLockedPartitionDownDiagonal
                         A12 );
     LockedView1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -467,7 +398,7 @@ SlideLockedPartitionDownDiagonal
   DM& ABL, DM& ABR, const DM& A20, const DM& A21, const DM& A22 )
 {
 #ifndef RELEASE
-    PushCallStack("SlideLockedPartitionDownDiagonal [DistMatrix]");
+    CallStackEntry entry("SlideLockedPartitionDownDiagonal [DistMatrix]");
 #endif
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
@@ -475,9 +406,6 @@ SlideLockedPartitionDownDiagonal
                         A12 );
     LockedView1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #undef DM

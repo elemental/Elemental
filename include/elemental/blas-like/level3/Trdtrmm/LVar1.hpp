@@ -21,7 +21,7 @@ inline void
 TrdtrmmLVar1( Orientation orientation, Matrix<F>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrdtrmmLVar1");
+    CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         throw std::logic_error("L must be square");
     if( orientation == NORMAL )
@@ -59,9 +59,6 @@ TrdtrmmLVar1( Orientation orientation, Matrix<F>& L )
          /*************/ /******************/
           LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -69,7 +66,7 @@ inline void
 TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrdtrmmLVar1");
+    CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
         throw std::logic_error("L must be square");
     if( orientation == NORMAL )
@@ -134,9 +131,6 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
          /*************/ /******************/
           LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

@@ -21,7 +21,7 @@ inline int
 SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
-    PushCallStack("SingularValueSoftThreshold");
+    CallStackEntry entry("SingularValueSoftThreshold");
 #endif
     typedef BASE(F) R;
     Matrix<F> U( A );
@@ -34,11 +34,7 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
-    const int rank = ZeroNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return rank;
+    return ZeroNorm( s );
 }
 
 template<typename F>
@@ -46,7 +42,7 @@ inline int
 SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
-    PushCallStack("SingularValueSoftThreshold");
+    CallStackEntry entry("SingularValueSoftThreshold");
 #endif
     typedef BASE(F) R;
     DistMatrix<F> U( A );
@@ -58,11 +54,7 @@ SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
 
-    const int rank = ZeroNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return rank;
+    return ZeroNorm( s );
 }
 
 } // namespace elem

@@ -246,7 +246,7 @@ void
 AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
 { 
 #ifndef RELEASE
-    PushCallStack("AbstractDistMatrix::Align");    
+    CallStackEntry entry("AbstractDistMatrix::Align");    
     AssertFreeColAlignment();
     AssertFreeRowAlignment();
 #endif
@@ -256,9 +256,6 @@ AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
     constrainedColAlignment_ = true;
     constrainedRowAlignment_ = true;
     SetShifts();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -266,16 +263,13 @@ void
 AbstractDistMatrix<T,Int>::AlignCols( Int colAlignment )
 { 
 #ifndef RELEASE
-    PushCallStack("AbstractDistMatrix::AlignCols"); 
+    CallStackEntry entry("AbstractDistMatrix::AlignCols"); 
     AssertFreeColAlignment();
 #endif
     EmptyData();
     colAlignment_ = colAlignment;
     constrainedColAlignment_ = true;
     SetShifts();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -283,16 +277,13 @@ void
 AbstractDistMatrix<T,Int>::AlignRows( Int rowAlignment )
 { 
 #ifndef RELEASE
-    PushCallStack("AbstractDistMatrix::AlignRows"); 
+    CallStackEntry entry("AbstractDistMatrix::AlignRows"); 
     AssertFreeRowAlignment();
 #endif
     EmptyData();
     rowAlignment_ = rowAlignment;
     constrainedRowAlignment_ = true;
     SetShifts();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,typename Int>
@@ -506,7 +497,7 @@ AbstractDistMatrix<T,Int>::Write
 ( const std::string filename, const std::string msg ) const
 {
 #ifndef RELEASE
-    PushCallStack("AbstractDistMatrix::Write");
+    CallStackEntry entry("AbstractDistMatrix::Write");
 #endif
     const elem::Grid& g = Grid();
     const int commRank = mpi::CommRank( g.VCComm() ); 
@@ -523,9 +514,6 @@ AbstractDistMatrix<T,Int>::Write
         NullStream nullStream;
         PrintBase( nullStream, msg );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //

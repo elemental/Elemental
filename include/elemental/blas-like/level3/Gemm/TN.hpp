@@ -27,7 +27,7 @@ GemmTNA
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTNA");    
+    CallStackEntry entry("internal::GemmTNA");    
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -101,9 +101,6 @@ GemmTNA
         ( CL,     /**/ CR,
           C0, C1, /**/ C2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Transpose Normal Gemm that avoids communicating the matrix B.
@@ -116,7 +113,7 @@ GemmTNB
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTNB");
+    CallStackEntry entry("internal::GemmTNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -200,9 +197,6 @@ GemmTNB
          /**/ /**/
           CB,  C2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Transpose Normal Gemm that avoids communicating the matrix C.
@@ -215,7 +209,7 @@ GemmTNC
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTNC");
+    CallStackEntry entry("internal::GemmTNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -295,9 +289,6 @@ GemmTNC
          /**/ /**/
           BB,  B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -309,7 +300,7 @@ GemmTN
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("internal::GemmTN");
+    CallStackEntry entry("internal::GemmTN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -333,9 +324,6 @@ GemmTN
     {
         GemmTNC( orientationOfA, alpha, A, B, beta, C );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

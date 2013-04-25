@@ -25,7 +25,7 @@ Symm
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Symm");
+    CallStackEntry entry("Symm");
 #endif
     const char sideChar = LeftOrRightToChar( side );
     const char uploChar = UpperOrLowerToChar( uplo );
@@ -45,9 +45,6 @@ Symm
                  B.LockedBuffer(), B.LDim(),
           beta,  C.Buffer(),       C.LDim() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -59,7 +56,7 @@ Symm
   bool conjugate=false )
 {
 #ifndef RELEASE
-    PushCallStack("Symm");
+    CallStackEntry entry("Symm");
 #endif
     if( side == LEFT && uplo == LOWER )
         internal::SymmLL( alpha, A, B, beta, C, conjugate );
@@ -69,9 +66,6 @@ Symm
         internal::SymmRL( alpha, A, B, beta, C, conjugate );
     else
         internal::SymmRU( alpha, A, B, beta, C, conjugate );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

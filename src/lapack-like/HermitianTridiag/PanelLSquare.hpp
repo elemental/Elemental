@@ -31,7 +31,7 @@ void PanelLSquare
     const Grid& g = A.Grid();
 
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelLSquare");
+    CallStackEntry entry("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() )
         throw std::logic_error
         ("A and W must be distributed over the same grid");
@@ -46,12 +46,7 @@ void PanelLSquare
         throw std::logic_error("W and A must be aligned");
 #endif
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Find the process holding our transposed data
     int transposeRank;
@@ -684,9 +679,6 @@ void PanelLSquare
     DistMatrix<R> expandedATL(g);
     View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetDiagonal( e, -1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -707,7 +699,7 @@ void PanelLSquare
     const Grid& g = A.Grid();
 
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelLSquare");
+    CallStackEntry entry("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         throw std::logic_error
         ("A, W, and t must be distributed over the same grid");
@@ -727,12 +719,7 @@ void PanelLSquare
         throw std::logic_error("t is not aligned with A's subdiagonal");
 #endif
     if( !g.InGrid() )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Find the process holding our transposed data
     const int r = g.Height();
@@ -1395,9 +1382,6 @@ void PanelLSquare
     DistMatrix<C> expandedATL(g);
     View( expandedATL, A, 0, 0, panelSize+1, panelSize+1 );
     expandedATL.SetRealPartOfDiagonal( e, -1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_tridiag

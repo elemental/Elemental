@@ -21,12 +21,9 @@ Her2k
   T alpha, const Matrix<T>& A, const Matrix<T>& B, T beta, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Her2k");
+    CallStackEntry entry("Her2k");
 #endif
     Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -37,12 +34,9 @@ Her2k
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Her2k");
+    CallStackEntry entry("Her2k");
 #endif
     Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

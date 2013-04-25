@@ -22,7 +22,7 @@ inline void
 TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrsvUN");
+    CallStackEntry entry("internal::TrsvUN");
     if( U.Grid() != x.Grid() )
         throw std::logic_error("{U,x} must be distributed over the same grid");
     if( U.Height() != U.Width() )
@@ -170,9 +170,6 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
               x0, /**/ x1, x2 );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal

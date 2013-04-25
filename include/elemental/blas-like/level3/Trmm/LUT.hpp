@@ -33,7 +33,7 @@ LocalTrmmAccumulateLUT
         DistMatrix<T,MR,STAR>& Z_MR_STAR )
 {
 #ifndef RELEASE
-    PushCallStack("internal::LocalTrmmAccumulateLUT");
+    CallStackEntry entry("internal::LocalTrmmAccumulateLUT");
     if( U.Grid() != X_MC_STAR.Grid() ||
         X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
         throw std::logic_error
@@ -139,9 +139,6 @@ LocalTrmmAccumulateLUT
           ZB_MR_STAR,  Z2_MR_STAR );
     }
     PopBlocksizeStack();
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -154,7 +151,7 @@ TrmmLUTA
         DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLUTA");
+    CallStackEntry entry("internal::TrmmLUTA");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -210,9 +207,6 @@ TrmmLUTA
         ( XL,     /**/ XR,
           X0, X1, /**/ X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -224,7 +218,7 @@ TrmmLUTCOld
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLUTCOld");
+    CallStackEntry entry("internal::TrmmLUTCOld");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -320,9 +314,6 @@ TrmmLUTCOld
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -334,7 +325,7 @@ TrmmLUTC
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLUTC");
+    CallStackEntry entry("internal::TrmmLUTC");
     if( U.Grid() != X.Grid() )
         throw std::logic_error
         ("U and X must be distributed over the same grid");
@@ -422,9 +413,6 @@ TrmmLUTC
                X1,
           XB,  X2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Left Upper (Conjugate)Transpose (Non)Unit Trmm
@@ -441,16 +429,13 @@ TrmmLUT
                  DistMatrix<T>& X )
 {
 #ifndef RELEASE
-    PushCallStack("internal::TrmmLUT");
+    CallStackEntry entry("internal::TrmmLUT");
 #endif
     // TODO: Come up with a better routing mechanism
     if( U.Height() > 5*X.Width() )
         TrmmLUTA( orientation, diag, alpha, U, X );
     else
         TrmmLUTC( orientation, diag, alpha, U, X );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace internal
