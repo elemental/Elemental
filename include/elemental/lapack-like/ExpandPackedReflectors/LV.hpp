@@ -105,15 +105,15 @@ LV( int offset, Matrix<R>& H )
 
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
-        MakeZeros( ZOld );
-        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
+        Zeros( SInv, HPanWidth, HPanWidth );
         Syrk( UPPER, TRANSPOSE, R(1), HPan, R(0), SInv );
         HalveMainDiagonal( SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Transpose( HPanT, ZNew );
+        MakeZeros( ZOld );
         Gemm( TRANSPOSE, NORMAL, R(1), HPanB, HEffectedOldB, R(0), ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), SInv, Z );
         HPanCopy = HPan;
@@ -220,10 +220,9 @@ LV( int offset, DistMatrix<R>& H )
         ( Z_STAR_MR, ZNew_STAR_MR, ZOld_STAR_MR, oldEffectedWidth );
         PartitionLeft
         ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
-        MakeZeros( ZOld_STAR_MR );
-        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPan_VC_STAR = HPan;
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Syrk
         ( UPPER, TRANSPOSE, 
           R(1), HPan_VC_STAR.LockedMatrix(), 
@@ -240,6 +239,7 @@ LV( int offset, DistMatrix<R>& H )
         // with the newly effected portion in order to lower latency and 
         // increase performance
         Transpose( HPanT_MC_STAR, ZNew_STAR_VR );
+        MakeZeros( ZOld_STAR_MR );
         LocalGemm
         ( TRANSPOSE, NORMAL, 
           R(1), HPanB_MC_STAR, HEffectedOldB, R(0), ZOld_STAR_MR );
@@ -360,15 +360,15 @@ LV
 
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
-        MakeZeros( ZOld );
-        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
+        Zeros( SInv, HPanWidth, HPanWidth );
         Herk( UPPER, ADJOINT, C(1), HPan, C(0), SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Adjoint( HPanT, ZNew );
+        MakeZeros( ZOld );
         Gemm( ADJOINT, NORMAL, C(1), HPanB, HEffectedOldB, C(0), ZOld );
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), SInv, Z );
         HPanCopy = HPan;
@@ -505,10 +505,9 @@ LV
         ( Z_STAR_MR, ZNew_STAR_MR, ZOld_STAR_MR, oldEffectedWidth );
         PartitionLeft
         ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
-        MakeZeros( ZOld_STAR_MR );
-        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPan_VC_STAR = HPan;
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Herk
         ( UPPER, ADJOINT, 
           C(1), HPan_VC_STAR.LockedMatrix(), 
@@ -526,6 +525,7 @@ LV
         // with the newly effected portion to lower latency and increase 
         // performance
         Adjoint( HPanT_MC_STAR, ZNew_STAR_VR );
+        MakeZeros( ZOld_STAR_MR );
         LocalGemm
         ( ADJOINT, NORMAL, 
           C(1), HPanB_MC_STAR, HEffectedOldB, C(0), ZOld_STAR_MR );

@@ -33,7 +33,6 @@ PanelHouseholder( Matrix<Real>& A )
 
     Matrix<Real> z;
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -43,17 +42,17 @@ PanelHouseholder( Matrix<Real>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( aTopRow, alpha11, a12 );
         View1x2( ABottomPan, a21, A22 );
 
-        Zeros( z, ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
         const Real tau = Reflector( alpha11, a12 );
         const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
+        Zeros( z, ABottomPan.Height(), 1 );
         Gemv( NORMAL, Real(1), ABottomPan, aTopRow, Real(0), z );
         Ger( -tau, z, aTopRow, ABottomPan );
         alpha11.Set(0,0,alpha);
@@ -65,7 +64,6 @@ PanelHouseholder( Matrix<Real>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -90,7 +88,6 @@ PanelHouseholder( DistMatrix<Real>& A )
     DistMatrix<Real,STAR,MR> aTopRow_STAR_MR(g);
     DistMatrix<Real,MC,STAR> z_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -100,14 +97,13 @@ PanelHouseholder( DistMatrix<Real>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( aTopRow, alpha11, a12 );
         View1x2( ABottomPan, a21, A22 );
 
         aTopRow_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );
-        Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
         const Real tau = Reflector( alpha11, a12 );
 
@@ -122,6 +118,7 @@ PanelHouseholder( DistMatrix<Real>& A )
 
         aTopRow_STAR_MR = aTopRow;
 
+        Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         Gemv
         ( NORMAL,
           Real(1), ABottomPan.LockedMatrix(), aTopRow_STAR_MR.LockedMatrix(),
@@ -145,7 +142,6 @@ PanelHouseholder( DistMatrix<Real>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -176,7 +172,6 @@ PanelHouseholder
 
     Matrix<C> z, aTopRowConj;
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -189,18 +184,17 @@ PanelHouseholder
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionDown
         ( tT,  t0,
          /**/ /****/
                tau1,
-          tB,  t2 );
+          tB,  t2, 1 );
 
         View1x2( aTopRow, alpha11, a12 );
         View1x2( ABottomPan, a21, A22 );
 
-        Zeros( z, ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
@@ -208,6 +202,7 @@ PanelHouseholder
         alpha11.Set(0,0,1);
 
         Conjugate( aTopRow, aTopRowConj );
+        Zeros( z, ABottomPan.Height(), 1 );
         Gemv( NORMAL, C(1), ABottomPan, aTopRowConj, C(0), z );
         Ger( -Conj(tau), z, aTopRowConj, ABottomPan );
 
@@ -226,7 +221,6 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -266,7 +260,6 @@ PanelHouseholder
     DistMatrix<C,STAR,MR  > aTopRowConj_STAR_MR(g);
     DistMatrix<C,MC,  STAR> z_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -279,20 +272,19 @@ PanelHouseholder
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionDown
         ( tT,  t0,
          /**/ /****/
                tau1,
-          tB,  t2 );
+          tB,  t2, 1 );
 
         View1x2( aTopRow, alpha11, a12 );
         View1x2( ABottomPan, a21, A22 );
 
         aTopRowConj_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );
-        Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
@@ -309,6 +301,7 @@ PanelHouseholder
         Conjugate( aTopRow, aTopRowConj );
         aTopRowConj_STAR_MR = aTopRowConj;
 
+        Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         Gemv
         ( NORMAL,
           C(1), ABottomPan.LockedMatrix(),
@@ -340,7 +333,6 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

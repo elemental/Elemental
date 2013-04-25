@@ -41,7 +41,6 @@ inline void UUnb( DistMatrix<R>& A )
     DistMatrix<R,MR,  STAR> x12Trans_MR_STAR(g);
     DistMatrix<R,MC,  STAR> w21_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -51,7 +50,7 @@ inline void UUnb( DistMatrix<R>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View2x1
         ( aB1, alpha11,
@@ -64,8 +63,7 @@ inline void UUnb( DistMatrix<R>& A )
         a12_STAR_MR.AlignWith( a12 );
         x12Trans_MR_STAR.AlignWith( AB2 );
         w21_MC_STAR.AlignWith( A22 );
-        Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
-        Zeros( w21_MC_STAR, a21.Height(), 1 );
+
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() );
@@ -83,6 +81,7 @@ inline void UUnb( DistMatrix<R>& A )
         //           | u |
         alpha11.Set(0,0,R(1));
         aB1_MC_STAR = aB1;
+        Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), x12Trans_MR_STAR );
         x12Trans_MR_STAR.SumOverCol();
 
@@ -98,7 +97,7 @@ inline void UUnb( DistMatrix<R>& A )
         if( A22.Width() != 0 )
         {
             // Expose the subvector we seek to zero, a12R
-            PartitionRight( a12, alpha12L, a12R );
+            PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP, v, and epsilonP such that
             //     I - tauP | 1 | | 1, v^T | | alpha12L | = | epsilonP |
@@ -112,6 +111,7 @@ inline void UUnb( DistMatrix<R>& A )
             //             | v |                                 | v |
             alpha12L.Set(0,0,R(1));
             a12_STAR_MR = a12;
+            Zeros( w21_MC_STAR, a21.Height(), 1 );
             LocalGemv( NORMAL, R(1), A22, a12_STAR_MR, R(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
@@ -136,7 +136,6 @@ inline void UUnb( DistMatrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -183,7 +182,6 @@ inline void UUnb
     DistMatrix<C,MR,  STAR> x12Adj_MR_STAR(g);
     DistMatrix<C,MC,  STAR> w21_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -193,7 +191,7 @@ inline void UUnb
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View2x1
         ( aB1, alpha11,
@@ -206,8 +204,7 @@ inline void UUnb
         a12_STAR_MR.AlignWith( a12 );
         x12Adj_MR_STAR.AlignWith( AB2 );
         w21_MC_STAR.AlignWith( A22 );
-        Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
-        Zeros( w21_MC_STAR, a21.Height(), 1 );
+
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() );
@@ -226,6 +223,7 @@ inline void UUnb
         //           | u |
         alpha11.Set(0,0,C(1));
         aB1_MC_STAR = aB1;
+        Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
         LocalGemv( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), x12Adj_MR_STAR );
         x12Adj_MR_STAR.SumOverCol();
 
@@ -245,7 +243,7 @@ inline void UUnb
             Conjugate( a12 ); 
 
             // Expose the subvector we seek to zero, a12R
-            PartitionRight( a12, alpha12L, a12R );
+            PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP, v, and epsilonP such that
             //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilonP |
@@ -260,6 +258,7 @@ inline void UUnb
             //             | v |                                 | v |
             alpha12L.Set(0,0,C(1));
             a12_STAR_MR = a12;
+            Zeros( w21_MC_STAR, a21.Height(), 1 );
             LocalGemv( NORMAL, C(1), A22, a12_STAR_MR, C(0), w21_MC_STAR );
             w21_MC_STAR.SumOverRow();
 
@@ -290,7 +289,6 @@ inline void UUnb
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

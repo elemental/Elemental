@@ -120,38 +120,37 @@ PanelU
     PartitionDown
     ( e, eT,
          eB, 0 );
-    PushBlocksizeStack( 1 );
     while( ATL.Width() < panelSize )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionDownDiagonal
         ( XTL, /**/ XTR,  X00, /**/ x01,   X02,
          /*************/ /********************/
                /**/       x10, /**/ chi11, x12,
-          XBL, /**/ XBR,  X20, /**/ x21,   X22 );
+          XBL, /**/ XBR,  X20, /**/ x21,   X22, 1 );
         
         RepartitionDownDiagonal
         ( YTL, /**/ YTR,  Y00, /**/ y01,   Y02,
          /*************/ /********************/
                /**/       y10, /**/ psi11, y12,
-          YBL, /**/ YBR,  Y20, /**/ y21,   Y22 );
+          YBL, /**/ YBR,  Y20, /**/ y21,   Y22, 1 );
 
         RepartitionDown
         ( dT,  d0,
          /**/ /******/
                delta1,
-          dB,  d2 );
+          dB,  d2, 1 );
 
         RepartitionDown
         ( eT,  e0,
          /**/ /********/
                epsilon1,
-          eB,  e2 );
+          eB,  e2, 1 );
 
         PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
@@ -188,17 +187,6 @@ PanelU
         s21_MC_STAR.AlignWith( A22 );
         sB1_MR_STAR.AlignWith( Y2L );
 
-        // Auxilliary resizes
-        uB1_MC_STAR.ResizeTo( ABL.Height(), 1 );
-        z01_MR_STAR.ResizeTo( A00.Width(), 1 );
-        z21_MC_STAR.ResizeTo( A22.Width(), 1 );
-        z21_MR_STAR.ResizeTo( A22.Width(), 1 );
-        q21_MC_STAR.ResizeTo( A22.Width(), 1 );
-        q21_MR_STAR.ResizeTo( A22.Width(), 1 );
-        s01_MC_STAR.ResizeTo( A00.Height(), 1 );
-        s21_MC_STAR.ResizeTo( A22.Height(), 1 );
-        sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
-
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
@@ -212,6 +200,7 @@ PanelU
             y10_STAR_MR = y10;
             a01_MR_STAR = a01;
             // uB1[MC,* ] := ABL[MC,MR] y10^T[MR,* ]
+            Zeros( uB1_MC_STAR, ABL.Height(), 1 );
             LocalGemv( NORMAL, R(1), ABL, y10_STAR_MR, R(0), uB1_MC_STAR );
             // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
             //             = ABL[MC,MR] y10^T[MR,* ] + XBL[MC,MR] a01[MR,* ]
@@ -241,12 +230,15 @@ PanelU
         //
         aB1_MC_STAR = aB1;
         // z01[MR,* ] := ABL^T[MR,MC] aB1[MC,* ]
+        Zeros( z01_MR_STAR, A00.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), ABL, aB1_MC_STAR, R(0), z01_MR_STAR );
         // z21[MR,* ] := AB2^T[MR,MC] aB1[MC,* ]
+        Zeros( z21_MR_STAR, A22.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), AB2, aB1_MC_STAR, R(0), z21_MR_STAR );
         // Sum the partial contributions to z01[MR,* ]
         z01_MR_STAR.SumOverCol();
         // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^T aB1)[MR,* ]
+        Zeros( z21_MC_STAR, A22.Width(), 1 );
         LocalGemv( NORMAL, R(1), Y20, z01_MR_STAR, R(0), z21_MC_STAR );
         // z01[MR,* ] := XBL^T[MR,MC] aB1[MC,* ]
         LocalGemv( TRANSPOSE, R(1), XBL, aB1_MC_STAR, R(0), z01_MR_STAR );
@@ -273,6 +265,7 @@ PanelU
         a10_STAR_MR = a10;
         x10_STAR_MC = x10;
         // q21[MC,* ] := Y20[MC,MR] a10^T[MR,* ]
+        Zeros( q21_MC_STAR, A22.Width(), 1 );
         LocalGemv( NORMAL, R(1), Y20, a10_STAR_MR, R(0), q21_MC_STAR );
         // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
@@ -284,6 +277,7 @@ PanelU
         //
         q21_MR_MC = q21;
         // q21[MR,* ] := A02^T[MR,MC] x10^T[MC,* ]
+        Zeros( q21_MR_STAR, A22.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), A02, x10_STAR_MC, R(0), q21_MR_STAR );
         // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^T)[MR,MC]
         q21_MR_MC.SumScatterUpdate( R(1), q21_MR_STAR );
@@ -321,8 +315,10 @@ PanelU
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
         // s21[MC,* ] := A22[MC,MR] a12^T[MR,* ]
+        Zeros( s21_MC_STAR, A22.Height(), 1 );
         LocalGemv( NORMAL, R(1), A22, a12_STAR_MR, R(0), s21_MC_STAR );
         // sB1[MR,* ] := Y2L^T[MR,MC] a12^T[MC,* ]
+        Zeros( sB1_MR_STAR, Y2L.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), Y2L, a12_STAR_MC, R(0), sB1_MR_STAR );
         // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
@@ -331,6 +327,7 @@ PanelU
         // (still needs to be summed within each process row)
         LocalGemv( NORMAL, R(-1), A2L, sB1_MR_STAR, R(1), s21_MC_STAR );
         // s01[MC,* ] := A02[MC,MR] a12^T[MR,* ]
+        Zeros( s01_MC_STAR, A00.Height(), 1 );
         LocalGemv( NORMAL, R(1), A02, a12_STAR_MR, R(0), s01_MC_STAR );
         // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
@@ -395,7 +392,6 @@ PanelU
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 
     // Put back d and e
     ATL.SetDiagonal( d, 0 );
@@ -527,50 +523,49 @@ PanelU
     PartitionDown
     ( tQ, tQT,
           tQB, 0 );
-    PushBlocksizeStack( 1 );
     while( ATL.Width() < panelSize )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionDownDiagonal
         ( XTL, /**/ XTR,  X00, /**/ x01,   X02,
          /*************/ /********************/
                /**/       x10, /**/ chi11, x12,
-          XBL, /**/ XBR,  X20, /**/ x21,   X22 );
+          XBL, /**/ XBR,  X20, /**/ x21,   X22, 1 );
         
         RepartitionDownDiagonal
         ( YTL, /**/ YTR,  Y00, /**/ y01,   Y02,
          /*************/ /********************/
                /**/       y10, /**/ psi11, y12,
-          YBL, /**/ YBR,  Y20, /**/ y21,   Y22 );
+          YBL, /**/ YBR,  Y20, /**/ y21,   Y22, 1 );
 
         RepartitionDown
         ( dT,  d0,
          /**/ /******/
                delta1,
-          dB,  d2 );
+          dB,  d2, 1 );
 
         RepartitionDown
         ( eT,  e0,
          /**/ /********/
                epsilon1,
-          eB,  e2 );
+          eB,  e2, 1 );
 
         RepartitionDown
         ( tPT,  tP0,
          /***/ /*****/
                 tauP1,
-          tPB,  tP2 );
+          tPB,  tP2, 1 );
 
         RepartitionDown
         ( tQT,  tQ0,
          /***/ /*****/
                 tauQ1,
-          tQB,  tQ2 );
+          tQB,  tQ2, 1 );
 
         PartitionRight( ABR, aB1, AB2, 1 );
         PartitionRight( a12, alpha12L, a12R, 1 );
@@ -606,17 +601,6 @@ PanelU
         s01_MR_STAR.AlignWith( X20 );
         s21_MC_STAR.AlignWith( A22 );
         sB1_MR_STAR.AlignWith( Y2L );
-        
-        // Auxilliary resizes
-        uB1_MC_STAR.ResizeTo( ABL.Height(), 1 );
-        z01_MR_STAR.ResizeTo( A00.Width(), 1 );
-        z21_MC_STAR.ResizeTo( A22.Width(), 1 );
-        z21_MR_STAR.ResizeTo( A22.Width(), 1 );
-        q21_MC_STAR.ResizeTo( A22.Width(), 1 );
-        q21_MR_STAR.ResizeTo( A22.Width(), 1 );
-        s01_MC_STAR.ResizeTo( A00.Height(), 1 );
-        s21_MC_STAR.ResizeTo( A22.Height(), 1 );
-        sB1_MR_STAR.ResizeTo( Y2L.Width(), 1 );
 
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
@@ -632,6 +616,7 @@ PanelU
             y10_STAR_MR = y10;
             // uB1[MC,* ] := ABL[MC,MR] y10^H[MR,* ]
             a01_MR_STAR = a01;
+            Zeros( uB1_MC_STAR, ABL.Height(), 1 );
             LocalGemv( NORMAL, C(1), ABL, y10_STAR_MR, C(0), uB1_MC_STAR );
             // uB1[MC,* ] := uB1[MC,* ] + XBL[MC,MR] a01[MR,* ]
             //             = ABL[MC,MR] y10^H[MR,* ] + XBL[MC,MR] a01[MR,* ]
@@ -662,12 +647,15 @@ PanelU
         //
         aB1_MC_STAR = aB1;
         // z01[MR,* ] := ABL^H[MR,MC] aB1[MC,* ]
+        Zeros( z01_MR_STAR, A00.Width(), 1 );
         LocalGemv( ADJOINT, C(1), ABL, aB1_MC_STAR, C(0), z01_MR_STAR );
         // z21[MR,* ] := AB2^H[MR,MC] aB1[MC,* ]
+        Zeros( z21_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, C(1), AB2, aB1_MC_STAR, C(0), z21_MR_STAR );
         // Sum the partial contributions
         z01_MR_STAR.SumOverCol();
         // z21[MC,* ] := Y20[MC,MR] z01[MR,* ] = Y20[MC,MR] (ABL^H aB1)[MR,* ]
+        Zeros( z21_MC_STAR, A22.Width(), 1 );
         LocalGemv( NORMAL, C(1), Y20, z01_MR_STAR, C(0), z21_MC_STAR );
         // z01[MR,* ] := XBL^H[MR,MC] aB1[MC,* ]
         LocalGemv( ADJOINT, C(1), XBL, aB1_MC_STAR, C(0), z01_MR_STAR );
@@ -695,6 +683,7 @@ PanelU
         a10_STAR_MR = a10;
         Conjugate( a10 );
         // q21[MC,* ] := Y20[MC,MR] a10^H[MR,* ]
+        Zeros( q21_MC_STAR, A22.Width(), 1 );
         LocalGemv( NORMAL, C(1), Y20, a10_STAR_MR, C(0), q21_MC_STAR );
         // Sum the partial contributions
         q21.SumScatterFrom( q21_MC_STAR );
@@ -709,6 +698,7 @@ PanelU
         Conjugate( x10 );
         q21_MR_MC = q21;
         // q21[MR,* ] := A02^H[MR,MC] x10^H[MC,* ]
+        Zeros( q21_MR_STAR, A22.Width(), 1 );
         LocalGemv( ADJOINT, C(1), A02, x10_STAR_MC, C(0), q21_MR_STAR );
         // Sum the partial contributions onto q21[MR,MC] = (Y20 a10^H)[MR,MC]
         q21_MR_MC.SumScatterUpdate( C(1), q21_MR_STAR );
@@ -751,8 +741,10 @@ PanelU
         a12_STAR_MR = a12;
         a12_STAR_MC = a12;
         // s21[MC,* ] := A22[MC,MR] a12^H[MR,* ]
+        Zeros( s21_MC_STAR, A22.Height(), 1 );
         LocalGemv( NORMAL, C(1), A22, a12_STAR_MR, C(0), s21_MC_STAR );
         // sB1[MR,* ] := Y2L^H[MR,MC] a12^H[MC,* ]
+        Zeros( sB1_MR_STAR, Y2L.Width(), 1 );
         LocalGemv( ADJOINT, C(1), Y2L, a12_STAR_MC, C(0), sB1_MR_STAR );
         // Sum the partial contributions
         sB1_MR_STAR.SumOverCol(); 
@@ -761,6 +753,7 @@ PanelU
         // (still needs to be summed within each process row)
         LocalGemv( NORMAL, C(-1), A2L, sB1_MR_STAR, C(1), s21_MC_STAR );
         // s01[MC,* ] := A02[MC,MR] a12^H[MR,* ]
+        Zeros( s01_MC_STAR, A00.Height(), 1 );
         LocalGemv( NORMAL, C(1), A02, a12_STAR_MR, C(0), s01_MC_STAR );
         // Sum the partial contributions and then redistribute
         s01.SumScatterFrom( s01_MC_STAR ); // TODO: SumScatter to [VC,* ]?
@@ -841,7 +834,6 @@ PanelU
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 
     // Put back d and e
     ATL.SetRealPartOfDiagonal( d, 0 );

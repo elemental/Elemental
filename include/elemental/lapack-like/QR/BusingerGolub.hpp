@@ -54,7 +54,6 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -64,7 +63,7 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View2x1( aLeftCol, alpha11,
                            a21 );
@@ -72,7 +71,6 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         View2x1( ARightPan, a12,
                             A22 );
 
-        Zeros( z, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
@@ -90,6 +88,7 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         const Real tau = Reflector( alpha11, a21 );
         const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
+        Zeros( z, ARightPan.Width(), 1 );
         Gemv( TRANSPOSE, Real(1), ARightPan, aLeftCol, Real(0), z );
         Ger( -tau, aLeftCol, z, ARightPan );
         alpha11.Set(0,0,alpha);
@@ -121,7 +120,6 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -176,7 +174,6 @@ BusingerGolub
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
-    PushBlocksizeStack( 1 );
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -189,13 +186,13 @@ BusingerGolub
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionDown
         ( tT,  t0,
          /**/ /****/
                tau1, 
-          tB,  t2 );
+          tB,  t2, 1 );
 
         View2x1( aLeftCol, alpha11,
                            a21 );
@@ -203,7 +200,6 @@ BusingerGolub
         View2x1( ARightPan, a12,
                             A22 );
 
-        Zeros( z, ARightPan.Width(), 1 );
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
@@ -222,6 +218,7 @@ BusingerGolub
         tau1.Set( 0, 0, tau );
         const C alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
+        Zeros( z, ARightPan.Width(), 1 );
         Gemv( ADJOINT, C(1), ARightPan, aLeftCol, C(0), z );
         Ger( -Conj(tau), aLeftCol, z, ARightPan );
         alpha11.Set(0,0,alpha);
@@ -259,7 +256,6 @@ BusingerGolub
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

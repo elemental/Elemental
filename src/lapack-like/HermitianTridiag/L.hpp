@@ -39,7 +39,6 @@ void L( Matrix<R>& A )
     // Temporary matrices
     Matrix<R> w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -49,18 +48,18 @@ void L( Matrix<R>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         PartitionDown
         ( a21, alpha21T,
                a21B,     1 );
 
-        w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
         const R tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.Get(0,0);
         alpha21T.Set(0,0,R(1));
 
+        Zeros( w21, a21.Height(), 1 );
         Symv( LOWER, tau, A22, a21, R(0), w21 );
         const R alpha = -tau*Dot( w21, a21 )/R(2);
         Axpy( alpha, a21, w21 );
@@ -74,7 +73,6 @@ void L( Matrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -207,7 +205,6 @@ void L( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
     // Temporary matrices
     Matrix<C> w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -217,19 +214,19 @@ void L( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         PartitionDown
         ( a21, alpha21T,
                a21B,     1 );
 
-        w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha21T, a21B );
         const R epsilon1 = alpha21T.GetRealPart(0,0);
         t.Set(A00.Height(),0,tau);
         alpha21T.Set(0,0,C(1));
 
+        Zeros( w21, a21.Height(), 1 );
         Hemv( LOWER, tau, A22, a21, C(0), w21 );
         const C alpha = -tau*Dot( w21, a21 )/C(2);
         Axpy( alpha, a21, w21 );
@@ -243,7 +240,6 @@ void L( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

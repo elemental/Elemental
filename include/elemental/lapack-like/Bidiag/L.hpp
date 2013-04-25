@@ -38,7 +38,6 @@ inline void L( Matrix<R>& A )
     // Temporary matrices
     Matrix<R> x12Trans, w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -48,13 +47,11 @@ inline void L( Matrix<R>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( a1R, alpha11, a12 );
         View1x2( A2R, a21, A22 );
 
-        x12Trans.ResizeTo( a12.Width(), 1 );
-        w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
 
         // Find tauP, v, and epsilonP such that
@@ -66,6 +63,7 @@ inline void L( Matrix<R>& A )
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
         alpha11.Set(0,0,R(1));
+        Zeros( w21, a21.Height(), 1 );
         Gemv( NORMAL, R(1), A2R, a1R, R(0), w21 );
 
         // A2R := A2R - tauP w21 a1R
@@ -81,7 +79,7 @@ inline void L( Matrix<R>& A )
             // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
-                   a21B );
+                   a21B, 1 );
 
             // Find tauQ, u, and epsilonQ such that
             //     I - tauQ | 1 | | 1, u^T | | alpha21T | = | epsilonQ |
@@ -92,6 +90,7 @@ inline void L( Matrix<R>& A )
             // Set a21 = | 1 | and form x12^T = (a21^T A22)^T = A22^T a21
             //           | u |
             alpha21T.Set(0,0,R(1));
+            Zeros( x12Trans, a12.Width(), 1 );
             Gemv( TRANSPOSE, R(1), A22, a21, R(0), x12Trans );
 
             // A22 := A22 - tauQ a21 x12
@@ -110,7 +109,6 @@ inline void L( Matrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -249,7 +247,6 @@ inline void L
     // Temporary matrices
     Matrix<C> x12Adj, w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -259,13 +256,11 @@ inline void L
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( a1R, alpha11, a12 );
         View1x2( A2R, a21, A22 );
 
-        x12Adj.ResizeTo( a12.Width(), 1 );
-        w21.ResizeTo( a21.Height(), 1 );
         //--------------------------------------------------------------------//
 
         // Due to deficiencies in the BLAS ?gemv routines, this section is 
@@ -282,6 +277,7 @@ inline void L
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
         alpha11.Set(0,0,C(1));
+        Zeros( w21, a21.Height(), 1 );
         Gemv( NORMAL, C(1), A2R, a1R, C(0), w21 );
 
         // A2R := A2R - tauP w21 conj(a1R)
@@ -303,7 +299,7 @@ inline void L
             // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
-                   a21B );
+                   a21B, 1 );
 
             // Find tauQ, u, and epsilonQ such that
             //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
@@ -315,6 +311,7 @@ inline void L
             // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
             //           | u |
             alpha21T.Set(0,0,C(1));
+            Zeros( x12Adj, a12.Width(), 1 );
             Gemv( ADJOINT, C(1), A22, a21, C(0), x12Adj );
 
             // A22 := A22 - conj(tauQ) a21 x12 
@@ -333,7 +330,6 @@ inline void L
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

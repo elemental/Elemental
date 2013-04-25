@@ -31,7 +31,6 @@ UnbFLAME( Matrix<F>& A )
         ABL, ABR,  a10, alpha11, a12,  a21B,
                    A20, a21,     A22;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -41,7 +40,7 @@ UnbFLAME( Matrix<F>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         //--------------------------------------------------------------------//
         F alpha = alpha11.Get(0,0);
@@ -57,7 +56,6 @@ UnbFLAME( Matrix<F>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

@@ -39,7 +39,6 @@ void U( Matrix<R>& A )
     // Temporary matrices
     Matrix<R> w01;
 
-    PushBlocksizeStack( 1 );
     PartitionUpDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -49,18 +48,18 @@ void U( Matrix<R>& A )
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12,
          /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+          ABL, /**/ ABR,  A20, a21,     /**/ A22, 1 );
 
         PartitionUp
         ( a01, a01T,
                alpha01B, 1 );
 
-        w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
         const R tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.Get(0,0);
         alpha01B.Set(0,0,R(1));
 
+        Zeros( w01, a01.Height(), 1 );
         Symv( UPPER, tau, A00, a01, R(0), w01 );
         const R alpha = -tau*Dot( w01, a01 )/R(2);
         Axpy( alpha, a01, w01 );
@@ -74,7 +73,6 @@ void U( Matrix<R>& A )
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -207,7 +205,6 @@ void U( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
     // Temporary matrices
     Matrix<C> w01;
 
-    PushBlocksizeStack( 1 );
     PartitionUpDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -217,19 +214,19 @@ void U( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12,
          /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+          ABL, /**/ ABR,  A20, a21,     /**/ A22, 1 );
 
         PartitionUp
         ( a01, a01T,
                alpha01B, 1 );
 
-        w01.ResizeTo( a01.Height(), 1 );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha01B, a01T );
         const R epsilon1 = alpha01B.GetRealPart(0,0);
         t.Set(t.Height()-1-A22.Height(),0,tau);
         alpha01B.Set(0,0,C(1));
 
+        Zeros( w01, a01.Height(), 1 );
         Hemv( UPPER, tau, A00, a01, C(0), w01 );
         const C alpha = -tau*Dot( w01, a01 )/C(2);
         Axpy( alpha, a01, w01 );

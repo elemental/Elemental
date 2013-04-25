@@ -91,15 +91,11 @@ void PanelLSquare
     DistMatrix<R,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g), a21Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> a21_MR_STAR(g), a21Last_MR_STAR(g);
     DistMatrix<R,MC,STAR> p21_MC_STAR(g), p21B_MC_STAR(g);
-    DistMatrix<R,MR,STAR> p21_MR_STAR(g);
     DistMatrix<R,MR,STAR> q21_MR_STAR(g);
     DistMatrix<R,MR,STAR> x01_MR_STAR(g);
     DistMatrix<R,MR,STAR> y01_MR_STAR(g);
     DistMatrix<R,MC,STAR> w21Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> w21Last_MR_STAR(g);
-
-    // Push to the blocksize of 1, then pop at the end of the routine
-    PushBlocksizeStack( 1 );
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
@@ -119,19 +115,19 @@ void PanelLSquare
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12, 
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
         
         RepartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
          /*************/ /**********************/
                /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
+          WBL, /**/ WBR,  W20, /**/ w21,     W22, 1 );
 
         RepartitionDown
         ( eT,  e0,
          /**/ /********/
                epsilon1,
-          eB,  e2 );
+          eB,  e2, 1 );
 
         View2x1
         ( ACol, alpha11,
@@ -163,7 +159,6 @@ void PanelLSquare
         a21_MC_STAR.AlignWith( A22 );
         a21_MR_STAR.AlignWith( A22 );
         p21_MC_STAR.AlignWith( A22 );
-        p21_MR_STAR.AlignWith( A22 );
         q21_MR_STAR.AlignWith( A22 );
         x01_MR_STAR.AlignWith( W20B );
         y01_MR_STAR.AlignWith( W20B );
@@ -171,10 +166,7 @@ void PanelLSquare
         a21_MC_STAR.ResizeTo( a21.Height(), 1 );
         a21_MR_STAR.ResizeTo( a21.Height(), 1 );
         p21_MC_STAR.ResizeTo( a21.Height(), 1 );
-        p21_MR_STAR.ResizeTo( a21.Height(), 1 );
         q21_MR_STAR.ResizeTo( a21.Height(), 1 );
-        x01_MR_STAR.ResizeTo( W20B.Width(), 1 );
-        y01_MR_STAR.ResizeTo( W20B.Width(), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -505,6 +497,8 @@ void PanelLSquare
             }
         }
 
+        Zeros( x01_MR_STAR, W20B.Width(), 1 );
+        Zeros( y01_MR_STAR, W20B.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), W20B, a21B_MC_STAR, R(0), x01_MR_STAR );
         LocalGemv( TRANSPOSE, R(1), A20B, a21B_MC_STAR, R(0), y01_MR_STAR );
 
@@ -661,7 +655,6 @@ void PanelLSquare
         a21_MC_STAR.FreeAlignments();
         a21_MR_STAR.FreeAlignments();
         p21_MC_STAR.FreeAlignments();
-        p21_MR_STAR.FreeAlignments();
         q21_MR_STAR.FreeAlignments();
         x01_MR_STAR.FreeAlignments();
         y01_MR_STAR.FreeAlignments();
@@ -686,7 +679,6 @@ void PanelLSquare
 
         firstIteration = false;
     }
-    PopBlocksizeStack();
 
     // View the portion of A that e is the subdiagonal of, then place e into it
     DistMatrix<R> expandedATL(g);
@@ -784,15 +776,11 @@ void PanelLSquare
     DistMatrix<C,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g), a21Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> a21_MR_STAR(g), a21Last_MR_STAR(g);
     DistMatrix<C,MC,STAR> p21_MC_STAR(g), p21B_MC_STAR(g);
-    DistMatrix<C,MR,STAR> p21_MR_STAR(g);
     DistMatrix<C,MR,STAR> q21_MR_STAR(g);
     DistMatrix<C,MR,STAR> x01_MR_STAR(g);
     DistMatrix<C,MR,STAR> y01_MR_STAR(g);
     DistMatrix<C,MC,STAR> w21Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> w21Last_MR_STAR(g);
-
-    // Push to the blocksize of 1, then pop at the end of the routine
-    PushBlocksizeStack( 1 );
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
@@ -815,25 +803,25 @@ void PanelLSquare
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12, 
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
         
         RepartitionDownDiagonal
         ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
          /*************/ /**********************/
                /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
+          WBL, /**/ WBR,  W20, /**/ w21,     W22, 1 );
 
         RepartitionDown
         ( eT,  e0,
          /**/ /********/
                epsilon1,
-          eB,  e2 );
+          eB,  e2, 1 );
 
         RepartitionDown
         ( tT,  t0,
          /**/ /****/
                tau1,
-          tB,  t2 );
+          tB,  t2, 1 );
 
         View2x1
         ( ACol, alpha11,
@@ -865,7 +853,6 @@ void PanelLSquare
         a21_MC_STAR.AlignWith( A22 );
         a21_MR_STAR.AlignWith( A22 );
         p21_MC_STAR.AlignWith( A22 );
-        p21_MR_STAR.AlignWith( A22 );
         q21_MR_STAR.AlignWith( A22 );
         x01_MR_STAR.AlignWith( W20B );
         y01_MR_STAR.AlignWith( W20B );
@@ -873,10 +860,7 @@ void PanelLSquare
         a21_MC_STAR.ResizeTo( a21.Height(), 1 );
         a21_MR_STAR.ResizeTo( a21.Height(), 1 );
         p21_MC_STAR.ResizeTo( a21.Height(), 1 );
-        p21_MR_STAR.ResizeTo( a21.Height(), 1 );
         q21_MR_STAR.ResizeTo( a21.Height(), 1 );
-        x01_MR_STAR.ResizeTo( W20B.Width(), 1 );
-        y01_MR_STAR.ResizeTo( W20B.Width(), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -1212,6 +1196,8 @@ void PanelLSquare
             }
         }
 
+        Zeros( x01_MR_STAR, W20B.Width(), 1 );
+        Zeros( y01_MR_STAR, W20B.Width(), 1 );
         LocalGemv( ADJOINT, C(1), W20B, a21B_MC_STAR, C(0), x01_MR_STAR );
         LocalGemv( ADJOINT, C(1), A20B, a21B_MC_STAR, C(0), y01_MR_STAR );
 
@@ -1374,7 +1360,6 @@ void PanelLSquare
         a21_MC_STAR.FreeAlignments();
         a21_MR_STAR.FreeAlignments();
         p21_MC_STAR.FreeAlignments();
-        p21_MR_STAR.FreeAlignments();
         q21_MR_STAR.FreeAlignments();
         x01_MR_STAR.FreeAlignments();
         y01_MR_STAR.FreeAlignments();
@@ -1405,7 +1390,6 @@ void PanelLSquare
 
         firstIteration = false;
     }
-    PopBlocksizeStack();
 
     // View the portion of A that e is the subdiagonal of, then place e into it
     DistMatrix<C> expandedATL(g);

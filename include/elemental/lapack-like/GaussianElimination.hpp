@@ -167,7 +167,6 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         B1_STAR_MR.AlignWith( B1 );
         if( ! BAligned )
             A21_MC_STAR_B.AlignWith( B2 );
-        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
         p1_STAR_STAR.ResizeTo( A11.Height(), 1 );
         //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;

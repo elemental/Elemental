@@ -111,28 +111,12 @@ LocalSymvColAccumulateL
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTriangular( LOWER, D11 );
-        Gemv
-        ( NORMAL, 
-          alpha, D11.LockedMatrix(), 
-                 x1_MR_STAR.LockedMatrix(),
-          T(1),  z1_MC_STAR.Matrix() );
+        LocalGemv( NORMAL, alpha, D11, x1_MR_STAR, T(1), z1_MC_STAR );
         SetDiagonal( D11, T(0) );
-        Gemv
-        ( orientation,
-          alpha, D11.LockedMatrix(),
-                 x1_MC_STAR.LockedMatrix(),
-          T(1),  z1_MR_STAR.Matrix() );
+        LocalGemv( orientation, alpha, D11, x1_MC_STAR, T(1), z1_MR_STAR );
 
-        Gemv
-        ( NORMAL,
-          alpha, A21.LockedMatrix(),
-                 x1_MR_STAR.LockedMatrix(),
-          T(1),  z2_MC_STAR.Matrix() );
-        Gemv
-        ( orientation,
-          alpha, A21.LockedMatrix(),
-                 x2_MC_STAR.LockedMatrix(),
-          T(1),  z1_MR_STAR.Matrix() );
+        LocalGemv( NORMAL, alpha, A21, x1_MR_STAR, T(1), z2_MC_STAR );
+        LocalGemv( orientation, alpha, A21, x2_MC_STAR, T(1), z1_MR_STAR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 
@@ -237,28 +221,12 @@ LocalSymvRowAccumulateL
         // TODO: These diagonal block updates can be greatly improved
         D11 = A11;
         MakeTriangular( LOWER, D11 );
-        Gemv
-        ( NORMAL, 
-          alpha, D11.LockedMatrix(), 
-                 x1_STAR_MR.LockedMatrix(),
-          T(1),  z1_STAR_MC.Matrix() );
+        LocalGemv( NORMAL, alpha, D11, x1_STAR_MR, T(1), z1_STAR_MC );
         SetDiagonal( D11, T(0) );
-        Gemv
-        ( orientation,
-          alpha, D11.LockedMatrix(),
-                 x1_STAR_MC.LockedMatrix(),
-          T(1),  z1_STAR_MR.Matrix() );
+        LocalGemv( orientation, alpha, D11, x1_STAR_MC, T(1), z1_STAR_MR );
 
-        Gemv
-        ( NORMAL,
-          alpha, A21.LockedMatrix(),
-                 x1_STAR_MR.LockedMatrix(),
-          T(1),  z2_STAR_MC.Matrix() );
-        Gemv
-        ( orientation,
-          alpha, A21.LockedMatrix(),
-                 x2_STAR_MC.LockedMatrix(),
-          T(1),  z1_STAR_MR.Matrix() );
+        LocalGemv( NORMAL, alpha, A21, x1_STAR_MR, T(1), z2_STAR_MC );
+        LocalGemv( orientation, alpha, A21, x2_STAR_MC, T(1), z1_STAR_MR );
         //--------------------------------------------------------------------//
         D11.FreeAlignments();
 

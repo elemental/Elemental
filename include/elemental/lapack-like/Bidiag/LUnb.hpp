@@ -41,7 +41,6 @@ inline void LUnb( DistMatrix<R>& A )
     DistMatrix<R,MR,  STAR> x12Trans_MR_STAR(g);
     DistMatrix<R,MC,  STAR> w21_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -51,7 +50,7 @@ inline void LUnb( DistMatrix<R>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( a1R, alpha11, a12 );
         View1x2( A2R, a21, A22 );
@@ -60,8 +59,7 @@ inline void LUnb( DistMatrix<R>& A )
         a1R_STAR_MR.AlignWith( A2R );
         x12Trans_MR_STAR.AlignWith( A22 );
         w21_MC_STAR.AlignWith( A2R );
-        Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
-        Zeros( w21_MC_STAR, a21.Height(), 1 );
+
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );
@@ -79,6 +77,7 @@ inline void LUnb( DistMatrix<R>& A )
         //             | v |                                 | v |
         alpha11.Set(0,0,R(1));
         a1R_STAR_MR = a1R;
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         LocalGemv( NORMAL, R(1), A2R, a1R_STAR_MR, R(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
 
@@ -96,7 +95,7 @@ inline void LUnb( DistMatrix<R>& A )
             // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
-                   a21B );
+                   a21B, 1 );
 
             // Find tauQ, u, and epsilonQ such that
             //     I - tauQ | 1 | | 1, u^T | | alpha21T | = | epsilonQ |
@@ -110,6 +109,7 @@ inline void LUnb( DistMatrix<R>& A )
             //           | u |  
             alpha21T.Set(0,0,R(1));
             a21_MC_STAR = a21;
+            Zeros( x12Trans_MR_STAR, a12.Width(), 1 );
             LocalGemv
             ( TRANSPOSE, R(1), A22, a21_MC_STAR, R(0), x12Trans_MR_STAR );
             x12Trans_MR_STAR.SumOverCol();
@@ -135,7 +135,6 @@ inline void LUnb( DistMatrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -182,7 +181,6 @@ inline void LUnb
     DistMatrix<C,MR,  STAR> x12Adj_MR_STAR(g);
     DistMatrix<C,MC,  STAR> w21_MC_STAR(g);
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -192,7 +190,7 @@ inline void LUnb
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View1x2( a1R, alpha11, a12 );
         View1x2( A2R, a21, A22 );
@@ -201,8 +199,7 @@ inline void LUnb
         a1R_STAR_MR.AlignWith( A2R );
         x12Adj_MR_STAR.AlignWith( A22 );
         w21_MC_STAR.AlignWith( A2R );
-        Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
-        Zeros( w21_MC_STAR, a21.Height(), 1 );
+
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );
@@ -225,6 +222,7 @@ inline void LUnb
         //             | v |                                 | v |
         alpha11.Set(0,0,C(1));
         a1R_STAR_MR = a1R;
+        Zeros( w21_MC_STAR, a21.Height(), 1 );
         LocalGemv( NORMAL, C(1), A2R, a1R_STAR_MR, C(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
 
@@ -247,7 +245,7 @@ inline void LUnb
             // Expose the subvector we seek to zero, a21B
             PartitionDown
             ( a21, alpha21T,
-                   a21B );
+                   a21B, 1 );
 
             // Find tauQ, u, and epsilonQ such that
             //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
@@ -262,6 +260,7 @@ inline void LUnb
             //           | u |  
             alpha21T.Set(0,0,C(1));
             a21_MC_STAR = a21;
+            Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
             LocalGemv( ADJOINT, C(1), A22, a21_MC_STAR, C(0), x12Adj_MR_STAR );
             x12Adj_MR_STAR.SumOverCol();
 
@@ -286,7 +285,6 @@ inline void LUnb
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

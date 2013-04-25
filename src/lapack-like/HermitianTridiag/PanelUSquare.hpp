@@ -89,15 +89,11 @@ void PanelUSquare
     DistMatrix<R,MC,STAR> a01_MC_STAR(g), a01T_MC_STAR(g), a01Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> a01_MR_STAR(g), a01Last_MR_STAR(g);
     DistMatrix<R,MC,STAR> p01_MC_STAR(g), p01T_MC_STAR(g);
-    DistMatrix<R,MR,STAR> p01_MR_STAR(g);
     DistMatrix<R,MR,STAR> q01_MR_STAR(g);
     DistMatrix<R,MR,STAR> x21_MR_STAR(g);
     DistMatrix<R,MR,STAR> y21_MR_STAR(g);
     DistMatrix<R,MC,STAR> w01Last_MC_STAR(g);
     DistMatrix<R,MR,STAR> w01Last_MR_STAR(g);
-
-    // Push to the blocksize of 1, then pop at the end of the routine
-    PushBlocksizeStack( 1 );
 
     PartitionUpRightDiagonal
     ( A, ATL, ATR,
@@ -117,19 +113,19 @@ void PanelUSquare
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12, 
          /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+          ABL, /**/ ABR,  A20, a21,     /**/ A22, 1 );
         
         RepartitionUpDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
-          WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+          WBL, /**/ WBR,  W20, w21,     /**/ W22, 1 );
 
         RepartitionUp
         ( eT,  e0,
                epsilon1,
          /**/ /********/
-          eB,  e2 );
+          eB,  e2, 1 );
 
         View2x1
         ( ACol, a01,
@@ -162,7 +158,6 @@ void PanelUSquare
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
-        p01_MR_STAR.AlignWith( A00 );
         q01_MR_STAR.AlignWith( A00 );
         x21_MR_STAR.AlignWith( A02T );
         y21_MR_STAR.AlignWith( A02T );
@@ -170,10 +165,7 @@ void PanelUSquare
         a01_MC_STAR.ResizeTo( a01.Height(), 1 );
         a01_MR_STAR.ResizeTo( a01.Height(), 1 );
         p01_MC_STAR.ResizeTo( a01.Height(), 1 );
-        p01_MR_STAR.ResizeTo( a01.Height(), 1 );
         q01_MR_STAR.ResizeTo( a01.Height(), 1 );
-        x21_MR_STAR.ResizeTo( A02.Width(), 1 );
-        y21_MR_STAR.ResizeTo( A02.Width(), 1 );
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
@@ -485,6 +477,8 @@ void PanelUSquare
             }
         }
 
+        Zeros( x21_MR_STAR, A02.Width(), 1 );
+        Zeros( y21_MR_STAR, A02.Width(), 1 );
         LocalGemv( TRANSPOSE, R(1), W02T, a01T_MC_STAR, R(0), x21_MR_STAR );
         LocalGemv( TRANSPOSE, R(1), A02T, a01T_MC_STAR, R(0), y21_MR_STAR );
 
@@ -642,7 +636,6 @@ void PanelUSquare
         a01_MC_STAR.FreeAlignments();
         a01_MR_STAR.FreeAlignments();
         p01_MC_STAR.FreeAlignments();
-        p01_MR_STAR.FreeAlignments();
         q01_MR_STAR.FreeAlignments();
         x21_MR_STAR.FreeAlignments();
         y21_MR_STAR.FreeAlignments();
@@ -667,7 +660,6 @@ void PanelUSquare
 
        firstIteration = false;
     }
-    PopBlocksizeStack();
 
     expandedABR.SetDiagonal( e, 1 );
 #ifndef RELEASE
@@ -758,15 +750,11 @@ void PanelUSquare
     DistMatrix<C,MC,STAR> a01_MC_STAR(g), a01T_MC_STAR(g), a01Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> a01_MR_STAR(g), a01Last_MR_STAR(g);
     DistMatrix<C,MC,STAR> p01_MC_STAR(g), p01T_MC_STAR(g);
-    DistMatrix<C,MR,STAR> p01_MR_STAR(g);
     DistMatrix<C,MR,STAR> q01_MR_STAR(g);
     DistMatrix<C,MR,STAR> x21_MR_STAR(g);
     DistMatrix<C,MR,STAR> y21_MR_STAR(g);
     DistMatrix<C,MC,STAR> w01Last_MC_STAR(g);
     DistMatrix<C,MR,STAR> w01Last_MR_STAR(g);
-
-    // Push to the blocksize of 1, then pop at the end of the routine
-    PushBlocksizeStack( 1 );
 
     PartitionUpRightDiagonal
     ( A, ATL, ATR,
@@ -789,25 +777,25 @@ void PanelUSquare
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12, 
          /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
+          ABL, /**/ ABR,  A20, a21,     /**/ A22, 1 );
         
         RepartitionUpDiagonal
         ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
                /**/       w10, omega11, /**/ w12,
          /*************/ /**********************/
-          WBL, /**/ WBR,  W20, w21,     /**/ W22 );
+          WBL, /**/ WBR,  W20, w21,     /**/ W22, 1 );
 
         RepartitionUp
         ( eT,  e0,
                epsilon1,
          /**/ /********/
-          eB,  e2 );
+          eB,  e2, 1 );
 
         RepartitionUp
         ( tT,  t0,
                tau1,
          /**/ /****/
-          tB,  t2 );
+          tB,  t2, 1 );
 
         View2x1
         ( ACol, a01,
@@ -840,7 +828,6 @@ void PanelUSquare
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
-        p01_MR_STAR.AlignWith( A00 );
         q01_MR_STAR.AlignWith( A00 );
         x21_MR_STAR.AlignWith( A02T );
         y21_MR_STAR.AlignWith( A02T );
@@ -848,10 +835,7 @@ void PanelUSquare
         a01_MC_STAR.ResizeTo( a01.Height(), 1 );
         a01_MR_STAR.ResizeTo( a01.Height(), 1 );
         p01_MC_STAR.ResizeTo( a01.Height(), 1 );
-        p01_MR_STAR.ResizeTo( a01.Height(), 1 );
         q01_MR_STAR.ResizeTo( a01.Height(), 1 );
-        x21_MR_STAR.ResizeTo( A02.Width(), 1 );
-        y21_MR_STAR.ResizeTo( A02.Width(), 1 );
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
@@ -1168,6 +1152,8 @@ void PanelUSquare
             }
         }
 
+        Zeros( x21_MR_STAR, A02.Width(), 1 );
+        Zeros( y21_MR_STAR, A02.Width(), 1 );
         LocalGemv( ADJOINT, C(1), W02T, a01T_MC_STAR, C(0), x21_MR_STAR );
         LocalGemv( ADJOINT, C(1), A02T, a01T_MC_STAR, C(0), y21_MR_STAR );
 
@@ -1328,7 +1314,6 @@ void PanelUSquare
         a01_MC_STAR.FreeAlignments();
         a01_MR_STAR.FreeAlignments();
         p01_MC_STAR.FreeAlignments();
-        p01_MR_STAR.FreeAlignments();
         q01_MR_STAR.FreeAlignments();
         x21_MR_STAR.FreeAlignments();
         y21_MR_STAR.FreeAlignments();
@@ -1359,7 +1344,6 @@ void PanelUSquare
 
         firstIteration = false;
     }
-    PopBlocksizeStack();
 
     expandedABR.SetRealPartOfDiagonal( e, 1 );
 #ifndef RELEASE

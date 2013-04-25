@@ -35,7 +35,6 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
     std::vector<F> buffer( width );
 
     // Start the algorithm
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -45,7 +44,7 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         //--------------------------------------------------------------------//
         const int currentRow = A00.Height();
@@ -87,8 +86,6 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -129,8 +126,7 @@ Panel
 
     const int width = A.Width();
     const int numBytes = (width+1)*sizeof(F)+sizeof(int);
-    std::vector<byte> sendData(numBytes);
-    std::vector<byte> recvData(numBytes);
+    std::vector<byte> sendData(numBytes), recvData(numBytes);
 
     // Extract pointers to send and recv data
     // TODO: Think of how to make this safer with respect to alignment issues
@@ -140,7 +136,6 @@ Panel
     int* recvBufInt = (int*)&recvData[(width+1)*sizeof(F)];
 
     // Start the algorithm
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -151,11 +146,11 @@ Panel
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         RepartitionRight
         ( BL, /**/ BR,  
-          B0, /**/ b1, B2 );
+          B0, /**/ b1, B2, 1 );
 
         //--------------------------------------------------------------------//
         const int currentRow = a01.Height();
@@ -269,8 +264,6 @@ Panel
         ( BL,     /**/ BR,  
           B0, b1, /**/ B2 );
     }
-    PopBlocksizeStack();
-
 #ifndef RELEASE
     PopCallStack();
 #endif

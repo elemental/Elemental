@@ -38,7 +38,6 @@ inline void U( Matrix<R>& A )
     // Temporary matrices
     Matrix<R> x12Trans, w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -48,7 +47,7 @@ inline void U( Matrix<R>& A )
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View2x1
         ( aB1, alpha11,
@@ -83,7 +82,7 @@ inline void U( Matrix<R>& A )
         if( A22.Width() != 0 )
         {
             // Expose the subvector we seek to zero, a12R
-            PartitionRight( a12, alpha12L, a12R );
+            PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP, v, and epsilonP such that
             //     I - tauP | 1 | | 1, v^T | | alpha12L | = | epsilonP |
@@ -111,7 +110,6 @@ inline void U( Matrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif
@@ -250,7 +248,6 @@ inline void U
     // Temporary matrices
     Matrix<C> x12Adj, w21;
 
-    PushBlocksizeStack( 1 );
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
@@ -260,7 +257,7 @@ inline void U
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
+          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         View2x1
         ( aB1, alpha11,
@@ -299,7 +296,7 @@ inline void U
             Conjugate( a12 );
 
             // Expose the subvector we seek to zero, a12R
-            PartitionRight( a12, alpha12L, a12R );
+            PartitionRight( a12, alpha12L, a12R, 1 );
 
             // Find tauP, v, and epsilonP such that
             //     I - conj(tauP) | 1 | | 1, v^H | | alpha12L | = | epsilonP |
@@ -335,7 +332,6 @@ inline void U
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-    PopBlocksizeStack();
 #ifndef RELEASE
     PopCallStack();
 #endif

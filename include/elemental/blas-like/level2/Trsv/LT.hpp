@@ -101,11 +101,7 @@ TrsvLT
             x1 = x1_STAR_STAR;
 
             x1_MC_STAR = x1_STAR_STAR;
-            Gemv
-            ( orientation, F(-1), 
-              L10.LockedMatrix(), 
-              x1_MC_STAR.LockedMatrix(),
-              F(1), z0_MR_STAR.Matrix() );
+            LocalGemv( orientation, F(-1), L10, x1_MC_STAR, F(1), z0_MR_STAR );
             //----------------------------------------------------------------//
             x1_MC_STAR.FreeAlignments();
             z1.FreeAlignments();
@@ -167,11 +163,7 @@ TrsvLT
             x1 = x1_STAR_STAR;
 
             x1_STAR_MC = x1_STAR_STAR;
-            Gemv
-            ( orientation, F(-1), 
-              L10.LockedMatrix(), 
-              x1_STAR_MC.LockedMatrix(),
-              F(1), z0_STAR_MR.Matrix() );
+            LocalGemv( orientation, F(-1), L10, x1_STAR_MC, F(1), z0_STAR_MR );
             //----------------------------------------------------------------//
             x1_STAR_MC.FreeAlignments();
 

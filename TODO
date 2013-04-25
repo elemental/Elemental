@@ -18,8 +18,8 @@ Functionality
 
 Maintenance
 ===========
-- Think of way to avoid need for explicitly zeroing matrices before calling
-  BLAS routines with beta=0
+- Experiment with using scope to avoid PopCallStack() and SlidePartition
+- Add versions of (Local)Gemv/Gemm/Syrk/Herk/etc. which handle zeroing output
 - Document routines added after sequential HermitianEig
 - Document HermitianSign and UnitaryCoherence
 - Separate out local blas-like and lapack-like operations

@@ -58,16 +58,12 @@ GemvT
         Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        Zeros( z_MR_STAR, A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
-        Gemv
-        ( orientation,
-          alpha, A.LockedMatrix(), 
-                 x_MC_STAR.LockedMatrix(),
-          T(0),  z_MR_STAR.Matrix() );
+        Zeros( z_MR_STAR, A.Width(), 1 );
+        LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
@@ -87,16 +83,12 @@ GemvT
         Scale( beta, y );
         x_MC_STAR.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_MC_STAR = x;
-        Gemv
-        ( orientation,
-          alpha, A.LockedMatrix(),
-                 x_MC_STAR.LockedMatrix(),
-          T(0),  z_MR_STAR.Matrix() );
+        Zeros( z_MR_STAR, A.Width(), 1 );
+        LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
@@ -116,16 +108,12 @@ GemvT
         Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         z.AlignWith( y );
         //--------------------------------------------------------------------//
         x_STAR_MC = x;
-        Gemv
-        ( orientation,
-          alpha, A.LockedMatrix(), 
-                 x_STAR_MC.LockedMatrix(),
-          T(0),  z_MR_STAR.Matrix() );
+        Zeros( z_MR_STAR, A.Width(), 1 );
+        LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         z = z_MR_MC;
         Axpy( T(1), z, y );
@@ -145,16 +133,12 @@ GemvT
         Scale( beta, y );
         x_STAR_MC.AlignWith( A );
         z_MR_STAR.AlignWith( A );
-        z_MR_STAR.ResizeTo( A.Width(), 1 );
         z_MR_MC.AlignWith( y );
         zTrans.AlignWith( y );
         //--------------------------------------------------------------------//
         x_STAR_MC = x;
-        Gemv
-        ( orientation,
-          alpha, A.LockedMatrix(),
-                 x_STAR_MC.LockedMatrix(),
-          T(0),  z_MR_STAR.Matrix() );
+        Zeros( z_MR_STAR, A.Width(), 1 );
+        LocalGemv( orientation, alpha, A, x_STAR_MC, T(0), z_MR_STAR );
         z_MR_MC.SumScatterFrom( z_MR_STAR );
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
@@ -204,16 +188,12 @@ GemvT
     Scale( beta, y );
     x_MC_STAR.AlignWith( A );
     z_MR_STAR.AlignWith( A );
-    Zeros( z_MR_STAR, A.Width(), 1 );
     z_VR_STAR.AlignWith( A );
     z.AlignWith( y );
     //--------------------------------------------------------------------//
     x_MC_STAR = x;
-    Gemv
-    ( orientation,
-      alpha, A.LockedMatrix(), 
-             x_MC_STAR.LockedMatrix(),
-      T(0),  z_MR_STAR.Matrix() );
+    Zeros( z_MR_STAR, A.Width(), 1 );
+    LocalGemv( orientation, alpha, A, x_MC_STAR, T(0), z_MR_STAR );
     z_VR_STAR.SumScatterFrom( z_MR_STAR );
     z = z_VR_STAR;
     Axpy( T(1), z, y );
