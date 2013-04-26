@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace internal {
@@ -77,14 +76,12 @@ GemmTNA
           C0, /**/ C1, C2 );
 
         D1.AlignWith( C1 );
-        Zeros( D1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1; // B1[MC,*] <- B1[MC,MR]
 
         // D1[MR,*] := alpha (A1[MC,MR])^T B1[MC,*]
         //           = alpha (A1^T)[MR,MC] B1[MC,*]
-        LocalGemm
-        ( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, T(0), D1_MR_STAR );
+        LocalGemm( orientationOfA, NORMAL, alpha, A, B1_MC_STAR, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_STAR );
@@ -165,7 +162,6 @@ GemmTNB
                C1,
           CB,  C2 );
 
-        Zeros( D1AdjOrTrans_MR_STAR, C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
         A1_MC_STAR = A1; // A1[MC,*] <- A1[MC,MR]
 
@@ -175,14 +171,13 @@ GemmTNB
         {
             LocalGemm
             ( ADJOINT, NORMAL, 
-              Conj(alpha), B, A1_MC_STAR, T(0), D1AdjOrTrans_MR_STAR );
+              Conj(alpha), B, A1_MC_STAR, D1AdjOrTrans_MR_STAR );
             C1.AdjointSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
         }
         else
         {
             LocalGemm
-            ( TRANSPOSE, NORMAL,
-              alpha, B, A1_MC_STAR, T(0), D1AdjOrTrans_MR_STAR );
+            ( TRANSPOSE, NORMAL, alpha, B, A1_MC_STAR, D1AdjOrTrans_MR_STAR );
             C1.TransposeSumScatterUpdate( T(1), D1AdjOrTrans_MR_STAR );
         }
         //--------------------------------------------------------------------//

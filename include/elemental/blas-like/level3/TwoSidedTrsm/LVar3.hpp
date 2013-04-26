@@ -246,9 +246,7 @@ TwoSidedTrsmLVar3
 
         // A21 := A21 - A20 L10'
         L10_STAR_MR = L10_STAR_VR;
-        Zeros( X21_MC_STAR, A21.Height(), A21.Width() );
-        LocalGemm
-        ( NORMAL, ADJOINT, F(1), A20, L10_STAR_MR, F(0), X21_MC_STAR );
+        LocalGemm( NORMAL, ADJOINT, F(1), A20, L10_STAR_MR, X21_MC_STAR );
         A21.SumScatterUpdate( F(-1), X21_MC_STAR );
 
         // A21 := A21 inv(L11)'
@@ -277,8 +275,7 @@ TwoSidedTrsmLVar3
         LocalGemm( NORMAL, NORMAL, F(1), L21_MC_STAR, A11_STAR_MR, F(0), Y21 );
 
         // Y21 := Y21 + L20 A10'
-        Zeros( Z21_MC_STAR, A21.Height(), A21.Width() );
-        LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, F(0), Z21_MC_STAR );
+        LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, Z21_MC_STAR );
         Y21.SumScatterUpdate( F(1), Z21_MC_STAR );
         //--------------------------------------------------------------------//
         A11_STAR_MR.FreeAlignments();

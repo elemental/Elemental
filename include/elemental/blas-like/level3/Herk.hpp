@@ -30,12 +30,40 @@ template<typename T>
 inline void
 Herk
 ( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, Matrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Herk");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syrk( uplo, orientation, alpha, A, T(0), C, true );
+}
+
+template<typename T>
+inline void
+Herk
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C )
 {
 #ifndef RELEASE
     CallStackEntry entry("Herk");
 #endif
     Syrk( uplo, orientation, alpha, A, beta, C, true );
+}
+
+template<typename T>
+inline void
+Herk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Herk");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syrk( uplo, orientation, alpha, A, T(0), C, true );
 }
 
 } // namespace elem

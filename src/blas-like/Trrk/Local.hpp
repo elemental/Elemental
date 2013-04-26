@@ -12,7 +12,6 @@
 #include "elemental/blas-like/level1/AxpyTriangle.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -294,12 +293,10 @@ TrrkNNKernel
     else
         Gemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    Gemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
+    Gemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    Gemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
+    Gemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -344,12 +341,10 @@ LocalTrrkKernel
     else
         LocalGemm( NORMAL, NORMAL, alpha, AT, BR, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    LocalGemm( NORMAL, NORMAL, alpha, AT, BL, T(0), DTL );
+    LocalGemm( NORMAL, NORMAL, alpha, AT, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    LocalGemm( NORMAL, NORMAL, alpha, AB, BR, T(0), DBR );
+    LocalGemm( NORMAL, NORMAL, alpha, AB, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -393,12 +388,10 @@ TrrkNTKernel
     else
         Gemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    Gemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
+    Gemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    Gemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
+    Gemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -447,12 +440,10 @@ LocalTrrkKernel
     else
         LocalGemm( NORMAL, orientationOfB, alpha, AT, BB, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, T(0), DTL );
+    LocalGemm( NORMAL, orientationOfB, alpha, AT, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, T(0), DBR );
+    LocalGemm( NORMAL, orientationOfB, alpha, AB, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -490,12 +481,10 @@ TrrkTNKernel
     else
         Gemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    Gemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
+    Gemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    Gemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
+    Gemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -538,12 +527,10 @@ LocalTrrkKernel
     else
         LocalGemm( orientationOfA, NORMAL, alpha, AL, BR, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, T(0), DTL );
+    LocalGemm( orientationOfA, NORMAL, alpha, AL, BL, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, T(0), DBR );
+    LocalGemm( orientationOfA, NORMAL, alpha, AR, BR, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -585,12 +572,10 @@ TrrkTTKernel
     else
         Gemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    Gemm( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
+    Gemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    Gemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
+    Gemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }
@@ -637,12 +622,10 @@ LocalTrrkKernel
     else
         LocalGemm( orientationOfA, orientationOfB, alpha, AL, BB, T(1), CTR );
 
-    Zeros( DTL, CTL.Height(), CTL.Width() );
-    LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, T(0), DTL );
+    LocalGemm( orientationOfA, orientationOfB, alpha, AL, BT, DTL );
     AxpyTriangle( uplo, T(1), DTL, CTL );
 
-    Zeros( DBR, CBR.Height(), CBR.Width() );
-    LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, T(0), DBR );
+    LocalGemm( orientationOfA, orientationOfB, alpha, AR, BB, DBR );
     AxpyTriangle( uplo, T(1), DBR, CBR );
     //------------------------------------------------------------------------//
 }

@@ -294,8 +294,7 @@ TrsmLLTSmall
 
         //--------------------------------------------------------------------//
         // X1 -= L21' X2
-        Zeros( Z1_STAR_STAR, X1.Height(), X1.Width() );
-        LocalGemm( orientation, NORMAL, F(-1), L21, X2, F(0), Z1_STAR_STAR );
+        LocalGemm( orientation, NORMAL, F(-1), L21, X2, Z1_STAR_STAR );
         AddInLocalData( X1, Z1_STAR_STAR );
         Z1_STAR_STAR.SumOverGrid();
 

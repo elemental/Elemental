@@ -64,6 +64,21 @@ template<typename T>
 inline void
 Syr2k
 ( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C,
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Syr2k");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
+}
+
+template<typename T>
+inline void
+Syr2k
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C,
   bool conjugate=false )
@@ -79,6 +94,22 @@ Syr2k
         internal::Syr2kUN( alpha, A, B, beta, C, conjugate );
     else
         internal::Syr2kUT( alpha, A, B, beta, C, conjugate );
+}
+
+template<typename T>
+inline void
+Syr2k
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+                 DistMatrix<T>& C,
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Syr2k");
+#endif 
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
 }
 
 } // namespace elem

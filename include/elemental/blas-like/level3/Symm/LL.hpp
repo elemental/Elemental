@@ -248,12 +248,12 @@ SymmLLA
           C0, /**/ C1, C2 );
 
         Z1.AlignWith( C1 );
-        Zeros( Z1_MC_STAR, C1.Height(), C1.Width() );
-        Zeros( Z1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_MC_STAR = B1;
         B1_VR_STAR = B1_MC_STAR;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR, conjugate );
+        Zeros( Z1_MC_STAR, C1.Height(), C1.Width() );
+        Zeros( Z1_MR_STAR, C1.Height(), C1.Width() );
         LocalSymmetricAccumulateLL
         ( orientation, 
           alpha, A, B1_MC_STAR, B1Trans_STAR_MR, Z1_MC_STAR, Z1_MR_STAR );

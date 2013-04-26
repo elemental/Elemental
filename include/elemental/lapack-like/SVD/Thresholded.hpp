@@ -14,7 +14,6 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/HermitianEig.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace svd {
@@ -43,8 +42,7 @@ ThresholdedTall
 
     // C := A^H A
     Matrix<F> C;
-    Zeros( C, n, n );
-    Herk( LOWER, ADJOINT, F(1), A, F(0), C );
+    Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
     HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
@@ -56,8 +54,7 @@ ThresholdedTall
 
     // Y := A V
     Matrix<F> Y;
-    Zeros( Y, m, k );
-    Gemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -99,8 +96,7 @@ ThresholdedTall
 
     // C := A^H A
     DistMatrix<F> C( g );
-    Zeros( C, n, n );
-    Herk( LOWER, ADJOINT, F(1), A, F(0), C );
+    Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
     HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
@@ -113,10 +109,8 @@ ThresholdedTall
     }
 
     // Y := A V
-    const int k = V.Width();
     DistMatrix<F> Y( g );
-    Zeros( Y, m, k );
-    Gemm( NORMAL, NORMAL, F(1), A, V, F(0), Y );
+    Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -163,8 +157,7 @@ ThresholdedWide
 
     // C := A A^H
     Matrix<F> C;
-    Zeros( C, m, m );
-    Herk( LOWER, NORMAL, F(1), A, F(0), C );
+    Herk( LOWER, NORMAL, F(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     Matrix<F> U;
@@ -176,8 +169,7 @@ ThresholdedWide
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
     // (Sigma V) := A^H U
-    Zeros( V, n, k );
-    Gemm( ADJOINT, NORMAL, F(1), A, U, F(0), V );
+    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of
@@ -219,8 +211,7 @@ ThresholdedWide
 
     // C := A A^H
     DistMatrix<F> C( g );
-    Zeros( C, m, m );
-    Herk( LOWER, NORMAL, F(1), A, F(0), C );
+    Herk( LOWER, NORMAL, F(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
     DistMatrix<F> U( g );
@@ -234,9 +225,7 @@ ThresholdedWide
     }
 
     // (Sigma V) := A^H U
-    const int k = U.Width();
-    Zeros( V, n, k );
-    Gemm( ADJOINT, NORMAL, F(1), A, U, F(0), V );
+    Gemm( ADJOINT, NORMAL, F(1), A, U, V );
 
     // Divide each column of (Sigma V) by sigma
     // NOTE: A (potentially better) alternative would be to compute the norm of

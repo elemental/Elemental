@@ -190,8 +190,7 @@ TwoSidedTrmmLVar2
 
         // A10 := A10 + L21' A20
         L21_MC_STAR = L21;
-        Zeros( X10_STAR_MR, A10.Height(), A10.Width() );
-        LocalGemm( ADJOINT, NORMAL, F(1), L21_MC_STAR, A20, F(0), X10_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, F(1), L21_MC_STAR, A20, X10_STAR_MR );
         A10.SumScatterUpdate( F(1), X10_STAR_MR );
 
         // Y21 := A22 L21

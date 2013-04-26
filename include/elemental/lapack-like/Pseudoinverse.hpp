@@ -14,7 +14,6 @@
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/SVD.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -61,8 +60,7 @@ Pseudoinverse( Matrix<F>& A )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Zeros( A, n, m );
-    Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
+    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
 }
 
 template<typename F>
@@ -105,8 +103,7 @@ Pseudoinverse( DistMatrix<F>& A )
     DiagonalScale( RIGHT, NORMAL, s, U );
 
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
-    Zeros( A, n, m );
-    Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
+    Gemm( NORMAL, ADJOINT, F(1), V, U, A );
 }
 
 } // namespace elem

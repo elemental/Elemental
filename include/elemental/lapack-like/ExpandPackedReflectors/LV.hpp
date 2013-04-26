@@ -106,8 +106,7 @@ LV( int offset, Matrix<R>& H )
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         //--------------------------------------------------------------------//
-        Zeros( SInv, HPanWidth, HPanWidth );
-        Syrk( UPPER, TRANSPOSE, R(1), HPan, R(0), SInv );
+        Syrk( UPPER, TRANSPOSE, R(1), HPan, SInv );
         HalveMainDiagonal( SInv );
 
         // Interleave the updates of the already effected portion of the matrix
@@ -355,8 +354,7 @@ LV
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         //--------------------------------------------------------------------//
-        Zeros( SInv, HPanWidth, HPanWidth );
-        Herk( UPPER, ADJOINT, C(1), HPan, C(0), SInv );
+        Herk( UPPER, ADJOINT, C(1), HPan, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix

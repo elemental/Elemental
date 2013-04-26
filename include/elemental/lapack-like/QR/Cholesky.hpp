@@ -36,8 +36,7 @@ Cholesky( Matrix<F>& A, Matrix<F>& R )
     const int width = A.Width();
     if( height < width )
         throw std::logic_error("A^H A will be singular");
-    Zeros( R, width, width );
-    Herk( UPPER, ADJOINT, F(1), A, F(0), R );
+    Herk( UPPER, ADJOINT, F(1), A, R );
     elem::Cholesky( UPPER, R );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
 }

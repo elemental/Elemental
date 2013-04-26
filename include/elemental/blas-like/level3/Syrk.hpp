@@ -60,6 +60,21 @@ template<typename T>
 inline void
 Syrk
 ( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, Matrix<T>& C,
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Syrk");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
+}
+
+template<typename T>
+inline void
+Syrk
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, T beta, DistMatrix<T>& C,
   bool conjugate=false )
 {
@@ -74,6 +89,21 @@ Syrk
         internal::SyrkUN( alpha, A, beta, C, conjugate );
     else
         internal::SyrkUT( alpha, A, beta, C, conjugate );
+}
+
+template<typename T>
+inline void
+Syrk
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, DistMatrix<T>& C,
+  bool conjugate=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Syrk");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
 
 } // namespace elem

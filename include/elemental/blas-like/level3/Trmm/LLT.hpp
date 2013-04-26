@@ -192,9 +192,9 @@ TrmmLLTA
         ( XL, /**/ XR,
           X0, /**/ X1, X2 );
 
-        Zeros( Z1_MR_STAR, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_MC_STAR = X1;
+        Zeros( Z1_MR_STAR, X1.Height(), X1.Width() );
         LocalTrmmAccumulateLLT
         ( orientation, diag, alpha, L, X1_MC_STAR, Z1_MR_STAR );
 
@@ -279,8 +279,6 @@ TrmmLLTCOld
         D1Trans_MR_STAR.AlignWith( X1 );
         D1Trans_MR_MC.AlignWith( X1 );
         D1.AlignWith( X1 );
-        Zeros( D1Trans_MR_STAR, X1.Width(), X1.Height() );
-        Zeros( D1, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_STAR_VR = X1;
         L11_STAR_STAR = L11;
@@ -290,8 +288,9 @@ TrmmLLTCOld
  
         L21_MC_STAR = L21;
         LocalGemm
-        ( orientation, NORMAL, T(1), X2, L21_MC_STAR, T(0), D1Trans_MR_STAR );
+        ( orientation, NORMAL, T(1), X2, L21_MC_STAR, D1Trans_MR_STAR );
         D1Trans_MR_MC.SumScatterFrom( D1Trans_MR_STAR );
+        Zeros( D1, X1.Height(), X1.Width() );
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix(), conjugate );
         Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//

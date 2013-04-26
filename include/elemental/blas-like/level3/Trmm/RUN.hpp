@@ -176,10 +176,10 @@ TrmmRUNA
           XB,  X2 );
 
         Z1Trans_MR_MC.AlignWith( X1 );
-        Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
         //--------------------------------------------------------------------//
         X1_STAR_VC = X1;
         X1_STAR_MC = X1_STAR_VC;
+        Zeros( Z1Trans_MR_STAR, X1.Width(), X1.Height() );
         LocalTrmmAccumulateRUN
         ( TRANSPOSE, diag, alpha, U, X1_STAR_MC, Z1Trans_MR_STAR );
 
@@ -254,7 +254,6 @@ TrmmRUNCOld
 
         U01_MR_STAR.AlignWith( X0 );
         D1_MC_STAR.AlignWith( X1 );
-        Zeros( D1_MC_STAR, X1.Height(), X1.Width() );
         //--------------------------------------------------------------------//
         X1_VC_STAR = X1;
         U11_STAR_STAR = U11;
@@ -263,7 +262,7 @@ TrmmRUNCOld
         X1 = X1_VC_STAR;
  
         U01_MR_STAR = U01;
-        LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, T(0), D1_MC_STAR );
+        LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, D1_MC_STAR );
         X1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
         U01_MR_STAR.FreeAlignments();

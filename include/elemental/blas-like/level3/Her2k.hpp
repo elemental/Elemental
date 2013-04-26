@@ -30,6 +30,20 @@ template<typename T>
 inline void
 Her2k
 ( UpperOrLower uplo, Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Her2k");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
+}
+
+template<typename T>
+inline void
+Her2k
+( UpperOrLower uplo, Orientation orientation,
   T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
@@ -37,6 +51,21 @@ Her2k
     CallStackEntry entry("Her2k");
 #endif
     Syr2k( uplo, orientation, alpha, A, B, beta, C, true );
+}
+
+template<typename T>
+inline void
+Her2k
+( UpperOrLower uplo, Orientation orientation,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+                 DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Her2k");
+#endif
+    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    Zeros( C, n, n );
+    Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
 }
 
 } // namespace elem

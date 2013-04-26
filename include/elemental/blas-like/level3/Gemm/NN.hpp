@@ -11,7 +11,6 @@
 #define BLAS_GEMM_NN_HPP
 
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace internal {
@@ -72,14 +71,12 @@ GemmNNA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        Zeros( D1_MC_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_VR_STAR = B1;
         B1Trans_STAR_MR.TransposeFrom( B1_VR_STAR );
 
         // D1[MC,*] := alpha A[MC,MR] B1[MR,*]
-        LocalGemm
-        ( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, T(0), D1_MC_STAR );
+        LocalGemm( NORMAL, TRANSPOSE, alpha, A, B1Trans_STAR_MR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.SumScatterUpdate( T(1), D1_MC_STAR );
@@ -159,13 +156,12 @@ GemmNNB
                C1,
           CB,  C2 );
 
-        Zeros( D1Trans_MR_STAR, C1.Width(), C1.Height() );
         //--------------------------------------------------------------------//
         A1_STAR_MC = A1; // A1[*,MC] <- A1[MC,MR]
 
         // D1^T[MR,* ] := alpha B^T[MR,MC] A1^T[MC,* ]
         LocalGemm
-        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, T(0), D1Trans_MR_STAR );
+        ( TRANSPOSE, TRANSPOSE, alpha, B, A1_STAR_MC, D1Trans_MR_STAR );
 
         C1.TransposeSumScatterUpdate( T(1), D1Trans_MR_STAR );
         //--------------------------------------------------------------------//
@@ -342,12 +338,11 @@ GemmNNDot
                 ( C1L, /**/ C1R,
                   C10, /**/ C11, C12 );
 
-                Zeros( C11_STAR_STAR, C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 B1_VC_STAR = B1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VC, B1_VC_STAR, T(0), C11_STAR_STAR );
+                  alpha, A1_STAR_VC, B1_VC_STAR, C11_STAR_STAR );
                 C11.SumScatterUpdate( T(1), C11_STAR_STAR );
                 //------------------------------------------------------------//
 
@@ -429,12 +424,11 @@ GemmNNDot
                         C11,
                   C1B,  C21 );
 
-                Zeros( C11_STAR_STAR, C11.Height(), C11.Width() );
                 //------------------------------------------------------------//
                 A1_STAR_VR = A1;
                 LocalGemm
                 ( NORMAL, NORMAL, 
-                  alpha, A1_STAR_VR, B1_VR_STAR, T(0), C11_STAR_STAR );
+                  alpha, A1_STAR_VR, B1_VR_STAR, C11_STAR_STAR );
                 C11.SumScatterUpdate( T(1), C11_STAR_STAR );
                 //------------------------------------------------------------//
 

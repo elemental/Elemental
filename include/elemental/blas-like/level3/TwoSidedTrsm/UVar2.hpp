@@ -202,8 +202,7 @@ TwoSidedTrsmUVar2
         Y01.SumScatterUpdate( F(1), F01_MC_STAR );
 
         // X11 := U01' A01
-        Zeros( X11_STAR_MR, A11.Height(), A11.Width() );
-        LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, F(0), X11_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, F(1), U01_MC_STAR, A01, X11_STAR_MR );
 
         // A01 := A01 - Y01
         Axpy( F(-1), Y01, A01 );
@@ -228,9 +227,7 @@ TwoSidedTrsmUVar2
         A11 = A11_STAR_STAR;
 
         // A12 := A12 - A02' U01
-        Zeros( X12Adj_MR_STAR, A12.Width(), A12.Height() );
-        LocalGemm
-        ( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, F(0), X12Adj_MR_STAR );
+        LocalGemm( ADJOINT, NORMAL, F(1), A02, U01_MC_STAR, X12Adj_MR_STAR );
         X12Adj_MR_MC.SumScatterFrom( X12Adj_MR_STAR );
         Adjoint( X12Adj_MR_MC.LockedMatrix(), X12Local );
         Axpy( F(-1), X12Local, A12.Matrix() );

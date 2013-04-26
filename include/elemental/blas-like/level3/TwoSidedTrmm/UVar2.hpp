@@ -193,9 +193,7 @@ TwoSidedTrmmUVar2
 
         // A01 := A01 + A02 U12'
         U12Adj_MR_STAR.AdjointFrom( U12 );
-        Zeros( X01_MC_STAR, A01.Height(), A01.Width() );
-        LocalGemm
-        ( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, F(0), X01_MC_STAR );
+        LocalGemm( NORMAL, NORMAL, F(1), A02, U12Adj_MR_STAR, X01_MC_STAR );
         A01.SumScatterUpdate( F(1), X01_MC_STAR );
 
         // Y12 := U12 A22

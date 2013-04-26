@@ -28,8 +28,7 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
     Matrix<R> s;
     Matrix<F> V;
 
-    // TODO: Exploit zeros in soft-thresholded singular values (with custom SVD)
-    SVD( U, s, V );
+    svd::Thresholded( U, s, V, tau );
     SoftThreshold( s, tau );
     DiagonalScale( RIGHT, NORMAL, s, U );
     Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );

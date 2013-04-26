@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace internal {
@@ -84,15 +83,13 @@ GemmTTA
           C0, /**/ C1, C2 );
 
         D1.AlignWith( C1 );  
-        Zeros( D1_MR_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1_STAR_MC = B1; // B1[*,MC] <- B1[MC,MR]
 
         // D1[MR,*] := alpha (A[MC,MR])^T (B1[*,MC])^T
         //           = alpha (A^T)[MR,MC] (B1^T)[MC,*]
         LocalGemm
-        ( orientationOfA, orientationOfB, 
-          alpha, A, B1_STAR_MC, T(0), D1_MR_STAR );
+        ( orientationOfA, orientationOfB, alpha, A, B1_STAR_MC, D1_MR_STAR );
 
         // C1[MC,MR] += scattered & transposed D1[MR,*] summed over grid cols
         D1_MR_MC.SumScatterFrom( D1_MR_STAR );
@@ -182,7 +179,6 @@ GemmTTB
           CB,  C2 );
 
         D1.AlignWith( C1 );
-        Zeros( D1_STAR_MC, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         A1_VR_STAR = A1;
         if( orientationOfA == ADJOINT )
@@ -193,8 +189,7 @@ GemmTTB
         // D1[*,MC] := alpha (A1[MR,*])^[T/H] (B[MC,MR])^[T/H]
         //           = alpha (A1^[T/H])[*,MR] (B^[T/H])[MR,MC]
         LocalGemm
-        ( NORMAL, orientationOfB, 
-          alpha, A1AdjOrTrans_STAR_MR, B, T(0), D1_STAR_MC );
+        ( NORMAL, orientationOfB, alpha, A1AdjOrTrans_STAR_MR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.SumScatterFrom( D1_STAR_MC );

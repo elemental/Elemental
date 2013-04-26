@@ -85,17 +85,15 @@ LLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
                A1,
           AB,  A2 );
 
-        Zeros( Z, HPanWidth, AB.Width() );
-        Zeros( SInv, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonal( LEFT, offset, HPanCopy, R(1) );
 
-        Syrk( LOWER, TRANSPOSE, R(1), HPanCopy, R(0), SInv );
+        Syrk( LOWER, TRANSPOSE, R(1), HPanCopy, SInv );
         HalveMainDiagonal( SInv );
 
-        Gemm( TRANSPOSE, NORMAL, R(1), HPanCopy, AB, R(0), Z );
+        Gemm( TRANSPOSE, NORMAL, R(1), HPanCopy, AB, Z );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), SInv, Z );
         Gemm( NORMAL, NORMAL, R(-1), HPanCopy, Z, R(1), AB );
         //--------------------------------------------------------------------//
@@ -175,14 +173,13 @@ LLVF
         HPan_MC_STAR.AlignWith( AB );
         Z_STAR_MR.AlignWith( AB );
         Z_STAR_VR.AlignWith( AB );
-        Zeros( Z_STAR_MR, HPanWidth, AB.Width() );
-        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonal( LEFT, offset, HPanCopy, R(1) );
 
         HPan_VC_STAR = HPanCopy;
+        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Syrk
         ( LOWER, TRANSPOSE, 
           R(1), HPan_VC_STAR.LockedMatrix(),
@@ -191,7 +188,7 @@ LLVF
         HalveMainDiagonal( SInv_STAR_STAR );
 
         HPan_MC_STAR = HPanCopy;
-        LocalGemm( TRANSPOSE, NORMAL, R(1), HPan_MC_STAR, AB, R(0), Z_STAR_MR );
+        LocalGemm( TRANSPOSE, NORMAL, R(1), HPan_MC_STAR, AB, Z_STAR_MR );
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         LocalTrsm
@@ -286,17 +283,15 @@ LLVF
                A1,
           AB,  A2 );
 
-        Zeros( Z, HPan.Width(), AB.Width() );
-        Zeros( SInv, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonal( LEFT, offset, HPanCopy, C(1) );
 
-        Herk( LOWER, ADJOINT, C(1), HPanCopy, C(0), SInv );
+        Herk( LOWER, ADJOINT, C(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
-        Gemm( ADJOINT, NORMAL, C(1), HPanCopy, AB, C(0), Z );
+        Gemm( ADJOINT, NORMAL, C(1), HPanCopy, AB, Z );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, C(1), SInv, Z );
         Gemm( NORMAL, NORMAL, C(-1), HPanCopy, Z, C(1), AB );
         //--------------------------------------------------------------------//
@@ -403,14 +398,13 @@ LLVF
         HPan_MC_STAR.AlignWith( AB );
         Z_STAR_MR.AlignWith( AB );
         Z_STAR_VR.AlignWith( AB );
-        Zeros( Z_STAR_MR, HPan.Width(), AB.Width() );
-        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
         SetDiagonal( LEFT, offset, HPanCopy, C(1) );
 
         HPan_VC_STAR = HPanCopy;
+        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
         Herk
         ( LOWER, ADJOINT, 
           C(1), HPan_VC_STAR.LockedMatrix(),
@@ -420,7 +414,7 @@ LLVF
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
         HPan_MC_STAR = HPanCopy;
-        LocalGemm( ADJOINT, NORMAL, C(1), HPan_MC_STAR, AB, C(0), Z_STAR_MR );
+        LocalGemm( ADJOINT, NORMAL, C(1), HPan_MC_STAR, AB, Z_STAR_MR );
         Z_STAR_VR.SumScatterFrom( Z_STAR_MR );
         
         LocalTrsm

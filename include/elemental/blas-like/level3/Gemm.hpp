@@ -11,6 +11,7 @@
 #define BLAS_GEMM_HPP
 
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 
@@ -127,6 +128,24 @@ inline void LocalGemm
       alpha, A.LockedMatrix(), B.LockedMatrix(), beta, C.Matrix() );
 }
 
+template<typename T,Distribution AColDist,Distribution ARowDist,
+                    Distribution BColDist,Distribution BRowDist,
+                    Distribution CColDist,Distribution CRowDist>
+inline void LocalGemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T,AColDist,ARowDist>& A,
+           const DistMatrix<T,BColDist,BRowDist>& B,
+                 DistMatrix<T,CColDist,CRowDist>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LocalGemm");
+#endif
+    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    Zeros( C, m, n );
+    LocalGemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
+}
+
 } // namespace elem
 
 #include "./Gemm/NN.hpp"
@@ -191,15 +210,28 @@ Gemm
     }
 }
 
+template<typename T>
+inline void
+Gemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Gemm");
+#endif
+    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    Zeros( C, m, n );
+    Gemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
+}
+
 namespace internal {
 
 template<typename T>
 inline void
 GemmA
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
@@ -226,10 +258,8 @@ GemmA
 template<typename T>
 inline void
 GemmB
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
@@ -256,10 +286,8 @@ GemmB
 template<typename T>
 inline void
 GemmC
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
@@ -286,10 +314,8 @@ GemmC
 template<typename T>
 inline void
 GemmDot
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
@@ -322,10 +348,8 @@ GemmDot
 template<typename T>
 inline void
 Gemm
-( Orientation orientationOfA, 
-  Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A,
-           const DistMatrix<T>& B,
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
@@ -348,6 +372,22 @@ Gemm
         internal::GemmTT
         ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
+}
+
+template<typename T>
+inline void
+Gemm
+( Orientation orientationOfA, Orientation orientationOfB,
+  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
+                 DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Gemm");
+#endif
+    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    Zeros( C, m, n );
+    Gemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
 }
 
 } // namespace elem

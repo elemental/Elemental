@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
 namespace internal {
@@ -81,13 +80,11 @@ GemmNTA
         ( CL, /**/     CR,
           C0, /**/ C1, C2 );
 
-        Zeros( D1_MC_STAR, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         B1Trans_MR_STAR.TransposeFrom( B1, conjugate );
 
         // C1[MC,*] := alpha A[MC,MR] (B1^[T/H])[MR,*]
-        LocalGemm
-        ( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, T(0), D1_MC_STAR );
+        LocalGemm( NORMAL, NORMAL, alpha, A, B1Trans_MR_STAR, D1_MC_STAR );
 
         // C1[MC,MR] += scattered result of D1[MC,*] summed over grid rows
         C1.SumScatterUpdate( T(1), D1_MC_STAR );
@@ -176,15 +173,13 @@ GemmNTB
           CB,  C2 );
 
         D1.AlignWith( C1 );
-        Zeros( D1_STAR_MC, C1.Height(), C1.Width() );
         //--------------------------------------------------------------------//
         A1Trans_MR_STAR.TransposeFrom( A1 );
 
         // D1[*,MC] := alpha A1[*,MR] (B[MC,MR])^T
         //           = alpha (A1^T)[MR,*] (B^T)[MR,MC]
         LocalGemm
-        ( TRANSPOSE, orientationOfB, 
-          alpha, A1Trans_MR_STAR, B, T(0), D1_STAR_MC );
+        ( TRANSPOSE, orientationOfB, alpha, A1Trans_MR_STAR, B, D1_STAR_MC );
 
         // C1[MC,MR] += scattered & transposed D1[*,MC] summed over grid rows
         D1_MR_MC.SumScatterFrom( D1_STAR_MC );
