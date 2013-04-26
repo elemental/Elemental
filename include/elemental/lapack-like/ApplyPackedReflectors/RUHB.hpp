@@ -44,7 +44,7 @@ inline void
 RUHB( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RUHB");
+    CallStackEntry entry("apply_packed_reflectors::RUHB");
     if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
@@ -109,9 +109,6 @@ RUHB( int offset, const Matrix<R>& H, Matrix<R>& A )
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -122,7 +119,7 @@ RUHB
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RUHB");
+    CallStackEntry entry("apply_packed_reflectors::RUHB");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset < 0 || offset > H.Width() )
@@ -217,9 +214,6 @@ RUHB
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -231,7 +225,7 @@ RUHB
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RUHB");
+    CallStackEntry entry("apply_packed_reflectors::RUHB");
     if( offset < 0 || offset > H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
@@ -320,9 +314,6 @@ RUHB
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -334,7 +325,7 @@ RUHB
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RUHB");
+    CallStackEntry entry("apply_packed_reflectors::RUHB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
@@ -455,9 +446,6 @@ RUHB
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

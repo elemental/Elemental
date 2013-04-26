@@ -46,7 +46,7 @@ inline void
 LV( int offset, Matrix<R>& H )
 {
 #ifndef RELEASE
-    PushCallStack("expand_packed_reflectors::LV");
+    CallStackEntry entry("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
 #endif
@@ -138,9 +138,6 @@ LV( int offset, Matrix<R>& H )
         MakeZeros( HEffectedNew );
         SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -148,7 +145,7 @@ inline void
 LV( int offset, DistMatrix<R>& H )
 {
 #ifndef RELEASE
-    PushCallStack("expand_packed_reflectors::LV");
+    CallStackEntry entry("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
 #endif
@@ -272,9 +269,6 @@ LV( int offset, DistMatrix<R>& H )
         MakeZeros( HEffectedNew );
         SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -284,7 +278,7 @@ LV
   Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("expand_packed_reflectors::LV");
+    CallStackEntry entry("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( t.Height() != H.DiagonalLength( offset ) )
@@ -399,9 +393,6 @@ LV
         MakeZeros( HEffectedNew );
         SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -411,7 +402,7 @@ LV
   DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("expand_packed_reflectors::LV");
+    CallStackEntry entry("expand_packed_reflectors::LV");
     if( H.Grid() != t.Grid() )
         throw std::logic_error("H and t must be distributed over same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -564,9 +555,6 @@ LV
         MakeZeros( HEffectedNew );
         SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace expand_packed_reflectors

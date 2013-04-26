@@ -19,13 +19,10 @@ inline void
 OneTwoOne( Matrix<T>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("OneTwoOne");
+    CallStackEntry entry("OneTwoOne");
 #endif
     A.ResizeTo( n, n );
     MakeOneTwoOne( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V> 
@@ -33,13 +30,10 @@ inline void
 OneTwoOne( DistMatrix<T,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("OneTwoOne");
+    CallStackEntry entry("OneTwoOne");
 #endif
     A.ResizeTo( n, n );
     MakeOneTwoOne( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T> 
@@ -47,7 +41,7 @@ inline void
 MakeOneTwoOne( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeOneTwoOne");
+    CallStackEntry entry("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix 1-2-1");
@@ -63,9 +57,6 @@ MakeOneTwoOne( Matrix<T>& A )
             A.Set( j, j+1, T(1) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -73,7 +64,7 @@ inline void
 MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeOneTwoOne");
+    CallStackEntry entry("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix 1-2-1");
@@ -97,9 +88,6 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
                 A.SetLocal( iLocal, jLocal, T(1) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -20,7 +20,7 @@ CauchyLike
   const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    PushCallStack("CauchyLike");
+    CallStackEntry entry("CauchyLike");
 #endif
     const int m = r.size();
     const int n = s.size();
@@ -47,9 +47,6 @@ CauchyLike
             A.Set( i, j, r[i]*s[j]/(x[i]-y[j]) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -60,7 +57,7 @@ CauchyLike
   const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    PushCallStack("CauchyLike");
+    CallStackEntry entry("CauchyLike");
 #endif
     const int m = r.size();
     const int n = s.size();
@@ -95,9 +92,6 @@ CauchyLike
             A.SetLocal( iLocal, jLocal, r[i]*s[j]/(x[i]-y[j]) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

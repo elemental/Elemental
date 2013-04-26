@@ -30,7 +30,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -41,9 +41,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -56,7 +53,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -67,9 +64,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -84,7 +78,7 @@ HermitianGenDefiniteEig
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -109,9 +103,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -123,7 +114,7 @@ HermitianGenDefiniteEig
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -148,9 +139,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -166,7 +154,7 @@ HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -177,9 +165,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -193,7 +178,7 @@ HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -204,9 +189,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -222,7 +204,7 @@ HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -247,9 +229,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -264,7 +243,7 @@ HermitianGenDefiniteEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -289,9 +268,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -307,7 +283,7 @@ HermitianGenDefiniteEig
   BASE(F) a, BASE(F) b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -318,9 +294,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -332,7 +305,7 @@ HermitianGenDefiniteEig
   BASE(F) a, BASE(F) b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -343,9 +316,6 @@ HermitianGenDefiniteEig
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -361,7 +331,7 @@ HermitianGenDefiniteEig
   BASE(F) a, BASE(F) b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -386,9 +356,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -401,7 +368,7 @@ HermitianGenDefiniteEig
   BASE(F) a, BASE(F) b )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianGenDefiniteEig");
+    CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -426,9 +393,6 @@ HermitianGenDefiniteEig
         else
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

@@ -43,7 +43,7 @@ inline void
 LLVB( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVB");
+    CallStackEntry entry("apply_packed_reflectors::LLVB");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -116,9 +116,6 @@ LLVB( int offset, const Matrix<R>& H, Matrix<R>& A )
                A1,
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -129,7 +126,7 @@ LLVB
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVB");
+    CallStackEntry entry("apply_packed_reflectors::LLVB");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -229,9 +226,6 @@ LLVB
                A1,
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -243,7 +237,7 @@ LLVB
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVB");
+    CallStackEntry entry("apply_packed_reflectors::LLVB");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -339,9 +333,6 @@ LLVB
                A1,
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -353,7 +344,7 @@ LLVB
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVB");
+    CallStackEntry entry("apply_packed_reflectors::LLVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error("{H,t,A} must be distributed over same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -479,9 +470,6 @@ LLVB
                A1,
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

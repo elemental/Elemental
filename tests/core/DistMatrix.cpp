@@ -18,7 +18,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
        DistMatrix<T,BColDist,BRowDist>& B )
 {
 #ifndef RELEASE
-    PushCallStack("Check");
+    CallStackEntry entry("Check");
 #endif
     const Grid& g = A.Grid();
 
@@ -66,9 +66,6 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     }
     else
         throw std::logic_error("Redistribution failed");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -76,7 +73,7 @@ void
 DistMatrixTest( int m, int n, const Grid& g )
 {
 #ifndef RELEASE
-    PushCallStack("DistMatrixTest");
+    CallStackEntry entry("DistMatrixTest");
 #endif
     DistMatrix<T,MC,  MR  > A_MC_MR(g);
     DistMatrix<T,MC,  STAR> A_MC_STAR(g);
@@ -232,9 +229,6 @@ DistMatrixTest( int m, int n, const Grid& g )
     Check( A_STAR_VC, A_STAR_STAR );
     Check( A_VR_STAR, A_STAR_STAR );
     Check( A_STAR_VR, A_STAR_STAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 int 

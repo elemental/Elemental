@@ -19,13 +19,10 @@ inline void
 Legendre( Matrix<F>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Legendre");
+    CallStackEntry entry("Legendre");
 #endif
     A.ResizeTo( n, n );
     MakeLegendre( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -33,13 +30,10 @@ inline void
 Legendre( DistMatrix<F,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Legendre");
+    CallStackEntry entry("Legendre");
 #endif
     A.ResizeTo( n, n );
     MakeLegendre( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -47,7 +41,7 @@ inline void
 MakeLegendre( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeLegendre");
+    CallStackEntry entry("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Legendre");
@@ -61,9 +55,6 @@ MakeLegendre( Matrix<F>& A )
         A.Set( j+1, j, beta );
         A.Set( j, j+1, beta );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -71,7 +62,7 @@ inline void
 MakeLegendre( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeLegendre");
+    CallStackEntry entry("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Legendre");
@@ -98,9 +89,6 @@ MakeLegendre( DistMatrix<F,U,V>& A )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

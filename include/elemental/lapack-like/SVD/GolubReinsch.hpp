@@ -32,7 +32,7 @@ GolubReinschUpper
   DistMatrix<Real>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -121,9 +121,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -134,7 +131,7 @@ GolubReinschUpper
   DistMatrix<Complex<Real> >& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef Complex<Real> C;
     const int m = A.Height();
@@ -226,9 +223,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_FLA_BSVD
@@ -240,7 +234,7 @@ GolubReinschUpper
   DistMatrix<double>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef double Real;
     typedef Complex<Real> C;
@@ -339,9 +333,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<>
@@ -352,7 +343,7 @@ GolubReinschUpper
   DistMatrix<Complex<double> >& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef double Real;
     typedef Complex<Real> C;
@@ -456,9 +447,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // HAVE_FLA_BSVD
 
@@ -469,7 +457,7 @@ GolubReinschUpper
   DistMatrix<Real,VR,STAR>& s )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -506,9 +494,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -518,7 +503,7 @@ GolubReinschUpper
   DistMatrix<Real,VR,STAR>& s )
 {
 #ifndef RELEASE
-    PushCallStack("svd::GolubReinschUpper");
+    CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef Complex<Real> C;
     const int m = A.Height();
@@ -556,9 +541,6 @@ GolubReinschUpper
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace svd

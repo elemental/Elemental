@@ -21,7 +21,7 @@ inline BASE(F)
 KyFanNorm( const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("KyFanNorm");
+    CallStackEntry entry("KyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -34,9 +34,6 @@ KyFanNorm( const Matrix<F>& A, int k )
     R norm = 0;
     for( int j=k-1; j>=0; --j )
         norm += s.Get(j,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -45,7 +42,7 @@ inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianKyFanNorm");
+    CallStackEntry entry("HermitianKyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -58,9 +55,6 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     R norm = 0;
     for( int j=k-1; j>=0; --j )
         norm += s.Get(j,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -69,7 +63,7 @@ inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricKyFanNorm");
+    CallStackEntry entry("SymmetricKyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -83,9 +77,6 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, int k )
     R norm = 0;
     for( int j=k-1; j>=0; --j )
         norm += s.Get(j,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -94,7 +85,7 @@ inline BASE(F)
 KyFanNorm( const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("KyFanNorm");
+    CallStackEntry entry("KyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -112,9 +103,6 @@ KyFanNorm( const DistMatrix<F,U,V>& A, int k )
         localNorm += sTop.GetLocal(j,0);
     R norm;
     mpi::AllReduce( &localNorm, &norm, 1, mpi::SUM, A.Grid().VRComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -123,7 +111,7 @@ inline BASE(F)
 HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianKyFanNorm");
+    CallStackEntry entry("HermitianKyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -141,9 +129,6 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
         localNorm += sTop.GetLocal(j,0);
     R norm;
     mpi::AllReduce( &localNorm, &norm, 1, mpi::SUM, A.Grid().VRComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -152,7 +137,7 @@ inline BASE(F)
 SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricKyFanNorm");
+    CallStackEntry entry("SymmetricKyFanNorm");
 #endif
     if( k < 1 || k > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Invalid index of KyFan norm");
@@ -171,9 +156,6 @@ SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
         localNorm += sTop.GetLocal(j,0);
     R norm;
     mpi::AllReduce( &localNorm, &norm, 1, mpi::SUM, A.Grid().VRComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 

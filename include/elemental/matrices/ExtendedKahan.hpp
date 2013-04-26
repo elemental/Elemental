@@ -27,14 +27,11 @@ inline void
 ExtendedKahan( Matrix<F>& A, int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    PushCallStack("ExtendedKahan");
+    CallStackEntry entry("ExtendedKahan");
 #endif
     const int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -42,14 +39,11 @@ inline void
 ExtendedKahan( DistMatrix<F,U,V>& A, int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    PushCallStack("ExtendedKahan");
+    CallStackEntry entry("ExtendedKahan");
 #endif
     const int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -57,7 +51,7 @@ inline void
 MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    PushCallStack("MakeExtendedKahan");
+    CallStackEntry entry("MakeExtendedKahan");
 #endif
     typedef BASE(F) R;
 
@@ -97,9 +91,6 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     for( int i=0; i<n; ++i )
         d.Set( i, 0, Pow(zeta,i) );
     DiagonalScale( LEFT, NORMAL, d, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -107,7 +98,7 @@ inline void
 MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    PushCallStack("MakeExtendedKahan");
+    CallStackEntry entry("MakeExtendedKahan");
 #endif
     typedef BASE(F) R;
 
@@ -152,9 +143,6 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
         d.SetLocal( iLocal, 0, Pow(zeta,i) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

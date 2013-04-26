@@ -21,13 +21,10 @@ inline void
 Kahan( Matrix<F>& A, int n, F phi )
 {
 #ifndef RELEASE
-    PushCallStack("Kahan");
+    CallStackEntry entry("Kahan");
 #endif
     A.ResizeTo( n, n );
     MakeKahan( A, phi );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -35,13 +32,10 @@ inline void
 Kahan( DistMatrix<F,U,V>& A, int n, F phi )
 {
 #ifndef RELEASE
-    PushCallStack("Kahan");
+    CallStackEntry entry("Kahan");
 #endif
     A.ResizeTo( n, n );
     MakeKahan( A, phi );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -49,7 +43,7 @@ inline void
 MakeKahan( Matrix<F>& A, F phi )
 {
 #ifndef RELEASE
-    PushCallStack("MakeKahan");
+    CallStackEntry entry("MakeKahan");
 #endif
     typedef BASE(F) R;
 
@@ -70,9 +64,6 @@ MakeKahan( Matrix<F>& A, F phi )
         for( int j=1; j<n; ++j )
             A.Set( i, j, -phi*zetaPow );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -80,7 +71,7 @@ inline void
 MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
 #ifndef RELEASE
-    PushCallStack("MakeKahan");
+    CallStackEntry entry("MakeKahan");
 #endif
     typedef BASE(F) R;
 
@@ -114,9 +105,6 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
                 A.SetLocal( iLocal, jLocal, -phi*zetaPow );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

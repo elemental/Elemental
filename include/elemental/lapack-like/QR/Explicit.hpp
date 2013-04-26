@@ -122,12 +122,9 @@ inline void
 Explicit( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Explicit");
+    CallStackEntry entry("qr::Explicit");
 #endif
     ExplicitHelper( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -135,12 +132,9 @@ inline void
 Explicit( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Explicit");
+    CallStackEntry entry("qr::Explicit");
 #endif
     ExplicitHelper( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -148,12 +142,9 @@ inline void
 Explicit( Matrix<F>& A, Matrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Explicit");
+    CallStackEntry entry("qr::Explicit");
 #endif
     ExplicitHelper( A, R );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -161,12 +152,9 @@ inline void
 Explicit( DistMatrix<F>& A, DistMatrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Explicit");
+    CallStackEntry entry("qr::Explicit");
 #endif
     ExplicitHelper( A, R );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace qr

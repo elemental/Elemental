@@ -27,15 +27,12 @@ inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 {
 #ifndef RELEASE
-    PushCallStack("SVD");
+    CallStackEntry entry("SVD");
 #endif
     if( useQR )
         svd::QRSVD( A, s, V );
     else
         svd::DivideAndConquerSVD( A, s, V );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -44,7 +41,7 @@ inline void HermitianSVD
   Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSVD");
+    CallStackEntry entry("HermitianSVD");
 #endif
 #if 1
     typedef BASE(F) R;
@@ -76,9 +73,6 @@ inline void HermitianSVD
     MakeHermitian( uplo, U );
     SVD( U, s, V );
 #endif 
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -88,13 +82,10 @@ SVD
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
-    PushCallStack("SVD");
+    CallStackEntry entry("SVD");
 #endif
     // TODO: Add more options
     svd::Chan( A, s, V, heightRatio );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -103,7 +94,7 @@ inline void HermitianSVD
   DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSVD");
+    CallStackEntry entry("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
     typedef BASE(F) R;
@@ -147,9 +138,6 @@ inline void HermitianSVD
     MakeHermitian( uplo, U );
     SVD( U, s, V );
 #endif // ifdef HAVE_PMRRR
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //----------------------------------------------------------------------------//
@@ -161,7 +149,7 @@ inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
-    PushCallStack("SVD");
+    CallStackEntry entry("SVD");
 #endif
     typedef BASE(F) R;
 
@@ -170,9 +158,6 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
     const int k = std::min(m,n);
     s.ResizeTo( k, 1 );
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -180,7 +165,7 @@ inline void HermitianSVD
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSVD");
+    CallStackEntry entry("HermitianSVD");
 #endif
 #if 1
     // Grab the eigenvalues of A
@@ -193,9 +178,6 @@ inline void HermitianSVD
     MakeHermitian( uplo, A );
     SVD( A, s );
 #endif 
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -203,13 +185,10 @@ inline void
 SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
-    PushCallStack("SVD");
+    CallStackEntry entry("SVD");
 #endif
     // TODO: Add more options
     svd::Chan( A, s, heightRatio );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -217,7 +196,7 @@ inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSVD");
+    CallStackEntry entry("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
     typedef BASE(F) R;
@@ -236,9 +215,6 @@ inline void HermitianSVD
     MakeHermitian( uplo, A );
     SVD( A, s );
 #endif // ifdef HAVE_PMRRR
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

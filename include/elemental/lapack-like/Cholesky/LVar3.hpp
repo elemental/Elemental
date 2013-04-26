@@ -21,7 +21,7 @@ inline void
 LVar3Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::LVar3Unb");
+    CallStackEntry entry("cholesky::LVar3Unb");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -46,9 +46,6 @@ LVar3Unb( Matrix<F>& A )
             for( int i=k; i<n; ++i )
                 ABuffer[i+k*lda] -= ABuffer[i+j*lda]*Conj(ABuffer[k+j*lda]);
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -56,7 +53,7 @@ inline void
 LVar3( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::LVar3");
+    CallStackEntry entry("cholesky::LVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -91,9 +88,6 @@ LVar3( Matrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 } 
 
 template<typename F>
@@ -101,7 +95,7 @@ inline void
 LVar3( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::LVar3");
+    CallStackEntry entry("cholesky::LVar3");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -169,9 +163,6 @@ LVar3( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 } 
 
 } // namespace cholesky

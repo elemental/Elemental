@@ -31,12 +31,9 @@ inline void
 LQ( Matrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LQ");
+    CallStackEntry entry("LQ");
 #endif
     lq::Householder( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -44,12 +41,9 @@ inline void
 LQ( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LQ");
+    CallStackEntry entry("LQ");
 #endif
     lq::Householder( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -58,12 +52,9 @@ LQ( Matrix<Complex<Real> >& A,
     Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("LQ");
+    CallStackEntry entry("LQ");
 #endif
     lq::Householder( A, t );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -72,14 +63,11 @@ LQ( DistMatrix<Complex<Real> >& A,
     DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("LQ");
+    CallStackEntry entry("LQ");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
     lq::Householder( A, t );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

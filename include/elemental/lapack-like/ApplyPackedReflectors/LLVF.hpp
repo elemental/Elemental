@@ -43,7 +43,7 @@ inline void
 LLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVF");
+    CallStackEntry entry("apply_packed_reflectors::LLVF");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -112,9 +112,6 @@ LLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -125,7 +122,7 @@ LLVF
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVF");
+    CallStackEntry entry("apply_packed_reflectors::LLVF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -219,9 +216,6 @@ LLVF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -233,7 +227,7 @@ LLVF
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVF");
+    CallStackEntry entry("apply_packed_reflectors::LLVF");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -325,9 +319,6 @@ LLVF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -339,7 +330,7 @@ LLVF
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLVF");
+    CallStackEntry entry("apply_packed_reflectors::LLVF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
@@ -460,9 +451,6 @@ LLVF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

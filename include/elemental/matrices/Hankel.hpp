@@ -17,7 +17,7 @@ inline void
 Hankel( Matrix<T>& A, int m, int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    PushCallStack("Hankel");
+    CallStackEntry entry("Hankel");
 #endif
     const int length = m+n-1;
     if( a.size() != (unsigned)length )
@@ -27,9 +27,6 @@ Hankel( Matrix<T>& A, int m, int n, const std::vector<T>& a )
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set( i, j, a[i+j] );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -37,7 +34,7 @@ inline void
 Hankel( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    PushCallStack("Hankel");
+    CallStackEntry entry("Hankel");
 #endif
     const int length = m+n-1;
     if( a.size() != (unsigned)length )
@@ -59,9 +56,6 @@ Hankel( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& a )
             A.SetLocal( iLocal, jLocal, a[i+j] );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -28,7 +28,7 @@ inline void
 SVD( Matrix<F>& A, Matrix<F>& P )
 {
 #ifndef RELEASE
-    PushCallStack("polar::SVD");
+    CallStackEntry entry("polar::SVD");
 #endif
     typedef BASE(F) R;
     const int n = A.Width();
@@ -46,9 +46,6 @@ SVD( Matrix<F>& A, Matrix<F>& P )
     // Form P := V Sigma V^H in P
     Zeros( P, n, n );
     hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -56,7 +53,7 @@ inline void
 SVD( DistMatrix<F>& A, DistMatrix<F>& P )
 {
 #ifndef RELEASE
-    PushCallStack("polar::SVD");
+    CallStackEntry entry("polar::SVD");
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
@@ -75,9 +72,6 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
     // Form P := V Sigma V^H in P
     Zeros( P, n, n );
     hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace polar

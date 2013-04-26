@@ -43,7 +43,7 @@ inline void
 RLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLVF");
+    CallStackEntry entry("apply_packed_reflectors::RLVF");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Width() )
@@ -107,9 +107,6 @@ RLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -120,7 +117,7 @@ RLVF
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLVF");
+    CallStackEntry entry("apply_packed_reflectors::RLVF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 || offset < -H.Height() )
@@ -212,9 +209,6 @@ RLVF
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -226,7 +220,7 @@ RLVF
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLVF");
+    CallStackEntry entry("apply_packed_reflectors::RLVF");
     if( offset > 0 || offset < -H.Height() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Width() )
@@ -313,9 +307,6 @@ RLVF
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -327,7 +318,7 @@ RLVF
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLVF");
+    CallStackEntry entry("apply_packed_reflectors::RLVF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
@@ -445,9 +436,6 @@ RLVF
         ( AL,     /**/ AR,
           A0, A1, /**/ A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

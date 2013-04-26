@@ -17,7 +17,7 @@ inline void
 Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    PushCallStack("Cauchy");
+    CallStackEntry entry("Cauchy");
 #endif
     const int m = x.size();
     const int n = y.size();
@@ -41,9 +41,6 @@ Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
             A.Set( i, j, one/(x[i]-y[j]) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -51,7 +48,7 @@ inline void
 Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    PushCallStack("Cauchy");
+    CallStackEntry entry("Cauchy");
 #endif
     const int m = x.size();
     const int n = y.size();
@@ -83,9 +80,6 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
             A.SetLocal( iLocal, jLocal, one/(x[i]-y[j]) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

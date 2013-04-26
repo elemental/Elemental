@@ -19,7 +19,7 @@ inline void
 Wilkinson( Matrix<T>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("Wilkinson");
+    CallStackEntry entry("Wilkinson");
 #endif
     const int n = 2*k+1;
     A.ResizeTo( n, n );
@@ -37,9 +37,6 @@ Wilkinson( Matrix<T>& A, int k )
         if( j < n-1 )
             A.Set( j+1, j, T(1) );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -47,7 +44,7 @@ inline void
 Wilkinson( DistMatrix<T,U,V>& A, int k )
 {
 #ifndef RELEASE
-    PushCallStack("Wilkinson");
+    CallStackEntry entry("Wilkinson");
 #endif
     const int n = 2*k+1;
     A.ResizeTo( n, n );
@@ -76,9 +73,6 @@ Wilkinson( DistMatrix<T,U,V>& A, int k )
                 A.SetLocal( iLocal, jLocal, T(1) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

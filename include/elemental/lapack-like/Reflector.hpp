@@ -47,15 +47,12 @@ inline R
 Reflector( Matrix<R>& chi, Matrix<R>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Reflector");
+    CallStackEntry entry("Reflector");
 #endif
     R norm = Nrm2( x );
     if( norm == 0 )
     {
         chi.Set(0,0,-chi.Get(0,0));
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return R(2);
     }
 
@@ -95,9 +92,6 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     chi.Set(0,0,beta);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 
@@ -106,15 +100,12 @@ inline R
 Reflector( R& chi, int m, R* x, int incx )
 {
 #ifndef RELEASE
-    PushCallStack("Reflector");
+    CallStackEntry entry("Reflector");
 #endif
     R norm = blas::Nrm2( m, x, incx );
     if( norm == 0 )
     {
         x[0] = -x[0];
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return R(2);
     }
 
@@ -155,9 +146,6 @@ Reflector( R& chi, int m, R* x, int incx )
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     chi = beta;
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 
@@ -184,7 +172,7 @@ inline Complex<R>
 Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
 {
 #ifndef RELEASE
-    PushCallStack("Reflector");
+    CallStackEntry entry("Reflector");
 #endif
     typedef Complex<R> C;
 
@@ -194,9 +182,6 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     if( norm == 0 && alpha.imag == R(0) )
     {
         chi.Set(0,0,-chi.Get(0,0));
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return C(2);
     }
 
@@ -235,9 +220,6 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     for( int j=0; j<count; ++j )
         beta *= safeInv;
     chi.Set(0,0,beta);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 
@@ -246,7 +228,7 @@ inline Complex<R>
 Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
 {
 #ifndef RELEASE
-    PushCallStack("Reflector");
+    CallStackEntry entry("Reflector");
 #endif
     typedef Complex<R> C;
 
@@ -256,9 +238,6 @@ Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
     if( norm == 0 && alpha.imag == R(0) )
     {
         chi = -chi;
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return C(2);
     }
 
@@ -298,9 +277,6 @@ Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
         beta *= safeInv;
     chi = beta;
 
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 
@@ -309,7 +285,7 @@ inline F
 Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 {
 #ifndef RELEASE
-    PushCallStack("Reflector");
+    CallStackEntry entry("Reflector");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -332,9 +308,6 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
             tau = reflector::Row( chi, x );
         mpi::Broadcast( &tau, 1, x.ColAlignment(), g.ColComm() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 

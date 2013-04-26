@@ -38,7 +38,7 @@ ApplyPackedReflectors
   int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyPackedReflectors");
+    CallStackEntry entry("ApplyPackedReflectors");
 #endif
     // Since the complex version does not have the same argument list, there is
     // currently no good way to ensure that this version is not called with 
@@ -97,9 +97,6 @@ ApplyPackedReflectors
                 apply_packed_reflectors::RUHB( offset, H, A );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -112,7 +109,7 @@ ApplyPackedReflectors
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyPackedReflectors");
+    CallStackEntry entry("ApplyPackedReflectors");
 #endif
     // Since the complex version does not have the same argument list, there is
     // currently no good way to ensure that this version is not called with 
@@ -171,9 +168,6 @@ ApplyPackedReflectors
                 apply_packed_reflectors::RUHB( offset, H, A );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -188,7 +182,7 @@ ApplyPackedReflectors
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyPackedReflectors");
+    CallStackEntry entry("ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
@@ -240,9 +234,6 @@ ApplyPackedReflectors
                 apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -257,7 +248,7 @@ ApplyPackedReflectors
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyPackedReflectors");
+    CallStackEntry entry("ApplyPackedReflectors");
 #endif
     if( side == LEFT )
     {
@@ -309,9 +300,6 @@ ApplyPackedReflectors
                 apply_packed_reflectors::RUHB( conjugation, offset, H, t, A );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -326,16 +314,13 @@ ApplyPackedReflectors
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyPackedReflectors");
+    CallStackEntry entry("ApplyPackedReflectors");
 #endif
     DistMatrix<Complex<R>,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
     ApplyPackedReflectors
     ( side, uplo, dir, order, conjugation, offset, H, tDiag, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

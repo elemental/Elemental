@@ -30,7 +30,7 @@ inline void
 Cholesky( Matrix<F>& A, Matrix<F>& R )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Cholesky");
+    CallStackEntry entry("qr::Cholesky");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -40,9 +40,6 @@ Cholesky( Matrix<F>& A, Matrix<F>& R )
     Herk( UPPER, ADJOINT, F(1), A, F(0), R );
     elem::Cholesky( UPPER, R );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -50,7 +47,7 @@ inline void
 Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
 {
 #ifndef RELEASE
-    PushCallStack("qr::Cholesky");
+    CallStackEntry entry("qr::Cholesky");
 #endif
     const int height = A.Height();
     const int width = A.Width();
@@ -61,9 +58,6 @@ Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
     R.SumOverGrid();
     elem::Cholesky( UPPER, R.Matrix() );
     Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), R.Matrix(), A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace qr

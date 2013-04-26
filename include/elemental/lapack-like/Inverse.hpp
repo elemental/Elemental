@@ -21,12 +21,9 @@ inline void
 Inverse( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Inverse");
+    CallStackEntry entry("Inverse");
 #endif
     inverse::LUPartialPiv( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -34,15 +31,12 @@ inline void
 HPDInverse( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPDInverse");
+    CallStackEntry entry("HPDInverse");
 #endif
     if( uplo == LOWER )
         hpd_inverse::CholeskyLVar2( A );
     else
         hpd_inverse::CholeskyUVar2( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -50,12 +44,9 @@ inline void
 Inverse( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Inverse");
+    CallStackEntry entry("Inverse");
 #endif
     inverse::LUPartialPiv( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -63,15 +54,12 @@ inline void
 HPDInverse( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPDInverse");
+    CallStackEntry entry("HPDInverse");
 #endif
     if( uplo == LOWER )
         hpd_inverse::CholeskyLVar2( A );
     else
         hpd_inverse::CholeskyUVar2( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -79,12 +67,9 @@ inline void
 LocalInverse( DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalInverse");
+    CallStackEntry entry("LocalInverse");
 #endif
     Inverse( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -92,12 +77,9 @@ inline void
 LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalHPDInverse");
+    CallStackEntry entry("LocalHPDInverse");
 #endif
     HPDInverse( uplo, A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

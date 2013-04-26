@@ -22,7 +22,7 @@ inline void
 SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("lu::SolveAfter");
+    CallStackEntry entry("lu::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -54,9 +54,6 @@ SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
             Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -65,7 +62,7 @@ SolveAfter
 ( Orientation orientation, const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("lu::SolveAfter");
+    CallStackEntry entry("lu::SolveAfter");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -99,9 +96,6 @@ SolveAfter
             Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -111,7 +105,7 @@ SolveAfter
   const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("lu::SolveAfter");
+    CallStackEntry entry("lu::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -149,9 +143,6 @@ SolveAfter
             ApplyInverseRowPivots( B, p );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -161,7 +152,7 @@ SolveAfter
   const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("lu::SolveAfter");
+    CallStackEntry entry("lu::SolveAfter");
     if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -201,9 +192,6 @@ SolveAfter
             ApplyInverseRowPivots( B, p );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lu

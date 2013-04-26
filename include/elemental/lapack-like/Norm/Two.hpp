@@ -22,17 +22,13 @@ inline BASE(F)
 TwoNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    CallStackEntry entry("TwoNorm");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
-    const R norm = InfinityNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return InfinityNorm( s );
 }
 
 template<typename F>
@@ -40,17 +36,13 @@ inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTwoNorm");
+    CallStackEntry entry("HermitianTwoNorm");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
-    const R norm = InfinityNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return InfinityNorm( s );
 }
 
 template<typename F>
@@ -58,18 +50,14 @@ inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricTwoNorm");
+    CallStackEntry entry("SymmetricTwoNorm");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
     Matrix<R> s;
     MakeSymmetric( uplo, B );
     SVD( B, s );
-    const R norm = MaxNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return MaxNorm( s );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -77,17 +65,13 @@ inline BASE(F)
 TwoNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNorm");
+    CallStackEntry entry("TwoNorm");
 #endif
     typedef BASE(F) R;
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
-    const R norm = InfinityNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return InfinityNorm( s );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -95,17 +79,13 @@ inline BASE(F)
 HermitianTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianTwoNorm");
+    CallStackEntry entry("HermitianTwoNorm");
 #endif
     typedef BASE(F) R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
-    const R norm = InfinityNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return InfinityNorm( s );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -113,18 +93,14 @@ inline BASE(F)
 SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricTwoNorm");
+    CallStackEntry entry("SymmetricTwoNorm");
 #endif
     typedef BASE(F) R;
     DistMatrix<F,U,V> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     MakeSymmetric( uplo, B );
     SVD( B, s );
-    const R norm = MaxNorm( s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return MaxNorm( s );
 }
 
 } // namespace elem

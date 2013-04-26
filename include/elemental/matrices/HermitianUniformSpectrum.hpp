@@ -28,13 +28,10 @@ HermitianUniformSpectrum
 ( Matrix<F>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianUniformSpectrum");
+    CallStackEntry entry("HermitianUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -43,13 +40,10 @@ HermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianUniformSpectrum");
+    CallStackEntry entry("HermitianUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
     MakeHermitianUniformSpectrum( A, lower, upper );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -57,7 +51,7 @@ inline void
 MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitianUniformSpectrum");
+    CallStackEntry entry("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
@@ -103,9 +97,6 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     if( isComplex )
         for( int j=0; j<n; ++j )
             A.SetImagPart( j, j, R(0) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -114,7 +105,7 @@ MakeHermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHermitianUniformSpectrum");
+    CallStackEntry entry("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot make a non-square matrix Hermitian");
@@ -220,9 +211,6 @@ MakeHermitianUniformSpectrum
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

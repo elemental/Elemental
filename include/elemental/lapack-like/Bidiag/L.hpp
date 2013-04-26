@@ -25,7 +25,7 @@ template<typename R>
 inline void L( Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::L");
+    CallStackEntry entry("bidiag::L");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -109,9 +109,6 @@ inline void L( Matrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -119,7 +116,7 @@ inline void
 L( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::L");
+    CallStackEntry entry("bidiag::L");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -207,9 +204,6 @@ L( DistMatrix<R>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -219,7 +213,7 @@ inline void L
   Matrix<Complex<R> >& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::L");
+    CallStackEntry entry("bidiag::L");
 #endif
     const int tPHeight = A.Height();
     const int tQHeight = std::max(A.Height()-1,0);
@@ -330,9 +324,6 @@ inline void L
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -343,7 +334,7 @@ L
   DistMatrix<Complex<R>,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::L");
+    CallStackEntry entry("bidiag::L");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
         throw std::logic_error
         ("{A,tP,tQ} must be distributed over the same grid");
@@ -489,9 +480,6 @@ L
     // Redistribute from matrix-diagonal form to fully replicated
     tP = tPDiag;
     tQ = tQDiag;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace bidiag

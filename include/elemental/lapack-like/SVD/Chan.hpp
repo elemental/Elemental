@@ -28,7 +28,7 @@ ChanUpper
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ChanUpper");
+    CallStackEntry entry("svd::ChanUpper");
     if( A.Height() < A.Width() )
         throw std::logic_error("A must be at least as tall as it is wide");
     if( heightRatio <= 1.0 )
@@ -55,9 +55,6 @@ ChanUpper
     {
         svd::GolubReinschUpper( A, s, V );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -68,7 +65,7 @@ ChanUpper
   double heightRatio=1.2 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ChanUpper");    
+    CallStackEntry entry("svd::ChanUpper");    
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint");
 #endif
@@ -90,9 +87,6 @@ ChanUpper
     {
         GolubReinschUpper( A, s );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -103,7 +97,7 @@ ChanUpper
   double heightRatio=1.2 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ChanUpper");
+    CallStackEntry entry("svd::ChanUpper");
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint");
 #endif
@@ -127,9 +121,6 @@ ChanUpper
     {
         GolubReinschUpper( A, s );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //----------------------------------------------------------------------------//
@@ -144,7 +135,7 @@ Chan
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::Chan");
+    CallStackEntry entry("svd::Chan");
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint for SVD");
 #endif
@@ -174,9 +165,6 @@ Chan
     // Rescale the singular values if necessary
     if( needRescaling )
         Scale( 1/scale, s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 //----------------------------------------------------------------------------//
@@ -189,7 +177,7 @@ Chan
 ( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::Chan");
+    CallStackEntry entry("svd::Chan");
 #endif
     typedef BASE(F) R;
 
@@ -218,9 +206,6 @@ Chan
     // Rescale the singular values if necessary
     if( needRescaling )
         Scale( 1/scale, s );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace svd

@@ -26,12 +26,9 @@ inline void
 LocalLU( DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalLU");
+    CallStackEntry entry("LocalLU");
 #endif
     LU( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Performs LU factorization without pivoting
@@ -41,7 +38,7 @@ inline void
 LU( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    CallStackEntry entry("LU");
 #endif
     // Matrix views
     Matrix<F>
@@ -74,9 +71,6 @@ LU( Matrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -84,7 +78,7 @@ inline void
 LU( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    CallStackEntry entry("LU");
 #endif
     const Grid& g = A.Grid();
 
@@ -146,9 +140,6 @@ LU( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Performs LU factorization with partial pivoting
@@ -158,7 +149,7 @@ inline void
 LU( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    CallStackEntry entry("LU");
     if( p.Viewing() && 
         (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) ) 
         throw std::logic_error
@@ -227,9 +218,6 @@ LU( Matrix<F>& A, Matrix<int>& p )
          /**/ /**/
           pB,  p2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -237,7 +225,7 @@ inline void
 LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("LU");
+    CallStackEntry entry("LU");
     if( A.Grid() != p.Grid() )
         throw std::logic_error("{A,p} must be distributed over the same grid");
     if( p.Viewing() && 
@@ -336,9 +324,6 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
          /**/ /**/
           pB,  p2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

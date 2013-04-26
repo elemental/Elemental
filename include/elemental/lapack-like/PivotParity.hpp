@@ -20,7 +20,7 @@ inline bool
 PivotParity( const Matrix<int>& p, int pivotOffset=0 )
 {
 #ifndef RELEASE
-    PushCallStack("PivotParity");
+    CallStackEntry entry("PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -31,9 +31,6 @@ PivotParity( const Matrix<int>& p, int pivotOffset=0 )
     for( int i=0; i<n; ++i )
         if( p.Get(i,0) != i+pivotOffset )
             isOdd = !isOdd;
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return isOdd;
 }
 
@@ -41,7 +38,7 @@ inline bool
 PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 ) 
 {
 #ifndef RELEASE
-    PushCallStack("PivotParity");
+    CallStackEntry entry("PivotParity");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( pivotOffset < 0 )
@@ -64,13 +61,7 @@ PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 )
     int globalContribution;
     mpi::AllReduce
     ( &localContribution, &globalContribution, 1, MPI_SUM, g.VCComm() );
-    globalContribution = globalContribution % 2;
-
-    bool isOdd = globalContribution;
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return isOdd;
+    return globalContribution % 2;
 }
 
 } // namespace elem

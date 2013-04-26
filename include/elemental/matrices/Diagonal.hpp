@@ -19,7 +19,7 @@ inline void
 Diagonal( Matrix<T>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
-    PushCallStack("Diagonal");
+    CallStackEntry entry("Diagonal");
 #endif
     const int n = d.size();
     D.ResizeTo( n, n );
@@ -27,9 +27,6 @@ Diagonal( Matrix<T>& D, const std::vector<T>& d )
 
     for( int j=0; j<n; ++j )
         D.Set( j, j, d[j] );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -37,7 +34,7 @@ inline void
 Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
-    PushCallStack("Diagonal");
+    CallStackEntry entry("Diagonal");
 #endif
     const int n = d.size();
     D.ResizeTo( n, n );
@@ -57,9 +54,6 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
             D.SetLocal( iLocal, jLocal, d[j] );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

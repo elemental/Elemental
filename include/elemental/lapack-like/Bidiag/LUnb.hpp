@@ -23,7 +23,7 @@ template<typename R>
 inline void LUnb( DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::LUnb");
+    CallStackEntry entry("bidiag::LUnb");
     if( A.Height() > A.Width() )
         throw std::logic_error("A must be at least as wide as it is tall");
 #endif
@@ -135,9 +135,6 @@ inline void LUnb( DistMatrix<R>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -147,7 +144,7 @@ inline void LUnb
   DistMatrix<Complex<R>,MD,STAR>& tQ )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::LUnb");
+    CallStackEntry entry("bidiag::LUnb");
 #endif
     const int tPHeight = A.Height();
     const int tQHeight = std::max(A.Height()-1,0);
@@ -285,9 +282,6 @@ inline void LUnb
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace bidiag

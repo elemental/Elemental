@@ -45,7 +45,7 @@ inline void
 Sort( Matrix<R>& w, bool ascending=true )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_eig::Sort");
+    CallStackEntry entry("hermitian_eig::Sort");
 #endif
     R* wBuffer = w.Buffer();
     const int k = w.Height();
@@ -53,9 +53,6 @@ Sort( Matrix<R>& w, bool ascending=true )
         std::sort( &wBuffer[0], &wBuffer[k] );
     else
         std::sort( &wBuffer[0], &wBuffer[k], std::greater<R>() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -63,7 +60,7 @@ inline void
 Sort( DistMatrix<R,VR,STAR>& w, bool ascending=true )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_eig::Sort");
+    CallStackEntry entry("hermitian_eig::Sort");
 #endif
     const int k = w.Height();
 
@@ -77,9 +74,6 @@ Sort( DistMatrix<R,VR,STAR>& w, bool ascending=true )
 
     // Refill the distributed w with the sorted values
     w = w_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -87,7 +81,7 @@ inline void
 Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_eig::Sort");
+    CallStackEntry entry("hermitian_eig::Sort");
 #endif
     typedef BASE(F) R;
     const int n = Z.Height();
@@ -116,9 +110,6 @@ Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
         w.Set(j,0,pairs[j].value);
     }
     Z = ZPerm;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -126,7 +117,7 @@ inline void
 Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_eig::Sort");
+    CallStackEntry entry("hermitian_eig::Sort");
 #endif
     typedef BASE(F) R;
     const int n = Z.Height();
@@ -165,9 +156,6 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
 
     Z = ZPerm_VC_STAR;
     w = w_STAR_STAR;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_eig

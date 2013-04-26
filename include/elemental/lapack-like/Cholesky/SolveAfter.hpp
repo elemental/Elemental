@@ -24,7 +24,7 @@ SolveAfter
   const Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::SolveAfter");
+    CallStackEntry entry("cholesky::SolveAfter");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -72,9 +72,6 @@ SolveAfter
                 Conjugate( B );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -84,7 +81,7 @@ SolveAfter
   const DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::SolveAfter");
+    CallStackEntry entry("cholesky::SolveAfter");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -134,9 +131,6 @@ SolveAfter
                 Conjugate( B );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace cholesky

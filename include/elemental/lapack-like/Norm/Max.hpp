@@ -17,7 +17,7 @@ inline BASE(F)
 MaxNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MaxNorm");
+    CallStackEntry entry("MaxNorm");
 #endif
     typedef BASE(F) R;
     R maxAbs = 0;
@@ -31,9 +31,6 @@ MaxNorm( const Matrix<F>& A )
             maxAbs = std::max( maxAbs, thisAbs );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxAbs;
 }
 
@@ -42,7 +39,7 @@ inline BASE(F)
 HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianMaxNorm");
+    CallStackEntry entry("HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -73,9 +70,6 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxAbs;
 }
 
@@ -84,14 +78,9 @@ inline BASE(F)
 SymmetricMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricMaxNorm");
+    CallStackEntry entry("SymmetricMaxNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianMaxNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianMaxNorm( uplo, A );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -99,7 +88,7 @@ inline BASE(F)
 MaxNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MaxNorm");
+    CallStackEntry entry("MaxNorm");
 #endif
     typedef BASE(F) R;
     R localMaxAbs = 0;
@@ -117,9 +106,6 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     R maxAbs;
     mpi::Comm reduceComm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, reduceComm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxAbs;
 }
 
@@ -128,7 +114,7 @@ inline BASE(F)
 HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianMaxNorm");
+    CallStackEntry entry("HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -171,9 +157,6 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 
     R maxAbs;
     mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxAbs;
 }
 
@@ -182,14 +165,9 @@ inline BASE(F)
 SymmetricMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricMaxNorm");
+    CallStackEntry entry("SymmetricMaxNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianMaxNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianMaxNorm( uplo, A );
 }
 
 } // namespace elem

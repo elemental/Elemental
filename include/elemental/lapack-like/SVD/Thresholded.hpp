@@ -25,7 +25,7 @@ ThresholdedTall
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ThresholdedTall");
+    CallStackEntry entry("svd::ThresholdedTall");
     if( A.Height() < A.Width() )
         throw std::logic_error("A must be at least as tall as it is wide");
     if( tol < 0 )
@@ -70,9 +70,6 @@ ThresholdedTall
         for( int i=0; i<m; ++i )
             A.Set( i, j, A.Get(i,j)/sigma );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -83,7 +80,7 @@ ThresholdedTall
   BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ThresholdedTall");
+    CallStackEntry entry("svd::ThresholdedTall");
     if( A.Height() < A.Width() )
         throw std::logic_error("A must be at least as tall as it is wide");
     if( tol < 0 )
@@ -139,9 +136,6 @@ ThresholdedTall
                 A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)/sigma );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -151,7 +145,7 @@ ThresholdedWide
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ThresholdedWide");
+    CallStackEntry entry("svd::ThresholdedWide");
     if( A.Width() < A.Height() )
         throw std::logic_error("A must be at least as wide as it is tall");
     if( tol < 0 )
@@ -196,9 +190,6 @@ ThresholdedWide
             V.Set( i, j, V.Get(i,j)/sigma );
     }
     A = U;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -209,7 +200,7 @@ ThresholdedWide
   BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::ThresholdedWide");
+    CallStackEntry entry("svd::ThresholdedWide");
     if( A.Width() < A.Height() )
         throw std::logic_error("A must be at least as wide as it is tall");
     if( tol < 0 )
@@ -265,9 +256,6 @@ ThresholdedWide
         }
     }
     A = U;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -277,15 +265,12 @@ Thresholded
 ( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::Thresholded");
+    CallStackEntry entry("svd::Thresholded");
 #endif
     if( A.Height() >= A.Width() )
         ThresholdedTall( A, s, V, tol );
     else
         ThresholdedWide( A, s, V, tol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -296,15 +281,12 @@ Thresholded
   BASE(F) tol=0 )
 {
 #ifndef RELEASE
-    PushCallStack("svd::Thresholded");
+    CallStackEntry entry("svd::Thresholded");
 #endif
     if( A.Height() >= A.Width() )
         ThresholdedTall( A, s, V, tol );
     else
         ThresholdedWide( A, s, V, tol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

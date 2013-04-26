@@ -30,7 +30,7 @@ ReformHermitianMatrix
   const Matrix<F>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_function::ReformHermitianMatrix");
+    CallStackEntry entry("hermitian_function::ReformHermitianMatrix");
 #endif
     typedef BASE(F) R;
 
@@ -76,9 +76,6 @@ ReformHermitianMatrix
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -90,7 +87,7 @@ ReformHermitianMatrix
   const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_function::ReformHermitianMatrix");
+    CallStackEntry entry("hermitian_function::ReformHermitianMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef BASE(F) R;
@@ -151,9 +148,6 @@ ReformHermitianMatrix
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // A :=  Z Omega Z^T, where Omega is complex-valued and diagonal
@@ -166,7 +160,7 @@ ReformNormalMatrix
   const Matrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_function::ReformNormalMatrix");
+    CallStackEntry entry("hermitian_function::ReformNormalMatrix");
 #endif
     typedef Complex<R> C;
 
@@ -209,9 +203,6 @@ ReformNormalMatrix
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -222,7 +213,7 @@ ReformNormalMatrix
   const DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_function::ReformNormalMatrix");
+    CallStackEntry entry("hermitian_function::ReformNormalMatrix");
 #endif
     const Grid& g = A.Grid();
     typedef Complex<R> C;
@@ -280,9 +271,6 @@ ReformNormalMatrix
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hermitian_eig
@@ -298,7 +286,7 @@ RealHermitianFunction
 ( UpperOrLower uplo, Matrix<F>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("RealHermitianFunction");
+    CallStackEntry entry("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -319,9 +307,6 @@ RealHermitianFunction
 
     // Form the custom outer product, Z Omega Z^T
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -331,7 +316,7 @@ RealHermitianFunction
 ( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("RealHermitianFunction");
+    CallStackEntry entry("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -353,9 +338,6 @@ RealHermitianFunction
 
     // Form the custom outer product, Z Omega Z^T
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -372,7 +354,7 @@ ComplexHermitianFunction
 ( UpperOrLower uplo, Matrix<Complex<R> >& A, const ComplexFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("ComplexHermitianFunction");
+    CallStackEntry entry("ComplexHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -394,9 +376,6 @@ ComplexHermitianFunction
 
     // Form the custom outer product, Z f(Omega) Z^H
     hermitian_function::ReformNormalMatrix( A, fw, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -406,7 +385,7 @@ ComplexHermitianFunction
 ( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
 {
 #ifndef RELEASE
-    PushCallStack("ComplexHermitianFunction");
+    CallStackEntry entry("ComplexHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -431,9 +410,6 @@ ComplexHermitianFunction
 
     // Form the custom outer product, Z f(Omega) Z^H
     hermitian_function::ReformNormalMatrix( A, fw, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

@@ -19,13 +19,10 @@ inline void
 Identity( Matrix<T>& I, int m, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Identity");
+    CallStackEntry entry("Identity");
 #endif
     I.ResizeTo( m, n );
     MakeIdentity( I );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -33,13 +30,10 @@ inline void
 Identity( DistMatrix<T,U,V>& I, int m, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Identity");
+    CallStackEntry entry("Identity");
 #endif
     I.ResizeTo( m, n );
     MakeIdentity( I );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T> 
@@ -47,16 +41,13 @@ inline void
 MakeIdentity( Matrix<T>& I )
 {
 #ifndef RELEASE
-    PushCallStack("MakeIdentity");
+    CallStackEntry entry("MakeIdentity");
 #endif
     Zero( I );
     const int m = I.Height();
     const int n = I.Width();
     for( int j=0; j<std::min(m,n); ++j )
         I.Set( j, j, T(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -64,7 +55,7 @@ inline void
 MakeIdentity( DistMatrix<T,U,V>& I )
 {
 #ifndef RELEASE
-    PushCallStack("MakeIdentity");
+    CallStackEntry entry("MakeIdentity");
 #endif
     Zero( I.Matrix() );
 
@@ -84,9 +75,6 @@ MakeIdentity( DistMatrix<T,U,V>& I )
                 I.SetLocal( iLocal, jLocal, T(1) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

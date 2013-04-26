@@ -20,7 +20,7 @@ inline SafeProduct<F>
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("hpd_determinant::Cholesky");
+    CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -49,9 +49,6 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
         det.rho = 0;
         det.kappa = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return det;
 }
 
@@ -60,7 +57,7 @@ inline SafeProduct<F>
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("hpd_determinant::Cholesky");
+    CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -95,9 +92,6 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
         det.rho = 0;
         det.kappa = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return det;
 }
 

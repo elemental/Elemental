@@ -24,7 +24,7 @@ inline void
 HermitianSign( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSign");
+    CallStackEntry entry("HermitianSign");
 #endif
     typedef BASE(F) R;
 
@@ -53,9 +53,6 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A )
 
     // Reform the Hermitian matrix with the modified eigenvalues
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -64,7 +61,7 @@ inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSign");
+    CallStackEntry entry("HermitianSign");
 #endif
     typedef BASE(F) R;
 
@@ -95,9 +92,6 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
 
     // Reform the Hermitian matrix with the modified eigenvalues
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

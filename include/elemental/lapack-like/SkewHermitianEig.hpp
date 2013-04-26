@@ -23,7 +23,7 @@ inline void
 SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -45,9 +45,6 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag )
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -55,7 +52,7 @@ inline void
 SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -66,9 +63,6 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag )
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -80,7 +74,7 @@ SkewHermitianEig
   DistMatrix<R,VR,STAR>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -106,9 +100,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -119,7 +110,7 @@ SkewHermitianEig
   DistMatrix<R,VR,STAR>& wImag )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -130,9 +121,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -146,7 +134,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -169,9 +157,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -181,7 +166,7 @@ SkewHermitianEig
   Matrix<Complex<R> >& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -192,9 +177,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -207,7 +189,7 @@ SkewHermitianEig
   DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -233,9 +215,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -247,7 +226,7 @@ SkewHermitianEig
   DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -258,9 +237,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -274,7 +250,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -297,9 +273,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -308,7 +281,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag, int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -319,9 +292,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -334,7 +304,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -360,9 +330,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -374,7 +341,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -385,9 +352,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -402,7 +366,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -425,9 +389,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -438,7 +399,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -449,9 +410,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -465,7 +423,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -491,9 +449,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -506,7 +461,7 @@ SkewHermitianEig
   int a, int b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -517,9 +472,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -532,7 +484,7 @@ inline void
 SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -555,9 +507,6 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, R a, R b )
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -566,7 +515,7 @@ SkewHermitianEig
 ( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag, R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -577,9 +526,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -592,7 +538,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -618,9 +564,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -632,7 +575,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -643,9 +586,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 
@@ -660,7 +600,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -683,9 +623,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -696,7 +633,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -707,9 +644,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -723,7 +657,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("SkewHermitian matrices must be square");
@@ -749,9 +683,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, A, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -764,7 +695,7 @@ SkewHermitianEig
   R a, R b )
 {
 #ifndef RELEASE
-    PushCallStack("SkewHermitianEig");
+    CallStackEntry entry("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         throw std::logic_error("Skew-Hermitian matrices must be square");
@@ -775,9 +706,6 @@ SkewHermitianEig
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

@@ -21,7 +21,7 @@ inline void
 Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
 {
 #ifndef RELEASE
-    PushCallStack("lu::Panel");
+    CallStackEntry entry("lu::Panel");
     if( A.Width() != p.Height() || p.Width() != 1 )
         throw std::logic_error("p must be a vector that conforms with A");
 #endif
@@ -86,9 +86,6 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -100,7 +97,7 @@ Panel
   int pivotOffset=0 )
 {
 #ifndef RELEASE
-    PushCallStack("lu::Panel");
+    CallStackEntry entry("lu::Panel");
     if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
         throw std::logic_error
         ("Matrices must be distributed over the same grid");
@@ -264,9 +261,6 @@ Panel
         ( BL,     /**/ BR,  
           B0, b1, /**/ B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lu

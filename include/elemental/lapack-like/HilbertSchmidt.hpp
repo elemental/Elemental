@@ -19,7 +19,7 @@ inline F
 HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("HilbertSchmidt");
+    CallStackEntry entry("HilbertSchmidt");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Matrices must be the same size");
@@ -29,9 +29,6 @@ HilbertSchmidt( const Matrix<F>& A, const Matrix<F>& B )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             innerProd += Conj(A.Get(i,j))*B.Get(i,j);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return innerProd;
 }
 
@@ -40,7 +37,7 @@ inline F
 HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 {
 #ifndef RELEASE
-    PushCallStack("HilbertSchmidt");
+    CallStackEntry entry("HilbertSchmidt");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Matrices must be the same size");
@@ -61,9 +58,6 @@ HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
     F innerProd;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localInnerProd, &innerProd, 1, mpi::SUM, comm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return innerProd;
 }
 

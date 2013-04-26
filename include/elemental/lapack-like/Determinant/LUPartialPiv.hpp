@@ -21,7 +21,7 @@ inline SafeProduct<F>
 LUPartialPiv( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("determinant::LUPartialPiv");
+    CallStackEntry entry("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -55,9 +55,6 @@ LUPartialPiv( Matrix<F>& A )
         det.rho = 0;
         det.kappa = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return det;
 }
 
@@ -66,7 +63,7 @@ inline SafeProduct<F>
 LUPartialPiv( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("determinant::LUPartialPiv");
+    CallStackEntry entry("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error
@@ -109,9 +106,6 @@ LUPartialPiv( DistMatrix<F>& A )
         det.rho = 0;
         det.kappa = 0;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return det;
 }
 

@@ -28,12 +28,9 @@ inline void
 Polar( Matrix<F>& A, Matrix<F>& P )
 {
 #ifndef RELEASE
-    PushCallStack("Polar");
+    CallStackEntry entry("Polar");
 #endif
     polar::SVD( A, P );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -41,12 +38,9 @@ inline void
 Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 {
 #ifndef RELEASE
-    PushCallStack("Polar");
+    CallStackEntry entry("Polar");
 #endif
     polar::SVD( A, P );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

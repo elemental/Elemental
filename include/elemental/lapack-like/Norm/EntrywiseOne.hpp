@@ -17,7 +17,7 @@ inline BASE(F)
 EntrywiseOneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("EntrywiseOneNorm");
+    CallStackEntry entry("EntrywiseOneNorm");
 #endif
     typedef BASE(F) R;
     R norm = 0;
@@ -26,9 +26,6 @@ EntrywiseOneNorm( const Matrix<F>& A )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             norm += Abs(A.Get(i,j));
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -37,7 +34,7 @@ inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEntrywiseOneNorm");
+    CallStackEntry entry("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -74,9 +71,6 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -85,14 +79,9 @@ inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricEntrywiseOneNorm");
+    CallStackEntry entry("SymmetricEntrywiseOneNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianEntrywiseOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianEntrywiseOneNorm( uplo, A );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -100,7 +89,7 @@ inline BASE(F)
 EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("EntrywiseOneNorm");
+    CallStackEntry entry("EntrywiseOneNorm");
 #endif
     typedef BASE(F) R;
     R localSum = 0;
@@ -113,9 +102,6 @@ EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
     R norm;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localSum, &norm, 1, mpi::SUM, comm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -124,7 +110,7 @@ inline BASE(F)
 HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEntrywiseOneNorm");
+    CallStackEntry entry("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -175,9 +161,6 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 
     R norm;
     mpi::AllReduce( &localSum, &norm, 1, mpi::SUM, A.Grid().VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -186,14 +169,9 @@ inline BASE(F)
 SymmetricEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricEntrywiseOneNorm");
+    CallStackEntry entry("SymmetricEntrywiseOneNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianEntrywiseOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianEntrywiseOneNorm( uplo, A );
 }
 
 } // namespace elem

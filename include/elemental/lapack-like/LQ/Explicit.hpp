@@ -150,12 +150,9 @@ inline void
 Explicit( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Explicit");
+    CallStackEntry entry("lq::Explicit");
 #endif
     ExplicitHelper( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -163,12 +160,9 @@ inline void
 Explicit( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Explicit");
+    CallStackEntry entry("lq::Explicit");
 #endif
     ExplicitHelper( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -176,12 +170,9 @@ inline void
 Explicit( Matrix<F>& L, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Explicit");
+    CallStackEntry entry("lq::Explicit");
 #endif
     ExplicitHelper( L, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -189,12 +180,9 @@ inline void
 Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Explicit");
+    CallStackEntry entry("lq::Explicit");
 #endif
     ExplicitHelper( L, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lq

@@ -43,7 +43,7 @@ inline int
 QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("polar::QDWH");
+    CallStackEntry entry("polar::QDWH");
 #endif
     typedef BASE(F) R;
     const int height = A.Height();
@@ -128,9 +128,6 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
         frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -139,7 +136,7 @@ inline int
 QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("polar::QDWH");
+    CallStackEntry entry("polar::QDWH");
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
@@ -225,9 +222,6 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
         frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -240,7 +234,7 @@ inline int
 QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_polar::QDWH");
+    CallStackEntry entry("hermitian_polar::QDWH");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must be same as width");
@@ -331,9 +325,6 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 
     MakeHermitian( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -343,7 +334,7 @@ QDWH
 ( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_polar::QDWH");
+    CallStackEntry entry("hermitian_polar::QDWH");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must be same as width");
@@ -435,9 +426,6 @@ QDWH
     while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 
     MakeHermitian( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 

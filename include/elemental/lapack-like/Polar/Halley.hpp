@@ -37,7 +37,7 @@ inline int
 Halley( Matrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("polar::Halley");
+    CallStackEntry entry("polar::Halley");
 #endif
     typedef BASE(F) R;
     const int height = A.Height();
@@ -105,9 +105,6 @@ Halley( Matrix<F>& A, BASE(F) upperBound )
         frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -116,7 +113,7 @@ inline int
 Halley( DistMatrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("polar::Halley");
+    CallStackEntry entry("polar::Halley");
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
@@ -185,9 +182,6 @@ Halley( DistMatrix<F>& A, BASE(F) upperBound )
         frobNormADiff = FrobeniusNorm( ALast );
     }
     while( frobNormADiff > cubeRootTol );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -200,7 +194,7 @@ inline int
 Halley( UpperOrLower uplo, Matrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_polar::Halley");
+    CallStackEntry entry("hermitian_polar::Halley");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must equal width");
@@ -271,9 +265,6 @@ Halley( UpperOrLower uplo, Matrix<F>& A, BASE(F) upperBound )
     while( frobNormADiff > cubeRootTol );
 
     MakeHermitian( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 
@@ -282,7 +273,7 @@ inline int
 Halley( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) upperBound )
 {
 #ifndef RELEASE
-    PushCallStack("hermitian_polar::Halley");
+    CallStackEntry entry("hermitian_polar::Halley");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Height must equal width");
@@ -354,9 +345,6 @@ Halley( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) upperBound )
     while( frobNormADiff > cubeRootTol );
 
     MakeHermitian( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numIts;
 }
 

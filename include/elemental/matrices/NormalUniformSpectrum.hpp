@@ -28,13 +28,10 @@ NormalUniformSpectrum
 ( Matrix<Complex<R> >& A, int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("NormalUniformSpectrum");
+    CallStackEntry entry("NormalUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R,Distribution U,Distribution V>
@@ -43,13 +40,10 @@ NormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("NormalUniformSpectrum");
+    CallStackEntry entry("NormalUniformSpectrum");
 #endif
     A.ResizeTo( n, n );
     MakeNormalUniformSpectrum( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -58,7 +52,7 @@ MakeNormalUniformSpectrum
 ( Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("MakeNormalUniformSpectrum");
+    CallStackEntry entry("MakeNormalUniformSpectrum");
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
@@ -103,9 +97,6 @@ MakeNormalUniformSpectrum
 
     // Update A := A + gamma u u^H
     Ger( gamma, u, u, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R,Distribution U,Distribution V>
@@ -114,7 +105,7 @@ MakeNormalUniformSpectrum
 ( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("MakeNormalUniformSpectrum");
+    CallStackEntry entry("MakeNormalUniformSpectrum");
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
@@ -217,9 +208,6 @@ MakeNormalUniformSpectrum
     // Copy the result into the correct distribution
     if( !standardDist )
         A = ABackup;
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

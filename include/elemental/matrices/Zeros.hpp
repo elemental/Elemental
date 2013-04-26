@@ -19,13 +19,10 @@ inline void
 Zeros( Matrix<T>& A, int m, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Zeros");
+    CallStackEntry entry("Zeros");
 #endif
     A.ResizeTo( m, n );
     MakeZeros( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -33,13 +30,10 @@ inline void
 Zeros( DistMatrix<T,U,V>& A, int m, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Zeros");
+    CallStackEntry entry("Zeros");
 #endif
     A.ResizeTo( m, n );
     MakeZeros( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T> 
@@ -47,12 +41,9 @@ inline void
 MakeZeros( Matrix<T>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    CallStackEntry entry("MakeZeros");
 #endif
     Zero( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -60,12 +51,9 @@ inline void
 MakeZeros( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeZeros");
+    CallStackEntry entry("MakeZeros");
 #endif
     Zero( A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

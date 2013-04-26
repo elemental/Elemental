@@ -20,7 +20,7 @@ template<typename T>
 inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Hadamard");
+    CallStackEntry entry("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Hadamard product requires equal dimensions");
@@ -31,9 +31,6 @@ inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             C.Set( i, j, A.Get(i,j)*B.Get(i,j) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V> 
@@ -41,7 +38,7 @@ inline void Hadamard
 ( const DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B, DistMatrix<T,U,V>& C )
 {
 #ifndef RELEASE
-    PushCallStack("Hadamard");
+    CallStackEntry entry("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
         throw std::logic_error("Hadamard product requires equal dimensions");
@@ -66,9 +63,6 @@ inline void Hadamard
             C.SetLocal( iLocal, jLocal, alpha*beta );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

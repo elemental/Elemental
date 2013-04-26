@@ -26,7 +26,7 @@ LeastSquares
                       Matrix<R>& X )
 {
 #ifndef RELEASE
-    PushCallStack("LeastSquares");
+    CallStackEntry entry("LeastSquares");
 #endif
     // TODO: Add scaling
     const int m = A.Height();
@@ -125,9 +125,6 @@ LeastSquares
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -138,7 +135,7 @@ LeastSquares
                           DistMatrix<R>& X )
 {
 #ifndef RELEASE
-    PushCallStack("LeastSquares");
+    CallStackEntry entry("LeastSquares");
     if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
 #endif
@@ -242,9 +239,6 @@ LeastSquares
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -256,7 +250,7 @@ LeastSquares
         Matrix<Complex<R> >& X )
 {
 #ifndef RELEASE
-    PushCallStack("LeastSquares");
+    CallStackEntry entry("LeastSquares");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
 #endif
@@ -368,9 +362,6 @@ LeastSquares
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -382,7 +373,7 @@ LeastSquares
         DistMatrix<Complex<R> >& X )
 {
 #ifndef RELEASE
-    PushCallStack("LeastSquares");
+    CallStackEntry entry("LeastSquares");
     if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
         throw std::logic_error("Grids do not match");
     if( orientation == TRANSPOSE )
@@ -497,9 +488,6 @@ LeastSquares
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

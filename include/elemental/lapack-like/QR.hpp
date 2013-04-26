@@ -33,12 +33,9 @@ inline void
 QR( Matrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("QR");
+    CallStackEntry entry("QR");
 #endif
     qr::Householder( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -46,12 +43,9 @@ inline void
 QR( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("QR");
+    CallStackEntry entry("QR");
 #endif
     qr::Householder( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -60,12 +54,9 @@ QR( Matrix<Complex<Real> >& A,
     Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("QR");
+    CallStackEntry entry("QR");
 #endif
     qr::Householder( A, t );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -74,14 +65,11 @@ QR( DistMatrix<Complex<Real> >& A,
     DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("QR");
+    CallStackEntry entry("QR");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,s} must be distributed over the same grid");
 #endif
     qr::Householder( A, t );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

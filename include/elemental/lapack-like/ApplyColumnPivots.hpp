@@ -19,7 +19,7 @@ inline void
 ApplyColumnPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyColumnPivots");
+    CallStackEntry entry("ApplyColumnPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Width() )
@@ -28,12 +28,7 @@ ApplyColumnPivots( Matrix<F>& A, const Matrix<int>& p )
     const int height = A.Height();
     const int width = A.Width();
     if( height == 0 || width == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     for( int j=0; j<width; ++j )
     {
@@ -47,9 +42,6 @@ ApplyColumnPivots( Matrix<F>& A, const Matrix<int>& p )
             Ak[i] = temp;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -57,7 +49,7 @@ inline void
 ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyInverseColumnPivots");
+    CallStackEntry entry("ApplyInverseColumnPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
     if( p.Height() != A.Width() )
@@ -66,12 +58,7 @@ ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p )
     const int height = A.Height();
     const int width = A.Width();
     if( height == 0 || width == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     for( int j=width-1; j>=0; --j )
     {
@@ -85,9 +72,6 @@ ApplyInverseColumnPivots( Matrix<F>& A, const Matrix<int>& p )
             Ak[i] = temp;
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -95,13 +79,10 @@ inline void
 ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyColumnPivots");
+    CallStackEntry entry("ApplyColumnPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
     ApplyColumnPivots( A, p_STAR_STAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -110,13 +91,10 @@ ApplyInverseColumnPivots
 ( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyInverseColumnPivots");
+    CallStackEntry entry("ApplyInverseColumnPivots");
 #endif
     DistMatrix<int,STAR,STAR> p_STAR_STAR( p );
     ApplyInverseColumnPivots( A, p_STAR_STAR );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -124,14 +102,11 @@ inline void
 ApplyColumnPivots( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyColumnPivots");
+    CallStackEntry entry("ApplyColumnPivots");
 #endif
     std::vector<int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyColumnPivots( A, image, preimage );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -140,14 +115,11 @@ ApplyInverseColumnPivots
 ( DistMatrix<F>& A, const DistMatrix<int,STAR,STAR>& p )
 {
 #ifndef RELEASE
-    PushCallStack("ApplyInverseColumnPivots");
+    CallStackEntry entry("ApplyInverseColumnPivots");
 #endif
     std::vector<int> image, preimage;
     ComposePivots( p, image, preimage );
     ApplyColumnPivots( A, preimage, image );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -159,7 +131,7 @@ ApplyColumnPivots
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("ApplyColumnPivots");
+    CallStackEntry entry("ApplyColumnPivots");
     if( A.Width() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
@@ -168,12 +140,7 @@ ApplyColumnPivots
     const int m = A.Height();
     const int n = A.Width();
     if( m == 0 || n == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // TODO: Optimize this routine
 
@@ -202,9 +169,6 @@ ApplyColumnPivots
         if( jPre >= b )
             MemCopy( A.Buffer(0,j), APreimageCopy.LockedBuffer(0,j), m );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -216,7 +180,7 @@ ApplyColumnPivots
 {
     const int b = image.size();
 #ifndef RELEASE
-    PushCallStack("ApplyColumnPivots");
+    CallStackEntry entry("ApplyColumnPivots");
     if( A.Width() < b || b != preimage.size() )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
@@ -224,12 +188,7 @@ ApplyColumnPivots
 #endif
     const int localHeight = A.LocalHeight();
     if( A.Height() == 0 || A.Width() == 0 )
-    {
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return;
-    }
 
     // Extract the relevant process grid information
     const Grid& g = A.Grid();
@@ -368,9 +327,6 @@ ApplyColumnPivots
             }
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

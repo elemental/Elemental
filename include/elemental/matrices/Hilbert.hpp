@@ -17,13 +17,10 @@ inline void
 Hilbert( Matrix<F>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    CallStackEntry entry("Hilbert");
 #endif
     A.ResizeTo( n, n );
     MakeHilbert( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -31,13 +28,10 @@ inline void
 Hilbert( DistMatrix<F,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("Hilbert");
+    CallStackEntry entry("Hilbert");
 #endif
     A.ResizeTo( n, n );
     MakeHilbert( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -45,7 +39,7 @@ inline void
 MakeHilbert( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    CallStackEntry entry("MakeHilbert");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -56,9 +50,6 @@ MakeHilbert( Matrix<F>& A )
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set( i, j, one/(i+j+1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -66,7 +57,7 @@ inline void
 MakeHilbert( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeHilbert");
+    CallStackEntry entry("MakeHilbert");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -89,9 +80,6 @@ MakeHilbert( DistMatrix<F,U,V>& A )
             A.SetLocal( iLocal, jLocal, one/(i+j+1) );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

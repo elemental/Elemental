@@ -21,7 +21,7 @@ inline BASE(F)
 SchattenNorm( const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SchattenNorm");
+    CallStackEntry entry("SchattenNorm");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
@@ -33,11 +33,7 @@ SchattenNorm( const Matrix<F>& A, BASE(F) p )
     R sum = 0;
     for( int j=k-1; j>=0; --j )
         sum += Pow( s.Get(j,0), p ); 
-    const R norm = Pow( sum, 1/p ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p ); 
 }
 
 template<typename F>
@@ -46,7 +42,7 @@ HermitianSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSchattenNorm");
+    CallStackEntry entry("HermitianSchattenNorm");
 #endif
     typedef BASE(F) R;
 
@@ -59,11 +55,7 @@ HermitianSchattenNorm
     R sum = 0;
     for( int j=k-1; j>=0; --j )
         sum += Pow( s.Get(j,0), p );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
@@ -72,7 +64,7 @@ SymmetricSchattenNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricSchattenNorm");
+    CallStackEntry entry("SymmetricSchattenNorm");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
@@ -85,11 +77,7 @@ SymmetricSchattenNorm
     R sum = 0;
     for( int j=0; j<k; ++j )
         sum += Pow( s.Get(j,0), p );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -97,7 +85,7 @@ inline BASE(F)
 SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SchattenNorm");
+    CallStackEntry entry("SchattenNorm");
 #endif
     typedef BASE(F) R;
     DistMatrix<F> B( A );
@@ -111,11 +99,7 @@ SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
         localSum += Pow( s.GetLocal(j,0), p );
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -124,7 +108,7 @@ HermitianSchattenNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianSchattenNorm");
+    CallStackEntry entry("HermitianSchattenNorm");
 #endif
     typedef BASE(F) R;
 
@@ -139,11 +123,7 @@ HermitianSchattenNorm
         localSum += Pow( s.GetLocal(j,0), p );
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -152,7 +132,7 @@ SymmetricSchattenNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricSchattenNorm");
+    CallStackEntry entry("SymmetricSchattenNorm");
 #endif
     typedef BASE(F) R;
     DistMatrix<F> B( A );
@@ -167,11 +147,7 @@ SymmetricSchattenNorm
         localSum += Pow( s.GetLocal(j,0), p );
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 } // namespace elem

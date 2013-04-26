@@ -49,7 +49,7 @@ inline void
 DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::DivideAndConquerSVD");
+    CallStackEntry entry("svd::DivideAndConquerSVD");
 #endif
     typedef BASE(F) R;
 
@@ -65,9 +65,6 @@ DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 
     A = U;
     Adjoint( VAdj, V );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -75,7 +72,7 @@ inline void
 QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 {
 #ifndef RELEASE
-    PushCallStack("svd::QRSVD");
+    CallStackEntry entry("svd::QRSVD");
 #endif
     typedef BASE(F) R;
 
@@ -91,9 +88,6 @@ QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 
     A = U;
     Adjoint( VAdj, V );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace svd

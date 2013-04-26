@@ -17,16 +17,13 @@ inline void
 HalveMainDiagonal( Matrix<R>& SInv )
 {
 #ifndef RELEASE
-    PushCallStack("HalveMainDiagonal");
+    CallStackEntry entry("HalveMainDiagonal");
 #endif
     for( int j=0; j<SInv.Height(); ++j )
     {
         const R value = SInv.Get(j,j);
         SInv.Set(j,j,value/2);
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -34,16 +31,13 @@ inline void
 HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
-    PushCallStack("HalveMainDiagonal");
+    CallStackEntry entry("HalveMainDiagonal");
 #endif
     for( int j=0; j<SInv.Height(); ++j )
     {
         const R value = SInv.GetLocal(j,j);
         SInv.SetLocal(j,j,value/2);
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -54,7 +48,7 @@ FixDiagonal
         Matrix<Complex<R> >& SInv )
 {
 #ifndef RELEASE
-    PushCallStack("FixDiagonal");
+    CallStackEntry entry("FixDiagonal");
 #endif
     if( conjugation == CONJUGATED )
     {
@@ -72,9 +66,6 @@ FixDiagonal
             SInv.Set(j,j,value);
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -85,7 +76,7 @@ FixDiagonal
         DistMatrix<Complex<R>,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
-    PushCallStack("FixDiagonal");
+    CallStackEntry entry("FixDiagonal");
 #endif
     if( conjugation == CONJUGATED )
     {
@@ -103,9 +94,6 @@ FixDiagonal
             SInv.SetLocal(j,j,value);
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

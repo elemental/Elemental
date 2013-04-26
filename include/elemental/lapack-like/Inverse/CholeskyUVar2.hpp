@@ -31,7 +31,7 @@ inline void
 CholeskyUVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("hpd_inverse::CholeskyUVar2");
+    CallStackEntry entry("hpd_inverse::CholeskyUVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -72,9 +72,6 @@ CholeskyUVar2( Matrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -82,7 +79,7 @@ inline void
 CholeskyUVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("hpd_inverse::CholeskyUVar2");
+    CallStackEntry entry("hpd_inverse::CholeskyUVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -180,9 +177,6 @@ CholeskyUVar2( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace hpd_inverse

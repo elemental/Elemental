@@ -43,7 +43,7 @@ inline void
 LLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLHF");
+    CallStackEntry entry("apply_packed_reflectors::LLHF");
     if( offset > 0 || offset < -H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -118,9 +118,6 @@ LLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -131,7 +128,7 @@ LLHF
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLHF");
+    CallStackEntry entry("apply_packed_reflectors::LLHF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 || offset < -H.Width() )
@@ -232,9 +229,6 @@ LLHF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -246,7 +240,7 @@ LLHF
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLHF");
+    CallStackEntry entry("apply_packed_reflectors::LLHF");
     if( offset > 0 || offset < -H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Height() != A.Height() )
@@ -344,9 +338,6 @@ LLHF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -358,7 +349,7 @@ LLHF
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::LLHF");
+    CallStackEntry entry("apply_packed_reflectors::LLHF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error("{H,t,A} must be distributed over same grid");
     if( offset > 0 || offset < -H.Width() )
@@ -485,9 +476,6 @@ LLHF
          /**/ /**/
           AB,  A2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

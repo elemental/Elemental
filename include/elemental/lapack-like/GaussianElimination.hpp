@@ -21,7 +21,7 @@ inline void
 RowEchelon( Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("RowEchelon");
+    CallStackEntry entry("RowEchelon");
     if( A.Height() != B.Height() )
         throw std::logic_error("A and B must be the same height");
 #endif
@@ -89,9 +89,6 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
          /**/ /**/
           BB,  B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Short-circuited form of LU factorization with partial pivoting
@@ -100,7 +97,7 @@ inline void
 RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("RowEchelon");
+    CallStackEntry entry("RowEchelon");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != B.Height() )
@@ -221,9 +218,6 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
          /**/ /**/
           BB,  B2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -231,7 +225,7 @@ inline void
 GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("GaussianElimination");
+    CallStackEntry entry("GaussianElimination");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( A.Height() != B.Height() )
@@ -242,9 +236,6 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -252,7 +243,7 @@ inline void
 GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 {
 #ifndef RELEASE
-    PushCallStack("GaussianElimination");
+    CallStackEntry entry("GaussianElimination");
     if( A.Grid() != B.Grid() )
         throw std::logic_error("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
@@ -265,9 +256,6 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
         Trsv( UPPER, NORMAL, NON_UNIT, A, B );
     else
         Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

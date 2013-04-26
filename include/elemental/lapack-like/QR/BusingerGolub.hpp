@@ -25,7 +25,7 @@ inline void
 BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("qr::BusingerGolub");
+    CallStackEntry entry("qr::BusingerGolub");
     if( p.Viewing() && 
         (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) )
         throw std::logic_error
@@ -120,9 +120,6 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -133,7 +130,7 @@ BusingerGolub
   Matrix<int>& p )
 {
 #ifndef RELEASE
-    PushCallStack("qr::BusingerGolub");
+    CallStackEntry entry("qr::BusingerGolub");
     if( t.Viewing() && 
         (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
         throw std::logic_error
@@ -256,9 +253,6 @@ BusingerGolub
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // TODO: Parallel versions. Need to think about norm computation first.

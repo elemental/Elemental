@@ -27,7 +27,7 @@ inline void
 Pseudoinverse( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Pseudoinverse");
+    CallStackEntry entry("Pseudoinverse");
 #endif
     typedef BASE(F) R;
 
@@ -63,9 +63,6 @@ Pseudoinverse( Matrix<F>& A )
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Zeros( A, n, m );
     Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -73,7 +70,7 @@ inline void
 Pseudoinverse( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Pseudoinverse");
+    CallStackEntry entry("Pseudoinverse");
 #endif
     typedef BASE(F) R;
 
@@ -110,9 +107,6 @@ Pseudoinverse( DistMatrix<F>& A )
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Zeros( A, n, m );
     Gemm( NORMAL, ADJOINT, F(1), V, U, F(0), A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

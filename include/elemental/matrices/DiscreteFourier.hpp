@@ -17,13 +17,10 @@ inline void
 DiscreteFourier( Matrix<Complex<R> >& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("DiscreteFourier");
+    CallStackEntry entry("DiscreteFourier");
 #endif
     A.ResizeTo( n, n );
     MakeDiscreteFourier( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R,Distribution U,Distribution V>
@@ -31,13 +28,10 @@ inline void
 DiscreteFourier( DistMatrix<Complex<R>,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("DiscreteFourier");
+    CallStackEntry entry("DiscreteFourier");
 #endif
     A.ResizeTo( n, n );
     MakeDiscreteFourier( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -45,7 +39,7 @@ inline void
 MakeDiscreteFourier( Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeDiscreteFourier");
+    CallStackEntry entry("MakeDiscreteFourier");
 #endif
     typedef Complex<R> F;
 
@@ -64,9 +58,6 @@ MakeDiscreteFourier( Matrix<Complex<R> >& A )
             A.Set( i, j, Complex<R>(Cos(theta),Sin(theta))/nSqrt );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R,Distribution U,Distribution V>
@@ -74,7 +65,7 @@ inline void
 MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeDiscreteFourier");
+    CallStackEntry entry("MakeDiscreteFourier");
 #endif
     typedef Complex<R> F;
 
@@ -104,9 +95,6 @@ MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
             A.SetLocal( iLocal, jLocal, alpha/nSqrt );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -22,7 +22,7 @@ inline void
 LVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::LVar3Square");
+    CallStackEntry entry("cholesky::LVar3Square");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -127,9 +127,6 @@ LVar3Square( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 } 
 
 } // namespace cholesky

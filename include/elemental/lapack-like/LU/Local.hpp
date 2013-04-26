@@ -23,7 +23,7 @@ inline void
 UnbFLAME( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("UnbFLAME");
+    CallStackEntry entry("UnbFLAME");
 #endif
     // Matrix views 
     Matrix<F>
@@ -56,9 +56,6 @@ UnbFLAME( Matrix<F>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -66,7 +63,7 @@ inline void
 Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Unb");
+    CallStackEntry entry("Unb");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -82,9 +79,6 @@ Unb( Matrix<F>& A )
           F(-1), A.LockedBuffer(j+1,j), 1, A.LockedBuffer(j,j+1), A.LDim(),
                  A.Buffer(j+1,j+1), A.LDim() );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lu

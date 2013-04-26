@@ -24,7 +24,7 @@ inline void
 PanelHouseholder( Matrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::PanelHouseholder");
+    CallStackEntry entry("lq::PanelHouseholder");
 #endif
     Matrix<Real>
         ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
@@ -64,9 +64,6 @@ PanelHouseholder( Matrix<Real>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -74,7 +71,7 @@ inline void
 PanelHouseholder( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::PanelHouseholder");
+    CallStackEntry entry("lq::PanelHouseholder");
 #endif
     const Grid& g = A.Grid();
 
@@ -142,9 +139,6 @@ PanelHouseholder( DistMatrix<Real>& A )
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -154,7 +148,7 @@ PanelHouseholder
   Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("lq::PanelHouseholder");
+    CallStackEntry entry("lq::PanelHouseholder");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
@@ -221,9 +215,6 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real>
@@ -233,7 +224,7 @@ PanelHouseholder
   DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("lq::PanelHouseholder");
+    CallStackEntry entry("lq::PanelHouseholder");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
@@ -333,9 +324,6 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lq

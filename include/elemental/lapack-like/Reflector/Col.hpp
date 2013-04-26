@@ -45,7 +45,7 @@ inline R
 Col( DistMatrix<R>& chi, DistMatrix<R>& x )
 {
 #ifndef RELEASE
-    PushCallStack("reflector::Col");
+    CallStackEntry entry("reflector::Col");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -73,9 +73,6 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
     {
         if( gridRow == colAlignment )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return R(2);
     }
 
@@ -123,9 +120,6 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
     if( gridRow == colAlignment )
         chi.SetLocal(0,0,beta);
         
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 
@@ -134,7 +128,7 @@ inline Complex<R>
 Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 {
 #ifndef RELEASE
-    PushCallStack("reflector::Col");
+    CallStackEntry entry("reflector::Col");
     if( chi.Grid() != x.Grid() )
         throw std::logic_error
         ("chi and x must be distributed over the same grid");
@@ -168,9 +162,6 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     {
         if( gridRow == colAlignment )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
-#ifndef RELEASE
-        PopCallStack();
-#endif
         return C(2);
     }
 
@@ -213,9 +204,6 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     if( gridRow == colAlignment )
         chi.SetLocal(0,0,beta);
         
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return tau;
 }
 

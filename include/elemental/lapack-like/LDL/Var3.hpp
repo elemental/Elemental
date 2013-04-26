@@ -22,7 +22,7 @@ inline void
 Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("ldl::Var3Unb");
+    CallStackEntry entry("ldl::Var3Unb");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
@@ -76,9 +76,6 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         for( int i=0; i<a21Height; ++i )
             a21[i] /= alpha11;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 // Blocked serial LDL _without_ partial pivoting
@@ -87,7 +84,7 @@ inline void
 Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 {
 #ifndef RELEASE
-    PushCallStack("ldl::Var3");
+    CallStackEntry entry("ldl::Var3");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
     if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
@@ -151,9 +148,6 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -161,7 +155,7 @@ inline void
 Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 {
 #ifndef RELEASE
-    PushCallStack("ldl::Var3");
+    CallStackEntry entry("ldl::Var3");
     if( orientation == NORMAL )
         throw std::logic_error("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
@@ -264,9 +258,6 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace ldl

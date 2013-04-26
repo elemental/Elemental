@@ -23,7 +23,7 @@ inline void
 UVar2( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::UVar2");
+    CallStackEntry entry("cholesky::UVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -59,9 +59,6 @@ UVar2( Matrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -69,7 +66,7 @@ inline void
 UVar2( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::UVar2");
+    CallStackEntry entry("cholesky::UVar2");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices");
@@ -151,9 +148,6 @@ UVar2( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace cholesky

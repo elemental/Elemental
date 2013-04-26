@@ -17,7 +17,7 @@ inline BASE(F)
 FrobeniusNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("FrobeniusNorm");
+    CallStackEntry entry("FrobeniusNorm");
 #endif
     typedef BASE(F) R;
     R scale = 0;
@@ -45,11 +45,7 @@ FrobeniusNorm( const Matrix<F>& A )
             }
         }
     }
-    const R norm = scale*Sqrt(scaledSquare);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return scale*Sqrt(scaledSquare);
 }
 
 template<typename F>
@@ -57,7 +53,7 @@ inline BASE(F)
 HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianFrobeniusNorm");
+    CallStackEntry entry("HermitianFrobeniusNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -145,12 +141,7 @@ HermitianFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
             }
         }
     }
-
-    const R norm = scale*Sqrt(scaledSquare);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return scale*Sqrt(scaledSquare);
 }
 
 template<typename F>
@@ -158,14 +149,9 @@ inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricFrobeniusNorm");
+    CallStackEntry entry("SymmetricFrobeniusNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianFrobeniusNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianFrobeniusNorm( uplo, A );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -173,7 +159,7 @@ inline BASE(F)
 FrobeniusNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("FrobeniusNorm");
+    CallStackEntry entry("FrobeniusNorm");
 #endif
     typedef BASE(F) R;
     R localScale = 0;
@@ -219,9 +205,6 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
         mpi::AllReduce( &localScaledSquare, &scaledSquare, 1, mpi::SUM, comm );
         norm = scale*Sqrt(scaledSquare);
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -231,7 +214,7 @@ HermitianFrobeniusNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianFrobeniusNorm");
+    CallStackEntry entry("HermitianFrobeniusNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -335,9 +318,6 @@ HermitianFrobeniusNorm
 
         norm = scale*Sqrt(scaledSquare);
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -346,14 +326,9 @@ inline BASE(F)
 SymmetricFrobeniusNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricFrobeniusNorm");
+    CallStackEntry entry("SymmetricFrobeniusNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianFrobeniusNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianFrobeniusNorm( uplo, A );
 }
 
 } // namespace elem

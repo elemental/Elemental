@@ -22,7 +22,7 @@ inline BASE(F)
 TwoNormLowerBound( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNormLowerBound");
+    CallStackEntry entry("TwoNormLowerBound");
 #endif
     typedef BASE(F) R;
     const R m = A.Height();
@@ -35,9 +35,6 @@ TwoNormLowerBound( const Matrix<F>& A )
     R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
     lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
     lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return lowerBound;
 }
 
@@ -46,7 +43,7 @@ inline BASE(F)
 TwoNormLowerBound( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNormLowerBound");
+    CallStackEntry entry("TwoNormLowerBound");
 #endif
     typedef BASE(F) R;
     const R m = A.Height();
@@ -59,9 +56,6 @@ TwoNormLowerBound( const DistMatrix<F>& A )
     R lowerBound = std::max( maxNorm, infNorm/Sqrt(n) );
     lowerBound = std::max( lowerBound, oneNorm/Sqrt(m) );
     lowerBound = std::max( lowerBound, frobNorm/Sqrt(std::min(m,n)) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return lowerBound;
 }
 

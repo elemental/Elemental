@@ -43,7 +43,7 @@ inline void
 RLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLHF");
+    CallStackEntry entry("apply_packed_reflectors::RLHF");
     if( offset > 0 || offset < -H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
@@ -99,9 +99,6 @@ RLHF( int offset, const Matrix<R>& H, Matrix<R>& A )
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -112,7 +109,7 @@ RLHF
         DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLHF");
+    CallStackEntry entry("apply_packed_reflectors::RLHF");
     if( H.Grid() != A.Grid() )
         throw std::logic_error("{H,A} must be distributed over the same grid");
     if( offset > 0 || offset < -H.Width() )
@@ -198,9 +195,6 @@ RLHF
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -212,7 +206,7 @@ RLHF
         Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLHF");
+    CallStackEntry entry("apply_packed_reflectors::RLHF");
     if( offset > 0 || offset < -H.Width() )
         throw std::logic_error("Transforms out of bounds");
     if( H.Width() != A.Width() )
@@ -291,9 +285,6 @@ RLHF
          /**/ /**/
           tB,  t2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -305,7 +296,7 @@ RLHF
         DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("apply_packed_reflectors::RLHF");
+    CallStackEntry entry("apply_packed_reflectors::RLHF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
@@ -418,9 +409,6 @@ RLHF
          /**/ /**/
           tB,  t2 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace apply_packed_reflectors

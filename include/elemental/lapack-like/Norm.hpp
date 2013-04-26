@@ -29,7 +29,7 @@ inline BASE(F)
 Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("Norm");
+    CallStackEntry entry("Norm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -58,9 +58,6 @@ Norm( const Matrix<F>& A, NormType type=FROBENIUS_NORM )
         norm = TwoNorm( A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -70,7 +67,7 @@ SymmetricNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricNorm");
+    CallStackEntry entry("SymmetricNorm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -99,9 +96,6 @@ SymmetricNorm
         norm = SymmetricTwoNorm( uplo, A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -111,7 +105,7 @@ HermitianNorm
 ( UpperOrLower uplo, const Matrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNorm");
+    CallStackEntry entry("HermitianNorm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -140,9 +134,6 @@ HermitianNorm
         norm = HermitianTwoNorm( uplo, A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -151,7 +142,7 @@ inline BASE(F)
 Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("Norm");
+    CallStackEntry entry("Norm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -180,9 +171,6 @@ Norm( const DistMatrix<F,U,V>& A, NormType type=FROBENIUS_NORM )
         norm = TwoNorm( A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -192,7 +180,7 @@ SymmetricNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricNorm");
+    CallStackEntry entry("SymmetricNorm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -221,9 +209,6 @@ SymmetricNorm
         norm = SymmetricTwoNorm( uplo, A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 
@@ -233,7 +218,7 @@ HermitianNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, NormType type=FROBENIUS_NORM )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNorm");
+    CallStackEntry entry("HermitianNorm");
 #endif
     BASE(F) norm = 0;
     switch( type )
@@ -262,9 +247,6 @@ HermitianNorm
         norm = HermitianTwoNorm( uplo, A );
         break;
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return norm;
 }
 

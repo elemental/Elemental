@@ -18,16 +18,13 @@ inline void
 MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("MakeUniform");
+    CallStackEntry entry("MakeUniform");
 #endif
     const int m = A.Height();
     const int n = A.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
             A.Set( i, j, center+radius*SampleUnitBall<T>() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T>
@@ -36,13 +33,10 @@ Uniform
 ( Matrix<T>& A, int m, int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("Uniform");
+    CallStackEntry entry("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 namespace internal {
@@ -349,12 +343,9 @@ inline void
 MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("Uniform");
+    CallStackEntry entry("Uniform");
 #endif
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -362,13 +353,10 @@ inline void
 Uniform( DistMatrix<T,U,V>& A, int m, int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    PushCallStack("Uniform");
+    CallStackEntry entry("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

@@ -29,12 +29,9 @@ inline void
 LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    PushCallStack("LocalCholesky");
+    CallStackEntry entry("LocalCholesky");
 #endif
     Cholesky( uplo, A.Matrix() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -42,7 +39,7 @@ inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    CallStackEntry entry("Cholesky");
     if( A.Height() != A.Width() )
         throw std::logic_error("A must be square");
 #endif
@@ -50,9 +47,6 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
         cholesky::LVar3( A );
     else
         cholesky::UVar3( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -60,7 +54,7 @@ inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Cholesky");
+    CallStackEntry entry("Cholesky");
 #endif
     const Grid& g = A.Grid();
 
@@ -78,9 +72,6 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
         else
             cholesky::UVar3( A );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

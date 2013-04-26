@@ -21,7 +21,7 @@ inline BASE(F)
 TwoNormUpperBound( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNormUpperBound");
+    CallStackEntry entry("TwoNormUpperBound");
 #endif
     typedef BASE(F) R;
     const R m = A.Height();
@@ -34,9 +34,6 @@ TwoNormUpperBound( const Matrix<F>& A )
     R upperBound = std::min( Sqrt(m*n)*maxNorm, Sqrt(m)*infNorm );
     upperBound = std::min( upperBound, Sqrt(n)*oneNorm );
     upperBound = std::min( upperBound, Sqrt( oneNorm*infNorm ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return upperBound;
 }
 
@@ -45,7 +42,7 @@ inline BASE(F)
 TwoNormUpperBound( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("TwoNormUpperBound");
+    CallStackEntry entry("TwoNormUpperBound");
 #endif
     typedef BASE(F) R;
     const R m = A.Height();
@@ -58,9 +55,6 @@ TwoNormUpperBound( const DistMatrix<F>& A )
     R upperBound = std::min( Sqrt(m*n)*maxNorm, Sqrt(m)*infNorm );
     upperBound = std::min( upperBound, Sqrt(n)*oneNorm );
     upperBound = std::min( upperBound, Sqrt( oneNorm*infNorm ) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return upperBound;
 }
 

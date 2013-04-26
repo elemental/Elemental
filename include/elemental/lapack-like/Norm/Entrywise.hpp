@@ -17,7 +17,7 @@ inline BASE(F)
 EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("EntrywiseNorm");
+    CallStackEntry entry("EntrywiseNorm");
 #endif
     // TODO: Make this more numerically stable
     typedef BASE(F) R;
@@ -27,11 +27,7 @@ EntrywiseNorm( const Matrix<F>& A, BASE(F) p )
     for( int j=0; j<width; ++j )
         for( int i=0; i<height; ++i )
             sum += Pow( Abs(A.Get(i,j)), p );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
@@ -40,7 +36,7 @@ HermitianEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEntrywiseNorm");
+    CallStackEntry entry("HermitianEntrywiseNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -78,11 +74,7 @@ HermitianEntrywiseNorm
             }
         }
     }
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
@@ -91,14 +83,9 @@ SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const Matrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricEntrywiseNorm");
+    CallStackEntry entry("SymmetricEntrywiseNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianEntrywiseNorm( uplo, A, p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -106,7 +93,7 @@ inline BASE(F)
 EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("EntrywiseNorm");
+    CallStackEntry entry("EntrywiseNorm");
 #endif
     typedef BASE(F) R;
     R localSum = 0;
@@ -119,11 +106,7 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
     R sum;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, comm );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F>
@@ -132,7 +115,7 @@ HermitianEntrywiseNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianEntrywiseNorm");
+    CallStackEntry entry("HermitianEntrywiseNorm");
 #endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
@@ -183,11 +166,7 @@ HermitianEntrywiseNorm
 
     R sum;
     mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VCComm() );
-    const R norm = Pow( sum, 1/p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return Pow( sum, 1/p );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -196,14 +175,9 @@ SymmetricEntrywiseNorm
 ( UpperOrLower uplo, const DistMatrix<F,U,V>& A, BASE(F) p )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricEntrywiseNorm");
+    CallStackEntry entry("SymmetricEntrywiseNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianEntrywiseNorm( uplo, A, p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianEntrywiseNorm( uplo, A, p );
 }
 
 } // namespace elem

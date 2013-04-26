@@ -17,16 +17,13 @@ inline void
 Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    PushCallStack("Circulant");
+    CallStackEntry entry("Circulant");
 #endif
     const int n = a.size();
     A.ResizeTo( n, n );
     for( int j=0; j<n; ++j )
         for( int i=0; i<n; ++i )
             A.Set( i, j, a[(i-j+n)%n] );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -34,7 +31,7 @@ inline void
 Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    PushCallStack("Circulant");
+    CallStackEntry entry("Circulant");
 #endif
     const int n = a.size();
     A.ResizeTo( n, n );
@@ -54,9 +51,6 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
             A.SetLocal( iLocal, jLocal, a[(i-j+n)%n] );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

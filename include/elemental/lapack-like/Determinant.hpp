@@ -20,14 +20,10 @@ inline SafeProduct<F>
 SafeDeterminant( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SafeDeterminant");
+    CallStackEntry entry("SafeDeterminant");
 #endif
     Matrix<F> B( A );
-    SafeProduct<F> det = determinant::LUPartialPiv( B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return determinant::LUPartialPiv( B ); 
 }
 
 template<typename F>
@@ -35,14 +31,10 @@ inline SafeProduct<F>
 SafeDeterminant( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SafeDeterminant");
+    CallStackEntry entry("SafeDeterminant");
 #endif
     DistMatrix<F> B( A );
-    SafeProduct<F> det = determinant::LUPartialPiv( B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return determinant::LUPartialPiv( B ); 
 }
 
 template<typename F>
@@ -50,14 +42,10 @@ inline SafeProduct<F>
 SafeHPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SafeHPDDeterminant");
+    CallStackEntry entry("SafeHPDDeterminant");
 #endif
     Matrix<F> B( A );
-    SafeProduct<F> det = hpd_determinant::Cholesky( uplo, B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return hpd_determinant::Cholesky( uplo, B ); 
 }
 
 template<typename F>
@@ -65,14 +53,10 @@ inline SafeProduct<F>
 SafeHPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SafeHPDDeterminant");
+    CallStackEntry entry("SafeHPDDeterminant");
 #endif
     DistMatrix<F> B( A );
-    SafeProduct<F> det = hpd_determinant::Cholesky( uplo, B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return hpd_determinant::Cholesky( uplo, B ); 
 }
 
 template<typename F>
@@ -80,18 +64,14 @@ inline SafeProduct<F>
 SafeDeterminant( Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("SafeDeterminant");
+    CallStackEntry entry("SafeDeterminant");
 #endif
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
     else
         B = A;
-    SafeProduct<F> det = determinant::LUPartialPiv( B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return determinant::LUPartialPiv( B ); 
 }
 
 template<typename F>
@@ -99,18 +79,14 @@ inline SafeProduct<F>
 SafeDeterminant( DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("SafeDeterminant");
+    CallStackEntry entry("SafeDeterminant");
 #endif
     DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
         View( B, A );
     else
         B = A;
-    SafeProduct<F> det = determinant::LUPartialPiv( B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return determinant::LUPartialPiv( B ); 
 }
 
 template<typename F>
@@ -118,18 +94,14 @@ inline SafeProduct<F>
 SafeHPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("SafeHPDDeterminant");
+    CallStackEntry entry("SafeHPDDeterminant");
 #endif
     Matrix<F> B;
     if( canOverwrite )
         View( B, A );
     else
         B = A;
-    SafeProduct<F> det = hpd_determinant::Cholesky( uplo, B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return hpd_determinant::Cholesky( uplo, B ); 
 }
 
 template<typename F>
@@ -138,102 +110,74 @@ SafeHPDDeterminant
 ( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("SafeHPDDeterminant");
+    CallStackEntry entry("SafeHPDDeterminant");
 #endif
     DistMatrix<F> B( A.Grid() );
     if( canOverwrite )
         View( B, A );
     else
         B = A;
-    SafeProduct<F> det = hpd_determinant::Cholesky( uplo, B ); 
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return hpd_determinant::Cholesky( uplo, B ); 
 }
 
 template<typename F>
 inline F Determinant( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Determinant");
+    CallStackEntry entry("Determinant");
 #endif
     SafeProduct<F> safeDet = Determinant( A );
-    F det = safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
 inline F Determinant( const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Determinant");
+    CallStackEntry entry("Determinant");
 #endif
     SafeProduct<F> safeDet = Determinant( A );
-    F det = safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
 inline BASE(F) HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPDDeterminant");
+    CallStackEntry entry("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
-    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
 inline BASE(F) HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPDDeterminant");
+    CallStackEntry entry("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
-    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
 inline F Determinant( Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("Determinant");
+    CallStackEntry entry("Determinant");
 #endif
     SafeProduct<F> safeDet = Determinant( A, canOverwrite );
-    F det = safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
 inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("Determinant");
+    CallStackEntry entry("Determinant");
 #endif
     SafeProduct<F> safeDet = Determinant( A, canOverwrite );
-    F det = safeDet.rho * Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
@@ -241,14 +185,10 @@ inline BASE(F)
 HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("HPDDeterminant");
+    CallStackEntry entry("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
-    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return Exp(safeDet.kappa*safeDet.n);
 }
 
 template<typename F>
@@ -256,14 +196,10 @@ inline BASE(F)
 HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 {
 #ifndef RELEASE
-    PushCallStack("HPDDeterminant");
+    CallStackEntry entry("HPDDeterminant");
 #endif
     SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
-    BASE(F) det = Exp(safeDet.kappa*safeDet.n);
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return det;
+    return Exp(safeDet.kappa*safeDet.n);
 }
 
 } // namespace elem

@@ -35,7 +35,7 @@ template<typename F>
 int Corrupt( DistMatrix<F>& A, double probCorrupt )
 {
 #ifndef RELEASE
-    PushCallStack("Corrupt");
+    CallStackEntry entry("Corrupt");
 #endif
     typedef BASE(F) R;
 
@@ -58,9 +58,6 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
     int numCorrupt;
     mpi::AllReduce
     ( &numLocalCorrupt, &numCorrupt, 1, mpi::SUM, A.Grid().VCComm() );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numCorrupt;
 }
 

@@ -21,7 +21,7 @@ inline void
 UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("triangular_inverse::UVar3Unb");
+    CallStackEntry entry("triangular_inverse::UVar3Unb");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -44,9 +44,6 @@ UVar3Unb( UnitOrNonUnit diag, Matrix<F>& U )
             UBuffer[j+j*ldu] = F(1) / UBuffer[j+j*ldu];
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -54,7 +51,7 @@ inline void
 UVar3( UnitOrNonUnit diag, Matrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("triangular_inverse::UVar3");
+    CallStackEntry entry("triangular_inverse::UVar3");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -89,9 +86,6 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F>
@@ -99,7 +93,7 @@ inline void
 UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 {
 #ifndef RELEASE
-    PushCallStack("triangular_inverse::UVar3");
+    CallStackEntry entry("triangular_inverse::UVar3");
     if( U.Height() != U.Width() )
         throw std::logic_error("Nonsquare matrices cannot be triangular");
 #endif
@@ -164,9 +158,6 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
                /**/       U10, /**/ U11, U12,
           UBL, /**/ UBR,  U20, /**/ U21, U22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace triangular_inverse

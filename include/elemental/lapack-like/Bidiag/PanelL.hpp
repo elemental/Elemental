@@ -23,7 +23,7 @@ PanelL
   DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::PanelL");
+    CallStackEntry entry("bidiag::PanelL");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -47,9 +47,6 @@ PanelL
         throw std::logic_error("A and Y must be aligned");
 #endif
     throw std::logic_error("This routine is not yet written");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -64,7 +61,7 @@ PanelL
   DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
 {
 #ifndef RELEASE
-    PushCallStack("bidiag::PanelL");
+    CallStackEntry entry("bidiag::PanelL");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -93,9 +90,6 @@ PanelL
         throw std::logic_error("A and Y must be aligned");
 #endif
     throw std::logic_error("This routine is not yet written");
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace bidiag

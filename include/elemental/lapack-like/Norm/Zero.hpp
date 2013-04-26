@@ -19,7 +19,7 @@ inline int
 ZeroNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ZeroNorm");
+    CallStackEntry entry("ZeroNorm");
 #endif
     int numNonzeros = 0;
     const int height = A.Height();
@@ -28,9 +28,6 @@ ZeroNorm( const Matrix<F>& A )
         for( int i=0; i<height; ++i )
             if( Abs(A.Get(i,j)) > 0 )
                 ++numNonzeros;
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numNonzeros;
 }
 
@@ -39,15 +36,12 @@ inline int
 ZeroNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ZeroNorm");
+    CallStackEntry entry("ZeroNorm");
 #endif
     const int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
     int numNonzeros;
     mpi::AllReduce( &numLocalNonzeros, &numNonzeros, 1, mpi::SUM, comm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return numNonzeros;
 }
 

@@ -22,13 +22,10 @@ inline void
 GKS( Matrix<F>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("GKS");
+    CallStackEntry entry("GKS");
 #endif
     A.ResizeTo( n, n );
     MakeGKS( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -36,13 +33,10 @@ inline void
 GKS( DistMatrix<F,U,V>& A, int n )
 {
 #ifndef RELEASE
-    PushCallStack("GKS");
+    CallStackEntry entry("GKS");
 #endif
     A.ResizeTo( n, n );
     MakeGKS( A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -50,7 +44,7 @@ inline void
 MakeGKS( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeGKS");
+    CallStackEntry entry("MakeGKS");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -65,9 +59,6 @@ MakeGKS( Matrix<F>& A )
             A.Set( i, j, -jDiag );
         A.Set( j, j, jDiag );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -75,7 +66,7 @@ inline void
 MakeGKS( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("MakeGKS");
+    CallStackEntry entry("MakeGKS");
 #endif
     const int m = A.Height();
     const int n = A.Width();
@@ -103,9 +94,6 @@ MakeGKS( DistMatrix<F,U,V>& A )
                 A.SetLocal( iLocal, jLocal, 0 );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

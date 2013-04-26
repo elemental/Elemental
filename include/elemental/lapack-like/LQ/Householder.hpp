@@ -32,7 +32,7 @@ inline void
 Householder( Matrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Householder");
+    CallStackEntry entry("lq::Householder");
 #endif
     if( IsComplex<Real>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -69,9 +69,6 @@ Householder( Matrix<Real>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -79,7 +76,7 @@ inline void
 Householder( DistMatrix<Real>& A )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Householder");
+    CallStackEntry entry("lq::Householder");
 #endif
     if( IsComplex<Real>::val )
         throw std::logic_error("Called real routine with complex datatype");
@@ -117,9 +114,6 @@ Householder( DistMatrix<Real>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -129,7 +123,7 @@ Householder
   Matrix<Complex<Real> >& t )
 {
 #ifndef RELEASE
-    PushCallStack("lq::Householder");
+    CallStackEntry entry("lq::Householder");
 #endif
     typedef Complex<Real> C;
     t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
@@ -186,9 +180,6 @@ Householder
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename Real> 
@@ -198,7 +189,7 @@ Householder
   DistMatrix<Complex<Real>,MD,STAR>& t )
 {
 #ifndef RELEASE
-    PushCallStack("Householder");
+    CallStackEntry entry("Householder");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
 #endif
@@ -269,9 +260,6 @@ Householder
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace lq

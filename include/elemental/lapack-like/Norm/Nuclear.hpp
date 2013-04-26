@@ -19,14 +19,9 @@ inline BASE(F)
 NuclearNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("NuclearNorm");
+    CallStackEntry entry("NuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = SchattenNorm( A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return SchattenNorm( A, BASE(F)(1) );
 }
 
 template<typename F>
@@ -34,14 +29,9 @@ inline BASE(F)
 HermitianNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNuclearNorm");
+    CallStackEntry entry("HermitianNuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianSchattenNorm( uplo, A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
 template<typename F>
@@ -49,14 +39,9 @@ inline BASE(F)
 SymmetricNuclearNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricNuclearNorm");
+    CallStackEntry entry("SymmetricNuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = SymmetricSchattenNorm( uplo, A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -64,14 +49,9 @@ inline BASE(F)
 NuclearNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("NuclearNorm");
+    CallStackEntry entry("NuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = SchattenNorm( A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return SchattenNorm( A, BASE(F)(1) );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -79,14 +59,9 @@ inline BASE(F)
 HermitianNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianNuclearNorm");
+    CallStackEntry entry("HermitianNuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianSchattenNorm( uplo, A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -94,14 +69,9 @@ inline BASE(F)
 SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricNuclearNorm");
+    CallStackEntry entry("SymmetricNuclearNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = SymmetricSchattenNorm( uplo, A, R(1) );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return SymmetricSchattenNorm( uplo, A, BASE(F)(1) );
 }
 
 } // namespace elem

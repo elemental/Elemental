@@ -25,7 +25,7 @@ inline void
 HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDSquareRoot");
+    CallStackEntry entry("HPSDSquareRoot");
 #endif
     typedef BASE(F) R;
 
@@ -66,9 +66,6 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -77,7 +74,7 @@ inline void
 HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDSquareRoot");
+    CallStackEntry entry("HPSDSquareRoot");
 #endif
     typedef BASE(F) R;
 
@@ -122,9 +119,6 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

@@ -21,7 +21,7 @@ inline void
 UVar3Square( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("cholesky::UVar3Square");
+    CallStackEntry entry("cholesky::UVar3Square");
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Can only compute Cholesky factor of square matrices.");
@@ -119,9 +119,6 @@ UVar3Square( DistMatrix<F>& A )
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace cholesky

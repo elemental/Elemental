@@ -28,7 +28,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, Matrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDCholesky");
+    CallStackEntry entry("HPSDCholesky");
 #endif
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -43,9 +43,6 @@ HPSDCholesky( UpperOrLower uplo, Matrix<R>& A )
         QR( A );
         MakeTriangular( UPPER, A );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -53,7 +50,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDCholesky");
+    CallStackEntry entry("HPSDCholesky");
 #endif
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -71,9 +68,6 @@ HPSDCholesky( UpperOrLower uplo, Matrix<Complex<R> >& A )
         QR( A, t );
         MakeTriangular( UPPER, A );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -82,7 +76,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDCholesky");
+    CallStackEntry entry("HPSDCholesky");
 #endif
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -97,9 +91,6 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
         QR( A );
         MakeTriangular( UPPER, A );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R>
@@ -107,7 +98,7 @@ inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    PushCallStack("HPSDCholesky");
+    CallStackEntry entry("HPSDCholesky");
 #endif
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
@@ -125,9 +116,6 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
         QR( A, t );
         MakeTriangular( UPPER, A );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

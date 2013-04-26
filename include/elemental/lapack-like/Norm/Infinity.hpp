@@ -19,7 +19,7 @@ inline BASE(F)
 InfinityNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("InfinityNorm");
+    CallStackEntry entry("InfinityNorm");
 #endif
     typedef BASE(F) R;
     R maxRowSum = 0;
@@ -32,9 +32,6 @@ InfinityNorm( const Matrix<F>& A )
             rowSum += Abs(A.Get(i,j));
         maxRowSum = std::max( maxRowSum, rowSum );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxRowSum;
 }
 
@@ -43,14 +40,9 @@ inline BASE(F)
 HermitianInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianInfinityNorm");
+    CallStackEntry entry("HermitianInfinityNorm");
 #endif
-    typedef BASE(F) R;
-    R maxRowSum = HermitianOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return maxRowSum;
+    return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
@@ -58,14 +50,9 @@ inline BASE(F)
 SymmetricInfinityNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricInfinityNorm");
+    CallStackEntry entry("SymmetricInfinityNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianInfinityNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianInfinityNorm( uplo, A );
 }
 
 template<typename F,Distribution U,Distribution V> 
@@ -73,7 +60,7 @@ inline BASE(F)
 InfinityNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("InfinityNorm");
+    CallStackEntry entry("InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[U,V]
     typedef BASE(F) R;
@@ -102,9 +89,6 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     R maxRowSum = 0;
     mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
     mpi::AllReduce( &myMaxRowSum, &maxRowSum, 1, mpi::MAX, colComm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxRowSum;
 }
 
@@ -114,14 +98,9 @@ HermitianInfinityNorm
 ( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianInfinityNorm");
+    CallStackEntry entry("HermitianInfinityNorm");
 #endif
-    typedef BASE(F) R;
-    R maxRowSum = HermitianOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return maxRowSum;
+    return HermitianOneNorm( uplo, A );
 }
 
 template<typename F>
@@ -129,14 +108,9 @@ inline BASE(F)
 SymmetricInfinityNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricInfinityNorm");
+    CallStackEntry entry("SymmetricInfinityNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianInfinityNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianInfinityNorm( uplo, A );
 }
 
 } // namespace elem

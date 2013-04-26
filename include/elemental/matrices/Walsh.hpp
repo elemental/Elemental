@@ -17,7 +17,7 @@ inline void
 Walsh( Matrix<T>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
-    PushCallStack("Walsh");
+    CallStackEntry entry("Walsh");
 #endif
     if( k < 1 )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
@@ -54,9 +54,6 @@ Walsh( Matrix<T>& A, int k, bool binary=false )
                 A.Set( i, j, offValue );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -64,7 +61,7 @@ inline void
 Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
-    PushCallStack("Walsh");
+    CallStackEntry entry("Walsh");
 #endif
     if( k < 1 )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
@@ -108,9 +105,6 @@ Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
                 A.SetLocal( iLocal, jLocal, offValue );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace elem

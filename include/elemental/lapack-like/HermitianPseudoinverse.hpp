@@ -24,7 +24,7 @@ inline void
 HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianPseudoinverse");
+    CallStackEntry entry("HermitianPseudoinverse");
 #endif
     typedef BASE(F) R;
 
@@ -51,9 +51,6 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A )
 
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 #ifdef HAVE_PMRRR
@@ -62,7 +59,7 @@ inline void
 HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianPseudoinverse");
+    CallStackEntry entry("HermitianPseudoinverse");
 #endif
     typedef BASE(F) R;
 
@@ -91,9 +88,6 @@ HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
 
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 #endif // ifdef HAVE_PMRRR
 

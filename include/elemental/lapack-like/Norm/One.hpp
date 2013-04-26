@@ -17,7 +17,7 @@ inline BASE(F)
 OneNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("OneNorm");
+    CallStackEntry entry("OneNorm");
 #endif
     typedef BASE(F) R;
     R maxColSum = 0;
@@ -30,9 +30,6 @@ OneNorm( const Matrix<F>& A )
             colSum += Abs(A.Get(i,j));
         maxColSum = std::max( maxColSum, colSum );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxColSum;
 }
 
@@ -41,7 +38,7 @@ inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianOneNorm");
+    CallStackEntry entry("HermitianOneNorm");
 #endif
     typedef BASE(F) R;
     if( A.Height() != A.Width() )
@@ -72,9 +69,6 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
             maxColSum = std::max( maxColSum, colSum );
         }
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxColSum;
 }
 
@@ -83,14 +77,9 @@ inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricOneNorm");
+    CallStackEntry entry("SymmetricOneNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianOneNorm( uplo, A );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -98,7 +87,7 @@ inline BASE(F)
 OneNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("OneNorm");
+    CallStackEntry entry("OneNorm");
 #endif
     // Compute the partial column sums defined by our local matrix, A[U,V]
     typedef BASE(F) R;
@@ -127,9 +116,6 @@ OneNorm( const DistMatrix<F,U,V>& A )
     R maxColSum = 0;
     mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
     mpi::AllReduce( &myMaxColSum, &maxColSum, 1, mpi::MAX, rowComm );
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxColSum;
 }
 
@@ -138,7 +124,7 @@ inline BASE(F)
 HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("HermitianOneNorm");
+    CallStackEntry entry("HermitianOneNorm");
 #endif
     typedef BASE(F) R;
 
@@ -250,9 +236,6 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         for( int j=0; j<height; ++j )
             maxColSum = std::max( maxColSum, colSums[j] );
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return maxColSum;
 }
 
@@ -261,14 +244,9 @@ inline BASE(F)
 SymmetricOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SymmetricOneNorm");
+    CallStackEntry entry("SymmetricOneNorm");
 #endif
-    typedef BASE(F) R;
-    const R norm = HermitianOneNorm( uplo, A );
-#ifndef RELEASE
-    PopCallStack();
-#endif
-    return norm;
+    return HermitianOneNorm( uplo, A );
 }
 
 } // namespace elem

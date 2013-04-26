@@ -30,7 +30,7 @@ PanelU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("bidiag::PanelU");
+    CallStackEntry entry("bidiag::PanelU");
     if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
@@ -398,9 +398,6 @@ PanelU
     DistMatrix<R> ATLExpanded(g);
     View( ATLExpanded, A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename R> 
@@ -416,7 +413,7 @@ PanelU
 {
     const int panelSize = X.Width();
 #ifndef RELEASE
-    PushCallStack("bidiag::PanelU");
+    CallStackEntry entry("bidiag::PanelU");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
@@ -840,9 +837,6 @@ PanelU
     DistMatrix<Complex<R> > ATLExpanded(g);
     View( ATLExpanded, A, 0, 0, ATL.Height(), ATL.Width()+1 );
     ATLExpanded.SetRealPartOfDiagonal( e, 1 );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace bidiag

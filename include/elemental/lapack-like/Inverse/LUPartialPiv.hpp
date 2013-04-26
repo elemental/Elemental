@@ -34,7 +34,7 @@ inline void
 LUPartialPiv( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("inverse::LUPartialPiv");
+    CallStackEntry entry("inverse::LUPartialPiv");
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
 #endif
@@ -90,9 +90,6 @@ LUPartialPiv( Matrix<F>& A )
 
     // inv(A) := inv(A) P
     ApplyInverseColumnPivots( A, p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 template<typename F> 
@@ -100,7 +97,7 @@ inline void
 LUPartialPiv( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("inverse::LUPartialPiv");
+    CallStackEntry entry("inverse::LUPartialPiv");
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
 #endif
@@ -172,9 +169,6 @@ LUPartialPiv( DistMatrix<F>& A )
 
     // inv(A) := inv(A) P
     ApplyInverseColumnPivots( A, p );
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 } // namespace inverse

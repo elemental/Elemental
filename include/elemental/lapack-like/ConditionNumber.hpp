@@ -19,7 +19,7 @@ inline BASE(F)
 ConditionNumber( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ConditionNumber");
+    CallStackEntry entry("ConditionNumber");
 #endif
     typedef BASE(F) R;
 
@@ -31,9 +31,6 @@ ConditionNumber( const Matrix<F>& A )
     const int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return cond;
 }
 
@@ -42,7 +39,7 @@ inline BASE(F)
 ConditionNumber( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    PushCallStack("ConditionNumber");
+    CallStackEntry entry("ConditionNumber");
 #endif
     typedef BASE(F) R;
 
@@ -54,9 +51,6 @@ ConditionNumber( const DistMatrix<F,U,V>& A )
     const int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
-#ifndef RELEASE
-    PopCallStack();
-#endif
     return cond;
 }
 
