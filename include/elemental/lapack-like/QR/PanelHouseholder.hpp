@@ -50,14 +50,15 @@ PanelHouseholder( Matrix<Real>& A )
                             A22 );
 
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const Real tau = Reflector( alpha11, a21 );
+
+        // Apply the Householder reflector
         const Real alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
-
         Zeros( z, ARightPan.Width(), 1 );
         Gemv( TRANSPOSE, Real(1), ARightPan, aLeftCol, Real(0), z );
         Ger( -tau, aLeftCol, z, ARightPan );
-
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
 
@@ -108,8 +109,10 @@ PanelHouseholder( DistMatrix<Real>& A )
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const Real tau = Reflector( alpha11, a21 );
 
+        // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
         Real alpha = 0;
@@ -118,23 +121,16 @@ PanelHouseholder( DistMatrix<Real>& A )
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
-
         aLeftCol_MC_STAR = aLeftCol;
-
         Zeros( z_MR_STAR, ARightPan.Width(), 1 );
-        Gemv
-        ( TRANSPOSE, 
-          Real(1), ARightPan.LockedMatrix(), 
-                   aLeftCol_MC_STAR.LockedMatrix(),
-          Real(0), z_MR_STAR.Matrix() );
+        LocalGemv
+        ( TRANSPOSE, Real(1), ARightPan, aLeftCol_MC_STAR, Real(0), z_MR_STAR );
         z_MR_STAR.SumOverCol(); 
-
         Ger
         ( -tau, 
           aLeftCol_MC_STAR.LockedMatrix(), 
           z_MR_STAR.LockedMatrix(),
           ARightPan.Matrix() );
-
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
@@ -187,15 +183,16 @@ PanelHouseholder
                             A22 );
 
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const C tau = Reflector( alpha11, a21 );
         t.Set( A00.Width(), 0, tau );
+
+        // Apply the Householder reflector
         const C alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
-
         Zeros( z, ARightPan.Width(), 1 );
         Gemv( ADJOINT, C(1), ARightPan, aLeftCol, C(0), z );
         Ger( -Conj(tau), aLeftCol, z, ARightPan );
-
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
 
@@ -256,9 +253,11 @@ PanelHouseholder
         aLeftCol_MC_STAR.AlignWith( ARightPan );
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const C tau = Reflector( alpha11, a21 );
         t.Set( A00.Width(), 0, tau );
 
+        // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
         C alpha = 0;
@@ -267,23 +266,16 @@ PanelHouseholder
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
-
         aLeftCol_MC_STAR = aLeftCol;
-
         Zeros( z_MR_STAR, ARightPan.Width(), 1 );
-        Gemv
-        ( ADJOINT, 
-          C(1), ARightPan.LockedMatrix(), 
-                aLeftCol_MC_STAR.LockedMatrix(),
-          C(0), z_MR_STAR.Matrix() );
+        LocalGemv
+        ( ADJOINT, C(1), ARightPan, aLeftCol_MC_STAR, C(0), z_MR_STAR );
         z_MR_STAR.SumOverCol(); 
-
         Ger
         ( -Conj(tau), 
           aLeftCol_MC_STAR.LockedMatrix(), 
           z_MR_STAR.LockedMatrix(),
           ARightPan.Matrix() );
-
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
