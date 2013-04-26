@@ -167,19 +167,11 @@ PanelHouseholder
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
-    Matrix<C>
-        tT,  t0,
-        tB,  tau1,
-             t2;
-
     Matrix<C> z;
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
@@ -187,12 +179,6 @@ PanelHouseholder
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1, 
-          tB,  t2, 1 );
 
         View2x1( aLeftCol, alpha11,
                            a21 );
@@ -202,7 +188,7 @@ PanelHouseholder
 
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a21 );
-        tau1.Set( 0, 0, tau );
+        t.Set( A00.Width(), 0, tau );
         const C alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
@@ -212,12 +198,6 @@ PanelHouseholder
 
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
@@ -251,10 +231,6 @@ PanelHouseholder
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
-    DistMatrix<C,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
 
     // Temporary distributions
     DistMatrix<C,MC,STAR> aLeftCol_MC_STAR(g);
@@ -263,9 +239,6 @@ PanelHouseholder
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
@@ -273,12 +246,6 @@ PanelHouseholder
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1, 
-          tB,  t2, 1 );
 
         View2x1( aLeftCol, alpha11,
                            a21 );
@@ -290,7 +257,7 @@ PanelHouseholder
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
         const C tau = Reflector( alpha11, a21 );
-        tau1.Set( 0, 0, tau );
+        t.Set( A00.Width(), 0, tau );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
                                        g.Col() == alpha11.RowAlignment() );
@@ -322,12 +289,6 @@ PanelHouseholder
         //--------------------------------------------------------------------//
         aLeftCol_MC_STAR.FreeAlignments();
         z_MR_STAR.FreeAlignments();
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,

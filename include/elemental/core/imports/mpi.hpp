@@ -29,6 +29,13 @@ namespace mpi {
 #endif
 #endif
 
+template<typename T>
+struct ValueInt
+{
+    T value;
+    int index;
+};
+
 // Datatype definitions
 typedef MPI_Comm Comm;
 typedef MPI_Datatype Datatype;
@@ -55,6 +62,8 @@ const Group GROUP_EMPTY = MPI_GROUP_EMPTY;
 const Request REQUEST_NULL = MPI_REQUEST_NULL;
 const Op MAX = MPI_MAX;
 const Op MIN = MPI_MIN;
+const Op MAXLOC = MPI_MAXLOC;
+const Op MINLOC = MPI_MINLOC;
 const Op PROD = MPI_PROD;
 const Op SUM = MPI_SUM;
 const Op LOGICAL_AND = MPI_LAND;
@@ -156,7 +165,6 @@ template<typename R>
 void IRecv
 ( Complex<R>* buf, int count, int from, int tag, Comm comm, Request& request );
 
-
 template<typename R>
 void SendRecv
 ( const R* sbuf, int sc, int to,   int stag,
@@ -165,6 +173,13 @@ template<typename R>
 void SendRecv
 ( const Complex<R>* sbuf, int sc, int to,   int stag,
         Complex<R>* rbuf, int rc, int from, int rtag, Comm comm );
+
+template<typename R>
+void SendRecv
+( R* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template<typename R>
+void SendRecv
+( Complex<R>* buf, int count, int to, int stag, int from, int rtag, Comm comm );
 
 // Collective communication
 
@@ -263,30 +278,29 @@ void AllToAll
 ( const Complex<R>* sbuf, const int* scs, const int* sds,
         Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm );
 
-template<typename R>
+template<typename T>
 void Reduce
-( const R* sbuf, R* rbuf, int count, Op op, int root, Comm comm );
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm );
 template<typename R>
 void Reduce
 ( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, 
   int root, Comm comm );
 
 // In-place option
-template<typename R>
-void Reduce( R* buf, int count, Op op, int root, Comm comm );
+template<typename T>
+void Reduce( T* buf, int count, Op op, int root, Comm comm );
 template<typename R>
 void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm );
 
-template<typename R>
-void AllReduce
-( const R* sbuf, R* rbuf, int count, Op op, Comm comm );
+template<typename T>
+void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
 template<typename R>
 void AllReduce
 ( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, Comm comm );
 
 // In-place option
-template<typename R>
-void AllReduce( R* buf, int count, Op op, Comm comm );
+template<typename T>
+void AllReduce( T* buf, int count, Op op, Comm comm );
 template<typename R>
 void AllReduce( Complex<R>* buf, int count, Op op, Comm comm );
 

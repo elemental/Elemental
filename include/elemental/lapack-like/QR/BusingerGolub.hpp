@@ -20,6 +20,32 @@
 namespace elem {
 namespace qr {
 
+template<typename F>
+inline void
+ColumnNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::ColumnNorms");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    norms.resize( n );
+    for( int j=0; j<n; ++j )
+        norms[j] = blas::Nrm2( m, A.LockedBuffer(0,j), 1 );
+}
+
+template<typename Real>
+inline int
+FindPivot( const std::vector<Real>& norms, int col )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::FindPivot");
+#endif
+    const int n = norms.size();
+    const Real* maxNorm = std::max_element( &norms[col], &norms[n] );
+    return maxNorm - &norms[0];
+}
+
 template<typename Real>
 inline void
 BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
@@ -48,9 +74,8 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
-    std::vector<Real> origNorms( n );
-    for( int j=0; j<n; ++j )
-        origNorms[j] = blas::Nrm2( m, A.Buffer(0,j), 1 );
+    std::vector<Real> origNorms;
+    ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
@@ -74,15 +99,16 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
-        Real* maxNorm = std::max_element( &norms[col], &norms[n] );
-        const int pivotCol = maxNorm - &norms[0];
+        const int pivotCol = FindPivot( norms, col );
+        p.Set( col, 0, pivotCol );
+
+        // Perform the swap
         if( col != pivotCol )
         {
             MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
             norms[pivotCol] = norms[col];
             origNorms[pivotCol] = origNorms[col];
         }
-        p.Set( col, 0, pivotCol );
 
         // Compute and apply the Householder reflector for this column
         const Real tau = Reflector( alpha11, a21 );
@@ -97,7 +123,7 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
         for( int k=0; k<a12.Width(); ++k )
         {
             const int j = k + col+1;    
-            if( norms[k] != Real(0) )
+            if( norms[j] != Real(0) )
             {
                 Real gamma = Abs(a12.Get(0,k)) / norms[j];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
@@ -151,11 +177,6 @@ BusingerGolub
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
-    Matrix<C>
-        tT,  t0,
-        tB,  tau1,
-             t2;
-
     Matrix<C> z;
 
     const int m = A.Height();
@@ -165,18 +186,14 @@ BusingerGolub
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
-    std::vector<Real> origNorms( n );
-    for( int j=0; j<n; ++j )
-        origNorms[j] = blas::Nrm2( m, A.Buffer(0,j), 1 );
+    std::vector<Real> origNorms;
+    ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
     {
         RepartitionDownDiagonal
@@ -184,12 +201,6 @@ BusingerGolub
          /*************/ /**********************/
                /**/       a10, /**/ alpha11, a12,
           ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1, 
-          tB,  t2, 1 );
 
         View2x1( aLeftCol, alpha11,
                            a21 );
@@ -200,19 +211,20 @@ BusingerGolub
         //--------------------------------------------------------------------//
         // Find the next column pivot
         const int col = A00.Width();
-        Real* maxNorm = std::max_element( &norms[col], &norms[n] );
-        const int pivotCol = maxNorm - &norms[0];
+        const int pivotCol = FindPivot( norms, col );
+        p.Set( col, 0, pivotCol );
+ 
+        // Perform the swap
         if( col != pivotCol )
         {
             MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
             norms[pivotCol] = norms[col];
             origNorms[pivotCol] = origNorms[col];
         }
-        p.Set( col, 0, pivotCol );
 
         // Compute and apply the Householder reflector for this column
         const C tau = Reflector( alpha11, a21 );
-        tau1.Set( 0, 0, tau );
+        t.Set( col, 0, tau );
         const C alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
         Zeros( z, ARightPan.Width(), 1 );
@@ -224,7 +236,7 @@ BusingerGolub
         for( int k=0; k<a12.Width(); ++k )
         {
             const int j = k + col+1;    
-            if( norms[k] != Real(0) )
+            if( norms[j] != Real(0) )
             {
                 Real gamma = Abs(a12.Get(0,k)) / norms[j];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
@@ -241,12 +253,6 @@ BusingerGolub
         }
         //--------------------------------------------------------------------//
 
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
                /**/       a10, alpha11, /**/ a12,
@@ -255,7 +261,36 @@ BusingerGolub
     }
 }
 
-// TODO: Parallel versions. Need to think about norm computation first.
+template<typename F>
+inline void
+ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::ColumnNorms");
+#endif
+    throw std::logic_error("Not yet written");
+}
+
+template<typename F>
+inline int
+FindColumnPivot
+( const DistMatrix<F>& A, const std::vector<BASE(F)>& norms, int col )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::FindColumnPivot");
+#endif
+    typedef BASE(F) Real;
+    const int rowShift = A.RowShift();
+    const int rowStride = A.RowStride();
+    const int localColsBefore = Length( col, rowShift, rowStride );
+    const int localPivot = FindPivot( norms, localColsBefore );
+    mpi::ValueInt<Real> pivotInfo;
+    pivotInfo.value = norms[localPivot];
+    pivotInfo.index = rowShift+localPivot*rowStride;
+    mpi::AllReduce( &pivotInfo, 1, mpi::MAXLOC, A.Grid().RowComm() );
+}
+
+// TODO: Parallel versions
 
 } // namespace qr
 } // namespace elem

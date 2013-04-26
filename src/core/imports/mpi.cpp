@@ -42,21 +42,22 @@ struct MpiMap
 
 template<>
 MpiMap<byte>::MpiMap() : type(MPI_UNSIGNED_CHAR) { }
-
 template<>
 MpiMap<int>::MpiMap() : type(MPI_INT) { }
-
 template<>
 MpiMap<float>::MpiMap() : type(MPI_FLOAT) { }
-
 template<>
 MpiMap<double>::MpiMap() : type(MPI_DOUBLE) { }
-
 template<>
 MpiMap<Complex<float> >::MpiMap() : type(MPI_COMPLEX) { }
-
 template<>
 MpiMap<Complex<double> >::MpiMap() : type(MPI_DOUBLE_COMPLEX) { }
+template<>
+MpiMap<ValueInt<int> >::MpiMap() : type(MPI_2INT) { }
+template<>
+MpiMap<ValueInt<float> >::MpiMap() : type(MPI_FLOAT_INT) { }
+template<>
+MpiMap<ValueInt<double> >::MpiMap() : type(MPI_DOUBLE_INT) { }
 
 //----------------------------//
 // MPI environmental routines //
@@ -636,6 +637,59 @@ template void SendRecv
 template void SendRecv
 ( const Complex<double>* sbuf, int sc, int to, int stag, 
         Complex<double>* rbuf, int rc, int from, int rtag, Comm comm );
+
+template<typename R>
+void SendRecv
+( R* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+{
+#ifndef RELEASE
+    CallStackEntry entry("mpi::SendRecv");
+#endif
+    Status status;
+    MpiMap<R> map;
+    SafeMpi( 
+        MPI_Sendrecv_replace
+        ( buf, count, map.type, to, stag, from, rtag, comm, &status )
+    );
+}
+
+template<typename R>
+void SendRecv
+( Complex<R>* buf, int count, int to, int stag, int from, int rtag, Comm comm )
+{
+#ifndef RELEASE
+    CallStackEntry entry("mpi::SendRecv");
+#endif
+    Status status;
+#ifdef AVOID_COMPLEX_MPI
+    MpiMap<R> map;
+    SafeMpi(
+        MPI_Sendrecv_replace
+        ( buf, 2*count, map.type, to, stag, from, rtag, comm, &status )
+    );
+#else
+    MpiMap<Complex<R> > map;
+    SafeMpi( 
+        MPI_Sendrecv_replace
+        ( buf, count, map.type, to, stag, from, rtag, comm, &status )
+    );
+#endif
+}
+
+template void SendRecv
+( byte* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template void SendRecv
+( int* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template void SendRecv
+( float* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template void SendRecv
+( double* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+template void SendRecv
+( Complex<float>* buf, int count, int to, int stag, 
+  int from, int rtag, Comm comm );
+template void SendRecv
+( Complex<double>* buf, int sc, int to, int stag, 
+  int from, int rtag, Comm comm );
 
 template<typename R>
 void Broadcast( R* buf, int count, int root, Comm comm )
@@ -1399,19 +1453,19 @@ template void AllToAll
 ( const Complex<double>* sbuf, const int* scs, const int* sds,
         Complex<double>* rbuf, const int* rcs, const int* rds, Comm comm );
 
-template<typename R>
+template<typename T>
 void Reduce
-( const R* sbuf, R* rbuf, int count, Op op, int root, Comm comm )
+( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm )
 {
 #ifndef RELEASE
     CallStackEntry entry("mpi::Reduce");
 #endif
-    MpiMap<R> map;
+    MpiMap<T> map;
     if( count != 0 )
     {
         SafeMpi( 
             MPI_Reduce
-            ( const_cast<R*>(sbuf), rbuf, count, map.type, op, root, comm )
+            ( const_cast<T*>(sbuf), rbuf, count, map.type, op, root, comm )
         );
     }
 }
@@ -1462,14 +1516,17 @@ template void Reduce( const float* sbuf, float* rbuf, int count, Op op, int root
 template void Reduce( const double* sbuf, double* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueInt<int>* sbuf, ValueInt<int>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, int root, Comm comm );
 
-template<typename R>
-void Reduce( R* buf, int count, Op op, int root, Comm comm )
+template<typename T>
+void Reduce( T* buf, int count, Op op, int root, Comm comm )
 {
 #ifndef RELEASE
     CallStackEntry entry("mpi::Reduce");
 #endif
-    MpiMap<R> map;
+    MpiMap<T> map;
     if( count != 0 )
     {
         const int commRank = CommRank( comm );
@@ -1480,7 +1537,7 @@ void Reduce( R* buf, int count, Op op, int root, Comm comm )
                 MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
             );
 #else
-            std::vector<R> sendBuf( count );
+            std::vector<T> sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
             SafeMpi(
                 MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
@@ -1578,19 +1635,22 @@ template void Reduce( float* buf, int count, Op op, int root, Comm comm );
 template void Reduce( double* buf, int count, Op op, int root, Comm comm );
 template void Reduce( Complex<float>* buf, int count, Op op, int root, Comm comm );
 template void Reduce( Complex<double>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueInt<int>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueInt<float>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueInt<double>* buf, int count, Op op, int root, Comm comm );
 
-template<typename R>
-void AllReduce( const R* sbuf, R* rbuf, int count, Op op, Comm comm )
+template<typename T>
+void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 {
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllReduce");
 #endif
-    MpiMap<R> map;
+    MpiMap<T> map;
     if( count != 0 )
     {
         SafeMpi( 
             MPI_Allreduce
-            ( const_cast<R*>(sbuf), rbuf, count, map.type, op, comm )
+            ( const_cast<T*>(sbuf), rbuf, count, map.type, op, comm )
         );
     }
 }
@@ -1640,14 +1700,17 @@ template void AllReduce( const float* sbuf, float* rbuf, int count, Op op, Comm 
 template void AllReduce( const double* sbuf, double* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueInt<int>* sbuf, ValueInt<int>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, Comm comm );
 
-template<typename R>
-void AllReduce( R* buf, int count, Op op, Comm comm )
+template<typename T>
+void AllReduce( T* buf, int count, Op op, Comm comm )
 {
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllReduce");
 #endif
-    MpiMap<R> map;
+    MpiMap<T> map;
     if( count != 0 )
     {
 #ifdef HAVE_MPI_IN_PLACE
@@ -1655,7 +1718,7 @@ void AllReduce( R* buf, int count, Op op, Comm comm )
             MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
         );
 #else
-        std::vector<R> sendBuf( count );
+        std::vector<T> sendBuf( count );
         MemCopy( &sendBuf[0], buf, count );
         SafeMpi(
             MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
@@ -1726,6 +1789,9 @@ template void AllReduce( float* buf, int count, Op op, Comm comm );
 template void AllReduce( double* buf, int count, Op op, Comm comm );
 template void AllReduce( Complex<float>* buf, int count, Op op, Comm comm );
 template void AllReduce( Complex<double>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueInt<int>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueInt<float>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueInt<double>* buf, int count, Op op, Comm comm );
 
 template<typename R>
 void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
