@@ -153,11 +153,14 @@ PanelHouseholder
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::PanelHouseholder");
-    if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
+    if( t.Viewing() && 
+        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
 #endif
     typedef Complex<Real> C;
+    if( !t.Viewing() )
+        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     Matrix<C>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -214,7 +217,8 @@ PanelHouseholder
     CallStackEntry entry("qr::PanelHouseholder");
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,t} must be distributed over the same grid");
-    if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
+    if( t.Viewing() && 
+        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
     if( !t.AlignedWithDiagonal( A, 0 ) )
@@ -222,6 +226,8 @@ PanelHouseholder
 #endif
     typedef Complex<R> C;
     const Grid& g = A.Grid();
+    if( !t.Viewing() )
+        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<C>

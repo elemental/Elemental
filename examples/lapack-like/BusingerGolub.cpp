@@ -34,6 +34,8 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
         const bool alwaysRecompute = Input("--always","no norm updates?",false);
+        const bool blockedUnpiv = 
+            Input("--blockUnpiv","blocked unpivoted QR?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -44,53 +46,99 @@ main( int argc, char* argv[] )
         if( print )
             A.Print("A");
 
-        // Compute the QR decomposition of A, but do not overwrite A
-        DistMatrix<C> QRFact( A );
-        DistMatrix<C,MD,STAR> t;
+        // Compute the pivoted QR decomposition of A, but do not overwrite A
+        DistMatrix<C> QRPiv( A );
+        DistMatrix<C,MD,STAR> tPiv;
         DistMatrix<int,VR,STAR> p;
-        qr::BusingerGolub( QRFact, t, p, alwaysRecompute );
+        qr::BusingerGolub( QRPiv, tPiv, p, alwaysRecompute );
         if( print )
         {
-            QRFact.Print("QR");
-            t.Print("t");
+            QRPiv.Print("QRPiv");
+            tPiv.Print("tPiv");
             p.Print("p");
         }
 
-        // Check the error in the QR factorization, 
+        // Compute the standard QR decomposition of A
+        DistMatrix<C> QRNoPiv( A );
+        DistMatrix<C,MD,STAR> tNoPiv;
+        if( blockedUnpiv )
+            QR( QRNoPiv, tNoPiv );
+        else
+            qr::PanelHouseholder( QRNoPiv, tNoPiv );
+        if( print )
+        {
+            QRNoPiv.Print("QRNoPiv");
+            tNoPiv.Print("tNoPiv");
+        }
+
+        // Check the error in the pivoted QR factorization, 
         // || A P - Q R ||_F / || A ||_F
-        DistMatrix<C> E( QRFact );
+        DistMatrix<C> E( QRPiv );
         MakeTriangular( UPPER, E );
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, QRFact, t, E );
-        ApplyColumnPivots( A, p ); 
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, QRPiv, tPiv, E );
+        ApplyInverseColumnPivots( E, p ); 
         Axpy( C(-1), A, E );
-        const Real frobQR = FrobeniusNorm( E );
+        const Real frobQRPiv = FrobeniusNorm( E );
         if( print )
             E.Print("A P - Q R");
 
-        // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
+        // Check the error in the standard QR factorization, 
+        // || A - Q R ||_F / || A ||_F
+        E = QRNoPiv;
+        MakeTriangular( UPPER, E );
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, 
+          QRNoPiv, tNoPiv, E );
+        Axpy( C(-1), A, E );
+        const Real frobQRNoPiv = FrobeniusNorm( E );
+        if( print )
+            E.Print("A - Q R");
+
+        // Check orthogonality of pivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, QRFact, t, E );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, QRPiv, tPiv, E );
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, QRFact, t, E );
+        ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, QRPiv, tPiv, E );
         const int k = std::min(m,n);
         DistMatrix<C> EUpper;
         View( EUpper, E, 0, 0, k, k );
         DistMatrix<C> I;
         Identity( I, k, k );
         Axpy( C(-1), I, EUpper );
-        const Real frobOrthog = FrobeniusNorm( EUpper ); 
+        const Real frobOrthogPiv = FrobeniusNorm( EUpper ); 
         if( print )
-            E.Print("I - Q^H Q");
+            E.Print("pivoted I - Q^H Q");
+
+        // Check orthogonality of unpivoted Q, || I - Q^H Q ||_F / || A ||_F
+        Identity( E, m, n );
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, 
+          QRNoPiv, tNoPiv, E );
+        ApplyPackedReflectors
+        ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, 
+          QRNoPiv, tNoPiv, E );
+        View( EUpper, E, 0, 0, k, k );
+        Identity( I, k, k );
+        Axpy( C(-1), I, EUpper );
+        const Real frobOrthogNoPiv = FrobeniusNorm( EUpper ); 
+        if( print )
+            E.Print("unpivoted I - Q^H Q");
 
         if( commRank == 0 )
         {
-            std::cout << "|| A ||_F = " << frobA << "\n"
-                      << "|| A P - Q R ||_F / || A ||_F   = " 
-                      << frobQR/frobA << "\n"
-                      << "|| I - Q^H Q ||_F / || A ||_F = "
-                      << frobOrthog/frobA << "\n"
+            std::cout << "|| A ||_F = " << frobA << "\n\n"
+                      << "With pivoting: \n" 
+                      << "    || A P - Q R ||_F / || A ||_F = " 
+                      << frobQRPiv/frobA << "\n"
+                      << "    || I - Q^H Q ||_F / || A ||_F = "
+                      << frobOrthogPiv/frobA << "\n\n"
+                      << "Without pivoting: \n"
+                      << "    || A - Q R ||_F / || A ||_F = "
+                      << frobQRNoPiv/frobA << "\n"
+                      << "    || I - Q^H Q ||_F / || A ||_F = "
+                      << frobOrthogNoPiv/frobA << "\n"
                       << std::endl;
         }
     }
