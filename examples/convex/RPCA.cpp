@@ -83,6 +83,7 @@ void RPCA_ADMM
   BASE(F) beta, 
   BASE(F) tau, 
   BASE(F) tol, 
+  int numStepsQR,
   int maxIts,
   bool print )
 {
@@ -125,7 +126,11 @@ void RPCA_ADMM
         L = M;
         Axpy( F(-1), S, L );
         Axpy( F(1)/beta, Y, L );
-        const int rank = SingularValueSoftThreshold( L, R(1)/beta );
+        int rank;
+        if( numStepsQR == -1 )
+            rank = SingularValueSoftThreshold( L, R(1)/beta );
+        else
+            rank = SingularValueSoftThreshold( L, R(1)/beta, numStepsQR );
       
         // E := M - (L + S)
         E = M;    
@@ -168,7 +173,7 @@ template<typename F>
 void RPCA_ALM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
   BASE(F) beta, BASE(F) tau, BASE(F) rho, BASE(F) tol, 
-  int maxIts, bool print )
+  int numStepsQR, int maxIts, bool print )
 {
     typedef BASE(F) R;
 
@@ -231,7 +236,10 @@ void RPCA_ALM
             Axpy( F(1)/beta, Y, L );
             if( commRank == 0 )
                 std::cout << "beta=" << beta << std::endl;
-            rank = SingularValueSoftThreshold( L, R(1)/beta );
+            if( numStepsQR == -1 )
+                rank = SingularValueSoftThreshold( L, R(1)/beta );
+            else
+                rank = SingularValueSoftThreshold( L, R(1)/beta, numStepsQR );
 
             Axpy( F(-1), L, LLast );
             Axpy( F(-1), S, SLast );
@@ -316,6 +324,7 @@ main( int argc, char* argv[] )
         const double rho = Input("--rho","stepsize multiple in ALM",6.);
         const int maxIts = Input("--maxIts","maximum iterations",1000);
         const double tol = Input("--tol","tolerance",1.e-6);
+        const int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
@@ -354,9 +363,9 @@ main( int argc, char* argv[] )
         Zeros( S, m, n ); 
 
         if( useALM )
-            RPCA_ALM( M, L, S, beta, tau, rho, tol, maxIts, print );
+            RPCA_ALM( M, L, S, beta, tau, rho, tol, numStepsQR, maxIts, print );
         else
-            RPCA_ADMM( M, L, S, beta, tau, tol, maxIts, print );
+            RPCA_ADMM( M, L, S, beta, tau, tol, numStepsQR, maxIts, print );
 
         if( print )
         {

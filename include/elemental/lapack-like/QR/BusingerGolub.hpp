@@ -48,17 +48,19 @@ FindPivot( const std::vector<Real>& norms, int col )
 
 template<typename Real>
 inline void
-BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
+BusingerGolub
+( Matrix<Real>& A, Matrix<int>& p, int numSteps, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( p.Viewing() && 
-        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) )
+    if( numSteps > std::min(A.Height(),A.Width()) )
+        throw std::logic_error("Too many steps requested");
+    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
         throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A");
+        ("p must be a vector of the same height as the number of steps");
 #endif
     if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        p.ResizeTo( numSteps, 1 );
 
     Matrix<Real>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -82,7 +84,7 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ATL.Height() < m && ATL.Width() < n )
+    for( int col=0; col<numSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -98,7 +100,6 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
 
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int col = A00.Width();
         const int pivotCol = FindPivot( norms, col );
         p.Set( col, 0, pivotCol );
 
@@ -148,29 +149,41 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
     }
 }
 
+template<typename Real>
+inline void
+BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    const int numSteps = std::min(A.Height(),A.Width());
+    BusingerGolub( A, p, numSteps, alwaysRecompute );
+}
+
 template<typename Real> 
 inline void
 BusingerGolub
 ( Matrix<Complex<Real> >& A,
   Matrix<Complex<Real> >& t,
   Matrix<int>& p,
+  int numSteps,
   bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( t.Viewing() && 
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
+    if( numSteps > std::min(A.Height(),A.Width()) )
+        throw std::logic_error("Too many steps requested");
+    if( t.Viewing() && (t.Height() != numSteps || t.Width() != 1) )
         throw std::logic_error
-        ("t must be a vector of the same height as the min dimension of A");
-    if( p.Viewing() && 
-        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) )
+        ("t must be a vector of the same height as the number of steps");
+    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
         throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A");
+        ("p must be a vector of the same height as the number of steps");
 #endif
     if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        p.ResizeTo( numSteps, 1 );
     if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        t.ResizeTo( numSteps, 1 );
 
     typedef Complex<Real> C;
 
@@ -195,7 +208,7 @@ BusingerGolub
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    for( int col=0; col<numSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -211,7 +224,6 @@ BusingerGolub
 
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int col = A00.Width();
         const int pivotCol = FindPivot( norms, col );
         p.Set( col, 0, pivotCol );
  
@@ -260,6 +272,21 @@ BusingerGolub
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+}
+
+template<typename Real> 
+inline void
+BusingerGolub
+( Matrix<Complex<Real> >& A,
+  Matrix<Complex<Real> >& t,
+  Matrix<int>& p,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    const int numSteps = std::min(A.Height(),A.Width());
+    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
 }
 
 template<typename F>
@@ -429,20 +456,22 @@ ReplaceColumnNorms
 template<typename Real>
 inline void
 BusingerGolub
-( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, bool alwaysRecompute=false )
+( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, int numSteps,
+  bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( p.Viewing() &&
-        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) )
+    if( numSteps > std::min(A.Height(),A.Width()) )
+        throw std::logic_error("Too many steps requested");
+    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
         throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A");
+        ("p must be a vector of the same height as the number of steps");
     if( A.Grid() != p.Grid() )
         throw std::logic_error("A and p must have the same grid");
 #endif
     const Grid& g = A.Grid();
     if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        p.ResizeTo( numSteps, 1 );
 
     DistMatrix<Real>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
@@ -477,7 +506,7 @@ BusingerGolub
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ATL.Height() < m && ATL.Width() < n )
+    for( int col=0; col<numSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -495,7 +524,6 @@ BusingerGolub
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int col = A00.Width();
         const int pivotCol = FindColumnPivot( A, norms, col );
         p.Set( col, 0, pivotCol );
 
@@ -606,30 +634,43 @@ BusingerGolub
 template<typename Real>
 inline void
 BusingerGolub
+( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    const int numSteps = std::min(A.Height(),A.Width());
+    BusingerGolub( A, p, numSteps, alwaysRecompute );
+}
+
+template<typename Real>
+inline void
+BusingerGolub
 ( DistMatrix<Complex<Real> >& A, 
   DistMatrix<Complex<Real>,MD,STAR>& t, 
   DistMatrix<int,VR,STAR>& p,
+  int numSteps,
   bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( t.Viewing() &&
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
+    if( numSteps > std::min(A.Height(),A.Width()) )
+        throw std::logic_error("Too many steps requested");
+    if( t.Viewing() && (t.Height() != numSteps || t.Width() != 1) )
         throw std::logic_error
-        ("t must be a vector of the same height as the min dimension of A");
-    if( p.Viewing() &&
-        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) )
+        ("t must be a vector of the same height as the number of steps");
+    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
         throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A");
+        ("p must be a vector of the same height as the number of steps");
     if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
         throw std::logic_error("A, t, and p must have the same grid");
 #endif
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
     if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        t.ResizeTo( numSteps, 1 );
     if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+        p.ResizeTo( numSteps, 1 );
 
     DistMatrix<C>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
@@ -663,7 +704,7 @@ BusingerGolub
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    while( ATL.Height() < m && ATL.Width() < n )
+    for( int col=0; col<numSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -681,7 +722,6 @@ BusingerGolub
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int col = A00.Width();
         const int pivotCol = FindColumnPivot( A, norms, col );
         p.Set( col, 0, pivotCol );
 
@@ -788,6 +828,21 @@ BusingerGolub
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+}
+
+template<typename Real>
+inline void
+BusingerGolub
+( DistMatrix<Complex<Real> >& A, 
+  DistMatrix<Complex<Real>,MD,STAR>& t, 
+  DistMatrix<int,VR,STAR>& p,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    const int numSteps = std::min(A.Height(),A.Width());
+    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
 }
 
 } // namespace qr
