@@ -37,17 +37,18 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Matrix<C> A;
+        DistMatrix<C> A;
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
-        if( print && commRank == 0 )
+        if( print )
             A.Print("A");
 
         // Compute the QR decomposition of A, but do not overwrite A
-        Matrix<C> QRFact( A ), t;
-        Matrix<int> p;
+        DistMatrix<C> QRFact( A );
+        DistMatrix<C,MD,STAR> t;
+        DistMatrix<int,VR,STAR> p;
         qr::BusingerGolub( QRFact, t, p );
-        if( print && commRank == 0 )
+        if( print )
         {
             QRFact.Print("QR");
             t.Print("t");
@@ -56,14 +57,14 @@ main( int argc, char* argv[] )
 
         // Check the error in the QR factorization, 
         // || A P - Q R ||_F / || A ||_F
-        Matrix<C> E( QRFact );
+        DistMatrix<C> E( QRFact );
         MakeTriangular( UPPER, E );
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, QRFact, t, E );
         ApplyColumnPivots( A, p ); 
         Axpy( C(-1), A, E );
         const Real frobQR = FrobeniusNorm( E );
-        if( print && commRank == 0 )
+        if( print )
             E.Print("A P - Q R");
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
@@ -73,13 +74,13 @@ main( int argc, char* argv[] )
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, QRFact, t, E );
         const int k = std::min(m,n);
-        Matrix<C> EUpper;
+        DistMatrix<C> EUpper;
         View( EUpper, E, 0, 0, k, k );
-        Matrix<C> I;
+        DistMatrix<C> I;
         Identity( I, k, k );
         Axpy( C(-1), I, EUpper );
         const Real frobOrthog = FrobeniusNorm( EUpper ); 
-        if( print && commRank == 0 )
+        if( print )
             E.Print("I - Q^H Q");
 
         if( commRank == 0 )

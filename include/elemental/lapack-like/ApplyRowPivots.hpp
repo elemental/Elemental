@@ -22,16 +22,17 @@ ApplyRowPivots( Matrix<F>& A, const Matrix<int>& p )
     CallStackEntry entry("ApplyRowPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
-    if( p.Height() != A.Height() )
-        throw std::logic_error("p must be the same length as the height of A");
+    if( p.Height() > A.Height() )
+        throw std::logic_error("p cannot be larger than height of A");
 #endif
     const int height = A.Height();
     const int width = A.Width();
     if( height == 0 || width == 0 )
         return;
 
+    const int numPivots = p.Height();
     const int ldim = A.LDim();
-    for( int i=0; i<height; ++i )
+    for( int i=0; i<numPivots; ++i )
     {
         const int k = p.Get(i,0);
         F* Ai = A.Buffer(i,0);
@@ -53,16 +54,17 @@ ApplyInverseRowPivots( Matrix<F>& A, const Matrix<int>& p )
     CallStackEntry entry("ApplyInverseRowPivots");
     if( p.Width() != 1 )
         throw std::logic_error("p must be a column vector");
-    if( p.Height() != A.Height() )
-        throw std::logic_error("p must be the same length as the height of A");
+    if( p.Height() > A.Height() )
+        throw std::logic_error("p cannot be larger than height of A");
 #endif
     const int height = A.Height();
     const int width = A.Width();
     if( height == 0 || width == 0 )
         return;
 
+    const int numPivots = p.Height();
     const int ldim = A.LDim();
-    for( int i=height-1; i>=0; --i )
+    for( int i=numPivots-1; i>=0; --i )
     {
         const int k = p.Get(i,0);
         F* Ai = A.Buffer(i,0);
@@ -76,9 +78,9 @@ ApplyInverseRowPivots( Matrix<F>& A, const Matrix<int>& p )
     }
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
-ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
+ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<int,U,V>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyRowPivots");
@@ -87,10 +89,10 @@ ApplyRowPivots( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
     ApplyRowPivots( A, p_STAR_STAR );
 }
 
-template<typename F>
+template<typename F,Distribution U,Distribution V>
 inline void
 ApplyInverseRowPivots
-( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
+( DistMatrix<F>& A, const DistMatrix<int,U,V>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyInverseRowPivots");

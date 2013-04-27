@@ -42,7 +42,7 @@ FindPivot( const std::vector<Real>& norms, int col )
     CallStackEntry entry("qr::FindPivot");
 #endif
     const int n = norms.size();
-    const Real* maxNorm = std::max_element( &norms[col], &norms[n] );
+    const Real* maxNorm = std::max_element( &norms[col], &norms[0]+n );
     return maxNorm - &norms[0];
 }
 
@@ -278,6 +278,7 @@ FindColumnPivot
     pivotInfo.value = norms[localPivot];
     pivotInfo.index = rowShift+localPivot*rowStride;
     mpi::AllReduce( &pivotInfo, 1, mpi::MAXLOC, A.Grid().RowComm() );
+    return pivotInfo.index;
 }
 
 template<typename F>
@@ -287,7 +288,67 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
 #ifndef RELEASE
     CallStackEntry entry("qr::ColumnNorms");
 #endif
-    throw std::logic_error("Not yet written");
+    typedef BASE(F) Real;
+    const int localHeight = A.LocalHeight();
+    const int localWidth = A.LocalWidth();
+    mpi::Comm colComm = A.Grid().ColComm();
+
+    // Carefully perform the local portion of the computation
+    std::vector<Real> localScales(localWidth,0), 
+                      localScaledSquares(localWidth,1);
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const Real alphaAbs = Abs(A.GetLocal(iLocal,jLocal));    
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= localScales[jLocal] )
+                {
+                    const Real relScale = alphaAbs/localScales[jLocal];
+                    localScaledSquares[jLocal] += relScale*relScale;
+                }
+                else
+                {
+                    const Real relScale = localScales[jLocal]/alphaAbs;
+                    localScaledSquares[jLocal] = 
+                        localScaledSquares[jLocal]*relScale*relScale + 1;
+                    localScales[jLocal] = alphaAbs;
+                }
+            }
+        }
+    }
+
+    // Find the maximum relative scales 
+    std::vector<Real> scales(localWidth);
+    mpi::AllReduce
+    ( &localScales[0], &scales[0], localWidth, mpi::MAX, colComm );
+
+    // Equilibrate the local scaled sums to the maximum scale
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        if( scales[jLocal] != 0 )
+        {
+            const Real relScale = localScales[jLocal]/scales[jLocal];
+            localScaledSquares[jLocal] *= relScale*relScale;
+        }
+    }
+
+    // Now sum the local contributions (can ignore results where scale is 0)
+    std::vector<Real> scaledSquares(localWidth); 
+    mpi::AllReduce
+    ( &localScaledSquares[0], &scaledSquares[0], localWidth, 
+      mpi::SUM, colComm );
+
+    // Finish the computation
+    norms.resize( localWidth );
+    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    {
+        if( scales[jLocal] != 0 )
+            norms[jLocal] = scales[jLocal]*Sqrt(scaledSquares[jLocal]);
+        else
+            norms[jLocal] = 0;
+    }
 }
 
 template<typename F>
@@ -299,7 +360,69 @@ ReplaceColumnNorms
 #ifndef RELEASE
     CallStackEntry entry("qr::ReplaceColumnNorms");
 #endif
-    throw std::logic_error("Not yet written");
+    typedef BASE(F) Real;
+    const int localHeight = A.LocalHeight();
+    const int numInaccurate = inaccurateNorms.size();
+    mpi::Comm colComm = A.Grid().ColComm();
+
+    // Carefully perform the local portion of the computation
+    std::vector<Real> localScales(numInaccurate,0), 
+                      localScaledSquares(numInaccurate,1);
+    for( int s=0; s<numInaccurate; ++s )
+    {
+        const int jLocal = inaccurateNorms[s];
+        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        {
+            const Real alphaAbs = Abs(A.GetLocal(iLocal,jLocal));    
+            if( alphaAbs != 0 )
+            {
+                if( alphaAbs <= localScales[s] )
+                {
+                    const Real relScale = alphaAbs/localScales[s];
+                    localScaledSquares[s] += relScale*relScale;
+                }
+                else
+                {
+                    const Real relScale = localScales[s]/alphaAbs;
+                    localScaledSquares[s] = 
+                        localScaledSquares[s]*relScale*relScale + 1;
+                    localScales[s] = alphaAbs;
+                }
+            }
+        }
+    }
+
+    // Find the maximum relative scales 
+    std::vector<Real> scales(numInaccurate);
+    mpi::AllReduce
+    ( &localScales[0], &scales[0], numInaccurate, mpi::MAX, colComm );
+
+    // Equilibrate the local scaled sums to the maximum scale
+    for( int s=0; s<numInaccurate; ++s )
+    {
+        if( scales[s] != 0 )
+        {
+            const Real relScale = localScales[s]/scales[s];
+            localScaledSquares[s] *= relScale*relScale;
+        }
+    }
+
+    // Now sum the local contributions (can ignore results where scale is 0)
+    std::vector<Real> scaledSquares(numInaccurate); 
+    mpi::AllReduce
+    ( &localScaledSquares[0], &scaledSquares[0], numInaccurate,
+      mpi::SUM, colComm );
+
+    // Finish the computation
+    for( int s=0; s<numInaccurate; ++s )
+    {
+        const int jLocal = inaccurateNorms[s];
+        if( scales[s] != 0 )
+            norms[jLocal] = scales[s]*Sqrt(scaledSquares[s]);
+        else
+            norms[jLocal] = 0;
+        origNorms[jLocal] = norms[jLocal];
+    }
 }
 
 template<typename Real>
@@ -459,7 +582,7 @@ BusingerGolub( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p )
                 const Real ratio = norms[jLocal] / origNorms[jLocal];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol )
-                    inaccurateNorms.push_back( kLocal );
+                    inaccurateNorms.push_back( jLocal );
                 else
                     norms[jLocal] *= Sqrt(gamma);
             }
@@ -645,7 +768,7 @@ BusingerGolub
                 const Real ratio = norms[jLocal] / origNorms[jLocal];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol )
-                    inaccurateNorms.push_back( kLocal );
+                    inaccurateNorms.push_back( jLocal );
                 else
                     norms[jLocal] *= Sqrt(gamma);
             }

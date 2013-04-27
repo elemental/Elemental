@@ -10,6 +10,8 @@
 #ifndef LAPACK_COMPOSEPIVOTS_HPP
 #define LAPACK_COMPOSEPIVOTS_HPP
 
+#include <algorithm>
+
 namespace elem {
 
 // Meant for composing an entire pivot vector for an n x n matrix.
@@ -27,22 +29,23 @@ ComposePivots
 #endif
     const int n = p.Height();
     const int* pBuffer = p.LockedBuffer();
+    const int range = *std::max_element( pBuffer, pBuffer+n ) + 1;
 
-    // Construct the preimage of {0,...,n-1} under the permutation in O(n) work
-    preimage.resize( n );
-    for( int i=0; i<n; ++i )
+    // Construct the preimage of {0,...,range-1} under the permutation in 
+    // O(range) work
+    preimage.resize( range );
+    for( int i=0; i<range; ++i )
         preimage[i] = i;
     for( int i=0; i<n; ++i )
     {
         const int j = pBuffer[i];
-        const int k = preimage[j];
-        preimage[j] = preimage[i];
-        preimage[i] = k;
+        std::swap( preimage[i], preimage[j] );
     }
 
-    // Construct the image of {0,...,n-1} under the permutation in O(n) work
-    image.resize( n );
-    for( int i=0; i<n; ++i )
+    // Construct the image of {0,...,range-1} under the permutation in 
+    // O(range) work
+    image.resize( range );
+    for( int i=0; i<range; ++i )
         image[preimage[i]] = i;
 }
 
