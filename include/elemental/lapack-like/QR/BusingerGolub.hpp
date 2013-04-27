@@ -48,7 +48,7 @@ FindPivot( const std::vector<Real>& norms, int col )
 
 template<typename Real>
 inline void
-BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
+BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -129,7 +129,7 @@ BusingerGolub( Matrix<Real>& A, Matrix<int>& p )
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[j] / origNorms[j];
                 const Real phi = gamma*(ratio*ratio);
-                if( phi <= updateTol )
+                if( phi <= updateTol || alwaysRecompute )
                 {
                     norms[j] = blas::Nrm2( m-(col+1), A.Buffer(col+1,j), 1 );
                     origNorms[j] = norms[j];
@@ -153,7 +153,8 @@ inline void
 BusingerGolub
 ( Matrix<Complex<Real> >& A,
   Matrix<Complex<Real> >& t,
-  Matrix<int>& p )
+  Matrix<int>& p,
+  bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -242,7 +243,7 @@ BusingerGolub
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[j] / origNorms[j];
                 const Real phi = gamma*(ratio*ratio);
-                if( phi <= updateTol )
+                if( phi <= updateTol || alwaysRecompute )
                 {
                     norms[j] = blas::Nrm2( m-(col+1), A.Buffer(col+1,j), 1 );
                     origNorms[j] = norms[j];
@@ -427,7 +428,8 @@ ReplaceColumnNorms
 
 template<typename Real>
 inline void
-BusingerGolub( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p )
+BusingerGolub
+( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -581,7 +583,7 @@ BusingerGolub( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p )
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[jLocal] / origNorms[jLocal];
                 const Real phi = gamma*(ratio*ratio);
-                if( phi <= updateTol )
+                if( phi <= updateTol || alwaysRecompute )
                     inaccurateNorms.push_back( jLocal );
                 else
                     norms[jLocal] *= Sqrt(gamma);
@@ -606,7 +608,8 @@ inline void
 BusingerGolub
 ( DistMatrix<Complex<Real> >& A, 
   DistMatrix<Complex<Real>,MD,STAR>& t, 
-  DistMatrix<int,VR,STAR>& p )
+  DistMatrix<int,VR,STAR>& p,
+  bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
@@ -767,7 +770,7 @@ BusingerGolub
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[jLocal] / origNorms[jLocal];
                 const Real phi = gamma*(ratio*ratio);
-                if( phi <= updateTol )
+                if( phi <= updateTol || alwaysRecompute )
                     inaccurateNorms.push_back( jLocal );
                 else
                     norms[jLocal] *= Sqrt(gamma);

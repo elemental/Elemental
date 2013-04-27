@@ -33,6 +33,7 @@ main( int argc, char* argv[] )
     {
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
+        const bool alwaysRecompute = Input("--always","no norm updates?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -47,7 +48,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> QRFact( A );
         DistMatrix<C,MD,STAR> t;
         DistMatrix<int,VR,STAR> p;
-        qr::BusingerGolub( QRFact, t, p );
+        qr::BusingerGolub( QRFact, t, p, alwaysRecompute );
         if( print )
         {
             QRFact.Print("QR");
