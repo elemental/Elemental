@@ -153,3 +153,19 @@ trapezoid.
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
 
+.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
+
+   Column-pivoted versions of the above routines which use the Businger/Golub 
+   strategy, i.e., the pivot is chosen as the remaining column with maximum
+   two norm.
+
+.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int numSteps )
+
+   Same as above, but only execute a fixed number of steps of the rank-revealing
+   factorization.

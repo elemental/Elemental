@@ -103,6 +103,11 @@ void RPCA_ADMM
     if( tol <= R(0) )
         throw std::logic_error("tol cannot be non-positive");
 
+    const double startTime = mpi::Time();
+    if( commRank == 0 )
+        std::cout << "Starting RPCA_ADMM after " << startTime << " secs" 
+                  << std::endl;
+
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
     Zeros( Y, m, n );
 
@@ -145,13 +150,15 @@ void RPCA_ADMM
                           << " with rank=" << rank 
                           << ", numNonzeros=" << numNonzeros << " and "
                           << "|| E ||_F / || M ||_F = " << frobE/frobM
+                          << ", and " << mpi::Time()-startTime << " total secs"
                           << std::endl;
             break;
         }
         else if( numIts >= maxIts )
         {
             if( commRank == 0 )
-                std::cout << "Aborting after " << maxIts << " iterations"
+                std::cout << "Aborting after " << maxIts << " iterations and "
+                          << mpi::Time()-startTime << " total secs" 
                           << std::endl;
             break;
         }
@@ -160,7 +167,9 @@ void RPCA_ADMM
             if( commRank == 0 )
                 std::cout << numIts << ": || E ||_F / || M ||_F = " 
                           << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << std::endl;
+                          << ", numNonzeros=" << numNonzeros 
+                          << ", " << mpi::Time()-startTime << " total secs"
+                          << std::endl;
         }
         
         // Y := Y + beta E
@@ -189,6 +198,11 @@ void RPCA_ALM
         throw std::logic_error("tol cannot be non-positive");
     if( tau <= R(0) )
         throw std::logic_error("tau cannot be non-positive");
+
+    const double startTime = mpi::Time();
+    if( commRank == 0 )
+        std::cout << "Starting RPCA_ALM after " << startTime << " secs" 
+                  << std::endl;
 
     DistMatrix<F> Y( M );
     Sign( Y );
@@ -249,7 +263,9 @@ void RPCA_ALM
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
                 if( commRank == 0 )
-                    std::cout << "Primal loop converged" << std::endl;
+                    std::cout << "Primal loop converged: " 
+                              << mpi::Time()-startTime << " total secs"
+                              << std::endl;
                 break;
             }
             else 
@@ -262,7 +278,9 @@ void RPCA_ALM
                               << "   || Delta S ||_F / || M ||_F = "
                               << frobSDiff/frobM << "\n"
                               << "   rank=" << rank
-                              << ", numNonzeros=" << numNonzeros << std::endl;
+                              << ", numNonzeros=" << numNonzeros 
+                              << ", " << mpi::Time()-startTime << " total secs" 
+                              << std::endl;
             } 
         }
 
@@ -279,13 +297,15 @@ void RPCA_ALM
                           << numPrimalIts << " primal iterations with rank=" 
                           << rank << ", numNonzeros=" << numNonzeros << " and "
                           << "|| E ||_F / || M ||_F = " << frobE/frobM
+                          << ", " << mpi::Time()-startTime << " total secs"
                           << std::endl;
             break;
         }
         else if( numIts >= maxIts )
         {
             if( commRank == 0 )
-                std::cout << "Aborting after " << maxIts << " iterations"
+                std::cout << "Aborting after " << maxIts << " iterations and "
+                          << mpi::Time()-startTime << " total secs" 
                           << std::endl;
             break;
         }
@@ -294,7 +314,9 @@ void RPCA_ALM
             if( commRank == 0 )
                 std::cout << numPrimalIts << ": || E ||_F / || M ||_F = " 
                           << frobE/frobM << ", rank=" << rank 
-                          << ", numNonzeros=" << numNonzeros << std::endl;
+                          << ", numNonzeros=" << numNonzeros << ", "
+                          << mpi::Time()-startTime << " total secs" 
+                          << std::endl;
         }
         
         // Y := Y + beta E
@@ -353,6 +375,12 @@ main( int argc, char* argv[] )
                       << "|| S ||_F = " << frobSTrue << std::endl;
         if( print )
             STrue.Print("True S");
+
+        if( commRank == 0 )
+            std::cout << "Using " << STrue.Grid().Height() << " x " 
+                      << STrue.Grid().Width() 
+                      << " process grid and blocksize of " << Blocksize() 
+                      << std::endl;
 
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );
