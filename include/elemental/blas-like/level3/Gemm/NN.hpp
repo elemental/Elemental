@@ -13,27 +13,115 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 
 namespace elem {
-namespace internal {
+namespace gemm {
 
-// Normal Normal Gemm that avoids communicating the matrix A.
+// Cannon's algorithm
 template<typename T>
 inline void
-GemmNNA
+Cannon_NN
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmNNA");
+    CallStackEntry entry("gemm::Cannon_NN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        throw std::logic_error("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmNNA: \n"
+        msg << "Nonconformal matrices: \n"
+            << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
+            << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
+            << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
+        throw std::logic_error( msg.str().c_str() );
+    }
+#endif
+    const Grid& g = A.Grid();
+    if( g.Height() != g.Width() )
+        throw std::logic_error("Process grid must be square for Cannon's");
+    if( C.ColAlignment() != A.ColAlignment() || 
+        C.RowAlignment() != B.RowAlignment() )
+        throw std::logic_error("C is not properly aligned");
+
+    const int row = g.Row();
+    const int col = g.Col();
+    const int pSqrt = g.Height();
+    mpi::Comm rowComm = g.RowComm();
+    mpi::Comm colComm = g.ColComm(); 
+    if( A.Width() % pSqrt != 0 )
+        throw std::logic_error
+        ("For now, width(A) must be integer multiple of sqrt(p)");
+
+    // Begin by scaling our local portion of C
+    Scale( beta, C );
+
+    // Load the initial A and B packages (may want to transpose B...)
+    const int localHeightA = A.LocalHeight();
+    const int localHeightB = B.LocalHeight();
+    const int localWidthA = A.LocalWidth();
+    const int localWidthB = B.LocalWidth();
+    Matrix<T> pkgA(localHeightA,localWidthA,localHeightA), 
+              pkgB(localHeightB,localWidthB,localHeightB);
+    for( int jLocal=0; jLocal<localWidthA; ++jLocal )
+        MemCopy
+        ( pkgA.Buffer(0,jLocal), A.LockedBuffer(0,jLocal), localHeightA );
+    for( int jLocal=0; jLocal<localWidthB; ++jLocal )
+        MemCopy
+        ( pkgB.Buffer(0,jLocal), B.LockedBuffer(0,jLocal), localHeightB );
+
+    // Perform the initial circular shifts so that our A and B packages align
+    const int rowShiftA = A.RowShift();
+    const int colShiftB = B.ColShift();
+    const int leftInitA = (col+pSqrt-colShiftB) % pSqrt;
+    const int rightInitA = (col+colShiftB) % pSqrt;
+    const int aboveInitB = (row+pSqrt-rowShiftA) % pSqrt;
+    const int belowInitB = (row+rowShiftA) % pSqrt;
+    const int pkgSizeA = localHeightA*localWidthA;
+    const int pkgSizeB = localHeightB*localWidthB;
+    mpi::SendRecv
+    ( pkgA.Buffer(), pkgSizeA, leftInitA, 0, rightInitA, 0, rowComm );
+    mpi::SendRecv
+    ( pkgB.Buffer(), pkgSizeB, aboveInitB, 0, belowInitB, 0, colComm );
+
+    // Now begin the data flow
+    const int aboveRow = (row+pSqrt-1) % pSqrt;
+    const int belowRow = (row+1) % pSqrt;
+    const int leftCol = (col+pSqrt-1) % pSqrt;
+    const int rightCol = (col+1) % pSqrt;
+    for( int q=0; q<pSqrt; ++q )
+    {
+        Gemm( NORMAL, NORMAL, alpha, pkgA, pkgB, T(1), C.Matrix() );
+        if( q != pSqrt-1 )
+        {
+            mpi::SendRecv
+            ( pkgA.Buffer(), pkgSizeA, leftCol, 0, rightCol, 0, rowComm );
+            mpi::SendRecv
+            ( pkgB.Buffer(), pkgSizeB, aboveRow, 0, belowRow, 0, colComm );
+        }
+    }
+}
+
+// Normal Normal Gemm that avoids communicating the matrix A
+template<typename T>
+inline void
+SUMMA_NNA
+( T alpha, const DistMatrix<T>& A,
+           const DistMatrix<T>& B,
+  T beta,        DistMatrix<T>& C )
+{
+#ifndef RELEASE
+    CallStackEntry entry("gemm::SUMMA_NNA");
+    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
+        throw std::logic_error("{A,B,C} must have the same grid");
+    if( A.Height() != C.Height() ||
+        B.Width()  != C.Width()  ||
+        A.Width()  != B.Height() )
+    {
+        std::ostringstream msg;
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -92,16 +180,16 @@ GemmNNA
     }
 }
 
-// Normal Normal Gemm that avoids communicating the matrix B.
+// Normal Normal Gemm that avoids communicating the matrix B
 template<typename T>
 inline void 
-GemmNNB
+SUMMA_NNB
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmNNB");
+    CallStackEntry entry("gemm::SUMMA_NNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -110,7 +198,7 @@ GemmNNB
         A.Width()  != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmNNB: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -180,16 +268,16 @@ GemmNNB
     }
 }                     
 
-// Normal Normal Gemm that avoids communicating the matrix C.
+// Normal Normal Gemm that avoids communicating the matrix C
 template<typename T>
 inline void 
-GemmNNC
+SUMMA_NNC
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmNNC");
+    CallStackEntry entry("gemm::SUMMA_NNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
         throw std::logic_error
         ("{A,B,C} must be distributed over the same grid");
@@ -198,7 +286,7 @@ GemmNNC
         A.Width()  != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmNNC: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -257,25 +345,24 @@ GemmNNC
     }
 }
 
-// Normal Normal Gemm for panel-panel dot products. 
+// Normal Normal Gemm for panel-panel dot products
 template<typename T>
 inline void 
-GemmNNDot
+SUMMA_NNDot
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmNNDot");
+    CallStackEntry entry("gemm::SUMMA_NNDot");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        throw std::logic_error("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmNNDot: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -459,42 +546,31 @@ GemmNNDot
 
 template<typename T>
 inline void
-GemmNN
+SUMMA_NN
 ( T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmNN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+    CallStackEntry entry("gemm::SUMMA_NN");
 #endif
     const int m = C.Height();
     const int n = C.Width();
     const int k = A.Width();
-    const float weightTowardsC = 2.0;
-    const float weightAwayFromDot = 10.0;
+    const double weightTowardsC = 2.;
+    const double weightAwayFromDot = 10.;
 
     if( weightAwayFromDot*m <= k && weightAwayFromDot*n <= k )
-    {
-        GemmNNDot( alpha, A, B, beta, C );
-    }
+        SUMMA_NNDot( alpha, A, B, beta, C );
     else if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmNNB( alpha, A, B, beta, C );    
-    }
+        SUMMA_NNB( alpha, A, B, beta, C );    
     else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmNNA( alpha, A, B, beta, C );
-    }
+        SUMMA_NNA( alpha, A, B, beta, C );
     else
-    {
-        GemmNNC( alpha, A, B, beta, C );
-    }
+        SUMMA_NNC( alpha, A, B, beta, C );
 }
 
-} // namespace internal
+} // namespace gemm
 } // namespace elem
 
 #endif // ifndef BLAS_GEMM_NN_HPP

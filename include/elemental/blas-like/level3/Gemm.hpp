@@ -225,126 +225,6 @@ Gemm
     Gemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
 }
 
-namespace internal {
-
-template<typename T>
-inline void
-GemmA
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    CallStackEntry entry("internal::GemmA");
-#endif
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-    {
-        GemmNNA( alpha, A, B, beta, C );
-    }
-    else if( orientationOfA == NORMAL )
-    {
-        GemmNTA( orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        GemmTNA( orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTTA( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-}
-
-template<typename T>
-inline void
-GemmB
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    CallStackEntry entry("internal::GemmB");
-#endif
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-    {
-        GemmNNB( alpha, A, B, beta, C );
-    }
-    else if( orientationOfA == NORMAL )
-    {
-        GemmNTB( orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        GemmTNB( orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTTB( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-}
-
-template<typename T>
-inline void
-GemmC
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    CallStackEntry entry("internal::GemmC");
-#endif
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-    {
-        GemmNNC( alpha, A, B, beta, C );
-    }
-    else if( orientationOfA == NORMAL )
-    {
-        GemmNTC( orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        GemmTNC( orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTTC( orientationOfA, orientationOfB, alpha, A, B, beta, C );
-    }
-}
-
-template<typename T>
-inline void
-GemmDot
-( Orientation orientationOfA, Orientation orientationOfB,
-  T alpha, const DistMatrix<T>& A, const DistMatrix<T>& B,
-  T beta,        DistMatrix<T>& C )
-{
-#ifndef RELEASE
-    CallStackEntry entry("internal::GemmDot");
-#endif
-    if( orientationOfA == NORMAL && orientationOfB == NORMAL )
-        GemmNNDot( alpha, A, B, beta, C );
-    else
-        throw std::logic_error("GemmDot only implemented for NN case");
-    // This code will be enabled when the routines are implemented
-    /*
-    else if( orientationOfA == NORMAL )
-    {
-        GemmNTDot( orientationOfB, alpha, A, B, beta, C );
-    }
-    else if( orientationOfB == NORMAL )
-    {
-        GemmTNDot( orientationOfA, alpha, A, B, beta, C );
-    }
-    else
-    {
-        GemmTTDot( orientationOfA, orientationOfB,
-                                   alpha, A, B, beta, C );
-    }
-    */
-}
-
-} // namespace internal
-
 template<typename T>
 inline void
 Gemm
@@ -357,20 +237,19 @@ Gemm
 #endif
     if( orientationOfA == NORMAL && orientationOfB == NORMAL )
     {
-        internal::GemmNN( alpha, A, B, beta, C );
+        gemm::SUMMA_NN( alpha, A, B, beta, C );
     }
     else if( orientationOfA == NORMAL )
     {
-        internal::GemmNT( orientationOfB, alpha, A, B, beta, C );
+        gemm::SUMMA_NT( orientationOfB, alpha, A, B, beta, C );
     }
     else if( orientationOfB == NORMAL )
     {
-        internal::GemmTN( orientationOfA, alpha, A, B, beta, C );
+        gemm::SUMMA_TN( orientationOfA, alpha, A, B, beta, C );
     }
     else
     {
-        internal::GemmTT
-        ( orientationOfA, orientationOfB, alpha, A, B, beta, C );
+        gemm::SUMMA_TT( orientationOfA, orientationOfB, alpha, A, B, beta, C );
     }
 }
 

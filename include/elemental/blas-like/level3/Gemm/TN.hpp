@@ -14,30 +14,29 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 
 namespace elem {
-namespace internal {
+namespace gemm {
 
-// Transpose Normal Gemm that avoids communicating the matrix A.
+// Transpose Normal Gemm that avoids communicating the matrix A
 template<typename T> 
 inline void
-GemmTNA
+SUMMA_TNA
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmTNA");    
+    CallStackEntry entry("gemm::SUMMA_TNA");    
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        throw std::logic_error("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("GemmTNA assumes A is (Conjugate)Transposed");
+        throw std::logic_error("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmTNA: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -100,28 +99,27 @@ GemmTNA
     }
 }
 
-// Transpose Normal Gemm that avoids communicating the matrix B.
+// Transpose Normal Gemm that avoids communicating the matrix B
 template<typename T> 
 inline void
-GemmTNB
+SUMMA_TNB
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmTNB");
+    CallStackEntry entry("gemm::SUMMA_TNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        throw std::logic_error("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("GemmTNB assumes A is (Conjugate)Transposed");
+        throw std::logic_error("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmTNB: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -194,28 +192,27 @@ GemmTNB
     }
 }
 
-// Transpose Normal Gemm that avoids communicating the matrix C.
+// Transpose Normal Gemm that avoids communicating the matrix C
 template<typename T> 
 inline void
-GemmTNC
+SUMMA_TNC
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmTNC");
+    CallStackEntry entry("gemm::SUMMA_TNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        throw std::logic_error("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("GemmTNC assumes A is (Conjugate)Transposed");
+        throw std::logic_error("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
     {
         std::ostringstream msg;
-        msg << "Nonconformal GemmTNC: \n"
+        msg << "Nonconformal matrices: \n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
@@ -288,40 +285,29 @@ GemmTNC
 
 template<typename T>
 inline void
-GemmTN
+SUMMA_TN
 ( Orientation orientationOfA,
   T alpha, const DistMatrix<T>& A,
            const DistMatrix<T>& B,
   T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
-    CallStackEntry entry("internal::GemmTN");
-    if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
-    if( orientationOfA == NORMAL )
-        throw std::logic_error("GemmTN assumes A is (Conjugate)Transposed");
+    CallStackEntry entry("gemm::SUMMA_TN");
 #endif
     const int m = C.Height();
     const int n = C.Width();
     const int k = A.Height();
-    const float weightTowardsC = 2.0;
+    const double weightTowardsC = 2.;
 
     if( m <= n && weightTowardsC*m <= k )
-    {
-        GemmTNB( orientationOfA, alpha, A, B, beta, C );
-    }
+        SUMMA_TNB( orientationOfA, alpha, A, B, beta, C );
     else if( n <= m && weightTowardsC*n <= k )
-    {
-        GemmTNA( orientationOfA, alpha, A, B, beta, C );
-    }
+        SUMMA_TNA( orientationOfA, alpha, A, B, beta, C );
     else
-    {
-        GemmTNC( orientationOfA, alpha, A, B, beta, C );
-    }
+        SUMMA_TNC( orientationOfA, alpha, A, B, beta, C );
 }
 
-} // namespace internal
+} // namespace gemm
 } // namespace elem
 
 #endif // ifndef BLAS_GEMM_TN_HPP
