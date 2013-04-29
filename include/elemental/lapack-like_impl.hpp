@@ -29,6 +29,7 @@
 #include "./lapack-like/HPDSolve.hpp"
 #include "./lapack-like/HPSDCholesky.hpp"
 #include "./lapack-like/HPSDSquareRoot.hpp"
+#include "./lapack-like/ID.hpp"
 #include "./lapack-like/Inverse.hpp"
 #include "./lapack-like/LDL.hpp"
 #include "./lapack-like/LeastSquares.hpp"
