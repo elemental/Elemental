@@ -169,3 +169,24 @@ trapezoid.
 
    Same as above, but only execute a fixed number of steps of the rank-revealing
    factorization.
+
+Interpolative Decomposition (ID)
+--------------------------------
+Interpolative Decompositions (ID's) are closely related to pivoted QR 
+factorizations and are useful for representing (approximately) low-rank 
+matrices in terms of linear combinations of a few of their columns, i.e., 
+
+.. math::
+
+   A P = \hat{A} \begin{pmatrix} I & Z \end{pmatrix},
+
+where :math:`P` is a permutation matrix, :math:`\hat{A}` is a small set of 
+columns of :math:`A`, and :math:`Z` is an interpolation matrix responsible for
+representing the remaining columns in terms of the selected columns of 
+:math:`A`.
+
+.. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
+.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F>& Z, int numSteps )
+
+   `numSteps` steps of a pivoted QR factorization are used to return an 
+   Interpolative Decomposition of :math:`A`.

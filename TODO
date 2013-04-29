@@ -3,8 +3,8 @@ Functionality
 - Add support for BLIS and fused Trmv's
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Add transpose option to LeastSquares
-- Strong RRQR and RRLQ and Interpolative Decompositions
-- Pseudoskeleton decompositions
+- Strong RRQR and RRLQ 
+- Pseudoskeleton/CUR decompositions
 - Pivoted LDL and LU with full pivoting
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
@@ -19,6 +19,7 @@ Functionality
 
 Maintenance
 ===========
+- Document Interpolative Decomposition
 - Experiment with using scope to avoid PopCallStack() and SlidePartition
 - Add versions of (Local)Gemv/Gemm/Syrk/Herk/etc. which handle zeroing output
 - Document routines added after sequential HermitianEig

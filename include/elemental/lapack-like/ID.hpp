@@ -33,7 +33,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) invTol=0 )
     // If no tolerance was specified, then use the same as Tygert et al.'s 
     // ID package
     if( invTol == Real(0) )
-        invTol = Pow(2,20);
+        invTol = Pow(Real(2),Real(20));
 
     const int m = RR.Height();
     const int n = RR.Width();
@@ -53,10 +53,10 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) invTol=0 )
 
         // Now update RR using an outer-product of the column of RL above the 
         // i'th diagonal with the i'th row of RR
-        blas::Ger
+        blas::Geru
         ( i, n, 
           F(-1), RL.LockedBuffer(0,i), 1, RR.LockedBuffer(i,0), RR.LDim(), 
-          F(1),  RR.Buffer(0,0), RR.LDim() );
+                 RR.Buffer(0,0), RR.LDim() );
     }
 }
 
@@ -73,6 +73,7 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) invTol=0 )
     DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
     DistMatrix<F,STAR,VR> RR_STAR_VR( RR );
     PseudoTrsm( RL_STAR_STAR.Matrix(), RR_STAR_VR.Matrix(), invTol );
+    RR = RR_STAR_VR;
 }
 
 } // namespace id
@@ -97,8 +98,8 @@ ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z,
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     Matrix<Real> RL, RR;
-    RL.LockedView( ACopy, 0, 0, numSteps, numSteps );
-    RR.LockedView( ACopy, 0, numSteps, numSteps, n-numSteps );
+    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
+    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
     id::PseudoTrsm( RL, Z, invTol );
 }
@@ -122,8 +123,8 @@ ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z,
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     Matrix<C> RL, RR;
-    RL.LockedView( ACopy, 0, 0, numSteps, numSteps );
-    RR.LockedView( ACopy, 0, numSteps, numSteps, n-numSteps );
+    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
+    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
     id::PseudoTrsm( RL, Z, invTol );
 }
@@ -146,8 +147,8 @@ ID
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     DistMatrix<Real> RL(g), RR(g);
-    RL.LockedView( ACopy, 0, 0, numSteps, numSteps );
-    RR.LockedView( ACopy, 0, numSteps, numSteps, n-numSteps );
+    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
+    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
     id::PseudoTrsm( RL, Z, invTol );
 }
@@ -174,8 +175,8 @@ ID
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     DistMatrix<C> RL(g), RR(g);
-    RL.LockedView( ACopy, 0, 0, numSteps, numSteps );
-    RR.LockedView( ACopy, 0, numSteps, numSteps, n-numSteps );
+    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
+    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
     id::PseudoTrsm( RL, Z, invTol );
 }
