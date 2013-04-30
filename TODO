@@ -1,5 +1,6 @@
 Functionality
 =============
+- Add probabilistic power-method-based spectral norm estimator
 - Add support for BLIS and fused Trmv's
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Add transpose option to LeastSquares
@@ -19,16 +20,12 @@ Functionality
 
 Maintenance
 ===========
-- Document Interpolative Decomposition
-- Experiment with using scope to avoid PopCallStack() and SlidePartition
-- Add versions of (Local)Gemv/Gemm/Syrk/Herk/etc. which handle zeroing output
+- Add references for Interpolative Decomposition and fix tolerance
+- Experiment with using scope to avoid SlidePartition
 - Document routines added after sequential HermitianEig
 - Document HermitianSign and UnitaryCoherence
 - Separate out local blas-like and lapack-like operations
-- Move most functions out of 'elem::internal' namespace and into a namespace
-  corresponding to its particular class of algorithm, e.g., elem::svd
 - Further improvements for the speed of the build process
 - Consistent handling of unblocked routines
-- Standardize on impl/decl pairs
 - Switch to C++11 for better 64-bit integer and std::complex support, as well as
   std::thread, extern templates, and syntactic sugar
