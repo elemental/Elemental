@@ -1,4 +1,4 @@
-Please go to http://poulson.github.com/Elemental for the current documentation.
+Please go to http://poulson.github.com/Elemental/ for the current documentation.
 
 Elemental's documentation is written using Sphinx [http://sphinx.pocoo.org/],
 and the ".rst" files in the doc/source directory are human readable. On *nix 
