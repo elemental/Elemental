@@ -28,6 +28,13 @@ ComposePivots
         throw std::logic_error("p must be a column vector");
 #endif
     const int n = p.Height();
+    if( n == 0 )
+    {
+        image.resize( 0 );
+        preimage.resize( 0 );
+        return;
+    }
+
     const int* pBuffer = p.LockedBuffer();
     const int range = *std::max_element( pBuffer, pBuffer+n ) + 1;
 

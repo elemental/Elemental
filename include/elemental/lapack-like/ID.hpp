@@ -23,31 +23,36 @@ namespace id {
 
 template<typename F>
 inline void
-PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) invTol=0 )
+PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::PseudoTrsm");
 #endif
     typedef BASE(F) Real;
-
-    // If no tolerance was specified, then use the same as Tygert et al.'s 
-    // ID package
-    if( invTol == Real(0) )
-        invTol = Pow(Real(2),Real(20));
-
     const int m = RR.Height();
     const int n = RR.Width();
+
+    // Compute the spectral radius of the triangular matrix
+    Real maxAbsEig = 0;
+    for( int i=0; i<m; ++i )
+        maxAbsEig = std::max( maxAbsEig, Abs(RL.Get(i,i)) );
+
     for( int i=m-1; i>=0; --i )
     {
         // Apply the pseudo-inverse of the i'th diagonal value of RL 
         const F rho = RL.Get(i,i);
         const Real rhoAbs = Abs(rho);
-        for( int j=0; j<n; ++j ) 
+        if( rhoAbs >= tol*maxAbsEig )
         {
-            const F zeta = RR.Get(i,j);
-            if( Abs(zeta) < invTol*rhoAbs ) 
+            for( int j=0; j<n; ++j ) 
+            {
+                const F zeta = RR.Get(i,j);
                 RR.Set(i,j,zeta/rho);
-            else
+            }
+        }
+        else
+        {
+            for( int j=0; j<n; ++j )
                 RR.Set(i,j,0);
         }
 
@@ -62,7 +67,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) invTol=0 )
 
 template<typename F>
 inline void
-PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) invTol=0 )
+PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::PseudoTrsm");
@@ -72,20 +77,22 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) invTol=0 )
     // column of RR
     DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
     DistMatrix<F,STAR,VR> RR_STAR_VR( RR );
-    PseudoTrsm( RL_STAR_STAR.Matrix(), RR_STAR_VR.Matrix(), invTol );
+    PseudoTrsm( RL_STAR_STAR.Matrix(), RR_STAR_VR.Matrix(), tol );
     RR = RR_STAR_VR;
 }
 
 } // namespace id
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
-// matrix, and p contains the pivots used during the 'numSteps' iterations of 
-// pivoted QR. The input matrix A is unchanged.
+// matrix, and p contains the pivots used during the iterations of 
+// pivoted QR. Either 'maxSteps' iterations are reached, or a pivot value less 
+// than or equal to tol times the original pivot value was found. 
+// The input matrix A is unchanged.
 
 template<typename Real> 
 inline void
 ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z, 
-    int numSteps, Real invTol=0 )
+    int maxSteps, Real tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -94,14 +101,35 @@ ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z,
 
     // Perform the pivoted QR factorization on a copy of A
     Matrix<Real> ACopy( A );
-    qr::BusingerGolub( ACopy, p, numSteps );
+    qr::BusingerGolub( ACopy, p, maxSteps, tol );
+    const int numSteps = p.Height();
+
+    Real pinvTol;
+    if( tol < Real(0) )
+    {
+        const Real epsilon = lapack::MachineEpsilon<Real>();
+        pinvTol = numSteps*epsilon;
+    }
+    else
+        pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     Matrix<Real> RL, RR;
     LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
     LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, invTol );
+    id::PseudoTrsm( RL, Z, pinvTol );
+}
+
+template<typename Real> 
+inline void
+ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z, int numSteps )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    // Use a negative tolerance to guarantee numSteps iterations of QR
+    ID( A, p, Z, numSteps, Real(-1) );
 }
 
 // This only exists since complex QR has an extra return argument related to
@@ -109,7 +137,7 @@ ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z,
 template<typename Real> 
 inline void
 ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z, 
-    int numSteps, Real invTol=0 )
+    int maxSteps, Real tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -119,21 +147,42 @@ ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z,
 
     // Perform the pivoted QR factorization on a copy of A
     Matrix<C> ACopy( A ), t;
-    qr::BusingerGolub( ACopy, t, p, numSteps );
+    qr::BusingerGolub( ACopy, t, p, maxSteps, tol );
+    const int numSteps = p.Height();
+
+    Real pinvTol;
+    if( tol < Real(0) )
+    {
+        const Real epsilon = lapack::MachineEpsilon<Real>();
+        pinvTol = numSteps*epsilon;
+    }
+    else
+        pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     Matrix<C> RL, RR;
     LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
     LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, invTol );
+    id::PseudoTrsm( RL, Z, pinvTol );
+}
+
+template<typename Real> 
+inline void
+ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z, 
+    int numSteps )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    ID( A, p, Z, numSteps, Real(-1) );
 }
 
 template<typename Real> 
 inline void
 ID
 ( const DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<Real>& Z, 
-  int numSteps, Real invTol=0 )
+  int maxSteps, Real tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -143,14 +192,36 @@ ID
 
     // Perform the pivoted QR factorization on a copy of A
     DistMatrix<Real> ACopy( A );
-    qr::BusingerGolub( ACopy, p, numSteps );
+    qr::BusingerGolub( ACopy, p, maxSteps, tol );
+    const int numSteps = p.Height();
+
+    Real pinvTol;
+    if( tol < Real(0) )
+    {
+        const Real epsilon = lapack::MachineEpsilon<Real>();
+        pinvTol = numSteps*epsilon;
+    }
+    else
+        pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     DistMatrix<Real> RL(g), RR(g);
     LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
     LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, invTol );
+    id::PseudoTrsm( RL, Z, pinvTol );
+}
+
+template<typename Real> 
+inline void
+ID
+( const DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<Real>& Z, 
+  int numSteps )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    ID( A, p, Z, numSteps, Real(-1) );
 }
 
 // This only exists since complex QR has an extra return argument related to
@@ -159,7 +230,7 @@ template<typename Real>
 inline void
 ID
 ( const DistMatrix<Complex<Real> >& A, DistMatrix<int,VR,STAR>& p, 
-        DistMatrix<Complex<Real> >& Z, int numSteps, Real invTol=0 )
+        DistMatrix<Complex<Real> >& Z, int maxSteps, Real tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -171,14 +242,36 @@ ID
     // Perform the pivoted QR factorization on a copy of A
     DistMatrix<C> ACopy( A );
     DistMatrix<C,MD,STAR> t(g);
-    qr::BusingerGolub( ACopy, t, p, numSteps );
+    qr::BusingerGolub( ACopy, t, p, maxSteps, tol );
+    const int numSteps = p.Height();
+
+    Real pinvTol;
+    if( tol < Real(0) )
+    {
+        const Real epsilon = lapack::MachineEpsilon<Real>();
+        pinvTol = numSteps*epsilon;
+    }
+    else
+        pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
     DistMatrix<C> RL(g), RR(g);
     LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
     LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, invTol );
+    id::PseudoTrsm( RL, Z, pinvTol );
+}
+
+template<typename Real> 
+inline void
+ID
+( const DistMatrix<Complex<Real> >& A, DistMatrix<int,VR,STAR>& p, 
+        DistMatrix<Complex<Real> >& Z, int numSteps )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    ID( A, p, Z, numSteps, Real(-1) );
 }
 
 } // namespace elem

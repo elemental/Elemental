@@ -170,6 +170,15 @@ trapezoid.
    Same as above, but only execute a fixed number of steps of the rank-revealing
    factorization.
 
+.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
+
+   Either execute `maxSteps` iterations or stop after the maximum remaining 
+   column norm is less than or equal to `tol` times the maximum original column
+   norm.
+
 Interpolative Decomposition (ID)
 --------------------------------
 Interpolative Decompositions (ID's) are closely related to pivoted QR 
@@ -190,3 +199,10 @@ representing the remaining columns in terms of the selected columns of
 
    `numSteps` steps of a pivoted QR factorization are used to return an 
    Interpolative Decomposition of :math:`A`.
+
+.. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, BASE(F) tol )
+.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F>& Z, int maxSteps, BASE(F) tol )
+
+   Either `maxSteps` steps of a pivoted QR factorization are used, or 
+   executation stopped after the maximum remaining column norm was less than or
+   equal to `tol` times the maximum original column norm.

@@ -32,7 +32,8 @@ main( int argc, char* argv[] )
     {
         const int m = Input("--height","height of matrix",20);
         const int n = Input("--width","width of matrix",100);
-        const int numSteps = Input("--numSteps","# of steps of QR",10);
+        const int maxSteps = Input("--maxSteps","max # of steps of QR",10);
+        const double tol = Input("--tol","tolerance for ID",-1.);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -46,7 +47,8 @@ main( int argc, char* argv[] )
         const Grid& g = A.Grid();
         DistMatrix<int,VR,STAR> p(g);
         DistMatrix<C> Z(g);
-        ID( A, p, Z, numSteps );
+        ID( A, p, Z, maxSteps, tol );
+        const int numSteps = p.Height();
         if( print )
         {
             p.Print("p");

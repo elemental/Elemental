@@ -21,21 +21,27 @@ namespace elem {
 namespace qr {
 
 template<typename F>
-inline void
+inline BASE(F)
 ColumnNorms( const Matrix<F>& A, std::vector<BASE(F)>& norms )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::ColumnNorms");
 #endif
+    typedef BASE(F) Real;
     const int m = A.Height();
     const int n = A.Width();
+    Real maxNorm = 0;
     norms.resize( n );
     for( int j=0; j<n; ++j )
+    {
         norms[j] = blas::Nrm2( m, A.LockedBuffer(0,j), 1 );
+        maxNorm = std::max( maxNorm, norms[j] );
+    }
+    return maxNorm;
 }
 
 template<typename Real>
-inline int
+inline mpi::ValueInt<Real>
 FindPivot( const std::vector<Real>& norms, int col )
 {
 #ifndef RELEASE
@@ -43,24 +49,28 @@ FindPivot( const std::vector<Real>& norms, int col )
 #endif
     const int n = norms.size();
     const Real* maxNorm = std::max_element( &norms[col], &norms[0]+n );
-    return maxNorm - &norms[0];
+    mpi::ValueInt<Real> pivot;
+    pivot.value = *maxNorm;
+    pivot.index = maxNorm - &norms[0];
+    return pivot;
 }
 
 template<typename Real>
 inline void
 BusingerGolub
-( Matrix<Real>& A, Matrix<int>& p, int numSteps, bool alwaysRecompute=false )
+( Matrix<Real>& A, Matrix<int>& p, int maxSteps, Real tol, 
+  bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( numSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Too many steps requested");
-    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
+    if( p.Viewing() && (p.Height() != maxSteps || p.Width() != 1) )
         throw std::logic_error
         ("p must be a vector of the same height as the number of steps");
 #endif
     if( !p.Viewing() )
-        p.ResizeTo( numSteps, 1 );
+        p.ResizeTo( maxSteps, 1 );
 
     Matrix<Real>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -77,14 +87,14 @@ BusingerGolub
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms;
-    ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    for( int col=0; col<numSteps; ++col )
+    for( int col=0; col<maxSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -100,15 +110,20 @@ BusingerGolub
 
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int pivotCol = FindPivot( norms, col );
-        p.Set( col, 0, pivotCol );
+        const mpi::ValueInt<Real> pivot = FindPivot( norms, col );
+        if( pivot.value <= tol*maxOrigNorm )
+        {
+            p.ResizeTo( col, 1 );
+            break;
+        }
+        p.Set( col, 0, pivot.index );
 
         // Perform the swap
-        if( col != pivotCol )
+        if( col != pivot.index )
         {
-            MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
-            norms[pivotCol] = norms[col];
-            origNorms[pivotCol] = origNorms[col];
+            MemSwap( A.Buffer(0,col), A.Buffer(0,pivot.index), &swapBuf[0], m );
+            norms[pivot.index] = norms[col];
+            origNorms[pivot.index] = origNorms[col];
         }
 
         // Compute and apply the Householder reflector for this column
@@ -151,6 +166,18 @@ BusingerGolub
 
 template<typename Real>
 inline void
+BusingerGolub
+( Matrix<Real>& A, Matrix<int>& p, int numSteps, bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    // Use a tolerance of -1 so that we guarantee numSteps iterations
+    BusingerGolub( A, p, numSteps, Real(-1), alwaysRecompute );
+}
+
+template<typename Real>
+inline void
 BusingerGolub( Matrix<Real>& A, Matrix<int>& p, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
@@ -166,24 +193,25 @@ BusingerGolub
 ( Matrix<Complex<Real> >& A,
   Matrix<Complex<Real> >& t,
   Matrix<int>& p,
-  int numSteps,
+  int maxSteps,
+  Real tol,
   bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( numSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Too many steps requested");
-    if( t.Viewing() && (t.Height() != numSteps || t.Width() != 1) )
+    if( t.Viewing() && (t.Height() != maxSteps || t.Width() != 1) )
         throw std::logic_error
         ("t must be a vector of the same height as the number of steps");
-    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
+    if( p.Viewing() && (p.Height() != maxSteps || p.Width() != 1) )
         throw std::logic_error
         ("p must be a vector of the same height as the number of steps");
 #endif
     if( !p.Viewing() )
-        p.ResizeTo( numSteps, 1 );
+        p.ResizeTo( maxSteps, 1 );
     if( !t.Viewing() )
-        t.ResizeTo( numSteps, 1 );
+        t.ResizeTo( maxSteps, 1 );
 
     typedef Complex<Real> C;
 
@@ -201,14 +229,14 @@ BusingerGolub
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms;
-    ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    for( int col=0; col<numSteps; ++col )
+    for( int col=0; col<maxSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -224,15 +252,21 @@ BusingerGolub
 
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int pivotCol = FindPivot( norms, col );
-        p.Set( col, 0, pivotCol );
+        const mpi::ValueInt<Real> pivot = FindPivot( norms, col );
+        if( pivot.value <= tol*maxOrigNorm )
+        {
+            p.ResizeTo( col, 1 );
+            t.ResizeTo( col, 1 );
+            break;
+        }
+        p.Set( col, 0, pivot.index );
  
         // Perform the swap
-        if( col != pivotCol )
+        if( col != pivot.index )
         {
-            MemSwap( A.Buffer(0,col), A.Buffer(0,pivotCol), &swapBuf[0], m );
-            norms[pivotCol] = norms[col];
-            origNorms[pivotCol] = origNorms[col];
+            MemSwap( A.Buffer(0,col), A.Buffer(0,pivot.index), &swapBuf[0], m );
+            norms[pivot.index] = norms[col];
+            origNorms[pivot.index] = origNorms[col];
         }
 
         // Compute and apply the Householder reflector for this column
@@ -280,6 +314,22 @@ BusingerGolub
 ( Matrix<Complex<Real> >& A,
   Matrix<Complex<Real> >& t,
   Matrix<int>& p,
+  int numSteps,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    // Use a tolerance of -1 so that we always perform numSteps iterations
+    BusingerGolub( A, t, p, numSteps, Real(-1), alwaysRecompute );
+}
+
+template<typename Real> 
+inline void
+BusingerGolub
+( Matrix<Complex<Real> >& A,
+  Matrix<Complex<Real> >& t,
+  Matrix<int>& p,
   bool alwaysRecompute=false )
 {
 #ifndef RELEASE
@@ -290,7 +340,7 @@ BusingerGolub
 }
 
 template<typename F>
-inline int
+inline mpi::ValueInt<BASE(F)>
 FindColumnPivot
 ( const DistMatrix<F>& A, const std::vector<BASE(F)>& norms, int col )
 {
@@ -301,16 +351,16 @@ FindColumnPivot
     const int rowShift = A.RowShift();
     const int rowStride = A.RowStride();
     const int localColsBefore = Length( col, rowShift, rowStride );
-    const int localPivot = FindPivot( norms, localColsBefore );
-    mpi::ValueInt<Real> pivotInfo;
-    pivotInfo.value = norms[localPivot];
-    pivotInfo.index = rowShift+localPivot*rowStride;
-    mpi::AllReduce( &pivotInfo, 1, mpi::MAXLOC, A.Grid().RowComm() );
-    return pivotInfo.index;
+    const mpi::ValueInt<Real> localPivot = FindPivot( norms, localColsBefore );
+    mpi::ValueInt<Real> pivot;
+    pivot.value = localPivot.value;
+    pivot.index = rowShift + localPivot.index*rowStride;
+    mpi::AllReduce( &pivot, 1, mpi::MAXLOC, A.Grid().RowComm() );
+    return pivot;
 }
 
 template<typename F>
-inline void
+inline BASE(F)
 ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
 {
 #ifndef RELEASE
@@ -320,6 +370,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     mpi::Comm colComm = A.Grid().ColComm();
+    mpi::Comm rowComm = A.Grid().RowComm();
 
     // Carefully perform the local portion of the computation
     std::vector<Real> localScales(localWidth,0), 
@@ -369,6 +420,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
       mpi::SUM, colComm );
 
     // Finish the computation
+    Real maxLocalNorm = 0;
     norms.resize( localWidth );
     for( int jLocal=0; jLocal<localWidth; ++jLocal )
     {
@@ -376,7 +428,12 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
             norms[jLocal] = scales[jLocal]*Sqrt(scaledSquares[jLocal]);
         else
             norms[jLocal] = 0;
+        maxLocalNorm = std::max( maxLocalNorm, norms[jLocal] );
     }
+    Real maxNorm;
+    mpi::AllReduce( &maxLocalNorm, &maxNorm, 1, mpi::MAX, rowComm );
+
+    return maxNorm;
 }
 
 template<typename F>
@@ -456,14 +513,14 @@ ReplaceColumnNorms
 template<typename Real>
 inline void
 BusingerGolub
-( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, int numSteps,
-  bool alwaysRecompute=false )
+( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, int maxSteps,
+  Real tol, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( numSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Too many steps requested");
-    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
+    if( p.Viewing() && (p.Height() != maxSteps || p.Width() != 1) )
         throw std::logic_error
         ("p must be a vector of the same height as the number of steps");
     if( A.Grid() != p.Grid() )
@@ -471,7 +528,7 @@ BusingerGolub
 #endif
     const Grid& g = A.Grid();
     if( !p.Viewing() )
-        p.ResizeTo( numSteps, 1 );
+        p.ResizeTo( maxSteps, 1 );
 
     DistMatrix<Real>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
@@ -493,7 +550,7 @@ BusingerGolub
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms( nLocal );
-    ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
     std::vector<int> inaccurateNorms;
@@ -506,7 +563,7 @@ BusingerGolub
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    for( int col=0; col<numSteps; ++col )
+    for( int col=0; col<maxSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -524,20 +581,25 @@ BusingerGolub
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int pivotCol = FindColumnPivot( A, norms, col );
-        p.Set( col, 0, pivotCol );
+        const mpi::ValueInt<Real> pivot = FindColumnPivot( A, norms, col );
+        if( pivot.value <= tol*maxOrigNorm )
+        {
+            p.ResizeTo( col, 1 );
+            break;
+        }
+        p.Set( col, 0, pivot.index );
 
         // Perform the swap
         const int colOwner = (col+rowAlign) % rowStride;
-        const int pivotColOwner = (pivotCol+rowAlign) % rowStride;
+        const int pivotColOwner = (pivot.index+rowAlign) % rowStride;
         const bool myCol = ( g.Col() == colOwner );
         const bool myPivotCol = ( g.Col() == pivotColOwner );
-        if( col != pivotCol )
+        if( col != pivot.index )
         {
             if( myCol && myPivotCol )
             {
                 const int colLocal = (col-rowShift) / rowStride;
-                const int pivotColLocal = (pivotCol-rowShift) / rowStride;
+                const int pivotColLocal = (pivot.index-rowShift) / rowStride;
                 MemSwap
                 ( A.Buffer(0,colLocal), A.Buffer(0,pivotColLocal),
                   &swapBuf[0], mLocal );
@@ -554,7 +616,7 @@ BusingerGolub
             }
             else if( myPivotCol )
             {
-                const int pivotColLocal = (pivotCol-rowShift) / rowStride;
+                const int pivotColLocal = (pivot.index-rowShift) / rowStride;
                 mpi::SendRecv
                 ( A.Buffer(0,pivotColLocal), mLocal,
                   colOwner, 0, colOwner, 0, g.RowComm() );
@@ -634,6 +696,19 @@ BusingerGolub
 template<typename Real>
 inline void
 BusingerGolub
+( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, int numSteps,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    // Use a tolerance of -1 so that we always perform numSteps iterations
+    BusingerGolub( A, p, numSteps, Real(-1), alwaysRecompute );
+}
+
+template<typename Real>
+inline void
+BusingerGolub
 ( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, bool alwaysRecompute=false )
 {
 #ifndef RELEASE
@@ -649,17 +724,17 @@ BusingerGolub
 ( DistMatrix<Complex<Real> >& A, 
   DistMatrix<Complex<Real>,MD,STAR>& t, 
   DistMatrix<int,VR,STAR>& p,
-  int numSteps,
+  int maxSteps, Real tol,
   bool alwaysRecompute=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( numSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > std::min(A.Height(),A.Width()) )
         throw std::logic_error("Too many steps requested");
-    if( t.Viewing() && (t.Height() != numSteps || t.Width() != 1) )
+    if( t.Viewing() && (t.Height() != maxSteps || t.Width() != 1) )
         throw std::logic_error
         ("t must be a vector of the same height as the number of steps");
-    if( p.Viewing() && (p.Height() != numSteps || p.Width() != 1) )
+    if( p.Viewing() && (p.Height() != maxSteps || p.Width() != 1) )
         throw std::logic_error
         ("p must be a vector of the same height as the number of steps");
     if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
@@ -668,9 +743,9 @@ BusingerGolub
     typedef Complex<Real> C;
     const Grid& g = A.Grid();
     if( !t.Viewing() )
-        t.ResizeTo( numSteps, 1 );
+        t.ResizeTo( maxSteps, 1 );
     if( !p.Viewing() )
-        p.ResizeTo( numSteps, 1 );
+        p.ResizeTo( maxSteps, 1 );
 
     DistMatrix<C>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
@@ -691,7 +766,7 @@ BusingerGolub
     // updated, but the original copy will be kept to determine when the 
     // updated quantities are no longer accurate.
     std::vector<Real> origNorms( nLocal );
-    ColumnNorms( A, origNorms );
+    const Real maxOrigNorm = ColumnNorms( A, origNorms );
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
     std::vector<int> inaccurateNorms;
@@ -704,7 +779,7 @@ BusingerGolub
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    for( int col=0; col<numSteps; ++col )
+    for( int col=0; col<maxSteps; ++col )
     {
         RepartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
@@ -722,20 +797,26 @@ BusingerGolub
         z_MR_STAR.AlignWith( ARightPan );
         //--------------------------------------------------------------------//
         // Find the next column pivot
-        const int pivotCol = FindColumnPivot( A, norms, col );
-        p.Set( col, 0, pivotCol );
+        const mpi::ValueInt<Real> pivot = FindColumnPivot( A, norms, col );
+        if( pivot.value <= tol*maxOrigNorm )
+        {
+            p.ResizeTo( col, 1 );
+            t.ResizeTo( col, 1 );
+            break;
+        }
+        p.Set( col, 0, pivot.index );
 
         // Perform the swap
         const int colOwner = (col+rowAlign) % rowStride;
-        const int pivotColOwner = (pivotCol+rowAlign) % rowStride;
+        const int pivotColOwner = (pivot.index+rowAlign) % rowStride;
         const bool myCol = ( g.Col() == colOwner );
         const bool myPivotCol = ( g.Col() == pivotColOwner );
-        if( col != pivotCol )
+        if( col != pivot.index )
         {
             if( myCol && myPivotCol )
             {
                 const int colLocal = (col-rowShift) / rowStride;
-                const int pivotColLocal = (pivotCol-rowShift) / rowStride;
+                const int pivotColLocal = (pivot.index-rowShift) / rowStride;
                 MemSwap
                 ( A.Buffer(0,colLocal), A.Buffer(0,pivotColLocal),
                   &swapBuf[0], mLocal );
@@ -752,7 +833,7 @@ BusingerGolub
             }
             else if( myPivotCol )
             {
-                const int pivotColLocal = (pivotCol-rowShift) / rowStride;
+                const int pivotColLocal = (pivot.index-rowShift) / rowStride;
                 mpi::SendRecv
                 ( A.Buffer(0,pivotColLocal), mLocal,
                   colOwner, 0, colOwner, 0, g.RowComm() );
@@ -828,6 +909,22 @@ BusingerGolub
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+}
+
+template<typename Real>
+inline void
+BusingerGolub
+( DistMatrix<Complex<Real> >& A, 
+  DistMatrix<Complex<Real>,MD,STAR>& t, 
+  DistMatrix<int,VR,STAR>& p,
+  int numSteps,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    // Use a tolerance of -1 so that we always perform numSteps iterations
+    BusingerGolub( A, t, p, numSteps, Real(-1), alwaysRecompute );
 }
 
 template<typename Real>
