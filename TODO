@@ -20,6 +20,7 @@ Functionality
 
 Maintenance
 ===========
+- Update documentation for imported routines (and in general)
 - Add references for Interpolative Decomposition and fix tolerance
 - Experiment with using scope to avoid SlidePartition
 - Document routines added after sequential HermitianEig

@@ -29,10 +29,7 @@ An example usage might be:
    DistMatrix<double,MC,MR> A( 8, 8, grid );
 
    // Set every entry of A to zero
-   A.SetToZero();
-
-   // Print the original A
-   A.Print("Original distributed A");
+   MakeZeros( A );
 
    // Open up a LOCAL_TO_GLOBAL interface to A 
    AxpyInterface<double> interface;
@@ -46,8 +43,8 @@ An example usage might be:
    //       desire at this point.
    if( grid.VCRank() == 0 )
    {
-       Matrix<double> B( 3, 3 );
-       B.SetToIdentity();
+       Matrix<double> B;
+       Identity( B, 3, 3 );
        interface.Axpy( 2.0, B, 5, 5 );
    }
 
@@ -55,7 +52,7 @@ An example usage might be:
    interface.Detach();
 
    // Print the updated A
-   A.Print("Updated distributed A");
+   A.Print("Distributed A");
 
    // Reattach to A, but in the GLOBAL_TO_LOCAL direction
    interface.Attach( GLOBAL_TO_LOCAL, A );
@@ -67,8 +64,7 @@ An example usage might be:
    Matrix<double> C;
    if( grid.VCRank() == 0 )
    {
-       C.ResizeTo( 8, 8 );
-       C.SetToZero();
+       Zeros( C, 8, 8 );
        interface.Axpy( 1.0, C, 0, 0 );
    }
 
@@ -81,17 +77,7 @@ An example usage might be:
 
 The output would be ::
 
-    Original distributed A
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-    0 0 0 0 0 0 0 0
-
-    Updated distributed A
+    Distributed A
     0 0 0 0 0 0 0 0
     0 0 0 0 0 0 0 0
     0 0 0 0 0 0 0 0
