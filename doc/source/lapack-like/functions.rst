@@ -46,8 +46,8 @@ matrix and the latter in a normal (in fact, unitary) matrix.
 Pseudoinverse
 -------------
 
-.. cpp:function:: Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
-.. cpp:function:: Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
+.. cpp:function:: Pseudoinverse( Matrix<F>& A, typename Base<F>::type tolerance=0 )
+.. cpp:function:: Pseudoinverse( DistMatrix<F>& A, typename Base<F>::type tolerance=0 )
 
    Computes the pseudoinverse of a general matrix through computing its SVD,
    modifying the singular values with the function
@@ -65,7 +65,7 @@ Pseudoinverse
    If a nonzero value for `tolerance` was specified, it is used instead of 
    :math:`\epsilon n \| A \|_2`.
 
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type tolerance=0 )
 
    Computes the pseudoinverse of a Hermitian matrix through a customized version
    of :cpp:func:`RealHermitianFunction` which used the eigenvalue mapping 
