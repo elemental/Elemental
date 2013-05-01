@@ -308,6 +308,23 @@ BusingerGolub
     }
 }
 
+// If we don't need 't' from the above routine
+template<typename Real> 
+inline void
+BusingerGolub
+( Matrix<Complex<Real> >& A,
+  Matrix<int>& p,
+  int maxSteps,
+  Real tol,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    Matrix<Complex<Real> > t;
+    BusingerGolub( A, t, p, maxSteps, tol, alwaysRecompute );
+}
+
 template<typename Real> 
 inline void
 BusingerGolub
@@ -324,6 +341,22 @@ BusingerGolub
     BusingerGolub( A, t, p, numSteps, Real(-1), alwaysRecompute );
 }
 
+// If we don't need 't' from the above routine
+template<typename Real> 
+inline void
+BusingerGolub
+( Matrix<Complex<Real> >& A,
+  Matrix<int>& p,
+  int numSteps,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    Matrix<Complex<Real> > t;
+    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+}
+
 template<typename Real> 
 inline void
 BusingerGolub
@@ -337,6 +370,21 @@ BusingerGolub
 #endif
     const int numSteps = std::min(A.Height(),A.Width());
     BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+}
+
+// If we don't need 't' from the above routine
+template<typename Real> 
+inline void
+BusingerGolub
+( Matrix<Complex<Real> >& A,
+  Matrix<int>& p,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    Matrix<Complex<Real> > t;
+    BusingerGolub( A, t, p, alwaysRecompute );
 }
 
 template<typename F>
@@ -911,6 +959,22 @@ BusingerGolub
     }
 }
 
+// If we don't need 't' from the above routine
+template<typename Real>
+inline void
+BusingerGolub
+( DistMatrix<Complex<Real> >& A, 
+  DistMatrix<int,VR,STAR>& p,
+  int maxSteps, Real tol,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    DistMatrix<Complex<Real>,MD,STAR> t( A.Grid() );
+    BusingerGolub( A, t, p, maxSteps, tol, alwaysRecompute );
+}
+
 template<typename Real>
 inline void
 BusingerGolub
@@ -927,6 +991,22 @@ BusingerGolub
     BusingerGolub( A, t, p, numSteps, Real(-1), alwaysRecompute );
 }
 
+// If we don't need 't' from the above routine
+template<typename Real>
+inline void
+BusingerGolub
+( DistMatrix<Complex<Real> >& A, 
+  DistMatrix<int,VR,STAR>& p,
+  int numSteps,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    DistMatrix<Complex<Real>,MD,STAR> t( A.Grid() );
+    BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+}
+
 template<typename Real>
 inline void
 BusingerGolub
@@ -940,6 +1020,21 @@ BusingerGolub
 #endif
     const int numSteps = std::min(A.Height(),A.Width());
     BusingerGolub( A, t, p, numSteps, alwaysRecompute );
+}
+
+// If we don't need 't' from the above routine
+template<typename Real>
+inline void
+BusingerGolub
+( DistMatrix<Complex<Real> >& A, 
+  DistMatrix<int,VR,STAR>& p,
+  bool alwaysRecompute=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::BusingerGolub");
+#endif
+    DistMatrix<Complex<Real>,MD,STAR> t( A.Grid() );
+    BusingerGolub( A, t, p, alwaysRecompute );
 }
 
 } // namespace qr

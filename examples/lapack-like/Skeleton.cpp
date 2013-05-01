@@ -9,8 +9,9 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/ApplyRowPivots.hpp"
 #include "elemental/lapack-like/ApplyColumnPivots.hpp"
-#include "elemental/lapack-like/ID.hpp"
+#include "elemental/lapack-like/Skeleton.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Uniform.hpp"
 #include "elemental/matrices/Zeros.hpp"
@@ -45,46 +46,42 @@ main( int argc, char* argv[] )
             A.Print("A");
 
         const Grid& g = A.Grid();
-        DistMatrix<int,VR,STAR> p(g);
-        DistMatrix<C,STAR,VR> Z(g);
-        ID( A, p, Z, maxSteps, tol );
-        const int numSteps = p.Height();
+        DistMatrix<int,VR,STAR> pR(g), pC(g);
+        DistMatrix<C> Z(g);
+        Skeleton( A, pR, pC, Z, maxSteps, tol );
+        const int numSteps = pR.Height();
         if( print )
         {
-            p.Print("p");
+            pR.Print("pR");
+            pC.Print("pC");
             Z.Print("Z");
         }
 
-        // Pivot A and form the matrix of its (hopefully) dominant columns
-        ApplyColumnPivots( A, p );
-        DistMatrix<C> hatA( A );
-        hatA.ResizeTo( m, numSteps );
+        // Form the matrices of A's (hopefully) dominant rows and columns
+        DistMatrix<C> AR( A );
+        ApplyRowPivots( AR, pR );
+        AR.ResizeTo( numSteps, A.Width() );
+        DistMatrix<C> AC( A );
+        ApplyColumnPivots( AC, pC );
+        AC.ResizeTo( A.Height(), numSteps );
         if( print )
         {
-            A.Print("A P");
-            hatA.Print("\\hat{A}");
+            AC.Print("AC");
+            AR.Print("AR");
         }
 
-        // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
-        DistMatrix<C> AL(g), AR(g);
-        PartitionRight( A, AL, AR, numSteps );
-        MakeZeros( AL );
-        {
-            DistMatrix<C,MC,STAR> hatA_MC_STAR(g);
-            DistMatrix<C,STAR,MR> Z_STAR_MR(g);
-            hatA_MC_STAR.AlignWith( AR );
-            Z_STAR_MR.AlignWith( AR );
-            LocalGemm
-            ( NORMAL, NORMAL, C(-1), hatA_MC_STAR, Z_STAR_MR, C(1), AR );
-        }
+        // Check || A - AC Z AR ||_F / || A ||_F
+        DistMatrix<C> B(g);
+        Gemm( NORMAL, NORMAL, C(1), Z, AR, B );
+        Gemm( NORMAL, NORMAL, C(-1), AC, B, C(1), A );
         const Real frobError = FrobeniusNorm( A );
         if( print )
-            A.Print("A P - \\hat{A} [I, Z]");
+            A.Print("A - AC Z AR");
 
         if( commRank == 0 )
         {
             std::cout << "|| A ||_F = " << frobA << "\n\n"
-                      << "|| A P - \\hat{A} [I, Z] ||_F / || A ||_F = " 
+                      << "|| A - AC Z AR ||_F / || A ||_F = " 
                       << frobError/frobA << "\n" << std::endl;
         }
     }

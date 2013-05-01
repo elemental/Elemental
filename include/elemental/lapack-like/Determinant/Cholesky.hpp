@@ -32,7 +32,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
     try
     {
-        Cholesky( uplo, A );
+        elem::Cholesky( uplo, A );
         
         Matrix<F> d;
         A.GetDiagonal( d );
@@ -70,7 +70,7 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
     try
     {
-        Cholesky( uplo, A );
+        elem::Cholesky( uplo, A );
 
         DistMatrix<F,MD,STAR> d(g);
         A.GetDiagonal( d );

@@ -46,8 +46,8 @@ matrix and the latter in a normal (in fact, unitary) matrix.
 Pseudoinverse
 -------------
 
-.. cpp:function:: Pseudoinverse( Matrix<F>& A )
-.. cpp:function:: Pseudoinverse( DistMatrix<F>& A )
+.. cpp:function:: Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
+.. cpp:function:: Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
 
    Computes the pseudoinverse of a general matrix through computing its SVD,
    modifying the singular values with the function
@@ -55,15 +55,17 @@ Pseudoinverse
    .. math::
 
       f(\sigma) = \left\{\begin{array}{cc} 
-        1/\sigma, & \sigma \ge \epsilon \, n \, ||A||_2 \\
+        1/\sigma, & \sigma \ge \epsilon \, n \, \| A \|_2 \\
             0,      & \mbox{otherwise}
       \end{array}\right.,
 
    where :math:`\epsilon` is the relative machine precision,
-   :math:`n` is the height of :math:`A`, and :math:`\|A\|_2` is the maximum
+   :math:`n` is the height of :math:`A`, and :math:`\| A \|_2` is the maximum
    singular value.
+   If a nonzero value for `tolerance` was specified, it is used instead of 
+   :math:`\epsilon n \| A \|_2`.
 
-.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A )
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
 
    Computes the pseudoinverse of a Hermitian matrix through a customized version
    of :cpp:func:`RealHermitianFunction` which used the eigenvalue mapping 
@@ -72,13 +74,15 @@ Pseudoinverse
    .. math::
 
       f(\omega) = \left\{\begin{array}{cc} 
-        1/\omega, & |\omega| \ge \epsilon \, n \, ||A||_2 \\
+        1/\omega, & |\omega| \ge \epsilon \, n \, \| A \|_2 \\
             0,      & \mbox{otherwise}
       \end{array}\right.,
 
    where :math:`\epsilon` is the relative machine precision,
-   :math:`n` is the height of :math:`A`, and :math:`||A||_2` can be computed
+   :math:`n` is the height of :math:`A`, and :math:`\| A \|_2` can be computed
    as the maximum absolute value of the eigenvalues of :math:`A`.
+   If a nonzero value for `tolerance` is specified, it is used instead of
+   :math:`\epsilon n \| A \|_2`.
 
 Square root
 -----------
@@ -127,8 +131,9 @@ and
 .. math::
    A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
 
-If :math:`A` is found to have eigenvalues less than :math:`-n \epsilon ||A||_2`,
-then a :cpp:type:`NonHPSDMatrixException` will be thrown.
+If :math:`A` is found to have eigenvalues less than 
+:math:`-n \epsilon \| A \|_2`, then a :cpp:type:`NonHPSDMatrixException` will 
+be thrown.
 
 .. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 

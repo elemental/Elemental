@@ -493,7 +493,7 @@ if(ELEM_EXAMPLES)
   set(lapack-like_EXAMPLES 
     BusingerGolub GaussianElimination HermitianQDWH HPDInverse ID 
     KyFanAndSchatten LDL LDLInverse LeastSquares Polar Pseudoinverse QDWH 
-    SequentialQR QR SequentialSVD SimpleSVD SVD)
+    SequentialQR Skeleton QR SequentialSVD SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
     HermitianUniformSpectrum Hilbert Identity Kahan Legendre 

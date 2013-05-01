@@ -12,6 +12,7 @@
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/SVD.hpp"
 
@@ -23,7 +24,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Pseudoinverse( Matrix<F>& A )
+Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Pseudoinverse");
@@ -40,12 +41,14 @@ Pseudoinverse( Matrix<F>& A )
     U = A;
     SVD( U, s, V );
 
-    // Compute the two-norm of A as the maximum singular value
-    const R twoNorm = MaxNorm( s );
-
-    // Set the tolerance equal to k ||A||_2 eps and invert above tolerance
-    const R eps = lapack::MachineEpsilon<R>();
-    const R tolerance = k*twoNorm*eps;
+    if( tolerance == R(0) )
+    {
+        // Set the tolerance equal to k ||A||_2 eps
+        const R eps = lapack::MachineEpsilon<R>();
+        const R twoNorm = MaxNorm( s );
+        tolerance = k*twoNorm*eps;
+    }
+    // Invert above the tolerance
     const int numVals = s.Height();
     for( int i=0; i<numVals; ++i )
     {
@@ -65,7 +68,43 @@ Pseudoinverse( Matrix<F>& A )
 
 template<typename F>
 inline void
-Pseudoinverse( DistMatrix<F>& A )
+HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPseudoinverse");
+#endif
+    typedef BASE(F) R;
+    const int n = A.Height();
+
+    // Get the EVD of A
+    Matrix<R> w;
+    Matrix<F> Z;
+    HermitianEig( uplo, A, w, Z );
+
+    if( tolerance == R(0) )
+    {
+        // Set the tolerance equal to n ||A||_2 eps
+        const R eps = lapack::MachineEpsilon<R>();
+        const R twoNorm = MaxNorm( w );
+        tolerance = n*twoNorm*eps;
+    }
+    // Invert above the tolerance
+    for( int i=0; i<n; ++i )
+    {
+        const R omega = w.Get(i,0);
+        if( Abs(omega) < tolerance )
+            w.Set(i,0,0);
+        else
+            w.Set(i,0,1/omega);
+    }
+
+    // Form the pseudoinverse
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+}
+
+template<typename F>
+inline void
+Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Pseudoinverse");
@@ -83,12 +122,14 @@ Pseudoinverse( DistMatrix<F>& A )
     U = A;
     SVD( U, s, V );
 
-    // Compute the two-norm of A as the maximum singular value
-    const R twoNorm = MaxNorm( s );
-
-    // Set the tolerance equal to k ||A||_2 eps and invert above tolerance
-    const R eps = lapack::MachineEpsilon<R>();
-    const R tolerance = k*twoNorm*eps;
+    if( tolerance == R(0) )
+    {
+        // Set the tolerance equal to k ||A||_2 eps
+        const R eps = lapack::MachineEpsilon<R>();
+        const R twoNorm = MaxNorm( s );
+        tolerance = k*twoNorm*eps;
+    }
+    // Invert above the tolerance
     const int numLocalVals = s.LocalHeight();
     for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
     {
@@ -105,6 +146,47 @@ Pseudoinverse( DistMatrix<F>& A )
     // Form pinvA = (U Sigma V^H)^H = V (U Sigma)^H
     Gemm( NORMAL, ADJOINT, F(1), V, U, A );
 }
+
+#ifdef HAVE_PMRRR
+template<typename F>
+inline void
+HermitianPseudoinverse
+( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) tolerance=0 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPseudoinverse");
+#endif
+    typedef BASE(F) R;
+    const int n = A.Height();
+
+    // Get the EVD of A
+    const Grid& g = A.Grid();
+    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<F> Z(g);
+    HermitianEig( uplo, A, w, Z );
+
+    if( tolerance == R(0) )
+    {
+        // Set the tolerance equal to n ||A||_2 eps
+        const R eps = lapack::MachineEpsilon<R>();
+        const R twoNorm = MaxNorm( w );
+        tolerance = n*twoNorm*eps;
+    }
+    // Invert above the tolerance
+    const int numLocalEigs = w.LocalHeight();
+    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    {
+        const R omega = w.GetLocal(iLocal,0);
+        if( Abs(omega) < tolerance )
+            w.SetLocal(iLocal,0,0);
+        else
+            w.SetLocal(iLocal,0,1/omega);
+    }
+
+    // Form the pseudoinverse
+    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+}
+#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

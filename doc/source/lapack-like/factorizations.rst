@@ -195,14 +195,38 @@ representing the remaining columns in terms of the selected columns of
 :math:`A`.
 
 .. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
-.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F>& Z, int numSteps )
+.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, int numSteps )
 
    `numSteps` steps of a pivoted QR factorization are used to return an 
    Interpolative Decomposition of :math:`A`.
 
 .. cpp:function:: void ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, BASE(F) tol )
-.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F>& Z, int maxSteps, BASE(F) tol )
+.. cpp:function:: void ID( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, int maxSteps, BASE(F) tol )
 
    Either `maxSteps` steps of a pivoted QR factorization are used, or 
    executation stopped after the maximum remaining column norm was less than or
    equal to `tol` times the maximum original column norm.
+
+Skeleton decomposition
+----------------------
+Skeleton decompositions are essentially two-sided interpolative decompositions,
+but the terminology is unfortunately extremely contested. We follow the 
+convention that a skeleton decomposition is an approximation
+
+.. math::
+
+   A \approx A_C Z A_R,
+
+where :math:`A_C` is a (small) selection of columns of :math:`A`, 
+:math:`A_R` is a (small) selection of rows of :math:`A`, and :math:`Z` is a 
+(small) square matrix. When :math:`Z` is allowed to be rectangular, it is more
+common to call this a CUR decomposition.
+
+.. cpp:function:: void Skeleton( const Matrix<F>& A, Matrix<int>& pR, Matrix<int>& pC, Matrix<F>& Z, int maxSteps, BASE(F) tol )
+.. cpp:function:: void Skeleton( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& pR, DistMatrix<int,VR,STAR>& pC, int maxSteps, BASE(F) tol )
+
+   Rather than returning :math:`A_R` and :math:`A_C`, the permutation matrices
+   which implicitly define them are returned instead. At most `maxSteps` steps 
+   of a pivoted QR decomposition will be used in order to generate the 
+   row/column subsets, and less steps will be taken if a pivot norm is less 
+   than or equal to `tolerance` times the first pivot norm.

@@ -9,7 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
-#include "elemental/lapack-like/HermitianPseudoinverse.hpp"
+#include "elemental/lapack-like/Pseudoinverse.hpp"
 using namespace std;
 using namespace elem;
 

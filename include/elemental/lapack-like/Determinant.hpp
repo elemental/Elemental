@@ -126,7 +126,7 @@ inline F Determinant( const Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("Determinant");
 #endif
-    SafeProduct<F> safeDet = Determinant( A );
+    SafeProduct<F> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -136,7 +136,7 @@ inline F Determinant( const DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("Determinant");
 #endif
-    SafeProduct<F> safeDet = Determinant( A );
+    SafeProduct<F> safeDet = SafeDeterminant( A );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -146,7 +146,7 @@ inline BASE(F) HPDDeterminant( UpperOrLower uplo, const Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
 #endif
-    SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
+    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -156,7 +156,7 @@ inline BASE(F) HPDDeterminant( UpperOrLower uplo, const DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
 #endif
-    SafeProduct<F> safeDet = HPDDeterminant( uplo, A );
+    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -166,7 +166,7 @@ inline F Determinant( Matrix<F>& A, bool canOverwrite=false )
 #ifndef RELEASE
     CallStackEntry entry("Determinant");
 #endif
-    SafeProduct<F> safeDet = Determinant( A, canOverwrite );
+    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -176,7 +176,7 @@ inline F Determinant( DistMatrix<F>& A, bool canOverwrite=false )
 #ifndef RELEASE
     CallStackEntry entry("Determinant");
 #endif
-    SafeProduct<F> safeDet = Determinant( A, canOverwrite );
+    SafeProduct<F> safeDet = SafeDeterminant( A, canOverwrite );
     return safeDet.rho * Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -187,7 +187,7 @@ HPDDeterminant( UpperOrLower uplo, Matrix<F>& A, bool canOverwrite=false )
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
 #endif
-    SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
+    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 
@@ -198,7 +198,7 @@ HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 #ifndef RELEASE
     CallStackEntry entry("HPDDeterminant");
 #endif
-    SafeProduct<F> safeDet = HPDDeterminant( uplo, A, canOverwrite );
+    SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
 

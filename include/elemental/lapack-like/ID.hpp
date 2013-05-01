@@ -65,23 +65,20 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
     }
 }
 
+// For now, assume that RL is sufficiently small and give each process a full
+// copy so that we may independently apply its pseudoinverse to each column of
+// RR
 template<typename F>
 inline void
-PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) tol )
+PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::PseudoTrsm");
 #endif
-    // For now, assume that RL is sufficiently small and give each process a 
-    // full copy so that we may independently apply its pseudoinverse to each
-    // column of RR
-    DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
-    DistMatrix<F,STAR,VR> RR_STAR_VR( RR );
-    PseudoTrsm( RL_STAR_STAR.Matrix(), RR_STAR_VR.Matrix(), tol );
-    RR = RR_STAR_VR;
-}
 
-} // namespace id
+    DistMatrix<F,STAR,STAR> RL_STAR_STAR( RL );
+    PseudoTrsm( RL_STAR_STAR.Matrix(), RR.Matrix(), tol );
+}
 
 // On output, the matrix Z contains the non-trivial portion of the interpolation
 // matrix, and p contains the pivots used during the iterations of 
@@ -89,19 +86,19 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F>& RR, BASE(F) tol )
 // than or equal to tol times the original pivot value was found. 
 // The input matrix A is unchanged.
 
-template<typename Real> 
+template<typename F> 
 inline void
-ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z, 
-    int maxSteps, Real tol )
+BusingerGolub
+( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry entry("id::BusingerGolub");
 #endif
+    typedef BASE(F) Real;
     const int n = A.Width();
 
-    // Perform the pivoted QR factorization on a copy of A
-    Matrix<Real> ACopy( A );
-    qr::BusingerGolub( ACopy, p, maxSteps, tol );
+    // Perform the pivoted QR factorization
+    qr::BusingerGolub( A, p, maxSteps, tol );
     const int numSteps = p.Height();
 
     Real pinvTol;
@@ -114,85 +111,28 @@ ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z,
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    Matrix<Real> RL, RR;
-    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
-    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
+    Matrix<F> RL, RR;
+    LockedView( RL, A, 0, 0, numSteps, numSteps );
+    LockedView( RR, A, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, pinvTol );
+    PseudoTrsm( RL, Z, pinvTol );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-ID( const Matrix<Real>& A, Matrix<int>& p, Matrix<Real>& Z, int numSteps )
+BusingerGolub
+( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ID");
+    CallStackEntry entry("id::BusingerGolub");
 #endif
-    // Use a negative tolerance to guarantee numSteps iterations of QR
-    ID( A, p, Z, numSteps, Real(-1) );
-}
-
-// This only exists since complex QR has an extra return argument related to
-// the phases of the pseudo-Householder transformations used
-template<typename Real> 
-inline void
-ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z, 
-    int maxSteps, Real tol )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ID");
-#endif
-    typedef Complex<Real> C;
-    const int n = A.Width();
-
-    // Perform the pivoted QR factorization on a copy of A
-    Matrix<C> ACopy( A ), t;
-    qr::BusingerGolub( ACopy, t, p, maxSteps, tol );
-    const int numSteps = p.Height();
-
-    Real pinvTol;
-    if( tol < Real(0) )
-    {
-        const Real epsilon = lapack::MachineEpsilon<Real>();
-        pinvTol = numSteps*epsilon;
-    }
-    else
-        pinvTol = tol;
-
-    // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    Matrix<C> RL, RR;
-    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
-    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
-    Z = RR;
-    id::PseudoTrsm( RL, Z, pinvTol );
-}
-
-template<typename Real> 
-inline void
-ID( const Matrix<Complex<Real> >& A, Matrix<int>& p, Matrix<Complex<Real> >& Z, 
-    int numSteps )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ID");
-#endif
-    ID( A, p, Z, numSteps, Real(-1) );
-}
-
-template<typename Real> 
-inline void
-ID
-( const DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<Real>& Z, 
-  int maxSteps, Real tol )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ID");
-#endif
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
-    DistMatrix<Real> ACopy( A );
-    qr::BusingerGolub( ACopy, p, maxSteps, tol );
+    qr::BusingerGolub( A, p, maxSteps, tol );
     const int numSteps = p.Height();
 
     Real pinvTol;
@@ -205,73 +145,119 @@ ID
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    DistMatrix<Real> RL(g), RR(g);
-    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
-    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
+    DistMatrix<F> RL(g), RR(g);
+    LockedView( RL, A, 0, 0, numSteps, numSteps );
+    LockedView( RR, A, 0, numSteps, numSteps, n-numSteps );
     Z = RR;
-    id::PseudoTrsm( RL, Z, pinvTol );
+    PseudoTrsm( RL, Z, pinvTol );
 }
 
-template<typename Real> 
+} // namespace id
+
+template<typename F> 
 inline void
 ID
-( const DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<Real>& Z, 
+( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, 
+  int maxSteps, BASE(F) tol )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    Matrix<F> B( A );
+    id::BusingerGolub( A, p, Z, maxSteps, tol );
+}
+
+template<typename F> 
+inline void
+ID
+( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, 
+  int maxSteps, BASE(F) tol, bool canOverwrite=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    Matrix<F> B;
+    if( canOverwrite )
+        View( B, A );
+    else
+        B = A;
+    id::BusingerGolub( B, p, Z, maxSteps, tol );
+}
+
+template<typename F> 
+inline void
+ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    ID( A, p, Z, numSteps, BASE(F)(-1) );
+}
+
+template<typename F> 
+inline void
+ID
+( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps, 
+  bool canOverwrite=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
+}
+
+template<typename F> 
+inline void
+ID
+( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  int maxSteps, BASE(F) tol )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    DistMatrix<F> B( A );
+    id::BusingerGolub( A, p, Z, maxSteps, tol );
+}
+
+template<typename F> 
+inline void
+ID
+( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  int maxSteps, BASE(F) tol, bool canOverwrite=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ID");
+#endif
+    DistMatrix<F> B( A.Grid() );
+    if( canOverwrite )
+        View( B, A );
+    else
+        B = A;
+    id::BusingerGolub( B, p, Z, maxSteps, tol );
+}
+
+template<typename F> 
+inline void
+ID
+( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
   int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    ID( A, p, Z, numSteps, Real(-1) );
+    ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
 
-// This only exists since complex QR has an extra return argument related to
-// the phases of the pseudo-Householder transformations used
-template<typename Real> 
+template<typename F> 
 inline void
 ID
-( const DistMatrix<Complex<Real> >& A, DistMatrix<int,VR,STAR>& p, 
-        DistMatrix<Complex<Real> >& Z, int maxSteps, Real tol )
+( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  int numSteps, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
 #endif
-    typedef Complex<Real> C;
-    const Grid& g = A.Grid();
-    const int n = A.Width();
-
-    // Perform the pivoted QR factorization on a copy of A
-    DistMatrix<C> ACopy( A );
-    DistMatrix<C,MD,STAR> t(g);
-    qr::BusingerGolub( ACopy, t, p, maxSteps, tol );
-    const int numSteps = p.Height();
-
-    Real pinvTol;
-    if( tol < Real(0) )
-    {
-        const Real epsilon = lapack::MachineEpsilon<Real>();
-        pinvTol = numSteps*epsilon;
-    }
-    else
-        pinvTol = tol;
-
-    // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    DistMatrix<C> RL(g), RR(g);
-    LockedView( RL, ACopy, 0, 0, numSteps, numSteps );
-    LockedView( RR, ACopy, 0, numSteps, numSteps, n-numSteps );
-    Z = RR;
-    id::PseudoTrsm( RL, Z, pinvTol );
-}
-
-template<typename Real> 
-inline void
-ID
-( const DistMatrix<Complex<Real> >& A, DistMatrix<int,VR,STAR>& p, 
-        DistMatrix<Complex<Real> >& Z, int numSteps )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ID");
-#endif
-    ID( A, p, Z, numSteps, Real(-1) );
+    ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
 
 } // namespace elem

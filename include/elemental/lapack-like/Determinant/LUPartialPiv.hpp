@@ -35,7 +35,7 @@ LUPartialPiv( Matrix<F>& A )
     try
     {
         Matrix<int> p;
-        LU( A, p ); 
+        elem::LU( A, p ); 
         const bool isOdd = PivotParity( p );
         
         Matrix<F> d;
@@ -78,7 +78,7 @@ LUPartialPiv( DistMatrix<F>& A )
     try
     {
         DistMatrix<int,VC,STAR> p(g);
-        LU( A, p );
+        elem::LU( A, p );
         const bool isOdd = PivotParity( p );
 
         DistMatrix<F,MD,STAR> d(g);
