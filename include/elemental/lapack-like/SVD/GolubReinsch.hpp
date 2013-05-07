@@ -476,21 +476,18 @@ GolubReinschUpper
     A.GetDiagonal( e_MD_STAR, offdiagonal );
 
 
-    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // In order to use serial DQDS kernels, we need the full bidiagonal matrix
     // on each process
     //
-    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    // NOTE: lapack::BidiagDQDS expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
     DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
-    // Compute the singular values of the bidiagonal matrix
-    lapack::BidiagQRAlg
-    ( uplo, k, 0, 0,
-      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-      (Real*)0, 1, (Real*)0, 1 );
+    // Compute the singular values of the bidiagonal matrix via DQDS
+    lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
@@ -523,21 +520,18 @@ GolubReinschUpper
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
-    // In order to use serial QR kernels, we need the full bidiagonal matrix
+    // In order to use serial DQDS kernels, we need the full bidiagonal matrix
     // on each process
     //
-    // NOTE: lapack::BidiagQRAlg expects e to be of length k
+    // NOTE: lapack::BidiagDQDS expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
     DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
     DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
-    // Compute the singular values of the bidiagonal matrix
-    lapack::BidiagQRAlg
-    ( uplo, k, 0, 0,
-      d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-      (C*)0, 1, (C*)0, 1 );
+    // Compute the singular values of the bidiagonal matrix via DQDS
+    lapack::BidiagDQDS( k, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer() );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;

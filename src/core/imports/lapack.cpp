@@ -38,6 +38,12 @@ void LAPACK(zlartg)
 ( const elem::dcomplex* phi, const elem::dcomplex* gamma,
   double* c, elem::dcomplex* s, elem::dcomplex* rho );
 
+// Bidiagonal DQDS
+void LAPACK(slasq1)
+( const int* n, float* d, float* e, float* work, int* info );
+void LAPACK(dlasq1)
+( const int* n, double* d, double* e, double* work, int* info );
+
 // Bidiagonal QR
 void LAPACK(sbdsqr)
 ( const char* uplo, const int* n, const int* numColsVTrans, const int* numRowsU,
@@ -315,6 +321,56 @@ void ComputeGivens
 { LAPACK(zlartg)( &phi, &gamma, c, s, rho ); }
 
 //
+// Bidiagonal DQDS for singular values
+//
+
+void BidiagDQDS( int n, float* d, float* e )
+{
+#ifndef RELEASE
+    CallStackEntry entry("lapack::BidiagDQDS");
+#endif
+    int info;
+    std::vector<float> work( 4*n );
+    LAPACK(slasq1)( &n, d, e, &work[0], &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        if( info < 0 )
+            msg << "Argument " << -info << " had an illegal value";
+        else if( info == 1 )
+            msg << "A split was marked in a positive value in E";
+        else if( info == 2 )
+            msg << "Current block of Z not bidiagonalized after 30*k its";
+        else if( info == 3 )
+            msg << "Termination criterion of outer while loop not met";
+        throw std::logic_error( msg.str().c_str() );
+    } 
+}
+
+void BidiagDQDS( int n, double* d, double* e )
+{
+#ifndef RELEASE
+    CallStackEntry entry("lapack::BidiagDQDS");
+#endif
+    int info;
+    std::vector<double> work( 4*n );
+    LAPACK(dlasq1)( &n, d, e, &work[0], &info );
+    if( info != 0 )
+    {
+        std::ostringstream msg;
+        if( info < 0 )
+            msg << "Argument " << -info << " had an illegal value";
+        else if( info == 1 )
+            msg << "A split was marked in a positive value in E";
+        else if( info == 2 )
+            msg << "Current block of Z not bidiagonalized after 30*k its";
+        else if( info == 3 )
+            msg << "Termination criterion of outer while loop not met";
+        throw std::logic_error( msg.str().c_str() );
+    } 
+}
+
+//
 // Bidiagonal QR algorithm for SVD
 //
 
@@ -335,17 +391,14 @@ void BidiagQRAlg
     LAPACK(sbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, &work[0], &info );
-    if( info < 0 )
+    if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
+        if( info < 0 )
+            msg << "Argument " << -info << " had illegal value";
+        else
+            msg << "sbdsqr had " << info << " elements of e not converge";
         throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-    {
-        std::ostringstream msg;
-        msg << "sbdsqr had " << info << " elements of e not converge";
-        throw std::runtime_error( msg.str().c_str() );
     }
 }
 
@@ -366,17 +419,14 @@ void BidiagQRAlg
     LAPACK(dbdsqr)
     ( &uplo, &n, &numColsVTrans, &numRowsU, &numColsC, d, e, VTrans, &ldVTrans,
       U, &ldU, C, &ldC, &work[0], &info );
-    if( info < 0 )
+    if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
+        if( info < 0 )
+            msg << "Argument " << -info << " had illegal value";
+        else
+            msg << "dbdsqr had " << info << " elements of e not converge";
         throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-    {
-        std::ostringstream msg;
-        msg << "dbdsqr had " << info << " elements of e not converge";
-        throw std::runtime_error( msg.str().c_str() );
     }
 }
 
@@ -397,17 +447,14 @@ void BidiagQRAlg
     LAPACK(cbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, &work[0], &info );
-    if( info < 0 )
+    if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
+        if( info < 0 )
+            msg << "Argument " << -info << " had illegal value";
+        else
+            msg << "cbdsqr had " << info << " elements of e not converge";
         throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-    {
-        std::ostringstream msg;
-        msg << "cbdsqr had " << info << " elements of e not converge";
-        throw std::runtime_error( msg.str().c_str() );
     }
 }
 
@@ -428,17 +475,14 @@ void BidiagQRAlg
     LAPACK(zbdsqr)
     ( &uplo, &n, &numColsVAdj, &numRowsU, &numColsC, d, e, VAdj, &ldVAdj,
       U, &ldU, C, &ldC, &work[0], &info );
-    if( info < 0 )
+    if( info != 0 )
     {
         std::ostringstream msg;
-        msg << "Argument " << -info << " had illegal value";
+        if( info < 0 )
+            msg << "Argument " << -info << " had illegal value";
+        else
+            msg << "zbdsqr had " << info << " elements of e not converge";
         throw std::logic_error( msg.str().c_str() );
-    }
-    else if( info > 0 )
-    {
-        std::ostringstream msg;
-        msg << "zbdsqr had " << info << " elements of e not converge";
-        throw std::runtime_error( msg.str().c_str() );
     }
 }
 

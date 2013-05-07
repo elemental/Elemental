@@ -136,6 +136,13 @@ void SVD( int m, int n, scomplex* A, int lda, float* s );
 void SVD( int m, int n, dcomplex* A, int lda, double* s );
 
 //
+// Compute the singular values of a bidiagonal matrix via dqds
+//
+
+void BidiagDQDS( int n, float* d, float* e );
+void BidiagDQDS( int n, double* d, double* e );
+
+//
 // Compute the SVD of a bidiagonal matrix using the QR algorithm
 //
 
