@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_GRCAR_HPP
-#define MATRICES_GRCAR_HPP
+#ifndef MATRICES_TRIW_HPP
+#define MATRICES_TRIW_HPP
 
 #include "elemental/matrices/Toeplitz.hpp"
 
@@ -16,48 +16,44 @@ namespace elem {
 
 template<typename T> 
 inline void
-Grcar( Matrix<T>& A, int n, int k=3 )
+TriW( Matrix<T>& A, int m, int n, T alpha, int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grcar");
+    CallStackEntry entry("TriW");
 #endif
     if( k < 0 )
         throw std::logic_error
         ("Number of superdiagonals of ones must be non-negative");
-    const int numDiags = ( n>0 ? 2*n-1 : 0 );
+    const int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
     std::vector<T> a( numDiags, 0 );
-    if( n > 1 )
-        a[n] = -1;
     if( n > 0 )
         a[n-1] = 1;
     for( int j=0; j<std::min(n-1,k); ++j )
-        a[n-2-j] = 1;
-    Toeplitz( A, n, n, a );
+        a[n-2-j] = alpha;
+    Toeplitz( A, m, n, a );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Grcar( DistMatrix<T,U,V>& A, int n, int k=3 )
+TriW( DistMatrix<T,U,V>& A, int m, int n, T alpha, int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Grcar");
+    CallStackEntry entry("TriW");
 #endif
     if( k < 0 )
         throw std::logic_error
         ("Number of superdiagonals of ones must be non-negative");
-    const int numDiags = ( n>0 ? 2*n-1 : 0 );
+    const int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
     std::vector<T> a( numDiags, 0 );
-    if( n > 1 )
-        a[n] = -1;
     if( n > 0 )
         a[n-1] = 1;
     for( int j=0; j<std::min(n-1,k); ++j )
-        a[n-2-j] = 1;
-    Toeplitz( A, n, n, a );
+        a[n-2-j] = alpha;
+    Toeplitz( A, m, n, a );
 }
 
-// TODO: MakeGrcar?
+// TODO: MakeTriW?
 
 } // namespace elem
 
-#endif // ifndef MATRICES_GRCAR_HPP
+#endif // ifndef MATRICES_TRIW_HPP
