@@ -1,32 +1,35 @@
 Functionality
 =============
-- Add probabilistic power-method-based spectral norm estimator
-- Add support for BLIS and fused Trmv's
-- Add transpose option to LeastSquares
-- Clean up pivoted LU and pivot applications (especially in sequential cases)
+- Power-method-like p-norm estimation (especially when p=2)
+- Support for BLIS and fused Trmv's to accelerate HermitianEig
+- Transpose option for LeastSquares
 - Strong RRQR and RRLQ 
-- CUR decompositions
-- LU with full pivoting
-- LU with rook pivoting
+- CUR decompositions (already have (pseudo-)skeleton)
+- Complete Orthogonal Decompositions (especially URV)
+- Clean up pivoted LU and pivot applications (especially in sequential cases)
+- LU with full and rook pivoting
+- Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
+- Pivoted Cholesky
 - TSQR
-- TSLU
-- Pivoted LDL
+- TSLU (via tournament pivoting)
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
-- Compressed pseudoinverse solves which avoid unnecessary backtransformations
-- Sequential versions of Trr2k 
-- Wrappers for more LAPACK eigensolvers
 - Nonsymmetric (generalized) eigensolver
+- Visualization similar to EigTool or Higham's Matrix Computation Toolbox
+- Wrappers for more LAPACK eigensolvers
+- Sequential versions of Trr2k 
 - More explicit expansions of packed Householder reflectors
 - More TwoSidedTrmm/TwoSidedTrsm routines
-- Add means of detaching and reattaching the 'viewing' processes for a 
-  DistMatrix so that collective routines like 'Get' can still be called
+- Compressed pseudoinverse solves which avoid unnecessary backtransformations
+- Means of detaching and reattaching the 'viewing' processes for a DistMatrix 
+  so collective routines like 'Get' can still be called
 
 Maintenance
 ===========
+- Many more references
 - Update documentation for new special matrices
 - Update documentation for imported routines (and in general)
-- Add references for Interpolative and Skeleton Decomposition 
+- References for Interpolative and Skeleton Decomposition 
 - Experiment with using scope to avoid SlidePartition
 - Document routines added after sequential HermitianEig
 - Document HermitianSign and UnitaryCoherence
