@@ -2,26 +2,31 @@ Functionality
 =============
 - Add probabilistic power-method-based spectral norm estimator
 - Add support for BLIS and fused Trmv's
-- Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Add transpose option to LeastSquares
+- Clean up pivoted LU and pivot applications (especially in sequential cases)
 - Strong RRQR and RRLQ 
-- Pseudoskeleton/CUR decompositions
-- Pivoted LDL and LU with full pivoting
+- CUR decompositions
+- LU with full pivoting
+- LU with rook pivoting
+- TSQR
+- TSLU
+- Pivoted LDL
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
 - Compressed pseudoinverse solves which avoid unnecessary backtransformations
-- Implement sequential versions of Trr2k 
-- Add wrappers for more LAPACK eigensolvers
+- Sequential versions of Trr2k 
+- Wrappers for more LAPACK eigensolvers
+- Nonsymmetric (generalized) eigensolver
 - More explicit expansions of packed Householder reflectors
 - More TwoSidedTrmm/TwoSidedTrsm routines
-- Nonsymmetric (generalized) eigensolver
 - Add means of detaching and reattaching the 'viewing' processes for a 
   DistMatrix so that collective routines like 'Get' can still be called
 
 Maintenance
 ===========
+- Update documentation for new special matrices
 - Update documentation for imported routines (and in general)
-- Add references for Interpolative Decomposition and fix tolerance
+- Add references for Interpolative and Skeleton Decomposition 
 - Experiment with using scope to avoid SlidePartition
 - Document routines added after sequential HermitianEig
 - Document HermitianSign and UnitaryCoherence
