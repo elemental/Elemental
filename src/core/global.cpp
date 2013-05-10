@@ -8,11 +8,19 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental.hpp"
+#ifdef HAVE_QT5
+ #include <QApplication>
+#endif
 
 namespace {
-// Core routines
+
 int numElemInits = 0;
-bool elemInitializedMpi;
+bool elemInitializedMpi = false;
+#ifdef HAVE_QT5
+bool elemInitializedQt = false;
+bool elemOpenedQtWindow = false;
+QCoreApplication* coreApp;
+#endif
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
 elem::MpiArgs* args = 0;
@@ -45,6 +53,9 @@ GridOrder gridOrder = ROW_MAJOR;
 }
 
 namespace elem {
+
+void OpenedQtWindow()
+{ ::elemOpenedQtWindow = true; }
 
 bool Initialized()
 { return ::numElemInits > 0; }
@@ -92,8 +103,16 @@ void Initialize( int& argc, char**& argv )
             ("MPI initialized with inadequate thread support for Elemental");
         }
 #endif
-        ::elemInitializedMpi = false;
     }
+
+#ifdef HAVE_QT5
+    ::coreApp = QCoreApplication::instance();
+    if( coreApp == 0 )
+    {
+        ::coreApp = new QApplication( argc, argv );        
+        ::elemInitializedQt = true;
+    }
+#endif
 
     // Queue a default algorithmic blocksize
     while( ! ::blocksizeStack.empty() )
@@ -155,6 +174,17 @@ void Finalize()
 
             mpi::Finalize();
         }
+
+#ifdef HAVE_QT5
+        if( ::elemInitializedQt )
+        {
+            if( ::elemOpenedQtWindow )
+                ::coreApp->exec();
+            else
+                ::coreApp->exit();
+            delete ::coreApp;
+        }
+#endif
 
         delete ::defaultGrid;
         ::defaultGrid = 0;

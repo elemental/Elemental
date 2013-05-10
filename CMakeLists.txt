@@ -7,7 +7,7 @@
 #  which can be found in the LICENSE file in the root directory, or at 
 #  http://opensource.org/licenses/BSD-2-Clause
 #
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 2.8.8)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
@@ -41,6 +41,9 @@ if(WIN32)
 else()
   option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
 endif()
+
+# Whether or not to use Qt5 for visualization if it is found (experimental)
+option(USE_QT5 "Attempt to use Qt5?" ON)
 
 ################################################################################
 # Advanced build options                                                       #
@@ -203,6 +206,7 @@ if(NOT MPI_CXX_FOUND)
   message(FATAL_ERROR "MPI C++ compiler was not found and is required")
 endif()
 include_directories(${MPI_CXX_INCLUDE_PATH})
+set(EXTRA_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
 
 # Search for OpenMP if necessary
 if(HYBRID)
@@ -220,17 +224,30 @@ if(HYBRID)
         "Hybrid build failed because OpenMP support not detected. Please specify OpenMP_CXX_FLAGS.")
     endif()
   endif()
+  set(EXTRA_FLAGS "${OpenMP_CXX_FLAGS} ${EXTRA_FLAGS}")
 endif()
 
-# Append MPI and OpenMP compile flags as necessary
-if(HYBRID)
-  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
-    "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${OpenMP_CXX_FLAGS} ${MPI_CXX_COMPILE_FLAGS}")
-else()
-  set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
-    "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${MPI_CXX_COMPILE_FLAGS}")
+set(HAVE_QT5 FALSE)
+if(USE_QT5)
+  # Search for Qt5
+  find_package(Qt5Widgets)
+  if(Qt5Widgets_FOUND)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    include_directories(${Qt5Widgets_INCLUDE_DIRS})
+    message("Qt5Widgets_INCLUDE_DIRS=${Qt5Widgets_INCLUDE_DIRS}")
+    add_definitions(${Qt5Widgets_DEFINITIONS})
+    set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
+    set(HAVE_QT5 TRUE)
+    message(STATUS "Found Qt5")
+  else()
+    message(STATUS "Did NOT find Qt5")
+  endif()
 endif()
-set(CXX_FLAGS ${CXX_FLAGS_${UPPER_BUILD_TYPE}})
+
+# Now append the extra flags
+set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
+  "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${EXTRA_FLAGS}")
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
@@ -409,7 +426,12 @@ set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS}")
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
 add_library(elem-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
-target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+if(HAVE_QT5)
+  target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES} 
+    ${Qt5Widgets_LIBRARIES})
+else()
+  target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+endif()
 install(TARGETS elem-dummy-lib DESTINATION lib)
 
 # The main library

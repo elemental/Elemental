@@ -171,7 +171,7 @@ int PMRRR(char *jobz, char *range, int *n, double  *D,
 
 /* Set the number of threads in case PMR_NUM_THREADS is not 
  * specified */
-#define DEFAULT_NUM_THREADS 4
+#define DEFAULT_NUM_THREADS 1
 
 /* Call LAPACK's dstemr in every process to compute all desiered 
  * eigenpairs redundantly (and discard the once that would usually 

@@ -17,6 +17,7 @@
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/convex/SingularValueSoftThreshold.hpp"
 #include "elemental/matrices/Uniform.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 //
@@ -331,7 +332,6 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-
     typedef Complex<double> C;
 
     try
@@ -349,6 +349,9 @@ main( int argc, char* argv[] )
         const int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
         const bool print = Input("--print","print matrices",false);
+#ifdef HAVE_QT5
+        bool display = Input("--display","display matrices",false);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -365,6 +368,16 @@ main( int argc, char* argv[] )
             std::cout << "|| L ||_F = " << frobLTrue << std::endl;
         if( print )
             LTrue.Print("True L");
+#ifdef HAVE_QT5
+        DisplayWindow<C>* LTrueWin;
+        if( display )
+        {
+            DistMatrix<C,STAR,STAR> LTrue_STAR_STAR( LTrue );
+            if( commRank == 0 )
+                LTrueWin = new DisplayWindow<C>( LTrue_STAR_STAR.Matrix() );
+            // Not sure when to free...
+        }
+#endif 
 
         DistMatrix<C> STrue;
         Zeros( STrue, m, n );
@@ -381,6 +394,16 @@ main( int argc, char* argv[] )
                       << STrue.Grid().Width() 
                       << " process grid and blocksize of " << Blocksize() 
                       << std::endl;
+#ifdef HAVE_QT5
+        DisplayWindow<C>* STrueWin;
+        if( display )
+        {
+            DistMatrix<C,STAR,STAR> STrue_STAR_STAR( STrue );
+            if( commRank == 0 )
+                STrueWin = new DisplayWindow<C>( STrue_STAR_STAR.Matrix() );
+            // Not sure when to free...
+        }
+#endif
 
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );

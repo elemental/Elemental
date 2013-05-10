@@ -40,6 +40,7 @@
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
 #cmakedefine HAVE_OPENMP
+#cmakedefine HAVE_QT5
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine HAVE_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI
