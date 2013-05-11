@@ -106,15 +106,16 @@ void RPCA_ADMM
 
     const double startTime = mpi::Time();
     if( commRank == 0 )
-        std::cout << "Starting RPCA_ADMM after " << startTime << " secs" 
-                  << std::endl;
+        std::cout << "Starting RPCA_ADMM" << std::endl;
 
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
     Zeros( Y, m, n );
 
     const R frobM = FrobeniusNorm( M );
+    const R maxM = MaxNorm( M );
     if( commRank == 0 )
-        std::cout << "|| M ||_F = " << frobM << std::endl;
+        std::cout << "|| M ||_F = " << frobM << "\n"
+                  << "|| M ||_max = " << maxM << std::endl;
 
     int numIts = 0;
     while( true )
@@ -202,8 +203,7 @@ void RPCA_ALM
 
     const double startTime = mpi::Time();
     if( commRank == 0 )
-        std::cout << "Starting RPCA_ALM after " << startTime << " secs" 
-                  << std::endl;
+        std::cout << "Starting RPCA_ALM" << std::endl;
 
     DistMatrix<F> Y( M );
     Sign( Y );
@@ -221,8 +221,10 @@ void RPCA_ALM
         throw std::logic_error("beta cannot be non-positive");
 
     const R frobM = FrobeniusNorm( M );
+    const R maxM = MaxNorm( M );
     if( commRank == 0 )
-        std::cout << "|| M ||_F = " << frobM << std::endl;
+        std::cout << "|| M ||_F = " << frobM << "\n"
+                  << "|| M ||_max = " << maxM << std::endl;
 
     int numIts=0, numPrimalIts=0;
     DistMatrix<F> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
@@ -345,7 +347,7 @@ main( int argc, char* argv[] )
         const double beta = Input("--beta","step size",1.);
         const double rho = Input("--rho","stepsize multiple in ALM",6.);
         const int maxIts = Input("--maxIts","maximum iterations",1000);
-        const double tol = Input("--tol","tolerance",1.e-6);
+        const double tol = Input("--tol","tolerance",1.e-5);
         const int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
         const bool print = Input("--print","print matrices",false);
@@ -361,53 +363,52 @@ main( int argc, char* argv[] )
             Uniform( U, m, rank );
             Uniform( V, n, rank );
             Zeros( LTrue, m, n );
-            Gemm( NORMAL, ADJOINT, C(1./std::max(m,n)), U, V, C(0), LTrue );
+            // Since each entry of U and V is lies in the unit ball, every entry
+            // of U V' will lie in the ball of radius 'rank', so scale this ball
+            Gemm( NORMAL, ADJOINT, C(1./rank), U, V, C(0), LTrue );
         }
         const double frobLTrue = FrobeniusNorm( LTrue );
+        const double maxLTrue = MaxNorm( LTrue );
         if( commRank == 0 )
-            std::cout << "|| L ||_F = " << frobLTrue << std::endl;
+            std::cout << "|| L ||_F = " << frobLTrue << "\n"
+                      << "|| L ||_max = " << maxLTrue << std::endl;
         if( print )
-            LTrue.Print("True L");
+            LTrue.Print("True low-rank");
 #ifdef HAVE_QT5
-        DisplayWindow<C>* LTrueWin;
         if( display )
-        {
-            DistMatrix<C,STAR,STAR> LTrue_STAR_STAR( LTrue );
-            if( commRank == 0 )
-                LTrueWin = new DisplayWindow<C>( LTrue_STAR_STAR.Matrix() );
-            // Not sure when to free...
-        }
+            Display( LTrue, "True low-rank" );
 #endif 
 
         DistMatrix<C> STrue;
         Zeros( STrue, m, n );
         const int numCorrupt = Corrupt( STrue, probCorrupt );
         const double frobSTrue = FrobeniusNorm( STrue );
+        const double maxSTrue = MaxNorm( STrue );
         if( commRank == 0 )
             std::cout << "number of corrupted entries: " << numCorrupt << "\n"
-                      << "|| S ||_F = " << frobSTrue << std::endl;
+                      << "|| S ||_F = " << frobSTrue << "\n"
+                      << "|| S ||_max = " << maxSTrue << std::endl;
         if( print )
-            STrue.Print("True S");
-
+            STrue.Print("True sparse");
+#ifdef HAVE_QT5
+        if( display )
+            Display( STrue, "True sparse" );
+#endif
         if( commRank == 0 )
             std::cout << "Using " << STrue.Grid().Height() << " x " 
                       << STrue.Grid().Width() 
                       << " process grid and blocksize of " << Blocksize() 
                       << std::endl;
-#ifdef HAVE_QT5
-        DisplayWindow<C>* STrueWin;
-        if( display )
-        {
-            DistMatrix<C,STAR,STAR> STrue_STAR_STAR( STrue );
-            if( commRank == 0 )
-                STrueWin = new DisplayWindow<C>( STrue_STAR_STAR.Matrix() );
-            // Not sure when to free...
-        }
-#endif
 
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );
         Axpy( C(1), STrue, M );
+        if( print )
+            M.Print("Sum of low-rank and sparse");
+#ifdef HAVE_QT5
+        if( display )
+            Display( M, "Sum of low-rank and sparse");
+#endif
 
         DistMatrix<C> L, S;
         Zeros( L, m, n );
@@ -420,9 +421,16 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            L.Print("L");
-            S.Print("S"); 
+            L.Print("Estimated low-rank");
+            S.Print("Estimated sparse"); 
         }
+#ifdef HAVE_QT5
+        if( display )
+        {
+            Display( L, "Estimated low-rank" );
+            Display( S, "Estimated sparse" );
+        }
+#endif
         Axpy( C(-1), LTrue, L );
         Axpy( C(-1), STrue, S );
         const double frobLDiff = FrobeniusNorm( L );
@@ -437,9 +445,16 @@ main( int argc, char* argv[] )
                       << std::endl;
         if( print )
         {
-            L.Print("L - LTrue");
-            S.Print("S - STrue");
+            L.Print("Error in low-rank estimate");
+            S.Print("Error in sparse estimate");
         }
+#ifdef HAVE_QT5
+        if( display )
+        {
+            Display( L, "Error in low-rank estimate" );
+            Display( S, "Error in sparse estimate" );
+        }
+#endif
     }
     catch( ArgException& e )
     {

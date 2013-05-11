@@ -18,8 +18,9 @@ int numElemInits = 0;
 bool elemInitializedMpi = false;
 #ifdef HAVE_QT5
 bool elemInitializedQt = false;
-bool elemOpenedQtWindow = false;
+bool elemOpenedWindow = false;
 QCoreApplication* coreApp;
+std::vector<elem::Window*> windows;
 #endif
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
@@ -54,8 +55,11 @@ GridOrder gridOrder = ROW_MAJOR;
 
 namespace elem {
 
-void OpenedQtWindow()
-{ ::elemOpenedQtWindow = true; }
+void OpenedWindow()
+{ ::elemOpenedWindow = true; }
+
+void RegisterWindow( Window* window )
+{ ::windows.push_back( window ); }
 
 bool Initialized()
 { return ::numElemInits > 0; }
@@ -178,12 +182,15 @@ void Finalize()
 #ifdef HAVE_QT5
         if( ::elemInitializedQt )
         {
-            if( ::elemOpenedQtWindow )
+            if( ::elemOpenedWindow )
                 ::coreApp->exec();
             else
                 ::coreApp->exit();
             delete ::coreApp;
         }
+        for( unsigned j=0; j< ::windows.size(); ++j )
+            delete ::windows[j];
+        windows.clear();
 #endif
 
         delete ::defaultGrid;

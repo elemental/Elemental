@@ -12,62 +12,63 @@
 
 #ifdef HAVE_QT5
 
+#include <QBoxLayout>
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollArea>
 #include <QStylePainter>
-#include <QVBoxLayout>
 #include <QWidget>
 
 namespace elem {
 
-// When Elemental is finalized, if no window was opened, then it must call 
-// app.exit() instead
-void OpenedQtWindow();
+template<typename T>
+QRgb ColorMap( T value, T minVal, T maxVal );
 
-template<typename R>
-QRgb ColorMap( R value, R minVal, R maxVal );
-
-template<typename R>
+template<typename T>
 class DisplayWidget : public QWidget
 {
 public:
     DisplayWidget( QWidget* parent=0 );
     ~DisplayWidget();
-    void Display( const Matrix<R>& A );
+    // TODO: Generalize to function which displays f(A), where f is functor
+    void DisplayReal( const Matrix<T>& A );
+    void DisplayImag( const Matrix<T>& A );
+    // TODO: Add colorbar
 protected:
     void paintEvent( QPaintEvent* event );
 private:
     QPixmap pixmap;
 };
 
-/*
-template<typename R>
-class DisplayWidget<Complex<R> > : public QWidget
-{
-public:
-    DisplayWidget( QWidget* parent=0 );
-    ~DisplayWidget();
-    void Display( const Matrix<Complex<R> >& A );
-protected:
-    void paintEvent( QPaintEvent* event );
-private:
-    QPixmap pixmap;
-};
-*/
+// This exists so that we can push all windows 
+// (with potentially different matrix datatype) to the same stack
+class Window : public QWidget
+{ };
 
-template<typename F> 
-class DisplayWindow : public QWidget
+template<typename T> 
+class DisplayWindow : public Window
 {
 public:
-    explicit DisplayWindow( QWidget* parent=0 );    
-    explicit DisplayWindow( const Matrix<F>& A, QWidget* parent=0 );    
+    explicit DisplayWindow
+    ( QString title=QString("Default title"), QWidget* parent=0 );    
+    explicit DisplayWindow
+    ( const Matrix<T>& A, 
+      QString title=QString("Default title"), QWidget* parent=0 );    
     ~DisplayWindow();
-    void Display( const Matrix<F>& A ) const;
+
+    void Display
+    ( const Matrix<T>& A, QString title=QString("Default title") );
 private:
-    QScrollArea* scroll;
-    DisplayWidget<F>* display;    
+    QScrollArea *realScroll, *imagScroll;
+    DisplayWidget<T> *realDisplay, *imagDisplay;
 };
+
+// For letting Elemental handle deleting windows in 'Finalize'
+void RegisterWindow( Window* window );
+
+// When Elemental is finalized, if no window was opened, then it must call 
+// app.exit() instead
+void OpenedWindow();
 
 } // namespace elem
 
