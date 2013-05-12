@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,16 +24,22 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
         DistMatrix<double> J;
         Legendre( J, n );
-
-#ifndef HAVE_PMRRR
         if( print )
             J.Print("Jacobi matrix for Legendre polynomials");
-#else
+#ifdef HAVE_QT5
+        if( display )
+            Display( J, "Jacobi matrix for Legendre polynomials" );
+#endif
+
+#ifdef HAVE_PMRRR
         // This will perform a lot of unnecessary work, but the code is simpler
         // than directly calling PMRRR
         //
@@ -46,6 +53,10 @@ main( int argc, char* argv[] )
         hermitian_eig::Sort( points, X );
         if( print )
             points.Print("points");
+#ifdef HAVE_QT5
+        if( display )
+            Display( points, "Quadrature points" );
+#endif
         DistMatrix<double> firstRow;
         View( firstRow, X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
@@ -56,6 +67,10 @@ main( int argc, char* argv[] )
         }
         if( print )
             weights.Print("weights");
+#ifdef HAVE_QT5
+        if( display )
+            Display( weights, "Quadrature weights" );
+#endif
 #endif
     }
     catch( ArgException& e )

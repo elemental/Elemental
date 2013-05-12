@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Kahan.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
         const int n = Input("--size","size of identity matrix",10);
         const double phi = Input("--phi","number in (0,1)",0.2);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -30,6 +34,10 @@ main( int argc, char* argv[] )
         Kahan( A, n, phi );
         if( print )
             A.Print("Kahan");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Kahan" );
+#endif
     }
     catch( ArgException& e )
     {

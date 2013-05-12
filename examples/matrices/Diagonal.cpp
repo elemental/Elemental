@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Zeros.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrices?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -34,6 +38,10 @@ main( int argc, char* argv[] )
         Diagonal( D, d );
         if( print )
             D.Print("D:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( D, "Diagonal" );
+#endif
     }
     catch( ArgException& e )
     {

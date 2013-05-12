@@ -14,13 +14,13 @@
 
 namespace elem {
 
-template<typename T>
-QRgb ColorMap( T value, T minVal, T maxVal )
+inline QRgb
+ColorMap( double value, double minVal, double maxVal )
 {
 #ifndef RELEASE
     CallStackEntry entry("ColorMap");
 #endif
-    const double percent = double(value-minVal) / double(maxVal-minVal);
+    const double percent = (value-minVal) / (maxVal-minVal);
 
     // For now, use grey-scale
     const int red = 255*percent;

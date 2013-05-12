@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Walsh.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
         const int k = Input("--order","generate 2^k x 2^k matrix",4);
         const bool binary = Input("--binary","binary data?",true);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -31,6 +35,10 @@ main( int argc, char* argv[] )
         Walsh( W, k, binary );
         if( print )
             W.Print("W(2^k)");
+#ifdef HAVE_QT5
+        if( display )
+            Display( W, "Walsh matrix" );
+#endif
     }
     catch( ArgException& e )
     {

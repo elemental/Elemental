@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Zeros.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 /*
@@ -31,6 +32,9 @@ main( int argc, char* argv[] )
         const int n = Input("--n","maximum k value",10);
         const double c = Input("--c","coefficient for PSFW",100.);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -75,6 +79,14 @@ main( int argc, char* argv[] )
             AEven.Print("AEven");
             AOdd.Print("AOdd");
         }
+#ifdef HAVE_QT5
+        if( display )
+        {
+            Display( AEven, "Even matrix" );
+            Display( AOdd, "Odd matrix" );
+        }
+#endif
+
 #ifdef HAVE_PMRRR
         DistMatrix<double,VR,STAR> wEven, wOdd;
         DistMatrix<double> XEven, XOdd;
@@ -89,6 +101,15 @@ main( int argc, char* argv[] )
             wEven.Print("wEven");
             wOdd.Print("wOdd");
         }
+#ifdef HAVE_QT5
+        if( display )
+        {
+            Display( XEven, "Even eigenvectors" );
+            Display( XOdd, "Odd eigenvectors" );
+            Display( wEven, "Even eigenvalues" );
+            Display( wOdd, "Odd eigenvalues" );
+        }
+#endif
 #endif
     }
     catch( ArgException& e )

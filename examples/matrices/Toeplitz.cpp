@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Toeplitz.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",10);
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -35,6 +39,10 @@ main( int argc, char* argv[] )
         Toeplitz( A, m, n, a );
         if( print )
             A.Print("Toeplitz matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Toeplitz" );
+#endif
     }
     catch( std::exception& e )
     {

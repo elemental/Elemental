@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/DiscreteFourier.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -22,6 +23,9 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -29,6 +33,10 @@ main( int argc, char* argv[] )
         DiscreteFourier( A, n );
         if( print )
             A.Print("DFT matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Discrete Fourier" );
+#endif
     }
     catch( ArgException& e )
     {

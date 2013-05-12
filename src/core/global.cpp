@@ -20,7 +20,12 @@ bool elemInitializedMpi = false;
 bool elemInitializedQt = false;
 bool elemOpenedWindow = false;
 QCoreApplication* coreApp;
-std::vector<elem::Window*> windows;
+std::vector<elem::DisplayWindow*> displayWindows;
+std::vector<elem::ComplexDisplayWindow*> complexDisplayWindows;
+bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
+     haveMinImagWindowVal=false, haveMaxImagWindowVal=false;
+double minRealWindowVal, maxRealWindowVal,
+       minImagWindowVal, maxImagWindowVal;
 #endif
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
@@ -58,8 +63,79 @@ namespace elem {
 void OpenedWindow()
 { ::elemOpenedWindow = true; }
 
-void RegisterWindow( Window* window )
-{ ::windows.push_back( window ); }
+void RegisterDisplayWindow( DisplayWindow* window )
+{ ::displayWindows.push_back( window ); }
+
+void RegisterComplexDisplayWindow( ComplexDisplayWindow* window )
+{ ::complexDisplayWindows.push_back( window ); }
+
+double MinRealWindowVal()
+{
+    if( ::haveMinRealWindowVal )
+        return ::minRealWindowVal;
+    else
+        return 0;
+}
+
+double MaxRealWindowVal()
+{
+    if( ::haveMaxRealWindowVal )
+        return ::maxRealWindowVal;
+    else
+        return 0;
+}
+
+double MinImagWindowVal()
+{
+    if( ::haveMinImagWindowVal )
+        return ::minImagWindowVal;
+    else
+        return 0;
+}
+
+double MaxImagWindowVal()
+{
+    if( ::haveMaxImagWindowVal )
+        return ::maxImagWindowVal;
+    else
+        return 0;
+}
+
+void UpdateMinRealWindowVal( double minVal )
+{
+    if( ::haveMinRealWindowVal )
+        ::minRealWindowVal = std::min( ::minRealWindowVal, minVal );
+    else
+        ::minRealWindowVal = minVal;
+    ::haveMinRealWindowVal = true;
+}
+
+void UpdateMaxRealWindowVal( double maxVal )
+{
+    if( ::haveMaxRealWindowVal )
+        ::maxRealWindowVal = std::max( ::maxRealWindowVal, maxVal );
+    else
+        ::maxRealWindowVal = maxVal;
+    ::haveMaxRealWindowVal = true;
+}
+
+void UpdateMinImagWindowVal( double minVal )
+{
+    if( ::haveMinImagWindowVal )
+        ::minImagWindowVal = std::min( ::minImagWindowVal, minVal );
+    else
+        ::minImagWindowVal = minVal;
+    ::haveMinImagWindowVal = true;
+}
+
+void UpdateMaxImagWindowVal( double maxVal )
+{
+    if( ::haveMaxImagWindowVal )
+        ::maxImagWindowVal = std::max( ::maxImagWindowVal, maxVal );
+    else
+        ::maxImagWindowVal = maxVal;
+    ::haveMaxImagWindowVal = true;
+}
 
 bool Initialized()
 { return ::numElemInits > 0; }
@@ -188,9 +264,12 @@ void Finalize()
                 ::coreApp->exit();
             delete ::coreApp;
         }
-        for( unsigned j=0; j< ::windows.size(); ++j )
-            delete ::windows[j];
-        windows.clear();
+        for( unsigned j=0; j< ::displayWindows.size(); ++j )
+            delete ::displayWindows[j];
+        displayWindows.clear();
+        for( unsigned j=0; j< ::complexDisplayWindows.size(); ++j )
+            delete ::complexDisplayWindows[j];
+        complexDisplayWindows.clear();
 #endif
 
         delete ::defaultGrid;

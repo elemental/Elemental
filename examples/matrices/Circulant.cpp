@@ -12,6 +12,7 @@
 #include "elemental/matrices/Circulant.hpp"
 #include "elemental/matrices/DiscreteFourier.hpp"
 #include "elemental/matrices/Zeros.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -25,6 +26,9 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrices?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrices?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -36,6 +40,10 @@ main( int argc, char* argv[] )
         Circulant( A, a );
         if( print )
             A.Print("Circulant matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Circulant" );
+#endif
 
         // Create a discrete Fourier matrix, which can be used to diagonalize
         // circulant matrices
@@ -43,6 +51,10 @@ main( int argc, char* argv[] )
         DiscreteFourier( F, n );
         if( print )
             F.Print("DFT matrix (F):");
+#ifdef HAVE_QT5
+        if( display )
+            Display( F, "Discrete Fourier" );
+#endif
         
         // Form B := A F
         DistMatrix<Complex<double> > B;
@@ -55,6 +67,10 @@ main( int argc, char* argv[] )
               Complex<double>(1), F, B, Complex<double>(0), A );
         if( print )
             A.Print("A := F^H A F");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "F^H A F" );
+#endif
 
         // Form the thresholded result
         const int localHeight = A.LocalHeight();
@@ -70,6 +86,10 @@ main( int argc, char* argv[] )
         }
         if( print )
             A.Print("A with values below 1e-13 removed");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Thresholded (1e-13) A" );
+#endif
     }
     catch( ArgException& e )
     {

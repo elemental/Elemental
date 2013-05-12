@@ -12,63 +12,29 @@
 
 #ifdef HAVE_QT5
 
-#include <QBoxLayout>
-#include <QPainter>
-#include <QPixmap>
-#include <QScrollArea>
-#include <QStylePainter>
-#include <QWidget>
+#include "elemental/graphics/display_widget_decl.hpp"
+#include "elemental/graphics/display_window_decl.hpp"
+#include "elemental/graphics/complex_display_window_decl.hpp"
 
 namespace elem {
 
-template<typename T>
-QRgb ColorMap( T value, T minVal, T maxVal );
-
-template<typename T>
-class DisplayWidget : public QWidget
-{
-public:
-    DisplayWidget( QWidget* parent=0 );
-    ~DisplayWidget();
-    // TODO: Generalize to function which displays f(A), where f is functor
-    void DisplayReal( const Matrix<T>& A );
-    void DisplayImag( const Matrix<T>& A );
-    // TODO: Add colorbar
-protected:
-    void paintEvent( QPaintEvent* event );
-private:
-    QPixmap pixmap;
-};
-
-// This exists so that we can push all windows 
-// (with potentially different matrix datatype) to the same stack
-class Window : public QWidget
-{ };
-
-template<typename T> 
-class DisplayWindow : public Window
-{
-public:
-    explicit DisplayWindow
-    ( QString title=QString("Default title"), QWidget* parent=0 );    
-    explicit DisplayWindow
-    ( const Matrix<T>& A, 
-      QString title=QString("Default title"), QWidget* parent=0 );    
-    ~DisplayWindow();
-
-    void Display
-    ( const Matrix<T>& A, QString title=QString("Default title") );
-private:
-    QScrollArea *realScroll, *imagScroll;
-    DisplayWidget<T> *realDisplay, *imagDisplay;
-};
-
 // For letting Elemental handle deleting windows in 'Finalize'
-void RegisterWindow( Window* window );
+void RegisterDisplayWindow( DisplayWindow* window );
+void RegisterComplexDisplayWindow( ComplexDisplayWindow* window );
 
 // When Elemental is finalized, if no window was opened, then it must call 
 // app.exit() instead
 void OpenedWindow();
+
+// For keeping track of the extreme values visualized so far
+double MinRealWindowVal();
+double MaxRealWindowVal();
+double MinImagWindowVal();
+double MaxImagWindowVal();
+void UpdateMinRealWindowVal( double minVal );
+void UpdateMaxRealWindowVal( double maxVal );
+void UpdateMinImagWindowVal( double minVal );
+void UpdateMaxImagWindowVal( double maxVal );
 
 } // namespace elem
 

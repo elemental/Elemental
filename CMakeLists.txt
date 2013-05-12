@@ -232,10 +232,11 @@ if(USE_QT5)
   # Search for Qt5
   find_package(Qt5Widgets)
   if(Qt5Widgets_FOUND)
-    set(CMAKE_AUTOMOC ON)
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+    set(ELEM_HEADERS_PREMOC 
+        "include/elemental/graphics/display_window_decl.hpp;include/elemental/graphics/complex_display_window_decl.hpp")
+    qt_wrap_cpp(elemental ELEM_MOC_SRC ${ELEM_HEADERS_PREMOC})
+    message("ELEM_MOC_SRC=${ELEM_MOC_SRC}")
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
-    message("Qt5Widgets_INCLUDE_DIRS=${Qt5Widgets_INCLUDE_DIRS}")
     add_definitions(${Qt5Widgets_DEFINITIONS})
     set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
     set(HAVE_QT5 TRUE)
@@ -421,7 +422,7 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
-set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS}")
+set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS};${ELEM_MOC_SRC}")
 
 # Create a dummy library in order to be able to force the math (and potentially
 # MPI libraries) to be linked last
@@ -637,7 +638,7 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
     add_library(experimental-f90 ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
     install(TARGETS experimental-f90 DESTINATION lib)
 
-    add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90)
+    add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90) 
     target_link_libraries(experimental-f90-test experimental-f90 elemental)
     set_target_properties(experimental-f90-test 
       PROPERTIES OUTPUT_NAME f90_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})

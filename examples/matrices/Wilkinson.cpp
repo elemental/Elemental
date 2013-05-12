@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Wilkinson.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -22,6 +23,9 @@ main( int argc, char* argv[] )
     {
         const int k = Input("--order","generate 2k+1 x 2k+1 matrix",5);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -29,6 +33,10 @@ main( int argc, char* argv[] )
         Wilkinson( W, k );
         if( print )
             W.Print("Wilkinson matrix");
+#ifdef HAVE_QT5
+        if( display )
+            Display( W, "Wilkinson" );
+#endif
     }
     catch( ArgException& e )
     {

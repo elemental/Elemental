@@ -10,6 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Norm.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -25,6 +26,9 @@ main( int argc, char* argv[] )
         const double lower = Input("--lower","lower bound on spectrum",1.);
         const double upper = Input("--upper","upper bound on spectrum",10.);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -32,6 +36,10 @@ main( int argc, char* argv[] )
         HermitianUniformSpectrum( X, n, lower, upper );
         if( print )
             X.Print("X");
+#ifdef HAVE_QT5
+        if( display )
+            Display( X, "Hermitian uniform spectrum" );
+#endif
     }
     catch( ArgException& e )
     {

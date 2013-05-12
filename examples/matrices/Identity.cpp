@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Identity.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -22,6 +23,9 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of identity matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -29,6 +33,10 @@ main( int argc, char* argv[] )
         Identity( I, n, n );
         if( print )
             I.Print("Identity");
+#ifdef HAVE_QT5
+        if( display )
+            Display( I, "Identity" );
+#endif
     }
     catch( ArgException& e )
     {

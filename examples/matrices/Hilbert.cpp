@@ -15,6 +15,7 @@
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/matrices/Hilbert.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -28,6 +29,9 @@ main( int argc, char* argv[] )
     {
         const int n = Input("--size","size of matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -35,6 +39,10 @@ main( int argc, char* argv[] )
         Hilbert( H, n );
         if( print )
             H.Print("Hilbert matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( H, "Hilbert" );
+#endif
 
         // This is grossly inefficient due to recomputing the singular values
         // and Cholesky decomposition for several different operations, 

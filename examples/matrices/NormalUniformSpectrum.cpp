@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/NormalUniformSpectrum.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -28,6 +29,9 @@ main( int argc, char* argv[] )
         const double radius = Input
             ("--radius","radius of uniform eigval distribution",2.);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -36,6 +40,10 @@ main( int argc, char* argv[] )
         NormalUniformSpectrum( X, n, center, radius );
         if( print )
             X.Print("X");
+#ifdef HAVE_QT5
+        if( display )
+            Display( X, "Normal uniform spectrum" );
+#endif
     }
     catch( ArgException& e )
     {

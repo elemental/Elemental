@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Ones.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",10);
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrix?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -30,6 +34,10 @@ main( int argc, char* argv[] )
         Ones( A, m, n );
         if( print )
             A.Print("Ones matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Ones" );
+#endif
     }
     catch( std::exception& e )
     {

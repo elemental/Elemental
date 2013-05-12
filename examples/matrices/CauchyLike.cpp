@@ -9,6 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/CauchyLike.hpp"
+#include "elemental/graphics.hpp"
 using namespace elem;
 
 int 
@@ -23,6 +24,9 @@ main( int argc, char* argv[] )
         const int m = Input("--height","height of matrix",10);
         const int n = Input("--width","width of matrix",10);
         const bool print = Input("--print","print matrices?",true);
+#ifdef HAVE_QT5
+        const bool display = Input("--display","display matrix?",true);
+#endif
         ProcessInput();
         PrintInputReport();
 
@@ -40,6 +44,10 @@ main( int argc, char* argv[] )
         CauchyLike( A, r, s, x, y );
         if( print )
             A.Print("CauchyLike matrix:");
+#ifdef HAVE_QT5
+        if( display )
+            Display( A, "Cauchy-like" );
+#endif
     }
     catch( ArgException& e )
     {
