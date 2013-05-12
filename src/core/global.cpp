@@ -60,6 +60,7 @@ GridOrder gridOrder = ROW_MAJOR;
 
 namespace elem {
 
+#ifdef HAVE_QT5
 void OpenedWindow()
 { ::elemOpenedWindow = true; }
 
@@ -136,6 +137,7 @@ void UpdateMaxImagWindowVal( double maxVal )
         ::maxImagWindowVal = maxVal;
     ::haveMaxImagWindowVal = true;
 }
+#endif // ifdef HAVE_QT5
 
 bool Initialized()
 { return ::numElemInits > 0; }
