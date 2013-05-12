@@ -22,10 +22,18 @@ ColorMap( double value, double minVal, double maxVal )
 #endif
     const double percent = (value-minVal) / (maxVal-minVal);
 
-    // For now, use grey-scale
+    // Grey-scale
+    /*
     const int red = 255*percent;
     const int green = 255*percent;
     const int blue = 255*percent;
+    const int alpha = 255;
+    */
+
+    // 0: Red, 0.5: Black, 1: Green
+    const int red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
+    const int green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
+    const int blue = 0;
     const int alpha = 255;
 
     // Red and blue mixture

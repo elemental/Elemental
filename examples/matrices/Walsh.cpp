@@ -8,6 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/SetDiagonal.hpp"
+#include "elemental/lapack-like/LDL.hpp"
 #include "elemental/matrices/Walsh.hpp"
 #include "elemental/graphics.hpp"
 using namespace elem;
@@ -22,7 +25,7 @@ main( int argc, char* argv[] )
     try
     {
         const int k = Input("--order","generate 2^k x 2^k matrix",4);
-        const bool binary = Input("--binary","binary data?",true);
+        const bool binary = Input("--binary","binary data?",false);
         const bool print = Input("--print","print matrix?",true);
 #ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
@@ -39,6 +42,27 @@ main( int argc, char* argv[] )
         if( display )
             Display( W, "Walsh matrix" );
 #endif
+
+        if( !binary )
+        {
+            DistMatrix<double,MC,STAR> d;
+            LDLH( W, d );
+            MakeTriangular( LOWER, W );
+            SetDiagonal( LEFT, 0, W, 1. );
+
+            if( print )
+            {
+                W.Print("L"); 
+                d.Print("d"); 
+            }
+#ifdef HAVE_QT5
+            if( display )
+            {
+                Display( W, "Lower factor" );
+                Display( d, "Diagonal factor" );
+            }
+#endif
+        }
     }
     catch( ArgException& e )
     {

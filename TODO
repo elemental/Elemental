@@ -26,6 +26,7 @@ Functionality
 
 Maintenance
 ===========
+- Documentation for new visualization routines (with the Walsh driver as an example)
 - Many more references
 - Update documentation for new special matrices
 - Update documentation for imported routines (and in general)
