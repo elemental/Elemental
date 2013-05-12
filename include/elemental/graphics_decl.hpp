@@ -18,10 +18,6 @@
 
 namespace elem {
 
-// For letting Elemental handle deleting windows in 'Finalize'
-void RegisterDisplayWindow( DisplayWindow* window );
-void RegisterComplexDisplayWindow( ComplexDisplayWindow* window );
-
 // When Elemental is finalized, if no window was opened, then it must call 
 // app.exit() instead
 void OpenedWindow();

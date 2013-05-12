@@ -20,8 +20,6 @@ bool elemInitializedMpi = false;
 bool elemInitializedQt = false;
 bool elemOpenedWindow = false;
 QCoreApplication* coreApp;
-std::vector<elem::DisplayWindow*> displayWindows;
-std::vector<elem::ComplexDisplayWindow*> complexDisplayWindows;
 bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
      haveMinImagWindowVal=false, haveMaxImagWindowVal=false;
 double minRealWindowVal, maxRealWindowVal,
@@ -63,12 +61,6 @@ namespace elem {
 #ifdef HAVE_QT5
 void OpenedWindow()
 { ::elemOpenedWindow = true; }
-
-void RegisterDisplayWindow( DisplayWindow* window )
-{ ::displayWindows.push_back( window ); }
-
-void RegisterComplexDisplayWindow( ComplexDisplayWindow* window )
-{ ::complexDisplayWindows.push_back( window ); }
 
 double MinRealWindowVal()
 {
@@ -266,12 +258,6 @@ void Finalize()
                 ::coreApp->exit();
             delete ::coreApp;
         }
-        for( unsigned j=0; j< ::displayWindows.size(); ++j )
-            delete ::displayWindows[j];
-        displayWindows.clear();
-        for( unsigned j=0; j< ::complexDisplayWindows.size(); ++j )
-            delete ::complexDisplayWindows[j];
-        complexDisplayWindows.clear();
 #endif
 
         delete ::defaultGrid;

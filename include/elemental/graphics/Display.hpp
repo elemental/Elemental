@@ -38,7 +38,6 @@ Display( const Matrix<T>& A, std::string title="" )
     DisplayWindow* displayWindow = new DisplayWindow;
     displayWindow->Display( ADouble, qTitle );
     displayWindow->show();
-    RegisterDisplayWindow( displayWindow );
 }
 
 template<typename T>
@@ -60,7 +59,6 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
     ComplexDisplayWindow* displayWindow = new ComplexDisplayWindow;
     displayWindow->Display( ADouble, qTitle );
     displayWindow->show();
-    RegisterComplexDisplayWindow( displayWindow );
 }
 
 template<typename T,Distribution U,Distribution V>

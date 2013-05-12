@@ -51,6 +51,7 @@ ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 
     connect( localButton, SIGNAL(clicked()), this, SLOT(UseLocalScale()) );
     connect( globalButton, SIGNAL(clicked()), this, SLOT(UseGlobalScale()) );
+    setAttribute( Qt::WA_DeleteOnClose );
 
     // Elemental needs to know if a window was opened for cleanup purposes
     OpenedWindow();
