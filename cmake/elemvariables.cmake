@@ -1,4 +1,5 @@
 # To help simplify including Elemental in external projects
+# TODO: Complain if Qt5 was used
 
 ELEM_INC = @CMAKE_INSTALL_PREFIX@/include
 ELEM_LIB = @CMAKE_INSTALL_PREFIX@/lib

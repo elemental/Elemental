@@ -235,7 +235,6 @@ if(USE_QT5)
     set(ELEM_HEADERS_PREMOC 
         "include/elemental/graphics/display_window_decl.hpp;include/elemental/graphics/complex_display_window_decl.hpp")
     qt_wrap_cpp(elemental ELEM_MOC_SRC ${ELEM_HEADERS_PREMOC})
-    message("ELEM_MOC_SRC=${ELEM_MOC_SRC}")
     include_directories(${Qt5Widgets_INCLUDE_DIRS})
     add_definitions(${Qt5Widgets_DEFINITIONS})
     set(EXTRA_FLAGS "${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${EXTRA_FLAGS}")
