@@ -40,7 +40,10 @@ main( int argc, char* argv[] )
             D.Print("D:");
 #ifdef HAVE_QT5
         if( display )
-            Display( D, "Diagonal" );
+        {
+            Display( D, "Diagonal matrix" );
+            Spy( D, "Diagonal spy plot" );
+        }
 #endif
     }
     catch( ArgException& e )

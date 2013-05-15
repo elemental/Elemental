@@ -12,7 +12,7 @@
 
 #include "elemental/graphics/ColorMap.hpp"
 #include "elemental/graphics/Display.hpp"
-// TODO
-//#include "elemental/graphics/Spy.hpp"
+#include "elemental/graphics/Spy.hpp"
+// TODO: Distribution plot
 
 #endif // ifndef GRAPHICS_IMPL_HPP

@@ -36,7 +36,10 @@ main( int argc, char* argv[] )
             J.Print("Jacobi matrix for Legendre polynomials");
 #ifdef HAVE_QT5
         if( display )
+        {
             Display( J, "Jacobi matrix for Legendre polynomials" );
+            Spy( J, "Spy plot for Jacobi matrix" );
+        }
 #endif
 
 #ifdef HAVE_PMRRR

@@ -35,7 +35,10 @@ main( int argc, char* argv[] )
             I.Print("Identity");
 #ifdef HAVE_QT5
         if( display )
-            Display( I, "Identity" );
+        {
+            Display( I, "Identity matrix" );
+            Spy( I, "Identity spy plot" );
+        }
 #endif
     }
     catch( ArgException& e )

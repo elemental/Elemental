@@ -35,7 +35,10 @@ main( int argc, char* argv[] )
             A.Print("1-2-1 matrix:");
 #ifdef HAVE_QT5
         if( display )
+        {
             Display( A, "1-2-1 matrix" );
+            Spy( A, "1-2-1 spy plot" );
+        }
 #endif
     }
     catch( ArgException& e )

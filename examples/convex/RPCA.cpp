@@ -392,7 +392,10 @@ main( int argc, char* argv[] )
             STrue.Print("True sparse");
 #ifdef HAVE_QT5
         if( display )
-            Display( STrue, "True sparse" );
+        {
+            Display( STrue, "True sparse matrix" );
+            Spy( STrue, "True sparse spy plot" );
+        }
 #endif
         if( commRank == 0 )
             std::cout << "Using " << STrue.Grid().Height() << " x " 
@@ -421,14 +424,15 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            L.Print("Estimated low-rank");
-            S.Print("Estimated sparse"); 
+            L.Print("Estimated low-rank matrix");
+            S.Print("Estimated sparse matrix"); 
         }
 #ifdef HAVE_QT5
         if( display )
         {
-            Display( L, "Estimated low-rank" );
-            Display( S, "Estimated sparse" );
+            Display( L, "Estimated low-rank matrix" );
+            Display( S, "Estimated sparse matrix" );
+            Spy( S, "Estimated sparse spy plot" );
         }
 #endif
         Axpy( C(-1), LTrue, L );

@@ -35,7 +35,10 @@ main( int argc, char* argv[] )
             W.Print("Wilkinson matrix");
 #ifdef HAVE_QT5
         if( display )
-            Display( W, "Wilkinson" );
+        {
+            Display( W, "Wilkinson matrix" );
+            Spy( W, "Wilkinson spy plot" );
+        }
 #endif
     }
     catch( ArgException& e )
