@@ -17,6 +17,8 @@
 
 #include "elemental/graphics/display_widget_impl.hpp"
 
+#include <QApplication>
+
 namespace elem {
 
 template<typename T>
@@ -38,6 +40,9 @@ Display( const Matrix<T>& A, std::string title="" )
     DisplayWindow* displayWindow = new DisplayWindow;
     displayWindow->Display( ADouble, qTitle );
     displayWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
 }
 
 template<typename T>
@@ -59,6 +64,9 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
     ComplexDisplayWindow* displayWindow = new ComplexDisplayWindow;
     displayWindow->Display( ADouble, qTitle );
     displayWindow->show();
+
+    // Spend at most 200 milliseconds rendering
+    QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
 }
 
 template<typename T,Distribution U,Distribution V>
