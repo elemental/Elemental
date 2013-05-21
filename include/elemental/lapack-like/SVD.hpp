@@ -151,12 +151,9 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 #ifndef RELEASE
     CallStackEntry entry("SVD");
 #endif
-    typedef BASE(F) R;
-
     const int m = A.Height();
     const int n = A.Width();
-    const int k = std::min(m,n);
-    s.ResizeTo( k, 1 );
+    s.ResizeTo( std::min(m,n), 1 );
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
 }
 

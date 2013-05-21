@@ -51,8 +51,6 @@ DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 #ifndef RELEASE
     CallStackEntry entry("svd::DivideAndConquerSVD");
 #endif
-    typedef BASE(F) R;
-
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min(m,n);
@@ -74,8 +72,6 @@ QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 #ifndef RELEASE
     CallStackEntry entry("svd::QRSVD");
 #endif
-    typedef BASE(F) R;
-
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min(m,n);

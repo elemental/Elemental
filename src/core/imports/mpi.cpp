@@ -340,6 +340,16 @@ void Wait( Request& request, Status& status )
 }
 
 // Ensure that several requests finish before continuing
+void WaitAll( int numRequests, Request* requests )
+{
+#ifndef RELEASE
+    CallStackEntry entry("mpi::WaitAll");
+#endif
+    std::vector<Status> statuses( numRequests );
+    SafeMpi( MPI_Waitall( numRequests, requests, &statuses[0] ) );
+}
+
+// Ensure that several requests finish before continuing
 void WaitAll( int numRequests, Request* requests, Status* statuses )
 {
 #ifndef RELEASE

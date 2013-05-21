@@ -421,23 +421,23 @@ AbstractDistMatrix<T,Int>::GetLocal( Int i, Int j ) const
 
 template<typename T,typename Int>
 void
-AbstractDistMatrix<T,Int>::SetLocal( Int iLocal, Int jLocal, T alpha )
-{ matrix_.Set(iLocal,jLocal,alpha); }
+AbstractDistMatrix<T,Int>::SetLocal( Int iLoc, Int jLoc, T alpha )
+{ matrix_.Set(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 void
-AbstractDistMatrix<T,Int>::UpdateLocal( Int iLocal, Int jLocal, T alpha )
-{ matrix_.Update(iLocal,jLocal,alpha); }
+AbstractDistMatrix<T,Int>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
+{ matrix_.Update(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 T*
-AbstractDistMatrix<T,Int>::Buffer( Int iLocal, Int jLocal )
-{ return matrix_.Buffer(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::Buffer( Int iLoc, Int jLoc )
+{ return matrix_.Buffer(iLoc,jLoc); }
 
 template<typename T,typename Int>
 const T*
-AbstractDistMatrix<T,Int>::LockedBuffer( Int iLocal, Int jLocal ) const
-{ return matrix_.LockedBuffer(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::LockedBuffer( Int iLoc, Int jLoc ) const
+{ return matrix_.LockedBuffer(iLoc,jLoc); }
 
 template<typename T,typename Int>
 elem::Matrix<T,Int>&
@@ -522,37 +522,37 @@ AbstractDistMatrix<T,Int>::Write
 
 template<typename T,typename Int>
 BASE(T)
-AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLocal, Int jLocal ) const
-{ return matrix_.GetRealPart(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+{ return matrix_.GetRealPart(iLoc,jLoc); }
 
 template<typename T,typename Int>
 BASE(T)
-AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLocal, Int jLocal ) const
-{ return matrix_.GetImagPart(iLocal,jLocal); }
+AbstractDistMatrix<T,Int>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+{ return matrix_.GetImagPart(iLoc,jLoc); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalRealPart
-( Int iLocal, Int jLocal, BASE(T) alpha )
-{ matrix_.SetRealPart(iLocal,jLocal,alpha); }
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::SetLocalImagPart
-( Int iLocal, Int jLocal, BASE(T) alpha )
-{ matrix_.SetImagPart(iLocal,jLocal,alpha); }
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.SetImagPart(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalRealPart
-( Int iLocal, Int jLocal, BASE(T) alpha )
-{ matrix_.UpdateRealPart(iLocal,jLocal,alpha); }
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::UpdateLocalImagPart
-( Int iLocal, Int jLocal, BASE(T) alpha )
-{ matrix_.UpdateImagPart(iLocal,jLocal,alpha); }
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
 
 template<typename T,typename Int>
 void

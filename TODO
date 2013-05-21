@@ -26,6 +26,7 @@ Functionality
 
 Maintenance
 ===========
+- Update elemvariables to support usage of Qt5
 - Documentation for new visualization routines (with the Walsh driver as an example)
 - Many more references
 - Update documentation for new special matrices

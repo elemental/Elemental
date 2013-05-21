@@ -392,10 +392,10 @@ DistMatrix<T,STAR,MD,Int>::PrintBase
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            T* destCol = &sendBuf[colShift+jLocal*lcm*height];
-            const T* sourceCol = &thisBuffer[jLocal*thisLDim];
+            T* destCol = &sendBuf[colShift+jLoc*lcm*height];
+            const T* sourceCol = &thisBuffer[jLoc*thisLDim];
             for( Int i=0; i<height; ++i )
                 destCol[i] = sourceCol[i];
         }
@@ -802,10 +802,10 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* ACol = &ABuffer[(rowShift+jLocal*lcm)*ALDim];
-            T* thisCol = &thisBuffer[jLocal*thisLDim];
+            const T* ACol = &ABuffer[(rowShift+jLoc*lcm)*ALDim];
+            T* thisCol = &thisBuffer[jLoc*thisLDim];
             MemCopy( thisCol, ACol, height );
         }
     }
@@ -837,8 +837,8 @@ DistMatrix<T,STAR,MD,Int>::GetRealPart( Int i, Int j ) const
     R u;
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        u = this->GetLocalRealPart( i, jLocal );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        u = this->GetLocalRealPart( i, jLoc );
     }
     mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
     return u;
@@ -865,8 +865,8 @@ DistMatrix<T,STAR,MD,Int>::GetImagPart( Int i, Int j ) const
     R u;
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        u = this->GetLocalImagPart( i, jLocal );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        u = this->GetLocalImagPart( i, jLoc );
     }
     mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
     return u;
@@ -889,8 +889,8 @@ DistMatrix<T,STAR,MD,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->SetLocalRealPart( i, jLocal, u );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        this->SetLocalRealPart( i, jLoc, u );
     }
 }
 
@@ -914,8 +914,8 @@ DistMatrix<T,STAR,MD,Int>::SetImagPart( Int i, Int j, BASE(T) u )
 
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->SetLocalImagPart( i, jLocal, u );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        this->SetLocalImagPart( i, jLoc, u );
     }
 }
 
@@ -936,8 +936,8 @@ DistMatrix<T,STAR,MD,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->UpdateLocalRealPart( i, jLocal, u );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        this->UpdateLocalRealPart( i, jLoc, u );
     }
 }
 
@@ -961,8 +961,8 @@ DistMatrix<T,STAR,MD,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
 
     if( g.VCRank() == ownerRank )
     {
-        const Int jLocal = (j-this->RowShift()) / g.LCM();
-        this->UpdateLocalImagPart( i, jLocal, u );
+        const Int jLoc = (j-this->RowShift()) / g.LCM();
+        this->UpdateLocalImagPart( i, jLoc, u );
     }
 }
 

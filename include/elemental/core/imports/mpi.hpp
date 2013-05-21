@@ -75,6 +75,7 @@ const Op BINARY_XOR = MPI_BXOR;
 
 // Added constant(s)
 const int MIN_COLL_MSG = 1; // minimum message size for collectives
+inline int Pad( int count ) { return std::max(count,MIN_COLL_MSG); }
 
 //----------------------------------------------------------------------------//
 // Routines                                                                   //
@@ -124,6 +125,7 @@ void GroupTranslateRanks
 void Barrier( Comm comm );
 void Wait( Request& request );
 void Wait( Request& request, Status& status );
+void WaitAll( int numRequests, Request* requests );
 void WaitAll( int numRequests, Request* requests, Status* statuses );
 bool Test( Request& request );
 bool IProbe( int source, int tag, Comm comm, Status& status );

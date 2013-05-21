@@ -181,7 +181,7 @@ void Initialize( int& argc, char**& argv )
 
 #ifdef HAVE_QT5
     ::coreApp = QCoreApplication::instance();
-    if( coreApp == 0 )
+    if( ::coreApp == 0 )
     {
         ::coreApp = new QApplication( argc, argv );        
         ::elemInitializedQt = true;
@@ -218,7 +218,7 @@ void Initialize( int& argc, char**& argv )
 void Finalize()
 {
 #ifndef RELEASE
-    PushCallStack("Finalize");
+    CallStackEntry entry("Finalize");
 #endif
     if( ::numElemInits <= 0 )
         throw std::logic_error("Finalized Elemental more than initialized");
@@ -265,9 +265,6 @@ void Finalize()
         while( ! ::blocksizeStack.empty() )
             ::blocksizeStack.pop();
     }
-#ifndef RELEASE
-    PopCallStack();
-#endif
 }
 
 MpiArgs& GetArgs()
@@ -292,12 +289,11 @@ void PopBlocksizeStack()
 const Grid& DefaultGrid()
 {
 #ifndef RELEASE
-    PushCallStack("DefaultGrid");
+    CallStackEntry entry("DefaultGrid");
     if( ::defaultGrid == 0 )
         throw std::logic_error
         ("Attempted to return a non-existant default grid. Please ensure that "
          "Elemental is initialized before creating a DistMatrix.");
-    PopCallStack();
 #endif
     return *::defaultGrid;
 }

@@ -10,6 +10,7 @@
 #ifndef GRAPHICS_DISPLAYWINDOW_DECL_HPP
 #define GRAPHICS_DISPLAYWINDOW_DECL_HPP
 
+#include <QPushButton>
 #include <QScrollArea>
 #include <QWidget>
 
