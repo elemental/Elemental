@@ -244,8 +244,16 @@ void DumpCallStack();
 class CallStackEntry 
 {
 public:
-    CallStackEntry( std::string s ) { PushCallStack(s); }
-    ~CallStackEntry() { PopCallStack(); }
+    CallStackEntry( std::string s ) 
+    { 
+        if( !std::uncaught_exception() )
+            PushCallStack(s); 
+    }
+    ~CallStackEntry() 
+    { 
+        if( !std::uncaught_exception() )
+            PopCallStack(); 
+    }
 };
 #endif // ifndef RELEASE
 
