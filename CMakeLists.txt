@@ -43,7 +43,7 @@ else()
 endif()
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
-option(USE_QT5 "Attempt to use Qt5?" ON)
+option(USE_QT5 "Attempt to use Qt5?" OFF)
 
 ################################################################################
 # Advanced build options                                                       #
