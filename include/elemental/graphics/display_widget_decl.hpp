@@ -29,6 +29,8 @@ public:
     void DisplayImag( const Matrix<T>* A, BASE(T) minVal, BASE(T) maxVal );
     // TODO: Add colorbar
 
+    void SavePng( std::string basename ) const;
+
 protected:
     void paintEvent( QPaintEvent* event );
 

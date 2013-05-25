@@ -43,8 +43,9 @@ private:
     const Matrix<Complex<double> > *matrix_;
 
 public slots:
-    void UseLocalScale();
-    void UseGlobalScale();
+    void SaveReal();
+    void SaveImag();
+    void SetScale( bool global );
 };
 
 } // namespace elem

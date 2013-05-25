@@ -42,8 +42,8 @@ private:
     const Matrix<double> *matrix_;
 
 public slots:
-    void UseLocalScale();
-    void UseGlobalScale();
+    void Save();
+    void SetScale( bool global );
 };
 
 } // namespace elem

@@ -12,6 +12,7 @@
 
 #ifdef HAVE_QT5
 
+#include <QFile>
 #include <QPainter>
 #include <QPixmap>
 #include <QStylePainter>
@@ -186,6 +187,20 @@ DisplayWidget<T>::DisplayImag
     // Keep track of the extrema to allow for consistent visualization
     UpdateMinImagWindowVal( minVal );
     UpdateMaxImagWindowVal( maxVal );
+}
+
+template<typename T>
+inline void 
+DisplayWidget<T>::SavePng( std::string basename ) const
+{
+#ifndef RELEASE
+    CallStackEntry entry("DisplayWidget::SavePng");
+#endif
+    std::ostringstream os;
+    os << basename << ".png";
+    QFile file( os.str().c_str() );
+    file.open( QIODevice::WriteOnly );
+    pixmap_.save( &file, "PNG" );
 }
 
 } // namespace elem

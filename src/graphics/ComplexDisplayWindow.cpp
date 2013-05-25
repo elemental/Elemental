@@ -12,6 +12,7 @@
 #ifdef HAVE_QT5
 
 #include <QBoxLayout>
+#include <QCheckBox>
 
 namespace elem {
 
@@ -22,35 +23,38 @@ ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
     CallStackEntry entry("ComplexDisplayWindow::ComplexDisplayWindow");
 #endif
     matrix_ = 0;
+    QVBoxLayout* mainLayout = new QVBoxLayout();
 
     QHBoxLayout* matrixLayout = new QHBoxLayout();
-
-    // Display the real data
+    // Real data
     realDisplay_ = new DisplayWidget<Complex<double> >();
     realScroll_ = new QScrollArea();
     realScroll_->setWidget( realDisplay_ );
     matrixLayout->addWidget( realScroll_ );
-
-    // Display the imaginary data
+    // Imaginary data
     imagDisplay_ = new DisplayWidget<Complex<double> >();
     imagScroll_ = new QScrollArea();
     imagScroll_->setWidget( imagDisplay_ );
     matrixLayout->addWidget( imagScroll_ );
-
-    // Add two buttons underneath the two matrices
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    QPushButton* localButton = new QPushButton("Local");
-    QPushButton* globalButton = new QPushButton("Global");
-    buttonLayout->addWidget( localButton );
-    buttonLayout->addWidget( globalButton );
-
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+    // Push both
     mainLayout->addLayout( matrixLayout );
-    mainLayout->addLayout( buttonLayout );
-    setLayout( mainLayout );
 
-    connect( localButton, SIGNAL(clicked()), this, SLOT(UseLocalScale()) );
-    connect( globalButton, SIGNAL(clicked()), this, SLOT(UseGlobalScale()) );
+    // Two buttons for saving real and imaginary images
+    QHBoxLayout* saveLayout = new QHBoxLayout();
+    QPushButton* realSaveButton = new QPushButton("Save real");
+    QPushButton* imagSaveButton = new QPushButton("Save imag");
+    saveLayout->addWidget( realSaveButton );
+    saveLayout->addWidget( imagSaveButton );
+    mainLayout->addLayout( saveLayout );
+
+    // Checkbox for switching to the global scale
+    QCheckBox* scaleBox = new QCheckBox("Global scale");
+    mainLayout->addWidget( scaleBox );
+
+    setLayout( mainLayout );
+    connect( realSaveButton, SIGNAL(clicked()), this, SLOT(SaveReal()) );
+    connect( imagSaveButton, SIGNAL(clicked()), this, SLOT(SaveImag()) );
+    connect( scaleBox, SIGNAL(clicked(bool)), this, SLOT(SetScale(bool)) );
     setAttribute( Qt::WA_DeleteOnClose );
 
     // Elemental needs to know if a window was opened for cleanup purposes
@@ -96,27 +100,47 @@ ComplexDisplayWindow::Display
 }
 
 void
-ComplexDisplayWindow::UseLocalScale()
+ComplexDisplayWindow::SaveReal()
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::UseLocalScale");
+    CallStackEntry entry("ComplexDisplayWindow::SaveReal");
 #endif
-    realDisplay_->DisplayReal( matrix_ );
-    imagDisplay_->DisplayImag( matrix_ );
+    std::ostringstream os;
+    os << windowTitle().toStdString() << " (real)";
+    realDisplay_->SavePng( os.str() );
+}
+
+void
+ComplexDisplayWindow::SaveImag()
+{
+#ifndef RELEASE
+    CallStackEntry entry("ComplexDisplayWindow::SaveImag");
+#endif
+    std::ostringstream os;
+    os << windowTitle().toStdString() << " (imag)";
+    imagDisplay_->SavePng( os.str() );
 }
 
 void 
-ComplexDisplayWindow::UseGlobalScale()
+ComplexDisplayWindow::SetScale( bool global )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ComplexDisplayWindow::UseGlobalScale");
+    CallStackEntry entry("ComplexDisplayWindow::SetScale");
 #endif
-    const double minRealVal = MinRealWindowVal();
-    const double maxRealVal = MaxRealWindowVal();
-    const double minImagVal = MinImagWindowVal();
-    const double maxImagVal = MaxImagWindowVal();
-    realDisplay_->DisplayReal( matrix_, minRealVal, maxRealVal );
-    imagDisplay_->DisplayImag( matrix_, minImagVal, maxImagVal );
+    if( global )
+    {
+        const double minRealVal = MinRealWindowVal();
+        const double maxRealVal = MaxRealWindowVal();
+        const double minImagVal = MinImagWindowVal();
+        const double maxImagVal = MaxImagWindowVal();
+        realDisplay_->DisplayReal( matrix_, minRealVal, maxRealVal );
+        imagDisplay_->DisplayImag( matrix_, minImagVal, maxImagVal );
+    }
+    else
+    {
+        realDisplay_->DisplayReal( matrix_ );
+        imagDisplay_->DisplayImag( matrix_ );
+    }
 }
 
 } // namespace elem

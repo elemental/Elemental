@@ -12,6 +12,7 @@
 #ifdef HAVE_QT5
 
 #include <QBoxLayout>
+#include <QCheckBox>
 
 namespace elem {
 
@@ -22,29 +23,29 @@ DisplayWindow::DisplayWindow( QWidget* parent )
     CallStackEntry entry("DisplayWindow::DisplayWindow");
 #endif
     matrix_ = 0;
+    QVBoxLayout* mainLayout = new QVBoxLayout();
 
-    // For the real matrix
     QHBoxLayout* matrixLayout = new QHBoxLayout();
+    // Real data
     display_ = new DisplayWidget<double>();
     scroll_ = new QScrollArea();
     scroll_->setWidget( display_ );
     matrixLayout->addWidget( scroll_ );
-
-    // Add two buttons at the bottom
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    QPushButton* localButton = new QPushButton("Local");
-    QPushButton* globalButton = new QPushButton("Global");
-    buttonLayout->addWidget( localButton );
-    buttonLayout->addWidget( globalButton );
-
-    // Stack the matrix on top of the buttons
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+    // Push
     mainLayout->addLayout( matrixLayout );
-    mainLayout->addLayout( buttonLayout );
-    setLayout( mainLayout );
 
-    connect( localButton, SIGNAL(clicked()), this, SLOT(UseLocalScale()) );
-    connect( globalButton, SIGNAL(clicked()), this, SLOT(UseGlobalScale()) );
+    // Add a save button and a check box for the scale
+    QHBoxLayout* optionsLayout = new QHBoxLayout();
+    QPushButton* saveButton = new QPushButton("Save");
+    QCheckBox* scaleBox = new QCheckBox("Global scale");
+    optionsLayout->addWidget( saveButton );
+    optionsLayout->addWidget( scaleBox );
+    // Push
+    mainLayout->addLayout( optionsLayout ); 
+
+    setLayout( mainLayout );
+    connect( saveButton, SIGNAL(clicked()), this, SLOT(Save()) );
+    connect( scaleBox, SIGNAL(clicked(bool)), this, SLOT(SetScale(bool)) );
     setAttribute( Qt::WA_DeleteOnClose );
 
     // Elemental needs to know if a window was opened for cleanup purposes
@@ -84,23 +85,30 @@ DisplayWindow::Display
 }
 
 void
-DisplayWindow::UseLocalScale()
+DisplayWindow::Save()
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWindow::UseLocalScale");
+    CallStackEntry entry("DisplayWindow::Save");
 #endif
-    display_->DisplayReal( matrix_ );
+    display_->SavePng( windowTitle().toStdString() );
 }
 
 void
-DisplayWindow::UseGlobalScale()
+DisplayWindow::SetScale( bool global )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DisplayWindow::UseGlobalScale");
+    CallStackEntry entry("DisplayWindow::SetScale");
 #endif
-    const double minVal = MinRealWindowVal();
-    const double maxVal = MaxRealWindowVal();
-    display_->DisplayReal( matrix_, minVal, maxVal );
+    if( global )
+    {
+        const double minVal = MinRealWindowVal();
+        const double maxVal = MaxRealWindowVal();
+        display_->DisplayReal( matrix_, minVal, maxVal );
+    }
+    else
+    {
+        display_->DisplayReal( matrix_ );
+    }
 }
 
 } // namespace elem

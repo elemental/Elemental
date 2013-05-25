@@ -1,5 +1,6 @@
 Functionality
 =============
+- Ostrowski matrices
 - Power-method-like p-norm estimation (especially when p=2)
 - Support for BLIS and fused Trmv's to accelerate HermitianEig
 - Transpose option for LeastSquares
