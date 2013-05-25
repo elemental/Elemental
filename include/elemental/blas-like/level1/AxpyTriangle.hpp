@@ -71,26 +71,26 @@ AxpyTriangle
         const int YLDim = Y.LDim();
         if( uplo == UPPER )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*rowStride;        
+                const int j = rowShift + jLoc*rowStride;        
                 const int localHeightAbove = Length( j+1, colShift, colStride );
                 blas::Axpy
                 ( localHeightAbove, alpha, 
-                  &XBuffer[jLocal*XLDim], 1, &YBuffer[jLocal*YLDim], 1 );
+                  &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
             }
         }
         else
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*rowStride;
+                const int j = rowShift + jLoc*rowStride;
                 const int localHeightAbove = Length( j, colShift, colStride );
                 const int localHeightBelow = localHeight - localHeightAbove;
                 blas::Axpy
                 ( localHeightBelow, alpha, 
-                  &XBuffer[localHeightAbove+jLocal*XLDim], 1,
-                  &YBuffer[localHeightAbove+jLocal*YLDim], 1 );
+                  &XBuffer[localHeightAbove+jLoc*XLDim], 1,
+                  &YBuffer[localHeightAbove+jLoc*YLDim], 1 );
             }
         }
     }

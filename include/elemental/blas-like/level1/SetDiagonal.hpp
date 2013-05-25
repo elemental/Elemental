@@ -70,13 +70,13 @@ SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
     const int rowStride = A.RowStride();
     const int colStride = A.ColStride();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
+        const int j = rowShift + jLoc*rowStride;
         if( j < height && j % colStride == colShift )
         {
-            const int iLocal = (j-colShift) / colStride;
-            A.SetLocal( iLocal, jLocal, alpha );
+            const int iLoc = (j-colShift) / colStride;
+            A.SetLocal( iLoc, jLoc, alpha );
         }
     }
 }
@@ -97,27 +97,27 @@ SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )
     const int localWidth = A.LocalWidth();
     if( side == LEFT )
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int i = j-offset;
             if( i >= 0 && i < height && i % colStride == colShift )
             {
-                const int iLocal = (i-colShift) / colStride;
-                A.SetLocal( iLocal, jLocal, alpha );
+                const int iLoc = (i-colShift) / colStride;
+                A.SetLocal( iLoc, jLoc, alpha );
             }
         }
     }
     else
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int i = j-offset+height-width;
             if( i >= 0 && i < height && i % colStride == colShift )
             {
-                const int iLocal = (i-colShift) / colStride;
-                A.SetLocal( iLocal, jLocal, alpha );
+                const int iLoc = (i-colShift) / colStride;
+                A.SetLocal( iLoc, jLoc, alpha );
             }
         }
     }

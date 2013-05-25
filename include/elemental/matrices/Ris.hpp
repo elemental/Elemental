@@ -41,13 +41,13 @@ Ris( DistMatrix<F,U,V>& R, int n )
     const int rowShift = R.RowShift();
     const int colStride = R.ColStride();
     const int rowStride = R.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            R.SetLocal( iLocal, jLocal, oneHalf/(n-i-j-oneHalf) );
+            const int i = colShift + iLoc*colStride;
+            R.SetLocal( iLoc, jLoc, oneHalf/(n-i-j-oneHalf) );
         }
     }
 }

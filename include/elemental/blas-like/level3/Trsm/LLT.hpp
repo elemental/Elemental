@@ -223,8 +223,8 @@ inline void AddInLocalData
     {
         F* ZColBuffer = Z.Buffer(0,j);
         const F* X1ColBuffer = X1.LockedBuffer(0,j);
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            ZColBuffer[offset+stride*iLocal] += X1ColBuffer[iLocal];
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            ZColBuffer[offset+stride*iLoc] += X1ColBuffer[iLoc];
     }
 }
 

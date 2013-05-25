@@ -10,7 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/matrices/Circulant.hpp"
-#include "elemental/matrices/DiscreteFourier.hpp"
+#include "elemental/matrices/Fourier.hpp"
 #include "elemental/matrices/Zeros.hpp"
 #include "elemental/graphics.hpp"
 using namespace elem;
@@ -45,15 +45,15 @@ main( int argc, char* argv[] )
             Display( A, "Circulant" );
 #endif
 
-        // Create a discrete Fourier matrix, which can be used to diagonalize
-        // circulant matrices
+        // Create a Fourier matrix, which can be used to diagonalize circulant
+        // matrices
         DistMatrix<Complex<double> > F;
-        DiscreteFourier( F, n );
+        Fourier( F, n );
         if( print )
-            F.Print("DFT matrix (F):");
+            F.Print("DFT matrix:");
 #ifdef HAVE_QT5
         if( display )
-            Display( F, "Discrete Fourier" );
+            Display( F, "DFT matrix" );
 #endif
         
         // Form B := A F

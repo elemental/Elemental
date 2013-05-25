@@ -159,10 +159,10 @@ MakeHermitianUniformSpectrum
         const int colShift = v.ColShift();
         const int colStride = v.ColStride();
         const int localHeight = v.LocalHeight();
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            v.SetLocal( iLocal, 0, d[i]*u.GetLocal(iLocal,0) );
+            const int i = colShift + iLoc*colStride;
+            v.SetLocal( iLoc, 0, d[i]*u.GetLocal(iLoc,0) );
         }
     }
 
@@ -200,14 +200,14 @@ MakeHermitianUniformSpectrum
         const int rowShift = A.RowShift();
         const int colStride = A.ColStride();
         const int rowStride = A.RowStride();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            const int j = rowShift + jLoc*rowStride;
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                const int i = colShift + iLocal*colStride;
+                const int i = colShift + iLoc*colStride;
                 if( i == j )
-                    A.SetLocalImagPart( iLocal, jLocal, R(0) );
+                    A.SetLocalImagPart( iLoc, jLoc, R(0) );
             }
         }
     }

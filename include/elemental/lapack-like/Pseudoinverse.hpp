@@ -131,13 +131,13 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
     }
     // Invert above the tolerance
     const int numLocalVals = s.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const R sigma = s.GetLocal(iLocal,0);
+        const R sigma = s.GetLocal(iLoc,0);
         if( sigma < tolerance )
-            s.SetLocal(iLocal,0,0);
+            s.SetLocal(iLoc,0,0);
         else
-            s.SetLocal(iLocal,0,1/sigma);
+            s.SetLocal(iLoc,0,1/sigma);
     }
 
     // Scale U with the singular values, U := U Sigma
@@ -174,13 +174,13 @@ HermitianPseudoinverse
     }
     // Invert above the tolerance
     const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLocal,0);
+        const R omega = w.GetLocal(iLoc,0);
         if( Abs(omega) < tolerance )
-            w.SetLocal(iLocal,0,0);
+            w.SetLocal(iLoc,0,0);
         else
-            w.SetLocal(iLocal,0,1/omega);
+            w.SetLocal(iLoc,0,1/omega);
     }
 
     // Form the pseudoinverse

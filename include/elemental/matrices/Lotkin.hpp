@@ -39,8 +39,8 @@ Lotkin( DistMatrix<F,U,V>& A, int n )
     if( A.ColShift() == 0 )
     {
         const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            A.SetLocal( 0, jLocal, F(1) );
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            A.SetLocal( 0, jLoc, F(1) );
     } 
 }
 

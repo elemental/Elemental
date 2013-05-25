@@ -78,12 +78,12 @@ Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
     const unsigned rowShift = A.RowShift();
     const unsigned colStride = A.ColStride();
     const unsigned rowStride = A.RowStride();
-    for( unsigned jLocal=0; jLocal<localWidth; ++jLocal )
+    for( unsigned jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const unsigned j = rowShift + jLocal*rowStride;
-        for( unsigned iLocal=0; iLocal<localHeight; ++iLocal )
+        const unsigned j = rowShift + jLoc*rowStride;
+        for( unsigned iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const unsigned i = colShift + iLocal*colStride;
+            const unsigned i = colShift + iLoc*colStride;
 
             // Recurse on the quadtree, flipping the sign of the entry each
             // time we are in the bottom-right quadrant
@@ -100,9 +100,9 @@ Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
                 s %= t;
             }
             if( on )
-                A.SetLocal( iLocal, jLocal, onValue );
+                A.SetLocal( iLoc, jLoc, onValue );
             else
-                A.SetLocal( iLocal, jLocal, offValue );
+                A.SetLocal( iLoc, jLoc, offValue );
         }
     }
 }

@@ -41,13 +41,13 @@ Parter( DistMatrix<F,U,V>& P, int n )
     const int rowShift = P.RowShift();
     const int colStride = P.ColStride();
     const int rowStride = P.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            P.SetLocal( iLocal, jLocal, F(1)/(i-j+oneHalf) );
+            const int i = colShift + iLoc*colStride;
+            P.SetLocal( iLoc, jLoc, F(1)/(i-j+oneHalf) );
         }
     }
 }

@@ -54,10 +54,10 @@ main( int argc, char* argv[] )
             {
             case FOURIER:     
                 if( commRank == 0 ) 
-                    std::cout << "Testing DiscreteFourier " 
+                    std::cout << "Testing Fourier " 
                               << qrString << std::endl;
                 n = k;
-                DiscreteFourier( A, n ); 
+                Fourier( A, n ); 
                 break;
             case HILBERT:     
                 if( commRank == 0 )

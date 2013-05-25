@@ -517,10 +517,10 @@ if(ELEM_EXAMPLES)
     KyFanAndSchatten LDL LDLInverse LeastSquares Polar Pseudoinverse QDWH 
     SequentialQR Skeleton QR SequentialSVD SimpleSVD SVD)
   set(matrices_EXAMPLES 
-    Cauchy CauchyLike Circulant Diagonal DiscreteFourier Hankel
-    HermitianUniformSpectrum Hilbert Identity Kahan Legendre 
-    NormalUniformSpectrum Ones OneTwoOne PSFW Toeplitz Uniform Walsh Wilkinson 
-    Zeros)
+    Cauchy CauchyLike Circulant Diagonal Egorov Fourier Hankel
+    HermitianUniformSpectrum Hilbert Identity Kahan Legendre LehmerParterRis
+    NormalUniformSpectrum Ones OneTwoOne PSFW RiemannRedhefferGCD Toeplitz 
+    Uniform Walsh Wilkinson Zeros)
   if(HAVE_PMRRR)
     list(APPEND lapack-like_EXAMPLES
       HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig

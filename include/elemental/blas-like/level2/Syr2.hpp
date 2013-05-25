@@ -107,36 +107,34 @@ Syr2
         const T* yBuffer = y_MC_STAR.LockedBuffer();
         if( uplo == LOWER )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightAboveDiag = Length(j,colShift,r);
 
-                const T beta = y_MR_STAR.GetLocal(jLocal,0);
-                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_MR_STAR.GetLocal(jLoc,0);
+                const T kappa = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal] +
-                                    delta*yBuffer[iLocal];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc] + delta*yBuffer[iLoc];
             }
         }
         else
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightToDiag = Length(j+1,colShift,r);
 
-                const T beta = y_MR_STAR.GetLocal(jLocal,0);
-                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_MR_STAR.GetLocal(jLoc,0);
+                const T kappa = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal] + 
-                                    delta*yBuffer[iLocal];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc] + delta*yBuffer[iLoc];
             }
         }
         //--------------------------------------------------------------------//
@@ -167,36 +165,36 @@ Syr2
         const int incy = y_STAR_MC.LDim();
         if( uplo == LOWER )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightAboveDiag = Length(j,colShift,r);
 
-                const T beta = y_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal] +
-                                    delta*yBuffer[iLocal*incy];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc] +
+                                  delta*yBuffer[iLoc*incy];
             }
         }
         else
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightToDiag = Length(j+1,colShift,r);
 
-                const T beta = y_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = x_MR_STAR.GetLocal(jLocal,0);
+                const T beta = y_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = x_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal] +
-                                    delta*yBuffer[iLocal*incy];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc] +
+                                  delta*yBuffer[iLoc*incy];
             }
         }
         //--------------------------------------------------------------------//
@@ -227,36 +225,36 @@ Syr2
         const int incx = x_STAR_MC.LDim();
         if( uplo == LOWER )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightAboveDiag = Length(j,colShift,r);
 
-                const T beta = x_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = y_MR_STAR.GetLocal(jLocal,0);
+                const T beta = x_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = y_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal*incx] +
-                                    delta*yBuffer[iLocal]; 
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
+                                  delta*yBuffer[iLoc]; 
             }
         }
         else
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightToDiag = Length(j+1,colShift,r);
 
-                const T beta = x_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = y_MR_STAR.GetLocal(jLocal,0);
+                const T beta = x_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = y_MR_STAR.GetLocal(jLoc,0);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal*incx] +
-                                    delta*yBuffer[iLocal];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
+                                  delta*yBuffer[iLoc];
             }
         }
         //--------------------------------------------------------------------//
@@ -286,36 +284,36 @@ Syr2
         const int incy = y_STAR_MC.LDim();
         if( uplo == LOWER )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightAboveDiag = Length(j,colShift,r);
 
-                const T beta = y_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = x_STAR_MR.GetLocal(0,jLocal);
+                const T beta = y_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = x_STAR_MR.GetLocal(0,jLoc);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=heightAboveDiag; iLocal<localHeight; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal*incx] +
-                                    delta*yBuffer[iLocal*incy];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=heightAboveDiag; iLoc<localHeight; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
+                                  delta*yBuffer[iLoc*incy];
             }
         }
         else
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLocal*c;
+                const int j = rowShift + jLoc*c;
                 const int heightToDiag = Length(j+1,colShift,r);
 
-                const T beta = y_STAR_MR.GetLocal(0,jLocal);
-                const T kappa = x_STAR_MR.GetLocal(0,jLocal);
+                const T beta = y_STAR_MR.GetLocal(0,jLoc);
+                const T kappa = x_STAR_MR.GetLocal(0,jLoc);
                 const T gamma = ( conjugate ? alpha*Conj(beta) : alpha*beta );
                 const T delta = ( conjugate ? alpha*Conj(kappa) : alpha*kappa );
-                T* ACol = A.Buffer(0,jLocal);
-                for( int iLocal=0; iLocal<heightToDiag; ++iLocal )
-                    ACol[iLocal] += gamma*xBuffer[iLocal*incx] +
-                                    delta*yBuffer[iLocal*incy];
+                T* ACol = A.Buffer(0,jLoc);
+                for( int iLoc=0; iLoc<heightToDiag; ++iLoc )
+                    ACol[iLoc] += gamma*xBuffer[iLoc*incx] +
+                                  delta*yBuffer[iLoc*incy];
             }
         }
         //--------------------------------------------------------------------//

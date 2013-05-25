@@ -99,9 +99,9 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
     R localSum = 0;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            localSum += Pow( Abs(A.GetLocal(iLocal,jLocal)), p ); 
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            localSum += Pow( Abs(A.GetLocal(iLoc,jLoc)), p ); 
 
     R sum;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
@@ -130,14 +130,14 @@ HermitianEntrywiseNorm
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numUpperRows = Length(j+1,colShift,r);
-            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
+            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
             {
-                int i = colShift + iLocal*r;
-                const R term = Pow( Abs(A.GetLocal(iLocal,jLocal)), p );
+                int i = colShift + iLoc*r;
+                const R term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
                 if( i ==j )
                     localSum += term;
                 else
@@ -147,15 +147,15 @@ HermitianEntrywiseNorm
     }
     else
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numStrictlyUpperRows = Length(j,colShift,r);
-            for( int iLocal=numStrictlyUpperRows;
-                 iLocal<A.LocalHeight(); ++iLocal )
+            for( int iLoc=numStrictlyUpperRows;
+                 iLoc<A.LocalHeight(); ++iLoc )
             {
-                int i = colShift + iLocal*r;
-                const R term = Pow( Abs(A.GetLocal(iLocal,jLocal)), p );
+                int i = colShift + iLoc*r;
+                const R term = Pow( Abs(A.GetLocal(iLoc,jLoc)), p );
                 if( i ==j )
                     localSum += term;
                 else

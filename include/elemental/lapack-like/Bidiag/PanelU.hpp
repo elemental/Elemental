@@ -288,8 +288,8 @@ PanelU
             R* a12Buffer = a12.Buffer();
             const R* q21Buffer = q21_MR_MC.LockedBuffer();
             const int a12LDim = a12.LDim();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
+                a12Buffer[jLoc*a12LDim] -= q21Buffer[jLoc];
         }
 
         // Find tauP, v, and epsilon such that
@@ -707,8 +707,8 @@ PanelU
             C* a12Buffer = a12.Buffer();
             const C* q21Buffer = q21_MR_MC.LockedBuffer();
             const int a12LDim = a12.LDim();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                a12Buffer[jLocal*a12LDim] -= q21Buffer[jLocal];
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
+                a12Buffer[jLoc*a12LDim] -= q21Buffer[jLoc];
         }
 
         // Find tauP, v, and epsilon such that

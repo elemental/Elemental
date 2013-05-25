@@ -41,16 +41,16 @@ KMS( DistMatrix<T,U,V>& K, int n, T rho )
     const int rowShift = K.RowShift();
     const int colStride = K.ColStride();
     const int rowStride = K.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
             if( i < j )
-                K.SetLocal( iLocal, jLocal, Pow(rho,j-i) );
+                K.SetLocal( iLoc, jLoc, Pow(rho,j-i) );
             else
-                K.SetLocal( iLocal, jLocal, Conj(Pow(rho,i-j)) );
+                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,i-j)) );
         }
     }
 }

@@ -57,9 +57,9 @@ MakeOnes( DistMatrix<T,U,V>& A )
 #endif
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            A.SetLocal( iLocal, jLocal, T(1) );
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            A.SetLocal( iLoc, jLoc, T(1) );
 }
 
 } // namespace elem

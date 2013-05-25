@@ -137,10 +137,10 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     DistMatrix<R,U,STAR> d( n, 1, A.Grid() );
     const int colShift = d.ColShift();
     const int colStride = d.ColStride();
-    for( int iLocal=0; iLocal<d.LocalHeight(); ++iLocal )
+    for( int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const int i = colShift + iLocal*colStride;
-        d.SetLocal( iLocal, 0, Pow(zeta,i) );
+        const int i = colShift + iLoc*colStride;
+        d.SetLocal( iLoc, 0, Pow(zeta,i) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );
 }

@@ -61,13 +61,13 @@ MakeGCD( DistMatrix<T,U,V>& G )
     const int rowShift = G.RowShift();
     const int colStride = G.ColStride();
     const int rowStride = G.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            G.SetLocal( iLocal, jLocal, GCD(i+1,j+1) );
+            const int i = colShift + iLoc*colStride;
+            G.SetLocal( iLoc, jLoc, GCD(i+1,j+1) );
         }
     }
 }

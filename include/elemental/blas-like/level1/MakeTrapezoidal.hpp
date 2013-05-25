@@ -110,9 +110,9 @@ MakeTrapezoidal
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int lastZeroRow =
                 ( side==LEFT ? j-offset-1
                              : j-offset+height-width-1 );
@@ -121,7 +121,7 @@ MakeTrapezoidal
                 const int boundary = std::min( lastZeroRow+1, height );
                 const int numZeroRows =
                     Length_( boundary, colShift, colStride );
-                MemZero( &buffer[jLocal*ldim], numZeroRows );
+                MemZero( &buffer[jLoc*ldim], numZeroRows );
             }
         }
     }
@@ -130,9 +130,9 @@ MakeTrapezoidal
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int firstZeroRow =
                 ( side==LEFT ? std::max(j-offset+1,0)
                              : std::max(j-offset+height-width+1,0) );
@@ -140,7 +140,7 @@ MakeTrapezoidal
                 Length_(firstZeroRow,colShift,colStride);
             if( numNonzeroRows < localHeight )
             {
-                T* col = &buffer[numNonzeroRows+jLocal*ldim];
+                T* col = &buffer[numNonzeroRows+jLoc*ldim];
                 MemZero( col, localHeight-numNonzeroRows );
             }
         }

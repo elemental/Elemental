@@ -423,24 +423,24 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Carefully perform the local portion of the computation
     std::vector<Real> localScales(localWidth,0), 
                       localScaledSquares(localWidth,1);
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Real alphaAbs = Abs(A.GetLocal(iLocal,jLocal));    
+            const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));    
             if( alphaAbs != 0 )
             {
-                if( alphaAbs <= localScales[jLocal] )
+                if( alphaAbs <= localScales[jLoc] )
                 {
-                    const Real relScale = alphaAbs/localScales[jLocal];
-                    localScaledSquares[jLocal] += relScale*relScale;
+                    const Real relScale = alphaAbs/localScales[jLoc];
+                    localScaledSquares[jLoc] += relScale*relScale;
                 }
                 else
                 {
-                    const Real relScale = localScales[jLocal]/alphaAbs;
-                    localScaledSquares[jLocal] = 
-                        localScaledSquares[jLocal]*relScale*relScale + 1;
-                    localScales[jLocal] = alphaAbs;
+                    const Real relScale = localScales[jLoc]/alphaAbs;
+                    localScaledSquares[jLoc] = 
+                        localScaledSquares[jLoc]*relScale*relScale + 1;
+                    localScales[jLoc] = alphaAbs;
                 }
             }
         }
@@ -452,12 +452,12 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     ( &localScales[0], &scales[0], localWidth, mpi::MAX, colComm );
 
     // Equilibrate the local scaled sums to the maximum scale
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        if( scales[jLocal] != 0 )
+        if( scales[jLoc] != 0 )
         {
-            const Real relScale = localScales[jLocal]/scales[jLocal];
-            localScaledSquares[jLocal] *= relScale*relScale;
+            const Real relScale = localScales[jLoc]/scales[jLoc];
+            localScaledSquares[jLoc] *= relScale*relScale;
         }
     }
 
@@ -470,13 +470,13 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Finish the computation
     Real maxLocalNorm = 0;
     norms.resize( localWidth );
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        if( scales[jLocal] != 0 )
-            norms[jLocal] = scales[jLocal]*Sqrt(scaledSquares[jLocal]);
+        if( scales[jLoc] != 0 )
+            norms[jLoc] = scales[jLoc]*Sqrt(scaledSquares[jLoc]);
         else
-            norms[jLocal] = 0;
-        maxLocalNorm = std::max( maxLocalNorm, norms[jLocal] );
+            norms[jLoc] = 0;
+        maxLocalNorm = std::max( maxLocalNorm, norms[jLoc] );
     }
     Real maxNorm;
     mpi::AllReduce( &maxLocalNorm, &maxNorm, 1, mpi::MAX, rowComm );
@@ -503,10 +503,10 @@ ReplaceColumnNorms
                       localScaledSquares(numInaccurate,1);
     for( int s=0; s<numInaccurate; ++s )
     {
-        const int jLocal = inaccurateNorms[s];
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int jLoc = inaccurateNorms[s];
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const Real alphaAbs = Abs(A.GetLocal(iLocal,jLocal));    
+            const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));    
             if( alphaAbs != 0 )
             {
                 if( alphaAbs <= localScales[s] )
@@ -549,12 +549,12 @@ ReplaceColumnNorms
     // Finish the computation
     for( int s=0; s<numInaccurate; ++s )
     {
-        const int jLocal = inaccurateNorms[s];
+        const int jLoc = inaccurateNorms[s];
         if( scales[s] != 0 )
-            norms[jLocal] = scales[s]*Sqrt(scaledSquares[s]);
+            norms[jLoc] = scales[s]*Sqrt(scaledSquares[s]);
         else
-            norms[jLocal] = 0;
-        origNorms[jLocal] = norms[jLocal];
+            norms[jLoc] = 0;
+        origNorms[jLoc] = norms[jLoc];
     }
 }
 
@@ -713,18 +713,18 @@ BusingerGolub
         {
             const int k = a12RowShift + kLocal*rowStride;
             const int j = k + col+1;
-            const int jLocal = (j-rowShift) / rowStride;
-            if( norms[jLocal] != Real(0) )
+            const int jLoc = (j-rowShift) / rowStride;
+            if( norms[jLoc] != Real(0) )
             {
                 const Real beta = Abs(a12_STAR_MR.GetLocal(0,kLocal));
-                Real gamma = beta / norms[jLocal];
+                Real gamma = beta / norms[jLoc];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
-                const Real ratio = norms[jLocal] / origNorms[jLocal];
+                const Real ratio = norms[jLoc] / origNorms[jLoc];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecompute )
-                    inaccurateNorms.push_back( jLocal );
+                    inaccurateNorms.push_back( jLoc );
                 else
-                    norms[jLocal] *= Sqrt(gamma);
+                    norms[jLoc] *= Sqrt(gamma);
             }
         }
         // Step 2: Compute the replacement norms and also reset origNorms
@@ -931,18 +931,18 @@ BusingerGolub
         {
             const int k = a12RowShift + kLocal*rowStride;
             const int j = k + col+1;
-            const int jLocal = (j-rowShift) / rowStride;
-            if( norms[jLocal] != Real(0) )
+            const int jLoc = (j-rowShift) / rowStride;
+            if( norms[jLoc] != Real(0) )
             {
                 const Real beta = Abs(a12_STAR_MR.GetLocal(0,kLocal));
-                Real gamma = beta / norms[jLocal];
+                Real gamma = beta / norms[jLoc];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
-                const Real ratio = norms[jLocal] / origNorms[jLocal];
+                const Real ratio = norms[jLoc] / origNorms[jLoc];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecompute )
-                    inaccurateNorms.push_back( jLocal );
+                    inaccurateNorms.push_back( jLoc );
                 else
-                    norms[jLocal] *= Sqrt(gamma);
+                    norms[jLoc] *= Sqrt(gamma);
             }
         }
         // Step 2: Compute the replacement norms and also reset origNorms

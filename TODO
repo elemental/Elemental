@@ -39,4 +39,4 @@ Maintenance
 - Further improvements for the speed of the build process
 - Consistent handling of unblocked routines
 - Switch to C++11 for better 64-bit integer and std::complex support, as well as
-  std::thread, extern templates, and syntactic sugar
+  std::thread, extern templates, _Pragma, and syntactic sugar

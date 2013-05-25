@@ -158,10 +158,10 @@ MakeNormalUniformSpectrum
         const int colShift = v.ColShift();
         const int colStride = v.ColStride();
         const int localHeight = v.LocalHeight();
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            v.SetLocal( iLocal, 0, d[i]*u.GetLocal(iLocal,0) );
+            const int i = colShift + iLoc*colStride;
+            v.SetLocal( iLoc, 0, d[i]*u.GetLocal(iLoc,0) );
         }
     }
 
@@ -177,10 +177,10 @@ MakeNormalUniformSpectrum
         const int colShift = w.ColShift();
         const int colStride = w.ColStride();
         const int localHeight = w.LocalHeight();
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            w.SetLocal( iLocal, 0, Conj(d[i])*u.GetLocal(iLocal,0) );
+            const int i = colShift + iLoc*colStride;
+            w.SetLocal( iLoc, 0, Conj(d[i])*u.GetLocal(iLoc,0) );
         }
     }
 

@@ -72,16 +72,16 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int lastZeroRow = j-1;
             if( lastZeroRow >= 0 )
             {
                 const int boundary = std::min( lastZeroRow+1, height );
                 const int numZeroRows =
                     Length_( boundary, colShift, colStride );
-                MemZero( &buffer[jLocal*ldim], numZeroRows );
+                MemZero( &buffer[jLoc*ldim], numZeroRows );
             }
         }
     }
@@ -90,15 +90,14 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLocal*rowStride;
+            const int j = rowShift + jLoc*rowStride;
             const int firstZeroRow = j+1;
-            const int numNonzeroRows =
-                Length_(firstZeroRow,colShift,colStride);
+            const int numNonzeroRows = Length_(firstZeroRow,colShift,colStride);
             if( numNonzeroRows < localHeight )
             {
-                T* col = &buffer[numNonzeroRows+jLocal*ldim];
+                T* col = &buffer[numNonzeroRows+jLoc*ldim];
                 MemZero( col, localHeight-numNonzeroRows );
             }
         }

@@ -63,31 +63,53 @@ An :math:`n \times n` matrix :math:`A` is called *diagonal* if each entry :math:
 
    Construct a diagonal matrix from the vector of diagonal values, :math:`d`.
 
-DiscreteFourier
----------------
+Egorov
+------
+**TODO**
+
+Extended Kahan
+--------------
+**TODO**
+
+Fiedler
+-------
+
+Forsythe
+--------
+**TODO**
+
+Fourier
+-------
 The :math:`n \times n` *Discrete Fourier Transform* (DFT) matrix, say :math:`A`, is given by
 
 .. math::
 
    \alpha_{i,j} = \frac{e^{-2\pi i j / n}}{\sqrt{n}}.
 
-.. cpp:function:: void DiscreteFourier( Matrix<Complex<R> >& A, int n )
-.. cpp:function:: void DiscreteFourier( DistMatrix<Complex<R>,U,V>& A, int n )
+.. cpp:function:: void Fourier( Matrix<Complex<R> >& A, int n )
+.. cpp:function:: void Fourier( DistMatrix<Complex<R>,U,V>& A, int n )
 
    Set the matrix ``A`` equal to the :math:`n \times n` DFT matrix.
 
-.. cpp:function:: void MakeDiscreteFourier( Matrix<Complex<R> >& A )
-.. cpp:function:: void MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
+.. cpp:function:: void MakeFourier( Matrix<Complex<R> >& A )
+.. cpp:function:: void MakeFourier( DistMatrix<Complex<R>,U,V>& A )
 
-   Turn the existing :math:`n \times n` matrix ``A`` into a discrete Fourier 
-   matrix.
+   Turn the existing :math:`n \times n` matrix ``A`` into a DFT matrix.
 
-Extended Kahan
---------------
+GCD
+---
+**TODO**
+
+Gear
+----
 **TODO**
 
 Golub/Klema/Stewart 
 -------------------
+**TODO**
+
+Grcar
+-----
 **TODO**
 
 Hankel
@@ -107,6 +129,10 @@ where :math:`\alpha_{i,j}` is the :math:`(i,j)` entry of :math:`A` and
 
    Create an :math:`m \times n` Hankel matrix from the generate vector, 
    :math:`b`.
+
+Hanowa
+------
+**TODO**
 
 Hilbert
 -------
@@ -140,6 +166,10 @@ matrices.
 
    Set the matrix ``A`` to be identity-like.
 
+Jordan
+------
+**TODO**
+
 Kahan
 -----
 For any pair :math:`(\phi,\zeta)` such that :math:`|\phi|^2+|\zeta|^2=1`, 
@@ -159,6 +189,14 @@ the corresponding :math:`n \times n` Kahan matrix is given by:
 
    Sets the matrix ``A`` equal to the :math:`n \times n` Kahan matrix with 
    the specified value for :math:`\phi`.
+
+KMS
+---
+**TODO**
+
+Lauchli
+-------
+**TODO**
 
 Legendre
 --------
@@ -181,6 +219,18 @@ eigenvector.
 .. cpp:function:: void Legendre( DistMatrix<F,U,V>& A, int n )
 
    Sets the matrix ``A`` equal to the :math:`n \times n` Jacobi matrix.
+
+Lehmer
+------
+**TODO**
+
+Lotkin
+------
+**TODO**
+
+MinIJ
+-----
+**TODO**
 
 Ones
 ----
@@ -213,6 +263,26 @@ super-diagonals of all ones.
 
    Modify the entries of the square matrix ``A`` to be "1-2-1".
 
+Parter
+------
+**TODO**
+
+Pei
+---
+**TODO**
+
+Redheffer
+---------
+**TODO**
+
+Riemann
+-------
+**TODO**
+
+Ris
+---
+**TODO**
+
 Toeplitz
 --------
 An :math:`m \times n` matrix is *Toeplitz* if there exists a vector :math:`b` such that, for each entry :math:`\alpha_{i,j}` of :math:`A`,
@@ -227,6 +297,10 @@ where :math:`\beta_k` is the :math:`k`'th entry of :math:`b`.
 .. cpp:function:: void Toeplitz( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& b )
 
    Build the matrix ``A`` using the generating vector :math:`b`.
+
+TriW
+----
+**TODO**
 
 Walsh
 -----

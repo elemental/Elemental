@@ -54,9 +54,9 @@ struct MakeUniformHelper<T,MC,MR>
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocal( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -77,8 +77,8 @@ struct MakeUniformHelper<T,MC,STAR>
             if( grid.Col() == 0 )
             {
                 for( int j=0; j<n; ++j )
-                    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                        buffer[iLocal+j*localHeight] = 
+                    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                        buffer[iLoc+j*localHeight] = 
                             center + radius*SampleUnitBall<T>();
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
@@ -109,8 +109,8 @@ struct MakeUniformHelper<T,MD,STAR>
             const int n = A.Width();
             const int localHeight = A.LocalHeight();
             for( int j=0; j<n; ++j )
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                    A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
+                for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                    A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -122,9 +122,9 @@ struct MakeUniformHelper<T,MR,MC>
     {
         const int localHeight = A.LocalHeight(); 
         const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocal( iLocal, jLocal, center+radius*SampleUnitBall<T>() );
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -155,8 +155,8 @@ struct MakeUniformHelper<T,MR,STAR>
         #pragma omp parallel for COLLAPSE(2)
 #endif
         for( int j=0; j<n; ++j )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                localBuffer[iLocal+j*ldim] = buffer[iLocal+j*localHeight];
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                localBuffer[iLoc+j*ldim] = buffer[iLoc+j*localHeight];
     }
 };
 
@@ -174,9 +174,9 @@ struct MakeUniformHelper<T,STAR,MC>
         // Create a random matrix on process column 0, then broadcast
         if( grid.Col() == 0 )
         {
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
                 for( int i=0; i<m; ++i )
-                    buffer[i+jLocal*m] = center+radius*SampleUnitBall<T>();
+                    buffer[i+jLoc*m] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
@@ -186,10 +186,10 @@ struct MakeUniformHelper<T,STAR,MC>
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* bufferCol = &buffer[jLocal*m];
-            T* col = &localBuffer[jLocal*ldim];
+            const T* bufferCol = &buffer[jLoc*m];
+            T* col = &localBuffer[jLoc*ldim];
             MemCopy( col, bufferCol, m );
         }
     }
@@ -204,9 +204,9 @@ struct MakeUniformHelper<T,STAR,MD>
         {
             const int m = A.Height();
             const int localWidth = A.LocalWidth();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( int jLoc=0; jLoc<localWidth; ++jLoc )
                 for( int i=0; i<m; ++i )
-                    A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
+                    A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
         }
     }
 };
@@ -237,10 +237,10 @@ struct MakeUniformHelper<T,STAR,MR>
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* bufferCol = &buffer[jLocal*m];
-            T* col = &localBuffer[jLocal*ldim];
+            const T* bufferCol = &buffer[jLoc*m];
+            T* col = &localBuffer[jLoc*ldim];
             MemCopy( col, bufferCol, m );
         }
     }
@@ -291,9 +291,9 @@ struct MakeUniformHelper<T,STAR,VC>
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
             for( int i=0; i<m; ++i )
-                A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -304,9 +304,9 @@ struct MakeUniformHelper<T,STAR,VR>
     {
         const int m = A.Height();
         const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
             for( int i=0; i<m; ++i )
-                A.SetLocal( i, jLocal, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -318,8 +318,8 @@ struct MakeUniformHelper<T,VC,STAR>
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -331,8 +331,8 @@ struct MakeUniformHelper<T,VR,STAR>
         const int n = A.Width();
         const int localHeight = A.LocalHeight();
         for( int j=0; j<n; ++j )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocal( iLocal, j, center+radius*SampleUnitBall<T>() );
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
 

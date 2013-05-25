@@ -47,13 +47,13 @@ Toeplitz( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& a )
     const int rowShift = A.RowShift();
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            A.SetLocal( iLocal, jLocal, a[i-j+(n-1)] );
+            const int i = colShift + iLoc*colStride;
+            A.SetLocal( iLoc, jLoc, a[i-j+(n-1)] );
         }
     }
 }

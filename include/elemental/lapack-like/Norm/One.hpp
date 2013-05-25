@@ -94,11 +94,11 @@ OneNorm( const DistMatrix<F,U,V>& A )
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     std::vector<R> myPartialColSums( localWidth );
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        myPartialColSums[jLocal] = 0;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            myPartialColSums[jLocal] += Abs(A.GetLocal(iLocal,jLocal));
+        myPartialColSums[jLoc] = 0;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            myPartialColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
     }
 
     // Sum our partial column sums to get the column sums over A[* ,V]
@@ -109,8 +109,8 @@ OneNorm( const DistMatrix<F,U,V>& A )
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
-        myMaxColSum = std::max( myMaxColSum, myColSums[jLocal] );
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
@@ -148,38 +148,38 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     {
         std::vector<R> myPartialUpperColSums( localWidth );
         std::vector<R> myPartialStrictlyUpperRowSums( localHeight );
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numUpperRows = Length(j+1,colShift,r);
-            myPartialUpperColSums[jLocal] = 0;
-            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
-                myPartialUpperColSums[jLocal] +=
-                    Abs(A.GetLocal(iLocal,jLocal));
+            myPartialUpperColSums[jLoc] = 0;
+            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
+                myPartialUpperColSums[jLoc] +=
+                    Abs(A.GetLocal(iLoc,jLoc));
         }
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLocal*r;
+            int i = colShift + iLoc*r;
             int numLowerCols = Length(i+1,rowShift,c);
-            myPartialStrictlyUpperRowSums[iLocal] = 0;
-            for( int jLocal=numLowerCols; jLocal<localWidth; ++jLocal )
-                myPartialStrictlyUpperRowSums[iLocal] +=
-                    Abs(A.GetLocal(iLocal,jLocal));
+            myPartialStrictlyUpperRowSums[iLoc] = 0;
+            for( int jLoc=numLowerCols; jLoc<localWidth; ++jLoc )
+                myPartialStrictlyUpperRowSums[iLoc] +=
+                    Abs(A.GetLocal(iLoc,jLoc));
         }
 
         // Just place the sums into their appropriate places in a vector an 
         // AllReduce sum to get the results. This isn't optimal, but it should
         // be good enough.
         std::vector<R> partialColSums( height, 0 );
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
-            partialColSums[j] = myPartialUpperColSums[jLocal];
+            int j = rowShift + jLoc*c;
+            partialColSums[j] = myPartialUpperColSums[jLoc];
         }
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLocal*r;
-            partialColSums[i] += myPartialStrictlyUpperRowSums[iLocal];
+            int i = colShift + iLoc*r;
+            partialColSums[i] += myPartialStrictlyUpperRowSums[iLoc];
         }
         std::vector<R> colSums( height );
         mpi::AllReduce
@@ -194,38 +194,38 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     {
         std::vector<R> myPartialLowerColSums( localWidth );
         std::vector<R> myPartialStrictlyLowerRowSums( localHeight );
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numStrictlyUpperRows = Length(j,colShift,r);
-            myPartialLowerColSums[jLocal] = 0;
-            for( int iLocal=numStrictlyUpperRows; iLocal<localHeight; ++iLocal )
-                myPartialLowerColSums[jLocal] +=
-                    Abs(A.GetLocal(iLocal,jLocal));
+            myPartialLowerColSums[jLoc] = 0;
+            for( int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
+                myPartialLowerColSums[jLoc] +=
+                    Abs(A.GetLocal(iLoc,jLoc));
         }
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLocal*r;
+            int i = colShift + iLoc*r;
             int numStrictlyLowerCols = Length(i,rowShift,c);
-            myPartialStrictlyLowerRowSums[iLocal] = 0;
-            for( int jLocal=0; jLocal<numStrictlyLowerCols; ++jLocal )
-                myPartialStrictlyLowerRowSums[iLocal] +=
-                    Abs(A.GetLocal(iLocal,jLocal));
+            myPartialStrictlyLowerRowSums[iLoc] = 0;
+            for( int jLoc=0; jLoc<numStrictlyLowerCols; ++jLoc )
+                myPartialStrictlyLowerRowSums[iLoc] +=
+                    Abs(A.GetLocal(iLoc,jLoc));
         }
 
         // Just place the sums into their appropriate places in a vector an 
         // AllReduce sum to get the results. This isn't optimal, but it should
         // be good enough.
         std::vector<R> partialColSums( height, 0 );
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
-            partialColSums[j] = myPartialLowerColSums[jLocal];
+            int j = rowShift + jLoc*c;
+            partialColSums[j] = myPartialLowerColSums[jLoc];
         }
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLocal*r;
-            partialColSums[i] += myPartialStrictlyLowerRowSums[iLocal];
+            int i = colShift + iLoc*r;
+            partialColSums[i] += myPartialStrictlyLowerRowSums[iLoc];
         }
         std::vector<R> colSums( height );
         mpi::AllReduce

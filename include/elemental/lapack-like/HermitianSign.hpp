@@ -79,15 +79,15 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     const R eps = lapack::MachineEpsilon<R>();
     const R tolerance = n*twoNorm*eps;
     const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLocal,0);
+        const R omega = w.GetLocal(iLoc,0);
         if( Abs(omega) < tolerance )
-            w.SetLocal(iLocal,0,0);
+            w.SetLocal(iLoc,0,0);
         else if( omega > 0 )
-            w.SetLocal(iLocal,0,R(1));
+            w.SetLocal(iLoc,0,R(1));
         else
-            w.SetLocal(iLocal,0,R(-1));
+            w.SetLocal(iLoc,0,R(-1));
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues

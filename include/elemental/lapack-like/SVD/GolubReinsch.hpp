@@ -70,13 +70,13 @@ GolubReinschUpper
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VTrans
-    Matrix<Real>& ULocal = U_VC_STAR.Matrix();
+    Matrix<Real>& ULoc = U_VC_STAR.Matrix();
     Matrix<Real>& VTransLocal = VTrans_STAR_VC.Matrix();
     lapack::BidiagQRAlg
-    ( uplo, k, VTransLocal.Width(), ULocal.Height(),
+    ( uplo, k, VTransLocal.Width(), ULoc.Height(),
       d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
       VTransLocal.Buffer(), VTransLocal.LDim(), 
-      ULocal.Buffer(), ULocal.LDim() );
+      ULoc.Buffer(), ULoc.LDim() );
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VTrans into a standard matrix dist.
@@ -168,13 +168,13 @@ GolubReinschUpper
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
     // rotations into our local portion of U and VAdj
-    Matrix<C>& ULocal = U_VC_STAR.Matrix();
-    Matrix<C>& VAdjLocal = VAdj_STAR_VC.Matrix();
+    Matrix<C>& ULoc = U_VC_STAR.Matrix();
+    Matrix<C>& VAdjLoc = VAdj_STAR_VC.Matrix();
     lapack::BidiagQRAlg
-    ( uplo, k, VAdjLocal.Width(), ULocal.Height(),
+    ( uplo, k, VAdjLoc.Width(), ULoc.Height(),
       d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-      VAdjLocal.Buffer(), VAdjLocal.LDim(), 
-      ULocal.Buffer(), ULocal.LDim() );
+      VAdjLoc.Buffer(), VAdjLoc.LDim(), 
+      ULoc.Buffer(), ULoc.LDim() );
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VAdj into a standard matrix dist.

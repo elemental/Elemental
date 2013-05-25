@@ -330,10 +330,10 @@ RealHermitianFunction
 
     // Replace w with f(w)
     const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLocal,0);
-        w.SetLocal(iLocal,0,f(omega));
+        const R omega = w.GetLocal(iLoc,0);
+        w.SetLocal(iLoc,0,f(omega));
     }
 
     // Form the custom outer product, Z Omega Z^T
@@ -402,10 +402,10 @@ ComplexHermitianFunction
     fw.AlignWith( w.DistData() );
     fw.ResizeTo( w.Height(), 1 );
     const int numLocalEigs = w.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalEigs; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLocal,0);
-        fw.SetLocal(iLocal,0,f(omega));
+        const R omega = w.GetLocal(iLoc,0);
+        fw.SetLocal(iLoc,0,f(omega));
     }
 
     // Form the custom outer product, Z f(Omega) Z^H

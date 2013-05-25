@@ -45,13 +45,13 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
     const int rowShift = D.RowShift();
     const int colStride = D.ColStride();
     const int rowStride = D.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
+        const int j = rowShift + jLoc*rowStride;
         if( (j-colShift+colStride) % colStride == 0 )
         {
-            const int iLocal = (j-colShift) / colStride;
-            D.SetLocal( iLocal, jLocal, d[j] );
+            const int iLoc = (j-colShift) / colStride;
+            D.SetLocal( iLoc, jLoc, d[j] );
         }
     }
 }

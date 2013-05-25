@@ -65,12 +65,12 @@ Cannon_NN
     const int localWidthB = B.LocalWidth();
     Matrix<T> pkgA(localHeightA,localWidthA,localHeightA), 
               pkgB(localHeightB,localWidthB,localHeightB);
-    for( int jLocal=0; jLocal<localWidthA; ++jLocal )
+    for( int jLoc=0; jLoc<localWidthA; ++jLoc )
         MemCopy
-        ( pkgA.Buffer(0,jLocal), A.LockedBuffer(0,jLocal), localHeightA );
-    for( int jLocal=0; jLocal<localWidthB; ++jLocal )
+        ( pkgA.Buffer(0,jLoc), A.LockedBuffer(0,jLoc), localHeightA );
+    for( int jLoc=0; jLoc<localWidthB; ++jLoc )
         MemCopy
-        ( pkgB.Buffer(0,jLocal), B.LockedBuffer(0,jLocal), localHeightB );
+        ( pkgB.Buffer(0,jLoc), B.LockedBuffer(0,jLoc), localHeightB );
 
     // Perform the initial circular shifts so that our A and B packages align
     const int rowShiftA = A.RowShift();

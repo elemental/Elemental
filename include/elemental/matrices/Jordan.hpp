@@ -69,16 +69,16 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
     const int rowShift = J.RowShift();
     const int colStride = J.ColStride();
     const int rowStride = J.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
             if( i == j )
-                J.SetLocal( iLocal, jLocal, lambda );
+                J.SetLocal( iLoc, jLoc, lambda );
             else if( i == j-1 )
-                J.SetLocal( iLocal, jLocal, T(1) );
+                J.SetLocal( iLoc, jLoc, T(1) );
         }
     }
 }

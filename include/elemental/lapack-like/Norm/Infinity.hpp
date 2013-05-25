@@ -67,11 +67,11 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     std::vector<R> myPartialRowSums( localHeight );
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    for( int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        myPartialRowSums[iLocal] = 0;
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            myPartialRowSums[iLocal] += Abs(A.GetLocal(iLocal,jLocal));
+        myPartialRowSums[iLoc] = 0;
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            myPartialRowSums[iLoc] += Abs(A.GetLocal(iLoc,jLoc));
     }
 
     // Sum our partial row sums to get the row sums over A[U,* ]
@@ -82,8 +82,8 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 
     // Find the maximum out of the row sums
     R myMaxRowSum = 0;
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
-        myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLocal] );
+    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLoc] );
 
     // Find the global maximum row sum by searching over the U team
     R maxRowSum = 0;

@@ -110,10 +110,10 @@ inline void HermitianSVD
 
     // Set the singular values to the absolute value of the eigenvalues
     const int numLocalVals = s.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const R sigma = s.GetLocal(iLocal,0);
-        s.SetLocal(iLocal,0,Abs(sigma));
+        const R sigma = s.GetLocal(iLoc,0);
+        s.SetLocal(iLoc,0,Abs(sigma));
     }
 
     // Copy V into U (flipping the sign as necessary)
@@ -121,17 +121,17 @@ inline void HermitianSVD
     U.ResizeTo( V.Height(), V.Width() );
     const int localHeight = V.LocalHeight();
     const int localWidth = V.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const R sigma = s_MR_STAR.GetLocal( jLocal, 0 );
-        F* UCol = U.Buffer( 0, jLocal );
-        const F* VCol = V.LockedBuffer( 0, jLocal );
+        const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+        F* UCol = U.Buffer( 0, jLoc );
+        const F* VCol = V.LockedBuffer( 0, jLoc );
         if( sigma >= 0 )
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                UCol[iLocal] = VCol[iLocal];
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                UCol[iLoc] = VCol[iLoc];
         else
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                UCol[iLocal] = -VCol[iLocal];
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                UCol[iLoc] = -VCol[iLoc];
     }
 #else
     U = A;
@@ -203,10 +203,10 @@ inline void HermitianSVD
 
     // Replace the eigenvalues with their absolute values
     const int numLocalVals = s.LocalHeight();
-    for( int iLocal=0; iLocal<numLocalVals; ++iLocal )
+    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const R sigma = s.GetLocal(iLocal,0);
-        s.SetLocal(iLocal,0,Abs(sigma));
+        const R sigma = s.GetLocal(iLoc,0);
+        s.SetLocal(iLoc,0,Abs(sigma));
     }
 #else
     MakeHermitian( uplo, A );

@@ -166,11 +166,11 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
     R localScaledSquare = 1;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
+            const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
             if( alphaAbs != 0 )
             {
                 if( alphaAbs <= localScale )
@@ -230,14 +230,14 @@ HermitianFrobeniusNorm
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numUpperRows = Length(j+1,colShift,r);
-            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
+            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
             {
-                int i = colShift + iLocal*r;
-                const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
+                int i = colShift + iLoc*r;
+                const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
                 if( alphaAbs != 0 )
                 {
                     if( alphaAbs <= localScale )
@@ -265,15 +265,15 @@ HermitianFrobeniusNorm
     }
     else
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numStrictlyUpperRows = Length(j,colShift,r);
-            for( int iLocal=numStrictlyUpperRows;
-                 iLocal<A.LocalHeight(); ++iLocal )
+            for( int iLoc=numStrictlyUpperRows;
+                 iLoc<A.LocalHeight(); ++iLoc )
             {
-                int i = colShift + iLocal*r;
-                const R alphaAbs = Abs(A.GetLocal(iLocal,jLocal));
+                int i = colShift + iLoc*r;
+                const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
                 if( alphaAbs != 0 )
                 {
                     if( alphaAbs <= localScale )

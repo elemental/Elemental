@@ -7,96 +7,95 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_DISCRETEFOURIER_HPP
-#define MATRICES_DISCRETEFOURIER_HPP
+#ifndef MATRICES_FOURIER_HPP
+#define MATRICES_FOURIER_HPP
 
 namespace elem {
 
 template<typename R>
 inline void
-DiscreteFourier( Matrix<Complex<R> >& A, int n )
+Fourier( Matrix<Complex<R> >& A, int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiscreteFourier");
+    CallStackEntry entry("Fourier");
 #endif
     A.ResizeTo( n, n );
-    MakeDiscreteFourier( A );
+    MakeFourier( A );
 }
 
 template<typename R,Distribution U,Distribution V>
 inline void
-DiscreteFourier( DistMatrix<Complex<R>,U,V>& A, int n )
+Fourier( DistMatrix<Complex<R>,U,V>& A, int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("DiscreteFourier");
+    CallStackEntry entry("Fourier");
 #endif
     A.ResizeTo( n, n );
-    MakeDiscreteFourier( A );
+    MakeFourier( A );
 }
 
 template<typename R> 
 inline void
-MakeDiscreteFourier( Matrix<Complex<R> >& A )
+MakeFourier( Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeDiscreteFourier");
+    CallStackEntry entry("MakeFourier");
 #endif
     typedef Complex<R> F;
-
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
         throw std::logic_error("Cannot make a non-square DFT matrix");
 
     const R pi = 4*Atan( R(1) );
-    const F nSqrt = Sqrt( R(n) );
+    const R nSqrt = Sqrt( R(n) );
     for( int j=0; j<n; ++j )
     {
         for( int i=0; i<m; ++i )
         {
             const R theta = -2*pi*i*j/n;
-            A.Set( i, j, Complex<R>(Cos(theta),Sin(theta))/nSqrt );
+            const R realPart = cos(theta)/nSqrt;
+            const R imagPart = sin(theta)/nSqrt;
+            A.Set( i, j, F(realPart,imagPart) );
         }
     }
 }
 
 template<typename R,Distribution U,Distribution V>
 inline void
-MakeDiscreteFourier( DistMatrix<Complex<R>,U,V>& A )
+MakeFourier( DistMatrix<Complex<R>,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeDiscreteFourier");
+    CallStackEntry entry("MakeFourier");
 #endif
     typedef Complex<R> F;
-
     const int m = A.Height();
     const int n = A.Width();
     if( m != n )
         throw std::logic_error("Cannot make a non-square DFT matrix");
 
     const R pi = 4*Atan( R(1) );
-    const F nSqrt = Sqrt( R(n) );
+    const R nSqrt = Sqrt( R(n) );
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();
     const int rowShift = A.RowShift();
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
-            A.SetLocal( iLocal, jLocal, Exp(-2*pi*i*j/n)/nSqrt );
-
+            const int i = colShift + iLoc*colStride;
             const R theta = -2*pi*i*j/n;
-            const Complex<R> alpha( Cos(theta), Sin(theta) );
-            A.SetLocal( iLocal, jLocal, alpha/nSqrt );
+            const R realPart = cos(theta)/nSqrt;
+            const R imagPart = sin(theta)/nSqrt;
+            A.SetLocal( iLoc, jLoc, F(realPart,imagPart) );
         }
     }
 }
 
 } // namespace elem
 
-#endif // ifndef MATRICES_DISCRETEFOURIER_HPP
+#endif // ifndef MATRICES_FOURIER_HPP

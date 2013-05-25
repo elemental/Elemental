@@ -264,12 +264,12 @@ ApplyColumnPivots
     std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(c,0);
     const int localWidth = Length( b, rowShift, c );
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int sendCol = image[rowShift+jLocal*c];
+        const int sendCol = image[rowShift+jLoc*c];
         const int sendTo = (rowAlignment+sendCol) % c;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        MemCopy( &sendData[offset], A.Buffer(0,jLocal), localHeight );
+        MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
         offsets[sendTo] += localHeight;
     }
     for( int j=0; j<b; ++j )
@@ -281,9 +281,9 @@ ApplyColumnPivots
             if( recvFrom == myCol )
             {
                 const int recvTo = (rowAlignment+j) % c;
-                const int jLocal = (recvCol-rowShift) / c;
+                const int jLoc = (recvCol-rowShift) / c;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                MemCopy( &sendData[offset], A.Buffer(0,jLocal), localHeight );
+                MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
                 offsets[recvTo] += localHeight;
             }
         }
@@ -307,8 +307,8 @@ ApplyColumnPivots
             if( sendTo == myCol )
             {
                 const int offset = recvDispls[k]+offsets[k];
-                const int jLocal = (sendCol-rowShift) / c;
-                MemCopy( A.Buffer(0,jLocal), &recvData[offset], localHeight );
+                const int jLoc = (sendCol-rowShift) / c;
+                MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
                 offsets[k] += localHeight;
             }
         }
@@ -322,9 +322,9 @@ ApplyColumnPivots
             if( recvTo == myCol )
             {
                 const int recvFrom = (rowAlignment+recvCol) % c; 
-                const int jLocal = (j-rowShift) / c;
+                const int jLoc = (j-rowShift) / c;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                MemCopy( A.Buffer(0,jLocal), &recvData[offset], localHeight );
+                MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );
                 offsets[recvFrom] += localHeight;
             }
         }

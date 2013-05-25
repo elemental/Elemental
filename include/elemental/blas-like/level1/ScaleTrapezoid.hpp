@@ -106,15 +106,15 @@ ScaleTrapezoid
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*rowStride;
+            int j = rowShift + jLoc*rowStride;
             int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
             int boundary = std::min( lastRow+1, height );
             int numRows = Length_( boundary, colShift, colStride );
-            T* col = &buffer[jLocal*ldim];
-            for( int iLocal=0; iLocal<numRows; ++iLocal )
-                col[iLocal] *= alpha;
+            T* col = &buffer[jLoc*ldim];
+            for( int iLoc=0; iLoc<numRows; ++iLoc )
+                col[iLoc] *= alpha;
         }
     }
     else
@@ -124,16 +124,16 @@ ScaleTrapezoid
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*rowStride;
+            int j = rowShift + jLoc*rowStride;
             int firstRow =
                 ( side==LEFT ? std::max(j-offset,0)
                              : std::max(j-offset+height-width,0) );
             int numZeroRows = Length_( firstRow, colShift, colStride );
-            T* col = &buffer[numZeroRows+jLocal*ldim];
-            for( int iLocal=0; iLocal<(localHeight-numZeroRows); ++iLocal )
-                col[iLocal] *= alpha;
+            T* col = &buffer[numZeroRows+jLoc*ldim];
+            for( int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )
+                col[iLoc] *= alpha;
         }
     }
 }

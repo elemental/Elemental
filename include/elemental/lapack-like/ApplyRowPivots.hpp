@@ -272,14 +272,14 @@ ApplyRowPivots
     std::vector<F> sendData(std::max(1,totalSend));
     std::vector<int> offsets(r,0);
     const int localHeight = Length( b, colShift, r );
-    for( int iLocal=0; iLocal<localHeight; ++iLocal )
+    for( int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const int sendRow = image[colShift+iLocal*r];
+        const int sendRow = image[colShift+iLoc*r];
         const int sendTo = (colAlignment+sendRow) % r;
         const int offset = sendDispls[sendTo]+offsets[sendTo];
-        const F* ABuffer = A.Buffer(iLocal,0);
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
-            sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
+        const F* ABuffer = A.Buffer(iLoc,0);
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            sendData[offset+jLoc] = ABuffer[jLoc*ALDim];
         offsets[sendTo] += localWidth;
     }
     for( int i=0; i<b; ++i )
@@ -291,11 +291,11 @@ ApplyRowPivots
             if( recvFrom == myRow )
             {
                 const int recvTo = (colAlignment+i) % r;
-                const int iLocal = (recvRow-colShift) / r;
+                const int iLoc = (recvRow-colShift) / r;
                 const int offset = sendDispls[recvTo]+offsets[recvTo];
-                const F* ABuffer = A.Buffer(iLocal,0);
-                for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                    sendData[offset+jLocal] = ABuffer[jLocal*ALDim];
+                const F* ABuffer = A.Buffer(iLoc,0);
+                for( int jLoc=0; jLoc<localWidth; ++jLoc )
+                    sendData[offset+jLoc] = ABuffer[jLoc*ALDim];
                 offsets[recvTo] += localWidth;
             }
         }
@@ -319,10 +319,10 @@ ApplyRowPivots
             if( sendTo == myRow )
             {
                 const int offset = recvDispls[k]+offsets[k];
-                const int iLocal = (sendRow-colShift) / r;
-                F* ABuffer = A.Buffer(iLocal,0);
-                for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                    ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
+                const int iLoc = (sendRow-colShift) / r;
+                F* ABuffer = A.Buffer(iLoc,0);
+                for( int jLoc=0; jLoc<localWidth; ++jLoc )
+                    ABuffer[jLoc*ALDim] = recvData[offset+jLoc];
                 offsets[k] += localWidth;
             }
         }
@@ -336,11 +336,11 @@ ApplyRowPivots
             if( recvTo == myRow )
             {
                 const int recvFrom = (colAlignment+recvRow) % r; 
-                const int iLocal = (i-colShift) / r;
+                const int iLoc = (i-colShift) / r;
                 const int offset = recvDispls[recvFrom]+offsets[recvFrom];
-                F* ABuffer = A.Buffer(iLocal,0);
-                for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                    ABuffer[jLocal*ALDim] = recvData[offset+jLocal];
+                F* ABuffer = A.Buffer(iLoc,0);
+                for( int jLoc=0; jLoc<localWidth; ++jLoc )
+                    ABuffer[jLoc*ALDim] = recvData[offset+jLoc];
                 offsets[recvFrom] += localWidth;
             }
         }

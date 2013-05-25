@@ -50,10 +50,9 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
     F localSum(0);
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            localSum += A.GetLocal(iLocal,jLocal)*
-                        B.GetLocal(iLocal,jLocal);
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            localSum += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
 
     F sum;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );

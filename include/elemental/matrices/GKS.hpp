@@ -79,19 +79,19 @@ MakeGKS( DistMatrix<F,U,V>& A )
     const int rowShift = A.RowShift();
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
+        const int j = rowShift + jLoc*rowStride;
         const F jDiag = F(1)/Sqrt(F(j));
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
             if( i < j )
-                A.SetLocal( iLocal, jLocal, -jDiag );
+                A.SetLocal( iLoc, jLoc, -jDiag );
             else if( i == j )
-                A.SetLocal( iLocal, jLocal, jDiag );
+                A.SetLocal( iLoc, jLoc, jDiag );
             else
-                A.SetLocal( iLocal, jLocal, 0 );
+                A.SetLocal( iLoc, jLoc, 0 );
         }
     }
 }

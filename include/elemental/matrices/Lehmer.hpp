@@ -43,16 +43,16 @@ Lehmer( DistMatrix<F,U,V>& L, int n )
     const int rowShift = L.RowShift();
     const int colStride = L.ColStride();
     const int rowStride = L.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
             if( i < j )
-                L.SetLocal( iLocal, jLocal, F(i+1)/F(j+1) );
+                L.SetLocal( iLoc, jLoc, F(i+1)/F(j+1) );
             else
-                L.SetLocal( iLocal, jLocal, F(j+1)/F(i+1) );
+                L.SetLocal( iLoc, jLoc, F(j+1)/F(i+1) );
         }
     }
 }

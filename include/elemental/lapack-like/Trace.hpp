@@ -46,8 +46,8 @@ inline F Trace( const DistMatrix<F>& A )
     if( d.Participating() )
     {
         const int nLocalDiag = d.LocalHeight();
-        for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
-            localTrace += d.GetLocal(iLocal,0);
+        for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
+            localTrace += d.GetLocal(iLoc,0);
     }
     F trace;
     mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );

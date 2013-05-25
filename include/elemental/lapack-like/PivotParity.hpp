@@ -50,10 +50,10 @@ PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 )
     bool isLocallyOdd = false;
     const int colShift = p.ColShift();
     const int gridSize = g.Size();
-    for( int iLocal=0; iLocal<mLocal; ++iLocal )
+    for( int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const int i = colShift + iLocal*gridSize;
-        if( p.GetLocal(iLocal,0) != i+pivotOffset )
+        const int i = colShift + iLoc*gridSize;
+        if( p.GetLocal(iLoc,0) != i+pivotOffset )
             isLocallyOdd = !isLocallyOdd;
     }
 

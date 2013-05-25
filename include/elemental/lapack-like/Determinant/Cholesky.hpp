@@ -78,9 +78,9 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
         if( d.Participating() )
         {
             const int nLocalDiag = d.LocalHeight();
-            for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
+            for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
             {
-                const R delta = RealPart(d.GetLocal(iLocal,0));
+                const R delta = RealPart(d.GetLocal(iLoc,0));
                 localKappa += Log(delta)/scale;
             }
         }

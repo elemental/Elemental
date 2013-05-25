@@ -94,11 +94,11 @@ MaxNorm( const DistMatrix<F,U,V>& A )
     R localMaxAbs = 0;
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
+            const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
@@ -129,27 +129,27 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     const int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numUpperRows = Length(j+1,colShift,r);
-            for( int iLocal=0; iLocal<numUpperRows; ++iLocal )
+            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
             {
-                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
+                const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
         }
     }
     else
     {
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLocal*c;
+            int j = rowShift + jLoc*c;
             int numStrictlyUpperRows = Length(j,colShift,r);
-            for( int iLocal=numStrictlyUpperRows;
-                 iLocal<A.LocalHeight(); ++iLocal )
+            for( int iLoc=numStrictlyUpperRows;
+                 iLoc<A.LocalHeight(); ++iLoc )
             {
-                const R thisAbs = Abs(A.GetLocal(iLocal,jLocal));
+                const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
             }
         }

@@ -88,9 +88,9 @@ LUPartialPiv( DistMatrix<F>& A )
         if( d.Participating() )
         {
             const int nLocalDiag = d.LocalHeight();
-            for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
+            for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
             {
-                const F delta = d.GetLocal(iLocal,0);
+                const F delta = d.GetLocal(iLoc,0);
                 R alpha = Abs(delta);
                 localRho *= delta/alpha;
                 localKappa += Log(alpha)/scale;

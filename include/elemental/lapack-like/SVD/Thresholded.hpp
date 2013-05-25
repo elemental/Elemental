@@ -104,8 +104,8 @@ ThresholdedTall
     // Sigma := sqrt(Sigma^2)
     {
         const int localHeight = s.LocalHeight();
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            s.SetLocal( iLocal, 0, Sqrt(s.GetLocal(iLocal,0)) );
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
     // Y := A V
@@ -123,11 +123,11 @@ ThresholdedTall
         s_MR_STAR = s;
         const int localWidth = A.LocalWidth();
         const int localHeight = A.LocalHeight();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R sigma = s_MR_STAR.GetLocal( jLocal, 0 );
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)/sigma );
+            const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)/sigma );
         }
     }
 }
@@ -220,8 +220,8 @@ ThresholdedWide
     // Sigma := sqrt(Sigma^2)
     {
         const int localHeight = s.LocalHeight();
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
-            s.SetLocal( iLocal, 0, Sqrt(s.GetLocal(iLocal,0)) );
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
     // (Sigma V) := A^H U
@@ -237,11 +237,11 @@ ThresholdedWide
         s_MR_STAR = s;
         const int localWidth = V.LocalWidth();
         const int localHeight = V.LocalHeight();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R sigma = s_MR_STAR.GetLocal( jLocal, 0 );
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
-                V.SetLocal( iLocal, jLocal, V.GetLocal(iLocal,jLocal)/sigma );
+            const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                V.SetLocal( iLoc, jLoc, V.GetLocal(iLoc,jLoc)/sigma );
         }
     }
     A = U;

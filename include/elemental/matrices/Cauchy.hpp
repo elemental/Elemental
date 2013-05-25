@@ -61,12 +61,12 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
     const int rowShift = A.RowShift();
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
 #ifndef RELEASE
             // TODO: Use tolerance instead?
             if( x[i] == y[j] )
@@ -77,7 +77,7 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
                 throw std::logic_error( msg.str().c_str() );
             }
 #endif
-            A.SetLocal( iLocal, jLocal, one/(x[i]-y[j]) );
+            A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
         }
     }
 }

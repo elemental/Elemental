@@ -54,13 +54,13 @@ inline void Hadamard
 
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const T alpha = A.GetLocal(iLocal,jLocal); 
-            const T beta = B.GetLocal(iLocal,jLocal);
-            C.SetLocal( iLocal, jLocal, alpha*beta );
+            const T alpha = A.GetLocal(iLoc,jLoc); 
+            const T beta = B.GetLocal(iLoc,jLoc);
+            C.SetLocal( iLoc, jLoc, alpha*beta );
         }
     }
 }

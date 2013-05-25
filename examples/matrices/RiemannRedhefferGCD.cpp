@@ -8,7 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/DiscreteFourier.hpp"
+#include "elemental/matrices/GCD.hpp"
+#include "elemental/matrices/Redheffer.hpp"
+#include "elemental/matrices/Riemann.hpp"
 #include "elemental/graphics.hpp"
 using namespace elem;
 
@@ -29,13 +31,23 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Complex<double> > A;
-        DiscreteFourier( A, n );
+        DistMatrix<double> A, B, C;
+        Riemann( A, n );
+        Redheffer( B, n );
+        GCD( C, n, n );
         if( print )
-            A.Print("DFT matrix:");
+        {
+            A.Print("Riemann matrix:");
+            B.Print("Redheffer matrix:");
+            C.Print("GCD matrix:");
+        }
 #ifdef HAVE_QT5
         if( display )
-            Display( A, "Discrete Fourier" );
+        {
+            Display( A, "Riemann" );
+            Display( B, "Redheffer" );
+            Display( C, "GCD" );
+        }
 #endif
     }
     catch( ArgException& e )
@@ -45,8 +57,8 @@ main( int argc, char* argv[] )
     catch( std::exception& e )
     {
         std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n"
-           << e.what() << std::endl;
+        os << "Process " << commRank << " caught error message:\n" << e.what()
+           << std::endl;
         std::cerr << os.str();
 #ifndef RELEASE
         DumpCallStack();

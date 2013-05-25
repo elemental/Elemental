@@ -76,16 +76,16 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
     const int rowShift = A.RowShift();
     const int colStride = A.ColStride();
     const int rowStride = A.RowStride();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLocal*rowStride;
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        const int j = rowShift + jLoc*rowStride;
+        for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLocal*colStride;
+            const int i = colShift + iLoc*colStride;
             if( i == j )
-                A.SetLocal( iLocal, jLocal, T(2) );
+                A.SetLocal( iLoc, jLoc, T(2) );
             else if( i == j-1 || i == j+1 )
-                A.SetLocal( iLocal, jLocal, T(1) );
+                A.SetLocal( iLoc, jLoc, T(1) );
         }
     }
 }
