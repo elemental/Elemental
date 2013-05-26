@@ -11,23 +11,19 @@
 #include "elemental/matrices/GCD.hpp"
 #include "elemental/matrices/Redheffer.hpp"
 #include "elemental/matrices/Riemann.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of matrix",10);
-        const bool print = Input("--print","print matrix?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -35,35 +31,20 @@ main( int argc, char* argv[] )
         Riemann( A, n );
         Redheffer( B, n );
         GCD( C, n, n );
-        if( print )
-        {
-            A.Print("Riemann matrix:");
-            B.Print("Redheffer matrix:");
-            C.Print("GCD matrix:");
-        }
-#ifdef HAVE_QT5
         if( display )
         {
             Display( A, "Riemann" );
             Display( B, "Redheffer" );
             Display( C, "GCD" );
         }
-#endif
+        if( print )
+        {
+            A.Print("Riemann matrix:");
+            B.Print("Redheffer matrix:");
+            C.Print("GCD matrix:");
+        }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

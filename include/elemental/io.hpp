@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_HPP
-#define GRAPHICS_HPP
+#ifndef IO_HPP
+#define IO_HPP
 
-#include "elemental/graphics_decl.hpp"
-#include "elemental/graphics_impl.hpp"
+#include "elemental/io_decl.hpp"
+#include "elemental/io_impl.hpp"
 
-#endif // ifndef GRAPHICS_HPP
+#endif // ifndef IO_HPP

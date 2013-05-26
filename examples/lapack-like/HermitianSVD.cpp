@@ -107,16 +107,7 @@ main( int argc, char* argv[] )
             V.Print("Right singular vectors of H");
         }
     }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_DISPLAYWIDGET_DECL_HPP
-#define GRAPHICS_DISPLAYWIDGET_DECL_HPP
+#ifndef IO_DISPLAYWIDGET_DECL_HPP
+#define IO_DISPLAYWIDGET_DECL_HPP
 
 #ifdef HAVE_QT5
 
@@ -42,4 +42,4 @@ private:
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_DISPLAYWIDGET_DECL_HPP
+#endif // ifndef IO_DISPLAYWIDGET_DECL_HPP

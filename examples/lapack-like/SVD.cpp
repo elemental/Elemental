@@ -27,9 +27,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int m = Input("--height","height of matrix",100);
@@ -41,8 +38,8 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
 
-        Grid g( comm );
-        if( commRank == 0 )
+        Grid g( mpi::COMM_WORLD );
+        if( mpi::WorldRank() == 0 )
             std::cout << "Grid is " 
                       << g.Height() << " x " << g.Width() << std::endl;
         DistMatrix<C> A( g );
@@ -87,7 +84,7 @@ main( int argc, char* argv[] )
         const R epsilon = lapack::MachineEpsilon<R>();
         const R scaledResidual = frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
 
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             cout << "||A||_max   = " << maxNormOfA << "\n"
                  << "||A||_1     = " << oneNormOfA << "\n"
@@ -105,20 +102,7 @@ main( int argc, char* argv[] )
                  << "|| sError ||_2 = " << singValDiff << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

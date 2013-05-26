@@ -91,14 +91,7 @@ main( int argc, char* argv[] )
         SetLocalTrrkBlocksize<double>( nbLocal );
         SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
 
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test Herk" << uploChar << transChar << endl;
 
@@ -120,17 +113,8 @@ main( int argc, char* argv[] )
         ( print, uplo, orientation, m, k, 
           Complex<double>(3), Complex<double>(4), g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

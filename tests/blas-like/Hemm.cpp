@@ -93,14 +93,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
 
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test Hemm" << sideChar << uploChar << endl;
 
@@ -121,17 +114,8 @@ main( int argc, char* argv[] )
         TestHemm<Complex<double> >
         ( print, side, uplo, m, n, Complex<double>(3), Complex<double>(4), g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

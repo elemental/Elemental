@@ -27,6 +27,8 @@ Functionality
 
 Maintenance
 ===========
+- Remove 'Print' member functions from (Dist)Matrix and into io/ folder
+- Provide way to zoom in/out for DisplayWidget
 - Update elemvariables to support usage of Qt5
 - Documentation for new visualization routines (with the Walsh driver as an example)
 - Many more references

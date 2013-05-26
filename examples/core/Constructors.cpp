@@ -16,7 +16,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
@@ -25,7 +24,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             const int commSize = mpi::CommSize( comm );
             std::cout << "Will create matrices distributed over " 
@@ -84,19 +83,7 @@ main( int argc, char* argv[] )
                 X.Print("After viewing local buffers of all two's");
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n"
-           << e.what() << std::endl;
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

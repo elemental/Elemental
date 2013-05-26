@@ -18,8 +18,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
     try 
     {
         const int m = Input("--height","height of C",100);
@@ -31,7 +29,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         if( g.Height() != g.Width() )
             throw std::logic_error("This routine requires a square grid");
 
@@ -50,22 +48,8 @@ main( int argc, char* argv[] )
         if( print )
             C.Print("C := alpha A B + beta C");
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

@@ -13,17 +13,10 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
-
 int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try 
     {
@@ -33,8 +26,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
-        DistMatrix<C> A( g ), Q( g ), P( g );
+        Grid g( mpi::COMM_WORLD );
+        DistMatrix<Complex<double> > A( g ), Q( g ), P( g );
         Uniform( A, m, n );
 
         // Compute the polar decomp of A (but do not overwrite A)
@@ -48,22 +41,8 @@ main( int argc, char* argv[] )
             P.Print("P");
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message: " << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

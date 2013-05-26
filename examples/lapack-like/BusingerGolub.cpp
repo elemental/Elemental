@@ -15,6 +15,7 @@
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Uniform.hpp"
+#include "elemental/io.hpp"
 using namespace std;
 using namespace elem;
 
@@ -25,9 +26,7 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const int worldRank = mpi::WorldRank();
 
     try 
     {
@@ -36,6 +35,7 @@ main( int argc, char* argv[] )
         const bool alwaysRecompute = Input("--always","no norm updates?",false);
         const bool blockedUnpiv = 
             Input("--blockUnpiv","blocked unpivoted QR?",false);
+        const bool display = Input("--display","display matrices?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -43,6 +43,8 @@ main( int argc, char* argv[] )
         DistMatrix<C> A;
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
+        if( display )
+            Display( A, "A" );
         if( print )
             A.Print("A");
 
@@ -51,6 +53,12 @@ main( int argc, char* argv[] )
         DistMatrix<C,MD,STAR> tPiv;
         DistMatrix<int,VR,STAR> p;
         qr::BusingerGolub( QRPiv, tPiv, p, alwaysRecompute );
+        if( display )
+        {
+            Display( QRPiv, "QRPiv" );
+            Display( tPiv, "tPiv" );
+            Display( p, "p" );
+        }
         if( print )
         {
             QRPiv.Print("QRPiv");
@@ -65,6 +73,11 @@ main( int argc, char* argv[] )
             QR( QRNoPiv, tNoPiv );
         else
             qr::PanelHouseholder( QRNoPiv, tNoPiv );
+        if( display )
+        {
+            Display( QRNoPiv, "QRNoPiv" );
+            Display( tNoPiv, "tNoPiv" );
+        }
         if( print )
         {
             QRNoPiv.Print("QRNoPiv");
@@ -80,6 +93,8 @@ main( int argc, char* argv[] )
         ApplyInverseColumnPivots( E, p ); 
         Axpy( C(-1), A, E );
         const Real frobQRPiv = FrobeniusNorm( E );
+        if( display )
+            Display( E, "A P - Q R" );
         if( print )
             E.Print("A P - Q R");
 
@@ -92,6 +107,8 @@ main( int argc, char* argv[] )
           QRNoPiv, tNoPiv, E );
         Axpy( C(-1), A, E );
         const Real frobQRNoPiv = FrobeniusNorm( E );
+        if( display )
+            Display( E, "A - Q R" );
         if( print )
             E.Print("A - Q R");
 
@@ -108,6 +125,8 @@ main( int argc, char* argv[] )
         Identity( I, k, k );
         Axpy( C(-1), I, EUpper );
         const Real frobOrthogPiv = FrobeniusNorm( EUpper ); 
+        if( display )
+            Display( E, "pivoted I - Q^H Q" );
         if( print )
             E.Print("pivoted I - Q^H Q");
 
@@ -123,10 +142,12 @@ main( int argc, char* argv[] )
         Identity( I, k, k );
         Axpy( C(-1), I, EUpper );
         const Real frobOrthogNoPiv = FrobeniusNorm( EUpper ); 
+        if( display )
+            Display( E, "unpivoted I - Q^H Q" );
         if( print )
             E.Print("unpivoted I - Q^H Q");
 
-        if( commRank == 0 )
+        if( worldRank == 0 )
         {
             std::cout << "|| A ||_F = " << frobA << "\n\n"
                       << "With pivoting: \n" 
@@ -142,20 +163,7 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

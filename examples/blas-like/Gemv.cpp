@@ -22,8 +22,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
     try 
     {
         const int m = Input("--height","height of matrix",100);
@@ -35,7 +33,7 @@ main( int argc, char* argv[] )
 
         const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A( g );
         Uniform( A, m, n );
 
@@ -71,22 +69,8 @@ main( int argc, char* argv[] )
                 y.Print("y := 3 A^H x + 4 y");
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

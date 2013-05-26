@@ -24,10 +24,6 @@ main( int argc, char* argv[] )
     // does so if necessary.
     Initialize( argc, argv );
 
-    // Extract our MPI rank
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
     try 
@@ -41,7 +37,7 @@ main( int argc, char* argv[] )
         // MPI_COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
         // r x c grid.
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
     
         // Create an n x n real distributed matrix.
         // We distribute the matrix using grid 'g'.
@@ -82,13 +78,12 @@ main( int argc, char* argv[] )
         //
         // More convenient interfaces are being investigated.
         //
-
         if( print )
             H.Print("H");
 
         // Print its trace
         const R trace = Trace( H );
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
             std::cout << "Tr(H) = " << trace << std::endl;
 
         // Call the eigensolver. We first create an empty eigenvector 
@@ -98,7 +93,6 @@ main( int argc, char* argv[] )
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         HermitianEig( LOWER, H, w, X ); // only access lower half of H
-
         if( print )
         {
             w.Print("Eigenvalues of H");
@@ -114,20 +108,7 @@ main( int argc, char* argv[] )
             X.Print("Sorted eigenvectors of H");
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

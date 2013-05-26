@@ -23,9 +23,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int m = Input("--height","height of matrix",100);
@@ -33,7 +30,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid g( comm );
+        const Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A(g);
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
@@ -53,7 +50,7 @@ main( int argc, char* argv[] )
         Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E ); 
 
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| A ||_F = " << frobA << "\n"
                       << "|| A - Q R ||_F / || A ||_F   = " 
@@ -63,20 +60,7 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

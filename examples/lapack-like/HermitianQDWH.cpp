@@ -24,22 +24,19 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int n = Input("--size","size of Hermitian matrix",100);
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A( g ), Q( g ), P( g );
         HermitianUniformSpectrum( A, n, 1, 2 );
         const R lowerBound = 1.0;
         const R frobA = FrobeniusNorm( A );
         const R upperBound = TwoNormUpperBound( A );
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "ASSUMING 1 / ||inv(A)||_2 >= " << lowerBound << "\n"
                       << "||A||_F =  " << frobA << "\n"
@@ -61,7 +58,7 @@ main( int argc, char* argv[] )
         Identity( B, n, n );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << numItsQDWH << " iterations of QDWH\n"
                       << "||A - QP||_F / ||A||_F = " 
@@ -86,7 +83,7 @@ main( int argc, char* argv[] )
         Identity( B, n, n );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
         const R frobHalleyOrthog = HermitianFrobeniusNorm( LOWER, B );
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << numItsHalley << " iterations of Halley\n"
                       << "||A - QP||_F / ||A||_F = " 
@@ -96,20 +93,7 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is no reason to do anything
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

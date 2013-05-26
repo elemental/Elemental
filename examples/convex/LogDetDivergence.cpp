@@ -10,20 +10,20 @@
 #include "elemental-lite.hpp"
 #include "elemental/convex/LogDetDivergence.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of HPD matrix",100);
         const double lower = Input("--lower","lower bound on spectrum",1.);
         const double upper = Input("--upper","upper bound on spectrum",10.);
+        const bool display = Input("--display","display matrices?",true);
         const bool print = Input("--print","print matrices",false);
         ProcessInput();
         PrintInputReport();
@@ -31,29 +31,21 @@ main( int argc, char* argv[] )
         DistMatrix<double> A, B;
         HermitianUniformSpectrum( A, n, lower, upper );
         HermitianUniformSpectrum( B, n, lower, upper );
+        if( display )
+        {
+            Display( A, "A" );
+            Display( B, "B" );
+        }
         if( print )
         {
             A.Print("A");
             B.Print("B");
         }
         const double logDetDiv = LogDetDivergence( LOWER, A, B );
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
             std::cout << "LogDetDiv(A,B) = " << logDetDiv << std::endl;
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

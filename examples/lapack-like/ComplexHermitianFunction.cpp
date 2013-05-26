@@ -27,9 +27,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int n = Input("--size","size of matrix",100);
@@ -37,8 +34,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
-        DistMatrix<C> H( n, n, g );
+        DistMatrix<C> H( n, n );
 
         // Fill the matrix since we did not pass in a buffer. 
         //
@@ -73,22 +69,8 @@ main( int argc, char* argv[] )
         if( print )
             H.Print("exp(i*H)");
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

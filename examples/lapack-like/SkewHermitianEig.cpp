@@ -30,10 +30,6 @@ main( int argc, char* argv[] )
     // does so if necessary. The full routine is elem::Initialize.
     Initialize( argc, argv );
 
-    // Extract our MPI rank
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
     try 
@@ -47,7 +43,7 @@ main( int argc, char* argv[] )
         // MPI_COMM_WORLD. There is another constructor that allows you to 
         // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
         // r x c grid.
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
     
         // Create an n x n complex distributed matrix, 
         // We distribute the matrix using grid 'g'.
@@ -117,7 +113,7 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
         const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| H ||_F = " << frobS << "\n"
                       << "|| H X - X Omega ||_F / || A ||_F = " 
@@ -126,20 +122,7 @@ main( int argc, char* argv[] )
                       << "\n" << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

@@ -26,9 +26,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int m = Input("--height","height of matrix",20);
@@ -78,27 +75,14 @@ main( int argc, char* argv[] )
         if( print )
             A.Print("A - AC Z AR");
 
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| A ||_F = " << frobA << "\n\n"
                       << "|| A - AC Z AR ||_F / || A ||_F = " 
                       << frobError/frobA << "\n" << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

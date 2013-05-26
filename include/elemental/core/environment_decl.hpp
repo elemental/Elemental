@@ -257,6 +257,12 @@ public:
 };
 #endif // ifndef RELEASE
 
+void ReportException( std::exception& e );
+class ArgException;
+void ReportException( ArgException& e );
+
+void ComplainIfDebug();
+
 // We define an output stream that does nothing. This is done so that the 
 // root process can be used to print data to a file's ostream while all other 
 // processes use a null ostream. This is used within the DistMatrix class's

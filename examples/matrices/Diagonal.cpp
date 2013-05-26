@@ -10,23 +10,19 @@
 #include "elemental-lite.hpp"
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Zeros.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of matrix",10);
-        const bool print = Input("--print","print matrices?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -36,30 +32,17 @@ main( int argc, char* argv[] )
 
         DistMatrix<double> D;
         Diagonal( D, d );
-        if( print )
-            D.Print("D:");
-#ifdef HAVE_QT5
         if( display )
         {
             Display( D, "Diagonal matrix" );
+#ifdef HAVE_QT5
             Spy( D, "Diagonal spy plot" );
+#endif
         }
-#endif
+        if( print )
+            D.Print("D:");
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n"
-           << e.what() << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

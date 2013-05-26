@@ -12,36 +12,30 @@
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/matrices/Walsh.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int k = Input("--order","generate 2^k x 2^k matrix",4);
         const bool binary = Input("--binary","binary data?",false);
-        const bool print = Input("--print","print matrix?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
         // Generate a Walsh matrix of order k (a 2^k x 2^k matrix)
         DistMatrix<double> W;
         Walsh( W, k, binary );
-        if( print )
-            W.Print("W(2^k)");
-#ifdef HAVE_QT5
         if( display )
             Display( W, "Walsh matrix" );
-#endif
+        if( print )
+            W.Print("W(2^k)");
 
         if( !binary )
         {
@@ -50,34 +44,19 @@ main( int argc, char* argv[] )
             MakeTriangular( LOWER, W );
             SetDiagonal( LEFT, 0, W, 1. );
 
-            if( print )
-            {
-                W.Print("L"); 
-                d.Print("d"); 
-            }
-#ifdef HAVE_QT5
             if( display )
             {
                 Display( W, "Lower factor" );
                 Display( d, "Diagonal factor" );
             }
-#endif
+            if( print )
+            {
+                W.Print("L"); 
+                d.Print("d"); 
+            }
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

@@ -10,37 +10,33 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of matrix",10);
-        const bool print = Input("--print","print matrix?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
         DistMatrix<double> J;
         Legendre( J, n );
-        if( print )
-            J.Print("Jacobi matrix for Legendre polynomials");
-#ifdef HAVE_QT5
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );
+#ifdef HAVE_QT5
             Spy( J, "Spy plot for Jacobi matrix" );
-        }
 #endif
+        }
+        if( print )
+            J.Print("Jacobi matrix for Legendre polynomials");
 
 #ifdef HAVE_PMRRR
         // This will perform a lot of unnecessary work, but the code is simpler
@@ -54,12 +50,10 @@ main( int argc, char* argv[] )
         DistMatrix<double> X;
         HermitianEig( LOWER, J, points, X );
         hermitian_eig::Sort( points, X );
-        if( print )
-            points.Print("points");
-#ifdef HAVE_QT5
         if( display )
             Display( points, "Quadrature points" );
-#endif
+        if( print )
+            points.Print("points");
         DistMatrix<double> firstRow;
         View( firstRow, X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
@@ -68,27 +62,13 @@ main( int argc, char* argv[] )
             const double gamma = weights.Get( 0, j );
             weights.Set( 0, j, 2*gamma*gamma );
         }
-        if( print )
-            weights.Print("weights");
-#ifdef HAVE_QT5
         if( display )
             Display( weights, "Quadrature weights" );
-#endif
-#endif
-    }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-#ifndef RELEASE
-        DumpCallStack();
+        if( print )
+            weights.Print("weights");
 #endif
     }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

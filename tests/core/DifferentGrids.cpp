@@ -17,7 +17,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
     const int commSize = mpi::CommSize( comm );
     
     try
@@ -61,17 +60,8 @@ main( int argc, char* argv[] )
         if( print )
             A.Print("A := ASqrt");
     }
-    catch( ArgException& e ) { }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

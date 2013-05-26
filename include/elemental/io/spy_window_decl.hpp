@@ -7,14 +7,14 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_SPYWINDOW_DECL_HPP
-#define GRAPHICS_SPYWINDOW_DECL_HPP
+#ifndef IO_SPYWINDOW_DECL_HPP
+#define IO_SPYWINDOW_DECL_HPP
 
 #include <QScrollArea>
 #include <QWidget>
 
 #include "elemental-lite.hpp"
-#include "elemental/graphics/spy_widget_decl.hpp"
+#include "elemental/io/spy_widget_decl.hpp"
 
 namespace elem {
 
@@ -36,4 +36,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef GRAPHICS_SPYWINDOW_DECL_HPP
+#endif // ifndef IO_SPYWINDOW_DECL_HPP

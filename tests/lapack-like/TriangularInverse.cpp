@@ -135,14 +135,7 @@ main( int argc, char* argv[] )
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test TriangularInverse" << uploChar << diagChar 
                  << endl;
@@ -165,17 +158,8 @@ main( int argc, char* argv[] )
         TestTriangularInverse<Complex<double> >
         ( testCorrectness, print, uplo, diag, m, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

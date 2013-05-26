@@ -281,14 +281,7 @@ main( int argc, char* argv[] )
         const int c = commSize / r;
         const Grid g( comm, r, c );
         SetBlocksize( nb );
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test LQ" << endl;
 
@@ -308,17 +301,8 @@ main( int argc, char* argv[] )
         }
         TestComplexLQ<double>( testCorrectness, print, m, n, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

@@ -722,14 +722,7 @@ main( int argc, char* argv[] )
         }
         else
             throw logic_error("Invalid eigenvalue problem integer");
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test " 
                  << ( uplo==LOWER ? "lower" : "upper" )
@@ -813,17 +806,8 @@ main( int argc, char* argv[] )
         ( testCorrectness, print, 
           eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

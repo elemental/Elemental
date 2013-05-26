@@ -7,12 +7,15 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_IMPL_HPP
-#define GRAPHICS_IMPL_HPP
+#ifndef IO_IMPL_HPP
+#define IO_IMPL_HPP
 
-#include "elemental/graphics/ColorMap.hpp"
-#include "elemental/graphics/Display.hpp"
-#include "elemental/graphics/Spy.hpp"
+#ifdef HAVE_QT5
+#include "elemental/io/ColorMap.hpp"
+#include "elemental/io/Spy.hpp"
 // TODO: Distribution plot
+#endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_IMPL_HPP
+#include "elemental/io/Display.hpp"
+
+#endif // ifndef IO_IMPL_HPP

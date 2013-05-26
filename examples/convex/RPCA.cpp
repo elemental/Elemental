@@ -17,7 +17,7 @@
 #include "elemental/lapack-like/Norm/Zero.hpp"
 #include "elemental/convex/SingularValueSoftThreshold.hpp"
 #include "elemental/matrices/Uniform.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 //
@@ -350,10 +350,8 @@ main( int argc, char* argv[] )
         const double tol = Input("--tol","tolerance",1.e-5);
         const int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
+        const bool display = Input("--display","display matrices",true);
         const bool print = Input("--print","print matrices",false);
-#ifdef HAVE_QT5
-        bool display = Input("--display","display matrices",false);
-#endif
         ProcessInput();
         PrintInputReport();
 
@@ -372,12 +370,10 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
             std::cout << "|| L ||_F = " << frobLTrue << "\n"
                       << "|| L ||_max = " << maxLTrue << std::endl;
-        if( print )
-            LTrue.Print("True low-rank");
-#ifdef HAVE_QT5
         if( display )
             Display( LTrue, "True low-rank" );
-#endif 
+        if( print )
+            LTrue.Print("True low-rank");
 
         DistMatrix<C> STrue;
         Zeros( STrue, m, n );
@@ -388,15 +384,16 @@ main( int argc, char* argv[] )
             std::cout << "number of corrupted entries: " << numCorrupt << "\n"
                       << "|| S ||_F = " << frobSTrue << "\n"
                       << "|| S ||_max = " << maxSTrue << std::endl;
-        if( print )
-            STrue.Print("True sparse");
-#ifdef HAVE_QT5
         if( display )
         {
             Display( STrue, "True sparse matrix" );
+#ifdef HAVE_QT5
             Spy( STrue, "True sparse spy plot" );
-        }
 #endif
+        }
+        if( print )
+            STrue.Print("True sparse");
+
         if( commRank == 0 )
             std::cout << "Using " << STrue.Grid().Height() << " x " 
                       << STrue.Grid().Width() 
@@ -406,12 +403,10 @@ main( int argc, char* argv[] )
         // M = LTrue + STrue
         DistMatrix<C> M( LTrue );
         Axpy( C(1), STrue, M );
-        if( print )
-            M.Print("Sum of low-rank and sparse");
-#ifdef HAVE_QT5
         if( display )
             Display( M, "Sum of low-rank and sparse");
-#endif
+        if( print )
+            M.Print("Sum of low-rank and sparse");
 
         DistMatrix<C> L, S;
         Zeros( L, m, n );
@@ -422,19 +417,20 @@ main( int argc, char* argv[] )
         else
             RPCA_ADMM( M, L, S, beta, tau, tol, numStepsQR, maxIts, print );
 
+        if( display )
+        {
+            Display( L, "Estimated low-rank matrix" );
+            Display( S, "Estimated sparse matrix" );
+#ifdef HAVE_QT5
+            Spy( S, "Estimated sparse spy plot" );
+#endif
+        }
         if( print )
         {
             L.Print("Estimated low-rank matrix");
             S.Print("Estimated sparse matrix"); 
         }
-#ifdef HAVE_QT5
-        if( display )
-        {
-            Display( L, "Estimated low-rank matrix" );
-            Display( S, "Estimated sparse matrix" );
-            Spy( S, "Estimated sparse spy plot" );
-        }
-#endif
+
         Axpy( C(-1), LTrue, L );
         Axpy( C(-1), STrue, S );
         const double frobLDiff = FrobeniusNorm( L );
@@ -447,33 +443,19 @@ main( int argc, char* argv[] )
                       << "  || S - STrue ||_F / || STrue ||_F = " 
                       << frobSDiff/frobSTrue << "\n"
                       << std::endl;
-        if( print )
-        {
-            L.Print("Error in low-rank estimate");
-            S.Print("Error in sparse estimate");
-        }
-#ifdef HAVE_QT5
+
         if( display )
         {
             Display( L, "Error in low-rank estimate" );
             Display( S, "Error in sparse estimate" );
         }
-#endif
+        if( print )
+        {
+            L.Print("Error in low-rank estimate");
+            S.Print("Error in sparse estimate");
+        }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

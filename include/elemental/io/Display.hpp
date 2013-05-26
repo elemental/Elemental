@@ -7,17 +7,15 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_DISPLAY_HPP
-#define GRAPHICS_DISPLAY_HPP
+#ifndef IO_DISPLAY_HPP
+#define IO_DISPLAY_HPP
 
 #ifdef HAVE_QT5
-
-#include "elemental/graphics/display_window_decl.hpp"
-#include "elemental/graphics/complex_display_window_decl.hpp"
-
-#include "elemental/graphics/display_widget_impl.hpp"
-
+#include "elemental/io/display_window_decl.hpp"
+#include "elemental/io/complex_display_window_decl.hpp"
+#include "elemental/io/display_widget_impl.hpp"
 #include <QApplication>
+#endif
 
 namespace elem {
 
@@ -28,6 +26,7 @@ Display( const Matrix<T>& A, std::string title="" )
 #ifndef RELEASE
     CallStackEntry entry("Display");
 #endif
+#ifdef HAVE_QT5
     // Convert A to double-precision since Qt's MOC does not support templates
     const int m = A.Height();
     const int n = A.Width();
@@ -43,6 +42,9 @@ Display( const Matrix<T>& A, std::string title="" )
 
     // Spend at most 200 milliseconds rendering
     QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
+#else
+    A.Print( title );
+#endif
 }
 
 template<typename T>
@@ -52,6 +54,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
 #ifndef RELEASE
     CallStackEntry entry("Display");
 #endif
+#ifdef HAVE_QT5
     // Convert A to double-precision since Qt's MOC does not support templates
     const int m = A.Height();
     const int n = A.Width();
@@ -67,6 +70,9 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
 
     // Spend at most 200 milliseconds rendering
     QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
+#else
+    A.Print( title );
+#endif
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -76,15 +82,17 @@ Display( const DistMatrix<T,U,V>& A, std::string title="" )
 #ifndef RELEASE
     CallStackEntry entry("Display");
 #endif
+#ifdef HAVE_QT5
     // TODO: Avoid giving every process a full copy and think about avoiding
     //       the extra copy needed when the underlying datatype is not 'double'
     DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
     if( A.Grid().Rank() == 0 )
         Display( A_STAR_STAR.Matrix(), title );
+#else
+    A.Print( title );
+#endif
 }
 
 } // namespace elem
 
-#endif // ifdef HAVE_QT5
-
-#endif // ifndef GRAPHICS_DISPLAY_HPP
+#endif // ifndef IO_DISPLAY_HPP

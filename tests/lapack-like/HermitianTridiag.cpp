@@ -288,14 +288,7 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
         SetLocalSymvBlocksize<Complex<double> >( nbLocal );
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test HermitianTridiag" << uploChar << endl;
 
@@ -367,17 +360,8 @@ main( int argc, char* argv[] )
         TestComplexHermitianTridiag<double>
         ( testCorrectness, print, uplo, m, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

@@ -15,34 +15,28 @@
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/matrices/Hilbert.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of matrix",10);
-        const bool print = Input("--print","print matrix?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
         DistMatrix<double> H;
         Hilbert( H, n );
-        if( print )
-            H.Print("Hilbert matrix:");
-#ifdef HAVE_QT5
         if( display )
             Display( H, "Hilbert" );
-#endif
+        if( print )
+            H.Print("Hilbert matrix:");
 
         // This is grossly inefficient due to recomputing the singular values
         // and Cholesky decomposition for several different operations, 
@@ -54,7 +48,7 @@ main( int argc, char* argv[] )
         const double frobNorm = HermitianFrobeniusNorm( LOWER, H );
         const double nuclearNorm = HermitianNuclearNorm( LOWER, H );
 
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "kappa_2(H)   = " << cond << "\n"
                       << "det(H)       = " << det << "\n"
@@ -65,20 +59,7 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

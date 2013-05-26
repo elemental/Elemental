@@ -54,9 +54,9 @@ GolubReinschUpper
     // on each process.
     //
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               eHat_STAR_STAR( k, 1, g ),
+                               e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
@@ -152,9 +152,9 @@ GolubReinschUpper
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               eHat_STAR_STAR( k, 1, g ),
+                               e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
@@ -480,9 +480,9 @@ GolubReinschUpper
     // on each process
     //
     // NOTE: lapack::BidiagDQDS expects e to be of length k
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               eHat_STAR_STAR( k, 1, g ),
+                               e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
@@ -524,9 +524,9 @@ GolubReinschUpper
     // on each process
     //
     // NOTE: lapack::BidiagDQDS expects e to be of length k
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> eHat_STAR_STAR( k, 1, g );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               eHat_STAR_STAR( k, 1, g ),
+                               e_STAR_STAR( g );
     View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 

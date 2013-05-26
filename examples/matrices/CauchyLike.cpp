@@ -9,24 +9,20 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/matrices/CauchyLike.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int m = Input("--height","height of matrix",10);
         const int n = Input("--width","width of matrix",10);
-        const bool print = Input("--print","print matrices?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -42,26 +38,12 @@ main( int argc, char* argv[] )
 
         DistMatrix<double> A;
         CauchyLike( A, r, s, x, y );
-        if( print )
-            A.Print("CauchyLike matrix:");
-#ifdef HAVE_QT5
         if( display )
             Display( A, "Cauchy-like" );
-#endif
+        if( print )
+            A.Print("CauchyLike matrix:");
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n"
-           << e.what() << std::endl;
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

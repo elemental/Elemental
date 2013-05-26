@@ -26,9 +26,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int n = Input("--size","size of HPD matrix",100);
@@ -37,7 +34,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A( g );
         HermitianUniformSpectrum( A, n, R(1), R(20) );
 
@@ -63,7 +60,7 @@ main( int argc, char* argv[] )
         const R frobNormA = HermitianFrobeniusNorm( uplo, A );
         const R frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
         const R frobNormError = FrobeniusNorm( E );
-        if( g.Rank() == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| A          ||_F = " << frobNormA << "\n"
                       << "|| invA       ||_F = " << frobNormInvA << "\n"
@@ -71,20 +68,7 @@ main( int argc, char* argv[] )
                       << std::endl;
         }
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

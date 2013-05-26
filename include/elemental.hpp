@@ -21,6 +21,6 @@
 #include "elemental/convex.hpp"
 #include "elemental/matrices.hpp"
 
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 
 #endif // ifndef ELEMENTAL_HPP

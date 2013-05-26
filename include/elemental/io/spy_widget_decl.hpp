@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_SPYWIDGET_DECL_HPP
-#define GRAPHICS_SPYWIDGET_DECL_HPP
+#ifndef IO_SPYWIDGET_DECL_HPP
+#define IO_SPYWIDGET_DECL_HPP
 
 #ifdef HAVE_QT5
 
@@ -34,4 +34,4 @@ private:
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_SPYWIDGET_DECL_HPP
+#endif // ifndef IO_SPYWIDGET_DECL_HPP

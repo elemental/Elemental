@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_COLORMAP_HPP
-#define GRAPHICS_COLORMAP_HPP
+#ifndef IO_COLORMAP_HPP
+#define IO_COLORMAP_HPP
 
 #ifdef HAVE_QT5
 
@@ -51,4 +51,4 @@ ColorMap( double value, double minVal, double maxVal )
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_COLORMAP_HPP
+#endif // ifndef IO_COLORMAP_HPP

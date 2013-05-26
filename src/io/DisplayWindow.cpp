@@ -7,7 +7,7 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #include "elemental-lite.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 
 #ifdef HAVE_QT5
 

@@ -22,9 +22,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int n = Input("--size","size of HPSD matrix",100);
@@ -32,7 +29,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> L(g), A(g);
         Uniform( L, n, n );
         MakeTrapezoidal( LEFT, LOWER, -1, L );
@@ -51,18 +48,8 @@ main( int argc, char* argv[] )
             A.Print("chol(A)");
         }
     }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

@@ -12,23 +12,19 @@
 #include "elemental/matrices/Circulant.hpp"
 #include "elemental/matrices/Fourier.hpp"
 #include "elemental/matrices/Zeros.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 int 
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--size","size of matrix",10);
-        const bool print = Input("--print","print matrices?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrices?",true);
-#endif
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -38,39 +34,32 @@ main( int argc, char* argv[] )
         for( int j=0; j<n; ++j )
             a[j] = j;
         Circulant( A, a );
-        if( print )
-            A.Print("Circulant matrix:");
-#ifdef HAVE_QT5
         if( display )
             Display( A, "Circulant" );
-#endif
+        if( print )
+            A.Print("Circulant matrix:");
 
         // Create a Fourier matrix, which can be used to diagonalize circulant
         // matrices
         DistMatrix<Complex<double> > F;
         Fourier( F, n );
-        if( print )
-            F.Print("DFT matrix:");
-#ifdef HAVE_QT5
         if( display )
             Display( F, "DFT matrix" );
-#endif
+        if( print )
+            F.Print("DFT matrix:");
         
         // Form B := A F
         DistMatrix<Complex<double> > B;
         Zeros( B, n, n );
-        Gemm( NORMAL, NORMAL, 
-              Complex<double>(1), A, F, Complex<double>(0), B );
+        Gemm( NORMAL, NORMAL, Complex<double>(1), A, F, Complex<double>(0), B );
 
         // Form A := F^H B = F^H \hat A F
-        Gemm( ADJOINT, NORMAL,
-              Complex<double>(1), F, B, Complex<double>(0), A );
-        if( print )
-            A.Print("A := F^H A F");
-#ifdef HAVE_QT5
+        Gemm
+        ( ADJOINT, NORMAL, Complex<double>(1), F, B, Complex<double>(0), A );
         if( display )
             Display( A, "F^H A F" );
-#endif
+        if( print )
+            A.Print("A := F^H A F");
 
         // Form the thresholded result
         const int localHeight = A.LocalHeight();
@@ -84,27 +73,12 @@ main( int argc, char* argv[] )
                     A.SetLocal(iLocal,jLocal,0);
             }
         }
-        if( print )
-            A.Print("A with values below 1e-13 removed");
-#ifdef HAVE_QT5
         if( display )
             Display( A, "Thresholded (1e-13) A" );
-#endif
+        if( print )
+            A.Print("A with values below 1e-13 removed");
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

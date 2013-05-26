@@ -356,14 +356,7 @@ main( int argc, char* argv[] )
             throw logic_error("'range' must be 'A', 'I', or 'V'");
         if( onlyEigvals && testCorrectness && commRank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test HermitianEig " << uploChar << endl;
 
@@ -444,17 +437,8 @@ main( int argc, char* argv[] )
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_DISPLAYWIDGET_IMPL_HPP
-#define GRAPHICS_DISPLAYWIDGET_IMPL_HPP
+#ifndef IO_DISPLAYWIDGET_IMPL_HPP
+#define IO_DISPLAYWIDGET_IMPL_HPP
 
 #ifdef HAVE_QT5
 
@@ -17,9 +17,9 @@
 #include <QPixmap>
 #include <QStylePainter>
 
-#include "elemental/graphics/ColorMap.hpp"
+#include "elemental/io/ColorMap.hpp"
 
-#include "elemental/graphics/display_widget_decl.hpp"
+#include "elemental/io/display_widget_decl.hpp"
 
 namespace elem {
 
@@ -207,4 +207,4 @@ DisplayWidget<T>::SavePng( std::string basename ) const
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_DISPLAYWIDGET_IMPL_HPP
+#endif // ifndef IO_DISPLAYWIDGET_IMPL_HPP

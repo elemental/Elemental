@@ -24,9 +24,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int m = Input("--height","height of matrix",100);
@@ -40,7 +37,7 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
 
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A( g );
         Uniform( A, m, n );
 
@@ -50,25 +47,12 @@ main( int argc, char* argv[] )
         const double kyFanNorm = KyFanNorm( A, k );
         const double schattenNorm = SchattenNorm( A, p );
         const double entrywiseNorm = EntrywiseNorm( A, p );
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
             cout << "|| A ||_K(p)   = " << kyFanNorm << "\n"
                  << "|| A ||_S(p)   = " << schattenNorm << "\n"
                  << "|| vec(A) ||_p = " << entrywiseNorm << std::endl;
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

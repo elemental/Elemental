@@ -126,20 +126,7 @@ main( int argc, char* argv[] )
             }
         }
     }
-    catch( ArgException& e )
-    {
-        // There is no reason to do anything
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught exception: " << e.what()
-           << std::endl;
-        std::cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;

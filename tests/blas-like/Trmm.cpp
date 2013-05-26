@@ -89,14 +89,7 @@ main( int argc, char* argv[] )
         const UnitOrNonUnit diag = CharToUnitOrNonUnit( diagChar );
         SetBlocksize( nb );
 
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test Trmm" 
                 << sideChar << uploChar << transChar << diagChar << endl;
@@ -118,17 +111,8 @@ main( int argc, char* argv[] )
         TestTrmm<Complex<double> >
         ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

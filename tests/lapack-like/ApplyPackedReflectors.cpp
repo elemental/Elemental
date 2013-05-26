@@ -319,14 +319,8 @@ main( int argc, char* argv[] )
         else if( uplo == UPPER && offset < 0 )
             throw logic_error
             ("Offset cannot be negative if transforms are in upper triangle");
-#ifndef RELEASE
-        if( commRank == 0 )
-        {
-            cout << "==========================================\n"
-                 << " In debug mode! Performance will be poor! \n"
-                 << "==========================================" << endl;
-        }
-#endif
+
+        ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test UT transform" << endl;
 
@@ -350,17 +344,8 @@ main( int argc, char* argv[] )
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }
-    catch( ArgException& e ) { }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }   
+    catch( exception& e ) { ReportException(e); }
+
     Finalize();
     return 0;
 }

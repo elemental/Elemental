@@ -7,13 +7,13 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_SPY_HPP
-#define GRAPHICS_SPY_HPP
+#ifndef IO_SPY_HPP
+#define IO_SPY_HPP
 
 #ifdef HAVE_QT5
 
-#include "elemental/graphics/spy_window_decl.hpp"
-#include "elemental/graphics/spy_widget_impl.hpp"
+#include "elemental/io/spy_window_decl.hpp"
+#include "elemental/io/spy_widget_impl.hpp"
 
 #include <QApplication>
 
@@ -61,4 +61,4 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="", BASE(T) tol=0 )
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef GRAPHICS_SPY_HPP
+#endif // ifndef IO_SPY_HPP

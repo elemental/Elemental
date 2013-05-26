@@ -7,15 +7,18 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef GRAPHICS_COMPLEXDISPLAYWINDOW_DECL_HPP
-#define GRAPHICS_COMPLEXDISPLAYWINDOW_DECL_HPP
+#ifndef IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+#define IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+
+// Not currently guarded due to CMake MOC handling requiring extra flags
+//#ifdef HAVE_QT5
 
 #include <QPushButton>
 #include <QScrollArea>
 #include <QWidget>
 
 #include "elemental-lite.hpp"
-#include "elemental/graphics/display_widget_decl.hpp"
+#include "elemental/io/display_widget_decl.hpp"
 
 namespace elem {
 
@@ -50,4 +53,6 @@ public slots:
 
 } // namespace elem
 
-#endif // ifndef GRAPHICS_COMPLEXDISPLAYWINDOW_DECL_HPP
+//#endif // ifdef HAVE_QT5
+
+#endif // ifndef IO_COMPLEXDISPLAYWINDOW_DECL_HPP

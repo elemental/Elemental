@@ -30,9 +30,6 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
 
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-
     try 
     {
         const int n = Input("--size","size of matrix to factor",100);
@@ -41,7 +38,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Grid g( comm );
+        Grid g( mpi::COMM_WORLD );
         DistMatrix<C> A( g );
         if( conjugate )
         {
@@ -72,26 +69,12 @@ main( int argc, char* argv[] )
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
         const R frobNormOfError = FrobeniusNorm( A );
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
                       << std::endl;
     }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( exception& e )
-    {
-        ostringstream os;
-        os << "Process " << commRank << " caught exception with message: "
-           << e.what() << endl;
-        cerr << os.str();
-#ifndef RELEASE
-        DumpCallStack();
-#endif
-    }
+    catch( exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
 }
-

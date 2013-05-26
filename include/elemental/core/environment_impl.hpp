@@ -30,6 +30,32 @@ inline void
 PrintInputReport()
 { GetArgs().PrintReport(); }
 
+inline void ReportException( std::exception& e )
+{
+    std::ostringstream os;
+    os << "Process " << mpi::WorldRank() << " caught error message:\n"
+       << e.what() << std::endl;
+#ifndef RELEASE
+    DumpCallStack();
+#endif
+}
+
+// There is nothing to do in this case
+inline void ReportException( ArgException& e )
+{ }
+
+inline void ComplainIfDebug()
+{
+#ifndef RELEASE
+    if( mpi::WorldRank() == 0 )
+    {
+        std::cout << "==========================================\n"
+                  << " In debug mode! Performance will be poor! \n"
+                  << "==========================================" << std::endl;
+    }
+#endif
+}
+
 template<typename T>
 inline void 
 MemCopy( T* dest, const T* source, std::size_t numEntries )

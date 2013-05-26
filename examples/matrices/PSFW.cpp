@@ -10,7 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Zeros.hpp"
-#include "elemental/graphics.hpp"
+#include "elemental/io.hpp"
 using namespace elem;
 
 /*
@@ -24,17 +24,13 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
 
     try
     {
         const int n = Input("--n","maximum k value",10);
         const double c = Input("--c","coefficient for PSFW",100.);
-        const bool print = Input("--print","print matrix?",true);
-#ifdef HAVE_QT5
         const bool display = Input("--display","display matrix?",true);
-#endif
+        const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -74,18 +70,16 @@ main( int argc, char* argv[] )
                 }
             }
         }
-        if( print )
-        {
-            AEven.Print("AEven");
-            AOdd.Print("AOdd");
-        }
-#ifdef HAVE_QT5
         if( display )
         {
             Display( AEven, "Even matrix" );
             Display( AOdd, "Odd matrix" );
         }
-#endif
+        if( print )
+        {
+            AEven.Print("AEven");
+            AOdd.Print("AOdd");
+        }
 
 #ifdef HAVE_PMRRR
         DistMatrix<double,VR,STAR> wEven, wOdd;
@@ -94,14 +88,6 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, AOdd,  wOdd,  XOdd  );
         hermitian_eig::Sort( wEven, XEven );
         hermitian_eig::Sort( wOdd,  XOdd  );
-        if( print )
-        {
-            XEven.Print("XEven");
-            XOdd.Print("XOdd");
-            wEven.Print("wEven");
-            wOdd.Print("wOdd");
-        }
-#ifdef HAVE_QT5
         if( display )
         {
             Display( XEven, "Even eigenvectors" );
@@ -109,22 +95,16 @@ main( int argc, char* argv[] )
             Display( wEven, "Even eigenvalues" );
             Display( wOdd, "Odd eigenvalues" );
         }
-#endif
-#endif
-    }
-    catch( ArgException& e )
-    {
-        // There is nothing to do
-    }
-    catch( std::exception& e )
-    {
-        std::ostringstream os;
-        os << "Process " << commRank << " caught error message:\n" << e.what()
-           << std::endl;
-#ifndef RELEASE
-        DumpCallStack();
+        if( print )
+        {
+            XEven.Print("XEven");
+            XOdd.Print("XOdd");
+            wEven.Print("wEven");
+            wOdd.Print("wOdd");
+        }
 #endif
     }
+    catch( std::exception& e ) { ReportException(e); }
 
     Finalize();
     return 0;
