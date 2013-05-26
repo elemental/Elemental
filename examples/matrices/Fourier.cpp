@@ -8,6 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/lapack-like/SVD.hpp"
 #include "elemental/matrices/Fourier.hpp"
 #include "elemental/io.hpp"
 using namespace elem;
@@ -31,6 +32,27 @@ main( int argc, char* argv[] )
             Display( A, "Fourier Matrix" );
         if( print )
             A.Print("Fourier matrix:");
+
+        if( n >= 50 )
+        {
+            const int nSqrt = Sqrt( double(n) );
+            DistMatrix<Complex<double> > AMid, AMidCopy;
+            if( mpi::WorldRank() == 0 )
+                std::cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
+                          << "starting at (" 
+                          << (n-nSqrt)/2 << "," << (n-nSqrt)/2 << ")"
+                          << std::endl;
+            View( AMid, A, (n-nSqrt)/2, (n-nSqrt)/2, nSqrt, nSqrt );
+            if( display )
+                Display( AMid, "Middle block" );
+            if( print )
+                AMid.Print("Middle block");
+            AMidCopy = AMid;
+             
+            DistMatrix<double,VR,STAR> s;
+            SVD( AMidCopy, s );
+            s.Print("singular values of middle block");
+        }
     }
     catch( std::exception& e ) { ReportException(e); }
 
