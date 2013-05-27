@@ -134,6 +134,10 @@ Hanowa
 ------
 **TODO**
 
+Helmholtz
+---------
+**TODO**
+
 Hilbert
 -------
 The Hilbert matrix of order :math:`n` is the :math:`n \times n` matrix where
@@ -192,6 +196,10 @@ the corresponding :math:`n \times n` Kahan matrix is given by:
 
 KMS
 ---
+**TODO**
+
+Laplacian
+---------
 **TODO**
 
 Lauchli

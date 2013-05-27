@@ -22,8 +22,7 @@ Diagonal( Matrix<T>& D, const std::vector<T>& d )
     CallStackEntry entry("Diagonal");
 #endif
     const int n = d.size();
-    D.ResizeTo( n, n );
-    MakeZeros( D );
+    Zeros( D, n, n );
 
     for( int j=0; j<n; ++j )
         D.Set( j, j, d[j] );
@@ -37,8 +36,7 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
     CallStackEntry entry("Diagonal");
 #endif
     const int n = d.size();
-    D.ResizeTo( n, n );
-    MakeZeros( D );
+    Zeros( D, n, n );
 
     const int localWidth = D.LocalWidth();
     const int colShift = D.ColShift();
