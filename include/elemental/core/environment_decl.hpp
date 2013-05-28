@@ -263,22 +263,6 @@ void ReportException( ArgException& e );
 
 void ComplainIfDebug();
 
-// We define an output stream that does nothing. This is done so that the 
-// root process can be used to print data to a file's ostream while all other 
-// processes use a null ostream. This is used within the DistMatrix class's
-// 'Write' functions.
-struct NullStream : std::ostream
-{
-    struct NullStreamBuffer : std::streambuf
-    {
-        int overflow( int c ) { return traits_type::not_eof(c); }
-    } nullStreamBuffer_;
-
-    NullStream() 
-    : std::ios(&nullStreamBuffer_), std::ostream(&nullStreamBuffer_) 
-    { }
-};
-
 } // namespace elem
 
 #endif // ifndef CORE_ENVIRONMENT_DECL_HPP

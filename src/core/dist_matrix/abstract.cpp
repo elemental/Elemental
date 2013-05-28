@@ -511,8 +511,8 @@ AbstractDistMatrix<T,Int>::Write
     }
     else
     {
-        NullStream nullStream;
-        PrintBase( nullStream, msg );
+        // std::cout should not be used, so this is okay
+        PrintBase( std::cout, msg );
     }
 }
 
