@@ -10,6 +10,8 @@
 #ifndef MATRICES_EXTENDEDKAHAN_HPP
 #define MATRICES_EXTENDEDKAHAN_HPP
 
+#include "elemental/matrices/Walsh.hpp"
+
 // Generate a 3(2^k) x 3(2^k) Extended Kahan matrix, which has the form
 // A = S R, where S = diag(1,zeta,...,zeta^(3 2^k - 1)), 
 // 
@@ -79,17 +81,17 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     View( ABlock, A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     View( ABlock, A, 0, l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( -phi, ABlock );
     View( ABlock, A, l, 2*l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale R by S
     const R zeta = Sqrt(R(1)-phi*phi);
     Matrix<R> d( n, 1 );
     for( int i=0; i<n; ++i )
-        d.Set( i, 0, Pow(zeta,i) );
+        d.Set( i, 0, Pow(zeta,R(i)) );
     DiagonalScale( LEFT, NORMAL, d, A );
 }
 
@@ -126,10 +128,10 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     View( ABlock, A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     View( ABlock, A, 0, l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( -phi, ABlock );
     View( ABlock, A, l, 2*l, l, l );
-    MakeWalsh( ABlock, k );
+    Walsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale R by S
@@ -140,7 +142,7 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     for( int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
         const int i = colShift + iLoc*colStride;
-        d.SetLocal( iLoc, 0, Pow(zeta,i) );
+        d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );
 }

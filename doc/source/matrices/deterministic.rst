@@ -96,8 +96,8 @@ The :math:`n \times n` *Discrete Fourier Transform* (DFT) matrix, say :math:`A`,
 
    Turn the existing :math:`n \times n` matrix ``A`` into a DFT matrix.
 
-GCD
----
+GCDMatrix
+---------
 **TODO**
 
 Gear

@@ -22,9 +22,9 @@ KMS( Matrix<T>& K, int n, T rho )
     for( int j=0; j<n; ++j )
     {
         for( int i=0; i<j; ++i )
-            K.Set( i, j, Pow(rho,j-i) );
+            K.Set( i, j, Pow(rho,T(j-i)) );
         for( int i=j; i<n; ++i )
-            K.Set( i, j, Conj(Pow(rho,i-j)) );
+            K.Set( i, j, Conj(Pow(rho,T(i-j))) );
     }
 }
 
@@ -48,9 +48,9 @@ KMS( DistMatrix<T,U,V>& K, int n, T rho )
         {
             const int i = colShift + iLoc*colStride;
             if( i < j )
-                K.SetLocal( iLoc, jLoc, Pow(rho,j-i) );
+                K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
             else
-                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,i-j)) );
+                K.SetLocal( iLoc, jLoc, Conj(Pow(rho,T(i-j))) );
         }
     }
 }

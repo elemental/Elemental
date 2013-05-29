@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/matrices/GCD.hpp"
+#include "elemental/matrices/GCDMatrix.hpp"
 #include "elemental/matrices/Redheffer.hpp"
 #include "elemental/matrices/Riemann.hpp"
 #include "elemental/io.hpp"
@@ -30,12 +30,12 @@ main( int argc, char* argv[] )
         DistMatrix<double> A, B, C;
         Riemann( A, n );
         Redheffer( B, n );
-        GCD( C, n, n );
+        GCDMatrix( C, n, n );
         if( display )
         {
             Display( A, "Riemann" );
             Display( B, "Redheffer" );
-            Display( C, "GCD" );
+            Display( C, "GCDMatrix" );
         }
         if( print )
         {

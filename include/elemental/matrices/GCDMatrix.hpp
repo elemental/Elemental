@@ -7,53 +7,31 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_GCD_HPP
-#define MATRICES_GCD_HPP
+#ifndef MATRICES_GCDMATRIX_HPP
+#define MATRICES_GCDMATRIX_HPP
 
 namespace elem {
 
 template<typename T>
 inline void
-GCD( Matrix<T>& G, int m, int n )
+MakeGCDMatrix( Matrix<T>& G )
 {
 #ifndef RELEASE
-    CallStackEntry entry("GCD");
-#endif
-    G.ResizeTo( m, n );
-    MakeGCD( G );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-GCD( DistMatrix<T,U,V>& G, int m, int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("GCD");
-#endif
-    G.ResizeTo( m, n );
-    MakeGCD( G );
-}
-
-template<typename T> 
-inline void
-MakeGCD( Matrix<T>& G )
-{
-#ifndef RELEASE
-    CallStackEntry entry("MakeGCD");
+    CallStackEntry entry("MakeGCDMatrix");
 #endif
     const int m = G.Height();
     const int n = G.Width();
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            G.Set( i, j, GCD(i+1,j+1) );
+            G.Set( i, j, T(GCD(i+1,j+1)) );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeGCD( DistMatrix<T,U,V>& G )
+MakeGCDMatrix( DistMatrix<T,U,V>& G )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeGCD");
+    CallStackEntry entry("MakeGCDMatrix");
 #endif
     const int localHeight = G.LocalHeight();
     const int localWidth = G.LocalWidth();
@@ -67,11 +45,33 @@ MakeGCD( DistMatrix<T,U,V>& G )
         for( int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const int i = colShift + iLoc*colStride;
-            G.SetLocal( iLoc, jLoc, GCD(i+1,j+1) );
+            G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
         }
     }
 }
 
+template<typename T>
+inline void
+GCDMatrix( Matrix<T>& G, int m, int n )
+{
+#ifndef RELEASE
+    CallStackEntry entry("GCDMatrix");
+#endif
+    G.ResizeTo( m, n );
+    MakeGCDMatrix( G );
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+GCDMatrix( DistMatrix<T,U,V>& G, int m, int n )
+{
+#ifndef RELEASE
+    CallStackEntry entry("GCDMatrix");
+#endif
+    G.ResizeTo( m, n );
+    MakeGCDMatrix( G );
+}
+
 } // namespace elem
 
-#endif // ifndef MATRICES_GCD_HPP
+#endif // ifndef MATRICES_GCDMATRIX_HPP
