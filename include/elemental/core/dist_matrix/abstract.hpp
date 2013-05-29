@@ -246,6 +246,7 @@ protected:
 
     virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;
 
+#ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename Ord> 
     friend void View
     ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B );
@@ -294,6 +295,7 @@ protected:
 
     template<typename S,Distribution U,Distribution V,typename Ord>
     friend class DistMatrix;
+#endif // ifndef SWIG
 };
 
 } // namespace elem

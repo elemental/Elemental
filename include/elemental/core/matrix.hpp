@@ -174,6 +174,7 @@ private:
     };
     template<typename Z> friend struct UpdateImagPartHelper;
 
+#ifndef SWIG
     friend void View<T,Int>
     ( Matrix<T,Int>& A, Matrix<T,Int>& B );
     friend void View<T,Int>
@@ -205,6 +206,7 @@ private:
     (       Matrix<T,Int>& A,
       const Matrix<T,Int>& BTL, const Matrix<T,Int>& BTR,
       const Matrix<T,Int>& BBL, const Matrix<T,Int>& BBR );
+#endif // ifndef SWIG
 };
 
 } // namespace elem

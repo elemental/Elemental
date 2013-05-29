@@ -168,6 +168,7 @@ private:
     Int diagPath_;
     virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
 
+#ifndef SWIG
     friend void HandleDiagPath<>
     ( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );
     friend void HandleDiagPath<>
@@ -175,6 +176,7 @@ private:
 
     template<typename S,Distribution U,Distribution V,typename N>
     friend class DistMatrix;
+#endif // ifndef SWIG
 };
 
 } // namespace elem
