@@ -12,6 +12,7 @@
 
 namespace elem {
 
+#ifndef SWIG
 // Default case is for real datatypes
 template<typename Z>
 inline void
@@ -32,6 +33,22 @@ Conjugate( Matrix<Complex<Z> >& A )
         for( int i=0; i<m; ++i )
             A.Set(i,j,Conj(A.Get(i,j)));
 }
+#else // ifndef SWIG
+// Avoid what seems to be a bug in SWIG's template instantiation
+template<typename T>
+inline void
+Conjugate( Matrix<T>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Conjugate (in-place)");
+#endif
+    const int m = A.Height();
+    const int n = A.Width();
+    for( int j=0; j<n; ++j )
+        for( int i=0; i<m; ++i )
+            A.Set(i,j,Conj(A.Get(i,j)));
+}
+#endif // ifndef SWIG
 
 template<typename T>
 inline void

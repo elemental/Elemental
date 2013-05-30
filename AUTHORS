@@ -29,4 +29,4 @@ Jeff Hammond and Argonne National Laboratory:
   improvement for Elemental's threading support.
 
 Michael Grant:
-  Initial implementation of SWIG Python interface
+  The SWIG Python interface
