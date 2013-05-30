@@ -137,6 +137,15 @@
 %include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
+  %template(Complex_s) Complex<float>;
+  %template(Complex_d) Complex<double>;
+
+  %template(Base_i) Base<int>;
+  %template(Base_s) Base<float>;
+  %template(Base_d) Base<double>;
+  %template(Base_c) Base<Complex<float> >;
+  %template(Base_z) Base<Complex<double> >;
+
   %template(Matrix_i) Matrix<int,int>;
   %template(Matrix_s) Matrix<float,int>;
   %template(Matrix_d) Matrix<double,int>;

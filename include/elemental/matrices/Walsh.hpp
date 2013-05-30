@@ -14,16 +14,17 @@ namespace elem {
 
 template<typename T> 
 inline void
-Walsh( Matrix<T>& A, int k, bool binary=false )
+MakeWalsh( Matrix<T>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Walsh");
+    CallStackEntry entry("MakeWalsh");
 #endif
     if( k < 1 )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
 
     const unsigned n = 1u<<k;
-    A.ResizeTo( n, n );
+    if( A.Height() != n || A.Width() != n )
+        throw std::logic_error("Invalid input matrix size");
 
     // Run a simple O(n^2 log n) algorithm for computing the entries
     // based upon successive sign flips
@@ -58,16 +59,17 @@ Walsh( Matrix<T>& A, int k, bool binary=false )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
+MakeWalsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Walsh");
+    CallStackEntry entry("MakeWalsh");
 #endif
     if( k < 1 )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
 
     const unsigned n = 1u<<k;
-    A.ResizeTo( n, n );
+    if( A.Height() != n || A.Width() != n )
+        throw std::logic_error("Invalid input matrix size");
 
     // Run an O(n^2 log n / p) algorithm based upon successive sign flips
     const T onValue = 1;
@@ -105,6 +107,34 @@ Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
                 A.SetLocal( iLoc, jLoc, offValue );
         }
     }
+}
+
+template<typename T> 
+inline void
+Walsh( Matrix<T>& A, int k, bool binary=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Walsh");
+#endif
+    if( k < 1 )
+        throw std::logic_error("Walsh matrices are only defined for k>=1");
+    const unsigned n = 1u<<k;
+    A.ResizeTo( n, n );
+    MakeWalsh( A, k, binary );
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Walsh");
+#endif
+    if( k < 1 )
+        throw std::logic_error("Walsh matrices are only defined for k>=1");
+    const unsigned n = 1u<<k;
+    A.ResizeTo( n, n );
+    MakeWalsh( A, k, binary );
 }
 
 } // namespace elem

@@ -740,20 +740,23 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
     CallStackEntry entry("Matrix::ResizeTo(height,width)");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
-    if( viewing_ && (height>height_ || width>width_) )
+#endif
+    const bool reallocate = ( height > height_ || width > width_ );
+#ifndef RELEASE
+    if( viewing_ && reallocate )
         throw std::logic_error("Cannot increase the size of a view");
 #endif
-    // Only change the ldim when necessary. Simply 'shrink' our view if 
-    // possible.
-    const Int minLDim = 1;
-    if( height > height_ || width > width_ )
-        ldim_ = std::max( height, minLDim );
-
     height_ = height;
     width_ = width;
 
-    memory_.Require(ldim_*width);
-    data_ = memory_.Buffer();
+    // Only change the ldim when necessary. Simply 'shrink' our view if 
+    // possible.
+    if( reallocate )
+    {
+        ldim_ = std::max( height, 1 );
+        memory_.Require(ldim_*width);
+        data_ = memory_.Buffer();
+    }
 }
 
 template<typename T,typename Int>
@@ -764,8 +767,6 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
     CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
-    if( viewing_ && (height > height_ || width > width_ || ldim != ldim_) )
-        throw std::logic_error("Illogical ResizeTo on viewed data");
     if( ldim < height )
     {
         std::ostringstream msg;
@@ -773,12 +774,22 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    const bool reallocate = 
+        ( height > height_ || width > width_ || ldim != ldim_ );
+#ifndef RELEASE
+    if( viewing_ && reallocate )
+        throw std::logic_error("Illogical ResizeTo on viewed data");
+
+#endif
     height_ = height;
     width_ = width;
     ldim_ = ldim;
 
-    memory_.Require(ldim*width);
-    data_ = memory_.Buffer();
+    if( reallocate )
+    {
+        memory_.Require(ldim*width);
+        data_ = memory_.Buffer();
+    }
 }
 
 template<typename T,typename Int>

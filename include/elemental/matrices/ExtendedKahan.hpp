@@ -81,10 +81,10 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     View( ABlock, A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     View( ABlock, A, 0, l, l, l );
-    Walsh( ABlock, k );
+    MakeWalsh( ABlock, k );
     Scale( -phi, ABlock );
     View( ABlock, A, l, 2*l, l, l );
-    Walsh( ABlock, k );
+    MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale R by S
@@ -128,10 +128,10 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     View( ABlock, A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
     View( ABlock, A, 0, l, l, l );
-    Walsh( ABlock, k );
+    MakeWalsh( ABlock, k );
     Scale( -phi, ABlock );
     View( ABlock, A, l, 2*l, l, l );
-    Walsh( ABlock, k );
+    MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
     // Now scale R by S
