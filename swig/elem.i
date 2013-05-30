@@ -252,9 +252,9 @@ namespace elem {
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
-%apply int { elem::Base<int> };
-%apply float { elem::Base<float>, elem::Base<elem::Complex<float> > };
-%apply double { elem::Base<double>, elem::Base<elem::Complex<double> > };
+%apply int { Base<int> };
+%apply float { Base<float>, Base<Complex<float> > };
+%apply double { Base<double>, Base<Complex<double> > };
   
 %ignore Matrix<int,int>::Matrix(int,int,const int*,int);
 %ignore Matrix<int,int>::Matrix(int,int,int*,int);
@@ -262,10 +262,10 @@ namespace elem {
 %ignore Matrix<float,int>::Matrix(int,int,float*,int);
 %ignore Matrix<double,int>::Matrix(int,int,const double*,int);
 %ignore Matrix<double,int>::Matrix(int,int,double*,int);
-%ignore Matrix<elem::Complex<float>,int>::Matrix(int,int,const elem::Complex<float>*,int);
-%ignore Matrix<elem::Complex<float>,int>::Matrix(int,int,elem::Complex<float>*,int);
-%ignore Matrix<elem::Complex<double>,int>::Matrix(int,int,const elem::Complex<double>*,int);
-%ignore Matrix<elem::Complex<double>,int>::Matrix(int,int,elem::Complex<double>*,int);
+%ignore Matrix<Complex<float>,int>::Matrix(int,int,const Complex<float>*,int);
+%ignore Matrix<Complex<float>,int>::Matrix(int,int,Complex<float>*,int);
+%ignore Matrix<Complex<double>,int>::Matrix(int,int,const Complex<double>*,int);
+%ignore Matrix<Complex<double>,int>::Matrix(int,int,Complex<double>*,int);
 %template(Matrix_i) Matrix<int,int>;
 %template(Matrix_s) Matrix<float,int>;
 %template(Matrix_d) Matrix<double,int>;
@@ -278,16 +278,16 @@ namespace elem {
 %template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float>,int>;
 %template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double>,int>;
 
-%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,const int*,int,const elem::Grid&);
-%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,int*,int,const elem::Grid&);
-%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,const float*,int,const elem::Grid&);
-%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,float*,int,const elem::Grid&);
-%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,const double*,int,const elem::Grid&);
-%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,double*,int,const elem::Grid&);
-%ignore DistMatrix<elem::Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,const elem::Complex<float>*,int,const elem::Grid&);
-%ignore DistMatrix<elem::Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,elem::Complex<float>*,int,const elem::Grid&);
-%ignore DistMatrix<elem::Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,const elem::Complex<double>*,int,const elem::Grid&);
-%ignore DistMatrix<elem::Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,elem::Complex<double>*,int,const elem::Grid&);
+%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,const int*,int,const Grid&);
+%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,int*,int,const Grid&);
+%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,const float*,int,const Grid&);
+%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,float*,int,const Grid&);
+%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,const double*,int,const Grid&);
+%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,double*,int,const Grid&);
+%ignore DistMatrix<Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,const Complex<float>*,int,const Grid&);
+%ignore DistMatrix<Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,Complex<float>*,int,const Grid&);
+%ignore DistMatrix<Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,const Complex<double>*,int,const Grid&);
+%ignore DistMatrix<Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,Complex<double>*,int,const Grid&);
 %template(DistMatrix_i) DistMatrix<int,MC,MR,int>;
 %template(DistMatrix_s) DistMatrix<float,MC,MR,int>;
 %template(DistMatrix_d) DistMatrix<double,MC,MR,int>;
