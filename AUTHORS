@@ -27,3 +27,6 @@ Jed Brown and Argonne National Laboratory:
 Jeff Hammond and Argonne National Laboratory:
   Several bug fixes and toolchain files for BlueGene/P and BlueGene/Q, and an 
   improvement for Elemental's threading support.
+
+Michael Grant:
+  Initial implementation of SWIG Python interface
