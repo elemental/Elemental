@@ -45,6 +45,9 @@ endif()
 # Whether or not to use Qt5 for visualization if it is found (experimental)
 option(USE_QT5 "Attempt to use Qt5?" OFF)
 
+# Whether or not to attempt to build a Python interface via SWIG (experimental)
+option(USE_SWIG "Attempt to build Python wrappers?" OFF)
+
 ################################################################################
 # Advanced build options                                                       #
 ################################################################################
@@ -242,6 +245,19 @@ if(USE_QT5)
     message(STATUS "Found Qt5")
   else()
     message(STATUS "Did NOT find Qt5")
+  endif()
+endif()
+
+set(HAVE_SWIG FALSE)
+if(USE_SWIG)
+  # Search for SWIG and Python
+  find_package(SWIG)
+  find_package(PythonLibs)
+  if(SWIG_FOUND AND PYTHONLIBS_FOUND)
+    message("SWIG_USE_FILE=${SWIG_USE_FILE}")
+    set(HAVE_SWIG TRUE)
+  else()
+    message(STATUS "Did not find SWIG and PythonLibs")
   endif()
 endif()
 
@@ -471,6 +487,20 @@ add_dependencies(elemental prepare_elemental_headers)
 
 # Make sure the Elemental headers can be found
 include_directories("${PROJECT_BINARY_DIR}/include")
+
+# Build the SWIG wrappers if necessary
+if(HAVE_SWIG)
+  include(${SWIG_USE_FILE})
+  include_directories(${PYTHON_INCLUDE_PATH})
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+  set(CMAKE_SWIG_FLAGS "")
+  # NOTE: There seems to be a bug in the SWIG module where the necessary
+  #       subdirectories (i.e., swig/) are not created automatically
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/swig)
+  set_source_files_properties(swig/elem.i PROPERTIES CPLUSPLUS ON)
+  swig_add_module(elem python swig/elem.i)
+  swig_link_libraries(elem ${PYTHON_LIBRARIES} elemental)
+endif()
 
 # Build the test drivers if necessary
 if(ELEM_TESTS)
