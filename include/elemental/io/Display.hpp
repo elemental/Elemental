@@ -33,7 +33,7 @@ Display( const Matrix<T>& A, std::string title="" )
     Matrix<double>* ADouble = new Matrix<double>( m, n );
     for( int j=0; j<n; ++j )
         for( int i=0; i<m; ++i )
-            ADouble->Set( i, j, A.Get(i,j) );
+            ADouble->Set( i, j, double(A.Get(i,j)) );
 
     QString qTitle = QString::fromStdString( title );
     DisplayWindow* displayWindow = new DisplayWindow;
@@ -60,8 +60,15 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
     const int n = A.Width();
     Matrix<Complex<double> >* ADouble = new Matrix<Complex<double> >( m, n );
     for( int j=0; j<n; ++j )
+    {
         for( int i=0; i<m; ++i )
-            ADouble->Set( i, j, A.Get(i,j) );
+        {
+            const Complex<T> alpha = A.Get(i,j);
+            const Complex<double> alphaDouble = 
+                Complex<double>(alpha.real,alpha.imag); 
+            ADouble->Set( i, j, alphaDouble );
+        }
+    }
 
     QString qTitle = QString::fromStdString( title );
     ComplexDisplayWindow* displayWindow = new ComplexDisplayWindow;

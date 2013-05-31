@@ -101,9 +101,10 @@ using namespace elem;
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
-%apply int { elem::Base<int> };
-%apply float { elem::Base<float>, elem::Base<Complex<float> > };
-%apply double { elem::Base<double>, elem::Base<Complex<double> > };
+
+%apply int { elem::Base<int>::type};
+%apply float { elem::Base<float>::type, elem::Base<Complex<float> >::type};
+%apply double { elem::Base<double>::type, elem::Base<Complex<double> >::type };
 
 /*
  * Blanket exception handling.
@@ -117,7 +118,7 @@ using namespace elem;
   }
 }
 
-%rename(copy) *::operator=;
+%ignore *::operator=;
 %rename(MPI_Initialize) elem::mpi::Initialize;
 %rename(MPI_Initialized) elem::mpi::Initialized;
 %rename(MPI_Finalize) elem::mpi::Finalize;
@@ -249,11 +250,20 @@ DISTMATRIX_cplx(U,V)
 DISTMATRIX_int(U,V)
 DISTMATRIX_noint(U,V)
 %enddef
-DISTMATRIX_noint(MC,STAR)
-DISTMATRIX_int(VC,STAR)
-DISTMATRIX_cplx(MD,STAR)
-DISTMATRIX_int(VR,STAR)
-DISTMATRIX_noint(STAR,VR)
+
+DISTMATRIX_all(MC,STAR)
+DISTMATRIX_all(MD,STAR)
+DISTMATRIX_all(MR,MC)
+DISTMATRIX_all(MR,STAR)
+DISTMATRIX_all(STAR,MC)
+DISTMATRIX_all(STAR,MD)
+DISTMATRIX_all(STAR,MR)
+DISTMATRIX_all(STAR,STAR)
+DISTMATRIX_all(STAR,VC)
+DISTMATRIX_all(STAR,VR)
+DISTMATRIX_all(VC,STAR)
+DISTMATRIX_all(VR,STAR)
+
 };
 
 /*
@@ -773,4 +783,25 @@ OVERLOAD01_int(Uniform)
 OVERLOAD01_int(Walsh)
 OVERLOAD01_int(Wilkinson)
 OVERLOAD01_int(Zeros)
+
+};
+
+/*
+ * I/O
+ */
+
+%include "elemental/io/Display.hpp"
+#ifdef HAVE_QT5
+%include "elemental/io/Spy.hpp"
+#endif
+
+namespace elem {
+
+OVERLOAD0_cpx(Display)
+OVERLOAD1(Display)
+#ifdef HAVE_QT5
+OVERLOAD0_cpx(Spy)
+OVERLOAD1(Spy)
+#endif
+
 };
