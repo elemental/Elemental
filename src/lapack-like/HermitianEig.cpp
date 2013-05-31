@@ -236,6 +236,16 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -308,6 +318,16 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
@@ -406,6 +426,17 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<float>& paddedZ )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -561,6 +592,17 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<Complex<float> >& paddedZ )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
@@ -748,6 +790,17 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float >& A,
+  DistMatrix<float,VR,STAR>& w,
+  int lowerBound, int upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -821,6 +874,17 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w,
+  int lowerBound, int upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
@@ -928,6 +992,18 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float >& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<float>& paddedZ,
+  int lowerBound, int upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -1084,6 +1160,18 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<Complex<float> >& paddedZ,
+  int lowerBound, int upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
@@ -1268,6 +1356,17 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w,
+  float lowerBound, float upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -1338,6 +1437,17 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w,
+  float lowerBound, float upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
@@ -1437,6 +1547,18 @@ void HermitianEig
 }
 
 #ifdef HAVE_PMRRR
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<float>& paddedZ,
+  float lowerBound, float upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
@@ -1606,6 +1728,18 @@ void HermitianEig
         Scale( 1/scale, w );
 }
 
+template<>
+void HermitianEig
+( UpperOrLower uplo, 
+  DistMatrix<Complex<float> >& A,
+  DistMatrix<float,VR,STAR>& w,
+  DistMatrix<Complex<float> >& paddedZ,
+  float lowerBound, float upperBound )
+{
+    throw std::logic_error("HermitianEig not yet implemented for float");
+}
+
+template<>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,

@@ -17,7 +17,7 @@ class Grid
 {
 public:
     Grid( mpi::Comm comm=mpi::COMM_WORLD );
-    Grid( mpi::Comm comm, int height, int width );
+    Grid( mpi::Comm comm, int height );
     ~Grid();
 
     // Simple interface (simpler version of distributed-based interface)
@@ -46,8 +46,7 @@ public:
     mpi::Comm VRComm() const;
 
     // Advanced routines
-    Grid( mpi::Comm viewers, mpi::Group owners );
-    Grid( mpi::Comm viewers, mpi::Group owners, int height, int width ); 
+    Grid( mpi::Comm viewers, mpi::Group owners, int height ); 
     int GCD() const; // greatest common denominator of grid height and width
     int LCM() const; // lowest common multiple of grid height and width
     bool InGrid() const;
@@ -67,38 +66,32 @@ public:
 
 private:
     int height_, width_, size_, gcd_;
-    int matrixColRank_;
-    int matrixRowRank_;
-    int vectorColRank_;
-    int vectorRowRank_;
+    int matrixColRank_, matrixRowRank_;
+    int vectorColRank_, vectorRowRank_;
     std::vector<int> diagPathsAndRanks_;
 
     mpi::Comm viewingComm_; // all processes that create the grid
     mpi::Group viewingGroup_;
     int viewingRank_; // our rank in the viewing communicator
-
-    mpi::Group owningGroup_; // the processes that can own data
-    mpi::Group notOwningGroup_; // contains the remaining processes
-
     std::vector<int> vectorColToViewingMap_;
+
+    // The processes that do and do not own data
+    mpi::Group owningGroup_, notOwningGroup_;
 
     // Keep track of whether or not our process is in the grid. This is 
     // necessary to avoid calls like MPI_Comm_size when we're not in the
-    // communicator's group. Note that we can__ call MPI_Group_rank when not 
+    // communicator's group. Note that we _can_ call MPI_Group_rank when not 
     // in the group and that the result is MPI_UNDEFINED.
     bool inGrid_;
 
-    // Create a communicator for the processes that are in the process grid
+    // Create a communicator for our (not-)owning team
     mpi::Comm owningComm_;
-    mpi::Comm notOwningComm_; // necessary complimentary communicator
     int owningRank_;
 
     // These will only be valid if we are in the grid
     mpi::Comm cartComm_;  // the processes that are in the grid
-    mpi::Comm matrixColComm_;
-    mpi::Comm matrixRowComm_;
-    mpi::Comm vectorColComm_;
-    mpi::Comm vectorRowComm_;
+    mpi::Comm matrixColComm_, matrixRowComm_;
+    mpi::Comm vectorColComm_, vectorRowComm_;
 
     void SetUpGrid();
 

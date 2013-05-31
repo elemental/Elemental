@@ -29,22 +29,18 @@ void HermitianTridiag
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w );
-void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w );
 
 // Compute the full eigenvalue decomposition of a Hermitian matrix
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ );
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ );
+( UpperOrLower uplo, 
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ );
 
 // Compute the eigenvalues of a Hermitian matrix within a selected range
 template<typename F>
@@ -55,20 +51,14 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
   BASE(F) lowerBound, BASE(F) upperBound );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
   int lowerBound, int upperBound );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w,
-  double lowerBound, double upperBound );
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& w,
-  int lowerBound, int upperBound );
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& w, 
-  double lowerBound, double upperBound );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w,
+  BASE(F) lowerBound, BASE(F) upperBound );
 
 // Compute a selected set of eigenpairs of a Hermitian matrix
 template<typename F>
@@ -81,22 +71,16 @@ void HermitianEig
 ( UpperOrLower uplo, 
   Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
   BASE(F) lowerBound, BASE(F) upperBound );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ,
+( UpperOrLower uplo, 
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
   int lowerBound, int upperBound );
+template<typename F>
 void HermitianEig
-( UpperOrLower uplo, DistMatrix<double>& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& paddedZ,
-  double lowerBound, double upperBound );
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ,
-  int lowerBound, int upperBound );
-void HermitianEig
-( UpperOrLower uplo, DistMatrix<Complex<double> >& A, 
-  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& paddedZ,
-  double lowerBound, double upperBound );
+( UpperOrLower uplo, 
+  DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  BASE(F) lowerBound, BASE(F) upperBound );
 
 //
 // HermitianGenDefiniteEig (Hermitian Generalized-Definite Eigensolver) 

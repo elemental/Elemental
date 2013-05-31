@@ -143,8 +143,7 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const int c = commSize / r;
-        const Grid g( comm, r, c );
+        const Grid g( comm, r );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
         SetLocalTrrkBlocksize<Complex<double> >( nbLocal );

@@ -277,8 +277,7 @@ main( int argc, char* argv[] )
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
-        const int c = commSize / r;
-        const Grid g( comm, r, c );
+        const Grid g( comm, r );
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )

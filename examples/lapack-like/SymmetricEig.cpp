@@ -35,8 +35,8 @@ main( int argc, char* argv[] )
 
         // Create a 2d process grid from a communicator. In our case, it is
         // MPI_COMM_WORLD. There is another constructor that allows you to 
-        // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
-        // r x c grid.
+        // specify the grid dimensions, Grid g( comm, r ), which creates a
+        // grid of height r.
         Grid g( mpi::COMM_WORLD );
     
         // Create an n x n real distributed matrix.

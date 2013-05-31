@@ -13,11 +13,11 @@ soon-to-be-discussed :cpp:type:`DistMatrix\<T,U,V>` class).
       decide the process grid dimensions. If no communicator is specified, 
       mpi::COMM_WORLD is used.
 
-   .. cpp:function:: Grid( mpi::Comm comm, int height, int width )
+   .. cpp:function:: Grid( mpi::Comm comm, int height )
 
       Construct a process grid over the specified communicator with the 
-      given dimensions. Note that the size of the communicator should be 
-      `height` :math:`\times` `width`.
+      given height. Note that the size of the communicator must be divisible
+      by `height`.
 
    .. rubric:: Simple interface (simpler version of distribution-based interface)
 
@@ -134,13 +134,7 @@ soon-to-be-discussed :cpp:type:`DistMatrix\<T,U,V>` class).
       processes in `viewingComm`. Elemental then chooses the grid dimensions. 
       Most users should not call this routine, as this type of grid is only 
       supported for a few ``DistMatrix`` types.
-
-   .. cpp:function:: Grid( mpi::Comm viewingComm, mpi::Group owningGroup, int height, int width )
-
-      This is the same as the previous routine, but the process grid dimensions
-      are explicitly specified, and it is required that `height` :math:`\times`
-      `width` equals the size of `owningGroup`. Most users should not call this
-      routine, as it is only supported for a few ``DistMatrix`` types.
+      The size of `owningGroup` must be divisible by `height`.
 
    .. cpp:function:: int GCD() const
 

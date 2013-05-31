@@ -8,8 +8,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 %module elem
+
+#define RELEASE
+
 %{
 #include "elemental.hpp"
+using namespace elem;
 %}
 
 %include "std_except.i"
@@ -50,6 +54,56 @@
   if ( $2 ) free($2);
   if ( $1 ) free($1);
 }
+%typemap(in) elem::Complex<float> {
+  Py_complex ans1 = PyComplex_AsCComplex($input);
+  $1 = elem::Complex<float>
+    ( static_cast<float>(ans1.real), static_cast<float>(ans1.imag) );
+}
+%typecheck(SWIG_TYPECHECK_COMPLEX) elem::Complex<float> {
+  $1 = PyComplex_Check( $input ) || PyFloat_Check( $input ) || 
+       PyInt_Check( $input ) || PyLong_Check( $input ) ? 1 : 0;
+}
+%typemap(out) elem::Complex<float> {
+  $result = PyComplex_FromDoubles( $1.real, $1.imag );
+}
+%typemap(in) elem::Complex<double> {
+  Py_complex ans1 = PyComplex_AsCComplex($input);
+  $1 = elem::Complex<double>( ans1.real, ans1.imag );
+}
+%typecheck(SWIG_TYPECHECK_COMPLEX) elem::Complex<double> {
+  $1 = PyComplex_Check( $input ) || PyFloat_Check( $input ) || 
+       PyInt_Check( $input ) || PyLong_Check( $input ) ? 1 : 0;
+}
+%typemap(out) elem::Complex<double> {
+  $result = PyComplex_FromDoubles( $1.real, $1.imag );
+}
+%typemap(out) elem::SafeProduct<float> {
+  $result = PyDict_New();
+  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
+  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
+  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+}
+%typemap(out) elem::SafeProduct<double> {
+  $result = PyDict_New();
+  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
+  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
+  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+}
+%typemap(out) elem::SafeProduct<Complex<float> > {
+  $result = PyDict_New();
+  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
+  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
+  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+}
+%typemap(out) elem::SafeProduct<Complex<double> > {
+  $result = PyDict_New();
+  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
+  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
+  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+}
+%apply int { elem::Base<int> };
+%apply float { elem::Base<float>, elem::Base<Complex<float> > };
+%apply double { elem::Base<double>, elem::Base<Complex<double> > };
 
 /*
  * Blanket exception handling.
@@ -69,22 +123,89 @@
 %rename(MPI_Finalize) elem::mpi::Finalize;
 %rename(MPI_Finalized) elem::mpi::Finalized;
 
-%include "elemental/config.h"
+/*
+ * TYPES, GRID, MPI
+ */
 
-// The equivalent of elemental/core.hpp
-%include "elemental/core.hpp"
-%include "elemental/core/timer_decl.hpp"
-%include "elemental/core/memory_decl.hpp"
-%include "elemental/core/complex_decl.hpp"
+// We do not need to %include complex_decl.hpp because we are using typemaps to convert
+// Elemental complex values to native Python complex values. Using %import prevents SWIG
+// from generating any wrappers.
+%import  "elemental/core/complex_decl.hpp"
 %include "elemental/core/types_decl.hpp"
-%include "elemental/core/matrix_forward_decl.hpp"
-%include "elemental/core/dist_matrix_forward_decl.hpp"
-%include "elemental/core/view_decl.hpp"
-%include "elemental/core/matrix.hpp"
+%include "elemental/core/environment_decl.hpp"
 %include "elemental/core/imports/mpi.hpp"
 %include "elemental/core/grid_decl.hpp"
+
+/*
+ * MATRIX
+ */
+
+%define MATRIX_IGNORE(F)
+%ignore elem::Matrix<F,int>::Matrix(int,int,const F*,int);
+%ignore elem::Matrix<F,int>::Matrix(int,int,F*,int);
+%enddef
+MATRIX_IGNORE(int)
+MATRIX_IGNORE(float)
+MATRIX_IGNORE(double)
+MATRIX_IGNORE(elem::Complex<float>)
+MATRIX_IGNORE(elem::Complex<double>)
+
+%include "elemental/core/matrix.hpp"
+
+namespace elem {
+%template(Matrix_i) Matrix<int,int>;
+%template(Matrix_s) Matrix<float,int>;
+%template(Matrix_d) Matrix<double,int>;
+%template(Matrix_c) Matrix<Complex<float>,int>;
+%template(Matrix_z) Matrix<Complex<double>,int>;
+};
+
+/*
+ * ABSTRACTDISTMATRIX
+ */
+
+%include "elemental/core/dist_matrix_forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"
 %include "elemental/core/dist_matrix/abstract.hpp"
+
+namespace elem {
+%template(AbstractDistMatrix_i) AbstractDistMatrix<int,int>;
+%template(AbstractDistMatrix_s) AbstractDistMatrix<float,int>;
+%template(AbstractDistMatrix_d) AbstractDistMatrix<double,int>;
+%template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float>,int>;
+%template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double>,int>;
+};
+
+/*
+ * DISTMATRIX
+ */
+
+%define DISTMATRIX_IGNORE1(F,U,V)
+%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,const F*,int,const elem::Grid&);
+%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,F*,int,const elem::Grid&);
+%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,int,const F*,int,const elem::Grid&);
+%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,int,F*,int,const elem::Grid&);
+%enddef
+%define DISTMATRIX_IGNORE(F)
+DISTMATRIX_IGNORE1(F,MC,MR)
+DISTMATRIX_IGNORE1(F,MC,STAR)
+DISTMATRIX_IGNORE1(F,VC,STAR)
+DISTMATRIX_IGNORE1(F,MD,STAR)
+DISTMATRIX_IGNORE1(F,VR,STAR)
+DISTMATRIX_IGNORE1(F,STAR,VR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MC,elem::distribution_wrapper::MR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MC,elem::distribution_wrapper::STAR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::VC,elem::distribution_wrapper::STAR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MD,elem::distribution_wrapper::STAR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::VR,elem::distribution_wrapper::STAR)
+DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::STAR,elem::distribution_wrapper::VR)
+%enddef
+DISTMATRIX_IGNORE(int)
+DISTMATRIX_IGNORE(float)
+DISTMATRIX_IGNORE(double)
+DISTMATRIX_IGNORE(elem::Complex<float>)
+DISTMATRIX_IGNORE(elem::Complex<double>)
+
 %include "elemental/core/dist_matrix/mc_mr.hpp"
 %include "elemental/core/dist_matrix/mc_star.hpp"
 %include "elemental/core/dist_matrix/md_star.hpp"
@@ -98,12 +219,156 @@
 %include "elemental/core/dist_matrix/star_vr.hpp"
 %include "elemental/core/dist_matrix/vc_star.hpp"
 %include "elemental/core/dist_matrix/vr_star.hpp"
-%include "elemental/core/environment_decl.hpp"
-%include "elemental/core/indexing_decl.hpp"
 
+namespace elem {
+%template(DistMatrix_i) DistMatrix<int,MC,MR,int>;
+%template(DistMatrix_s) DistMatrix<float,MC,MR,int>;
+%template(DistMatrix_d) DistMatrix<double,MC,MR,int>;
+%template(DistMatrix_c) DistMatrix<Complex<float>,MC,MR,int>;
+%template(DistMatrix_z) DistMatrix<Complex<double>,MC,MR,int>;
+
+%define DISTMATRIX(F,U,V,sfx) 
+%template(DistMatrix_ ## sfx ## _ ## U ## _ ## V) DistMatrix<F,U,V,int>;
+%enddef
+%define DISTMATRIX_int(U,V) 
+DISTMATRIX(int,U,V,i)
+%enddef
+%define DISTMATRIX_real(U,V)
+DISTMATRIX(float,U,V,s)
+DISTMATRIX(double,U,V,d)
+%enddef
+%define DISTMATRIX_cplx(U,V)
+DISTMATRIX(Complex<float>,U,V,c)
+DISTMATRIX(Complex<double>,U,V,z)
+%enddef
+%define DISTMATRIX_noint(U,V)
+DISTMATRIX_real(U,V)
+DISTMATRIX_cplx(U,V)
+%enddef
+%define DISTMATRIX_all(U,V)
+DISTMATRIX_int(U,V)
+DISTMATRIX_noint(U,V)
+%enddef
+DISTMATRIX_noint(MC,STAR)
+DISTMATRIX_int(VC,STAR)
+DISTMATRIX_cplx(MD,STAR)
+DISTMATRIX_int(VR,STAR)
+DISTMATRIX_noint(STAR,VR)
+};
+
+/*
+ * OVERLOADED FUNCTION MACROS 
+ * These macros simplify the process of instantiating functions that are overloaded for
+ * each Matrix and DistMatrix class. Since some functions are templated on all data
+ * types, others only on the reals, others omitting integers, etc. we need a variety
+ * of macros to handle all cases.
+ */
+ 
+%define OVERLOAD0_R(X,Y)
+%template(Y) X<float>;
+%template(Y) X<double>;
+%template(Y) X<Complex<float> >;
+%template(Y) X<Complex<double> >;
+%enddef
+%define OVERLOAD0_cpx_R(X,Y)
+%template(Y) X<float>;
+%template(Y) X<double>;
+%enddef
+%define OVERLOAD0_int_R(X,Y)
+%template(Y) X<int>;
+%template(Y) X<float>;
+%template(Y) X<double>;
+%template(Y) X<Complex<float> >;
+%template(Y) X<Complex<double> >;
+%enddef
+%define OVERLOAD1_R(X,Y)
+%template(Y) X<float,MC,MR>;
+%template(Y) X<double,MC,MR>;
+%template(Y) X<Complex<float>,MC,MR>;
+%template(Y) X<Complex<double>,MC,MR>;
+%enddef
+%define OVERLOAD1_cpx_R(X,Y)
+%template(Y) X<float,MC,MR>;
+%template(Y) X<double,MC,MR>;
+%enddef
+%define OVERLOAD1_int_R(X,Y)
+%template(Y) X<int,MC,MR>;
+%template(Y) X<float,MC,MR>;
+%template(Y) X<double,MC,MR>;
+%template(Y) X<Complex<float>,MC,MR>;
+%template(Y) X<Complex<double>,MC,MR>;
+%enddef
+%define OVERLOAD2_R(X,Y)
+%template(Y) X<float,MC,MR,MC,MR>;
+%template(Y) X<double,MC,MR,MC,MR>;
+%template(Y) X<Complex<float>,MC,MR,MC,MR>;
+%template(Y) X<Complex<double>,MC,MR,MC,MR>;
+%enddef
+%define OVERLOAD2_cpx_R(X,Y)
+%template(Y) X<float,MC,MR,MC,MR>;
+%template(Y) X<double,MC,MR,MC,MR>;
+%enddef
+%define OVERLOAD2_int_R(X,Y)
+%template(Y) X<int,MC,MR,MC,MR>;
+%template(Y) X<float,MC,MR,MC,MR>;
+%template(Y) X<double,MC,MR,MC,MR>;
+%template(Y) X<Complex<float>,MC,MR,MC,MR>;
+%template(Y) X<Complex<double>,MC,MR,MC,MR>;
+%enddef
+
+#define OVERLOAD01_R(X,Y)      OVERLOAD0_R(X,Y)     OVERLOAD1_R(X,Y)
+#define OVERLOAD01_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD1_cpx_R(X,Y)
+#define OVERLOAD01_int_R(X,Y)  OVERLOAD0_int_R(X,Y) OVERLOAD1_int_R(X,Y)
+#define OVERLOAD02_R(X,Y)      OVERLOAD0_R(X,Y)     OVERLOAD2_R(X,Y)
+#define OVERLOAD02_cpx_R(X,Y)  OVERLOAD0_cpx_R(X,Y) OVERLOAD2_cpx_R(X,Y)
+#define OVERLOAD02_int_R(X,Y)  OVERLOAD0_int_R(X,Y) OVERLOAD2_int_R(X,Y)
+#define OVERLOAD012_R(X,Y)     OVERLOAD0_R(X,Y)     OVERLOAD1_R(X,Y)     OVERLOAD2_R(X,Y)
+#define OVERLOAD012_cpx_R(X,Y) OVERLOAD0_cpx_R(X,Y) OVERLOAD1_cpx_R(X,Y) OVERLOAD2_cpx_R(X,Y)
+#define OVERLOAD012_int_R(X,Y) OVERLOAD0_int_R(X,Y) OVERLOAD1_int_R(X,Y) OVERLOAD2_int_R(X,Y)
+
+#define OVERLOAD0(X)       OVERLOAD0_R(X,X)
+#define OVERLOAD0_cpx(X)   OVERLOAD0_cpx_R(X,X)
+#define OVERLOAD0_int(X)   OVERLOAD0_int_R(X,X)
+#define OVERLOAD1(X)       OVERLOAD1_R(X,X)
+#define OVERLOAD1_cpx(X)   OVERLOAD1_cpx_R(X,X)
+#define OVERLOAD1_int(X)   OVERLOAD1_int_R(X,X)
+#define OVERLOAD2(X)       OVERLOAD2_R(X,X)
+#define OVERLOAD2_cpx(X)   OVERLOAD2_cpx_R(X,X)
+#define OVERLOAD2_int(X)   OVERLOAD2_int_R(X,X)
+#define OVERLOAD01(X)      OVERLOAD01_R(X,X)
+#define OVERLOAD01_cpx(X)  OVERLOAD01_cpx_R(X,X)
+#define OVERLOAD01_int(X)  OVERLOAD01_int_R(X,X)
+#define OVERLOAD02(X)      OVERLOAD02_R(X,X)
+#define OVERLOAD02_cpx(X)  OVERLOAD02_cpx_R(X,X)
+#define OVERLOAD02_int(X)  OVERLOAD02_int_R(X,X)
+#define OVERLOAD012(X)     OVERLOAD012_R(X,X)
+#define OVERLOAD012_cpx(X) OVERLOAD012_cpx_R(X,X)
+#define OVERLOAD012_int(X) OVERLOAD012_int_R(X,X)
+
+%define NO_OVERLOAD(X,...)
+%rename(name ## _i) name<int>(__VA_ARGS__);
+%rename(name ## _s) name<float>(__VA_ARGS__);
+%rename(name ## _d) name<double>(__VA_ARGS__);
+%rename(name ## _c) name<Complex<float> >(__VA_ARGS__);
+%rename(name ## _z) name<Complex<double> >(__VA_ARGS__);
+%enddef
+
+/*
+ * BLAS MISCELLANEOUS
+ */
+ 
+NO_OVERLOAD(SetLocalSymvBlocksize,int);
+NO_OVERLOAD(LocalSymvBlocksize);
+NO_OVERLOAD(SetLocalTrrkBlocksize,int);
+NO_OVERLOAD(LocalTrrkBlocksize);
+NO_OVERLOAD(SetLocalTrr2kBlocksize,int);
+NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like_decl.hpp"
 
-// The equivalent of elemental/blas-like/level1.hpp
+/*
+ * BLAS LEVEL 1
+ */
+
 %include "elemental/blas-like/level1/Adjoint.hpp"
 %include "elemental/blas-like/level1/Axpy.hpp"
 %include "elemental/blas-like/level1/AxpyTriangle.hpp"
@@ -125,6 +390,33 @@
 %include "elemental/blas-like/level1/Transpose.hpp"
 %include "elemental/blas-like/level1/Zero.hpp"
 
+namespace elem {
+OVERLOAD02_int(Adjoint)
+OVERLOAD01_int(Axpy)
+OVERLOAD01_int(AxpyTriangle)
+OVERLOAD012_int(Conjugate)
+OVERLOAD02_int(Copy)
+OVERLOAD02_int(DiagonalScale)
+OVERLOAD02(DiagonalSolve)
+OVERLOAD01_int(Dot)
+OVERLOAD01_int(Dotu)
+OVERLOAD0_int(MakeHermitian)
+OVERLOAD01_int(MakeReal)
+OVERLOAD0_int(MakeSymmetric)
+OVERLOAD01_int(MakeTrapezoidal)
+OVERLOAD01_int(MakeTriangular)
+OVERLOAD0(Nrm2)
+OVERLOAD01_int(Scale)
+OVERLOAD01_int(ScaleTrapezoid)
+OVERLOAD01_int(SetDiagonal)
+OVERLOAD02_int(Transpose)
+OVERLOAD01_int(Zero)
+};
+
+/*
+ * BLAS LEVEL 2
+ */
+
 // The equivalent of elemental/blas-like/level2.hpp
 %include "elemental/blas-like/level2/Gemv.hpp"
 %include "elemental/blas-like/level2/Ger.hpp"
@@ -138,6 +430,24 @@
 %include "elemental/blas-like/level2/Trmv.hpp"
 %include "elemental/blas-like/level2/Trsv.hpp"
 
+// Most of these could support ints (except for Trsv)
+namespace elem {
+OVERLOAD0(Gemv)
+OVERLOAD0(Ger)
+OVERLOAD0(Geru)
+OVERLOAD0(Hemv)
+OVERLOAD0(Her)
+OVERLOAD0(Her2)
+OVERLOAD0(Symv)
+OVERLOAD0(Syr)
+OVERLOAD0(Syr2)
+OVERLOAD0(Trsv)
+};
+
+/* 
+ * BLAS LEVEL 3
+ */ 
+ 
 // The equivalent of elemental/blas-like/level3.hpp
 %include "elemental/blas-like/level3/Gemm.hpp"
 %include "elemental/blas-like/level3/Hemm.hpp"
@@ -154,10 +464,227 @@
 %include "elemental/blas-like/level3/TwoSidedTrmm.hpp"
 %include "elemental/blas-like/level3/TwoSidedTrsm.hpp"
 
-// The equivalent of elemental/lapack-like/lapack-like.hpp
-%include "elemental/lapack-like_decl.hpp"
+namespace elem {
+// Most of these could support ints if necessary
+OVERLOAD0(Gemm)
+OVERLOAD0(Hemm)
+OVERLOAD0(Her2k)
+OVERLOAD0(Herk)
+OVERLOAD0(Symm)
+OVERLOAD0(Syr2k)
+OVERLOAD0(Syrk)
+OVERLOAD0(Trdtrmm)
+OVERLOAD0(Trmm)
+OVERLOAD0(Trsm)
+OVERLOAD0(Trtrmm)
+OVERLOAD0(Trtrsm)
+OVERLOAD0(TwoSidedTrmm)
+OVERLOAD0(TwoSidedTrsm)
+};
+
+/*
+ * INVARIANTS, INNER PRODUCTS, NORMS, ETC.
+ */
+ 
+%ignore PivotOp;
+%ignore CreatePivotOp;
+%ignore DestroyPivotOp;
+
+%define OVERLOAD_NORM(name)
+OVERLOAD01(name ## Norm)
+OVERLOAD0(Hermitian ## name ## Norm)
+OVERLOAD0(Symmetric ## name ## Norm)
+%enddef
+
 %include "elemental/lapack-like/ConditionNumber.hpp"
 %include "elemental/lapack-like/Determinant.hpp"
+%include "elemental/lapack-like/Norm.hpp"
+%include "elemental/lapack-like/Norm/Entrywise.hpp"
+%include "elemental/lapack-like/Norm/EntrywiseOne.hpp"
+%include "elemental/lapack-like/Norm/Frobenius.hpp"
+%include "elemental/lapack-like/Norm/Infinity.hpp"
+%include "elemental/lapack-like/Norm/KyFan.hpp"
+%include "elemental/lapack-like/Norm/Max.hpp"
+%include "elemental/lapack-like/Norm/One.hpp"
+// %include "elemental/lapack-like/Norm/Nuclear.hpp"
+// %include "elemental/lapack-like/Norm/Schatten.hpp"
+%include "elemental/lapack-like/Norm/Two.hpp"
+%include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
+%include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
+%include "elemental/lapack-like/Norm/Zero.hpp"
+%include "elemental/lapack-like/Trace.hpp"
+%include "elemental/lapack-like/Hadamard.hpp"
+%include "elemental/lapack-like/HilbertSchmidt.hpp"
+
+namespace elem {
+OVERLOAD01(ConditionNumber)
+OVERLOAD0(Determinant)
+// SWIG doesn't like empty macro arguments. Who knows, maybe C++ doesn't either
+// OVERLOAD_NORM()
+OVERLOAD01(Norm)
+OVERLOAD0(HermitianNorm)
+OVERLOAD0(SymmetricNorm)
+OVERLOAD_NORM(Entrywise)
+OVERLOAD_NORM(EntrywiseOne)
+OVERLOAD_NORM(Frobenius)
+OVERLOAD_NORM(Infinity)
+OVERLOAD_NORM(KyFan)
+OVERLOAD_NORM(Max)
+OVERLOAD_NORM(One)
+// OVERLOAD_NORM(Nuclear)
+// OVERLOAD_NORM(Schatten)
+OVERLOAD_NORM(Two)
+OVERLOAD0(TwoNormLowerBound)
+OVERLOAD0(TwoNormUpperBound)
+OVERLOAD01(ZeroNorm)
+OVERLOAD0(Trace)
+OVERLOAD01(Hadamard)
+OVERLOAD01(HilbertSchmidt)
+};
+
+/*
+ * FACTORIZATIONS
+ */
+
+%ignore elem::LocalCholesky;
+%ignore elem::LocalLDL;
+%ignore elem::LocalLU;
+
+%include "elemental/lapack-like/Cholesky.hpp"
+%include "elemental/lapack-like/LDL.hpp"
+%include "elemental/lapack-like/LU.hpp"
+%include "elemental/lapack-like/LQ.hpp"
+%include "elemental/lapack-like/QR.hpp"
+%include "elemental/lapack-like/QR/BusingerGolub.hpp"
+%include "elemental/lapack-like/ID.hpp"
+%include "elemental/lapack-like/Skeleton.hpp"
+
+namespace elem {
+OVERLOAD0(Cholesky)
+OVERLOAD0(LDLH)
+OVERLOAD0(LDLT)
+OVERLOAD0(LU)
+OVERLOAD0_cpx(LQ)
+OVERLOAD0_cpx(QR)
+namespace qr { 
+OVERLOAD0_cpx(BusingerGolub) 
+};
+OVERLOAD0(ID)
+OVERLOAD0(Skeleton)
+};
+
+/*
+ * LINEAR SOLVERS
+ */
+ 
+%include "elemental/lapack-like/HPDSolve.hpp"
+%include "elemental/lapack-like/GaussianElimination.hpp"
+%include "elemental/lapack-like/LeastSquares.hpp"
+%include "elemental/lapack-like/Cholesky/SolveAfter.hpp"
+%include "elemental/lapack-like/LU/SolveAfter.hpp"
+
+namespace elem {
+OVERLOAD0(HPDSolve)
+OVERLOAD0(RowEchelon)
+OVERLOAD0(GaussianElimination)
+OVERLOAD0_cpx(LeastSquares)
+namespace cholesky { OVERLOAD0_R(SolveAfter,SolveAfter_Cholesky) };
+namespace lu       { OVERLOAD0_R(SolveAfter,SolveAfter_LU) };
+};
+
+/*
+ * INVERSION
+ */
+ 
+%ignore elem::LocalInverse;
+%ignore elem::LocalHPDInverse;
+%ignore elem::LocalTriangularInverse;
+ 
+%include "elemental/lapack-like/Inverse.hpp"
+%include "elemental/lapack-like/TriangularInverse.hpp"
+
+namespace elem {
+OVERLOAD0(Inverse)
+OVERLOAD0(HPDInverse)
+OVERLOAD0(TriangularInverse)
+};
+
+/*
+ * REDUCTION TO CONDENSED FORM
+ */
+
+%include "elemental/lapack-like_decl.hpp"
+%include "elemental/lapack-like/Bidiag.hpp"
+
+namespace elem {
+OVERLOAD0_cpx(HermitianTridiag)
+OVERLOAD0_cpx(Bidiag)
+};
+
+/*
+ * EIGENSOLVERS AND SVD
+ */
+ 
+%include "elemental/lapack-like/HermitianEig/Sort.hpp"
+%include "elemental/lapack-like/SkewHermitianEig.hpp"
+%include "elemental/lapack-like/HermitianGenDefiniteEig.hpp"
+%include "elemental/lapack-like/SVD.hpp"
+%include "elemental/lapack-like/Polar.hpp"
+%include "elemental/lapack-like/Polar/Halley.hpp"
+// %include "elemental/lapack-like/Polar/QDWH.hpp"
+%include "elemental/lapack-like/HPSDCholesky.hpp"
+%include "elemental/lapack-like/HPSDSquareRoot.hpp"
+
+namespace elem {
+OVERLOAD0(HermitianEig)
+namespace hermitian_eig { OVERLOAD0_cpx_R(Sort,Sort_HermitianEig) };
+OVERLOAD0_cpx(SkewHermitianEig)
+OVERLOAD0(HermitianGenDefiniteEig)
+OVERLOAD0(HermitianSVD)
+OVERLOAD0(Polar)
+namespace polar { 
+OVERLOAD0(Halley)
+//OVERLOAD0(QDWH)
+};
+OVERLOAD0(SVD)
+};
+
+/*
+ * MATRIX FUNCTIONS
+ */
+ 
+%include "elemental/lapack-like/Pseudoinverse.hpp"
+%include "elemental/lapack-like/HPSDSquareRoot.hpp"
+%include "elemental/lapack-like/HPSDCholesky.hpp"
+ 
+namespace elem {
+OVERLOAD0(Pseudoinverse)
+OVERLOAD0(HermitianPseudoinverse)
+OVERLOAD0(HPSDSquareRoot)
+OVERLOAD0_cpx(HPSDCholesky)
+};
+
+/*
+ * CONVEX OPTIMIZATION
+ */
+ 
+%include "elemental/convex/LogBarrier.hpp"
+%include "elemental/convex/LogDetDivergence.hpp"
+%include "elemental/convex/SingularValueSoftThreshold.hpp"
+%include "elemental/convex/SoftThreshold.hpp"
+%include "elemental/convex/UnitaryCoherence.hpp" 
+
+namespace elem {
+OVERLOAD0(LogBarrier)
+OVERLOAD0(LogDetDivergence)
+OVERLOAD0_cpx(SingularValueSoftThreshold)
+OVERLOAD0(SoftThreshold)
+OVERLOAD0(UnitaryCoherence)
+}
+
+/*
+ * SPECIAL MATRICES
+ */
 
 // The equivalent of elemental/matrices.hpp
 %include "elemental/matrices/Cauchy.hpp"
@@ -204,261 +731,6 @@
 %include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
-
-%typemap(in) Complex<float> {
-  Py_complex ans1 = PyComplex_AsCComplex($input);
-  $1 = elem::Complex<float>
-    ( static_cast<float>(ans1.real), static_cast<float>(ans1.imag) );
-}
-%typecheck(SWIG_TYPECHECK_COMPLEX) Complex<float> {
-  $1 = PyComplex_Check( $input ) || PyFloat_Check( $input ) || 
-       PyInt_Check( $input ) || PyLong_Check( $input ) ? 1 : 0;
-}
-%typemap(out) Complex<float> {
-  $result = PyComplex_FromDoubles( $1.real, $1.imag );
-}
-%typemap(in) Complex<double> {
-  Py_complex ans1 = PyComplex_AsCComplex($input);
-  $1 = elem::Complex<double>( ans1.real, ans1.imag );
-}
-%typecheck(SWIG_TYPECHECK_COMPLEX) Complex<double> {
-  $1 = PyComplex_Check( $input ) || PyFloat_Check( $input ) || 
-       PyInt_Check( $input ) || PyLong_Check( $input ) ? 1 : 0;
-}
-%typemap(out) Complex<double> {
-  $result = PyComplex_FromDoubles( $1.real, $1.imag );
-}
-%typemap(out) SafeProduct<float> {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
-}
-%typemap(out) SafeProduct<double> {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
-}
-%typemap(out) SafeProduct<Complex<float> > {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
-}
-%typemap(out) SafeProduct<Complex<double> > {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
-}
-%apply int { Base<int> };
-%apply float { Base<float>, Base<Complex<float> > };
-%apply double { Base<double>, Base<Complex<double> > };
-  
-%ignore Matrix<int,int>::Matrix(int,int,const int*,int);
-%ignore Matrix<int,int>::Matrix(int,int,int*,int);
-%ignore Matrix<float,int>::Matrix(int,int,const float*,int);
-%ignore Matrix<float,int>::Matrix(int,int,float*,int);
-%ignore Matrix<double,int>::Matrix(int,int,const double*,int);
-%ignore Matrix<double,int>::Matrix(int,int,double*,int);
-%ignore Matrix<Complex<float>,int>::Matrix(int,int,const Complex<float>*,int);
-%ignore Matrix<Complex<float>,int>::Matrix(int,int,Complex<float>*,int);
-%ignore Matrix<Complex<double>,int>::Matrix(int,int,const Complex<double>*,int);
-%ignore Matrix<Complex<double>,int>::Matrix(int,int,Complex<double>*,int);
-%template(Matrix_i) Matrix<int,int>;
-%template(Matrix_s) Matrix<float,int>;
-%template(Matrix_d) Matrix<double,int>;
-%template(Matrix_c) Matrix<Complex<float>,int>;
-%template(Matrix_z) Matrix<Complex<double>,int>;
-
-%template(AbstractDistMatrix_i) AbstractDistMatrix<int,int>;
-%template(AbstractDistMatrix_s) AbstractDistMatrix<float,int>;
-%template(AbstractDistMatrix_d) AbstractDistMatrix<double,int>;
-%template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float>,int>;
-%template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double>,int>;
-
-%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,const int*,int,const Grid&);
-%ignore DistMatrix<int,MC,MR,int>::DistMatrix(int,int,int,int,int*,int,const Grid&);
-%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,const float*,int,const Grid&);
-%ignore DistMatrix<float,MC,MR,int>::DistMatrix(int,int,int,int,float*,int,const Grid&);
-%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,const double*,int,const Grid&);
-%ignore DistMatrix<double,MC,MR,int>::DistMatrix(int,int,int,int,double*,int,const Grid&);
-%ignore DistMatrix<Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,const Complex<float>*,int,const Grid&);
-%ignore DistMatrix<Complex<float>,MC,MR,int>::DistMatrix(int,int,int,int,Complex<float>*,int,const Grid&);
-%ignore DistMatrix<Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,const Complex<double>*,int,const Grid&);
-%ignore DistMatrix<Complex<double>,MC,MR,int>::DistMatrix(int,int,int,int,Complex<double>*,int,const Grid&);
-%template(DistMatrix_i) DistMatrix<int,MC,MR,int>;
-%template(DistMatrix_s) DistMatrix<float,MC,MR,int>;
-%template(DistMatrix_d) DistMatrix<double,MC,MR,int>;
-%template(DistMatrix_c) DistMatrix<Complex<float>,MC,MR,int>;
-%template(DistMatrix_z) DistMatrix<Complex<double>,MC,MR,int>;
-
-#define OVERLOAD0(X) \
-%template(X) X<float>; \
-%template(X) X<double>; \
-%template(X) X<Complex<float> >; \
-%template(X) X<Complex<double> >;
-
-#define OVERLOAD0_cpx(X) \
-%template(X) X<float>; \
-%template(X) X<double>;
-  
-#define OVERLOAD0_int(X) \
-%template(X) X<int>; \
-%template(X) X<float>; \
-%template(X) X<double>; \
-%template(X) X<Complex<float> >; \
-%template(X) X<Complex<double> >;
- 
-#define OVERLOAD1(X) \
-%template(X) X<float,MC,MR>; \
-%template(X) X<double,MC,MR>; \
-%template(X) X<Complex<float>,MC,MR>; \
-%template(X) X<Complex<double>,MC,MR>;
-
-#define OVERLOAD1_cpx(X) \
-%template(X) X<float,MC,MR>; \
-%template(X) X<double,MC,MR>;
-
-#define OVERLOAD1_int(X) \
-%template(X) X<int,MC,MR>; \
-%template(X) X<float,MC,MR>; \
-%template(X) X<double,MC,MR>; \
-%template(X) X<Complex<float>,MC,MR>; \
-%template(X) X<Complex<double>,MC,MR>;
- 
-#define OVERLOAD2(X) \
-%template(X) X<float,MC,MR,MC,MR>; \
-%template(X) X<double,MC,MR,MC,MR>; \
-%template(X) X<Complex<float>,MC,MR,MC,MR>; \
-%template(X) X<Complex<double>,MC,MR,MC,MR>;
-
-#define OVERLOAD2_cpx(X) \
-%template(X) X<float,MC,MR,MC,MR>; \
-%template(X) X<double,MC,MR,MC,MR>;
-
-#define OVERLOAD2_int(X) \
-%template(X) X<int,MC,MR,MC,MR>; \
-%template(X) X<float,MC,MR,MC,MR>; \
-%template(X) X<double,MC,MR,MC,MR>; \
-%template(X) X<Complex<float>,MC,MR,MC,MR>; \
-%template(X) X<Complex<double>,MC,MR,MC,MR>;
-
-#define OVERLOAD01(X) \
-OVERLOAD0(X) \
-OVERLOAD1(X)
-
-#define OVERLOAD01_cpx(X) \
-OVERLOAD0_cpx(X) \
-OVERLOAD1_cpx(X)
-
-#define OVERLOAD01_int(X) \
-OVERLOAD0_int(X) \
-OVERLOAD1_int(X)
-
-#define OVERLOAD02(X) \
-OVERLOAD0(X) \
-OVERLOAD2(X)
-
-#define OVERLOAD02_cpx(X) \
-OVERLOAD0_cpx(X) \
-OVERLOAD2_cpx(X)
-
-#define OVERLOAD02_int(X) \
-OVERLOAD0_int(X) \
-OVERLOAD2_int(X)
-
-#define OVERLOAD012(X) \
-OVERLOAD0(X) \
-OVERLOAD1(X) \
-OVERLOAD2(X)
-
-#define OVERLOAD012_cpx(X) \
-OVERLOAD0_cpx(X) \
-OVERLOAD1_cpx(X) \
-OVERLOAD2_cpx(X)
-
-#define OVERLOAD012_int(X) \
-OVERLOAD0_int(X) \
-OVERLOAD1_int(X) \
-OVERLOAD2_int(X)
- 
-//
-// BLAS-like routines (TODO)
-//
-
-OVERLOAD02_int(Adjoint)
-OVERLOAD01_int(Axpy)
-OVERLOAD01_int(AxpyTriangle)
-OVERLOAD012_int(Conjugate)
-OVERLOAD02_int(Copy)
-OVERLOAD02_int(DiagonalScale)
-OVERLOAD02(DiagonalSolve)
-OVERLOAD01_int(Dot)
-OVERLOAD01_int(Dotu)
-OVERLOAD0_int(MakeHermitian)
-OVERLOAD01_int(MakeReal)
-OVERLOAD0_int(MakeSymmetric)
-OVERLOAD01_int(MakeTrapezoidal)
-OVERLOAD01_int(MakeTriangular)
-OVERLOAD0(Nrm2)
-OVERLOAD01_int(Scale)
-OVERLOAD01_int(ScaleTrapezoid)
-OVERLOAD01_int(SetDiagonal)
-OVERLOAD02_int(Transpose)
-OVERLOAD01_int(Zero)
-
-// Most of these could support ints (except for Trsv)
-OVERLOAD0(Gemv)
-OVERLOAD0(Ger)
-OVERLOAD0(Geru)
-OVERLOAD0(Hemv)
-OVERLOAD0(Her)
-OVERLOAD0(Her2)
-OVERLOAD0(Symv)
-OVERLOAD0(Syr)
-OVERLOAD0(Syr2)
-OVERLOAD0(Trsv)
-
-// Most of these could support ints if necessary
-OVERLOAD0(Gemm)
-OVERLOAD0(Hemm)
-OVERLOAD0(Her2k)
-OVERLOAD0(Herk)
-OVERLOAD0(Symm)
-OVERLOAD0(Syr2k)
-OVERLOAD0(Syrk)
-OVERLOAD0(Trdtrmm)
-OVERLOAD0(Trmm)
-OVERLOAD0(Trsm)
-OVERLOAD0(Trtrmm)
-OVERLOAD0(Trtrsm)
-OVERLOAD0(TwoSidedTrmm)
-OVERLOAD0(TwoSidedTrsm)
-
-// Why are these commented out?
-// OVERLOAD0(SetLocalSymvBlocksize)
-// OVERLOAD0(LocalSymvBlocksize)
-// OVERLOAD0(SetLocalTrrkBlocksize)
-// OVERLOAD0(LocalTrrkBlocksize)
-// OVERLOAD0(SetLocalTrr2kBlocksize)
-// OVERLOAD0(LocalTrr2kBlocksize)
-
-//
-// LAPACK-like routines (TODO)
-//
-
-OVERLOAD01(ConditionNumber)
-OVERLOAD0(Determinant)
-OVERLOAD0(HPDDeterminant)
-OVERLOAD0(SafeDeterminant)
-OVERLOAD0(SafeHPDDeterminant)
-
-//
-// Special matrices
-//
-
 OVERLOAD01(Cauchy)
 OVERLOAD01(CauchyLike)
 OVERLOAD01_int(Circulant)
@@ -501,9 +773,4 @@ OVERLOAD01_int(Uniform)
 OVERLOAD01_int(Walsh)
 OVERLOAD01_int(Wilkinson)
 OVERLOAD01_int(Zeros)
-
-//
-// Convex routines (TODO)
-//
-
 };

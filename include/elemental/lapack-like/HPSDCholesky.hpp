@@ -55,7 +55,6 @@ HPSDCholesky( UpperOrLower uplo, Matrix<Complex<R> >& A )
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
-    const Grid& g = A.Grid();
     if( uplo == LOWER )
     {
         Matrix<Complex<R> > t;

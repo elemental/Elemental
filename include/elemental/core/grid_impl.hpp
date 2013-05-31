@@ -49,7 +49,7 @@ Grid::Grid( mpi::Comm comm )
 }
 
 inline 
-Grid::Grid( mpi::Comm comm, int height, int width )
+Grid::Grid( mpi::Comm comm, int height )
 {
 #ifndef RELEASE
     CallStackEntry entry("Grid::Grid");
@@ -68,10 +68,9 @@ Grid::Grid( mpi::Comm comm, int height, int width )
     owningRank_ = viewingRank_;
 
     height_ = height;
-    width_ = width;
-    if( height_ < 0 || width_ < 0 )
-        throw std::logic_error
-        ("Process grid dimensions must be non-negative");
+    width_ = size_ /  height_;
+    if( height_ < 0 )
+        throw std::logic_error("Process grid dimensions must be non-negative");
 
     SetUpGrid();
 }
@@ -95,10 +94,7 @@ Grid::SetUpGrid()
     int lcm = size_ / gcd_;
 
     // Split the viewing comm into the owning and not owning subsets
-    if( inGrid_ )
-        mpi::CommSplit( viewingComm_, true, owningRank_, owningComm_ );
-    else
-        mpi::CommSplit( viewingComm_, false, 0, notOwningComm_ );
+    mpi::CommSplit( viewingComm_, inGrid_, owningRank_, owningComm_ );
 
     diagPathsAndRanks_.resize(2*size_);
     if( inGrid_ )
@@ -198,11 +194,7 @@ Grid::~Grid()
             mpi::CommFree( cartComm_ );
         }
 
-        if( inGrid_ )
-            mpi::CommFree( owningComm_ );
-        else
-            mpi::CommFree( notOwningComm_ );
-
+        mpi::CommFree( owningComm_ );
         if( notOwningGroup_ != mpi::GROUP_EMPTY )
             mpi::GroupFree( notOwningGroup_ );
 
@@ -303,37 +295,9 @@ Grid::Comm() const
 // Advanced routines
 //
 
-inline 
-Grid::Grid( mpi::Comm viewers, mpi::Group owners )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Grid::Grid");
-#endif
-
-    // Extract our rank and the underlying group from the viewing comm
-    mpi::CommDup( viewers, viewingComm_ );
-    mpi::CommGroup( viewingComm_, viewingGroup_ );
-    viewingRank_ = mpi::CommRank( viewingComm_ );
-
-    // Extract our rank and the number of processes from the owning group
-    owningGroup_ = owners;
-    size_ = mpi::GroupSize( owningGroup_ );
-    owningRank_ = mpi::GroupRank( owningGroup_ );
-    inGrid_ = ( owningRank_ != mpi::UNDEFINED );
-
-    // Create the complement of the owning group
-    mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
-
-    // Factor the grid size
-    height_ = FindFactor( size_ );
-    width_ = size_ / height_;
-
-    SetUpGrid();
-}
-
 // Currently forces a columnMajor absolute rank on the grid
 inline 
-Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, int width )
+Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
 {
 #ifndef RELEASE
     CallStackEntry entry("Grid::Grid");
@@ -354,11 +318,10 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height, int width )
     mpi::GroupDifference( viewingGroup_, owningGroup_, notOwningGroup_ );
 
     height_ = height;
-    width_ = width;
+    width_ = size_ / height;
 
-    if( height_ < 0 || width_ < 0 )
-        throw std::logic_error
-        ("Process grid dimensions must be non-negative");
+    if( height_ < 0 )
+        throw std::logic_error("Process grid dimensions must be non-negative");
 
     SetUpGrid();
 }

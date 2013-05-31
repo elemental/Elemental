@@ -57,8 +57,9 @@ template<typename T>
 void MemZero( T* buffer, std::size_t numEntries );
 
 // Euclidean (l_2) magnitudes
-template<typename R>
-R Abs( const R& alpha );
+// Already defined in complex_decl.hpp
+// template<typename R>
+// R Abs( const R& alpha );
 template<typename R>
 R Abs( const Complex<R>& alpha );
 

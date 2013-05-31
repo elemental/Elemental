@@ -256,7 +256,7 @@ SkewHermitianEig
         throw std::logic_error("Skew-Hermitian matrices must be square");
     int n = G.Height();
 
-    DistMatrix<Complex<R> > A( n, n );
+    Matrix<Complex<R> > A( n, n );
     const int ALDim = A.LDim();
     const int GLDim = G.LDim();    
     const Complex<R> negativeImagOne(0,-1);

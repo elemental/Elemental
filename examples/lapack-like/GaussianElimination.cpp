@@ -40,8 +40,7 @@ main( int argc, char* argv[] )
         // a nearly-square process grid
         if( gridHeight == 0 )
             gridHeight = Grid::FindFactor( commSize );
-        const int gridWidth = commSize / gridHeight;
-        Grid grid( comm, gridHeight, gridWidth );
+        Grid grid( comm, gridHeight );
 
         // Set up random A and B, then make the copies X := B and ACopy := A
         DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);

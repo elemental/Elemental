@@ -164,7 +164,7 @@ ID
     CallStackEntry entry("ID");
 #endif
     Matrix<F> B( A );
-    id::BusingerGolub( A, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
 
 template<typename F> 
@@ -216,7 +216,7 @@ ID
     CallStackEntry entry("ID");
 #endif
     DistMatrix<F> B( A );
-    id::BusingerGolub( A, p, Z, maxSteps, tol );
+    id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
 
 template<typename F> 

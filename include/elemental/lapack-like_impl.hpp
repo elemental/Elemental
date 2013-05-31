@@ -20,6 +20,7 @@
 #include "./lapack-like/Determinant.hpp"
 #include "./lapack-like/ExpandPackedReflectors.hpp"
 #include "./lapack-like/GaussianElimination.hpp"
+#include "./lapack-like/Hadamard.hpp"
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"

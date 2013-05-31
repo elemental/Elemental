@@ -92,7 +92,7 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
         ( owningGroup, squareRanks.size(), &squareRanks[0], squareGroup );
 
         mpi::Comm viewingComm = g.ViewingComm();
-        const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
+        const Grid squareGrid( viewingComm, squareGroup, pSqrt );
         DistMatrix<R> ASquare(squareGrid);
 
         // Perform the fast tridiagonalization on the square grid
@@ -175,7 +175,7 @@ HermitianTridiag
         ( owningGroup, squareRanks.size(), &squareRanks[0], squareGroup );
 
         mpi::Comm viewingComm = g.ViewingComm();
-        const Grid squareGrid( viewingComm, squareGroup, pSqrt, pSqrt );
+        const Grid squareGrid( viewingComm, squareGroup, pSqrt );
         DistMatrix<C> ASquare(squareGrid);
         DistMatrix<C,STAR,STAR> tSquare(squareGrid);
 

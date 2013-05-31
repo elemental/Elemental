@@ -83,8 +83,8 @@ UnitaryCoherence( DistMatrix<F>& U )
         normsSquared[jLocal] = localNorm*localNorm;
     }
     mpi::AllReduce( &normsSquared[0], localWidth, mpi::SUM, grid.ColComm() );
-    const R maxLocalNormSquared = 
-        std::max_element( normsSquared.begin(), normsSquared.end() );
+    R maxLocalNormSquared = 
+        *std::max_element( normsSquared.begin(), normsSquared.end() );
     R maxNormSquared;
     mpi::AllReduce
     ( &maxLocalNormSquared, &maxNormSquared, 1, mpi::MAX, grid.RowComm() );
