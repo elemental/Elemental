@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
             DistMatrix<double,MC,STAR> d;
             LDLH( W, d );
             MakeTriangular( LOWER, W );
-            SetDiagonal( LEFT, 0, W, 1. );
+            SetDiagonal( W, 1. );
 
             if( display )
             {

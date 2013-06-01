@@ -361,7 +361,7 @@ SymmLLC
         AColPan_MC_STAR = AColPan;
         ARowPan_STAR_MC = ARowPan;
         MakeTriangular( LOWER, AColPan_MC_STAR );
-        MakeTrapezoidal( RIGHT, LOWER, -1, ARowPan_STAR_MC );
+        MakeTrapezoidal( LOWER, ARowPan_STAR_MC, -1, RIGHT );
 
         B1Trans_MR_STAR.TransposeFrom( B1 );
 

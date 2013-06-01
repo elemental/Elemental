@@ -364,7 +364,7 @@ SymmRUC
         AColPanTrans_STAR_MR.TransposeFrom( AColPan_VR_STAR, conjugate );
         ARowPanTrans_MR_STAR.TransposeFrom( ARowPan, conjugate );
         MakeTriangular( LOWER, ARowPanTrans_MR_STAR );
-        MakeTrapezoidal( RIGHT, LOWER, -1, AColPanTrans_STAR_MR );
+        MakeTrapezoidal( LOWER, AColPanTrans_STAR_MR, -1, RIGHT );
 
         LocalGemm
         ( NORMAL, orientation, 

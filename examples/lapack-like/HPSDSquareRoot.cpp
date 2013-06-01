@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
         Grid g( mpi::COMM_WORLD );
         DistMatrix<C> L(g), A(g);
         Uniform( L, n, n );
-        MakeTrapezoidal( LEFT, LOWER, -1, L );
+        MakeTrapezoidal( LOWER, L, -1 );
         Zeros( A, n, n );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
 

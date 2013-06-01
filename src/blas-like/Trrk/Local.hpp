@@ -278,7 +278,7 @@ TrrkNNKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -324,7 +324,7 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -371,7 +371,7 @@ TrrkNTKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -421,7 +421,7 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
          AB, half );
@@ -468,7 +468,7 @@ TrrkTNKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -512,7 +512,7 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
     PartitionDownDiagonal
@@ -557,7 +557,7 @@ TrrkTTKernel
     Matrix<T> DTL, DBR;
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT, 
@@ -605,7 +605,7 @@ LocalTrrkKernel
     DistMatrix<T> DTL(g), DBR(g);
 
     const int half = C.Height()/2;
-    ScaleTrapezoid( beta, LEFT, uplo, 0, C );
+    ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
     ( B, BT, 

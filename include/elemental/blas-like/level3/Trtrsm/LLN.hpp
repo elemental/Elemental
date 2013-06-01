@@ -78,7 +78,7 @@ TrtrsmLLN
     Matrix<F> Z11;
 
     // Start the algorithm
-    ScaleTrapezoid( alpha, LEFT, LOWER, 0, X );
+    ScaleTrapezoid( alpha, LOWER, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );
@@ -152,7 +152,7 @@ TrtrsmLLN
     DistMatrix<F,STAR,STAR> X11_STAR_STAR(g);
 
     // Start the algorithm
-    ScaleTrapezoid( alpha, LEFT, LOWER, 0, X );
+    ScaleTrapezoid( alpha, LOWER, X );
     LockedPartitionDownDiagonal
     ( L, LTL, LTR,
          LBL, LBR, 0 );

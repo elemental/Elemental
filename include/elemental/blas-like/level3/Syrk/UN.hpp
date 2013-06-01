@@ -51,7 +51,7 @@ SyrkUN
     A1Trans_STAR_MR.AlignWith( C );
 
     // Start the algorithm
-    ScaleTrapezoid( beta, LEFT, UPPER, 0, C );
+    ScaleTrapezoid( beta, UPPER, C );
     LockedPartitionRight( A, AL, AR, 0 );
     while( AR.Width() > 0 )
     {

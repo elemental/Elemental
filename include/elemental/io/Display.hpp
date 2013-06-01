@@ -19,9 +19,18 @@
 
 namespace elem {
 
+inline void
+ProcessEvents( int numMsecs )
+{
+#ifdef HAVE_QT5
+    QCoreApplication::instance()->processEvents
+    ( QEventLoop::AllEvents, numMsecs );
+#endif
+}
+
 template<typename T>
 inline void
-Display( const Matrix<T>& A, std::string title="" )
+Display( const Matrix<T>& A, std::string title="Default" )
 {
 #ifndef RELEASE
     CallStackEntry entry("Display");
@@ -41,7 +50,7 @@ Display( const Matrix<T>& A, std::string title="" )
     displayWindow->show();
 
     // Spend at most 200 milliseconds rendering
-    QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
+    ProcessEvents( 200 );
 #else
     A.Print( title );
 #endif
@@ -49,7 +58,7 @@ Display( const Matrix<T>& A, std::string title="" )
 
 template<typename T>
 inline void
-Display( const Matrix<Complex<T> >& A, std::string title="" )
+Display( const Matrix<Complex<T> >& A, std::string title="Default" )
 {
 #ifndef RELEASE
     CallStackEntry entry("Display");
@@ -76,7 +85,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
     displayWindow->show();
 
     // Spend at most 200 milliseconds rendering
-    QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
+    ProcessEvents( 200 );
 #else
     A.Print( title );
 #endif
@@ -84,7 +93,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="" )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Display( const DistMatrix<T,U,V>& A, std::string title="" )
+Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
 {
 #ifndef RELEASE
     CallStackEntry entry("Display");

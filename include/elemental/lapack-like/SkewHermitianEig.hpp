@@ -59,7 +59,7 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag )
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag );
@@ -117,7 +117,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag );
@@ -173,7 +173,7 @@ SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z );
@@ -233,7 +233,7 @@ SkewHermitianEig
 
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z );
@@ -288,7 +288,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
@@ -348,7 +348,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
@@ -406,7 +406,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
@@ -468,7 +468,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
@@ -522,7 +522,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
@@ -582,7 +582,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, a, b );
@@ -640,7 +640,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );
@@ -702,7 +702,7 @@ SkewHermitianEig
     
     // Make G Hermitian by scaling by -i
     const Complex<R> negativeImagOne(0,-1);
-    ScaleTrapezoid( negativeImagOne, LEFT, uplo, 0, G );
+    ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
     HermitianEig( uplo, G, wImag, Z, a, b );

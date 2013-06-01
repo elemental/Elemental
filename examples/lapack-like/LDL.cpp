@@ -63,7 +63,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> L( factA );
         MakeTriangular( LOWER, L );
-        SetDiagonal( LEFT, 0, L, C(1) );
+        SetDiagonal( L, C(1) );
 
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );

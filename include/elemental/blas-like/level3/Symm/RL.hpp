@@ -364,8 +364,8 @@ SymmRLC
         ARowPanTrans_MR_STAR.TransposeFrom( ARowPan );
         AColPan_VR_STAR = AColPan;
         AColPanTrans_STAR_MR.TransposeFrom( AColPan_VR_STAR, conjugate );
-        MakeTrapezoidal( RIGHT, UPPER, 0, ARowPanTrans_MR_STAR );
-        MakeTrapezoidal( LEFT,  UPPER, 1, AColPanTrans_STAR_MR );
+        MakeTrapezoidal( UPPER, ARowPanTrans_MR_STAR, 0, RIGHT );
+        MakeTrapezoidal( UPPER, AColPanTrans_STAR_MR, 1, LEFT );
 
         LocalGemm
         ( NORMAL, TRANSPOSE, 

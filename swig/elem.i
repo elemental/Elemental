@@ -102,10 +102,6 @@ using namespace elem;
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
 
-%apply int { elem::Base<int>::type};
-%apply float { elem::Base<float>::type, elem::Base<Complex<float> >::type};
-%apply double { elem::Base<double>::type, elem::Base<Complex<double> >::type };
-
 /*
  * Blanket exception handling.
  */
@@ -301,13 +297,18 @@ DISTMATRIX_all(VR,STAR)
 %template(Y) X<float,MC,MR>;
 %template(Y) X<double,MC,MR>;
 %enddef
-%define OVERLOAD1_int_R(X,Y)
-%template(Y) X<int,MC,MR>;
-%template(Y) X<float,MC,MR>;
-%template(Y) X<double,MC,MR>;
-%template(Y) X<Complex<float>,MC,MR>;
-%template(Y) X<Complex<double>,MC,MR>;
+// TODO: Extend this to other cases, needed for Display (and Norm)
+%define OVERLOAD1_int_R_UV(X,Y,U,V)
+%template(Y) X<int,U,V>;
+%template(Y) X<float,U,V>;
+%template(Y) X<double,U,V>;
+%template(Y) X<Complex<float>,U,V>;
+%template(Y) X<Complex<double>,U,V>;
 %enddef
+#define OVERLOAD1_int_UV(X,U,V) OVERLOAD1_int_R_UV(X,X,U,V)
+#define OVERLOAD1_int_R(X,Y) OVERLOAD1_int_R_UV(X,Y,MC,MR)
+#define OVERLOAD1_int(X) OVERLOAD1_int_R(X,X)
+
 %define OVERLOAD2_R(X,Y)
 %template(Y) X<float,MC,MR,MC,MR>;
 %template(Y) X<double,MC,MR,MC,MR>;
@@ -500,6 +501,7 @@ OVERLOAD0(TwoSidedTrsm)
 %ignore CreatePivotOp;
 %ignore DestroyPivotOp;
 
+// TODO: Instantiate non-symmetric/Hermitian Norms for all distributions
 %define OVERLOAD_NORM(name)
 OVERLOAD01(name ## Norm)
 OVERLOAD0(Hermitian ## name ## Norm)
@@ -516,8 +518,8 @@ OVERLOAD0(Symmetric ## name ## Norm)
 %include "elemental/lapack-like/Norm/KyFan.hpp"
 %include "elemental/lapack-like/Norm/Max.hpp"
 %include "elemental/lapack-like/Norm/One.hpp"
-// %include "elemental/lapack-like/Norm/Nuclear.hpp"
-// %include "elemental/lapack-like/Norm/Schatten.hpp"
+%include "elemental/lapack-like/Norm/Nuclear.hpp"
+%include "elemental/lapack-like/Norm/Schatten.hpp"
 %include "elemental/lapack-like/Norm/Two.hpp"
 %include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
 %include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
@@ -541,8 +543,8 @@ OVERLOAD_NORM(Infinity)
 OVERLOAD_NORM(KyFan)
 OVERLOAD_NORM(Max)
 OVERLOAD_NORM(One)
-// OVERLOAD_NORM(Nuclear)
-// OVERLOAD_NORM(Schatten)
+OVERLOAD_NORM(Nuclear)
+OVERLOAD_NORM(Schatten)
 OVERLOAD_NORM(Two)
 OVERLOAD0(TwoNormLowerBound)
 OVERLOAD0(TwoNormUpperBound)
@@ -798,10 +800,35 @@ OVERLOAD01_int(Zeros)
 namespace elem {
 
 OVERLOAD0_cpx(Display)
-OVERLOAD1(Display)
+OVERLOAD1_int_UV(Display,MC,MR)
+OVERLOAD1_int_UV(Display,MC,STAR)
+OVERLOAD1_int_UV(Display,MD,STAR)
+OVERLOAD1_int_UV(Display,MR,MC)
+OVERLOAD1_int_UV(Display,MR,STAR)
+OVERLOAD1_int_UV(Display,STAR,MC)
+OVERLOAD1_int_UV(Display,STAR,MD)
+OVERLOAD1_int_UV(Display,STAR,MR)
+OVERLOAD1_int_UV(Display,STAR,STAR)
+OVERLOAD1_int_UV(Display,STAR,VC)
+OVERLOAD1_int_UV(Display,STAR,VR)
+OVERLOAD1_int_UV(Display,VC,STAR)
+OVERLOAD1_int_UV(Display,VR,STAR)
+
 #ifdef HAVE_QT5
 OVERLOAD0_cpx(Spy)
-OVERLOAD1(Spy)
+OVERLOAD1_int_UV(Spy,MC,MR)
+OVERLOAD1_int_UV(Spy,MC,STAR)
+OVERLOAD1_int_UV(Spy,MD,STAR)
+OVERLOAD1_int_UV(Spy,MR,MC)
+OVERLOAD1_int_UV(Spy,MR,STAR)
+OVERLOAD1_int_UV(Spy,STAR,MC)
+OVERLOAD1_int_UV(Spy,STAR,MD)
+OVERLOAD1_int_UV(Spy,STAR,MR)
+OVERLOAD1_int_UV(Spy,STAR,STAR)
+OVERLOAD1_int_UV(Spy,STAR,VC)
+OVERLOAD1_int_UV(Spy,STAR,VR)
+OVERLOAD1_int_UV(Spy,VC,STAR)
+OVERLOAD1_int_UV(Spy,VR,STAR)
 #endif
 
 };

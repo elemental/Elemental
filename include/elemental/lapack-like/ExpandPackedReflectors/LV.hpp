@@ -54,8 +54,8 @@ LV( int offset, Matrix<R>& H )
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonal( LEFT, offset, H, R(1) );
+    MakeTrapezoidal( LOWER, H, offset );
+    SetDiagonal( H, R(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
     Matrix<R>
@@ -135,7 +135,7 @@ LV( int offset, Matrix<R>& H )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
+        SetDiagonal( HEffectedNew, R(1) );
     }
 }
 
@@ -152,8 +152,8 @@ LV( int offset, DistMatrix<R>& H )
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonal( LEFT, offset, H, R(1) );
+    MakeTrapezoidal( LOWER, H, offset );
+    SetDiagonal( H, R(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
@@ -266,7 +266,7 @@ LV( int offset, DistMatrix<R>& H )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( LEFT, 0, HEffectedNew, R(1) );
+        SetDiagonal( HEffectedNew, R(1) );
     }
 }
 
@@ -289,8 +289,8 @@ LV
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonal( LEFT, offset, H, C(1) );
+    MakeTrapezoidal( LOWER, H, offset );
+    SetDiagonal( H, C(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
     Matrix<C>
@@ -389,7 +389,7 @@ LV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
+        SetDiagonal( HEffectedNew, C(1) );
     }
 }
 
@@ -416,8 +416,8 @@ LV
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LEFT, LOWER, offset, H );
-    SetDiagonal( LEFT, offset, H, C(1) );
+    MakeTrapezoidal( LOWER, H, offset );
+    SetDiagonal( H, C(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
@@ -551,7 +551,7 @@ LV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( LEFT, 0, HEffectedNew, C(1) );
+        SetDiagonal( HEffectedNew, C(1) );
     }
 }
 

@@ -15,7 +15,8 @@ namespace elem {
 template<typename T>
 inline void
 ScaleTrapezoid
-( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
+( T alpha, UpperOrLower uplo, Matrix<T>& A, 
+  int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("ScaleTrapezoid");
@@ -84,8 +85,8 @@ ScaleTrapezoid
 template<typename T,Distribution U,Distribution V>
 inline void
 ScaleTrapezoid
-( T alpha, LeftOrRight side, UpperOrLower uplo, int offset,
-  DistMatrix<T,U,V>& A )
+( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, 
+  int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("ScaleTrapezoid");

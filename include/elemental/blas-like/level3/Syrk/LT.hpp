@@ -52,7 +52,7 @@ SyrkLT
     A1_STAR_MC.AlignWith( C );
 
     // Start the algorithm
-    ScaleTrapezoid( beta, LEFT, LOWER, 0, C );
+    ScaleTrapezoid( beta, LOWER, C );
     LockedPartitionDown
     ( A, AT, 
          AB, 0 );

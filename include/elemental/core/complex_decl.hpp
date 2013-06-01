@@ -169,10 +169,24 @@ struct Complex
 
 // For extracting the underlying real datatype, 
 // e.g., typename Base<Scalar>::type a = 3.0;
+#ifndef SWIG
 template<typename R>
 struct Base { typedef R type; };
 template<typename R>
 struct Base<Complex<R> > { typedef R type; };
+#else
+template<typename R> struct Base { };
+%template(Base_i) Base<int>;
+%extend Base<int> { typedef int type; }
+%template(Base_s) Base<float>;
+%extend Base<float> { typedef float type; }
+%template(Base_d) Base<double>;
+%extend Base<double> { typedef double type; }
+%template(Base_c) Base<Complex<float> >;
+%extend Base<Complex<float> > { typedef float type; }
+%template(Base_z) Base<Complex<double> >;
+%extend Base<Complex<double> > { typedef double type; }
+#endif
 #define BASE(F) typename Base<F>::type 
 
 // For querying whether or not a scalar is complex,

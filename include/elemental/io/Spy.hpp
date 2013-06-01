@@ -14,6 +14,7 @@
 
 #include "elemental/io/spy_window_decl.hpp"
 #include "elemental/io/spy_widget_impl.hpp"
+#include "elemental/io/Display.hpp" // for ProcessEvents
 
 #include <QApplication>
 
@@ -21,7 +22,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Spy( const Matrix<T>& A, std::string title="", BASE(T) tol=0 )
+Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");
@@ -40,12 +41,12 @@ Spy( const Matrix<T>& A, std::string title="", BASE(T) tol=0 )
     spyWindow->show();
 
     // Spend at most 200 milliseconds rendering
-    QCoreApplication::instance()->processEvents( QEventLoop::AllEvents, 200 );
+    ProcessEvents( 200 );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Spy( const DistMatrix<T,U,V>& A, std::string title="", BASE(T) tol=0 )
+Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");

@@ -187,9 +187,11 @@ R Arg( const R& alpha );
 template<typename R>
 R Arg( const Complex<R>& alpha );
 
+#ifndef SWIG
 // Convert polar coordinates to the complex number
 template<typename R>
 Complex<R> Polar( const R& r, const R& theta=0 ); 
+#endif
 
 // Exponential
 template<typename R>

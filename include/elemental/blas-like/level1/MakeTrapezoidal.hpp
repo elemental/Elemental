@@ -15,7 +15,7 @@ namespace elem {
 template<typename T>
 inline void
 MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
+( UpperOrLower uplo, Matrix<T>& A, int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("MakeTrapezoidal");
@@ -86,8 +86,7 @@ MakeTrapezoidal
 template<typename T,Distribution U,Distribution V>
 inline void
 MakeTrapezoidal
-( LeftOrRight side, UpperOrLower uplo, int offset,
-  DistMatrix<T,U,V>& A )
+( UpperOrLower uplo, DistMatrix<T,U,V>& A, int offset=0, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("MakeTrapezoidal");

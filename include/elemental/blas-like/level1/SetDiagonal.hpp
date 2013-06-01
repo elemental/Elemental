@@ -30,7 +30,7 @@ SetDiagonal( Matrix<T>& A, T alpha )
 
 template<typename T>
 inline void
-SetDiagonal( LeftOrRight side, int offset, Matrix<T>& A, T alpha )
+SetDiagonal( Matrix<T>& A, T alpha, int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("SetDiagonal");
@@ -83,7 +83,8 @@ SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )
+SetDiagonal
+( DistMatrix<T,U,V>& A, T alpha, int offset, LeftOrRight side=LEFT )
 {
 #ifndef RELEASE
     CallStackEntry entry("SetDiagonal");

@@ -43,9 +43,9 @@ ReformHermitianMatrix
     Matrix<F> Z1Copy, Y1;
 
     if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, UPPER, 1, A );
+        MakeTrapezoidal( UPPER, A, 1 );
     else
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
+        MakeTrapezoidal( LOWER, A, -1 );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -104,9 +104,9 @@ ReformHermitianMatrix
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
     if( uplo == LOWER )
-        MakeTrapezoidal( LEFT, UPPER, 1, A );
+        MakeTrapezoidal( UPPER, A, 1 );
     else
-        MakeTrapezoidal( LEFT, LOWER, -1, A );
+        MakeTrapezoidal( LOWER, A, -1 );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,

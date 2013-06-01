@@ -87,8 +87,8 @@ LLVF( int offset, const Matrix<R>& H, Matrix<R>& A )
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
-        SetDiagonal( LEFT, offset, HPanCopy, R(1) );
+        MakeTrapezoidal( LOWER, HPanCopy, offset );
+        SetDiagonal( HPanCopy, R(1), offset );
 
         Syrk( LOWER, TRANSPOSE, R(1), HPanCopy, SInv );
         HalveMainDiagonal( SInv );
@@ -175,8 +175,8 @@ LLVF
         Z_STAR_VR.AlignWith( AB );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
-        SetDiagonal( LEFT, offset, HPanCopy, R(1) );
+        MakeTrapezoidal( LOWER, HPanCopy, offset );
+        SetDiagonal( HPanCopy, R(1), offset );
 
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
@@ -285,8 +285,8 @@ LLVF
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
-        SetDiagonal( LEFT, offset, HPanCopy, C(1) );
+        MakeTrapezoidal( LOWER, HPanCopy, offset );
+        SetDiagonal( HPanCopy, C(1), offset );
 
         Herk( LOWER, ADJOINT, C(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -400,8 +400,8 @@ LLVF
         Z_STAR_VR.AlignWith( AB );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LEFT, LOWER, offset, HPanCopy );
-        SetDiagonal( LEFT, offset, HPanCopy, C(1) );
+        MakeTrapezoidal( LOWER, HPanCopy, offset );
+        SetDiagonal( HPanCopy, C(1), offset );
 
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );

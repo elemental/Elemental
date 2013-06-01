@@ -282,7 +282,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -365,7 +365,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
@@ -495,7 +495,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -661,7 +661,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
@@ -838,7 +838,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -923,7 +923,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
@@ -1062,7 +1062,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -1231,7 +1231,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
@@ -1399,7 +1399,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -1481,7 +1481,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
@@ -1609,7 +1609,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( scale, LEFT, uplo, 0, A );
+        ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
     HermitianTridiag( uplo, A );
@@ -1791,7 +1791,7 @@ void HermitianEig
     R scale;
     hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
     if( needRescaling )
-        ScaleTrapezoid( C(scale), LEFT, uplo, 0, A );
+        ScaleTrapezoid( C(scale), uplo, A );
 
     // Tridiagonalize A
     DistMatrix<C,STAR,STAR> t(g);
