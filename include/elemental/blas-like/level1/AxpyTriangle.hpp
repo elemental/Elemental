@@ -35,12 +35,14 @@ AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
     }
 }
 
+#ifndef SWIG
 template<typename T>
 inline void
 AxpyTriangle
 ( UpperOrLower uplo, BASE(T) alpha, 
   const Matrix<T>& X, Matrix<T>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
+#endif
 
 template<typename T,Distribution U,Distribution V>
 inline void
@@ -103,12 +105,14 @@ AxpyTriangle
     }
 }
 
+#ifndef SWIG
 template<typename T,Distribution U,Distribution V>
 inline void
 AxpyTriangle
 ( UpperOrLower uplo, BASE(T) alpha,
   const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 { AxpyTriangle( uplo, T(alpha), X, Y ); }
+#endif
 
 } // namespace elem
 

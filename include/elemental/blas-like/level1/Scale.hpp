@@ -31,40 +31,48 @@ Scale( T alpha, Matrix<T>& X )
     }
 }
 
+#ifndef SWIG
 template<typename T>
 inline void
 Scale( BASE(T) alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
+#endif
 
 template<typename T>
 inline void
 Scal( T alpha, Matrix<T>& X )
 { Scale( alpha, X ); }
 
+#ifndef SWIG
 template<typename T>
 inline void
 Scal( BASE(T) alpha, Matrix<T>& X )
 { Scale( T(alpha), X ); }
+#endif
 
 template<typename T,Distribution U,Distribution V>
 inline void
 Scale( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A.Matrix() ); }
 
+#ifndef SWIG
 template<typename T,Distribution U,Distribution V>
 inline void
 Scale( BASE(T) alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A.Matrix() ); }
+#endif
 
 template<typename T,Distribution U,Distribution V>
 inline void
 Scal( T alpha, DistMatrix<T,U,V>& A )
 { Scale( alpha, A ); }
 
+#ifndef SWIG
 template<typename T,Distribution U,Distribution V>
 inline void
 Scal( BASE(T) alpha, DistMatrix<T,U,V>& A )
 { Scale( T(alpha), A ); }
+#endif
 
 } // namespace elem
 

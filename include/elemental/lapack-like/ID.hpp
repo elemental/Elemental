@@ -167,6 +167,7 @@ ID
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline void
 ID
@@ -183,6 +184,7 @@ ID
         B = A;
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
+#endif
 
 template<typename F> 
 inline void
@@ -194,6 +196,7 @@ ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline void
 ID
@@ -205,6 +208,7 @@ ID
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
+#endif
 
 template<typename F> 
 inline void
@@ -219,6 +223,7 @@ ID
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline void
 ID
@@ -235,6 +240,7 @@ ID
         B = A;
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
+#endif
 
 template<typename F> 
 inline void
@@ -248,6 +254,7 @@ ID
     ID( A, p, Z, numSteps, BASE(F)(-1) );
 }
 
+#ifndef SWIG
 template<typename F> 
 inline void
 ID
@@ -259,6 +266,7 @@ ID
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
+#endif
 
 } // namespace elem
 
