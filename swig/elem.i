@@ -137,15 +137,8 @@ using namespace elem;
  * MATRIX
  */
 
-%define MATRIX_IGNORE(F)
-%ignore elem::Matrix<F,int>::Matrix(int,int,const F*,int);
-%ignore elem::Matrix<F,int>::Matrix(int,int,F*,int);
-%enddef
-MATRIX_IGNORE(int)
-MATRIX_IGNORE(float)
-MATRIX_IGNORE(double)
-MATRIX_IGNORE(elem::Complex<float>)
-MATRIX_IGNORE(elem::Complex<double>)
+%ignore elem::Matrix::Matrix( Int, Int, const T*, Int );
+%ignore elem::Matrix::Matrix( Int, Int, T*, Int );
 
 %include "elemental/core/matrix.hpp"
 
@@ -177,31 +170,12 @@ namespace elem {
  * DISTMATRIX
  */
 
-%define DISTMATRIX_IGNORE1(F,U,V)
-%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,const F*,int,const elem::Grid&);
-%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,F*,int,const elem::Grid&);
-%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,int,const F*,int,const elem::Grid&);
-%ignore elem::DistMatrix<F,U,V,int>::DistMatrix(int,int,int,int,F*,int,const elem::Grid&);
-%enddef
-%define DISTMATRIX_IGNORE(F)
-DISTMATRIX_IGNORE1(F,MC,MR)
-DISTMATRIX_IGNORE1(F,MC,STAR)
-DISTMATRIX_IGNORE1(F,VC,STAR)
-DISTMATRIX_IGNORE1(F,MD,STAR)
-DISTMATRIX_IGNORE1(F,VR,STAR)
-DISTMATRIX_IGNORE1(F,STAR,VR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MC,elem::distribution_wrapper::MR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MC,elem::distribution_wrapper::STAR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::VC,elem::distribution_wrapper::STAR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::MD,elem::distribution_wrapper::STAR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::VR,elem::distribution_wrapper::STAR)
-DISTMATRIX_IGNORE1(F,elem::distribution_wrapper::STAR,elem::distribution_wrapper::VR)
-%enddef
-DISTMATRIX_IGNORE(int)
-DISTMATRIX_IGNORE(float)
-DISTMATRIX_IGNORE(double)
-DISTMATRIX_IGNORE(elem::Complex<float>)
-DISTMATRIX_IGNORE(elem::Complex<double>)
+%ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid& );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, Int, const T*, Int, const elem::Grid& );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, const T*, Int, const elem::Grid& );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, elem::Grid& );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, Int, T*, Int, elem::Grid& );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, elem::Grid& );
 
 %include "elemental/core/dist_matrix/mc_mr.hpp"
 %include "elemental/core/dist_matrix/mc_star.hpp"
