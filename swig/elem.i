@@ -13,12 +13,18 @@
 
 %{
 #include "elemental.hpp"
-using namespace elem;
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "numpy/arrayobject.h"
+static PyObject *npmatrix;
 %}
 
 %include "std_except.i"
 %include "std_iostream.i"
 %include "std_string.i"
+
+%init %{
+import_array();
+%}
 
 /*
  * This code converts a Python list of strings to the input format requested for
@@ -89,18 +95,38 @@ using namespace elem;
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
-%typemap(out) elem::SafeProduct<Complex<float> > {
+%typemap(out) elem::SafeProduct<elem::Complex<float> > {
   $result = PyDict_New();
   PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
-%typemap(out) elem::SafeProduct<Complex<double> > {
+%typemap(out) elem::SafeProduct<elem::Complex<double> > {
   $result = PyDict_New();
   PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
   PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
 }
+%define TYPEMAP_MATRIX(T,U)
+%typemap(out) elem::Matrix<T,int >& {
+  npy_intp dims[2], strides[2];
+  dims[0] = $1->Height(); dims[1] = $1->Width();
+  strides[0] = sizeof(T); strides[1] = $1->LDim() * sizeof(T);
+  $result = PyArray_New( &PyArray_Type, 2, &dims[0], U, &strides[0], 
+    $1->Buffer(), sizeof(T), NPY_ARRAY_WRITEABLE, NULL );
+}
+%typemap(out) const elem::Matrix<T,int >& {
+  npy_intp dims[2], strides[2];
+  dims[0] = $1->Height(); dims[1] = $1->Width();
+  strides[0] = sizeof(T); strides[1] = $1->LDim() * sizeof(T);
+  $result = PyArray_New( &PyArray_Type, 2, &dims[0], U, &strides[0], 
+    $1->Buffer(), sizeof(T), 0, NULL );
+}
+%enddef
+TYPEMAP_MATRIX(float,NPY_FLOAT)
+TYPEMAP_MATRIX(double,NPY_DOUBLE)
+TYPEMAP_MATRIX(elem::Complex<float>,NPY_CFLOAT)
+TYPEMAP_MATRIX(elem::Complex<double>,NPY_CDOUBLE)
 
 /*
  * Blanket exception handling.
