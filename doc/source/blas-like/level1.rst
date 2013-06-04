@@ -109,8 +109,8 @@ value of ``side``; whether or not the trapezoid is upper or lower
 ``uplo`` parameter, and the last diagonal is defined with the ``offset`` 
 integer.
 
-.. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
-.. cpp:function:: void MakeTrapezoidal( LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A )
+.. cpp:function:: void MakeTrapezoidal( UpperOrLower uplo, Matrix<T>& A, int offset=0, LeftOrRight side=LEFT )
+.. cpp:function:: void MakeTrapezoidal( UpperOrLower uplo, DistMatrix<T,U,V>& A, int offset=0, LeftOrRight side=LEFT )
 
 Nrm2
 ----
@@ -137,8 +137,8 @@ ScaleTrapezoid
 Scales the entries within the specified trapezoid of a general matrix.
 The parameter conventions follow those of ``MakeTrapezoidal`` described above.
 
-.. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, Matrix<T>& A )
-.. cpp:function:: void ScaleTrapezoid( T alpha, LeftOrRight side, UpperOrLower uplo, int offset, DistMatrix<T,U,V>& A )
+.. cpp:function:: void ScaleTrapezoid( T alpha, UpperOrLower uplo, Matrix<T>& A, int offset=0, LeftOrRight side=LEFT )
+.. cpp:function:: void ScaleTrapezoid( T alpha, UpperOrLower uplo, DistMatrix<T,U,V>& A, int offset=0, LeftOrRight side=LEFT )
 
 Transpose
 ---------
@@ -173,5 +173,5 @@ Sets all of the diagonal entries of a matrix to a given value.
 .. cpp:function:: void SetDiagonal( Matrix<T>& A, T alpha )
 .. cpp:function:: void SetDiagonal( DistMatrix<T,U,V>& A, T alpha )
 
-.. cpp:function:: void SetDiagonal( LeftOrRight side, int offset, Matrix<T>& A, T alpha )
-.. cpp:function:: void SetDiagonal( LeftOrRight side, int offset, DistMatrix<T,U,V>& A, T alpha )
+.. cpp:function:: void SetDiagonal( Matrix<T>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
+.. cpp:function:: void SetDiagonal( DistMatrix<T,U,V>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
