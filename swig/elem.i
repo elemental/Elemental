@@ -30,9 +30,9 @@ static PyObject* create_npmatrix( int H, int W, int LDim, size_t DSize, int DTyp
 }
 %}
 
-%include "std_except.i"
-%include "std_iostream.i"
-%include "std_string.i"
+%import "std_except.i"
+%import "std_iostream.i"
+%import "std_string.i"
 
 %init %{
 import_array();
