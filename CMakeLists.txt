@@ -250,11 +250,12 @@ endif()
 
 set(HAVE_SWIG FALSE)
 if(USE_SWIG)
-  # Search for SWIG and Python
+  # Search for SWIG, Python, and NumPy
   find_package(SWIG)
   find_package(PythonLibs)
-  if(SWIG_FOUND AND PYTHONLIBS_FOUND)
-    message("SWIG_USE_FILE=${SWIG_USE_FILE}")
+  set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+  find_package(NumPy)
+  if(SWIG_FOUND AND PYTHONLIBS_FOUND AND NUMPY_FOUND)
     set(HAVE_SWIG TRUE)
   else()
     message(STATUS "Did not find SWIG and PythonLibs")
