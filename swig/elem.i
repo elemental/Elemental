@@ -15,7 +15,19 @@
 #include "elemental.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
-static PyObject *npmatrix;
+static PyObject *numpy, *npmatrix;
+static PyObject* create_npmatrix( int H, int W, int LDim, size_t DSize, int DType, bool writable, const void* data )
+{
+    PyObject *arr, *result;
+    npy_intp dims[2], strides[2];
+    dims[0] = H; dims[1] = W;
+    strides[0] = DSize; strides[1] = DSize * LDim;
+    arr = PyArray_New( &PyArray_Type, 2, &dims[0], DType, &strides[0], 
+    const_cast<void*>(data), DSize, writable ? NPY_ARRAY_WRITEABLE : 0, NULL );
+    result = PyObject_CallFunctionObjArgs( npmatrix, arr, NULL );
+    PyArray_free( arr );
+    return result;
+}
 %}
 
 %include "std_except.i"
@@ -24,6 +36,8 @@ static PyObject *npmatrix;
 
 %init %{
 import_array();
+numpy = PyImport_ImportModule("numpy");
+npmatrix = PyObject_GetAttrString(numpy,"matrix");
 %}
 
 /*
@@ -85,43 +99,33 @@ import_array();
 }
 %typemap(out) elem::SafeProduct<float> {
   $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
+  PyDict_SetItemString( $result, "rho",   PyFloat_FromDouble( $1.rho ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
 }
 %typemap(out) elem::SafeProduct<double> {
   $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyFloat_FromDouble( $1.rho ) );
+  PyDict_SetItemString( $result, "rho",   PyFloat_FromDouble( $1.rho ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
 }
 %typemap(out) elem::SafeProduct<elem::Complex<float> > {
   $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
+  PyDict_SetItemString( $result, "rho",   PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
 }
 %typemap(out) elem::SafeProduct<elem::Complex<double> > {
   $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho", PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
+  PyDict_SetItemString( $result, "rho",   PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
   PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n", PyInt_FromLong( $1.n ) );
+  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
 }
 %define TYPEMAP_MATRIX(T,U)
-%typemap(out) elem::Matrix<T,int >& {
-  npy_intp dims[2], strides[2];
-  dims[0] = $1->Height(); dims[1] = $1->Width();
-  strides[0] = sizeof(T); strides[1] = $1->LDim() * sizeof(T);
-  $result = PyArray_New( &PyArray_Type, 2, &dims[0], U, &strides[0], 
-    $1->Buffer(), sizeof(T), NPY_ARRAY_WRITEABLE, NULL );
-}
-%typemap(out) const elem::Matrix<T,int >& {
-  npy_intp dims[2], strides[2];
-  dims[0] = $1->Height(); dims[1] = $1->Width();
-  strides[0] = sizeof(T); strides[1] = $1->LDim() * sizeof(T);
-  $result = PyArray_New( &PyArray_Type, 2, &dims[0], U, &strides[0], 
-    $1->Buffer(), sizeof(T), 0, NULL );
-}
+%typemap(out) elem::Matrix<T,int>&
+{ $result = create_npmatrix( $1->Height(), $1->Width(), $1->LDim(), sizeof(T), U, true, $1->Buffer() ); }
+%typemap(out) const elem::Matrix<T,int>&
+{ $result = create_npmatrix( $1->Height(), $1->Width(), $1->LDim(), sizeof(T), U, false, $1->LockedBuffer() ); }
 %enddef
 TYPEMAP_MATRIX(float,NPY_FLOAT)
 TYPEMAP_MATRIX(double,NPY_DOUBLE)
