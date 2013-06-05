@@ -67,8 +67,12 @@ endif()
 # Convert the process output into a list
 string(REGEX REPLACE ";" "\\\\;" _NUMPY_VALUES ${_NUMPY_VALUES})
 string(REGEX REPLACE "\n" ";" _NUMPY_VALUES ${_NUMPY_VALUES})
-list(GET _NUMPY_VALUES 0 NUMPY_VERSION)
-list(GET _NUMPY_VALUES 1 NUMPY_INCLUDE_DIRS)
+# This modification was suggested by Michael Grant in order to avoid an issue
+# with MKL
+#list(GET _NUMPY_VALUES 0 NUMPY_VERSION)
+#list(GET _NUMPY_VALUES 1 NUMPY_INCLUDE_DIRS)
+list(GET _NUMPY_VALUES -2 NUMPY_VERSION)
+list(GET _NUMPY_VALUES -1 NUMPY_INCLUDE_DIRS)
 
 # Make sure all directory separators are '/'
 string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIRS ${NUMPY_INCLUDE_DIRS})
