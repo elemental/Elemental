@@ -312,6 +312,24 @@ DISTMATRIX_all(VR,STAR)
 #define OVERLOAD1_int_UV(X,U,V) OVERLOAD1_int_R_UV(X,X,U,V)
 #define OVERLOAD1_int_R(X,Y) OVERLOAD1_int_R_UV(X,Y,MC,MR)
 #define OVERLOAD1_int(X) OVERLOAD1_int_R(X,X)
+// TODO: Extend
+%define OVERLOAD_VIEW_seq(X)
+%template(X) X<int,int>;
+%template(X) X<float,int>;
+%template(X) X<double,int>;
+%template(X) X<Complex<float>,int>;
+%template(X) X<Complex<double>,int>;
+%enddef
+%define OVERLOAD_VIEW_UV(X,U,V)
+%template(X) X<int,U,V,int>;
+%template(X) X<float,U,V,int>;
+%template(X) X<double,U,V,int>;
+%template(X) X<Complex<float>,U,V,int>;
+%template(X) X<Complex<double>,U,V,int>;
+%enddef
+#define OVERLOAD_VIEW(X) \
+  OVERLOAD_VIEW_seq(X) \
+  OVERLOAD_VIEW_UV(X,MC,MR) \
 
 %define OVERLOAD2_R(X,Y)
 %template(Y) X<float,MC,MR,MC,MR>;
@@ -367,6 +385,47 @@ DISTMATRIX_all(VR,STAR)
 %rename(name ## _c) name<Complex<float> >(__VA_ARGS__);
 %rename(name ## _z) name<Complex<double> >(__VA_ARGS__);
 %enddef
+
+/*
+ * VIEWING
+ */
+
+%include "elemental/core/view_decl.hpp"
+%include "elemental/core/partition_decl.hpp"
+
+namespace elem {
+
+OVERLOAD_VIEW(View)
+OVERLOAD_VIEW(LockedView)
+OVERLOAD_VIEW(View1x2)
+OVERLOAD_VIEW(LockedView1x2)
+OVERLOAD_VIEW(View2x1)
+OVERLOAD_VIEW(LockedView2x1)
+OVERLOAD_VIEW(View2x2)
+OVERLOAD_VIEW(LockedView2x2)
+
+OVERLOAD_VIEW(PartitionUp)
+OVERLOAD_VIEW(LockedPartitionUp)
+OVERLOAD_VIEW(PartitionDown)
+OVERLOAD_VIEW(LockedPartitionDown)
+OVERLOAD_VIEW(PartitionLeft)
+OVERLOAD_VIEW(LockedPartitionLeft)
+OVERLOAD_VIEW(PartitionRight)
+OVERLOAD_VIEW(LockedPartitionRight)
+OVERLOAD_VIEW(PartitionUpDiagonal)
+OVERLOAD_VIEW(LockedPartitionUpDiagonal)
+OVERLOAD_VIEW(PartitionUpLeftDiagonal)
+OVERLOAD_VIEW(LockedPartitionUpLeftDiagonal)
+OVERLOAD_VIEW(PartitionUpRightDiagonal)
+OVERLOAD_VIEW(LockedPartitionUpRightDiagonal)
+OVERLOAD_VIEW(PartitionDownDiagonal)
+OVERLOAD_VIEW(LockedPartitionDownDiagonal)
+OVERLOAD_VIEW(PartitionDownLeftDiagonal)
+OVERLOAD_VIEW(LockedPartitionDownLeftDiagonal)
+OVERLOAD_VIEW(PartitionDownRightDiagonal)
+OVERLOAD_VIEW(LockedPartitionDownRightDiagonal)
+
+};
 
 /*
  * BLAS MISCELLANEOUS
