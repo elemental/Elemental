@@ -303,7 +303,6 @@ SymmRLC
         ("{A,B,C} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
-    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     // Matrix views
     DistMatrix<T> 

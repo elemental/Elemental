@@ -243,7 +243,6 @@ GolubReinschUpper
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
@@ -352,7 +351,6 @@ GolubReinschUpper
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
@@ -463,7 +461,6 @@ GolubReinschUpper
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
@@ -507,7 +504,6 @@ GolubReinschUpper
     const int n = A.Width();
     const int k = std::min( m, n );
     const int offdiagonal = ( m>=n ? 1 : -1 );
-    const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A

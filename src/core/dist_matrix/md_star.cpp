@@ -295,7 +295,6 @@ DistMatrix<T,MD,STAR,Int>::AlignWithDiagonal
 
     const Int r = grid.Height();
     const Int c = grid.Width();
-    const Int lcm = grid.LCM();
     if( data.colDist == MC && data.rowDist == MR )
     {
         Int owner;

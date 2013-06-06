@@ -80,7 +80,6 @@ BusingerGolub
     Matrix<Real> z;
 
     const int m = A.Height();
-    const int n = A.Width();
     std::vector<Real> swapBuf( m );
 
     // Initialize two copies of the column norms, one will be consistently
@@ -222,7 +221,6 @@ BusingerGolub
     Matrix<C> z;
 
     const int m = A.Height();
-    const int n = A.Width();
     std::vector<C> swapBuf( m );
 
     // Initialize two copies of the column norms, one will be consistently
@@ -585,8 +583,6 @@ BusingerGolub
 
     DistMatrix<Real> z(g);
 
-    const int m = A.Height();
-    const int n = A.Width();
     const int mLocal = A.LocalHeight();
     const int nLocal = A.LocalWidth();
     const int rowAlign = A.RowAlignment();
@@ -801,8 +797,6 @@ BusingerGolub
                          A20(g), a21(g),     A22(g);
     DistMatrix<C> z(g);
 
-    const int m = A.Height();
-    const int n = A.Width();
     const int mLocal = A.LocalHeight();
     const int nLocal = A.LocalWidth();
     const int rowAlign = A.RowAlignment();

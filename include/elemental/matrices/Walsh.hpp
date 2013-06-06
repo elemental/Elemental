@@ -23,7 +23,7 @@ MakeWalsh( Matrix<T>& A, int k, bool binary=false )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
 
     const unsigned n = 1u<<k;
-    if( A.Height() != n || A.Width() != n )
+    if( A.Height() != int(n) || A.Width() != int(n) )
         throw std::logic_error("Invalid input matrix size");
 
     // Run a simple O(n^2 log n) algorithm for computing the entries
@@ -68,7 +68,7 @@ MakeWalsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
         throw std::logic_error("Walsh matrices are only defined for k>=1");
 
     const unsigned n = 1u<<k;
-    if( A.Height() != n || A.Width() != n )
+    if( A.Height() != int(n) || A.Width() != int(n) )
         throw std::logic_error("Invalid input matrix size");
 
     // Run an O(n^2 log n / p) algorithm based upon successive sign flips

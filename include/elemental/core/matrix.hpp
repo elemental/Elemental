@@ -32,7 +32,7 @@ public:
     // Destructor
     //
 
-    ~Matrix();
+    virtual ~Matrix();
 
     //
     // Basic information
@@ -99,6 +99,11 @@ public:
     bool Viewing() const;
     bool Locked() const;
 
+    // Use this memory *as if it were not a view*, but do not take control of its
+    // deallocation. If Resize() forces reallocation, this buffer is released from
+    // control but not deleted.
+    void Control( Int height, Int width, T* buffer, Int ldim );
+    
     void Attach( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
 

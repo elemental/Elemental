@@ -86,7 +86,6 @@ ThresholdedTall
     typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int m = A.Height();
-    const int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
     {
@@ -146,7 +145,6 @@ ThresholdedWide
         throw std::logic_error("negative threshold does not make sense");
 #endif
     typedef BASE(F) R;
-    const int m = A.Height();
     const int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
@@ -200,7 +198,6 @@ ThresholdedWide
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = A.Height();
     const int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )

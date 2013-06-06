@@ -638,6 +638,24 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 
 template<typename T,typename Int>
 void
+Matrix<T,Int>::Control
+( Int height, Int width, T* buffer, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Matrix::Control");
+#endif
+    Empty();
+
+    height_ = height;
+    width_ = width;
+    ldim_ = ldim;
+    data_ = buffer;
+    viewing_ = false;
+    locked_ = false;
+}
+
+template<typename T,typename Int>
+void
 Matrix<T,Int>::Attach
 ( Int height, Int width, T* buffer, Int ldim )
 {

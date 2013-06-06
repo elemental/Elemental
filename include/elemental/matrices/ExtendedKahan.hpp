@@ -66,7 +66,7 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     if( !l || (l & (l-1)) )
         throw std::logic_error("n/3 is not a power of two");
     int k=0;
-    while( (1u<<k) < l )
+    while( int(1u<<k) < l )
         ++k;
 
     if( phi <= R(0) || phi >= R(1) )
@@ -113,7 +113,7 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     if( !l || (l & (l-1)) )
         throw std::logic_error("n/3 is not a power of two");
     int k=0;
-    while( (1u<<k) < l )
+    while( int(1u<<k) < l )
         ++k;
 
     if( phi <= R(0) || phi >= R(1) )

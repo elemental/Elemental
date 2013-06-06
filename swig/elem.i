@@ -11,23 +11,194 @@
 
 #define RELEASE
 
+%include <exception.i>
+
 %{
 #include "elemental.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
-static PyObject *numpy, *npmatrix;
-static PyObject* create_npmatrix( int H, int W, int LDim, size_t DSize, int DType, bool writable, const void* data )
+#include "numpy/ndarraytypes.h"
+#include <cstring>
+
+template <typename T> struct NPY { static const int DType = NPY_VOID; };
+template <> struct NPY<int> { static const int DType = sizeof(int) == NPY_SIZEOF_INT ? NPY_INT : NPY_LONG; };
+template <> struct NPY<float> { static const int DType = NPY_FLOAT; };
+template <> struct NPY<double> { static const int DType = NPY_DOUBLE; };
+template <> struct NPY<elem::Complex<float> > { static const int DType = NPY_CFLOAT; };
+template <> struct NPY<elem::Complex<double> > { static const int DType = NPY_CDOUBLE; };
+
+static void Finalize_if()
 {
-    PyObject *arr, *result;
-    npy_intp dims[2], strides[2];
-    dims[0] = H; dims[1] = W;
-    strides[0] = DSize; strides[1] = DSize * LDim;
-    arr = PyArray_New( &PyArray_Type, 2, &dims[0], DType, &strides[0], 
-    const_cast<void*>(data), DSize, writable ? NPY_ARRAY_WRITEABLE : 0, NULL );
-    result = PyObject_CallFunctionObjArgs( npmatrix, arr, NULL );
-    PyArray_free( arr );
-    return result;
+	if ( elem::Initialized() )
+		elem::Finalize();
 }
+
+class SwigException : public std::exception {
+	int _type;
+	const char* _msg;
+public:
+	SwigException( int type, const char* msg ) : _type(type), _msg(msg) {}
+	const char* what() const throw() { return _msg; }
+	int type() const throw() { return _type; }
+};
+	
+template <typename T>
+class ElemPyMatrix : public elem::Matrix<T>
+{
+	PyArrayObject *input, *darray;
+	int HA, WA, LDimA;
+public:
+	ElemPyMatrix( PyObject*, bool );
+	void UpdateArray();
+};
+
+template <typename T>
+static PyObject* create_npmatrix( const elem::Matrix<T,int>& matrix, bool writable )
+{
+	// TO DO: replace PyArray_Type below with the type object for numpy.matrix
+    npy_intp dims[2], strides[2];
+    dims[0] = matrix.Height();
+    dims[1] = matrix.Width();
+    strides[0] = sizeof(T); 
+    strides[1] = sizeof(T) * matrix.LDim();
+    if ( matrix.Locked() ) writable = false;
+    T* data = const_cast<T*>(matrix.LockedBuffer());
+    return PyArray_NewFromDescr( 
+    	&PyArray_Type, PyArray_DescrFromType(NPY<T>::DType), 
+    	2, &dims[0], &strides[0], data,
+    	writable ? NPY_ARRAY_WRITEABLE : 0, NULL );
+}
+
+static bool check_elematrix( PyObject* obj, int DType, bool writable )
+{
+	if ( obj == 0 ) return false;
+	if ( !PyArray_Check( obj ) ) return false;
+	PyArrayObject* o = reinterpret_cast<PyArrayObject*>(obj);
+	if ( PyArray_TYPE( o ) != DType ) return false;
+	if ( writable && !PyArray_ISWRITEABLE( o ) ) return false;
+	return true;
+}
+
+static bool get_HWL( PyArrayObject* obj, size_t DSize, int& HA, int& WA, int& LDimA )
+{
+	npy_intp ndim  = PyArray_NDIM( obj ), *dims, *strs;
+	if ( ndim != 0 ) {
+		dims = PyArray_DIMS( obj );
+		strs = PyArray_STRIDES( obj );
+	}
+	bool recast = false;
+	switch ( ndim ) {
+	case 0:
+		HA = WA = LDimA = 1;
+		break;
+	case 1:
+		HA = 1;
+		WA = dims[0];
+		LDimA = strs[0] / DSize;
+		recast = LDimA * DSize != strs[0] || LDimA < 1;
+		break;
+	case 2:
+		HA = dims[0];
+		WA = dims[1];
+		LDimA = strs[1] / DSize;
+		recast = LDimA * DSize != strs[1] || LDimA < HA || strs[0] != DSize;
+		break;
+	default:
+		HA = 1;
+		for ( int k = 0 ; k < ndim - 1 ; ++k ) {
+			recast = recast || strs[k] != HA * DSize;
+			HA *= dims[k];
+		}
+		WA = dims[ndim-1];
+		LDimA = strs[ndim-1] / DSize;
+		recast = recast || LDimA * DSize != strs[ndim-1] || LDimA < HA;
+		break;
+	}
+	return recast;
+}	
+
+template <class T>
+ElemPyMatrix<T>::ElemPyMatrix( PyObject* o, bool writable ) :
+input(0), darray(0)
+{
+	if ( !PyArray_Check( o ) )
+		throw SwigException( SWIG_TypeError, "NumPy array or matrix expected" );
+	PyArrayObject* obj = reinterpret_cast<PyArrayObject*>(o);
+	if ( PyArray_TYPE( obj ) != NPY<T>::DType )
+		throw SwigException( SWIG_TypeError, "Incompatible NumPy data type encountered" );
+	if ( !PyArray_ISWRITEABLE( obj ) ) {
+		if ( writable )
+			throw SwigException( SWIG_TypeError, "Incompatible NumPy data type encountered" );
+		writable = false;
+	}
+	input = obj;
+	bool recast = get_HWL( obj, sizeof(T), HA, WA, LDimA );
+	// Why 3? Because the owner is 1, and the two layers of Python function calls that
+	// sit between the owner and this line of code each add one more.
+	bool owner = writable && PyArray_BASE( obj ) == NULL &&
+		PyArray_CHKFLAGS( obj, NPY_ARRAY_OWNDATA ) != 0 &&
+		PyArray_REFCOUNT( obj ) <= 3;
+	if ( recast ) {
+		darray = reinterpret_cast<PyArrayObject*>( PyArray_NewLikeArray( obj, NPY_FORTRANORDER, NULL, 0 ) );
+		if ( darray == 0 )
+			throw SwigException( SWIG_RuntimeError, "Unable to create the transposed matrix" );
+		int result = PyArray_CopyInto( darray, input );
+		if ( result < 0 ) {
+			Py_DECREF( darray );
+			throw SwigException( SWIG_RuntimeError, "Cannot copy data into the transposed matrix" );
+		}
+		obj = darray;
+		LDimA = HA;
+	}
+	T* data = reinterpret_cast<T*>( PyArray_DATA( obj ) );
+	if ( owner ) {
+		this->Control( HA, WA, data, LDimA );
+	} else if ( writable ) {
+		this->Attach( HA, WA, data, LDimA );
+	} else {
+		this->LockedAttach( HA, WA, data, LDimA );
+	}
+}
+
+template <class T>
+void ElemPyMatrix<T>::UpdateArray()
+{
+	if ( !this->Viewing() ) {
+		int HM = this->Height(), WM = this->Width(), LDimM = this->LDim();
+		if ( HA != HM || WA != WM || LDimA != LDimM ) {
+			T* ndata = reinterpret_cast<T*>( PyArray_DATA( input ) );
+			T* odata = this->Buffer();
+			bool need_copy = ndata != odata;
+			PyArray_Dims ndims;
+			npy_intp sdims[2];
+			ndims.ptr = &sdims[0];
+			ndims.len = 2;
+			sdims[0] = LDimM;
+			sdims[1] = WM;
+			if ( PyArray_Resize( input, &ndims, 0, NPY_FORTRANORDER ) == NULL )
+				throw SwigException( SWIG_RuntimeError, "Unable to modify the original NumPy matrix" );
+			npy_intp* dims = PyArray_DIMS( input );
+			npy_intp* strs = PyArray_STRIDES( input );
+			dims[0] = HM;
+			strs[0] = sizeof(T);
+			strs[1] = sizeof(T) * LDimM;
+			PyArray_UpdateFlags( input, NPY_ARRAY_C_CONTIGUOUS|NPY_ARRAY_F_CONTIGUOUS|NPY_ARRAY_ALIGNED );
+			if ( need_copy ) {
+				ndata = reinterpret_cast<T*>( PyArray_DATA( input ) );
+				memcpy( ndata, odata, LDimM * WM * sizeof(T) );
+			}
+			return;
+		}
+	}
+	if ( darray ) {
+		int result = PyArray_CopyInto( input, darray );
+		Py_DECREF( darray );
+		if ( result < 0 )
+			throw SwigException( SWIG_RuntimeError, "Unable to write results to the original NumPy matrix" );
+		return;
+	}
+}
+
 %}
 
 %import "std_except.i"
@@ -36,8 +207,24 @@ static PyObject* create_npmatrix( int H, int W, int LDim, size_t DSize, int DTyp
 
 %init %{
 import_array();
-numpy = PyImport_ImportModule("numpy");
-npmatrix = PyObject_GetAttrString(numpy,"matrix");
+PyObject *sys = PyImport_ImportModule("sys");
+PyObject *sysargv = PyObject_GetAttrString(sys,"argv");
+int argc = 0;
+char** argv = NULL;
+if ( sysargv )
+	argc = PyList_Size( sysargv );
+if ( argc != 0 ) {
+	argv = new char* [ argc + 1 ];
+	for ( int i = 0 ; i != argc ; ++i ) {
+		char *s = PyString_AsString( PyList_GetItem( sysargv, i ) );
+		if ( s == NULL ) { argc = i; break; }
+		argv[i] = s;
+	}
+	argv[argc] = 0;
+}
+elem::Initialize( argc, argv );
+if ( argv ) delete [] argv;
+Py_AtExit(Finalize_if);
 %}
 
 /*
@@ -97,51 +284,57 @@ npmatrix = PyObject_GetAttrString(numpy,"matrix");
 %typemap(out) elem::Complex<double> {
   $result = PyComplex_FromDoubles( $1.real, $1.imag );
 }
-%typemap(out) elem::SafeProduct<float> {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho",   PyFloat_FromDouble( $1.rho ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
-}
-%typemap(out) elem::SafeProduct<double> {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho",   PyFloat_FromDouble( $1.rho ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
-}
-%typemap(out) elem::SafeProduct<elem::Complex<float> > {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho",   PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
-}
-%typemap(out) elem::SafeProduct<elem::Complex<double> > {
-  $result = PyDict_New();
-  PyDict_SetItemString( $result, "rho",   PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ) );
-  PyDict_SetItemString( $result, "kappa", PyFloat_FromDouble( $1.kappa ) );
-  PyDict_SetItemString( $result, "n",     PyInt_FromLong( $1.n ) );
-}
-%define TYPEMAP_MATRIX(T,U)
-%typemap(out) elem::Matrix<T,int>&
-{ $result = create_npmatrix( $1->Height(), $1->Width(), $1->LDim(), sizeof(T), U, true, $1->Buffer() ); }
-%typemap(out) const elem::Matrix<T,int>&
-{ $result = create_npmatrix( $1->Height(), $1->Width(), $1->LDim(), sizeof(T), U, false, $1->LockedBuffer() ); }
+%define TYPEMAPIN(T,ISCONST)
+	try { 
+		$1 = new ElemPyMatrix<T >( $input, ISCONST );
+	} catch (SwigException exc) { 
+		SWIG_exception( exc.type(), exc.what() ); 
+	}
 %enddef
-TYPEMAP_MATRIX(float,NPY_FLOAT)
-TYPEMAP_MATRIX(double,NPY_DOUBLE)
-TYPEMAP_MATRIX(elem::Complex<float>,NPY_CFLOAT)
-TYPEMAP_MATRIX(elem::Complex<double>,NPY_CDOUBLE)
+%define TYPEMAPFREE(T)
+	try {
+		reinterpret_cast<ElemPyMatrix<T >*>($1)->UpdateArray();
+		delete $1;
+	} catch (SwigException exc) {
+		delete $1;
+		SWIG_exception( exc.type(), exc.what() );
+	}
+%enddef
+%define TYPEMAP_MATRIX(T,V)
+%typecheck(V)     const elem::Matrix<T    >& { $1 = check_elematrix( $input, NPY<T >::DType, false ); }
+%typecheck(V)           elem::Matrix<T    >& { $1 = check_elematrix( $input, NPY<T >::DType, true  ); }
+%typecheck(V)     const elem::Matrix<T,int>& { $1 = check_elematrix( $input, NPY<T >::DType, false ); }
+%typecheck(V)           elem::Matrix<T,int>& { $1 = check_elematrix( $input, NPY<T >::DType, true  ); }
+%typemap(in)      const elem::Matrix<T    >& { TYPEMAPIN(T,false) }
+%typemap(in)            elem::Matrix<T    >& { TYPEMAPIN(T,true)  }
+%typemap(in)      const elem::Matrix<T,int>& { TYPEMAPIN(T,false) }
+%typemap(in)            elem::Matrix<T,int>& { TYPEMAPIN(T,true)  }
+%typemap(freearg) const elem::Matrix<T    >& { TYPEMAPFREE(T) }
+%typemap(freearg)       elem::Matrix<T    >& { TYPEMAPFREE(T) }
+%typemap(freearg) const elem::Matrix<T,int>& { TYPEMAPFREE(T) }
+%typemap(freearg)       elem::Matrix<T,int>& { TYPEMAPFREE(T) }
+%typemap(out)     const elem::Matrix<T    >& { $result = create_npmatrix( *$1, false ); }
+%typemap(out)           elem::Matrix<T    >& { $result = create_npmatrix( *$1, true );  }
+%typemap(out)     const elem::Matrix<T,int>& { $result = create_npmatrix( *$1, false ); }
+%typemap(out)           elem::Matrix<T,int>& { $result = create_npmatrix( *$1, true );  }
+%enddef
+TYPEMAP_MATRIX(int,SWIG_TYPECHECK_INT32_ARRAY)
+TYPEMAP_MATRIX(float,SWIG_TYPECHECK_FLOAT_ARRAY)
+TYPEMAP_MATRIX(double,SWIG_TYPECHECK_DOUBLE_ARRAY)
+TYPEMAP_MATRIX(elem::Complex<float>,SWIG_TYPECHECK_CHAR_ARRAY)
+TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 
 /*
  * Blanket exception handling.
  */
 
 %exception {
-  try {
-    $action
-  } catch (std::exception) {
-    PyErr_SetString(PyExc_RuntimeError,"Exception caught from Elemental");
-  }
+	try {
+		$action
+	} catch (std::exception exc) {
+		const char* msg = exc.what();
+		PyErr_SetString( PyExc_RuntimeError, msg ? msg : "Exception caught from Elemental" );
+	}
 }
 
 %ignore *::operator=;
@@ -154,31 +347,15 @@ TYPEMAP_MATRIX(elem::Complex<double>,NPY_CDOUBLE)
  * TYPES, GRID, MPI
  */
 
-// We do not need to %include complex_decl.hpp because we are using typemaps to convert
-// Elemental complex values to native Python complex values. Using %import prevents SWIG
-// from generating any wrappers.
+// We do not need to %include complex_decl.hpp or matrix.hpp, because we are using
+// typemaps to convert the Elemental classes to equivalent Python and NumPy objects.
+// Using %import prevents SWIG from generating any wrappers.
 %import  "elemental/core/complex_decl.hpp"
 %include "elemental/core/types_decl.hpp"
 %include "elemental/core/environment_decl.hpp"
 %include "elemental/core/imports/mpi.hpp"
 %include "elemental/core/grid_decl.hpp"
-
-/*
- * MATRIX
- */
-
-%ignore elem::Matrix::Matrix( Int, Int, const T*, Int );
-%ignore elem::Matrix::Matrix( Int, Int, T*, Int );
-
-%include "elemental/core/matrix.hpp"
-
-namespace elem {
-%template(Matrix_i) Matrix<int,int>;
-%template(Matrix_s) Matrix<float,int>;
-%template(Matrix_d) Matrix<double,int>;
-%template(Matrix_c) Matrix<Complex<float>,int>;
-%template(Matrix_z) Matrix<Complex<double>,int>;
-};
+%import "elemental/core/matrix.hpp"
 
 /*
  * ABSTRACTDISTMATRIX
@@ -442,6 +619,9 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 /*
  * BLAS LEVEL 1
  */
+ 
+%ignore elem::DiagonalSolve<T>(elem::left_or_right_wrapper::LeftOrRight,elem::orientation_wrapper::Orientation,elem::Matrix<Base<T>::type> const &,elem::Matrix<T> &,bool);
+%ignore elem::DiagonalScale<T>(elem::left_or_right_wrapper::LeftOrRight,elem::orientation_wrapper::Orientation,elem::Matrix<Base<T>::type> const &,elem::Matrix<T> &,bool);
 
 %include "elemental/blas-like/level1/Adjoint.hpp"
 %include "elemental/blas-like/level1/Axpy.hpp"
@@ -592,6 +772,11 @@ OVERLOAD0(Symmetric ## name ## Norm)
 %include "elemental/lapack-like/HilbertSchmidt.hpp"
 
 namespace elem {
+%template(SafeProduct_i) SafeProduct<int>;
+%template(SafeProduct_s) SafeProduct<float>;
+%template(SafeProduct_d) SafeProduct<double>;
+%template(SafeProduct_c) SafeProduct<Complex<float> >;
+%template(SafeProduct_z) SafeProduct<Complex<double> >;
 OVERLOAD01(ConditionNumber)
 OVERLOAD0(Determinant)
 // SWIG doesn't like empty macro arguments. Who knows, maybe C++ doesn't either

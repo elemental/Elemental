@@ -134,7 +134,7 @@ ApplyColumnPivots
     const int b = image.size();
 #ifndef RELEASE
     CallStackEntry entry("ApplyColumnPivots");
-    if( A.Width() < b || b != preimage.size() )
+    if( A.Width() < b || b != int(preimage.size()) )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
          "wider than A.");
@@ -183,7 +183,7 @@ ApplyColumnPivots
     const int b = image.size();
 #ifndef RELEASE
     CallStackEntry entry("ApplyColumnPivots");
-    if( A.Width() < b || b != preimage.size() )
+    if( A.Width() < b || b != int(preimage.size()) )
         throw std::logic_error
         ("image and preimage must be vectors of equal length that are not "
          "wider than A.");
