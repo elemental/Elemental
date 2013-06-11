@@ -1213,22 +1213,11 @@ void Scatter( R* buf, int sc, int rc, int root, Comm comm )
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
-#ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, map.type, 
               MPI_IN_PLACE, rc, map.type, root, comm )
         );
-#else
-        const int commSize = CommSize( comm );
-        std::vector<R> sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, map.type, 
-              buf,         rc, map.type, root, comm )
-        );
-#endif
     }
     else
     {
@@ -1251,40 +1240,18 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
     {
 #ifdef AVOID_COMPLEX_MPI
         MpiMap<R> map;
-# ifdef HAVE_MPI_IN_PLACE
         SafeMpi(
             MPI_Scatter
             ( buf,          2*sc, map.type, 
               MPI_IN_PLACE, 2*rc, map.type, root, comm )
         );
-# else
-        const int commSize = CommSize( comm );
-        std::vector<Complex<R> > sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], 2*sc, map.type,          
-              buf,         2*rc, map.type, root, comm )
-        );
-# endif
 #else
-# ifdef HAVE_MPI_IN_PLACE
         MpiMap<Complex<R> > map;
         SafeMpi(
             MPI_Scatter
             ( buf,          sc, map.type, 
               MPI_IN_PLACE, rc, map.type, root, comm )
         );
-# else
-        const int commSize = CommSize( comm );
-        std::vector<Complex<R> > sendBuf( sc*commSize );
-        MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, map.type,
-              buf,         rc, map.type, root, comm )
-        );
-# endif
 #endif
     }
     else
@@ -1542,17 +1509,9 @@ void Reduce( T* buf, int count, Op op, int root, Comm comm )
         const int commRank = CommRank( comm );
         if( commRank == root )
         {
-#ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
             );
-#else
-            std::vector<T> sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
-            );
-#endif
         }
         else
             SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
@@ -1574,19 +1533,10 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
             MpiMap<R> map;
             if( commRank == root )
             {
-# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, 2*count, map.type, op, root, comm )
                 );
-# else
-                std::vector<Complex<R> > sendBuf( count );
-                MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, 2*count, map.type, op, root, comm )
-                );
-# endif
             }
             else
                 SafeMpi(
@@ -1598,19 +1548,10 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
             MpiMap<Complex<R> > map;
             if( commRank == root )
             {
-# ifdef HAVE_MPI_IN_PLACE
                 SafeMpi(
                     MPI_Reduce
                     ( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
                 );
-# else
-                std::vector<Complex<R> > sendBuf( count );
-                MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, count, map.type, op, root, comm )
-                );
-# endif
             }
             else
                 SafeMpi(
@@ -1621,17 +1562,9 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
         MpiMap<Complex<R> > map;
         if( commRank == root )
         {
-# ifdef HAVE_MPI_IN_PLACE
             SafeMpi( 
                 MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
             );
-# else
-            std::vector<Complex<R> > sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
-            );
-# endif
         }
         else
             SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
@@ -1723,17 +1656,9 @@ void AllReduce( T* buf, int count, Op op, Comm comm )
     MpiMap<T> map;
     if( count != 0 )
     {
-#ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
         );
-#else
-        std::vector<T> sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-        );
-#endif
     }
 }
 
@@ -1749,46 +1674,22 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
         if( op == SUM )
         {
             MpiMap<R> map;
-# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, map.type, op, comm )
             );
-# else
-            std::vector<Complex<R> > sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, 2*count, map.type, op, comm )
-            );
-# endif
         }
         else
         {
             MpiMap<Complex<R> > map;
-# ifdef HAVE_MPI_IN_PLACE
             SafeMpi(
                 MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
             );
-# else
-            std::vector<Complex<R> > sendBuf( count );
-            MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-            );
-# endif
         }
 #else
         MpiMap<Complex<R> > map;
-# ifdef HAVE_MPI_IN_PLACE
         SafeMpi( 
             MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
         );
-# else
-        std::vector<Complex<R> > sendBuf( count );
-        MemCopy( &sendBuf[0], buf, count );
-        SafeMpi( 
-            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-        );
-# endif
 #endif
     }
 }
@@ -1814,13 +1715,9 @@ void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
+#else
     MpiMap<R> map;
     SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
 }
 
@@ -1836,7 +1733,7 @@ void ReduceScatter
     const int commRank = CommRank( comm );
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
+#else
 # ifdef AVOID_COMPLEX_MPI
     MpiMap<R> map;
     SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, 2*rc, map.type, op, comm ) );
@@ -1844,10 +1741,6 @@ void ReduceScatter
     MpiMap<Complex<R> > map;
     SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
 # endif
-#else
-    const int commSize = CommSize( comm );
-    Reduce( sbuf, rc*commSize, op, 0, comm );
-    Scatter( sbuf, rc, rbuf, rc, 0, comm );
 #endif
 }
 
@@ -1870,24 +1763,11 @@ void ReduceScatter( R* buf, int rc, Op op, Comm comm )
     AllReduce( buf, rc*commSize, op, comm );
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
+#else
     MpiMap<R> map;
-# ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
     );
-# else
-    const int commSize = CommSize( comm );
-    std::vector<R> sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
-    );
-# endif
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
 #endif
 }
 
@@ -1904,40 +1784,18 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
     AllReduce( buf, rc*commSize, op, comm );
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
-#elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
+#else
 # ifdef AVOID_COMPLEX_MPI
     MpiMap<R> map;
-#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi(
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, 2*rc, map.type, op, comm )
     );
-#  else 
-    const int commSize = CommSize( comm );
-    std::vector<Complex<R> > sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi(
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, map.type, op, comm )
-    );
-#  endif
 # else
     MpiMap<Complex<R> > map;
-#  ifdef HAVE_MPI_IN_PLACE
     SafeMpi( 
         MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
     );
-#  else
-    const int commSize = CommSize( comm );
-    std::vector<Complex<R> > sendBuf( rc*commSize );
-    MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
-    );
-#  endif
 # endif
-#else
-    const int commSize = CommSize( comm );
-    Reduce( buf, rc*commSize, op, 0, comm );
-    Scatter( buf, rc, rc, 0, comm );
 #endif
 }
 
