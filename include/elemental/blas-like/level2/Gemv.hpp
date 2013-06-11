@@ -11,6 +11,7 @@
 #define BLAS_GEMV_HPP
 
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 #include "./Gemv/N.hpp"
 #include "./Gemv/T.hpp"
@@ -103,6 +104,22 @@ template<typename T>
 inline void
 Gemv
 ( Orientation orientation,
+  T alpha, const Matrix<T>& A, const Matrix<T>& x, Matrix<T>& y )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Gemv");
+#endif
+    if( orientation == NORMAL )
+        Zeros( y, A.Height(), 1 );
+    else
+        Zeros( y, A.Width(), 1 );
+    Gemv( orientation, alpha, A, x, T(0), y );
+}
+
+template<typename T>
+inline void
+Gemv
+( Orientation orientation,
   T alpha, const DistMatrix<T>& A, 
            const DistMatrix<T>& x,
   T beta,        DistMatrix<T>& y )
@@ -121,6 +138,25 @@ inline void
 Gemv
 ( Orientation orientation,
   T alpha, const DistMatrix<T>& A, 
+           const DistMatrix<T>& x,
+                 DistMatrix<T>& y )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Gemv");
+#endif
+    y.AlignWith( A );
+    if( orientation == NORMAL )
+        Zeros( y, A.Height(), 1 );
+    else
+        Zeros( y, A.Width(), 1 );
+    Gemv( orientation, alpha, A, x, T(0), y );
+}
+
+template<typename T>
+inline void
+Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T>& A, 
            const DistMatrix<T,VC,STAR>& x,
   T beta,        DistMatrix<T,VC,STAR>& y )
 {
@@ -131,6 +167,25 @@ Gemv
         internal::GemvN( alpha, A, x, beta, y );
     else
         internal::GemvT( orientation, alpha, A, x, beta, y );
+}
+
+template<typename T>
+inline void
+Gemv
+( Orientation orientation,
+  T alpha, const DistMatrix<T>& A, 
+           const DistMatrix<T,VC,STAR>& x,
+                 DistMatrix<T,VC,STAR>& y )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Gemv");
+#endif
+    y.AlignWith( A );
+    if( orientation == NORMAL )
+        Zeros( y, A.Height(), 1 );
+    else
+        Zeros( y, A.Width(), 1 );
+    Gemv( orientation, alpha, A, x, T(0), y );
 }
 
 } // namespace elem
