@@ -52,8 +52,9 @@ option(USE_SWIG "Attempt to build Python wrappers?" OFF)
 # Advanced build options                                                       #
 ################################################################################
 
-# Since MPI libraries frequently mishandle complex data, the following option
-# should be turned on as a last resort when debugging
+# Since it is surprisingly common for MPI libraries to have bugs in their 
+# support for complex data, the following option forces Elemental to cast 
+# all possible MPI communications in terms of twice as many real units of data.
 option(AVOID_COMPLEX_MPI "Avoid potentially buggy complex MPI routines" OFF)
 mark_as_advanced(AVOID_COMPLEX_MPI)
 
@@ -352,22 +353,16 @@ check_function_exists(FLA_Bsvd_v_opd_var1 HAVE_FLA_BSVD)
 set(CMAKE_REQUIRED_FLAGS "${MPI_C_COMPILE_FLAGS} ${MPI_C_LINK_FLAGS}")
 set(CMAKE_REQUIRED_INCLUDES ${MPI_C_INCLUDE_PATH})
 set(CMAKE_REQUIRED_LIBRARIES ${MPI_C_LIBRARIES})
-
-check_function_exists(MPI_Reduce_scatter HAVE_MPI_REDUCE_SCATTER)
+check_function_exists(MPI_Reduce_scatter       HAVE_MPI_REDUCE_SCATTER)
 if(NOT HAVE_MPI_REDUCE_SCATTER)
   message(FATAL_ERROR "Could not find MPI_Reduce_scatter")
 endif()
 check_function_exists(MPI_Reduce_scatter_block HAVE_MPI_REDUCE_SCATTER_BLOCK)
-if(NOT HAVE_MPI_REDUCE_SCATTER_BLOCK)
-  message(FATAL_ERROR "Could not find MPI_Reduce_scatter_block")
-endif()
-check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
-if(NOT HAVE_MPI_QUERY_THREAD)
-  message(FATAL_ERROR "Could not find MPI_Query_thread")
-endif()
-check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
 check_function_exists(MPI_Iallgather HAVE_MPI3_NONBLOCKING_COLLECTIVES)
 check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
+check_function_exists(MPI_Init_thread HAVE_MPI_INIT_THREAD)
+check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
+check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
 
 # Check for MPI_IN_PLACE (essentially MPI2 support)
 include(CheckCSourceCompiles)
@@ -383,9 +378,6 @@ set(MPI_IN_PLACE_CODE
          return 0; 
      }")
 check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
-if(NOT HAVE_MPI_IN_PLACE)
-  message(FATAL_ERROR "Support for MPI_IN_PLACE is required")
-endif()
 
 # Look for restrict support
 include(CheckCXXSourceCompiles)
