@@ -49,10 +49,17 @@ typedef MPI_User_function UserFunction;
 // Standard constants
 const int ANY_SOURCE = MPI_ANY_SOURCE;
 const int ANY_TAG = MPI_ANY_TAG;
+#ifdef HAVE_MPI_QUERY_THREAD
 const int THREAD_SINGLE = MPI_THREAD_SINGLE;
 const int THREAD_FUNNELED = MPI_THREAD_FUNNELED;
 const int THREAD_SERIALIZED = MPI_THREAD_SERIALIZED;
 const int THREAD_MULTIPLE = MPI_THREAD_MULTIPLE;
+#else
+const int THREAD_SINGLE = 0;
+const int THREAD_FUNNELED = 1;
+const int THREAD_SERIALIZED = 2;
+const int THREAD_MULTIPLE = 3;
+#endif
 const int UNDEFINED = MPI_UNDEFINED;
 const Comm COMM_SELF = MPI_COMM_SELF;
 const Comm COMM_WORLD = MPI_COMM_WORLD;
