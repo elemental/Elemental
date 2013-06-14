@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         const Grid& g = A.Grid();
         DistMatrix<int,VR,STAR> pR(g), pC(g);
@@ -49,9 +49,9 @@ main( int argc, char* argv[] )
         const int numSteps = pR.Height();
         if( print )
         {
-            pR.Print("pR");
-            pC.Print("pC");
-            Z.Print("Z");
+            Print( pR, "pR" );
+            Print( pC, "pC" );
+            Print( Z, "Z" );
         }
 
         // Form the matrices of A's (hopefully) dominant rows and columns
@@ -63,8 +63,8 @@ main( int argc, char* argv[] )
         AC.ResizeTo( A.Height(), numSteps );
         if( print )
         {
-            AC.Print("AC");
-            AR.Print("AR");
+            Print( AC, "AC" );
+            Print( AR, "AR" );
         }
 
         // Check || A - AC Z AR ||_F / || A ||_F
@@ -73,7 +73,7 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, NORMAL, C(-1), AC, B, C(1), A );
         const Real frobError = FrobeniusNorm( A );
         if( print )
-            A.Print("A - AC Z AR");
+            Print( A, "A - AC Z AR" );
 
         if( mpi::WorldRank() == 0 )
         {

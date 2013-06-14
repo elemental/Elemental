@@ -79,7 +79,7 @@ main( int argc, char* argv[] )
         // More convenient interfaces are being investigated.
         //
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Print its trace
         const R trace = Trace( H );
@@ -95,8 +95,8 @@ main( int argc, char* argv[] )
         HermitianEig( LOWER, H, w, X ); // only access lower half of H
         if( print )
         {
-            w.Print("Eigenvalues of H");
-            X.Print("Eigenvectors of H");
+            Print( w, "Eigenvalues of H" );
+            Print( X, "Eigenvectors of H" );
         }
 
         // Sort the eigensolution,
@@ -104,8 +104,8 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            w.Print("Sorted eigenvalues of H");
-            X.Print("Sorted eigenvectors of H");
+            Print( w, "Sorted eigenvalues of H" );
+            Print( X, "Sorted eigenvectors of H" );
         }
     }
     catch( exception& e ) { ReportException(e); }

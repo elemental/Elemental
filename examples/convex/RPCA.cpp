@@ -373,7 +373,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( LTrue, "True low-rank" );
         if( print )
-            LTrue.Print("True low-rank");
+            Print( LTrue, "True low-rank" );
 
         DistMatrix<C> STrue;
         Zeros( STrue, m, n );
@@ -392,7 +392,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            STrue.Print("True sparse");
+            Print( STrue, "True sparse" );
 
         if( commRank == 0 )
             std::cout << "Using " << STrue.Grid().Height() << " x " 
@@ -406,7 +406,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( M, "Sum of low-rank and sparse");
         if( print )
-            M.Print("Sum of low-rank and sparse");
+            Print( M, "Sum of low-rank and sparse" );
 
         DistMatrix<C> L, S;
         Zeros( L, m, n );
@@ -427,8 +427,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            L.Print("Estimated low-rank matrix");
-            S.Print("Estimated sparse matrix"); 
+            Print( L, "Estimated low-rank matrix" );
+            Print( S, "Estimated sparse matrix" );
         }
 
         Axpy( C(-1), LTrue, L );
@@ -451,8 +451,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            L.Print("Error in low-rank estimate");
-            S.Print("Error in sparse estimate");
+            Print( L, "Error in low-rank estimate" );
+            Print( S, "Error in sparse estimate" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

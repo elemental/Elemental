@@ -76,7 +76,7 @@ void TestQR
 
     Uniform( A, m, n );
     if( print )
-        A.Print("A");
+        Print( A, "A" );
     Q = A;
 
     if( g.Rank() == 0 )
@@ -100,8 +100,8 @@ void TestQR
     }
     if( print )
     {
-        Q.Print("Q");
-        R.Print("R");
+        Print( Q, "Q" );
+        Print( R, "R" );
     }
     if( testCorrectness )
         TestCorrectness( Q, R, A );

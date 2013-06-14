@@ -33,7 +33,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( X, "Hermitian uniform spectrum" );
         if( print )
-            X.Print("X");
+            Print( X, "X" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

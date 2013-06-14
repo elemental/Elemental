@@ -213,37 +213,6 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 }
 
 //
-// I/O
-//
-
-template<typename T,typename Int>
-void
-Matrix<T,Int>::Print( std::ostream& os, const std::string msg ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::Print");
-#endif
-    if( msg != "" )
-        os << msg << std::endl;
-
-    const Int height = Height();
-    const Int width = Width();
-
-    for( Int i=0; i<height; ++i )
-    {
-        for( Int j=0; j<width; ++j )
-            os << Get(i,j) << " ";
-        os << std::endl;
-    }
-    os << std::endl;
-}
-
-template<typename T,typename Int>
-void
-Matrix<T,Int>::Print( const std::string msg ) const
-{ Print( std::cout, msg ); }
-
-//
 // Entry manipulation
 //
 

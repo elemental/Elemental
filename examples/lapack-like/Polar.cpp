@@ -36,9 +36,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            A.Print("A");
-            Q.Print("Q");
-            P.Print("P");
+            Print( A, "A" );
+            Print( Q, "Q" );
+            Print( P, "P" );
         }
     }
     catch( exception& e ) { ReportException(e); }

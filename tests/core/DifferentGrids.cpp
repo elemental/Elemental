@@ -46,19 +46,19 @@ main( int argc, char* argv[] )
 
         Identity( A, m, n );
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         ASqrt = A;
         if( print )
-            ASqrt.Print("ASqrt := A");
+            Print( ASqrt, "ASqrt := A" );
 
         Scale( 2., ASqrt );
         if( print )
-            ASqrt.Print("ASqrt := 2 ASqrt");
+            Print( ASqrt, "ASqrt := 2 ASqrt" );
 
         A = ASqrt;
         if( print )
-            A.Print("A := ASqrt");
+            Print( A, "A := ASqrt" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

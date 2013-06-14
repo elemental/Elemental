@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            D.Print("D:");
+            Print( D, "D:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

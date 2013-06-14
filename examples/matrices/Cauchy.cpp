@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Cauchy");
         if( print )
-            A.Print("Cauchy:");
+            Print( A, "Cauchy:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

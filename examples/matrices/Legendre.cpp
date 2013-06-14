@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            J.Print("Jacobi matrix for Legendre polynomials");
+            Print( J, "Jacobi matrix for Legendre polynomials" );
 
 #ifdef HAVE_PMRRR
         // This will perform a lot of unnecessary work, but the code is simpler
@@ -53,7 +53,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( points, "Quadrature points" );
         if( print )
-            points.Print("points");
+            Print( points, "points" );
         DistMatrix<double> firstRow;
         View( firstRow, X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
@@ -65,7 +65,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( weights, "Quadrature weights" );
         if( print )
-            weights.Print("weights");
+            Print( weights, "weights" );
 #endif
     }
     catch( std::exception& e ) { ReportException(e); }

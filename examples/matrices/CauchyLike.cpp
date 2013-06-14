@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Cauchy-like" );
         if( print )
-            A.Print("CauchyLike matrix:");
+            Print( A, "CauchyLike matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

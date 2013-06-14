@@ -39,9 +39,9 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            A.Print("Riemann matrix:");
-            B.Print("Redheffer matrix:");
-            C.Print("GCD matrix:");
+            Print( A, "Riemann matrix:" );
+            Print( B, "Redheffer matrix:" );
+            Print( C, "GCD matrix:" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

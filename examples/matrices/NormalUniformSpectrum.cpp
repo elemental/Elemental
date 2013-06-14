@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( X, "Normal uniform spectrum" );
         if( print )
-            X.Print("X");
+            Print( X, "X" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

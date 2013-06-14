@@ -34,14 +34,14 @@ main( int argc, char* argv[] )
         if( display )
             Display( H, "Helmholtz matrix" );
         if( print )
-            H.Print("Helmholtz matrix:");
+            Print( H, "Helmholtz matrix:" );
 
         // (Attempt to) invert the Helmholtz matrix
         Inverse( H );
         if( display )
             Display( H, "Inverse of Helmholtz matrix" );
         if( print )
-            H.Print("Inverse of Helmholtz matrix:");
+            Print( H, "Inverse of Helmholtz matrix:" );
 
         // TODO: Extend to allow for computing SVD of submatrix
     }

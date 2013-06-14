@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         Uniform( A, m, n );
 
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         // Compute just the singular values 
         DistMatrix<R,VR,STAR> sOnly( g );
@@ -61,9 +61,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            U.Print("U");
-            V.Print("V");
-            s.Print("s");
+            Print( U, "U" );
+            Print( V, "V" );
+            Print( s, "s" );
         }
 
         // Compare the singular values from both methods

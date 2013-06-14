@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
 
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         // Replace A with its matrix square root
         HPSDSquareRoot( LOWER, A );
@@ -47,7 +47,7 @@ main( int argc, char* argv[] )
         if( print )
         {
             MakeHermitian( LOWER, A );
-            A.Print("sqrt(A)");
+            Print( A, "sqrt(A)" );
         }
     }
     catch( exception& e ) { ReportException(e); }

@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Zeros" );
         if( print )
-            A.Print("Zeros matrix:");
+            Print( A, "Zeros matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

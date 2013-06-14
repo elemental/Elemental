@@ -267,67 +267,6 @@ DistMatrix<T,STAR,MC,Int>::AlignWithDiagonal
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,MC,Int>::PrintBase
-( std::ostream& os, const std::string msg ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MC]::PrintBase");
-#endif
-    const elem::Grid& g = this->Grid();
-    if( g.Rank() == 0 && msg != "" )
-        os << msg << std::endl;
-
-    const Int height     = this->Height();
-    const Int width      = this->Width();
-    const Int localWidth = this->LocalWidth();
-    const Int r          = g.Height();
-    const Int rowShift   = this->RowShift();
-
-    if( height == 0 || width == 0 || !g.InGrid() )
-        return;
-
-    // Only one process col needs to participate
-    if( g.Col() == 0 )
-    {
-        std::vector<T> sendBuf(height*width,0);
-        const T* thisBuffer = this->LockedBuffer();
-        const Int thisLDim = this->LDim();
-#ifdef HAVE_OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            T* destCol = &sendBuf[(rowShift+jLoc*r)*height];
-            const T* sourceCol = &thisBuffer[jLoc*thisLDim];
-            MemCopy( destCol, sourceCol, height );
-        }
-
-        // If we are the root, allocate a receive buffer
-        std::vector<T> recvBuf;
-        if( g.Row() == 0 )
-            recvBuf.resize( height*width );
-
-        // Sum the contributions and send to the root
-        mpi::Reduce
-        ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.ColComm() );
-
-        if( g.Row() == 0 )
-        {
-            // Print the data
-            for( Int i=0; i<height; ++i )
-            {
-                for( Int j=0; j<width; ++j )
-                    os << recvBuf[i+j*height] << " ";
-                os << "\n";
-            }
-            os << std::endl;
-        }
-    }
-    mpi::Barrier( g.VCComm() );
-}
-
-template<typename T,typename Int>
-void
 DistMatrix<T,STAR,MC,Int>::Attach
 ( Int height, Int width, Int rowAlignment,
   T* buffer, Int ldim, const elem::Grid& g )

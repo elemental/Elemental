@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            W.Print("Wilkinson matrix");
+            Print( W, "Wilkinson matrix" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

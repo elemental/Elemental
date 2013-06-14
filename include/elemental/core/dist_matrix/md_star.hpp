@@ -166,8 +166,6 @@ public:
 
 private:
     Int diagPath_;
-    virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
-
 #ifndef SWIG
     friend void HandleDiagPath<>
     ( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );

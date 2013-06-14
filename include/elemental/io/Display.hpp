@@ -52,7 +52,7 @@ Display( const Matrix<T>& A, std::string title="Default" )
     // Spend at most 200 milliseconds rendering
     ProcessEvents( 200 );
 #else
-    A.Print( title );
+    Print( A, title );
 #endif
 }
 
@@ -87,7 +87,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
     // Spend at most 200 milliseconds rendering
     ProcessEvents( 200 );
 #else
-    A.Print( title );
+    Print( A, title );
 #endif
 }
 
@@ -105,7 +105,7 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
     if( A.Grid().Rank() == 0 )
         Display( A_STAR_STAR.Matrix(), title );
 #else
-    A.Print( title );
+    Print( A, title );
 #endif
 }
 

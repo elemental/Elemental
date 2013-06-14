@@ -29,8 +29,8 @@ void TestSyrk
     MakeTriangular( uplo, C );
     if( print )
     {
-        A.Print("A");
-        C.Print("C");
+        Print( A, "A" );
+        Print( C, "C" );
     }
 
     if( g.Rank() == 0 )
@@ -58,7 +58,7 @@ void TestSyrk
             msg << "C := " << alpha << " A A' + " << beta << " C";
         else
             msg << "C := " << alpha << " A' A + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 }
 

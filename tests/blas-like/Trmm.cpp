@@ -29,8 +29,8 @@ void TestTrmm
 
     if( print )
     {
-        A.Print("A");
-        X.Print("X");
+        Print( A, "A" );
+        Print( X, "X" );
     }
     if( g.Rank() == 0 )
     {
@@ -53,7 +53,7 @@ void TestTrmm
              << gFlops << endl;
     }
     if( print )
-        X.Print("X after solve");
+        Print( X, "X after solve" );
 }
 
 int 

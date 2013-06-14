@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Ones" );
         if( print )
-            A.Print("Ones matrix:");
+            Print( A, "Ones matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( W, "Walsh matrix" );
         if( print )
-            W.Print("W(2^k)");
+            Print( W, "W(2^k)");
 
         if( !binary )
         {
@@ -51,8 +51,8 @@ main( int argc, char* argv[] )
             }
             if( print )
             {
-                W.Print("L"); 
-                d.Print("d"); 
+                Print( W, "L" ); 
+                Print( d, "d" ); 
             }
         }
     }

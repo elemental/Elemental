@@ -356,66 +356,6 @@ DistMatrix<T,MD,STAR,Int>::AlignWithDiagonal
 
 template<typename T,typename Int>
 void
-DistMatrix<T,MD,STAR,Int>::PrintBase
-( std::ostream& os, const std::string msg ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::PrintBase");
-#endif
-    const elem::Grid& g = this->Grid();
-    if( g.Rank() == 0 && msg != "" )
-        os << msg << std::endl;
-        
-    const Int height      = this->Height();
-    const Int width       = this->Width();
-    const Int localHeight = this->LocalHeight();
-    const Int lcm         = g.LCM();
-
-    if( height == 0 || width == 0 || !g.InGrid() )
-        return;
-
-    std::vector<T> sendBuf(height*width,0);
-    if( this->Participating() )
-    {
-        const Int colShift = this->ColShift();
-        const T* thisBuffer = this->LockedBuffer();
-        const Int thisLDim = this->LDim();
-#ifdef HAVE_OPENMP
-        #pragma omp parallel for
-#endif
-        for( Int j=0; j<width; ++j )
-        {
-            T* destCol = &sendBuf[colShift+j*height];
-            const T* sourceCol = &thisBuffer[j*thisLDim];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc*lcm] = sourceCol[iLoc];
-        }
-    }
-
-    // If we are the root, allocate a receive buffer
-    std::vector<T> recvBuf;
-    if( g.Rank() == 0 )
-        recvBuf.resize( height*width );
-
-    // Sum the contributions and send to the root
-    mpi::Reduce
-    ( &sendBuf[0], &recvBuf[0], height*width, mpi::SUM, 0, g.Comm() );
-
-    if( g.Rank() == 0 )
-    {
-        // Print the data
-        for( Int i=0; i<height; ++i )
-        {
-            for( Int j=0; j<width; ++j )
-                os << recvBuf[i+j*height] << " ";
-            os << "\n";
-        }
-        os << std::endl;
-    }
-}
-
-template<typename T,typename Int>
-void
 DistMatrix<T,MD,STAR,Int>::Attach
 ( Int height, Int width, Int colAlignmentVC,
   T* buffer, Int ldim, const elem::Grid& grid )

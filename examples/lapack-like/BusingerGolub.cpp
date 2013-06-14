@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "A" );
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         // Compute the pivoted QR decomposition of A, but do not overwrite A
         DistMatrix<C> QRPiv( A );
@@ -61,9 +61,9 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            QRPiv.Print("QRPiv");
-            tPiv.Print("tPiv");
-            p.Print("p");
+            Print( QRPiv, "QRPiv" );
+            Print( tPiv, "tPiv" );
+            Print( p, "p" );
         }
 
         // Compute the standard QR decomposition of A
@@ -80,8 +80,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            QRNoPiv.Print("QRNoPiv");
-            tNoPiv.Print("tNoPiv");
+            Print( QRNoPiv, "QRNoPiv" );
+            Print( tNoPiv, "tNoPiv" );
         }
 
         // Check the error in the pivoted QR factorization, 
@@ -96,7 +96,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( E, "A P - Q R" );
         if( print )
-            E.Print("A P - Q R");
+            Print( E, "A P - Q R" );
 
         // Check the error in the standard QR factorization, 
         // || A - Q R ||_F / || A ||_F
@@ -110,7 +110,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( E, "A - Q R" );
         if( print )
-            E.Print("A - Q R");
+            Print( E, "A - Q R" );
 
         // Check orthogonality of pivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
@@ -128,7 +128,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( E, "pivoted I - Q^H Q" );
         if( print )
-            E.Print("pivoted I - Q^H Q");
+            Print( E, "pivoted I - Q^H Q" );
 
         // Check orthogonality of unpivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
@@ -145,7 +145,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( E, "unpivoted I - Q^H Q" );
         if( print )
-            E.Print("unpivoted I - Q^H Q");
+            Print( E, "unpivoted I - Q^H Q" );
 
         if( worldRank == 0 )
         {

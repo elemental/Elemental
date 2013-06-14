@@ -480,42 +480,6 @@ bool
 AbstractDistMatrix<T,Int>::Participating() const
 { return grid_->InGrid(); }
 
-template<typename T,typename Int>
-void
-AbstractDistMatrix<T,Int>::Print( const std::string msg ) const
-{ PrintBase( std::cout, msg ); }
-
-template<typename T,typename Int>
-void
-AbstractDistMatrix<T,Int>::Print
-( std::ostream& os, const std::string msg ) const
-{ PrintBase( os, msg ); }
-
-template<typename T,typename Int>
-void
-AbstractDistMatrix<T,Int>::Write
-( const std::string filename, const std::string msg ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::Write");
-#endif
-    const elem::Grid& g = Grid();
-    const int commRank = mpi::CommRank( g.VCComm() ); 
-
-    if( commRank == 0 )
-    {
-        std::ofstream file( filename.c_str() );
-        file.setf( std::ios::scientific );
-        PrintBase( file, msg );
-        file.close();
-    }
-    else
-    {
-        // std::cout should not be used, so this is okay
-        PrintBase( std::cout, msg );
-    }
-}
-
 //
 // Complex-only specializations
 //

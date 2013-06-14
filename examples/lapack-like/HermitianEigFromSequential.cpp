@@ -51,7 +51,7 @@ main( int argc, char* argv[] )
             for( int j=0; j<n; ++j )
                 for( int i=0; i<n; ++i )
                     HRoot.Set( i, j, C(i+j,i-j) );
-            HRoot.Print("H on process 0");
+            Print( HRoot, "H on process 0" );
         }
         mpi::Barrier( comm );
 
@@ -66,13 +66,13 @@ main( int argc, char* argv[] )
         else
             mpi::Broadcast( H_STAR_STAR.Buffer(), n*n, 0, comm );
         if( print )
-            H_STAR_STAR.Print("H[* ,* ]");
+            Print( H_STAR_STAR, "H[* ,* ]" );
 
         // Now that we have a valid DistMatrix (in a [* ,* ] distribution), 
         // we can trivially redistribute into the usual matrix distribution
         DistMatrix<C> H( H_STAR_STAR );
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X, and an eigenvalue column vector, w[VR,* ]
@@ -86,8 +86,8 @@ main( int argc, char* argv[] )
         hermitian_eig::Sort( w_VR_STAR, X );
         if( print )
         {
-            w_VR_STAR.Print("Eigenvalues of H");
-            X.Print("Eigenvectors of H");
+            Print( w_VR_STAR, "Eigenvalues of H" );
+            Print( X, "Eigenvectors of H" );
         }
 
         // Store a complete copy of w and X on the root
@@ -105,8 +105,8 @@ main( int argc, char* argv[] )
                 XLocal = X_STAR_STAR.Matrix();
                 if( print )
                 {
-                    wLocal.Print("Eigenvalues on root process");
-                    XLocal.Print("Eigenvectors on root process");
+                    Print( wLocal, "Eigenvalues on root process" );
+                    Print( XLocal, "Eigenvectors on root process" );
                 }
             }
         }

@@ -38,8 +38,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            A.Print("A");
-            B.Print("B");
+            Print( A, "A" );
+            Print( B, "B" );
         }
         const double logDetDiv = LogDetDivergence( LOWER, A, B );
         if( mpi::WorldRank() == 0 )

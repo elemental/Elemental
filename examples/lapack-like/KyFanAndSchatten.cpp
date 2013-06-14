@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
         Uniform( A, m, n );
 
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         const double kyFanNorm = KyFanNorm( A, k );
         const double schattenNorm = SchattenNorm( A, p );

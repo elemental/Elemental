@@ -112,36 +112,6 @@ DistMatrix<T,STAR,STAR,Int>::RowRank() const
 
 template<typename T,typename Int>
 void
-DistMatrix<T,STAR,STAR,Int>::PrintBase
-( std::ostream& os, const std::string msg ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,* ]::PrintBase");
-#endif
-    const elem::Grid& g = this->Grid();
-    if( g.Rank() == 0 && msg != "" )
-        os << msg << std::endl;
-
-    const Int height = this->Height();
-    const Int width  = this->Width();
-    if( height == 0 || width == 0 || !g.InGrid() )
-        return;
-
-    if( g.Rank() == 0 )
-    {
-        for( Int i=0; i<height; ++i )
-        {
-            for( Int j=0; j<width; ++j )
-                os << this->GetLocal(i,j) << " ";
-            os << "\n";
-        }
-        os << std::endl;
-    }
-    mpi::Barrier( g.Comm() );
-}
-
-template<typename T,typename Int>
-void
 DistMatrix<T,STAR,STAR,Int>::Attach
 ( Int height, Int width, 
   T* buffer, Int ldim, const elem::Grid& grid )

@@ -53,9 +53,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            A.Print("A");
-            x.Print("x");
-            y.Print("y");
+            Print( A, "A" );
+            Print( x, "x" );
+            Print( y, "y" );
         }
 
         // Run the matrix-vector product
@@ -64,9 +64,9 @@ main( int argc, char* argv[] )
         if( print )
         {
             if( orientation == NORMAL )
-                y.Print("y := 3 A x + 4 y");
+                Print( y, "y := 3 A x + 4 y" );
             else
-                y.Print("y := 3 A^H x + 4 y");
+                Print( y, "y := 3 A^H x + 4 y" );
         }
     }
     catch( exception& e ) { ReportException(e); }

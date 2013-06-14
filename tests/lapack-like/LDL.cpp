@@ -90,7 +90,7 @@ void TestLDL
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
     DistMatrix<F,MC,STAR> d(g);
 
     if( g.Rank() == 0 )
@@ -115,7 +115,7 @@ void TestLDL
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( conjugated, print, A, d, AOrig );
 }

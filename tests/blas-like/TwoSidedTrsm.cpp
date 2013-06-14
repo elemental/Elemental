@@ -128,8 +128,8 @@ void TestTwoSidedTrsm
     }
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
+        Print( A, "A" );
+        Print( B, "B" );
     }
 
     if( g.Rank() == 0 )
@@ -152,7 +152,7 @@ void TestTwoSidedTrsm
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after reduction");
+        Print( A, "A after reduction" );
     if( testCorrectness )
         TestCorrectness( print, uplo, diag, A, B, AOrig );
 }

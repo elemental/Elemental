@@ -77,8 +77,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            AEven.Print("AEven");
-            AOdd.Print("AOdd");
+            Print( AEven, "AEven" );
+            Print( AOdd, "AOdd" );
         }
 
 #ifdef HAVE_PMRRR
@@ -97,10 +97,10 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            XEven.Print("XEven");
-            XOdd.Print("XOdd");
-            wEven.Print("wEven");
-            wOdd.Print("wOdd");
+            Print( XEven, "XEven" );
+            Print( XOdd, "XOdd" );
+            Print( wEven, "wEven" );
+            Print( wOdd, "wOdd" );
         }
 #endif
     }

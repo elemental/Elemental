@@ -184,7 +184,7 @@ void TestRealHermitianTridiag
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -204,7 +204,7 @@ void TestRealHermitianTridiag
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after HermitianTridiag");
+        Print( A, "A after HermitianTridiag" );
     if( testCorrectness )
         TestCorrectness( print, uplo, A, AOrig );
 }
@@ -231,7 +231,7 @@ void TestComplexHermitianTridiag
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -252,8 +252,8 @@ void TestComplexHermitianTridiag
     }
     if( print )
     {
-        A.Print("A after HermitianTridiag");
-        t.Print("t after HermitianTridiag");
+        Print( A, "A after HermitianTridiag" );
+        Print( t, "t after HermitianTridiag" );
     }
     if( testCorrectness )
         TestCorrectness( print, uplo, A, t, AOrig );

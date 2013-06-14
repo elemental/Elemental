@@ -60,8 +60,8 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            F.Print("Egorov with Fourier phase:");
-            G.Print("Egorov with more general phase:");
+            Print( F, "Egorov with Fourier phase:" );
+            Print( G, "Egorov with more general phase:" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

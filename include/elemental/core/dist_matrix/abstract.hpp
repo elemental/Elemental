@@ -70,14 +70,6 @@ public:
     const elem::Matrix<T,Int>& LockedMatrix() const;
 
     //
-    // I/O
-    //
-
-    void Print( const std::string msg="" ) const;
-    void Print( std::ostream& os, const std::string msg="" ) const;
-    void Write( const std::string filename, const std::string msg="" ) const;
-
-    //
     // Alignments
     //
 
@@ -243,8 +235,6 @@ protected:
     void SetColShift();
     void SetRowShift();
     void SetGrid();
-
-    virtual void PrintBase( std::ostream& os, const std::string msg ) const = 0;
 
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename Ord> 

@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Toeplitz" );
         if( print )
-            A.Print("Toeplitz matrix:");
+            Print( A, "Toeplitz matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

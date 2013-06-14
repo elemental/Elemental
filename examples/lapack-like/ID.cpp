@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         const Grid& g = A.Grid();
         DistMatrix<int,VR,STAR> p(g);
@@ -48,8 +48,8 @@ main( int argc, char* argv[] )
         const int numSteps = p.Height();
         if( print )
         {
-            p.Print("p");
-            Z.Print("Z");
+            Print( p, "p" );
+            Print( Z, "Z" );
         }
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
@@ -58,8 +58,8 @@ main( int argc, char* argv[] )
         hatA.ResizeTo( m, numSteps );
         if( print )
         {
-            A.Print("A P");
-            hatA.Print("\\hat{A}");
+            Print( A, "A P" );
+            Print( hatA, "\\hat{A}" );
         }
 
         // Check || A P - \hat{A} [I, Z] ||_F / || A ||_F
@@ -76,7 +76,7 @@ main( int argc, char* argv[] )
         }
         const Real frobError = FrobeniusNorm( A );
         if( print )
-            A.Print("A P - \\hat{A} [I, Z]");
+            Print( A, "A P - \\hat{A} [I, Z]" );
 
         if( mpi::WorldRank() == 0 )
         {

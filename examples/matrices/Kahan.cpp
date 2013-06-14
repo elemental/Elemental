@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Kahan" );
         if( print )
-            A.Print("Kahan");
+            Print( A, "Kahan" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

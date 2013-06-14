@@ -48,7 +48,7 @@ main( int argc, char* argv[] )
             }
             interface.Detach();
 
-            A.Print("A");
+            Print( A, "A" );
 
             interface.Attach( GLOBAL_TO_LOCAL, A );
             Matrix<double> Y;
@@ -60,7 +60,7 @@ main( int argc, char* argv[] )
             interface.Detach();
 
             if( commRank == 0 )
-                Y.Print( "Copy of global matrix on root process:" );
+                Print( Y, "Copy of global matrix on root process:" );
 
             // TODO: Check to ensure that the result is correct
         }

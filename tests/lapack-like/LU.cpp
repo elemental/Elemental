@@ -90,7 +90,7 @@ void TestLU
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -115,9 +115,9 @@ void TestLU
     }
     if( print )
     {
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
         if( pivot )
-            p.Print("p after factorization");
+            Print( p, "p after factorization");
     }
     if( testCorrectness )
         TestCorrectness( pivot, print, A, p, ARef );

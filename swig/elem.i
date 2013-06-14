@@ -1245,12 +1245,44 @@ OVERLOAD1_int_UV(Zeros,VR,STAR)
  * I/O
  */
 
+%include "elemental/io/Print.hpp"
+%include "elemental/io/Write.hpp"
 %include "elemental/io/Display.hpp"
 #ifdef HAVE_QT5
 %include "elemental/io/Spy.hpp"
 #endif
 
 namespace elem {
+
+OVERLOAD0_cpx(Print)
+OVERLOAD1_int_UV(Print,MC,MR)
+OVERLOAD1_int_UV(Print,MC,STAR)
+OVERLOAD1_int_UV(Print,MD,STAR)
+OVERLOAD1_int_UV(Print,MR,MC)
+OVERLOAD1_int_UV(Print,MR,STAR)
+OVERLOAD1_int_UV(Print,STAR,MC)
+OVERLOAD1_int_UV(Print,STAR,MD)
+OVERLOAD1_int_UV(Print,STAR,MR)
+OVERLOAD1_int_UV(Print,STAR,STAR)
+OVERLOAD1_int_UV(Print,STAR,VC)
+OVERLOAD1_int_UV(Print,STAR,VR)
+OVERLOAD1_int_UV(Print,VC,STAR)
+OVERLOAD1_int_UV(Print,VR,STAR)
+
+OVERLOAD0_cpx(Write)
+OVERLOAD1_int_UV(Write,MC,MR)
+OVERLOAD1_int_UV(Write,MC,STAR)
+OVERLOAD1_int_UV(Write,MD,STAR)
+OVERLOAD1_int_UV(Write,MR,MC)
+OVERLOAD1_int_UV(Write,MR,STAR)
+OVERLOAD1_int_UV(Write,STAR,MC)
+OVERLOAD1_int_UV(Write,STAR,MD)
+OVERLOAD1_int_UV(Write,STAR,MR)
+OVERLOAD1_int_UV(Write,STAR,STAR)
+OVERLOAD1_int_UV(Write,STAR,VC)
+OVERLOAD1_int_UV(Write,STAR,VR)
+OVERLOAD1_int_UV(Write,VC,STAR)
+OVERLOAD1_int_UV(Write,VR,STAR)
 
 OVERLOAD0_cpx(Display)
 OVERLOAD1_int_UV(Display,MC,MR)

@@ -84,7 +84,7 @@ main( int argc, char* argv[] )
         //
 
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Print its trace
         const C trace = Trace( H );
@@ -102,9 +102,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            s.Print("Singular values of H");
-            U.Print("Left singular vectors of H");
-            V.Print("Right singular vectors of H");
+            Print( s, "Singular values of H" );
+            Print( U, "Left singular vectors of H" );
+            Print( V, "Right singular vectors of H" );
         }
     }
     catch( exception& e ) { ReportException(e); }

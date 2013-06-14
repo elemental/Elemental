@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Circulant" );
         if( print )
-            A.Print("Circulant matrix:");
+            Print( A, "Circulant matrix:" );
 
         // Create a Fourier matrix, which can be used to diagonalize circulant
         // matrices
@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( F, "DFT matrix" );
         if( print )
-            F.Print("DFT matrix:");
+            Print( F, "DFT matrix:" );
         
         // Form B := A F
         DistMatrix<Complex<double> > B;
@@ -59,7 +59,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "F^H A F" );
         if( print )
-            A.Print("A := F^H A F");
+            Print( A, "A := F^H A F" );
 
         // Form the thresholded result
         const int localHeight = A.LocalHeight();
@@ -76,7 +76,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Thresholded (1e-13) A" );
         if( print )
-            A.Print("A with values below 1e-13 removed");
+            Print( A, "A with values below 1e-13 removed" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

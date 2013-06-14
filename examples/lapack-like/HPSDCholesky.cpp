@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
 
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         // Replace A with its Cholesky factor
         HPSDCholesky( LOWER, A );
@@ -45,7 +45,7 @@ main( int argc, char* argv[] )
         if( print )
         {
             MakeTriangular( LOWER, A );
-            A.Print("chol(A)");
+            Print( A, "chol(A)" );
         }
     }
     catch( exception& e ) { ReportException(e); }

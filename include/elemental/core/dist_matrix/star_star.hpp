@@ -143,8 +143,6 @@ public:
     void SumOverGrid(); 
 
 private:
-    virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
-
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename N>
     friend class DistMatrix;

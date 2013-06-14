@@ -199,7 +199,7 @@ void TestHermitianEigDouble
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -235,9 +235,9 @@ void TestHermitianEigDouble
     }
     if( print )
     {
-        w.Print("eigenvalues:");
+        Print( w, "eigenvalues:" );
         if( !onlyEigvals )
-            Z.Print("eigenvectors:");
+            Print( Z, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
         TestCorrectness( print, uplo, A, w, Z, AOrig );
@@ -267,7 +267,7 @@ void TestHermitianEigDoubleComplex
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -303,9 +303,9 @@ void TestHermitianEigDoubleComplex
     }
     if( print )
     {
-        w.Print("eigenvalues:");
+        Print( w, "eigenvalues:" );
         if( !onlyEigvals )
-            Z.Print("eigenvectors:");
+            Print( Z, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
         TestCorrectness( print, uplo, A, w, Z, AOrig );

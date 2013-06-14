@@ -56,14 +56,14 @@ main( int argc, char* argv[] )
         }
 
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Replace H with its pseudoinverse
         HermitianPseudoinverse( LOWER, H );
         MakeHermitian( LOWER, H );
 
         if( print )
-            H.Print("pinv(H)");
+            Print( H, "pinv(H)" );
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -41,15 +41,15 @@ void TestCorrectness
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, BACKWARD, offset, H, W );
-            Y.Print("Q");
-            W.Print("Q^H");
+            Print( Y, "Q" );
+            Print( W, "Q^H" );
         }
         else
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, FORWARD, offset, H, W );
-            Y.Print("Q^H");
-            W.Print("Q");
+            Print( Y, "Q^H" );
+            Print( W, "Q" );
         }
     }
     DistMatrix<R> Z(m,m,g);
@@ -63,9 +63,9 @@ void TestCorrectness
     if( printMatrices )
     {
         if( order == FORWARD )
-            X.Print("I - Q Q^H");
+            Print( X, "I - Q Q^H" );
         else
-            X.Print("I - Q^H Q");
+            Print( X, "I - Q^H Q" );
     }
 
     const R oneNormOfError = OneNorm( X );
@@ -116,15 +116,15 @@ void TestCorrectness
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, BACKWARD, conjugation, offset, H, t, W );
-            Y.Print("Q");
-            W.Print("Q^H");
+            Print( Y, "Q" );
+            Print( W, "Q^H" );
         }
         else
         {
             ApplyPackedReflectors
             ( side, uplo, VERTICAL, FORWARD, conjugation, offset, H, t, W );
-            Y.Print("Q^H");
-            W.Print("Q");
+            Print( Y, "Q^H" );
+            Print( W, "Q" );
         }
     }
     DistMatrix<C> Z(m,m,g);
@@ -138,9 +138,9 @@ void TestCorrectness
     if( printMatrices )
     {
         if( order == FORWARD )
-            X.Print("I - Q Q^H");
+            Print( X, "I - Q Q^H" );
         else
-            X.Print("I - Q^H Q");
+            Print( X, "I - Q^H Q" );
     }
 
     // Compute the maximum deviance
@@ -176,8 +176,8 @@ void TestRealUT
     Uniform( A, m, m );
     if( printMatrices )
     {
-        H.Print("H");
-        A.Print("A");
+        Print( H, "H" );
+        Print( A, "A" );
     }
 
     if( g.Rank() == 0 )
@@ -198,7 +198,7 @@ void TestRealUT
              << gFlops << endl;
     }
     if( printMatrices )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( side, uplo, order, offset, printMatrices, H );
 }
@@ -247,9 +247,9 @@ void TestComplexUT
 
     if( printMatrices )
     {
-        H.Print("H");
-        A.Print("A");
-        t.Print("t");
+        Print( H, "H" );
+        Print( A, "A" );
+        Print( t, "t" );
     }
 
     if( g.Rank() == 0 )
@@ -271,7 +271,7 @@ void TestComplexUT
              << gFlops << endl;
     }
     if( printMatrices )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
     {
         TestCorrectness

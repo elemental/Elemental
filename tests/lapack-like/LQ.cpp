@@ -181,7 +181,7 @@ void TestRealLQ
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -203,7 +203,7 @@ void TestRealLQ
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( print, A, AOrig );
 }
@@ -228,7 +228,7 @@ void TestComplexLQ
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
     DistMatrix<C,MD,STAR> t(g);
 
     if( g.Rank() == 0 )
@@ -251,7 +251,7 @@ void TestComplexLQ
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( print, A, t, AOrig );
 }

@@ -61,13 +61,13 @@ main( int argc, char* argv[] )
         }
 
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
         ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
 
         if( print )
-            H.Print("exp(i*H)");
+            Print( H, "exp(i*H)" );
     }
     catch( exception& e ) { ReportException(e); }
 

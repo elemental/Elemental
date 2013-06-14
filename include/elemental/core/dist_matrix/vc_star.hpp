@@ -194,8 +194,6 @@ public:
     ( const DistMatrix<BASE(T),STAR,VC,Int>& d, Int offset=0 );
 
 private:
-    virtual void PrintBase( std::ostream& os, const std::string msg="" ) const;
-
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename N>
     friend class DistMatrix;

@@ -62,7 +62,7 @@ main( int argc, char* argv[] )
         }
 
         if( print )
-            H.Print("H");
+            Print( H, "H" );
 
         // Reform the matrix with the exponentials of the original eigenvalues
         RealHermitianFunction( LOWER, H, ExpFunctor() );
@@ -70,7 +70,7 @@ main( int argc, char* argv[] )
         if( print )
         {
             MakeHermitian( LOWER, H );
-            H.Print("exp(H)");
+            Print( H, "exp(H)" );
         }
     }
     catch( exception& e ) { ReportException(e); }

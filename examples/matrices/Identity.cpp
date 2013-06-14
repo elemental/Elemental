@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            I.Print("Identity");
+            Print( I, "Identity" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

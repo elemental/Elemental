@@ -39,9 +39,9 @@ main( int argc, char* argv[] )
         }
         if( print )
         {
-            A.Print("Lehmer:");
-            B.Print("Parter:");
-            C.Print("Ris:");
+            Print( A, "Lehmer:" );
+            Print( B, "Parter:" );
+            Print( C, "Ris:" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

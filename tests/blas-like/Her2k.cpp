@@ -33,9 +33,9 @@ void TestHer2k
     HermitianUniformSpectrum( C, m, 1, 10 );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
 
     if( g.Rank() == 0 )
@@ -63,7 +63,7 @@ void TestHer2k
             msg << "C := " << alpha << " A B' + B A'" << beta << " C";
         else
             msg << "C := " << alpha << " A' B + B' A" << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 }
 

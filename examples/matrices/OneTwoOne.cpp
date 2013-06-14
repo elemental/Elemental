@@ -35,7 +35,7 @@ main( int argc, char* argv[] )
 #endif
         }
         if( print )
-            A.Print("1-2-1 matrix:");
+            Print( A, "1-2-1 matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

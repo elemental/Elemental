@@ -39,14 +39,14 @@ main( int argc, char* argv[] )
         Uniform( C, m, n );
         if( print )
         {
-            A.Print("A");
-            B.Print("B");
-            C.Print("C");
+            Print( A, "A" );
+            Print( B, "B" );
+            Print( C, "C" );
         }
 
         gemm::Cannon_NN( alpha, A, B, beta, C );
         if( print )
-            C.Print("C := alpha A B + beta C");
+            Print( C, "C := alpha A B + beta C" );
     }
     catch( exception& e ) { ReportException(e); }
 

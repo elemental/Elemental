@@ -29,9 +29,9 @@ void TestSymm
     Uniform( C, m, n );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
 
     // Test Symm
@@ -63,7 +63,7 @@ void TestSymm
             msg << "C := " << alpha << " Symm(A) B + " << beta << " C";
         else
             msg << "C := " << alpha << " B Symm(A) + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 }
 

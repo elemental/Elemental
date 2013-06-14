@@ -20,4 +20,7 @@
 #include "elemental/lapack-like_decl.hpp"
 #include "elemental/convex_decl.hpp"
 
+#include "elemental/io/Print.hpp"
+#include "elemental/io/Write.hpp"
+
 #endif // ifndef ELEMENTAL_LITE_HPP

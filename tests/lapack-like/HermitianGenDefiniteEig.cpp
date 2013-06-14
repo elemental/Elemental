@@ -517,8 +517,8 @@ void TestHermitianGenDefiniteEigDouble
     }
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
+        Print( A, "A" );
+        Print( B, "B" );
     }
 
     if( g.Rank() == 0 )
@@ -555,9 +555,9 @@ void TestHermitianGenDefiniteEigDouble
     }
     if( print )
     {
-        w.Print("eigenvalues:");
+        Print( w, "eigenvalues:" );
         if( !onlyEigvals )
-            X.Print("eigenvectors:");
+            Print( X, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
     {
@@ -607,8 +607,8 @@ void TestHermitianGenDefiniteEigDoubleComplex
     }
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
+        Print( A, "A" );
+        Print( B, "B" );
     }
 
     if( g.Rank() == 0 )
@@ -645,9 +645,9 @@ void TestHermitianGenDefiniteEigDoubleComplex
     }
     if( print )
     {
-        w.Print("eigenvalues:");
+        Print( w, "eigenvalues:" );
         if( !onlyEigvals )
-            X.Print("eigenvectors:");
+            Print( X, "eigenvectors:" );
     }
     if( testCorrectness && !onlyEigvals )
     {

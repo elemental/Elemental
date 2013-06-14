@@ -179,7 +179,7 @@ void TestRealQR
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -201,7 +201,7 @@ void TestRealQR
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( A, AOrig );
 }
@@ -228,7 +228,7 @@ void TestComplexQR
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -250,7 +250,7 @@ void TestComplexQR
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( A, t, AOrig );
 }

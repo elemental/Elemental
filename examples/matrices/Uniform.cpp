@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( X, "Uniform matrix" );
         if( print )
-            X.Print("Uniform matrix");
+            Print( X, "Uniform matrix" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

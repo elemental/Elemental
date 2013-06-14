@@ -108,7 +108,7 @@ void TestCholesky
             cout << "DONE" << endl;
     }
     if( printMatrices )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -129,7 +129,7 @@ void TestCholesky
              << gFlops << endl;
     }
     if( printMatrices )
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
     if( testCorrectness )
         TestCorrectness( printMatrices, uplo, A, AOrig );
 }

@@ -25,9 +25,9 @@ void TestSymv
     Uniform( y, m, 1 ); 
     if( print )
     {
-        A.Print("A");
-        x.Print("x");
-        y.Print("y");
+        Print( A, "A" );
+        Print( x, "x" );
+        Print( y, "y" );
     }
 
     // Test Symm
@@ -53,7 +53,7 @@ void TestSymv
     {
         ostringstream msg;
         msg << "y := " << alpha << " Symm(A) x + " << beta << " y";
-        y.Print( msg.str() );
+        Print( y, msg.str() );
     }
 }
 

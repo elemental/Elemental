@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( A, "Fourier Matrix" );
         if( print )
-            A.Print("Fourier matrix:");
+            Print( A, "Fourier matrix:" );
 
         if( n >= 50 )
         {
@@ -46,12 +46,12 @@ main( int argc, char* argv[] )
             if( display )
                 Display( AMid, "Middle block" );
             if( print )
-                AMid.Print("Middle block");
+                Print( AMid, "Middle block" );
             AMidCopy = AMid;
              
             DistMatrix<double,VR,STAR> s;
             SVD( AMidCopy, s );
-            s.Print("singular values of middle block");
+            Print( s, "singular values of middle block" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

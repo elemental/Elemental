@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.8)
 
 project(Elemental)
 set(Elemental_VERSION_MAJOR 0)
-set(Elemental_VERSION_MINOR 80-dev)
+set(Elemental_VERSION_MINOR 81-dev)
 
 ################################################################################
 # Common build options                                                         #

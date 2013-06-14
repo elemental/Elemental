@@ -79,7 +79,7 @@ void TestLU( bool pivot, bool testCorrectness, bool print, int m )
         cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     cout << "  Starting LU factorization...";
     cout.flush();
@@ -96,9 +96,9 @@ void TestLU( bool pivot, bool testCorrectness, bool print, int m )
          << gFlops << endl;
     if( print )
     {
-        A.Print("A after factorization");
+        Print( A, "A after factorization" );
         if( pivot )
-            p.Print("p after factorization");
+            Print( p, "p after factorization" );
     }
     if( testCorrectness )
         TestCorrectness( pivot, print, A, p, ARef );

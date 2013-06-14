@@ -39,9 +39,9 @@ void TestGemm
     MakeUniform( C );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
     if( g.Rank() == 0 )
     {
@@ -72,7 +72,7 @@ void TestGemm
     {
         ostringstream msg;
         msg << "C := " << alpha << " A B + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 
     // Test the variant of Gemm that keeps B stationary
@@ -83,9 +83,9 @@ void TestGemm
     MakeUniform( C );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
     if( g.Rank() == 0 )
     {
@@ -116,7 +116,7 @@ void TestGemm
     {
         ostringstream msg;
         msg << "C := " << alpha << " A B + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 
     // Test the variant of Gemm that keeps C stationary
@@ -127,9 +127,9 @@ void TestGemm
     MakeUniform( C );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
     if( g.Rank() == 0 )
     {
@@ -160,7 +160,7 @@ void TestGemm
     {
         ostringstream msg;
         msg << "C := " << alpha << " A B + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
     
     if( orientA == NORMAL && orientB == NORMAL )
@@ -173,9 +173,9 @@ void TestGemm
         MakeUniform( C );
         if( print )
         {
-            A.Print("A");
-            B.Print("B");
-            C.Print("C");
+            Print( A, "A" );
+            Print( B, "B" );
+            Print( C, "C" );
         }
         if( g.Rank() == 0 )
         {
@@ -199,7 +199,7 @@ void TestGemm
         {
             ostringstream msg;
             msg << "C := " << alpha << " A B + " << beta << " C";
-            C.Print( msg.str() );
+            Print( C, msg.str() );
         }
     }
 }

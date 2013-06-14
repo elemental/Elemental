@@ -95,9 +95,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            SCopy.Print("S");
-            X.Print("X");
-            wImag.Print("wImag");
+            Print( SCopy, "S" );
+            Print( X, "X" );
+            Print( wImag, "wImag" );
         }
 
         // Check the residual, || S X - Omega X ||_F

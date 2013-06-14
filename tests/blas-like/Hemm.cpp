@@ -28,9 +28,9 @@ void TestHemm
     Uniform( C, m, n );
     if( print )
     {
-        A.Print("A");
-        B.Print("B");
-        C.Print("C");
+        Print( A, "A" );
+        Print( B, "B" );
+        Print( C, "C" );
     }
 
     if( g.Rank() == 0 )
@@ -61,7 +61,7 @@ void TestHemm
             msg << "C := " << alpha << " Herm(A) B + " << beta << " C";
         else
             msg << "C := " << alpha << " B Herm(A) + " << beta << " C";
-        C.Print( msg.str() );
+        Print( C, msg.str() );
     }
 }
 

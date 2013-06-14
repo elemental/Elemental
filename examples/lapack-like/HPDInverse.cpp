@@ -39,7 +39,7 @@ main( int argc, char* argv[] )
         HermitianUniformSpectrum( A, n, R(1), R(20) );
 
         if( print )
-            A.Print("A");
+            Print( A, "A" );
 
         // Make a copy of A and then overwrite it with its inverse
         const UpperOrLower uplo = ( upper ? UPPER : LOWER );
@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
         if( print )
         {
             MakeHermitian( uplo, invA );
-            invA.Print("inv(A)");
+            Print( invA, "inv(A)" );
         }
 
         // Form I - invA*A and print the relevant norms

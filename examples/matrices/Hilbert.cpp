@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( H, "Hilbert" );
         if( print )
-            H.Print("Hilbert matrix:");
+            Print( H, "Hilbert matrix:" );
 
         // This is grossly inefficient due to recomputing the singular values
         // and Cholesky decomposition for several different operations, 

@@ -38,7 +38,7 @@ main( int argc, char* argv[] )
             DistMatrix<double> X(grid);
             Identity( X, n, n );
             if( print )
-                X.Print("Built-in identity");
+                Print( X, "Built-in identity" );
         }
 
         // Local buffers
@@ -73,14 +73,14 @@ main( int argc, char* argv[] )
             DistMatrix<double> 
                 X( n, n, 0, 0, &localData[0], localHeight, grid );
             if( print )
-                X.Print("Identity constructed from local buffers");
+                Print( X, "Identity constructed from local buffers" );
 
             // Build another set of local buffers and attach it to X.
             // This time, make it all two's.
             std::vector<double> localTwos( localHeight*localWidth, 2 ); 
             X.Attach( n, n, 0, 0, &localTwos[0], localHeight, grid );
             if( print )
-                X.Print("After viewing local buffers of all two's");
+                Print( X, "After viewing local buffers of all two's" );
         }
     }
     catch( std::exception& e ) { ReportException(e); }

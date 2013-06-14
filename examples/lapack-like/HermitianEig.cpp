@@ -93,9 +93,9 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            HCopy.Print("H");
-            X.Print("X");
-            w.Print("w");
+            Print( HCopy, "H" );
+            Print( X, "X" );
+            Print( w, "w" );
         }
 
         // Check the residual, || H X - Omega X ||_F

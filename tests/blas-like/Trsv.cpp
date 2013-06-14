@@ -32,9 +32,9 @@ void TestTrsv
 
     if( print )
     {
-        A.Print("A");
-        x.Print("x");
-        y.Print("y");
+        Print( A, "A" );
+        Print( x, "x" );
+        Print( y, "y" );
     }
     if( g.Rank() == 0 )
     {
@@ -55,7 +55,7 @@ void TestTrsv
              << gFlops << endl;
     }
     if( print )
-        y.Print("y after solve");
+        Print( y, "y after solve" );
 
     Axpy( F(-1), x, y );
     const R xNorm = FrobeniusNorm( x );

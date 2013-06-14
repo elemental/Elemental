@@ -41,8 +41,8 @@ main( int argc, char* argv[] )
 
         if( print )
         {
-            A.Print("A");
-            pinvA.Print("pinv(A)");
+            Print( A, "A" );
+            Print( pinvA, "pinv(A)" );
         }
 
         const R frobOfA = FrobeniusNorm( A );

@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         if( display )
             Display( H, "Hankel" );
         if( print )
-            H.Print("Hankel matrix:");
+            Print( H, "Hankel matrix:" );
     }
     catch( std::exception& e ) { ReportException(e); }
 

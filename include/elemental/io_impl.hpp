@@ -10,6 +10,9 @@
 #ifndef IO_IMPL_HPP
 #define IO_IMPL_HPP
 
+#include "elemental/io/Print.hpp"
+#include "elemental/io/Write.hpp"
+
 #ifdef HAVE_QT5
 #include "elemental/io/ColorMap.hpp"
 #include "elemental/io/Spy.hpp"

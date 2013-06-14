@@ -81,7 +81,7 @@ void TestTriangularInverse
             cout << "DONE" << endl;
     }
     if( print )
-        A.Print("A");
+        Print( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -102,7 +102,7 @@ void TestTriangularInverse
              << gFlops << endl;
     }
     if( print )
-        A.Print("A after inversion");
+        Print( A, "A after inversion" );
     if( testCorrectness )
         TestCorrectness( print, uplo, diag, A, AOrig );
 }
