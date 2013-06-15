@@ -42,12 +42,13 @@ using namespace conjugation_wrapper;
 namespace distribution_wrapper {
 enum Distribution
 {
-    MC,  // Col of a matrix distribution
-    MD,  // Diagonal of a matrix distribution
-    MR,  // Row of a matrix distribution
-    VC,  // Col-major vector distribution
-    VR,  // Row-major vector distribution
-    STAR // Do not distribute
+    MC,   // Col of a matrix distribution
+    MD,   // Diagonal of a matrix distribution
+    MR,   // Row of a matrix distribution
+    VC,   // Col-major vector distribution
+    VR,   // Row-major vector distribution
+    STAR, // Give to every process
+    CIRC  // Give to a single process
 };
 std::string DistToString( Distribution distribution );
 Distribution StringToDist( std::string s );

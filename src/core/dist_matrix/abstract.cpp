@@ -563,6 +563,16 @@ AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
     SetShifts();
 }
 
+template<typename T,typename Int>
+BASE(T)
+AbstractDistMatrix<T,Int>::GetRealPart( Int i, Int j ) const
+{ return RealPart(Get(i,j)); }
+
+template<typename T,typename Int>
+BASE(T)
+AbstractDistMatrix<T,Int>::GetImagPart( Int i, Int j ) const
+{ return ImagPart(Get(i,j)); }
+
 template class AbstractDistMatrix<int,int>;
 #ifndef DISABLE_FLOAT
 template class AbstractDistMatrix<float,int>;

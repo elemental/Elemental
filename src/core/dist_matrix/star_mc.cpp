@@ -119,6 +119,7 @@ DistMatrix<T,STAR,MC,Int>::DistData() const
     data.rowDist = MC;
     data.colAlignment = 0;
     data.rowAlignment = this->rowAlignment_;
+    data.root = 0;
     data.diagPath = 0;
     data.grid = this->grid_;
     return data;
@@ -1402,63 +1403,23 @@ DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     return *this;
 }
 
+template<typename T,typename Int>
+const DistMatrix<T,STAR,MC,Int>&
+DistMatrix<T,STAR,MC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
+{ 
+#ifndef RELEASE
+    CallStackEntry entry("[* ,MC] = [o ,o ]");
+#endif
+    DistMatrix<T,MR,MC> A_MR_MC( A.Grid() );
+    A_MR_MC.AlignWith( *this );
+    A_MR_MC = A;
+    *this = A_MR_MC;
+    return *this;
+}
+
 //
 // Routines which explicitly work in the complex plane
 //
-
-template<typename T,typename Int>
-BASE(T)
-DistMatrix<T,STAR,MC,Int>::GetRealPart( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::GetRealPart");
-    this->AssertValidEntry( i, j );
-    if( !this->Participating() )
-        throw std::logic_error("Should only be called by processes in grid");
-#endif
-    typedef BASE(T) R;
-
-    // We will determine the owner row of entry (i,j) and broadcast from that
-    // row within each process column
-    const elem::Grid& g = this->Grid();
-    const Int ownerRow = (j + this->RowAlignment()) % g.Height();
-
-    R u;
-    if( g.Row() == ownerRow )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Height();
-        u = this->GetLocalRealPart( i, jLoc );
-    }
-    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
-    return u;
-}
-
-template<typename T,typename Int>
-BASE(T)
-DistMatrix<T,STAR,MC,Int>::GetImagPart( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::GetImagPart");
-    this->AssertValidEntry( i, j );
-    if( !this->Participating() )
-        throw std::logic_error("Should only be called by processes in grid");
-#endif
-    typedef BASE(T) R;
-
-    // We will determine the owner row of entry (i,j) and broadcast from that
-    // row within each process column
-    const elem::Grid& g = this->Grid();
-    const Int ownerRow = (j + this->RowAlignment()) % g.Height();
-
-    R u;
-    if( g.Row() == ownerRow )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Height();
-        u = this->GetLocalImagPart( i, jLoc );
-    }
-    mpi::Broadcast( &u, 1, ownerRow, g.ColComm() );
-    return u;
-}
 
 template<typename T,typename Int>
 void
@@ -1539,6 +1500,7 @@ DistMatrix<T,STAR,MC,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
 }
 
 template class DistMatrix<int,STAR,MC,int>;
+template DistMatrix<int,STAR,MC,int>::DistMatrix( const DistMatrix<int,CIRC,CIRC,int>& A );
 template DistMatrix<int,STAR,MC,int>::DistMatrix( const DistMatrix<int,MC,  MR,  int>& A );
 template DistMatrix<int,STAR,MC,int>::DistMatrix( const DistMatrix<int,MC,  STAR,int>& A );
 template DistMatrix<int,STAR,MC,int>::DistMatrix( const DistMatrix<int,MD,  STAR,int>& A );
@@ -1554,6 +1516,7 @@ template DistMatrix<int,STAR,MC,int>::DistMatrix( const DistMatrix<int,VR,  STAR
 
 #ifndef DISABLE_FLOAT
 template class DistMatrix<float,STAR,MC,int>;
+template DistMatrix<float,STAR,MC,int>::DistMatrix( const DistMatrix<float,CIRC,CIRC,int>& A );
 template DistMatrix<float,STAR,MC,int>::DistMatrix( const DistMatrix<float,MC,  MR,  int>& A );
 template DistMatrix<float,STAR,MC,int>::DistMatrix( const DistMatrix<float,MC,  STAR,int>& A );
 template DistMatrix<float,STAR,MC,int>::DistMatrix( const DistMatrix<float,MD,  STAR,int>& A );
@@ -1569,6 +1532,7 @@ template DistMatrix<float,STAR,MC,int>::DistMatrix( const DistMatrix<float,VR,  
 #endif // ifndef DISABLE_FLOAT
 
 template class DistMatrix<double,STAR,MC,int>;
+template DistMatrix<double,STAR,MC,int>::DistMatrix( const DistMatrix<double,CIRC,CIRC,int>& A );
 template DistMatrix<double,STAR,MC,int>::DistMatrix( const DistMatrix<double,MC,  MR,  int>& A );
 template DistMatrix<double,STAR,MC,int>::DistMatrix( const DistMatrix<double,MC,  STAR,int>& A );
 template DistMatrix<double,STAR,MC,int>::DistMatrix( const DistMatrix<double,MD,  STAR,int>& A );
@@ -1585,6 +1549,7 @@ template DistMatrix<double,STAR,MC,int>::DistMatrix( const DistMatrix<double,VR,
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
 template class DistMatrix<Complex<float>,STAR,MC,int>;
+template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<float>,CIRC,CIRC,int>& A );
 template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  MR,  int>& A );
 template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  STAR,int>& A );
 template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<float>,MD,  STAR,int>& A );
@@ -1599,6 +1564,7 @@ template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Co
 template DistMatrix<Complex<float>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<float>,VR,  STAR,int>& A );
 #endif // ifndef DISABLE_FLOAT
 template class DistMatrix<Complex<double>,STAR,MC,int>;
+template DistMatrix<Complex<double>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<double>,CIRC,CIRC,int>& A );
 template DistMatrix<Complex<double>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  MR,  int>& A );
 template DistMatrix<Complex<double>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  STAR,int>& A );
 template DistMatrix<Complex<double>,STAR,MC,int>::DistMatrix( const DistMatrix<Complex<double>,MD,  STAR,int>& A );

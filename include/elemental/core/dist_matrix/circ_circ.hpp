@@ -7,86 +7,91 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_DISTMATRIX_STAR_STAR_DECL_HPP
-#define CORE_DISTMATRIX_STAR_STAR_DECL_HPP
+#ifndef CORE_DISTMATRIX_CIRC_CIRC_DECL_HPP
+#define CORE_DISTMATRIX_CIRC_CIRC_DECL_HPP
 
 namespace elem {
 
-// Partial specialization to A[* ,* ].
+// Partial specialization to A[o,o].
 //
-// The entire matrix is replicated across all processes.
+// The entire matrix is only stored on a single process.
 template<typename T,typename Int>
-class DistMatrix<T,STAR,STAR,Int> : public AbstractDistMatrix<T,Int>
+class DistMatrix<T,CIRC,CIRC,Int> : public AbstractDistMatrix<T,Int>
 {
 public:
-    // TODO: Construct from a Matrix.
+    // TODO: Construct from a Matrix. How to handle from non-root process?
 
-    // Create a 0 x 0 distributed matrix
-    DistMatrix( const elem::Grid& g=DefaultGrid() );
+    // Create a 0 x 0 matrix stored on a single process
+    DistMatrix( const elem::Grid& g=DefaultGrid(), int root=0 );
 
-    // Create a height x width distributed matrix
-    DistMatrix( Int height, Int width, const elem::Grid& g=DefaultGrid() );
+    // Create a height x width matrix stored on a single process
+    DistMatrix
+    ( Int height, Int width, const elem::Grid& g=DefaultGrid(), int root=0 );
 
-    // Create a height x width distributed matrix with specified leading 
-    // dimension
-    DistMatrix( Int height, Int width, Int ldim, const elem::Grid& g );
+    // Create a height x width matrix stored on a single process with the 
+    // specified leading dimension
+    DistMatrix
+    ( Int height, Int width, Int ldim, const elem::Grid& g, int root=0 );
 
-    // View a constant distributed matrix's buffer
+    // View the buffer from the root (pass 0/NULL otherwise)
     DistMatrix
     ( Int height, Int width, const T* buffer, Int ldim, 
-      const elem::Grid& g );
+      const elem::Grid& g, int root=0 );
 
-    // View a mutable distributed matrix's buffer
+    // View the mutable buffer from the root (pass 0/NULL otherwise)
     DistMatrix
-    ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g );
+    ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, 
+      int root=0 );
 
-    // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,STAR,STAR,Int>& A );
+    // Create a direct copy
+    DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A );
+    // Perform the necessary redistributions to place the matrix on a single
+    // process
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V,Int>& A );
 
     ~DistMatrix();
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MC,MR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MC,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,MR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MD,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,MD,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MR,MC,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MR,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,MC,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,VC,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,VC,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,VR,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,VR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,STAR,STAR,Int>& A );
 
-    const DistMatrix<T,STAR,STAR,Int>& 
+    const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
 
     //------------------------------------------------------------------------//
@@ -102,6 +107,8 @@ public:
     virtual Int ColRank() const;
     virtual Int RowRank() const;
     virtual elem::DistData<Int> DistData() const;
+
+    virtual bool Participating() const;
 
     //
     // Collective routines
@@ -126,26 +133,27 @@ public:
     virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     //------------------------------------------------------------------------//
-    // Routines specific to [* ,* ] distribution                              //
+    // Routines specific to [o ,o ] distribution                              //
     //------------------------------------------------------------------------//
+
+    int Root() const;
 
     //
     // Collective routines
     //
+
+    void SetRoot( int root );
     
-    // (Immutable) view of a distributed matrix's buffer
+    // (Immutable) view of the matrix's buffer (only valid pointer on root)
     void Attach
     ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid );
+      T* buffer, Int ldim, const elem::Grid& grid, int root );
     void LockedAttach
     ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
-
-    void SumOverCol();
-    void SumOverRow();
-    void SumOverGrid(); 
+      const T* buffer, Int ldim, const elem::Grid& grid, int root );
 
 private:
+    int root_;
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename N>
     friend class DistMatrix;
@@ -154,4 +162,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef CORE_DISTMATRIX_STAR_STAR_DECL_HPP
+#endif // ifndef CORE_DISTMATRIX_CIRC_CIRC_DECL_HPP

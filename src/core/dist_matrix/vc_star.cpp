@@ -115,6 +115,7 @@ DistMatrix<T,VC,STAR,Int>::DistData() const
     data.rowDist = STAR;
     data.colAlignment = this->colAlignment_;
     data.rowAlignment = 0;
+    data.root = 0;
     data.diagPath = 0;
     data.grid = this->grid_;
     return data;
@@ -1332,6 +1333,85 @@ DistMatrix<T,VC,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     return *this;
 }
 
+// NOTE: This is a small modification of [MC,MR] <- [o ,o ]
+template<typename T,typename Int>
+const DistMatrix<T,VC,STAR,Int>&
+DistMatrix<T,VC,STAR,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[VC,* ] = [o ,o ]");
+    this->AssertNotLocked();
+    this->AssertSameGrid( A.Grid() );
+    if( this->Viewing() )
+        this->AssertSameSize( A.Height(), A.Width() );
+#endif
+    const Grid& g = A.Grid();
+    const int m = A.Height();
+    const int n = A.Width();
+    const int p = g.Size();
+    if( !this->Viewing() )
+        this->ResizeTo( m, n );
+
+    const int colAlignment = this->ColAlignment();
+    const int mLocal = this->LocalHeight();
+    const int pkgSize = mpi::Pad(MaxLength(m,p)*n);
+    const int recvSize = pkgSize;
+    const int sendSize = p*pkgSize;
+    T* recvBuffer;
+    if( A.Participating() )
+    {
+        this->auxMemory_.Require( sendSize + recvSize );
+        T* buffer = this->auxMemory_.Buffer();
+        T* sendBuffer = &buffer[0];
+        recvBuffer = &buffer[sendSize];
+
+        // Pack the send buffer
+        const int ALDim = A.LDim();
+        const T* ABuffer = A.LockedBuffer();
+        for( int s=0; s<p; ++s )
+        {
+            const int sLocalHeight = Length( m, s, p );
+            const int q = (colAlignment+s) % p;
+            for( int j=0; j<n; ++j )
+            {
+                for( int iLoc=0; iLoc<sLocalHeight; ++iLoc )
+                {
+                    const int i = s + iLoc*p;
+                    sendBuffer[q*pkgSize+iLoc+j*sLocalHeight] =
+                        ABuffer[i+j*ALDim];
+                }
+            }
+        }
+
+        // Scatter from the root
+        mpi::Scatter
+        ( sendBuffer, pkgSize, recvBuffer, pkgSize, A.Root(), g.VCComm() );
+    }
+    else if( this->Participating() )
+    {
+        this->auxMemory_.Require( recvSize );
+        recvBuffer = this->auxMemory_.Buffer();
+
+        // Perform the receiving portion of the scatter from the non-root
+        mpi::Scatter
+        ( static_cast<T*>(0), pkgSize, 
+          recvBuffer,         pkgSize, A.Root(), g.VCComm() );
+    }
+
+    if( this->Participating() )
+    {
+        // Unpack
+        const int ldim = this->LDim();
+        T* buffer = this->Buffer();
+        for( int j=0; j<n; ++j )
+            for( int iLoc=0; iLoc<mLocal; ++iLoc )
+                buffer[iLoc+j*ldim] = recvBuffer[iLoc+j*mLocal];
+        this->auxMemory_.Release();
+    }
+
+    return *this;
+}
+
 template<typename T,typename Int>
 void
 DistMatrix<T,VC,STAR,Int>::SumScatterFrom
@@ -1672,56 +1752,6 @@ DistMatrix<T,VC,STAR,Int>::SumScatterUpdate
 //
 // Routines which explicitly work in the complex plane
 //
-
-template<typename T,typename Int>
-BASE(T)
-DistMatrix<T,VC,STAR,Int>::GetRealPart( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[VC,* ]::GetRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    typedef BASE(T) R;
-
-    // We will determine the owner rank of entry (i,j) and broadcast from that
-    // process over the entire g
-    const elem::Grid& g = this->Grid();
-    const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
-    R u;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Size();
-        u = this->GetLocalRealPart(iLoc,j);
-    }
-    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
-    return u;
-}
-
-template<typename T,typename Int>
-BASE(T)
-DistMatrix<T,VC,STAR,Int>::GetImagPart( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[VC,* ]::GetImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    typedef BASE(T) R;
-
-    // We will determine the owner rank of entry (i,j) and broadcast from that
-    // process over the entire g
-    const elem::Grid& g = this->Grid();
-    const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
-    R u;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Size();
-        u = this->GetLocalImagPart(iLoc,j);
-    }
-    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
-    return u;
-}
 
 template<typename T,typename Int>
 void
@@ -2326,6 +2356,7 @@ DistMatrix<T,VC,STAR,Int>::SetImagPartOfDiagonal
 }
 
 template class DistMatrix<int,VC,STAR,int>;
+template DistMatrix<int,VC,STAR,int>::DistMatrix( const DistMatrix<int,CIRC,CIRC,int>& A );
 template DistMatrix<int,VC,STAR,int>::DistMatrix( const DistMatrix<int,MC,  MR,  int>& A );
 template DistMatrix<int,VC,STAR,int>::DistMatrix( const DistMatrix<int,MC,  STAR,int>& A );
 template DistMatrix<int,VC,STAR,int>::DistMatrix( const DistMatrix<int,MD,  STAR,int>& A );
@@ -2341,6 +2372,7 @@ template DistMatrix<int,VC,STAR,int>::DistMatrix( const DistMatrix<int,VR,  STAR
 
 #ifndef DISABLE_FLOAT
 template class DistMatrix<float,VC,STAR,int>;
+template DistMatrix<float,VC,STAR,int>::DistMatrix( const DistMatrix<float,CIRC,CIRC,int>& A );
 template DistMatrix<float,VC,STAR,int>::DistMatrix( const DistMatrix<float,MC,  MR,  int>& A );
 template DistMatrix<float,VC,STAR,int>::DistMatrix( const DistMatrix<float,MC,  STAR,int>& A );
 template DistMatrix<float,VC,STAR,int>::DistMatrix( const DistMatrix<float,MD,  STAR,int>& A );
@@ -2356,6 +2388,7 @@ template DistMatrix<float,VC,STAR,int>::DistMatrix( const DistMatrix<float,VR,  
 #endif // ifndef DISABLE_FLOAT
 
 template class DistMatrix<double,VC,STAR,int>;
+template DistMatrix<double,VC,STAR,int>::DistMatrix( const DistMatrix<double,CIRC,CIRC,int>& A );
 template DistMatrix<double,VC,STAR,int>::DistMatrix( const DistMatrix<double,MC,  MR,  int>& A );
 template DistMatrix<double,VC,STAR,int>::DistMatrix( const DistMatrix<double,MC,  STAR,int>& A );
 template DistMatrix<double,VC,STAR,int>::DistMatrix( const DistMatrix<double,MD,  STAR,int>& A );
@@ -2372,6 +2405,7 @@ template DistMatrix<double,VC,STAR,int>::DistMatrix( const DistMatrix<double,VR,
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
 template class DistMatrix<Complex<float>,VC,STAR,int>;
+template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,CIRC,CIRC,int>& A );
 template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  MR,  int>& A );
 template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  STAR,int>& A );
 template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,MD,  STAR,int>& A );
@@ -2386,6 +2420,7 @@ template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Co
 template DistMatrix<Complex<float>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<float>,VR,  STAR,int>& A );
 #endif // ifndef DISABLE_FLOAT
 template class DistMatrix<Complex<double>,VC,STAR,int>;
+template DistMatrix<Complex<double>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,CIRC,CIRC,int>& A );
 template DistMatrix<Complex<double>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  MR,  int>& A );
 template DistMatrix<Complex<double>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  STAR,int>& A );
 template DistMatrix<Complex<double>,VC,STAR,int>::DistMatrix( const DistMatrix<Complex<double>,MD,  STAR,int>& A );

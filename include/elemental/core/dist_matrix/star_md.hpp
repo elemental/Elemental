@@ -93,6 +93,9 @@ public:
     const DistMatrix<T,STAR,MD,Int>& 
     operator=( const DistMatrix<T,STAR,STAR,Int>& A );
 
+    const DistMatrix<T,STAR,MD,Int>& 
+    operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
+
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
     //------------------------------------------------------------------------//
@@ -130,8 +133,6 @@ public:
     // logically applies to real data.
     //
 
-    virtual BASE(T) GetRealPart( Int i, Int j ) const;
-    virtual BASE(T) GetImagPart( Int i, Int j ) const;
     virtual void SetRealPart( Int i, Int j, BASE(T) u );
     // Only valid for complex data
     virtual void SetImagPart( Int i, Int j, BASE(T) u );

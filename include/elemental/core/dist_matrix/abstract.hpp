@@ -95,9 +95,11 @@ public:
 
     //
     // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
+    // logically apply to real data.
     //
 
+    BASE(T) GetRealPart( Int i, Int j ) const;
+    BASE(T) GetImagPart( Int i, Int j ) const;
     BASE(T) GetLocalRealPart( Int iLocal, Int jLocal ) const;
     BASE(T) GetLocalImagPart( Int iLocal, Int jLocal ) const;
     void SetLocalRealPart( Int iLocal, Int jLocal, BASE(T) alpha );
@@ -165,8 +167,6 @@ public:
     // logically applies to real data.
     //
 
-    virtual BASE(T) GetRealPart( Int i, Int j ) const = 0;
-    virtual BASE(T) GetImagPart( Int i, Int j ) const = 0;
     virtual void SetRealPart( Int i, Int j, BASE(T) alpha ) = 0;
     // Only valid for complex data
     virtual void SetImagPart( Int i, Int j, BASE(T) alpha ) = 0;
