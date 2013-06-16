@@ -25,7 +25,7 @@ public:
     G* Buffer() const;
     std::size_t Size()   const;
 
-    void Require( std::size_t size );
+    G* Require( std::size_t size );
     void Release();
     void Empty();
 };

@@ -40,7 +40,7 @@ Memory<G>::Size() const
 { return size_; }
 
 template<typename G>
-inline void 
+inline G*
 Memory<G>::Require( std::size_t size )
 {
     if( size > size_ )
@@ -61,6 +61,7 @@ Memory<G>::Require( std::size_t size )
 #endif
         size_ = size;
     }
+    return buffer_;
 }
 
 template<typename G>

@@ -87,14 +87,12 @@ DistMatrix<T,MR,MC,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MR,MC,Int>::DistMatrix( const DistMatrix<T,MR,MC,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  (A.Participating() ? A.ColRank() : 0),
-  (A.Participating() ? A.RowRank() : 0),
-  0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MR,MC]::DistMatrix");
 #endif
+    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -104,14 +102,12 @@ DistMatrix<T,MR,MC,Int>::DistMatrix( const DistMatrix<T,MR,MC,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,MR,MC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  (A.Participating() ? A.ColRank() : 0),
-  (A.Participating() ? A.RowRank() : 0),
-  0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MR,MC]::DistMatrix");
 #endif
+    this->SetShifts();
     if( MR != U || MC != V || 
         reinterpret_cast<const DistMatrix<T,MR,MC,Int>*>(&A) != this ) 
         *this = A;
@@ -488,9 +484,9 @@ DistMatrix<T,MR,MC,Int>::GetDiagonal
 
         const Int localDiagLength = d.LocalHeight();
 
-        const T* thisBuffer = this->LockedBuffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
-        T* dBuffer = d.Buffer();
+        T* dBuf = d.Buffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
@@ -498,7 +494,7 @@ DistMatrix<T,MR,MC,Int>::GetDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k] = thisBuffer[iLoc+jLoc*thisLDim]; 
+            dBuf[k] = thisBuf[iLoc+jLoc*thisLDim]; 
         }
     }
 }
@@ -556,9 +552,9 @@ DistMatrix<T,MR,MC,Int>::GetDiagonal
 
         const Int localDiagLength = d.LocalWidth();
 
-        const T* thisBuffer = this->LockedBuffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
-        T* dBuffer = d.Buffer();
+        T* dBuf = d.Buffer();
         const Int dLDim = d.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -567,7 +563,7 @@ DistMatrix<T,MR,MC,Int>::GetDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k*dLDim] = thisBuffer[iLoc+jLoc*thisLDim];
+            dBuf[k*dLDim] = thisBuf[iLoc+jLoc*thisLDim];
         }
     }
 }
@@ -622,8 +618,8 @@ DistMatrix<T,MR,MC,Int>::SetDiagonal
 
         const Int localDiagLength = d.LocalHeight();
 
-        const T* dBuffer = d.LockedBuffer();
-        T* thisBuffer = this->Buffer();
+        const T* dBuf = d.LockedBuffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -632,7 +628,7 @@ DistMatrix<T,MR,MC,Int>::SetDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            thisBuffer[iLoc+jLoc*thisLDim] = dBuffer[k];
+            thisBuf[iLoc+jLoc*thisLDim] = dBuf[k];
         }
     }
 }
@@ -687,9 +683,9 @@ DistMatrix<T,MR,MC,Int>::SetDiagonal
 
         const Int localDiagLength = d.LocalWidth();
 
-        const T* dBuffer = d.LockedBuffer();
+        const T* dBuf = d.LockedBuffer();
         const Int dLDim = d.LDim();
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -698,7 +694,7 @@ DistMatrix<T,MR,MC,Int>::SetDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            thisBuffer[iLoc+jLoc*thisLDim] = dBuffer[k*dLDim];
+            thisBuf[iLoc+jLoc*thisLDim] = dBuf[k*dLDim];
         }
     }
 }
@@ -749,8 +745,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         const Int recvRankCM = (rankCM+(p+colShiftVR-colShiftVCOfA)) % p;
         const Int recvRankRM = (recvRankCM/r)+c*(recvRankCM%r);
 
-        this->auxMemory_.Require( (r+c)*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Require( (r+c)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[r*portionSize];
 
@@ -758,7 +753,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         {
             // Pack
             const Int AColShift = A.ColShift();
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
@@ -771,7 +766,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
                 const Int thisLocalHeight = Length_(height,shift,p);
 
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    data[iLoc] = ABuffer[offset+iLoc*c];
+                    data[iLoc] = ABuf[offset+iLoc*c];
             }
         }
 
@@ -794,7 +789,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         {
             // Unpack
             const Int thisColShift = this->ColShift();
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
@@ -807,7 +802,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
                 const Int thisLocalHeight = Length_(height,shift,p);
 
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    thisBuffer[offset+iLoc*r] = data[iLoc];
+                    thisBuf[offset+iLoc*r] = data[iLoc];
             }
         }
 
@@ -837,8 +832,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         const Int recvRankRM = (rankRM+(p+rowShiftVC-rowShiftVROfA)) % p;
         const Int recvRankCM = (recvRankRM/c)+r*(recvRankRM%c);
 
-        this->auxMemory_.Require( (r+c)*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Require( (r+c)*portionSize );
         T* sendBuf = &buffer[0];
         T* recvBuf = &buffer[c*portionSize];
 
@@ -846,7 +840,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         {
             // Pack
             const Int ARowShift = A.RowShift();
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
             const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
@@ -860,7 +854,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
                 const Int thisLocalWidth = Length_(width,shift,p);
 
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                    data[jLoc] = ABuffer[(offset+jLoc*r)*ALDim];
+                    data[jLoc] = ABuf[(offset+jLoc*r)*ALDim];
             }
         }
 
@@ -883,7 +877,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
         {
             // Unpack
             const Int thisRowShift = this->RowShift();
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
@@ -897,7 +891,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
                 const Int thisLocalWidth = Length_(width,shift,p);
 
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                    thisBuffer[(offset+jLoc*c)*thisLDim] = data[jLoc];
+                    thisBuf[(offset+jLoc*c)*thisLDim] = data[jLoc];
             }
         }
         this->auxMemory_.Release();
@@ -1081,41 +1075,39 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
         const Int sendSize = localHeightOfA * localWidthOfA;
         const Int recvSize = localHeight * localWidth;
 
-        this->auxMemory_.Require( sendSize + recvSize );
-
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[sendSize];
 
         // Pack
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         {
-            const T* ACol = &ABuffer[jLoc*ALDim];
-            T* sendBufferCol = &sendBuffer[jLoc*localHeightOfA];
-            MemCopy( sendBufferCol, ACol, localHeightOfA );
+            const T* ACol = &ABuf[jLoc*ALDim];
+            T* sendBufCol = &sendBuf[jLoc*localHeightOfA];
+            MemCopy( sendBufCol, ACol, localHeightOfA );
         }
 
         // Communicate
         mpi::SendRecv
-        ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.VCComm() );
+        ( sendBuf, sendSize, sendRank, 0,
+          recvBuf, recvSize, recvRank, mpi::ANY_TAG, g.VCComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* recvBufferCol = &recvBuffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            MemCopy( thisCol, recvBufferCol, localHeight );
+            const T* recvBufCol = &recvBuf[jLoc*localHeight];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
+            MemCopy( thisCol, recvBufCol, localHeight );
         }
         this->auxMemory_.Release();
     }
@@ -1154,17 +1146,17 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         const Int localHeight = this->LocalHeight();
         const Int localWidth = this->LocalWidth();
 
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* ACol = &ABuffer[(rowShift+jLoc*r)*ALDim];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
+            const T* ACol = &ABuf[(rowShift+jLoc*r)*ALDim];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
             MemCopy( thisCol, ACol, localHeight );
         }
     }
@@ -1192,41 +1184,39 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         const Int sendSize = localHeightOfA * localWidth;
         const Int recvSize = localHeight * localWidth;
 
-        this->auxMemory_.Require( sendSize + recvSize );
-
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[sendSize];
 
         // Pack
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* ACol = &ABuffer[(rowShift+jLoc*r)*ALDim];
-            T* sendBufferCol = &sendBuffer[jLoc*localHeightOfA];
-            MemCopy( sendBufferCol, ACol, localHeightOfA );
+            const T* ACol = &ABuf[(rowShift+jLoc*r)*ALDim];
+            T* sendBufCol = &sendBuf[jLoc*localHeightOfA];
+            MemCopy( sendBufCol, ACol, localHeightOfA );
         }
 
         // Communicate
         mpi::SendRecv
-        ( sendBuffer, sendSize, sendRank, 0,
-          recvBuffer, recvSize, recvRank, mpi::ANY_TAG, g.RowComm() );
+        ( sendBuf, sendSize, sendRank, 0,
+          recvBuf, recvSize, recvRank, mpi::ANY_TAG, g.RowComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* recvBufferCol = &recvBuffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            MemCopy( thisCol, recvBufferCol, localHeight );
+            const T* recvBufCol = &recvBuf[jLoc*localHeight];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
+            MemCopy( thisCol, recvBufCol, localHeight );
         }
         this->auxMemory_.Release();
     }
@@ -1265,17 +1255,17 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
         const Int localHeight = this->LocalHeight();
         const Int localWidth = this->LocalWidth();
 
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            T* destCol = &thisBuffer[jLoc*thisLDim];
-            const T* sourceCol = &ABuffer[colShift+jLoc*ALDim];
+            T* destCol = &thisBuf[jLoc*thisLDim];
+            const T* sourceCol = &ABuf[colShift+jLoc*ALDim];
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 destCol[iLoc] = sourceCol[iLoc*c];
         }
@@ -1304,41 +1294,39 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
         const Int sendSize = localHeight * localWidthOfA;
         const Int recvSize = localHeight * localWidth;
 
-        this->auxMemory_.Require( sendSize + recvSize );
-
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[sendSize];
+        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[sendSize];
 
         // Pack
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         {
-            T* destCol = &sendBuffer[jLoc*localHeight];
-            const T* sourceCol = &ABuffer[colShift+jLoc];
+            T* destCol = &sendBuf[jLoc*localHeight];
+            const T* sourceCol = &ABuf[colShift+jLoc];
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 destCol[iLoc] = sourceCol[iLoc*c];
         }
 
         // Communicate
         mpi::SendRecv
-        ( sendBuffer, sendSize, sendRow, 0,
-          recvBuffer, recvSize, recvRow, mpi::ANY_TAG, g.ColComm() );
+        ( sendBuf, sendSize, sendRow, 0,
+          recvBuf, recvSize, recvRow, mpi::ANY_TAG, g.ColComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* recvBufferCol = &recvBuffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            MemCopy( thisCol, recvBufferCol, localHeight );
+            const T* recvBufCol = &recvBuf[jLoc*localHeight];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
+            MemCopy( thisCol, recvBufCol, localHeight );
         }
         this->auxMemory_.Release();
     }
@@ -1408,20 +1396,19 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         const Int maxWidth = MaxLength(width,p);
         const Int portionSize = mpi::Pad( maxHeight*maxWidth );
 
-        this->auxMemory_.Require( 2*c*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[c*portionSize];
+        T* buffer = this->auxMemory_.Require( 2*c*portionSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[c*portionSize];
 
         // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &sendBuffer[k*portionSize];
+            T* data = &sendBuf[k*portionSize];
             const Int thisColShift = Shift_(k,colAlignment,c);
             const Int thisLocalHeight = Length_(height,thisColShift,c);
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -1430,7 +1417,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
             for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -1438,18 +1425,18 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 
         // Communicate
         mpi::AllToAll
-        ( sendBuffer, portionSize,
-          recvBuffer, portionSize, g.RowComm() );
+        ( sendBuf, portionSize,
+          recvBuf, portionSize, g.RowComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            const T* data = &recvBuffer[k*portionSize];
+            const T* data = &recvBuf[k*portionSize];
 
             const Int thisRank = row+k*r;
             const Int thisRowShift = Shift_(thisRank,rowAlignmentOfA,p);
@@ -1462,7 +1449,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
             {
                 const T* dataCol = &data[jLoc*localHeight];
-                T* thisCol = &thisBuffer[(thisRowOffset+jLoc*c)*thisLDim];
+                T* thisCol = &thisBuf[(thisRowOffset+jLoc*c)*thisLDim];
                 MemCopy( thisCol, dataCol, localHeight );
             }
         }
@@ -1496,20 +1483,19 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         const Int maxWidth = MaxLength(width,p);
         const Int portionSize = mpi::Pad( maxHeight*maxWidth );
 
-        this->auxMemory_.Require( 2*c*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
-        T* firstBuffer = &buffer[0];
-        T* secondBuffer = &buffer[c*portionSize];
+        T* buffer = this->auxMemory_.Require( 2*c*portionSize );
+        T* firstBuf = &buffer[0];
+        T* secondBuf = &buffer[c*portionSize];
 
         // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &secondBuffer[k*portionSize];
+            T* data = &secondBuf[k*portionSize];
             const Int thisColShift = Shift_(k,colAlignment,c);
             const Int thisLocalHeight = Length_(height,thisColShift,c);
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -1518,7 +1504,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
             for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -1526,23 +1512,23 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
 
         // SendRecv to align A[* ,VC] via a trade in the column
         mpi::SendRecv
-        ( secondBuffer, c*portionSize, sendRow, 0,
-          firstBuffer,  c*portionSize, recvRow, mpi::ANY_TAG, g.ColComm() );
+        ( secondBuf, c*portionSize, sendRow, 0,
+          firstBuf,  c*portionSize, recvRow, mpi::ANY_TAG, g.ColComm() );
 
-        // AllToAll to gather all of the aligned [* ,VC] into secondBuffer
+        // AllToAll to gather all of the aligned [* ,VC] into secondBuf
         mpi::AllToAll
-        ( firstBuffer,  portionSize, 
-          secondBuffer, portionSize, g.RowComm() );
+        ( firstBuf,  portionSize, 
+          secondBuf, portionSize, g.RowComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            const T* data = &secondBuffer[k*portionSize];
+            const T* data = &secondBuf[k*portionSize];
             const Int thisRank = recvRow+k*r;
             const Int thisRowShift = Shift_(thisRank,rowAlignmentOfA,p);
             const Int thisRowOffset = (thisRowShift-rowShift) / r;
@@ -1553,7 +1539,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
             {
                 const T* dataCol = &data[jLoc*localHeight];
-                T* thisCol = &thisBuffer[(thisRowOffset+jLoc*c)*thisLDim];
+                T* thisCol = &thisBuf[(thisRowOffset+jLoc*c)*thisLDim];
                 MemCopy( thisCol, dataCol, localHeight );
             }
         }
@@ -1606,20 +1592,19 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         const Int maxWidth = MaxLength(width,r);
         const Int portionSize = mpi::Pad( maxHeight*maxWidth );
 
-        this->auxMemory_.Require( 2*r*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        T* recvBuffer = &buffer[r*portionSize];
+        T* buffer = this->auxMemory_.Require( 2*r*portionSize );
+        T* sendBuf = &buffer[0];
+        T* recvBuf = &buffer[r*portionSize];
 
         // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
         {
-            T* data = &sendBuffer[k*portionSize];
+            T* data = &sendBuf[k*portionSize];
             const Int thisRowShift = Shift_(k,rowAlignment,r);
             const Int thisLocalWidth = Length_(width,thisRowShift,r);
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -1627,7 +1612,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 #endif
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
             {
-                const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                 T* dataCol = &data[jLoc*localHeightOfA];
                 MemCopy( dataCol, ACol, localHeightOfA );
             }
@@ -1635,18 +1620,18 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 
         // Communicate
         mpi::AllToAll
-        ( sendBuffer, portionSize,
-          recvBuffer, portionSize, g.ColComm() );
+        ( sendBuf, portionSize,
+          recvBuf, portionSize, g.ColComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
         {
-            const T* data = &recvBuffer[k*portionSize];
+            const T* data = &recvBuf[k*portionSize];
             const Int thisRank = col+k*c;
             const Int thisColShift = Shift_(thisRank,colAlignmentOfA,p);
             const Int thisColOffset = (thisColShift-colShift) / c;
@@ -1656,7 +1641,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                T* destCol = &thisBuffer[thisColOffset+jLoc*thisLDim];
+                T* destCol = &thisBuf[thisColOffset+jLoc*thisLDim];
                 const T* sourceCol = &data[jLoc*thisLocalHeight];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc*r] = sourceCol[iLoc];
@@ -1692,20 +1677,19 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         const Int maxWidth = MaxLength(width,r);
         const Int portionSize = mpi::Pad( maxHeight*maxWidth );
 
-        this->auxMemory_.Require( 2*r*portionSize );
-        T* buffer = this->auxMemory_.Buffer();
-        T* firstBuffer = &buffer[0];
-        T* secondBuffer = &buffer[r*portionSize];
+        T* buffer = this->auxMemory_.Require( 2*r*portionSize );
+        T* firstBuf = &buffer[0];
+        T* secondBuf = &buffer[r*portionSize];
 
         // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
         {
-            T* data = &secondBuffer[k*portionSize];
+            T* data = &secondBuf[k*portionSize];
             const Int thisRowShift = Shift_(k,rowAlignment,r);
             const Int thisLocalWidth = Length_(width,thisRowShift,r);
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -1713,7 +1697,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 #endif
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
             {
-                const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                 T* dataCol = &data[jLoc*localHeightOfA];
                 MemCopy( dataCol, ACol, localHeightOfA );
             }
@@ -1721,23 +1705,23 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 
         // SendRecv to align A[VR,* ] via a trade in the row
         mpi::SendRecv
-        ( secondBuffer, r*portionSize, sendCol, 0,
-          firstBuffer,  r*portionSize, recvCol, mpi::ANY_TAG, g.RowComm() );
+        ( secondBuf, r*portionSize, sendCol, 0,
+          firstBuf,  r*portionSize, recvCol, mpi::ANY_TAG, g.RowComm() );
 
-        // AllToAll to gather all of the aligned [VR,* ] data into secondBuffer
+        // AllToAll to gather all of the aligned [VR,* ] data into secondBuf
         mpi::AllToAll
-        ( firstBuffer,  portionSize,
-          secondBuffer, portionSize, g.ColComm() );
+        ( firstBuf,  portionSize,
+          secondBuf, portionSize, g.ColComm() );
 
         // Unpack
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<r; ++k )
         {
-            const T* data = &secondBuffer[k*portionSize];
+            const T* data = &secondBuf[k*portionSize];
             const Int thisRank = recvCol+k*c;
             const Int thisColShift = Shift_(thisRank,colAlignmentOfA,p);
             const Int thisColOffset = (thisColShift-colShift) / c;
@@ -1747,7 +1731,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                T* destCol = &thisBuffer[thisColOffset+jLoc*thisLDim];
+                T* destCol = &thisBuf[thisColOffset+jLoc*thisLDim];
                 const T* sourceCol = &data[jLoc*thisLocalHeight];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc*r] = sourceCol[iLoc];
@@ -1800,17 +1784,17 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
     const Int localHeight = this->LocalHeight();
     const Int localWidth = this->LocalWidth();
 
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
     const Int ALDim = A.LDim();
-    T* thisBuffer = this->Buffer();
+    T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for 
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        T* destCol = &thisBuffer[jLoc*thisLDim];
-        const T* sourceCol = &ABuffer[colShift+(rowShift+jLoc*r)*ALDim];
+        T* destCol = &thisBuf[jLoc*thisLDim];
+        const T* sourceCol = &ABuf[colShift+(rowShift+jLoc*r)*ALDim];
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             destCol[iLoc] = sourceCol[iLoc*c];
     }
@@ -1845,17 +1829,16 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
     const int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
     const int recvSize = pkgSize;
     const int sendSize = p*pkgSize;
-    T* recvBuffer;
+    T* recvBuf;
     if( A.Participating() )
     {
-        this->auxMemory_.Require( sendSize + recvSize );
-        T* buffer = this->auxMemory_.Buffer();
-        T* sendBuffer = &buffer[0];
-        recvBuffer = &buffer[sendSize];
+        T* buffer = this->auxMemory_.Require( sendSize + recvSize );
+        T* sendBuf = &buffer[0];
+        recvBuf = &buffer[sendSize];
 
         // Pack the send buffer
         const int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         for( int t=0; t<rowStride; ++t )
         {
             const int tLocalWidth = Length( n, t, rowStride );
@@ -1873,8 +1856,8 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
                     for( int iLoc=0; iLoc<sLocalHeight; ++iLoc )
                     {
                         const int i = s + iLoc*colStride;
-                        sendBuffer[q*pkgSize+iLoc+jLoc*sLocalHeight] =
-                            ABuffer[i+j*ALDim];
+                        sendBuf[q*pkgSize+iLoc+jLoc*sLocalHeight] =
+                            ABuf[i+j*ALDim];
                     }
                 }
             }
@@ -1882,17 +1865,16 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
 
         // Scatter from the root
         mpi::Scatter
-        ( sendBuffer, pkgSize, recvBuffer, pkgSize, A.Root(), g.VCComm() );
+        ( sendBuf, pkgSize, recvBuf, pkgSize, A.Root(), g.VCComm() );
     }
     else if( this->Participating() )
     {
-        this->auxMemory_.Require( recvSize );
-        recvBuffer = this->auxMemory_.Buffer();
+        recvBuf = this->auxMemory_.Require( recvSize );
 
         // Perform the receiving portion of the scatter from the non-root
         mpi::Scatter
         ( static_cast<T*>(0), pkgSize, 
-          recvBuffer,         pkgSize, A.Root(), g.VCComm() );
+          recvBuf,         pkgSize, A.Root(), g.VCComm() );
     }
 
     if( this->Participating() )
@@ -1902,7 +1884,7 @@ DistMatrix<T,MR,MC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
         T* buffer = this->Buffer();
         for( int jLoc=0; jLoc<nLocal; ++jLoc )
             for( int iLoc=0; iLoc<mLocal; ++iLoc )
-                buffer[iLoc+jLoc*ldim] = recvBuffer[iLoc+jLoc*mLocal];
+                buffer[iLoc+jLoc*ldim] = recvBuf[iLoc+jLoc*mLocal];
         this->auxMemory_.Release();
     }
 
@@ -1943,24 +1925,23 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             const Int localHeight = this->LocalHeight();
             const Int portionSize = mpi::Pad( localHeight );
 
-            this->auxMemory_.Require( 2*portionSize );
-            T* buffer = this->auxMemory_.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[portionSize];
+            T* buffer = this->auxMemory_.Require( 2*portionSize );
+            T* sendBuf = &buffer[0];
+            T* recvBuf = &buffer[portionSize];
 
             // Pack 
             const T* ACol = A.LockedBuffer();
-            MemCopy( sendBuffer, ACol, localHeight );
+            MemCopy( sendBuf, ACol, localHeight );
 
             // Reduce to rowAlignment
             mpi::Reduce
-            ( sendBuffer, recvBuffer, portionSize,
+            ( sendBuf, recvBuf, portionSize,
               mpi::SUM, rowAlignment, g.ColComm() );
 
             if( myRow == rowAlignment )
             {
                 T* thisCol = this->Buffer();
-                MemCopy( thisCol, recvBuffer, localHeight );
+                MemCopy( thisCol, recvBuf, localHeight );
             }
 
             this->auxMemory_.Release();
@@ -1977,12 +1958,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             const Int recvSize = mpi::Pad( localHeight*maxLocalWidth );
             const Int sendSize = r * recvSize;
 
-            this->auxMemory_.Require( sendSize );
-            T* buffer = this->auxMemory_.Buffer();
+            T* buffer = this->auxMemory_.Require( sendSize );
 
             // Pack 
             const Int ALDim = A.LDim();
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
@@ -1996,7 +1976,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
 #endif
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 {
-                    const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                    const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                     T* dataCol = &data[jLoc*localHeight];
                     MemCopy( dataCol, ACol, localHeight );
                 }
@@ -2006,7 +1986,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.ColComm() );
 
             // Unpack our received data
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
@@ -2014,7 +1994,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             for( Int j=0; j<localWidth; ++j )
             {
                 const T* bufferCol = &buffer[j*localHeight];
-                T* thisCol = &thisBuffer[j*thisLDim];
+                T* thisCol = &thisBuf[j*thisLDim];
                 MemCopy( thisCol, bufferCol, localHeight );
             }
             this->auxMemory_.Release();
@@ -2045,29 +2025,28 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             const Int sendCol = (myCol+c+colAlignment-colAlignmentOfA) % c;
             const Int recvCol = (myCol+c+colAlignmentOfA-colAlignment) % c;
 
-            this->auxMemory_.Require( 2*portionSize );
-            T* buffer = this->auxMemory_.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[portionSize];
+            T* buffer = this->auxMemory_.Require( 2*portionSize );
+            T* sendBuf = &buffer[0];
+            T* recvBuf = &buffer[portionSize];
 
             // Pack
             const T* ACol = A.LockedBuffer();
-            MemCopy( sendBuffer, ACol, localHeightOfA );
+            MemCopy( sendBuf, ACol, localHeightOfA );
 
             // Reduce to rowAlignment
             mpi::Reduce
-            ( sendBuffer, recvBuffer, portionSize,
+            ( sendBuf, recvBuf, portionSize,
               mpi::SUM, rowAlignment, g.ColComm() );
 
             if( myRow == rowAlignment )
             {
                 // Perform the realignment
                 mpi::SendRecv
-                ( recvBuffer, portionSize, sendCol, 0,
-                  sendBuffer, portionSize, recvCol, 0, g.RowComm() );
+                ( recvBuf, portionSize, sendCol, 0,
+                  sendBuf, portionSize, recvCol, 0, g.RowComm() );
 
                 T* thisCol = this->Buffer();
-                MemCopy( thisCol, sendBuffer, localHeight );
+                MemCopy( thisCol, sendBuf, localHeight );
             }
 
             this->auxMemory_.Release();
@@ -2094,22 +2073,20 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
             const Int sendSize_RS = r * recvSize_RS;
             const Int recvSize_SR = localHeight * localWidth;
 
-            this->auxMemory_.Require
+            T* buffer = this->auxMemory_.Require
             ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
-
-            T* buffer = this->auxMemory_.Buffer();
-            T* firstBuffer = &buffer[0];
-            T* secondBuffer = &buffer[recvSize_RS];
+            T* firstBuf = &buffer[0];
+            T* secondBuf = &buffer[recvSize_RS];
 
             // Pack
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
             const Int ALDim = A.LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int k=0; k<r; ++k )
             {
-                T* data = &secondBuffer[k*recvSize_RS];
+                T* data = &secondBuf[k*recvSize_RS];
 
                 const Int thisRowShift = Shift_( k, rowAlignment, r );
                 const Int thisLocalWidth = Length_(width,thisRowShift,r);
@@ -2119,7 +2096,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
 #endif
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 {
-                    const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                    const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                     T* dataCol = &data[jLoc*localHeightOfA];
                     MemCopy( dataCol, ACol, localHeightOfA );
                 }
@@ -2127,25 +2104,25 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A )
 
             // Reduce-scatter over each process col
             mpi::ReduceScatter
-            ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.ColComm() );
+            ( secondBuf, firstBuf, recvSize_RS, mpi::SUM, g.ColComm() );
 
             // Trade reduced data with the appropriate process col
             mpi::SendRecv
-            ( firstBuffer,  localHeightOfA*localWidth, sendCol, 0,
-              secondBuffer, localHeight*localWidth,    recvCol, mpi::ANY_TAG,
+            ( firstBuf,  localHeightOfA*localWidth, sendCol, 0,
+              secondBuf, localHeight*localWidth,    recvCol, mpi::ANY_TAG,
               g.RowComm() );
 
             // Unpack the received data
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
             #pragma omp parallel for
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const T* secondBufferCol = &secondBuffer[jLoc*localHeight];
-                T* thisCol = &thisBuffer[jLoc*thisLDim];
-                MemCopy( thisCol, secondBufferCol, localHeight );
+                const T* secondBufCol = &secondBuf[jLoc*localHeight];
+                T* thisCol = &thisBuf[jLoc*thisLDim];
+                MemCopy( thisCol, secondBufCol, localHeight );
             }
             this->auxMemory_.Release();
         }
@@ -2206,12 +2183,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
         const Int sendSize = c * recvSize;
 
-        this->auxMemory_.Require( sendSize );
-        T* buffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Require( sendSize );
 
         // Pack 
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
@@ -2226,7 +2202,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2236,7 +2212,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.RowComm() );
 
         // Unpack our received data
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -2244,7 +2220,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
             MemCopy( thisCol, bufferCol, localHeight );
         }
         this->auxMemory_.Release();
@@ -2275,21 +2251,20 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
         const Int sendSize_RS = c* recvSize_RS;
         const Int recvSize_SR = localHeight * localWidth;
 
-        this->auxMemory_.Require
+        T* buffer = this->auxMemory_.Require
         ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
-        T* buffer = this->auxMemory_.Buffer();
-        T* firstBuffer = &buffer[0];
-        T* secondBuffer = &buffer[recvSize_RS];
+        T* firstBuf = &buffer[0];
+        T* secondBuf = &buffer[recvSize_RS];
 
         // Pack 
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &secondBuffer[k*recvSize_RS];
+            T* data = &secondBuf[k*recvSize_RS];
             const Int thisColShift = Shift_( k, colAlignment, c );
             const Int thisLocalHeight = Length_( height, thisColShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -2298,7 +2273,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
             for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2306,25 +2281,25 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,MC,Int>& A )
 
         // Reduce-scatter over each process row
         mpi::ReduceScatter
-        ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.RowComm() );
+        ( secondBuf, firstBuf, recvSize_RS, mpi::SUM, g.RowComm() );
 
         // Trade reduced data with the appropriate process row
         mpi::SendRecv
-        ( firstBuffer,  localHeight*localWidthOfA, sendRow, 0,
-          secondBuffer, localHeight*localWidth,    recvRow, mpi::ANY_TAG, 
+        ( firstBuf,  localHeight*localWidthOfA, sendRow, 0,
+          secondBuf, localHeight*localWidth,    recvRow, mpi::ANY_TAG, 
           g.ColComm() );
 
         // Unpack the received data
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* secondBufferCol = &secondBuffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
-            MemCopy( thisCol, secondBufferCol, localHeight );
+            const T* secondBufCol = &secondBuf[jLoc*localHeight];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
+            MemCopy( thisCol, secondBufCol, localHeight );
         }
         this->auxMemory_.Release();
     }
@@ -2362,12 +2337,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
     const Int recvSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
     const Int sendSize = r * c * recvSize;
 
-    this->auxMemory_.Require( sendSize );
-    T* buffer = this->auxMemory_.Buffer();
+    T* buffer = this->auxMemory_.Require( sendSize );
 
     // Pack 
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -2387,7 +2361,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
                 const T* sourceCol = 
-                    &ABuffer[thisColShift+(thisRowShift+jLoc*r)*ALDim];
+                    &ABuf[thisColShift+(thisRowShift+jLoc*r)*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2398,7 +2372,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
     mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.VRComm() );
 
     // Unpack our received data
-    T* thisBuffer = this->Buffer();
+    T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
@@ -2406,7 +2380,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A )
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const T* bufferCol = &buffer[jLoc*localHeight];
-        T* thisCol = &thisBuffer[jLoc*thisLDim];
+        T* thisCol = &thisBuf[jLoc*thisLDim];
         MemCopy( thisCol, bufferCol, localHeight );
     }
     this->auxMemory_.Release();
@@ -2437,18 +2411,17 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             const Int localHeight = this->LocalHeight();
             const Int portionSize = mpi::Pad( localHeight );
 
-            this->auxMemory_.Require( 2*portionSize );
-            T* buffer = this->auxMemory_.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[portionSize];
+            T* buffer = this->auxMemory_.Require( 2*portionSize );
+            T* sendBuf = &buffer[0];
+            T* recvBuf = &buffer[portionSize];
 
             // Pack
             const T* ACol = A.LockedBuffer();
-            MemCopy( sendBuffer, ACol, localHeight );
+            MemCopy( sendBuf, ACol, localHeight );
 
             // Reduce to rowAlignment
             mpi::Reduce
-            ( sendBuffer, recvBuffer, portionSize,
+            ( sendBuf, recvBuf, portionSize,
               mpi::SUM, rowAlignment, g.ColComm() );
 
             if( myRow == rowAlignment )
@@ -2458,7 +2431,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
                 #pragma omp parallel for
 #endif
                 for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    thisCol[iLoc] += alpha*recvBuffer[iLoc];
+                    thisCol[iLoc] += alpha*recvBuf[iLoc];
             }
             this->auxMemory_.Release();
         }
@@ -2474,12 +2447,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             const Int portionSize = mpi::Pad( localHeight*maxLocalWidth );
             const Int sendSize = r*portionSize;
 
-            this->auxMemory_.Require( sendSize );
-            T* buffer = this->auxMemory_.Buffer();
+            T* buffer = this->auxMemory_.Require( sendSize );
 
             // Pack 
             const Int ALDim = A.LDim();
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
@@ -2493,7 +2465,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 #endif
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 {
-                    const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                    const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                     T* dataCol = &data[jLoc*localHeight];
                     MemCopy( dataCol, ACol, localHeight );
                 }
@@ -2503,7 +2475,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             mpi::ReduceScatter( buffer, portionSize, mpi::SUM, g.ColComm() );
 
             // Update with our received data
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(AVOID_OMP_FMA)
             #pragma omp parallel for
@@ -2511,7 +2483,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 const T* bufferCol = &buffer[jLoc*localHeight];
-                T* thisCol = &thisBuffer[jLoc*thisLDim];
+                T* thisCol = &thisBuf[jLoc*thisLDim];
                 for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                     thisCol[iLoc] += alpha*bufferCol[iLoc];
             }
@@ -2543,33 +2515,32 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             const Int sendCol = (myCol+c+colAlignment-colAlignmentOfA) % c;
             const Int recvCol = (myCol+c+colAlignmentOfA-colAlignment) % c;
 
-            this->auxMemory_.Require( 2*portionSize );
-            T* buffer = this->auxMemory_.Buffer();
-            T* sendBuffer = &buffer[0];
-            T* recvBuffer = &buffer[portionSize];
+            T* buffer = this->auxMemory_.Require( 2*portionSize );
+            T* sendBuf = &buffer[0];
+            T* recvBuf = &buffer[portionSize];
 
             // Pack
             const T* ACol = A.LockedBuffer();
-            MemCopy( sendBuffer, ACol, localHeightOfA );
+            MemCopy( sendBuf, ACol, localHeightOfA );
 
             // Reduce to rowAlignment
             mpi::Reduce
-            ( sendBuffer, recvBuffer, portionSize,
+            ( sendBuf, recvBuf, portionSize,
               mpi::SUM, rowAlignment, g.ColComm() );
 
             if( myRow == rowAlignment )
             {
                 // Perform the realignment
                 mpi::SendRecv
-                ( recvBuffer, portionSize, sendCol, 0,
-                  sendBuffer, portionSize, recvCol, 0, g.RowComm() );
+                ( recvBuf, portionSize, sendCol, 0,
+                  sendBuf, portionSize, recvCol, 0, g.RowComm() );
 
                 T* thisCol = this->Buffer();
 #if defined(HAVE_OPENMP) && !defined(AVOID_OMP_FMA)
                 #pragma omp parallel for
 #endif
                 for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    thisCol[iLoc] += alpha*sendBuffer[iLoc];
+                    thisCol[iLoc] += alpha*sendBuf[iLoc];
             }
             this->auxMemory_.Release();
         }
@@ -2594,21 +2565,20 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             const Int sendSize_RS = r * recvSize_RS;
             const Int recvSize_SR = localHeight * localWidth;
 
-            this->auxMemory_.Require
+            T* buffer = this->auxMemory_.Require
             ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
-            T* buffer = this->auxMemory_.Buffer();
-            T* firstBuffer = &buffer[0];
-            T* secondBuffer = &buffer[recvSize_RS];
+            T* firstBuf = &buffer[0];
+            T* secondBuf = &buffer[recvSize_RS];
 
             // Pack 
             const Int ALDim = A.LDim();
-            const T* ABuffer = A.LockedBuffer();
+            const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
             #pragma omp parallel for
 #endif
             for( Int k=0; k<r; ++k )
             {
-                T* data = &secondBuffer[k*recvSize_RS];
+                T* data = &secondBuf[k*recvSize_RS];
                 const Int thisRowShift = Shift_( k, rowAlignment, r );
                 const Int thisLocalWidth = Length_(width,thisRowShift,r);
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -2616,7 +2586,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 #endif
                 for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 {
-                    const T* ACol = &ABuffer[(thisRowShift+jLoc*r)*ALDim];
+                    const T* ACol = &ABuf[(thisRowShift+jLoc*r)*ALDim];
                     T* dataCol = &data[jLoc*localHeightOfA];
                     MemCopy( dataCol, ACol, localHeightOfA );
                 }
@@ -2624,26 +2594,26 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 
             // Reduce-scatter over each process col
             mpi::ReduceScatter
-            ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.ColComm() );
+            ( secondBuf, firstBuf, recvSize_RS, mpi::SUM, g.ColComm() );
 
             // Trade reduced data with the appropriate process col
             mpi::SendRecv
-            ( firstBuffer,  localHeightOfA*localWidth, sendCol, 0, 
-              secondBuffer, localHeight*localWidth,    recvCol, mpi::ANY_TAG,
+            ( firstBuf,  localHeightOfA*localWidth, sendCol, 0, 
+              secondBuf, localHeight*localWidth,    recvCol, mpi::ANY_TAG,
               g.RowComm() );
 
             // Update with our received data
-            T* thisBuffer = this->Buffer();
+            T* thisBuf = this->Buffer();
             const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(AVOID_OMP_FMA)
             #pragma omp parallel for
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const T* secondBufferCol = &secondBuffer[jLoc*localHeight];
-                T* thisCol = &thisBuffer[jLoc*thisLDim];
+                const T* secondBufCol = &secondBuf[jLoc*localHeight];
+                T* thisCol = &thisBuf[jLoc*thisLDim];
                 for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    thisCol[iLoc] += alpha*secondBufferCol[iLoc];
+                    thisCol[iLoc] += alpha*secondBufCol[iLoc];
             }
             this->auxMemory_.Release();
         }
@@ -2695,12 +2665,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         const Int recvSize = mpi::Pad( maxLocalHeight*localWidth );
         const Int sendSize = c * recvSize;
 
-        this->auxMemory_.Require( sendSize );
-        T* buffer = this->auxMemory_.Buffer();
+        T* buffer = this->auxMemory_.Require( sendSize );
 
         // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
@@ -2715,7 +2684,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2725,7 +2694,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.RowComm() );
 
         // Update with our received data
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(AVOID_OMP_FMA)
         #pragma omp parallel for
@@ -2733,7 +2702,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 thisCol[iLoc] += alpha*bufferCol[iLoc];
         }
@@ -2765,21 +2734,20 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
         const Int sendSize_RS = c * recvSize_RS;
         const Int recvSize_SR = localHeight * localWidth;
 
-        this->auxMemory_.Require
+        T* buffer = this->auxMemory_.Require
         ( recvSize_RS + std::max(sendSize_RS,recvSize_SR) );
-        T* buffer = this->auxMemory_.Buffer();
-        T* firstBuffer = &buffer[0];
-        T* secondBuffer = &buffer[recvSize_RS];
+        T* firstBuf = &buffer[0];
+        T* secondBuf = &buffer[recvSize_RS];
 
         // Pack 
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
         for( Int k=0; k<c; ++k )
         {
-            T* data = &secondBuffer[k*recvSize_RS];
+            T* data = &secondBuf[k*recvSize_RS];
             const Int thisColShift = Shift_( k, colAlignment, c );
             const Int thisLocalHeight = Length_( height, thisColShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -2788,7 +2756,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
-                const T* sourceCol = &ABuffer[thisColShift+jLoc*ALDim];
+                const T* sourceCol = &ABuf[thisColShift+jLoc*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2796,26 +2764,26 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
 
         // Reduce-scatter over each process row
         mpi::ReduceScatter
-        ( secondBuffer, firstBuffer, recvSize_RS, mpi::SUM, g.RowComm() );
+        ( secondBuf, firstBuf, recvSize_RS, mpi::SUM, g.RowComm() );
 
         // Trade reduced data with the appropriate process row
         mpi::SendRecv
-        ( firstBuffer,  localHeight*localWidthOfA, sendRow, 0,
-          secondBuffer, localHeight*localWidth,    recvRow, mpi::ANY_TAG,
+        ( firstBuf,  localHeight*localWidthOfA, sendRow, 0,
+          secondBuf, localHeight*localWidth,    recvRow, mpi::ANY_TAG,
           g.RowComm() );
 
         // Update with our received data
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(AVOID_OMP_FMA)
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* secondBufferCol = &secondBuffer[jLoc*localHeight];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
+            const T* secondBufCol = &secondBuf[jLoc*localHeight];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                thisCol[iLoc] += alpha*secondBufferCol[iLoc];
+                thisCol[iLoc] += alpha*secondBufCol[iLoc];
         }
         this->auxMemory_.Release();
     }
@@ -2854,12 +2822,11 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
     const Int recvSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
     const Int sendSize = r * c * recvSize;
 
-    this->auxMemory_.Require( sendSize );
-    T* buffer = this->auxMemory_.Buffer();
+    T* buffer = this->auxMemory_.Require( sendSize );
 
     // Pack 
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
     #pragma omp parallel for
 #endif
@@ -2879,7 +2846,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
             {
                 T* destCol = &data[jLoc*thisLocalHeight];
                 const T* sourceCol = 
-                    &ABuffer[thisColShift+(thisRowShift+jLoc*r)*ALDim];
+                    &ABuf[thisColShift+(thisRowShift+jLoc*r)*ALDim];
                 for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
                     destCol[iLoc] = sourceCol[iLoc*c];
             }
@@ -2890,7 +2857,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
     mpi::ReduceScatter( buffer, recvSize, mpi::SUM, g.VRComm() );
 
     // Unpack our received data
-    T* thisBuffer = this->Buffer();
+    T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
@@ -2898,7 +2865,7 @@ DistMatrix<T,MR,MC,Int>::SumScatterUpdate
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const T* bufferCol = &buffer[jLoc*localHeight];
-        T* thisCol = &thisBuffer[jLoc*thisLDim];
+        T* thisCol = &thisBuf[jLoc*thisLDim];
         blas::Axpy( localHeight, alpha, bufferCol, 1, thisCol, 1 );
     }
     this->auxMemory_.Release();
@@ -3053,8 +3020,8 @@ DistMatrix<T,MR,MC,Int>::GetRealPartOfDiagonal
 
         const Int localDiagLength = d.LocalHeight();
 
-        R* dBuffer = d.Buffer();
-        const T* thisBuffer = this->LockedBuffer();
+        R* dBuf = d.Buffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3063,7 +3030,7 @@ DistMatrix<T,MR,MC,Int>::GetRealPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k] = RealPart( thisBuffer[iLoc+jLoc*thisLDim] );
+            dBuf[k] = RealPart( thisBuf[iLoc+jLoc*thisLDim] );
         }
     }
 }
@@ -3123,8 +3090,8 @@ DistMatrix<T,MR,MC,Int>::GetImagPartOfDiagonal
 
         const Int localDiagLength = d.LocalHeight();
 
-        R* dBuffer = d.Buffer();
-        const T* thisBuffer = this->LockedBuffer();
+        R* dBuf = d.Buffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3133,7 +3100,7 @@ DistMatrix<T,MR,MC,Int>::GetImagPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k] = ImagPart( thisBuffer[iLoc+jLoc*thisLDim] );
+            dBuf[k] = ImagPart( thisBuf[iLoc+jLoc*thisLDim] );
         }
     }
 }
@@ -3193,9 +3160,9 @@ DistMatrix<T,MR,MC,Int>::GetRealPartOfDiagonal
 
         const Int localDiagLength = d.LocalWidth();
 
-        R* dBuffer = d.Buffer();
+        R* dBuf = d.Buffer();
         const Int dLDim = d.LDim();
-        const T* thisBuffer = this->LockedBuffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3204,7 +3171,7 @@ DistMatrix<T,MR,MC,Int>::GetRealPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k*dLDim] = RealPart( thisBuffer[iLoc+jLoc*thisLDim] );
+            dBuf[k*dLDim] = RealPart( thisBuf[iLoc+jLoc*thisLDim] );
         }
     }
 }
@@ -3264,9 +3231,9 @@ DistMatrix<T,MR,MC,Int>::GetImagPartOfDiagonal
 
         const Int localDiagLength = d.LocalWidth();
 
-        R* dBuffer = d.Buffer();
+        R* dBuf = d.Buffer();
         const Int dLDim = d.LDim();
-        const T* thisBuffer = this->LockedBuffer();
+        const T* thisBuf = this->LockedBuffer();
         const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3275,7 +3242,7 @@ DistMatrix<T,MR,MC,Int>::GetImagPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            dBuffer[k*dLDim] = ImagPart( thisBuffer[iLoc+jLoc*thisLDim] );
+            dBuf[k*dLDim] = ImagPart( thisBuf[iLoc+jLoc*thisLDim] );
         }
     }
 }
@@ -3329,7 +3296,7 @@ DistMatrix<T,MR,MC,Int>::SetRealPartOfDiagonal
         const Int jLocStart = (jStart-rowShift) / r;
 
         const Int localDiagLength = d.LocalHeight();
-        const R* dBuffer = d.LockedBuffer();
+        const R* dBuf = d.LockedBuffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
@@ -3337,7 +3304,7 @@ DistMatrix<T,MR,MC,Int>::SetRealPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            this->SetLocalRealPart( iLoc, jLoc, dBuffer[k] );
+            this->SetLocalRealPart( iLoc, jLoc, dBuf[k] );
         }
     }
 }
@@ -3393,7 +3360,7 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         const Int jLocStart = (jStart-rowShift) / r;
 
         const Int localDiagLength = d.LocalHeight();
-        const R* dBuffer = d.LockedBuffer();
+        const R* dBuf = d.LockedBuffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
@@ -3401,7 +3368,7 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            this->SetLocalImagPart( iLoc, jLoc, dBuffer[k] );
+            this->SetLocalImagPart( iLoc, jLoc, dBuf[k] );
         }
     }
 }
@@ -3456,7 +3423,7 @@ DistMatrix<T,MR,MC,Int>::SetRealPartOfDiagonal
         const Int jLocStart = (jStart-rowShift) / r;
 
         const Int localDiagLength = d.LocalWidth();
-        const R* dBuffer = d.LockedBuffer();
+        const R* dBuf = d.LockedBuffer();
         const Int dLDim = d.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3465,7 +3432,7 @@ DistMatrix<T,MR,MC,Int>::SetRealPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            this->SetLocalRealPart( iLoc, jLoc, dBuffer[k*dLDim] );
+            this->SetLocalRealPart( iLoc, jLoc, dBuf[k*dLDim] );
         }
     }
 }
@@ -3520,7 +3487,7 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         const Int jLocStart = (jStart-rowShift) / r;
 
         const Int localDiagLength = d.LocalWidth();
-        const R* dBuffer = d.LockedBuffer();
+        const R* dBuf = d.LockedBuffer();
         const Int dLDim = d.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
@@ -3529,7 +3496,7 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         {
             const Int iLoc = iLocStart + k*(lcm/c);
             const Int jLoc = jLocStart + k*(lcm/r);
-            this->SetLocalImagPart( iLoc, jLoc, dBuffer[k*dLDim] );
+            this->SetLocalImagPart( iLoc, jLoc, dBuf[k*dLDim] );
         }
     }
 }

@@ -43,34 +43,19 @@ main( int argc, char* argv[] )
         Grid grid( comm );
     
         // Create an n x n complex matrix residing on a single process.
-        Matrix<C> HRoot;
+        DistMatrix<C,CIRC,CIRC> HRoot( n, n, grid );
         if( commRank == 0 )
         {
-            HRoot.ResizeTo( n, n, n ); // n x n, with a leading dimension of n
             // Set entry (i,j) to (i+j,i-j)
             for( int j=0; j<n; ++j )
                 for( int i=0; i<n; ++i )
-                    HRoot.Set( i, j, C(i+j,i-j) );
-            Print( HRoot, "H on process 0" );
+                    HRoot.SetLocal( i, j, C(i+j,i-j) );
         }
-        mpi::Barrier( comm );
-
-        // Broadcast the local matrix to all processes so that they all have
-        // a copy of H, say H[* ,* ]
-        DistMatrix<C,STAR,STAR> H_STAR_STAR( n, n, n, grid );
-        if( commRank == 0 ) 
-        {
-            mpi::Broadcast( HRoot.Buffer(), n*n, 0, comm );
-            MemCopy( H_STAR_STAR.Buffer(), HRoot.Buffer(), n*n );
-        }
-        else
-            mpi::Broadcast( H_STAR_STAR.Buffer(), n*n, 0, comm );
         if( print )
-            Print( H_STAR_STAR, "H[* ,* ]" );
+            Print( HRoot, "H on process 0" );
 
-        // Now that we have a valid DistMatrix (in a [* ,* ] distribution), 
-        // we can trivially redistribute into the usual matrix distribution
-        DistMatrix<C> H( H_STAR_STAR );
+        // Redistribute into the usual matrix distribution
+        DistMatrix<C> H( HRoot );
         if( print )
             Print( H, "H" );
 
@@ -91,24 +76,12 @@ main( int argc, char* argv[] )
         }
 
         // Store a complete copy of w and X on the root
-        Matrix<R> wLocal;
-        Matrix<C> XLocal;
+        DistMatrix<R,CIRC,CIRC> wRoot( w_VR_STAR );
+        DistMatrix<C,CIRC,CIRC> XRoot( X );
+        if( print )
         {
-            // Give every process a full copy of w and X
-            DistMatrix<R,STAR,STAR> w_STAR_STAR( w_VR_STAR );
-            DistMatrix<C,STAR,STAR> X_STAR_STAR( X );
-
-            // Copy the data into a sequential matrix if we are the root matrix
-            if( commRank == 0 )
-            {
-                wLocal = w_STAR_STAR.Matrix();
-                XLocal = X_STAR_STAR.Matrix();
-                if( print )
-                {
-                    Print( wLocal, "Eigenvalues on root process" );
-                    Print( XLocal, "Eigenvectors on root process" );
-                }
-            }
+            Print( wRoot, "Eigenvalues on root process" );
+            Print( XRoot, "Eigenvectors on root process" );
         }
     }
     catch( exception& e ) { ReportException(e); }

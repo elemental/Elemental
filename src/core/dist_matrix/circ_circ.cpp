@@ -96,6 +96,7 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A )
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
 #endif
+    this->root_ = 0;
     if( &A != this )
         *this = A;
     else
@@ -110,6 +111,7 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
 #endif
+    this->root_ = 0;
     if( STAR != U || STAR != V || 
         reinterpret_cast<const DistMatrix<T,CIRC,CIRC,Int>*>(&A) != this )
         *this = A;
@@ -291,52 +293,50 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
-    const Int p = g.Size();
-
     const Int mLocalA = A.LocalHeight();
     const Int nLocalA = A.LocalWidth();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
     const Int mLocalMax = MaxLength(m,colStride);
     const Int nLocalMax = MaxLength(n,rowStride);
 
     const Int pkgSize = mpi::Pad( mLocalMax*nLocalMax );
-    T *originalData, *gatheredData;
-    if( g.VCRank() == this->Root() )
+    const Int p = g.Size();
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
     {
-        this->auxMemory_.Require( (p+1)*pkgSize );
-        T* buffer = this->auxMemory_.Buffer();
-        originalData = &buffer[0];
-        gatheredData = &buffer[pkgSize];
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
     }
     else
     {
-        this->auxMemory_.Require( pkgSize );
-        originalData = this->auxMemory_.Buffer();
-        gatheredData = 0;
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
     }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
-        MemCopy( &originalData[jLoc*mLocalA], &ABuffer[jLoc*ALDim], mLocalA );
+        MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
 
     // Communicate
     mpi::Gather
-    ( originalData, pkgSize,
-      gatheredData, pkgSize, this->Root(), g.VCComm() );
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    if( g.VCRank() == this->Root() )
+    if( g.VCRank() == root )
     {
         // Unpack
         T* buffer = this->Buffer();
@@ -352,7 +352,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             const Int nLocal = Length_( n, rowShift, rowStride );
             for( Int k=0; k<colStride; ++k )
             {
-                const T* data = &gatheredData[(k+l*colStride)*pkgSize];
+                const T* data = &recvBuf[(k+l*colStride)*pkgSize];
                 const Int colShift = Shift_( k, colAlignA, colStride );
                 const Int mLocal = Length_( m, colShift, colStride );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -387,11 +387,11 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( m, n );
 
     const int root = this->Root();
+    const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
     if( !g.InGrid() || g.Col() != owningCol )
@@ -402,33 +402,31 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     const Int mLocalMax = MaxLength(m,colStride);
 
     const Int pkgSize = mpi::Pad( mLocalMax*n );
-    T *originalData, *gatheredData;
+    T *sendBuf, *recvBuf;
     if( g.Row() == owningRow )
     {
-        this->auxMemory_.Require( (colStride+1)*pkgSize );
-        T* buffer = this->auxMemory_.Buffer();
-        originalData = &buffer[0];
-        gatheredData = &buffer[pkgSize];
+        T* buffer = this->auxMemory_.Require( (colStride+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
     }
     else
     {
-        this->auxMemory_.Require( pkgSize );
-        originalData = this->auxMemory_.Buffer();
+        sendBuf = this->auxMemory_.Require( pkgSize );
     }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<n; ++j )
-        MemCopy( &originalData[j*mLocalA], &ABuffer[j*ALDim], mLocalA );
+        MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
 
     // Communicate
     mpi::Gather
-    ( originalData, pkgSize,
-      gatheredData, pkgSize, owningRow, g.ColComm() );
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, owningRow, g.ColComm() );
 
     if( g.Row() == owningRow )
     {
@@ -441,7 +439,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
 #endif
         for( Int k=0; k<colStride; ++k )
         {
-            const T* data = &gatheredData[k*pkgSize];
+            const T* data = &recvBuf[k*pkgSize];
             const Int colShift = Shift_( k, colAlignA, colStride );
             const Int mLocal = Length_( m, colShift, colStride );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -461,7 +459,6 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
@@ -473,14 +470,13 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
     const Int m = A.Height();
     const Int n = A.Width();
-    const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( m, n );
 
     const int root = this->Root();
+    const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
     if( !g.InGrid() || g.Col() != owningCol )
@@ -491,34 +487,32 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const Int nLocalMax = MaxLength(n,rowStride);
 
     const Int pkgSize = mpi::Pad( m*nLocalMax );
-    T *originalData, *gatheredData;
+    T *sendBuf, *recvBuf;
     if( g.Col() == owningCol )
     {
-        this->auxMemory_.Require( (rowStride+1)*pkgSize );
-        T* buffer = this->auxMemory_.Buffer();
-        originalData = &buffer[0];
-        gatheredData = &buffer[pkgSize];
+        T* buffer = this->auxMemory_.Require( (rowStride+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
     }
     else
     {
-        this->auxMemory_.Require( pkgSize );
-        originalData = this->auxMemory_.Buffer();
-        gatheredData = 0;
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
     }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
-        MemCopy( &originalData[jLoc*m], &ABuffer[jLoc*ALDim], m );
+        MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
 
     // Communicate
     mpi::Gather
-    ( originalData, pkgSize,
-      gatheredData, pkgSize, owningCol, g.RowComm() );
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, owningCol, g.RowComm() );
 
     if( g.Col() == owningCol )
     {
@@ -531,7 +525,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
 #endif
         for( Int k=0; k<rowStride; ++k )
         {
-            const T* data = &gatheredData[k*pkgSize];
+            const T* data = &recvBuf[k*pkgSize];
             const Int rowShift = Shift_( k, rowAlignA, rowStride );
             const Int nLocal = Length_( n, rowShift, rowStride );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
@@ -547,7 +541,6 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
@@ -559,10 +552,11 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
@@ -571,68 +565,78 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     const Int ownerPath = A.diagPath_;
     const Int ownerPathRank = A.colAlignment_;
 
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeight = A.LocalHeight();
-    const Int maxLocalHeight = MaxLength( height, lcm );
-    const Int portionSize = mpi::Pad( maxLocalHeight*width );
+    const Int mLocalA = A.LocalHeight();
+    const Int mLocalMax = MaxLength( m, lcm );
+    const Int pkgSize = mpi::Pad( mLocalMax*n );
 
     // Since a MD communicator has not been implemented, we will take
     // the suboptimal route of 'rounding up' everyone's contribution over 
     // the VC communicator.
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
-    // Pack
     if( A.Participating() )
     {
+        // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( Int j=0; j<width; ++j )
-            MemCopy( &sendBuf[j*localHeight], &ABuffer[j*ALDim], localHeight );
+        for( Int j=0; j<n; ++j )
+            MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
     }
 
     // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.VCComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VCRank() == root )
     {
-        if( g.DiagPath( k ) == ownerPath )
-        {
-            const T* data = &recvBuf[k*portionSize];
-            const Int thisPathRank = g.DiagPathRank( k );
-            const Int thisColShift = Shift_( thisPathRank, ownerPathRank, lcm );
-            const Int thisLocalHeight = Length_( height, thisColShift, lcm );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
 #endif
-            for( Int j=0; j<width; ++j )
+        for( Int k=0; k<p; ++k )
+        {
+            if( g.DiagPath( k ) == ownerPath )
             {
-                T* destCol = &thisBuffer[thisColShift+j*thisLDim];
-                const T* sourceCol = &data[j*thisLocalHeight];
-                for( Int iLoc=0; iLoc<thisLocalHeight; ++iLoc )
-                    destCol[iLoc*lcm] = sourceCol[iLoc];
+                const T* data = &recvBuf[k*pkgSize];
+                const Int pathRank = g.DiagPathRank( k );
+                const Int colShift = Shift_( pathRank, ownerPathRank, lcm );
+                const Int mLocal = Length_( m, colShift, lcm );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+                #pragma omp parallel for
+#endif
+                for( Int j=0; j<n; ++j )
+                {
+                    T* destCol = &buffer[colShift+j*ldim];
+                    const T* sourceCol = &data[j*mLocal];
+                    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                        destCol[iLoc*lcm] = sourceCol[iLoc];
+                }
             }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
@@ -644,10 +648,11 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
@@ -656,65 +661,74 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     const Int ownerPath = A.diagPath_;
     const Int ownerPathRank = A.rowAlignment_;
 
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidth = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength( width, lcm );
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
+    const Int nLocalA = A.LocalWidth();
+    const Int nLocalMax = MaxLength( n, lcm );
+    const Int pkgSize = mpi::Pad( m*nLocalMax );
 
     // Since a MD communicator has not been implemented, we will take
     // the suboptimal route of 'rounding up' everyone's contribution over 
     // the VC communicator.
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* sendBuf = &buffer[0];
-    T* recvBuf = &buffer[portionSize];
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
-    // Pack
     if( A.Participating() )
     {
+        // Pack
         const Int ALDim = A.LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy( &sendBuf[jLoc*height], &ABuffer[jLoc*ALDim], height );
+        for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+            MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
     }
 
     // Communicate
-    mpi::AllGather
-    ( sendBuf, portionSize,
-      recvBuf, portionSize, g.VCComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VCRank() == root )
     {
-        if( g.DiagPath( k ) == ownerPath )
-        {
-            const T* data = &recvBuf[k*portionSize];
-            const Int thisPathRank = g.DiagPathRank( k );
-            const Int thisRowShift = Shift_( thisPathRank, ownerPathRank, lcm );
-            const Int thisLocalWidth = Length_( width, thisRowShift, lcm );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
 #endif
-            for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
-                MemCopy
-                ( &thisBuffer[(thisRowShift+jLoc*lcm)*thisLDim], 
-                  &data[jLoc*height], height );
+        for( Int k=0; k<p; ++k )
+        {
+            if( g.DiagPath( k ) == ownerPath )
+            {
+                const T* data = &recvBuf[k*pkgSize];
+                const Int pathRank = g.DiagPathRank( k );
+                const Int rowShift = Shift_( pathRank, ownerPathRank, lcm );
+                const Int nLocal = Length_( n, rowShift, lcm );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+                #pragma omp parallel for
+#endif
+                for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+                    MemCopy
+                    ( &buffer[(rowShift+jLoc*lcm)*ldim], &data[jLoc*m], m );
+            }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
@@ -726,80 +740,89 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
-    const Int r = g.Height();
-    const Int c = g.Width();
+    const Int mLocalA = A.LocalHeight();
+    const Int nLocalA = A.LocalWidth();
+    const Int rowStride = A.RowStride();
+    const Int colStride = A.ColStride();
+    const Int mLocalMax = MaxLength( m, colStride );
+    const Int nLocalMax = MaxLength( n, rowStride );
+
+    const Int pkgSize = mpi::Pad( mLocalMax*nLocalMax );
     const Int p = g.Size();
-
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeightOfA = A.LocalHeight();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalHeight = MaxLength(height,c);
-    const Int maxLocalWidth = MaxLength(width,r);
-
-    const Int portionSize = mpi::Pad( maxLocalHeight*maxLocalWidth );
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy
-        ( &originalData[jLoc*localHeightOfA], 
-          &ABuffer[jLoc*ALDim], localHeightOfA );
+    for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        MemCopy( &sendBuf[jLoc*mLocalA], &ABuf[jLoc*ALDim], mLocalA );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.VRComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int colAlignmentOfA = A.ColAlignment();
-    const Int rowAlignmentOfA = A.RowAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int l=0; l<r; ++l )
+    if( g.VCRank() == root )
     {
-        const Int rowShift = Shift_( l, rowAlignmentOfA, r );
-        const Int localWidth = Length_( width, rowShift, r );
-        for( Int k=0; k<c; ++k )
-        {
-            const T* data = &gatheredData[(k+l*c)*portionSize];
-            const Int colShift = Shift_( k, colAlignmentOfA, c );
-            const Int localHeight = Length_( height, colShift, c );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-            #pragma omp parallel for
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int colAlignA = A.ColAlignment();
+        const Int rowAlignA = A.RowAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
 #endif
-            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int l=0; l<rowStride; ++l )
+        {
+            const Int rowShift = Shift_( l, rowAlignA, rowStride );
+            const Int nLocal = Length_( n, rowShift, rowStride );
+            for( Int k=0; k<colStride; ++k )
             {
-                T* destCol = &thisBuffer[colShift+(rowShift+jLoc*r)*thisLDim];
-                const T* sourceCol = &data[jLoc*localHeight];
-                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                    destCol[iLoc*c] = sourceCol[iLoc];
+                const T* data = &recvBuf[(l+k*rowStride)*pkgSize];
+                const Int colShift = Shift_( k, colAlignA, colStride );
+                const Int mLocal = Length_( m, colShift, colStride );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+                #pragma omp parallel for
+#endif
+                for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+                {
+                    T* destCol = 
+                      &buffer[colShift+(rowShift+jLoc*rowStride)*ldim];
+                    const T* sourceCol = &data[jLoc*mLocal];
+                    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                        destCol[iLoc*colStride] = sourceCol[iLoc];
+                }
             }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
@@ -811,68 +834,81 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
-    if( !g.InGrid() )
+        this->ResizeTo( m, n );
+
+    const int root = this->Root();
+    const elem::Grid& g = this->Grid();
+    const int owningRow = root % g.Height();
+    const int owningCol = root / g.Height();
+    if( !g.InGrid() || g.Row() != owningRow )
         return *this;
 
-    const Int c = g.Width();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeightOfA = A.LocalHeight();
-    const Int maxLocalHeight = MaxLength(height,c);
+    const Int colStride = A.ColStride();
+    const Int mLocalA = A.LocalHeight();
+    const Int mLocalMax = MaxLength(m,colStride);
 
-    const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    this->auxMemory_.Require( (c+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( mLocalMax*n );
+    T *sendBuf, *recvBuf;
+    if( g.Col() == owningCol )
+    {
+        T* buffer = this->auxMemory_.Require( (colStride+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0; 
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int j=0; j<width; ++j )
-        MemCopy
-        ( &originalData[j*localHeightOfA], &ABuffer[j*ALDim], localHeightOfA );
+    for( Int j=0; j<n; ++j )
+        MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.RowComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, owningCol, g.RowComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int colAlignmentOfA = A.ColAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<c; ++k )
+    if( g.Col() == owningCol )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int colShift = Shift_( k, colAlignmentOfA, c );
-        const Int localHeight = Length_( height, colShift, c );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int colAlignA = A.ColAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
-        for( Int j=0; j<width; ++j )
+        for( Int k=0; k<colStride; ++k )
         {
-            T* destCol = &thisBuffer[colShift+j*thisLDim];
-            const T* sourceCol = &data[j*localHeight];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc*c] = sourceCol[iLoc];
+            const T* data = &recvBuf[k*pkgSize];
+            const Int colShift = Shift_( k, colAlignA, colStride );
+            const Int mLocal = Length_( m, colShift, colStride );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for
+#endif
+            for( Int j=0; j<n; ++j )
+            {
+                T* destCol = &buffer[colShift+j*ldim];
+                const T* sourceCol = &data[j*mLocal];
+                for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                    destCol[iLoc*colStride] = sourceCol[iLoc];
+            }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
@@ -884,64 +920,77 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
-    if( !g.InGrid() )
+        this->ResizeTo( m, n );
+
+    const int root = this->Root();
+    const elem::Grid& g = this->Grid();
+    const int owningRow = root % g.Height();
+    const int owningCol = root / g.Height();
+    if( !g.InGrid() || g.Col() != owningCol )
         return *this;
 
-    const Int r = g.Height();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,r);
+    const Int rowStride = A.RowStride();
+    const Int nLocalA = A.LocalWidth();
+    const Int nLocalMax = MaxLength(n,rowStride);
 
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    this->auxMemory_.Require( (r+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( m*nLocalMax );
+    T *sendBuf, *recvBuf;
+    if( g.Row() == owningRow )
+    {
+        T* buffer = this->auxMemory_.Require( (rowStride+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &originalData[jLoc*height], &ABuffer[jLoc*ALDim], height );
+    for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.ColComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, owningRow, g.ColComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignmentOfA = A.RowAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<r; ++k )
+    if( g.Row() == owningRow )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignmentOfA, r );
-        const Int localWidth = Length_( width, rowShift, r );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int rowAlignA = A.RowAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[(rowShift+jLoc*r)*thisLDim], 
-              &data[jLoc*height], height );
+        for( Int k=0; k<rowStride; ++k )
+        {
+            const T* data = &recvBuf[k*pkgSize];
+            const Int rowShift = Shift_( k, rowAlignA, rowStride );
+            const Int nLocal = Length_( n, rowShift, rowStride );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for
+#endif
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+                MemCopy
+                ( &buffer[(rowShift+jLoc*rowStride)*ldim], &data[jLoc*m], m );
+        }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
@@ -953,68 +1002,78 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeightOfA = A.LocalHeight();
-    const Int maxLocalHeight = MaxLength(height,p);
+    const Int mLocalA = A.LocalHeight();
+    const Int mLocalMax = MaxLength(m,p);
 
-    const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( mLocalMax*n );
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int j=0; j<width; ++j )
-        MemCopy
-        ( &originalData[j*localHeightOfA], &ABuffer[j*ALDim], localHeightOfA );
+    for( Int j=0; j<n; ++j )
+        MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.VCComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int colAlignmentOfA = A.ColAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VCRank() == root )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int colShift = Shift_( k, colAlignmentOfA, p );
-        const Int localHeight = Length_( height, colShift, p );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-        #pragma omp parallel for 
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int colAlignA = A.ColAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
 #endif
-        for( Int j=0; j<width; ++j )
+        for( Int k=0; k<p; ++k )
         {
-            T* destCol = &thisBuffer[colShift+j*thisLDim];
-            const T* sourceCol = &data[j*localHeight];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc*p] = sourceCol[iLoc];
+            const T* data = &recvBuf[k*pkgSize];
+            const Int colShift = Shift_( k, colAlignA, p );
+            const Int mLocal = Length_( m, colShift, p );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for 
+#endif
+            for( Int j=0; j<n; ++j )
+            {
+                T* destCol = &buffer[colShift+j*ldim];
+                const T* sourceCol = &data[j*mLocal];
+                for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                    destCol[iLoc*p] = sourceCol[iLoc];
+            }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
@@ -1026,64 +1085,73 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,p);
+    const Int nLocalA = A.LocalWidth();
+    const Int nLocalMax = MaxLength(n,p);
 
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( m*nLocalMax );
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &originalData[jLoc*height], &ABuffer[jLoc*ALDim], height );
+    for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.VCComm() );
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, root, g.VCComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignmentOfA = A.RowAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VCRank() == root )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignmentOfA, p );
-        const Int localWidth = Length_( width, rowShift, p );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int rowAlignA = A.RowAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[(rowShift+jLoc*p)*thisLDim], 
-              &data[jLoc*height], height );
+        for( Int k=0; k<p; ++k )
+        {
+            const T* data = &recvBuf[k*pkgSize];
+            const Int rowShift = Shift_( k, rowAlignA, p );
+            const Int nLocal = Length_( n, rowShift, p );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for
+#endif
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+                MemCopy( &buffer[(rowShift+jLoc*p)*ldim], &data[jLoc*m], m );
+        }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
@@ -1095,68 +1163,81 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localHeightOfA = A.LocalHeight();
-    const Int maxLocalHeight = MaxLength(height,p);
+    const Int mLocalA = A.LocalHeight();
+    const Int mLocalMax = MaxLength(m,p);
 
-    const Int portionSize = mpi::Pad( maxLocalHeight*width );
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( mLocalMax*n );
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int j=0; j<width; ++j )
-        MemCopy
-        ( &originalData[j*localHeightOfA], &ABuffer[j*ALDim], localHeightOfA );
+    for( Int j=0; j<n; ++j )
+        MemCopy( &sendBuf[j*mLocalA], &ABuf[j*ALDim], mLocalA );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.VRComm() );
+    const int rootRow = root % g.Height();
+    const int rootCol = root / g.Height();
+    const int rootVR = rootCol + rootRow*g.Width();
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, rootVR, g.VRComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int colAlignmentOfA = A.ColAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VRRank() == rootVR )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int colShift = Shift_( k, colAlignmentOfA, p );
-        const Int localHeight = Length_( height, colShift, p );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-        #pragma omp parallel for 
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int colAlignA = A.ColAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
+        #pragma omp parallel for
 #endif
-        for( Int j=0; j<width; ++j )
+        for( Int k=0; k<p; ++k )
         {
-            T* destCol = &thisBuffer[colShift+j*thisLDim];
-            const T* sourceCol = &data[j*localHeight];
-            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                destCol[iLoc*p] = sourceCol[iLoc];
+            const T* data = &recvBuf[k*pkgSize];
+            const Int colShift = Shift_( k, colAlignA, p );
+            const Int mLocal = Length_( m, colShift, p );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for 
+#endif
+            for( Int j=0; j<n; ++j )
+            {
+                T* destCol = &buffer[colShift+j*ldim];
+                const T* sourceCol = &data[j*mLocal];
+                for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+                    destCol[iLoc*p] = sourceCol[iLoc];
+            }
         }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch from AllGather to Gather
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
@@ -1168,64 +1249,76 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
-    const elem::Grid& g = this->Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
+    const elem::Grid& g = this->Grid();
     if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
-    const Int height = this->Height();
-    const Int width = this->Width();
-    const Int localWidthOfA = A.LocalWidth();
-    const Int maxLocalWidth = MaxLength(width,p);
+    const Int nLocalA = A.LocalWidth();
+    const Int nLocalMax = MaxLength(n,p);
 
-    const Int portionSize = mpi::Pad( height*maxLocalWidth );
-    this->auxMemory_.Require( (p+1)*portionSize );
-    T* buffer = this->auxMemory_.Buffer();
-    T* originalData = &buffer[0];
-    T* gatheredData = &buffer[portionSize];
+    const Int pkgSize = mpi::Pad( m*nLocalMax );
+    const int root = this->Root();
+    T *sendBuf, *recvBuf;
+    if( g.VCRank() == root )
+    {
+        T* buffer = this->auxMemory_.Require( (p+1)*pkgSize );
+        sendBuf = &buffer[0];
+        recvBuf = &buffer[pkgSize];
+    }
+    else
+    {
+        sendBuf = this->auxMemory_.Require( pkgSize );
+        recvBuf = 0;
+    }
 
     // Pack
     const Int ALDim = A.LDim();
-    const T* ABuffer = A.LockedBuffer();
+    const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
-    for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
-        MemCopy( &originalData[jLoc*height], &ABuffer[jLoc*ALDim], height );
+    for( Int jLoc=0; jLoc<nLocalA; ++jLoc )
+        MemCopy( &sendBuf[jLoc*m], &ABuf[jLoc*ALDim], m );
 
     // Communicate
-    mpi::AllGather
-    ( originalData, portionSize,
-      gatheredData, portionSize, g.VRComm() );
+    const int rootRow = root % g.Height();
+    const int rootCol = root / g.Height();
+    const int rootVR = rootCol + rootRow*g.Width();
+    mpi::Gather
+    ( sendBuf, pkgSize,
+      recvBuf, pkgSize, rootVR, g.VRComm() );
 
-    // Unpack
-    T* thisBuffer = this->Buffer();
-    const Int thisLDim = this->LDim();
-    const Int rowAlignmentOfA = A.RowAlignment();
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-    #pragma omp parallel for
-#endif
-    for( Int k=0; k<p; ++k )
+    if( g.VRRank() == rootVR )
     {
-        const T* data = &gatheredData[k*portionSize];
-        const Int rowShift = Shift_( k, rowAlignmentOfA, p );
-        const Int localWidth = Length_( width, rowShift, p );
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+        // Unpack
+        T* buffer = this->Buffer();
+        const Int ldim = this->LDim();
+        const Int rowAlignA = A.RowAlignment();
+#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
         #pragma omp parallel for
 #endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            MemCopy
-            ( &thisBuffer[(rowShift+jLoc*p)*thisLDim], 
-              &data[jLoc*height], height );
+        for( Int k=0; k<p; ++k )
+        {
+            const T* data = &recvBuf[k*pkgSize];
+            const Int rowShift = Shift_( k, rowAlignA, p );
+            const Int nLocal = Length_( n, rowShift, p );
+#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
+            #pragma omp parallel for
+#endif
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+                MemCopy( &buffer[(rowShift+jLoc*p)*ldim], &data[jLoc*m], m );
+        }
     }
+
     this->auxMemory_.Release();
     return *this;
 }
 
-// TODO: Switch to only one process locally copying
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
@@ -1233,81 +1326,19 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ] = [* ,* ]");
     this->AssertNotLocked();
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
 
-    if( this->Grid() == A.Grid() )
-    {
+    if( A.Grid().VCRank() == this->Root() )
         this->matrix_ = A.LockedMatrix();
-    }
-    else
-    {
-        // TODO: Remember why I wrote this...
-        if( !mpi::CongruentComms( A.Grid().ViewingComm(),
-                                  this->Grid().ViewingComm() ) )
-            throw std::logic_error
-            ("Redistributing between nonmatching grids currently requires"
-             " the viewing communicators to match.");
 
-        // Compute and allocate the amount of required memory
-        Int requiredMemory = 0;
-        if( A.Grid().VCRank() == 0 )
-            requiredMemory += A.Height()*A.Width();
-        if( this->Participating() )
-            requiredMemory += A.Height()*A.Width();
-        this->auxMemory_.Require( requiredMemory );
-        T* buffer = this->auxMemory_.Buffer();
-        Int offset = 0;
-        T* sendBuffer = &buffer[offset];
-        if( A.Grid().VCRank() == 0 )
-            offset += A.Height()*A.Width();
-        T* bcastBuffer = &buffer[offset];
-
-        // Send from the root of A to the root of this matrix's grid
-        mpi::Request sendRequest;
-        if( A.Grid().VCRank() == 0 )
-        {
-            for( Int j=0; j<A.Width(); ++j ) 
-                for( Int i=0; i<A.Height(); ++i )
-                    sendBuffer[i+j*A.Height()] = A.GetLocal(i,j);
-            const Int recvViewingRank = this->Grid().VCToViewingMap(0);
-            mpi::ISend
-            ( sendBuffer, A.Height()*A.Width(), recvViewingRank, 0,
-              this->Grid().ViewingComm(), sendRequest );
-        }
-
-        // Receive on the root of this matrix's grid and then broadcast
-        // over this matrix's owning communicator
-        if( this->Participating() )
-        {
-            if( this->Grid().VCRank() == 0 )
-            {
-                const Int sendViewingRank = A.Grid().VCToViewingMap(0);
-                mpi::Recv
-                ( bcastBuffer, A.Height()*A.Width(), sendViewingRank, 0,
-                  this->Grid().ViewingComm() );
-            }
-
-            mpi::Broadcast
-            ( bcastBuffer, A.Height()*A.Width(), 0, this->Grid().VCComm() );
-
-            for( Int j=0; j<A.Width(); ++j )
-                for( Int i=0; i<A.Height(); ++i )
-                    this->SetLocal(i,j,bcastBuffer[i+j*A.Height()]);
-        }
-
-        if( A.Grid().VCRank() == 0 )
-            mpi::Wait( sendRequest );
-        this->auxMemory_.Release();
-    }
     return *this;
 }
 
-// TODO: Perform the ISend and IRecv if necessary
 template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
@@ -1315,14 +1346,49 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ] = [o ,o ]");
     this->AssertNotLocked();
+    this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
         this->AssertSameSize( A.Height(), A.Width() );
 #endif
-    throw std::logic_error("This routine not yet finished");
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( !this->Viewing() )
-        this->ResizeTo( A.Height(), A.Width() );
+        this->ResizeTo( m, n );
 
-    // TODO
+    const Grid& g = A.Grid();
+    if( this->Root() == A.Root() )
+    {
+        if( g.VCRank() == A.Root() )
+            this->matrix_ = A.matrix_;
+    }
+    else
+    {
+        if( g.VCRank() == A.Root() )
+        {
+            T* sendBuf = this->auxMemory_.Require( m*n );
+            // Pack
+            const Int ALDim = A.LDim();
+            const T* ABuf = A.LockedBuffer();
+            for( Int j=0; j<n; ++j )
+                for( Int i=0; i<m; ++i )
+                    sendBuf[i+j*m] = ABuf[i+j*ALDim];
+            // Send
+            mpi::Send( sendBuf, m*n, this->Root(), 0, g.VCComm() );
+        }
+        else if( g.VCRank() == this->Root() )
+        {
+            // Recv
+            T* recvBuf = this->auxMemory_.Require( m*n );
+            mpi::Recv( recvBuf, m*n, A.Root(), 0, g.VCComm() );
+            // Unpack
+            const Int ldim = this->LDim();
+            T* buffer = this->Buffer();
+            for( Int j=0; j<n; ++j )
+                for( Int i=0; i<m; ++i )
+                    buffer[i+j*ldim] = recvBuf[i+j*m];
+        }
+        this->auxMemory_.Release();
+    }
 
     return *this;
 }

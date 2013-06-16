@@ -71,6 +71,8 @@ main( int argc, char* argv[] )
             DistMatrix<C,STAR,MR> Z_STAR_MR(g);
             hatA_MC_STAR.AlignWith( AR );
             Z_STAR_MR.AlignWith( AR );
+            hatA_MC_STAR = hatA;
+            Z_STAR_MR = Z;
             LocalGemm
             ( NORMAL, NORMAL, C(-1), hatA_MC_STAR, Z_STAR_MR, C(1), AR );
         }

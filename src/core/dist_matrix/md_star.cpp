@@ -86,14 +86,13 @@ DistMatrix<T,MD,STAR,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,MD,STAR,Int>::DistMatrix( const DistMatrix<T,MD,STAR,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  (A.Participating() ? A.ColRank() : 0),0,
-  0,0,A.Grid()),
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
   diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MD,* ]::DistMatrix");
 #endif
+    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -103,14 +102,13 @@ DistMatrix<T,MD,STAR,Int>::DistMatrix( const DistMatrix<T,MD,STAR,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,MD,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  (A.Participating() ? A.ColRank() : 0),0,
-  0,0,A.Grid()),
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
   diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MD,* ]::DistMatrix");
 #endif
+    this->SetShifts();
     if( MD != U || STAR != V || 
         reinterpret_cast<const DistMatrix<T,MD,STAR,Int>*>(&A) != this )
         *this = A;
@@ -722,7 +720,7 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
         const Int width = this->Width();
         const Int localHeight = this->LocalHeight();
 
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
         T* thisBuffer = this->Buffer();
         const Int thisLDim = this->LDim();
@@ -732,7 +730,7 @@ DistMatrix<T,MD,STAR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
         for( Int j=0; j<width; ++j )
         {
             T* destCol = &thisBuffer[j*thisLDim];
-            const T* sourceCol = &ABuffer[colShift+j*ALDim];
+            const T* sourceCol = &ABuf[colShift+j*ALDim];
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 destCol[iLoc] = sourceCol[iLoc*lcm];
         }

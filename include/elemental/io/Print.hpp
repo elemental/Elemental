@@ -41,10 +41,35 @@ Print
 #ifndef RELEASE
     CallStackEntry entry("Print"); 
 #endif
-    // TODO: Optimize to only gather to the root
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+    if( A.Grid().VCRank() == A_CIRC_CIRC.Root() )
+        Print( A_CIRC_CIRC.LockedMatrix(), title, os );
+}
+
+// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
+template<typename T>
+inline void
+Print
+( const DistMatrix<T,STAR,STAR>& A, std::string title="", 
+  std::ostream& os=std::cout )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Print"); 
+#endif
     if( A.Grid().VCRank() == 0 )
-        Print( A_STAR_STAR.LockedMatrix(), title, os );
+        Print( A.LockedMatrix(), title, os );
+}
+template<typename T>
+inline void
+Print
+( const DistMatrix<T,CIRC,CIRC>& A, std::string title="", 
+  std::ostream& os=std::cout )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Print"); 
+#endif
+    if( A.Grid().VCRank() == A.Root() )
+        Print( A.LockedMatrix(), title, os );
 }
 
 } // namespace elem

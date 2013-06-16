@@ -95,14 +95,13 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,STAR,MD,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  0,(A.Participating() ? A.RowRank() : 0),
-  0,0,A.Grid()),
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
   diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MD]::DistMatrix");
 #endif
+    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -112,14 +111,13 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,STAR,MD,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,
-  0,(A.Participating() ? A.RowRank() : 0),
-  0,0,A.Grid()),
+: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
   diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MD]::DistMatrix");
 #endif
+    this->SetShifts();
     if( STAR != U || MD != V || 
         reinterpret_cast<const DistMatrix<T,STAR,MD,Int>*>(&A) != this )
         *this = A;
@@ -735,17 +733,17 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
         const Int height = this->Height();
         const Int localWidth = this->LocalWidth();
 
-        T* thisBuffer = this->Buffer();
+        T* thisBuf = this->Buffer();
         const Int thisLDim = this->LDim();
-        const T* ABuffer = A.LockedBuffer();
+        const T* ABuf = A.LockedBuffer();
         const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
         #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const T* ACol = &ABuffer[(rowShift+jLoc*lcm)*ALDim];
-            T* thisCol = &thisBuffer[jLoc*thisLDim];
+            const T* ACol = &ABuf[(rowShift+jLoc*lcm)*ALDim];
+            T* thisCol = &thisBuf[jLoc*thisLDim];
             MemCopy( thisCol, ACol, height );
         }
     }

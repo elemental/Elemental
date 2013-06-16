@@ -36,10 +36,35 @@ Write
 #ifndef RELEASE
     CallStackEntry entry("Write"); 
 #endif
-    // TODO: Optimize to only gather to the root
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+    if( A.Grid().VCRank() == A_CIRC_CIRC.Root() )
+        Write( A_CIRC_CIRC.LockedMatrix(), title, filename );
+}
+
+// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
+template<typename T>
+inline void
+Write
+( const DistMatrix<T,STAR,STAR>& A, std::string title="", 
+  std::string filename="DistMatrix" )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Write"); 
+#endif
     if( A.Grid().VCRank() == 0 )
-        Write( A_STAR_STAR.LockedMatrix(), title, filename );
+        Write( A.LockedMatrix(), title, filename );
+}
+template<typename T>
+inline void
+Write
+( const DistMatrix<T,CIRC,CIRC>& A, std::string title="",
+  std::string filename="DistMatrix" )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Write");
+#endif
+    if( A.Grid().VCRank() == A.Root() )
+        Write( A.LockedMatrix(), title, filename );
 }
 
 } // namespace elem
