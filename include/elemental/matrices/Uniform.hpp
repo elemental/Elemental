@@ -48,6 +48,22 @@ struct MakeUniformHelper
 };
 
 template<typename T>
+struct MakeUniformHelper<T,CIRC,CIRC>
+{
+    static void Func( DistMatrix<T,CIRC,CIRC>& A, T center, BASE(T) radius )
+    {
+        if( A.Grid().VCRank() == A.Root() )
+        {
+            const int height = A.Height(); 
+            const int width = A.Width();
+            for( int j=0; j<width; ++j )
+                for( int i=0; i<height; ++i )
+                    A.SetLocal( i, j, center+radius*SampleUnitBall<T>() );
+        }
+    }
+};
+
+template<typename T>
 struct MakeUniformHelper<T,MC,MR>
 {
     static void Func( DistMatrix<T,MC,MR>& A, T center, BASE(T) radius )
