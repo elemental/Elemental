@@ -16,4 +16,5 @@ Welcome to Elemental's documentation!
    lapack-like
    convex
    matrices
+   io
    indices

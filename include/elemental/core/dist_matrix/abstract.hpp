@@ -179,6 +179,7 @@ public:
     //
     
     virtual void ResizeTo( Int height, Int width ) = 0;
+    virtual void ResizeTo( Int height, Int width, Int ldim ) = 0;
 
 protected:
     bool viewing_, locked_;
@@ -191,44 +192,8 @@ protected:
     Int colShift_, rowShift_;
     const elem::Grid* grid_;
 
-    // Initialize with particular local dimensions
-    AbstractDistMatrix
-    ( Int height, Int width,
-      bool constrainedColAlignment, bool constrainedRowAlignment,
-      Int colAlignment, Int rowAlignment,
-      Int colShift, Int rowShift,
-      Int localHeight, Int localWidth,
-      const elem::Grid& g );
-
-    // Initialize with particular local dimensions and local leading dimensions
-    AbstractDistMatrix
-    ( Int height, Int width,
-      bool constrainedColAlignment, bool constrainedRowAlignment,
-      Int colAlignment, Int rowAlignment,
-      Int colShift, Int rowShift,
-      Int localHeight, Int localWidth,
-      Int ldim,
-      const elem::Grid& g );
-
-    // View a constant distributed matrix's buffer
-    AbstractDistMatrix
-    ( Int height, Int width,
-      Int colAlignment, Int rowAlignment,
-      Int colShift, Int rowShift,
-      Int localHeight, Int localWidth,
-      const T* buffer,
-      Int ldim,
-      const elem::Grid& g );
-
-    // View a mutable distributed matrix's buffer
-    AbstractDistMatrix
-    ( Int height, Int width,
-      Int colAlignment, Int rowAlignment,
-      Int colShift, Int rowShift,
-      Int localHeight, Int localWidth,
-      T* buffer,
-      Int ldim,
-      const elem::Grid& g );
+    // Build around a particular grid
+    AbstractDistMatrix( const elem::Grid& g );
 
 protected:
     void SetShifts();

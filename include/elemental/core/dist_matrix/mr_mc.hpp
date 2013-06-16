@@ -122,6 +122,7 @@ public:
     virtual void Update( Int i, Int j, T alpha );
 
     virtual void ResizeTo( Int height, Int width );
+    virtual void ResizeTo( Int height, Int width, Int ldim );
 
     // Distribution alignment
     virtual void AlignWith( const elem::DistData<Int>& data );

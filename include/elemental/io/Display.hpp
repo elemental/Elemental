@@ -99,11 +99,39 @@ Display( const DistMatrix<T,U,V>& A, std::string title="Default" )
     CallStackEntry entry("Display");
 #endif
 #ifdef HAVE_QT5
-    // TODO: Avoid giving every process a full copy and think about avoiding
-    //       the extra copy needed when the underlying datatype is not 'double'
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+    if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+        Display( A_CIRC_CIRC.Matrix(), title );
+#else
+    Print( A, title );
+#endif
+}
+
+// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
+template<typename T>
+inline void
+Display( const DistMatrix<T,STAR,STAR>& A, std::string title="Default" )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Display");
+#endif
+#ifdef HAVE_QT5
     if( A.Grid().Rank() == 0 )
-        Display( A_STAR_STAR.Matrix(), title );
+        Display( A.LockedMatrix(), title );
+#else
+    Print( A, title );
+#endif
+}
+template<typename T>
+inline void
+Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Display");
+#endif
+#ifdef HAVE_QT5
+    if( A.Grid().Rank() == A.Root() )
+        Display( A.LockedMatrix(), title );
 #else
     Print( A, title );
 #endif

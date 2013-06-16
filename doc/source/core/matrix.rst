@@ -149,18 +149,6 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       Return a pointer to the portion of the buffer that holds entry
       :math:`(i,j)` that does not allow for modifying the data.
 
-   .. rubric:: I/O
-
-   .. cpp:function:: void Print( const std::string msg="" ) const
-
-   The matrix is printed to standard output (``std::cout``) with the preceding
-   message `msg` (which is empty if unspecified).
-
-   .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
-
-      The matrix is printed to the output stream `os` with the preceding 
-      message `msg` (which is empty if unspecified).
-
    .. rubric:: Entry manipulation
 
    .. cpp:function:: T Get( int i, int j ) const

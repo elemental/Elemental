@@ -112,6 +112,7 @@ public:
     virtual void Update( Int i, Int j, T alpha );
 
     virtual void ResizeTo( Int height, Int width );
+    virtual void ResizeTo( Int height, Int width, Int ldim );
 
     //
     // Though the following routines are meant for complex data, all but two

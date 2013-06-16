@@ -12,41 +12,36 @@ namespace elem {
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix( const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,0,0,height,width,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->ResizeTo(height,width); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
 ( Int height, Int width, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,0,0,height,width,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->ResizeTo(height,width,ldim); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
 ( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,0,0,0,height,width,buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->LockedAttach(height,width,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix
 ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,0,0,0,height,width,buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->Attach(height,width,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,STAR,STAR,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,* ]::DistMatrix");
@@ -60,7 +55,7 @@ DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,STAR,STAR,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,STAR,STAR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,* ]::DistMatrix");
@@ -162,6 +157,22 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width )
     this->width_ = width;
     if( this->Participating() )
         this->matrix_.ResizeTo( height, width );
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[* ,* ]::ResizeTo");
+    this->AssertNotLocked();
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+#endif
+    this->height_ = height;
+    this->width_ = width;
+    if( this->Participating() )
+        this->matrix_.ResizeTo( height, width, ldim );
 }
 
 template<typename T,typename Int>

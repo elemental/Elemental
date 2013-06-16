@@ -12,91 +12,50 @@ namespace elem {
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,
-   0,(g.InGrid() && g.DiagPath()==0 ? g.DiagPathRank() : 0),
-   0,0,g),
-  diagPath_(0)
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(0)
+{ this->SetShifts(); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,
-   0,
-   (g.InGrid() && g.DiagPath()==0 ? g.DiagPathRank() : 0),height,
-   (g.InGrid() && g.DiagPath()==0 ? 
-    Length(width,g.DiagPathRank(),0,g.LCM()) : 0),g),
-  diagPath_(0)
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(0)
+{ this->SetShifts(); this->ResizeTo(height,width); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignmentVC, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,true,0,g.DiagPathRank(rowAlignmentVC),
-   0,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Shift(g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) : 0),
-   height,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Length(width,g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) :
-    0),g),
-  diagPath_(g.DiagPath(rowAlignmentVC))
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(g.DiagPath(rowAlignmentVC))
+{ 
+    this->Align(0,g.DiagPathRank(rowAlignmentVC)); 
+    this->ResizeTo(height,width); 
+}
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignmentVC, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,true,0,g.DiagPathRank(rowAlignmentVC),
-   0,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Shift(g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) : 0),
-   height,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Length(width,g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) :
-    0),ldim,g),
-  diagPath_(g.DiagPath(rowAlignmentVC))
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(g.DiagPath(rowAlignmentVC))
+{ 
+    this->Align(0,g.DiagPathRank(rowAlignmentVC));
+    this->ResizeTo(height,width,ldim);
+}
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignmentVC, const T* buffer, Int ldim,
   const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,g.DiagPathRank(rowAlignmentVC),
-   0,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Shift(g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) : 0),
-   height,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Length(width,g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) :
-    0),buffer,ldim,g),
-  diagPath_(g.DiagPath(rowAlignmentVC))
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(g.DiagPath(rowAlignmentVC))
+{ this->LockedAttach(height,width,rowAlignmentVC,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignmentVC, T* buffer, Int ldim,
   const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,g.DiagPathRank(rowAlignmentVC),
-   0,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Shift(g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) : 0),
-   height,
-   (g.InGrid() && g.DiagPath()==g.DiagPath(rowAlignmentVC) ?
-    Length(width,g.DiagPathRank(),g.DiagPathRank(rowAlignmentVC),g.LCM()) :
-    0),buffer,ldim,g),
-  diagPath_(g.DiagPath(rowAlignmentVC))
-{ }
+: AbstractDistMatrix<T,Int>(g), diagPath_(g.DiagPath(rowAlignmentVC))
+{ this->Attach(height,width,rowAlignmentVC,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,STAR,MD,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
-  diagPath_(0)
+: AbstractDistMatrix<T,Int>(A.Grid()), diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MD]::DistMatrix");
@@ -111,8 +70,7 @@ DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,STAR,MD,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,STAR,MD,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid()),
-  diagPath_(0)
+: AbstractDistMatrix<T,Int>(A.Grid()), diagPath_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MD]::DistMatrix");
@@ -429,6 +387,26 @@ DistMatrix<T,STAR,MD,Int>::ResizeTo( Int height, Int width )
     {
         const Int lcm = this->Grid().LCM();
         this->matrix_.ResizeTo( height, Length(width,this->RowShift(),lcm) );
+    }
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,STAR,MD,Int>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[* ,MD]::ResizeTo");
+    this->AssertNotLocked();
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+#endif
+    this->height_ = height;
+    this->width_ = width;
+    if( this->Participating() )
+    {
+        const Int lcm = this->Grid().LCM();
+        this->matrix_.ResizeTo
+        ( height, Length(width,this->RowShift(),lcm), ldim );
     }
 }
 

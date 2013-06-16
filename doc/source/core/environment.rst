@@ -414,7 +414,8 @@ Other typedefs and enums
    * ``MR``: Row of a standard matrix distribution
    * ``VC``: Column-major vector distribution
    * ``VR``: Row-major vector distribution
-   * ``STAR``: Redundantly stored
+   * ``STAR``: Redundantly stored on every process
+   * ``CIRC``: Stored on a single process
 
 .. cpp:type:: enum ForwardOrBackward
 

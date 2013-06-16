@@ -98,20 +98,6 @@ to be available for all matrix distributions.
 
       Return an unmodifiable reference to the local matrix.
 
-   .. rubric:: I/O
-
-   .. cpp:function:: void Print( const std::string msg="" ) const
-
-      Print the distributed matrix to standard output (``std::cout``).
-
-   .. cpp:function:: void Print( std::ostream& os, const std::string msg="" ) const
-
-      Print the distributed matrix to the output stream `os`.
-
-   .. cpp:function:: void Write( const std::string filename, const std::string msg="" ) const
-
-      Print the distributed matrix to the file named `filename`.
-
    .. rubric:: Distribution details
 
    .. cpp:function:: void FreeAlignments()
@@ -266,6 +252,10 @@ to be available for all matrix distributions.
    .. cpp:function:: void ResizeTo( int height, int width )
 
       Reconfigure the matrix so that it is `height` :math:`\times` `width`.
+
+   .. cpp:function:: void ResizeTo( int height, int width, int ldim )
+
+      Same as above, but the local leading dimension is also specified.
 
    .. cpp:function:: void SetGrid( const Grid& grid )
 
@@ -1259,6 +1249,21 @@ sets of processes:
 .. cpp:type:: class DistMatrix<T,STAR,STAR>
 
    **TODO:** Add the member functions. 
+
+``[o ,o ]``
+-----------
+This ``distribution`` stores the entire matrix on a single process.
+
+.. cpp:type:: class DistMatrix<T,CIRC,CIRC>
+
+   .. cpp:function:: int Root()
+
+      Returns the rank of the process owning the matrix.
+
+   .. cpp:function:: void SetRoot( int root )
+
+      Sets the rank of the process owning the matrix (and clears the current
+      contents).
 
 Special cases used in Elemental
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

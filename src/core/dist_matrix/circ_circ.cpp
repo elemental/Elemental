@@ -12,8 +12,7 @@ namespace elem {
 
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { 
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::DistMatrix");
@@ -26,8 +25,7 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const elem::Grid& g, int root )
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { 
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::DistMatrix");
@@ -35,14 +33,13 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
         throw std::logic_error("Invalid root");
 #endif
     this->root_ = root;
-    if( this->grid_->Rank() == root )
-        this->Matrix().ResizeTo( height, width );
+    this->ResizeTo( height, width );
 }
 
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
 ( Int height, Int width, Int ldim, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(height,width,false,false,0,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { 
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::DistMatrix");
@@ -50,15 +47,14 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
         throw std::logic_error("Invalid root");
 #endif
     this->root_ = root;
-    if( this->grid_->Rank() == root )
-        this->Matrix().ResizeTo( height, width, ldim );
+    this->ResizeTo( height, width, ldim );
 }
 
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
 ( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g, 
   int root )
-: AbstractDistMatrix<T,Int>(height,width,false,false,0,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { 
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::DistMatrix");
@@ -66,16 +62,13 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
         throw std::logic_error("Invalid root");
 #endif
     this->root_ = root;
-    this->locked_ = true;
-    this->viewing_ = true;
-    if( this->grid_->Rank() == root )
-        this->matrix_.LockedAttach( height, width, buffer, ldim );
+    this->LockedAttach( height, width, buffer, ldim, g, root );
 }
 
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
 ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(height,width,false,false,0,0,0,0,0,0,0,g)
+: AbstractDistMatrix<T,Int>(g)
 { 
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::DistMatrix");
@@ -83,20 +76,17 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
         throw std::logic_error("Invalid root");
 #endif
     this->root_ = root;
-    this->locked_ = false;
-    this->viewing_ = true;
-    if( this->grid_->Rank() == root )
-        this->matrix_.Attach( height, width, buffer, ldim );
+    this->Attach( height, width, buffer, ldim, g, root );
 }
 
 template<typename T,typename Int>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
 #endif
-    this->root_ = 0;
+    this->root_ = A.Root();
     if( &A != this )
         *this = A;
     else
@@ -106,7 +96,7 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
@@ -234,6 +224,22 @@ DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width )
     this->width_ = width;
     if( this->Participating() )
         this->matrix_.ResizeTo( height, width );
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[o ,o ]::ResizeTo");
+    this->AssertNotLocked();
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+#endif
+    this->height_ = height;
+    this->width_ = width;
+    if( this->Participating() )
+        this->matrix_.ResizeTo( height, width, ldim );
 }
 
 template<typename T,typename Int>

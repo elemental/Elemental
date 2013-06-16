@@ -14,83 +14,58 @@ namespace elem {
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix( const elem::Grid& grid )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,
-   (grid.InGrid() ? grid.Row() : 0),
-   (grid.InGrid() ? grid.Col() : 0),
-    0,0,grid)
-{ }
+: AbstractDistMatrix<T,Int>(grid)
+{ this->SetShifts(); }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& grid )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,
-   (grid.InGrid() ? grid.Row() : 0),
-   (grid.InGrid() ? grid.Col() : 0),
-   (grid.InGrid() ? Length(height,grid.Row(),0,grid.Height()) : 0),
-   (grid.InGrid() ? Length(width,grid.Col(),0,grid.Width()) : 0),
-    grid)
-{ }
+: AbstractDistMatrix<T,Int>(grid)
+{ this->SetShifts(); this->ResizeTo( height, width ); }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, 
   Int colAlignment, Int rowAlignment, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,true,true,colAlignment,rowAlignment,
-   (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
-   (g.InGrid() ? Length(height,g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Length(width,g.Col(),rowAlignment,g.Width()) : 0),
-   g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ 
+    this->Align( colAlignment, rowAlignment );
+    this->ResizeTo( height, width );
+}
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width,
   Int colAlignment, Int rowAlignment, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,true,true,colAlignment,rowAlignment,
-   (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
-   (g.InGrid() ? Length(height,g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Length(width,g.Col(),rowAlignment,g.Width()) : 0),
-   ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ 
+    this->Align( colAlignment, rowAlignment );
+    this->ResizeTo( height, width, ldim );
+}
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, Int rowAlignment,
   const T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,
-   colAlignment,rowAlignment,
-   (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
-   (g.InGrid() ? Length(height,g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Length(width,g.Col(),rowAlignment,g.Width()) : 0),
-   buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ 
+    this->LockedAttach
+    ( height, width, colAlignment, rowAlignment, buffer, ldim, g ); 
+}
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, Int rowAlignment,
   T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,
-   colAlignment,rowAlignment,
-   (g.InGrid() ? Shift(g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Shift(g.Col(),rowAlignment,g.Width()) : 0),
-   (g.InGrid() ? Length(height,g.Row(),colAlignment,g.Height()) : 0),
-   (g.InGrid() ? Length(width,g.Col(),rowAlignment,g.Width()) : 0),
-   buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ 
+    this->Attach
+    ( height, width, colAlignment, rowAlignment, buffer, ldim, g );
+}
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,MC,MR,Int>& A )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MC,MR]::DistMatrix");
@@ -105,8 +80,7 @@ DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,MC,MR,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MC,MR]::DistMatrix");
@@ -362,6 +336,22 @@ DistMatrix<T,MC,MR,Int>::ResizeTo( Int height, Int width )
         this->matrix_.ResizeTo
         ( Length(height,this->ColShift(),this->ColStride()),
           Length(width, this->RowShift(),this->RowStride()) );
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,MC,MR,Int>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[MC,MR]::ResizeTo");
+    this->AssertNotLocked();
+#endif
+    this->height_ = height;
+    this->width_ = width;
+    if( this->Participating() )
+        this->matrix_.ResizeTo
+        ( Length(height,this->ColShift(),this->ColStride()),
+          Length(width, this->RowShift(),this->RowStride()), ldim );
 }
 
 template<typename T,typename Int>

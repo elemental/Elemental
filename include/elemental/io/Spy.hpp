@@ -51,11 +51,31 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 #ifndef RELEASE
     CallStackEntry entry("Spy");
 #endif
-    // TODO: Avoid giving every process a full copy and think about avoiding
-    //       the extra copy needed when the underlying datatype is not 'double'
-    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    DistMatrix<T,CIRC,CIRC> A_CIRC_CIRC( A );
+    if( A.Grid().Rank() == A_CIRC_CIRC.Root() )
+        Spy( A_CIRC_CIRC.Matrix(), title, tol );
+}
+
+// If already in [* ,* ] or [o ,o ] distributions, no copy is needed
+template<typename T>
+inline void
+Spy( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Spy");
+#endif
     if( A.Grid().Rank() == 0 )
-        Spy( A_STAR_STAR.Matrix(), title, tol );
+        Spy( A.LockedMatrix(), title, tol );
+}
+template<typename T>
+inline void
+Spy( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Spy");
+#endif
+    if( A.Grid().Rank() == A.Root() )
+        Spy( A.LockedMatrix(), title, tol );
 }
 
 } // namespace elem

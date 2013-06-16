@@ -36,14 +36,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        // Create a 2d process grid from a communicator. In our case, it is
-        // MPI_COMM_WORLD. There is another constructor that allows you to 
-        // specify the grid height, Grid g( comm, r ), which creates a
-        // grid of height r.
-        Grid grid( comm );
-    
         // Create an n x n complex matrix residing on a single process.
-        DistMatrix<C,CIRC,CIRC> HRoot( n, n, grid );
+        DistMatrix<C,CIRC,CIRC> HRoot( n, n );
         if( commRank == 0 )
         {
             // Set entry (i,j) to (i+j,i-j)
@@ -61,8 +55,8 @@ main( int argc, char* argv[] )
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X, and an eigenvalue column vector, w[VR,* ]
-        DistMatrix<R,VR,STAR> w_VR_STAR( grid );
-        DistMatrix<C> X( grid );
+        DistMatrix<R,VR,STAR> w_VR_STAR;
+        DistMatrix<C> X;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
         HermitianEig( LOWER, H, w_VR_STAR, X );

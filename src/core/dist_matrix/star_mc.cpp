@@ -12,71 +12,44 @@ namespace elem {
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix( const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (0,0,false,false,0,0,
-   0,(g.InGrid() ? g.Row() : 0 ),
-   0,0,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->SetShifts(); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix
 ( Int height, Int width, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,false,0,0,
-   0,(g.InGrid() ? g.Row() : 0),
-   height,(g.InGrid() ? Length(width,g.Row(),0,g.Height()) : 0),
-   g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->SetShifts(); this->ResizeTo(height,width); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,true,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.Row(),rowAlignment,g.Height()) : 0),
-   height,
-   (g.InGrid() ? Length(width,g.Row(),rowAlignment,g.Height()) : 0),
-   g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->Align(0,rowAlignment); this->ResizeTo(height,width); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,false,true,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.Row(),rowAlignment,g.Height()) : 0),
-   height,
-   (g.InGrid() ? Length(width,g.Row(),rowAlignment,g.Height()) : 0),
-   ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->Align(0,rowAlignment); this->ResizeTo(height,width,ldim); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, const T* buffer, Int ldim, 
   const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.Row(),rowAlignment,g.Height()) : 0),
-   height,
-   (g.InGrid() ? Length(width,g.Row(),rowAlignment,g.Height()) : 0),
-   buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->LockedAttach(height,width,rowAlignment,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix
 ( Int height, Int width, Int rowAlignment, T* buffer, Int ldim, 
   const elem::Grid& g )
-: AbstractDistMatrix<T,Int>
-  (height,width,0,rowAlignment,
-   0,(g.InGrid() ? Shift(g.Row(),rowAlignment,g.Height()) : 0),
-   height,
-   (g.InGrid() ? Length(width,g.Row(),rowAlignment,g.Height()) : 0),
-   buffer,ldim,g)
-{ }
+: AbstractDistMatrix<T,Int>(g)
+{ this->Attach(height,width,rowAlignment,buffer,ldim,g); }
 
 template<typename T,typename Int>
 DistMatrix<T,STAR,MC,Int>::DistMatrix( const DistMatrix<T,STAR,MC,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MC]::DistMatrix");
@@ -91,7 +64,7 @@ DistMatrix<T,STAR,MC,Int>::DistMatrix( const DistMatrix<T,STAR,MC,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,STAR,MC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(0,0,false,false,0,0,0,0,0,0,A.Grid())
+: AbstractDistMatrix<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[* ,MC]::DistMatrix");
@@ -328,6 +301,23 @@ DistMatrix<T,STAR,MC,Int>::ResizeTo( Int height, Int width )
     if( this->Participating() )
         this->matrix_.ResizeTo
         ( height, Length(width,this->RowShift(),this->Grid().Height()) );
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,STAR,MC,Int>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[* ,MC]::ResizeTo");
+    this->AssertNotLocked();
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+#endif
+    this->height_ = height;
+    this->width_ = width;
+    if( this->Participating() )
+        this->matrix_.ResizeTo
+        ( height, Length(width,this->RowShift(),this->Grid().Height()), ldim );
 }
 
 template<typename T,typename Int>

@@ -11,79 +11,15 @@
 namespace elem {
 
 template<typename T,typename Int>
-AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, Int width, 
-  bool constrainedColAlignment, bool constrainedRowAlignment,
-  Int colAlignment, Int rowAlignment,
-  Int colShift, Int rowShift, 
-  Int localHeight, Int localWidth,
-  const elem::Grid& grid )
+AbstractDistMatrix<T,Int>::AbstractDistMatrix( const elem::Grid& grid )
 : viewing_(false), locked_(false), 
-  height_(height), width_(width), 
+  height_(0), width_(0), 
   auxMemory_(), 
-  matrix_(localHeight,localWidth), 
-  constrainedColAlignment_(constrainedColAlignment), 
-  constrainedRowAlignment_(constrainedRowAlignment),
-  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
-  colShift_(colShift), rowShift_(rowShift),
-  grid_(&grid)
-{ } 
-
-template<typename T,typename Int>
-AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, Int width, 
-  bool constrainedColAlignment, bool constrainedRowAlignment,
-  Int colAlignment, Int rowAlignment,
-  Int colShift, Int rowShift, 
-  Int localHeight, Int localWidth,
-  Int ldim,
-  const elem::Grid& grid )
-: viewing_(false), locked_(false), 
-  height_(height), width_(width), 
-  auxMemory_(), 
-  matrix_(localHeight,localWidth,ldim), 
-  constrainedColAlignment_(constrainedColAlignment), 
-  constrainedRowAlignment_(constrainedRowAlignment),
-  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
-  colShift_(colShift), rowShift_(rowShift),
-  grid_(&grid)
-{ } 
-
-template<typename T,typename Int>
-AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, Int width, 
-  Int colAlignment, Int rowAlignment,
-  Int colShift, Int rowShift, 
-  Int localHeight, Int localWidth,
-  const T* buffer,
-  Int ldim,
-  const elem::Grid& grid )
-: viewing_(true), locked_(true), 
-  height_(height), width_(width), 
-  auxMemory_(), 
-  matrix_(localHeight,localWidth,buffer,ldim), 
-  constrainedColAlignment_(true), constrainedRowAlignment_(true),
-  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
-  colShift_(colShift), rowShift_(rowShift),
-  grid_(&grid)
-{ } 
-
-template<typename T,typename Int>
-AbstractDistMatrix<T,Int>::AbstractDistMatrix
-( Int height, Int width, 
-  Int colAlignment, Int rowAlignment,
-  Int colShift, Int rowShift, 
-  Int localHeight, Int localWidth,
-  T* buffer,
-  Int ldim,
-  const elem::Grid& grid )
-: viewing_(true), locked_(false), 
-  height_(height), width_(width), 
-  auxMemory_(), 
-  matrix_(localHeight,localWidth,buffer,ldim), 
-  constrainedColAlignment_(true), constrainedRowAlignment_(true),
-  colAlignment_(colAlignment), rowAlignment_(rowAlignment),
-  colShift_(colShift), rowShift_(rowShift),
+  matrix_(0,0), 
+  constrainedColAlignment_(false), 
+  constrainedRowAlignment_(false),
+  colAlignment_(0), rowAlignment_(0),
+  colShift_(0), rowShift_(0),
   grid_(&grid)
 { } 
 

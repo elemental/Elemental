@@ -27,10 +27,10 @@ Functionality
 
 Maintenance
 ===========
-- Remove 'Print' member functions from (Dist)Matrix and into io/ folder
+- Find a way to prevent the SWIG interface from consuming excessive memory
+  during compilation
 - Provide way to zoom in/out for DisplayWidget
 - Update elemvariables to support usage of Qt5
-- Documentation for new visualization routines (with the Walsh driver as an example)
 - Many more references
 - Update documentation for new special matrices
 - Update documentation for imported routines (and in general)
