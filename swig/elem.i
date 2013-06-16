@@ -383,6 +383,7 @@ namespace elem {
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, T*, Int, elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, elem::Grid& );
 
+%include "elemental/core/dist_matrix/circ_circ.hpp"
 %include "elemental/core/dist_matrix/mc_mr.hpp"
 %include "elemental/core/dist_matrix/mc_star.hpp"
 %include "elemental/core/dist_matrix/md_star.hpp"
