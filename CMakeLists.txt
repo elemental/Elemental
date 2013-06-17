@@ -18,7 +18,9 @@ set(Elemental_VERSION_MINOR 81-dev)
 ################################################################################
 
 # By default, Elemental builds static libraries, but shared libraries are 
-# also supported through this option.
+# also supported through this option. If the SWIG interface is to be enabled,
+# then Elemental switches to dynamic libraries in order to avoid massive 
+# duplication.
 option(SHARED_LIBRARIES "Switch to shared libraries" OFF)
 
 # Whether or not to build a collection of simple example drivers.
@@ -135,13 +137,6 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 # source and build directories are different.
 if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
-endif()
-
-# Set the library type from the 'SHARED_LIBRARIES' option
-if(SHARED_LIBRARIES)
-  set(LIBRARY_TYPE SHARED)
-else()
-  set(LIBRARY_TYPE STATIC)
 endif()
 
 # Extract a few booleans from the build type and default to PureRelease
@@ -266,6 +261,16 @@ endif()
 # Now append the extra flags
 set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
   "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${EXTRA_FLAGS}")
+
+# Set the library type from the 'SHARED_LIBRARIES' option
+if(SHARED_LIBRARIES OR HAVE_SWIG)
+  if(NOT SHARED_LIBRARIES)
+    message(WARNING "Switched to a dynamic build since SWIG is enabled")
+  endif()
+  set(LIBRARY_TYPE SHARED)
+else()
+  set(LIBRARY_TYPE STATIC)
+endif()
 
 # Since the CMake find_blas for some reason requires a Fortran compiler, we
 # must build our own.
