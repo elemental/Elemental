@@ -9,10 +9,9 @@
 */
 %module elem
 
-#define RELEASE
+%include "common.swg"
 
 %{
-#include "elemental.hpp"
 static void Finalize_if()
 {
     if ( elem::Initialized() )
@@ -50,12 +49,13 @@ import elem_mpi
   Py_AtExit(Finalize_if);
 %}
 
-%include "common.swg"
-
 %ignore *::operator=;
 %ignore SingularMatrixException;
 %ignore NonHPDMatrixException;
 %ignore NonHPSDMatrixException;
+%ignore *::Attach;
+%ignore *::LockedAttach;
+%ignore elem::Grid::FindFactor;
 
 /*
  * TYPES, GRID, MPI
@@ -65,7 +65,42 @@ import elem_mpi
 // typemaps to convert the Elemental classes to equivalent Python and NumPy objects.
 // Using %import prevents SWIG from generating any wrappers.
 
-%import  "std_except.i"
+#define GATTI(T) %attribute(elem::Grid,int,T,T)
+#define GATTP(T) %attribute(elem::Grid,void*,T,T)
+#define GATTB(T) %attribute(elem::Grid,bool,T,T)
+GATTI(Row)
+GATTI(Col)
+GATTI(Rank)
+GATTI(Height)
+GATTI(Width)
+GATTI(Size)
+GATTP(ColComm)
+GATTP(RowComm)
+GATTP(Comm)
+GATTI(MCRank)
+GATTI(MRRank)
+GATTI(VCRank)
+GATTI(VRRank)
+GATTI(MCSize)
+GATTI(MRSize)
+GATTI(VCSize)
+GATTI(VRSize)
+GATTP(MCComm)
+GATTP(MRComm)
+GATTP(VCComm)
+GATTP(VRComm)
+GATTI(GCD)
+GATTI(LCM)
+GATTB(InGrid)
+GATTI(OwningRank)
+GATTI(ViewingRank)
+GATTP(OwningGroup)
+GATTP(OwningComm)
+GATTP(ViewingComm)
+#undef GATTI
+#undef GATTP
+#undef GATTB
+
 %import  "elemental/core/complex_decl.hpp"
 %include "elemental/core/types_decl.hpp"
 %include "elemental/core/environment_decl.hpp"
@@ -76,6 +111,45 @@ import elem_mpi
 /*
  * ABSTRACTDISTMATRIX
  */
+
+%ignore elem::AbstractDistMatrix::Buffer;
+%ignore elem::AbstractDistMatrix::LockedBuffer;
+%ignore elem::AbstractDistMatrix::DistData;
+
+%define AbDMT(T,Type,N) 
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),Type,N,N,self_->N())
+%enddef
+%define AbDM(T)
+AbDMT(T,int,Height)
+AbDMT(T,int,Width)
+AbDMT(T,int,LocalHeight)
+AbDMT(T,int,LocalWidth)
+AbDMT(T,int,LDim)
+AbDMT(T,size_t,AllocatedMemory)
+%attribute_custom(%arg(elem::AbstractDistMatrix<T,int>),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
+AbDMT(T,bool,ConstrainedColAlignment)
+AbDMT(T,bool,ConstrainedRowAlignment)
+AbDMT(T,int,ColAlignment)
+AbDMT(T,int,RowAlignment)
+AbDMT(T,int,ColShift)
+AbDMT(T,int,RowShift)
+AbDMT(T,int,ColStride)
+AbDMT(T,int,RowStride)
+AbDMT(T,int,ColRank)
+AbDMT(T,int,RowRank)
+AbDMT(T,bool,Locked)
+AbDMT(T,bool,Viewing)
+AbDMT(T,bool,Participating)
+%enddef
+AbDM(int)
+AbDM(float)
+AbDM(double)
+AbDM(elem::Complex<float>)
+AbDM(elem::Complex<double>)
+#undef AbDMT
+#undef AbDM
 
 %include "elemental/core/dist_matrix_forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"
@@ -101,6 +175,15 @@ namespace elem {
 %ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid&, int );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, const elem::Grid& );
+
+%define DCC(T)
+%attribute_custom(%arg(elem::DistMatrix<T,elem::distribution_wrapper::CIRC,elem::distribution_wrapper::CIRC,int>),int,Root,Root,SetRoot,self_->Root(),self_->SetRoot(val_))
+%enddef
+DCC(int)
+DCC(float)
+DCC(double)
+DCC(elem::Complex<float>)
+DCC(elem::Complex<double>)
 
 %include "elemental/core/dist_matrix/circ_circ.hpp"
 %include "elemental/core/dist_matrix/mc_mr.hpp"

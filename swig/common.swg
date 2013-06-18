@@ -1,28 +1,20 @@
-/*
-   Copyright (c) 2009-2013, Jack Poulson
-                      2013, Michael C. Grant
-   All rights reserved.
-
-   This file is part of Elemental and is under the BSD 2-Clause License, 
-   which can be found in the LICENSE file in the root directory, or at 
-   http://opensource.org/licenses/BSD-2-Clause
-*/
-
+%include <attribute.i>
 %include <typemaps.i>
 %include <exception.i>
-
-%{
-#include "elemental.hpp"
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include "numpy/arrayobject.h"
-#include "numpy/ndarraytypes.h"
-%}
+%import <std_except.i>
 
 %init %{
   import_array();
 %}
 
+#define RELEASE
+
 %{
+#define RELEASE
+#include "elemental.hpp"
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "numpy/arrayobject.h"
+#include "numpy/ndarraytypes.h"
 
 template <typename T> struct NPY { static const int DType = NPY_VOID; };
 template <> struct NPY<int> { static const int DType = sizeof(int) == NPY_SIZEOF_INT ? NPY_INT : NPY_LONG; };
@@ -322,6 +314,16 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
         PyErr_SetString( PyExc_RuntimeError, msg ? msg : "Exception caught from Elemental" );
     }
 }
+
+/*
+   Copyright (c) 2009-2013, Jack Poulson
+                      2013, Michael C. Grant
+   All rights reserved.
+
+   This file is part of Elemental and is under the BSD 2-Clause License, 
+   which can be found in the LICENSE file in the root directory, or at 
+   http://opensource.org/licenses/BSD-2-Clause
+*/
 
 /*
  * OVERLOADED FUNCTION MACROS 

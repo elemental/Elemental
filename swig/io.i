@@ -11,8 +11,8 @@
 %module elem_io
 
 %include "common.swg"
-
 %import "elem.i"
+
 /*
  * I/O
  */

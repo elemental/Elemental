@@ -13,7 +13,12 @@
 namespace elem {
 
 // Throws an error if PMRRR was not built along with Elemental
-void EnsurePMRRR();
+inline void EnsurePMRRR()
+{
+#ifndef HAVE_PMRRR
+    throw std::logic_error("PMRRR is required for this routine");
+#endif
+}
 
 template<typename R>
 void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );

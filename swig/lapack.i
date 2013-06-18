@@ -11,7 +11,6 @@
 %module elem_lapack
 
 %include "common.swg"
-
 %import "elem.i"
 
 /*

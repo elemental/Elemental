@@ -11,7 +11,6 @@
 %module elem_convex
 
 %include "common.swg"
-
 %import "elem.i"
 
 /*

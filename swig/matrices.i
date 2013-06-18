@@ -11,7 +11,6 @@
 %module elem_matrices
 
 %include "common.swg"
-
 %import "elem.i"
 
 /*

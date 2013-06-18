@@ -11,7 +11,6 @@
 %module elem_blas
 
 %include "common.swg"
-
 %import "elem.i"
 
 /*
@@ -29,7 +28,7 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 /*
  * BLAS LEVEL 1
  */
- 
+
 %include "elemental/blas-like/level1/Adjoint.hpp"
 %include "elemental/blas-like/level1/Axpy.hpp"
 %include "elemental/blas-like/level1/AxpyTriangle.hpp"
@@ -50,7 +49,7 @@ NO_OVERLOAD(LocalTrr2kBlocksize);
 %include "elemental/blas-like/level1/SetDiagonal.hpp"
 %include "elemental/blas-like/level1/Transpose.hpp"
 %include "elemental/blas-like/level1/Zero.hpp"
-
+ 
 namespace elem {
 OVERLOAD02_int(Adjoint)
 OVERLOAD01_int(Axpy)

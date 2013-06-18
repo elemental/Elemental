@@ -11,8 +11,7 @@
 %module elem_view
 
 %include "common.swg"
-
-%import  "elem.i"
+%import "elem.i"
 
 %include "elemental/core/view_decl.hpp"
 %include "elemental/core/partition_decl.hpp"

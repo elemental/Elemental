@@ -9,8 +9,6 @@
 */
 %module elem_mpi
 
-#define RELEASE
-
 %include "common.swg"
 
 /*
