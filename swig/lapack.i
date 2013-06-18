@@ -50,11 +50,6 @@ OVERLOAD0(Symmetric ## name ## Norm)
 %include "elemental/lapack-like/HilbertSchmidt.hpp"
 
 namespace elem {
-%template(SafeProduct_i) SafeProduct<int>;
-%template(SafeProduct_s) SafeProduct<float>;
-%template(SafeProduct_d) SafeProduct<double>;
-%template(SafeProduct_c) SafeProduct<Complex<float> >;
-%template(SafeProduct_z) SafeProduct<Complex<double> >;
 OVERLOAD01(ConditionNumber)
 OVERLOAD0(Determinant)
 // SWIG doesn't like empty macro arguments. Who knows, maybe C++ doesn't either

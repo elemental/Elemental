@@ -27,6 +27,7 @@ from elem_view import *
 from elem_matrices import *
 from elem_convex import *
 from elem_io import *
+import elem_mpi
 %}
 
 %init %{
@@ -52,10 +53,9 @@ from elem_io import *
 %include "common.swg"
 
 %ignore *::operator=;
-%rename(MPI_Initialize) elem::mpi::Initialize;
-%rename(MPI_Initialized) elem::mpi::Initialized;
-%rename(MPI_Finalize) elem::mpi::Finalize;
-%rename(MPI_Finalized) elem::mpi::Finalized;
+%ignore SingularMatrixException;
+%ignore NonHPDMatrixException;
+%ignore NonHPSDMatrixException;
 
 /*
  * TYPES, GRID, MPI
@@ -69,7 +69,7 @@ from elem_io import *
 %import  "elemental/core/complex_decl.hpp"
 %include "elemental/core/types_decl.hpp"
 %include "elemental/core/environment_decl.hpp"
-%include "elemental/core/imports/mpi.hpp"
+%import  "elemental/core/imports/mpi.hpp"
 %include "elemental/core/grid_decl.hpp"
 %import  "elemental/core/matrix.hpp"
 
@@ -117,36 +117,35 @@ namespace elem {
 %include "elemental/core/dist_matrix/vc_star.hpp"
 %include "elemental/core/dist_matrix/vr_star.hpp"
 
-namespace elem {
-%template(DistMatrix_i) DistMatrix<int,MC,MR,int>;
-%template(DistMatrix_s) DistMatrix<float,MC,MR,int>;
-%template(DistMatrix_d) DistMatrix<double,MC,MR,int>;
-%template(DistMatrix_c) DistMatrix<Complex<float>,MC,MR,int>;
-%template(DistMatrix_z) DistMatrix<Complex<double>,MC,MR,int>;
-
-%define DISTMATRIX(F,U,V,sfx) 
-%template(DistMatrix_ ## sfx ## _ ## U ## _ ## V) DistMatrix<F,U,V,int>;
-%enddef
-%define DISTMATRIX_int(U,V) 
-DISTMATRIX(int,U,V,i)
-%enddef
-%define DISTMATRIX_real(U,V)
-DISTMATRIX(float,U,V,s)
-DISTMATRIX(double,U,V,d)
-%enddef
-%define DISTMATRIX_cplx(U,V)
-DISTMATRIX(Complex<float>,U,V,c)
-DISTMATRIX(Complex<double>,U,V,z)
-%enddef
-%define DISTMATRIX_noint(U,V)
-DISTMATRIX_real(U,V)
-DISTMATRIX_cplx(U,V)
+%define DISTMATRIX(F,U,V,sfx)
+%template(DistMatrix_ ## sfx) DistMatrix<F,U,V,int>;
+%extend DistMatrix<F,U,V,int> {
+	const char *__str__() {
+		std::string ans;
+		std::ostringstream msg;
+		elem::Print( *$self, ans, msg );
+		ans = msg.str();
+		std::size_t found = ans.find_last_not_of(" \t\f\v\n\r");
+		if ( found != std::string::npos ) 
+			ans.erase( found + 1 );
+		return ans.c_str();
+	}
+}
 %enddef
 %define DISTMATRIX_all(U,V)
-DISTMATRIX_int(U,V)
-DISTMATRIX_noint(U,V)
+DISTMATRIX(int,U,V,i_ ## U ## _ ## V)
+DISTMATRIX(float,U,V,s_ ## U ## _ ## V)
+DISTMATRIX(double,U,V,d_ ## U ## _ ## V)
+DISTMATRIX(Complex<float>,U,V,c_ ## U ## _ ## V)
+DISTMATRIX(Complex<double>,U,V,z_ ## U ## _ ## V)
 %enddef
 
+namespace elem {
+DISTMATRIX(int,MC,MR,i)
+DISTMATRIX(float,MC,MR,s)
+DISTMATRIX(double,MC,MR,d)
+DISTMATRIX(Complex<float>,MC,MR,c)
+DISTMATRIX(Complex<double>,MC,MR,z)
 DISTMATRIX_all(CIRC,CIRC)
 DISTMATRIX_all(MC,STAR)
 DISTMATRIX_all(MD,STAR)
