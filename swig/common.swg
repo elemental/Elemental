@@ -200,43 +200,13 @@ void ElemPyMatrix<T>::UpdateArray()
 %}
 
 /*
- * This code converts a Python list of strings to the input format requested for
- * Elemental's Initialize() statement. Note that it does not try to return the
- * modified argc/argv back to Python.
+ * TYPEMAPS 
  */
-
-%typemap(in) ( int& argc, char**& argv ) {
-  int i;
-  if (!PyList_Check($input)) {
-    PyErr_SetString(PyExc_ValueError, "Expecting a list");
-    return NULL;
-  }
-  $1 = new int[1];
-  $1[0] = PyList_Size($input);
-  $2 = new char**[1];
-  $2[0] = new char*[$1[0]+1];
-  for (i = 0; i < $1[0]; i++) {
-    PyObject *s = PyList_GetItem($input,i);
-    if (!PyString_Check(s)) {
-        delete[] $2[0];
-        delete[] $1;
-        PyErr_SetString(PyExc_ValueError, "List items must be strings");
-        return NULL;
-    }
-    $2[0][i] = PyString_AsString(s);
-  }
-  $2[0][i] = 0;
-}
-%typemap(freearg) ( int& argc, char**& argv ) {
-  if ( $2 && $2[0] ) delete[] $2[0];
-  if ( $2 ) delete[] $2;
-  if ( $1 ) delete[] $1;
-}
-
+ 
 /*
- * Elemental's complex values
+ * elem::Complex<T>
  */
-
+  
 %typemap(in) elem::Complex<float> {
   Py_complex ans1 = PyComplex_AsCComplex($input);
   $1 = elem::Complex<float>
@@ -259,6 +229,41 @@ void ElemPyMatrix<T>::UpdateArray()
 }
 %typemap(out) elem::Complex<double> {
   $result = PyComplex_FromDoubles( $1.real, $1.imag );
+}
+
+/*
+ * elem::SafeProduct<T>
+ */
+
+%typemap(in) elem::SafeProduct<int> {
+	$result = PyTuple_Pack( 3,
+		PyFloat_FromDouble( $1.rho ), 
+		PyFloat_FromDouble( $1.kappa ), 
+		PyInteger_FromLong( $1.n ) );
+}
+%typemap(in) elem::SafeProduct<float> {
+	$result = PyTuple_Pack( 3,
+		PyFloat_FromDouble( $1.rho ), 
+		PyFloat_FromDouble( $1.kappa ), 
+		PyInteger_FromLong( $1.n ) );
+}
+%typemap(in) elem::SafeProduct<double> {
+	$result = PyTuple_Pack( 3,
+		PyFloat_FromDouble( $1.rho ), 
+		PyFloat_FromDouble( $1.kappa ), 
+		PyInteger_FromLong( $1.n ) );
+}
+%typemap(in) elem::SafeProduct<elem::Complex<float> > {
+	$result = PyTuple_Pack( 3,
+		PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ), 
+		PyFloat_FromDouble( $1.kappa ), 
+		PyInteger_FromLong( $1.n ) );
+}
+%typemap(in) elem::SafeProduct<elem::Complex<double> > {
+	$result = PyTuple_Pack( 3,
+		PyComplex_FromDoubles( $1.rho.real, $1.rho.imag ), 
+		PyFloat_FromDouble( $1.kappa ), 
+		PyInteger_FromLong( $1.n ) );
 }
 
 /*
