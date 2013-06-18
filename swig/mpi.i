@@ -7,7 +7,7 @@
    which can be found in the LICENSE file in the root directory, or at 
    http://opensource.org/licenses/BSD-2-Clause
 */
-%module elem
+%module elem_mpi
 
 #define RELEASE
 
@@ -22,3 +22,4 @@
 
 // The communication routines have not yet been exposed to SWIG. We have to decide how
 // to do that. For instance, for Python, do we typemap all of the arrays to NumPy objects?
+// And what to do about the ValueInt<T> type? NumPy record objects, perhaps?
