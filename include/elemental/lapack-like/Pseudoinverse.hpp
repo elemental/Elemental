@@ -147,7 +147,6 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
     Gemm( NORMAL, ADJOINT, F(1), V, U, A );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianPseudoinverse
@@ -156,6 +155,7 @@ HermitianPseudoinverse
 #ifndef RELEASE
     CallStackEntry entry("HermitianPseudoinverse");
 #endif
+    EnsurePMRRR();
     typedef BASE(F) R;
     const int n = A.Height();
 
@@ -186,7 +186,6 @@ HermitianPseudoinverse
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

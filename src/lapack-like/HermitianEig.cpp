@@ -235,7 +235,6 @@ void HermitianEig
       w.Buffer(), 0, 1 );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -254,6 +253,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -336,6 +336,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -401,7 +402,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs                                            //
@@ -425,7 +425,6 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -446,6 +445,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
 
     if( A.Height() != A.Width() )
@@ -612,6 +612,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -760,7 +761,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab a partial set of eigenvalues.                                         //
@@ -789,7 +789,6 @@ void HermitianEig
       w.Buffer(), 0, 1 );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -810,6 +809,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -894,6 +894,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -959,7 +960,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w ); 
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab a partial set of eigenpairs.                                          //
@@ -991,7 +991,6 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -1014,6 +1013,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1182,6 +1182,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -1331,7 +1332,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenvalues in the range (a,b]                                    //
@@ -1355,7 +1355,6 @@ void HermitianEig
     w.ResizeTo( numEigs, 1 );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -1376,6 +1375,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1457,6 +1457,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -1519,7 +1520,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w ); 
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenpairs with eigenvalues in the range (a,b]                    //
@@ -1546,7 +1546,6 @@ void HermitianEig
     Z.ResizeTo( n, numEigs );
 }
 
-#ifdef HAVE_PMRRR
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -1569,6 +1568,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
@@ -1750,6 +1750,7 @@ void HermitianEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
+    EnsurePMRRR();
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
@@ -1912,7 +1913,6 @@ void HermitianEig
     if( needRescaling )
         Scale( 1/scale, w );
 }
-#endif // ifdef HAVE_PMRRR
 
 // Full set of eigenvalues
 template void HermitianEig

@@ -69,7 +69,6 @@ HPSDCholesky( UpperOrLower uplo, Matrix<Complex<R> >& A )
     }
 }
 
-#ifdef HAVE_PMRRR
 template<typename R>
 inline void
 HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
@@ -77,6 +76,8 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<R>& A )
 #ifndef RELEASE
     CallStackEntry entry("HPSDCholesky");
 #endif
+    EnsurePMRRR();
+
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -99,6 +100,8 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
 #ifndef RELEASE
     CallStackEntry entry("HPSDCholesky");
 #endif
+    EnsurePMRRR();
+
     HPSDSquareRoot( uplo, A );
     MakeHermitian( uplo, A );
 
@@ -116,7 +119,6 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<Complex<R> >& A )
         MakeTriangular( UPPER, A );
     }
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

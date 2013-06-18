@@ -309,7 +309,6 @@ RealHermitianFunction
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F,class RealFunctor>
 inline void
 RealHermitianFunction
@@ -318,6 +317,7 @@ RealHermitianFunction
 #ifndef RELEASE
     CallStackEntry entry("RealHermitianFunction");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
     typedef BASE(F) R;
@@ -339,7 +339,6 @@ RealHermitianFunction
     // Form the custom outer product, Z Omega Z^T
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
-#endif // ifdef HAVE_PMRRR
 
 //
 // Modify the eigenvalues of A with the complex-valued function f, which will
@@ -378,7 +377,6 @@ ComplexHermitianFunction
     hermitian_function::ReformNormalMatrix( A, fw, Z );
 }
 
-#ifdef HAVE_PMRRR
 template<typename R,class ComplexFunctor>
 inline void
 ComplexHermitianFunction
@@ -387,6 +385,7 @@ ComplexHermitianFunction
 #ifndef RELEASE
     CallStackEntry entry("ComplexHermitianFunction");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() )
         throw std::logic_error("Hermitian matrices must be square");
     typedef Complex<R> C;
@@ -411,7 +410,6 @@ ComplexHermitianFunction
     // Form the custom outer product, Z f(Omega) Z^H
     hermitian_function::ReformNormalMatrix( A, fw, Z );
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

@@ -34,6 +34,8 @@ int PMRRR
 
 } // extern "C"
 
+#endif // ifdef HAVE_PMRRR
+
 namespace elem {
 namespace pmrrr {
 
@@ -46,6 +48,8 @@ Estimate EigEstimate
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::EigEstimate");
 #endif
+    Estimate estimate;
+#ifdef HAVE_PMRRR
     char jobz='C';
     char range='V';
     int il, iu;
@@ -63,9 +67,11 @@ Estimate EigEstimate
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Estimate estimate;
     estimate.numLocalEigenvalues = nz;
     mpi::AllReduce( &nz, &estimate.numGlobalEigenvalues, 1, mpi::SUM, comm );
+#else
+    EnsurePMRRR();
+#endif
     return estimate;
 }
 
@@ -75,6 +81,8 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     char jobz='N';
     char range='A';
     double vl, vu;
@@ -93,10 +101,12 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
@@ -107,6 +117,8 @@ Info Eig
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     char jobz='V';
     char range='A';
     double vl, vu;
@@ -124,10 +136,12 @@ Info Eig
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=n;
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
@@ -139,6 +153,8 @@ Info Eig
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     char jobz='N';
     char range='V';
     int il, iu;
@@ -156,10 +172,12 @@ Info Eig
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
@@ -171,6 +189,8 @@ Info Eig
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     char jobz='V';
     char range='V';
     int il, iu;
@@ -187,10 +207,12 @@ Info Eig
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     mpi::AllReduce( &nz, &info.numGlobalEigenvalues, 1, mpi::SUM, comm );
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
@@ -202,6 +224,8 @@ Info Eig
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     ++lowerBound;
     ++upperBound;
     char jobz='N';
@@ -221,10 +245,12 @@ Info Eig
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
@@ -237,6 +263,8 @@ Info Eig
 #ifndef RELEASE
     CallStackEntry entry("pmrrr::Eig");
 #endif
+    Info info;
+#ifdef HAVE_PMRRR
     ++lowerBound;
     ++upperBound;
     char jobz='V';
@@ -255,14 +283,14 @@ Info Eig
         throw std::runtime_error( msg.str().c_str() );
     }
 
-    Info info;
     info.numLocalEigenvalues=nz;
     info.firstLocalEigenvalue=offset;
     info.numGlobalEigenvalues=(upperBound-lowerBound)+1;
+#else
+    EnsurePMRRR();
+#endif
     return info;
 }
 
 } // namespace pmrrr
 } // namespace elem
-
-#endif // ifdef HAVE_PMRRR

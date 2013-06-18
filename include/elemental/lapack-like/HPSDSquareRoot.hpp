@@ -68,7 +68,6 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
@@ -76,6 +75,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HPSDSquareRoot");
 #endif
+    EnsurePMRRR();
     typedef BASE(F) R;
 
     // Get the EVD of A
@@ -120,7 +120,6 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     // Form the pseudoinverse
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

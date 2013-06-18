@@ -12,6 +12,9 @@
 
 namespace elem {
 
+// Throws an error if PMRRR was not built along with Elemental
+void EnsurePMRRR();
+
 template<typename R>
 void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );
 template<typename R>

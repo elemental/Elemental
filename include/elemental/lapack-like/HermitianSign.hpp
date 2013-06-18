@@ -55,7 +55,6 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A )
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
@@ -63,6 +62,7 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HermitianSign");
 #endif
+    EnsurePMRRR();
     typedef BASE(F) R;
 
     // Get the EVD of A
@@ -93,7 +93,6 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     // Reform the Hermitian matrix with the modified eigenvalues
     hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

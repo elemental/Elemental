@@ -43,7 +43,6 @@ HermitianGenDefiniteEig
     HermitianEig( uplo, A, w );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianGenDefiniteEig
@@ -55,6 +54,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -65,7 +65,6 @@ HermitianGenDefiniteEig
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs                                            //
@@ -105,7 +104,6 @@ HermitianGenDefiniteEig
     }
 }
 
-#ifdef HAVE_PMRRR
 template<typename F> 
 inline void
 HermitianGenDefiniteEig
@@ -116,6 +114,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -140,7 +139,6 @@ HermitianGenDefiniteEig
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenvalues with specified index range                            //
@@ -167,7 +165,6 @@ HermitianGenDefiniteEig
     HermitianEig( uplo, A, w, a, b );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianGenDefiniteEig
@@ -180,6 +177,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -190,7 +188,6 @@ HermitianGenDefiniteEig
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenpairs with indices in a specified range                      //
@@ -231,7 +228,6 @@ HermitianGenDefiniteEig
     }
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianGenDefiniteEig
@@ -245,6 +241,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -269,7 +266,6 @@ HermitianGenDefiniteEig
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenvalues in the range (a,b]                                    //
@@ -296,7 +292,6 @@ HermitianGenDefiniteEig
     HermitianEig( uplo, A, w, a, b );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F> 
 inline void
 HermitianGenDefiniteEig
@@ -307,6 +302,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -317,7 +313,6 @@ HermitianGenDefiniteEig
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
     HermitianEig( uplo, A, w, a, b );
 }
-#endif // ifdef HAVE_PMRRR
 
 //----------------------------------------------------------------------------//
 // Grab the eigenpairs with eigenvalues in the range (a,b]                    //
@@ -358,7 +353,6 @@ HermitianGenDefiniteEig
     }
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 HermitianGenDefiniteEig
@@ -370,6 +364,7 @@ HermitianGenDefiniteEig
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
+    EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
         throw std::logic_error("Hermitian matrices must be square.");
 
@@ -394,7 +389,6 @@ HermitianGenDefiniteEig
             Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
     }
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace elem
 

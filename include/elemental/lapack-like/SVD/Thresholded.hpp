@@ -69,7 +69,6 @@ ThresholdedTall
     }
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 ThresholdedTall
@@ -83,6 +82,7 @@ ThresholdedTall
     if( tol < 0 )
         throw std::logic_error("negative threshold does not make sense");
 #endif
+    EnsurePMRRR();
     typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int m = A.Height();
@@ -130,7 +130,6 @@ ThresholdedTall
         }
     }
 }
-#endif // ifdef HAVE_PMRRR
 
 template<typename F>
 inline void
@@ -182,7 +181,6 @@ ThresholdedWide
     A = U;
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 ThresholdedWide
@@ -196,6 +194,7 @@ ThresholdedWide
     if( tol < 0 )
         throw std::logic_error("negative threshold does not make sense");
 #endif
+    EnsurePMRRR();
     typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int n = A.Width();
@@ -243,7 +242,6 @@ ThresholdedWide
     }
     A = U;
 }
-#endif // ifdef HAVE_PMRRR
 
 template<typename F>
 inline void
@@ -259,7 +257,6 @@ Thresholded
         ThresholdedWide( A, s, V, tol );
 }
 
-#ifdef HAVE_PMRRR
 template<typename F>
 inline void
 Thresholded
@@ -269,12 +266,12 @@ Thresholded
 #ifndef RELEASE
     CallStackEntry entry("svd::Thresholded");
 #endif
+    EnsurePMRRR();
     if( A.Height() >= A.Width() )
         ThresholdedTall( A, s, V, tol );
     else
         ThresholdedWide( A, s, V, tol );
 }
-#endif // ifdef HAVE_PMRRR
 
 } // namespace svd
 } // namespace elem

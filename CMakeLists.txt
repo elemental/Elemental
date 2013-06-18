@@ -39,9 +39,9 @@ option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 # eigensolvers. Since it makes use of pthreads, Windows builds cannot use 
 # PMRRR.
 if(WIN32)
-  option(BUILD_PMRRR "Build and link against eigensolver PMRRR" OFF)
+  option(USE_PMRRR "Build and link against eigensolver PMRRR" OFF)
 else()
-  option(BUILD_PMRRR "Build and link against eigensolver PMRRR" ON)
+  option(USE_PMRRR "Build and link against eigensolver PMRRR" ON)
 endif()
 
 # Whether or not to use Qt5 for visualization if it is found (experimental)
@@ -410,7 +410,7 @@ endif()
 # Add the Parallel Multiple Relatively Robust Representations (PMRRR) project
 # if necessary
 set(HAVE_PMRRR FALSE)
-if(BUILD_PMRRR)
+if(USE_PMRRR)
   add_subdirectory(external/pmrrr)
 endif()
 

@@ -10,6 +10,17 @@
 #ifndef LAPACK_IMPL_HPP
 #define LAPACK_IMPL_HPP
 
+namespace elem {
+
+inline void EnsurePMRRR()
+{
+#ifndef HAVE_PMRRR
+    throw std::logic_error("PMRRR is required for this routine");
+#endif
+}
+
+} // namespace elem
+
 #include "./lapack-like/ApplyPackedReflectors.hpp"
 #include "./lapack-like/ApplyColumnPivots.hpp"
 #include "./lapack-like/ApplyRowPivots.hpp"
