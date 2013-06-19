@@ -12,6 +12,7 @@
 %include <typemaps.i>
 %include <exception.i>
 %import <std_except.i>
+%include <std_string.i>
 
 %init %{
   import_array();
