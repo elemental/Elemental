@@ -149,7 +149,7 @@ void TimedGemm
         {
             const int mLocal = A1_MC_STAR.LocalHeight();
             const int nLocal = A1_MC_STAR.LocalWidth();
-            const double mbps = (1.*mLocal*nLocal*sizeof(T))/1.e6;
+            const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMC*1.e6);
             std::cout << "[MC,* ] AllGather: " << timeMC
                       << " secs, " << mbps << " MB/s" << " for "
                       << mLocal << " x " << nLocal << " local matrix"
@@ -162,7 +162,7 @@ void TimedGemm
         {
             const int nLocal = B1Trans_MR_STAR.LocalHeight();
             const int mLocal = B1Trans_MR_STAR.LocalWidth();
-            const double mbps = (1.*mLocal*nLocal*sizeof(T))/1.e6;
+            const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMR*1.e6);
             std::cout << "[* ,MR] AllGather: " << timeMR
                       << " secs, " << mbps << " MB/s" << " for "
                       << mLocal << " x " << nLocal << " local matrix"
