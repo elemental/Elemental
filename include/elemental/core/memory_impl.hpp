@@ -21,8 +21,8 @@ Memory<G>::Memory()
 template<typename G>
 inline 
 Memory<G>::Memory( std::size_t size )
-: size_(size), buffer_(new G[size])
-{ }
+: size_(0), buffer_(NULL)
+{ Require( size ); }
 
 template<typename G>
 inline 
@@ -52,11 +52,13 @@ Memory<G>::Require( std::size_t size )
         buffer_ = new G[size];
 #ifndef RELEASE
         } 
-        catch( std::bad_alloc& exception )
+        catch( std::bad_alloc& e )
         {
-            std::cerr << "Failed to allocate " << size*sizeof(G) 
-                      << " bytes" << std::endl;
-            throw exception;
+            std::ostringstream os;
+            os << "Failed to allocate " << size*sizeof(G) 
+               << " bytes on process " << mpi::WorldRank() << std::endl;
+            std::cerr << os.str();
+            throw e;
         }
 #endif
         size_ = size;
