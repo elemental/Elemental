@@ -144,6 +144,7 @@ void TimedGemm
         //--------------------------------------------------------------------//
         timerMC.Start();
         A1_MC_STAR = A1;
+        mpi::Barrier( g.Comm() );
         const double timeMC = timerMC.Stop();
         if( g.Rank() == 0 )
         {
@@ -157,6 +158,7 @@ void TimedGemm
         }
         timerMR.Start();
         B1Trans_MR_STAR.TransposeFrom( B1 );
+        mpi::Barrier( g.Comm() );
         const double timeMR = timerMR.Stop();
         if( g.Rank() == 0 )
         {
@@ -174,6 +176,7 @@ void TimedGemm
         timerGemm.Start();
         LocalGemm
         ( NORMAL, TRANSPOSE, alpha, A1_MC_STAR, B1Trans_MR_STAR, T(1), C );
+        mpi::Barrier( g.Comm() );
         const double gemmTime = timerGemm.Stop();
         if( g.Rank() == 0 )
         {
@@ -182,7 +185,7 @@ void TimedGemm
             const int kLocal = A1_MC_STAR.LocalWidth();
             const double gflops = (2.*mLocal*nLocal*kLocal)/(gemmTime*1.e9);
             std::cout << "Local gemm: " << gemmTime << " secs and "
-                      << gflops << "GFlops for " << mLocal << " x " << nLocal
+                      << gflops << " GFlops for " << mLocal << " x " << nLocal
                       << " x " << kLocal << " product" << std::endl;
         }
         //--------------------------------------------------------------------//
