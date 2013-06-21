@@ -61,7 +61,7 @@ AbstractDistMatrix<T,Int>::AssertValidEntry
 }
 
 template<typename T,typename Int>
-inline void
+void
 AbstractDistMatrix<T,Int>::AssertValidSubmatrix
 ( Int i, Int j, Int height, Int width ) const
 {
