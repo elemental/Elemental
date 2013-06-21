@@ -20,9 +20,9 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of C",100);
-        const int n = Input("--width","width of C",100);
-        const int k = Input("--inner","inner dimension",100);
+        const int m = Input("--m","height of C",1000);
+        const int n = Input("--n","width of C",1000);
+        const int k = Input("--k","inner dimension",1000);
         const double alpha = Input("--alpha","scale of A B",2.);
         const double beta = Input("--beta","scale of C",3.);
         const bool print = Input("--print","print matrices?",false);
@@ -44,7 +44,16 @@ main( int argc, char* argv[] )
             Print( C, "C" );
         }
 
+        Timer timer;
+        timer.Start();
         gemm::Cannon_NN( alpha, A, B, beta, C );
+        const double gemmTime = timer.Stop();
+        if( g.Rank() == 0 )
+        {
+            const double gflops = (2.*m*n*k) / (1.e9*gemmTime);
+            std::cout << "Gemm took " << gemmTime << " seconds and achieved "
+                      << gflops << " GFlops" << std::endl;
+        }
         if( print )
             Print( C, "C := alpha A B + beta C" );
     }

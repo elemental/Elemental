@@ -575,7 +575,7 @@ if(ELEM_EXAMPLES)
 
   set(convex_EXAMPLES LogDetDivergence RPCA)
   set(core_EXAMPLES Constructors)
-  set(blas-like_EXAMPLES Cannon Gemv)
+  set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 
     BusingerGolub GaussianElimination HermitianQDWH HPDInverse ID 
     KyFanAndSchatten LDL LDLInverse LeastSquares Polar Pseudoinverse QDWH 

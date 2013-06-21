@@ -32,10 +32,9 @@ Timer::Start()
 #endif
     lastStartTime_ = mpi::Time();
     running_ = true;
-    running_ = true;
 }
 
-inline void 
+inline double
 Timer::Stop()
 {
 #ifndef RELEASE
@@ -43,8 +42,10 @@ Timer::Stop()
     if( !running_ )
         throw std::logic_error("Tried to stop a timer before starting it");
 #endif
-    time_ += mpi::Time()-lastStartTime_;
+    const double partial = Partial();  
+    time_ += partial;
     running_ = false;
+    return partial;
 }
 
 inline void 
@@ -56,12 +57,19 @@ Timer::Name() const
 { return name_; }
 
 inline double 
-Timer::Time() const
+Timer::Partial() const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Timer::Time");
-    if( running_ )
-        throw std::logic_error("Asked for time while still timing");
+    CallStackEntry entry("Timer::Partial");
+#endif
+    return mpi::Time()-lastStartTime_;
+}
+
+inline double 
+Timer::Total() const
+{
+#ifndef RELEASE
+    CallStackEntry entry("Timer::Total");
 #endif
     return time_;
 }

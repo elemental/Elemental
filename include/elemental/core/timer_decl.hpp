@@ -19,11 +19,12 @@ public:
     Timer( const std::string name );
 
     void Start();
-    void Stop();
+    double Stop();
     void Reset();
 
     const std::string Name() const;
-    double Time() const;
+    double Partial() const;
+    double Total() const;
     
 private:
     bool running_;
