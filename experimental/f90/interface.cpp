@@ -245,14 +245,14 @@ void FC_GLOBAL_(elem_free_cpx_dist_mat,NAME)( int* handle )
 void FC_GLOBAL_(elem_print_dist_mat,NAME)( int* AHandle )
 {
     const DistMatrix<double>& A = GetDistMat( *AHandle );
-    A.Print();
+    Print( A );
 }
 
 void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
 {
     typedef Complex<double> C;
     const DistMatrix<C>& A = GetCpxDistMat( *AHandle );
-    A.Print();
+    Print( A );
 }
 
 //
@@ -280,7 +280,7 @@ void FC_GLOBAL_(elem_free_dist_mat_vc_star,NAME)( int* handle )
 void FC_GLOBAL_(elem_print_dist_mat_vc_star,NAME)( int* AHandle )
 {
     const DistMatrix<double,VC,STAR>& A = GetDistMat_VC_STAR( *AHandle );
-    A.Print();
+    Print( A );
 }
 
 //
@@ -308,7 +308,7 @@ void FC_GLOBAL_(elem_free_dist_mat_vr_star,NAME)( int* handle )
 void FC_GLOBAL_(elem_print_dist_mat_vr_star,NAME)( int* AHandle )
 {
     const DistMatrix<double,VR,STAR>& A = GetDistMat_VR_STAR( *AHandle );
-    A.Print();
+    Print( A );
 }
 
 //

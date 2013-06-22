@@ -238,14 +238,14 @@ void ElemFreeCpxDistMat( ElemCpxDistMat A )
 void ElemPrintDistMat( ElemDistMat AHandle )
 {
     const DistMatrix<double>& A = GetDistMat( AHandle );
-    A.Print();
+    Print( A );
 }
 
 void ElemPrintCpxDistMat( ElemCpxDistMat AHandle )
 {
     typedef Complex<double> C;
     const DistMatrix<C>& A = GetCpxDistMat( AHandle );
-    A.Print();
+    Print( A );
 }
 
 //
@@ -272,7 +272,7 @@ void ElemFreeDistMat_VC_STAR( ElemDistMat_VC_STAR A )
 void ElemPrintDistMat_VC_STAR( ElemDistMat_VC_STAR AHandle )
 {
     const DistMatrix<double,VC,STAR>& A = GetDistMat_VC_STAR( AHandle );
-    A.Print();
+    Print( A );
 }
 
 //
@@ -299,7 +299,7 @@ void ElemFreeDistMat_VR_STAR( ElemDistMat_VR_STAR A )
 void ElemPrintDistMat_VR_STAR( ElemDistMat_VR_STAR AHandle )
 {
     const DistMatrix<double,VR,STAR>& A = GetDistMat_VR_STAR( AHandle );
-    A.Print();
+    Print( A );
 }
 
 //

@@ -41,7 +41,7 @@ void InitA( DistMatrix<double,MC,MR>& A, bool print )
         MakeIdentity( A );
         Scal( 10.0, A );
         if( print )
-            A.Print("A");
+            Print( A, "A" );
     }
 }
 
@@ -64,7 +64,7 @@ void InitB( DistMatrix<double,MC,MR>& B, bool print )
             localBuffer[iLocal] = iLocal*meshSize + rank;
 
         if( print )
-            B.Print("B");
+            Print( B, "B" );
     }
 }
 
@@ -405,7 +405,7 @@ int main( int argc, char* argv[] )
                       << std::endl;
 
         if( depthRank == 0 && print )
-            C.Print("C");
+            Print( C, "C" );
     } 
     catch( std::exception& e )
     {
