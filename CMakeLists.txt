@@ -699,12 +699,15 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
     file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
       "experimental/f90/interface.cpp")
     add_library(experimental-f90 ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
+    add_dependencies(experimental-f90 elemental)
     install(TARGETS experimental-f90 DESTINATION lib)
 
     add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90) 
     target_link_libraries(experimental-f90-test experimental-f90 elemental)
-    set_target_properties(experimental-f90-test 
-      PROPERTIES OUTPUT_NAME f90_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    set_target_properties(experimental-f90-test PROPERTIES
+      LINKER_LANGUAGE Fortran
+      OUTPUT_NAME f90_test 
+      RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
     if(MPI_LINK_FLAGS)
       set_target_properties(experimental-f90-test 
         PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
