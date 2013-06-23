@@ -343,6 +343,26 @@ Scalar manipulation
 
    Return the imaginary part of the real or complex variable :math:`\alpha`.
 
+.. cpp:function:: void SetRealPart( F& alpha, typename Base<F>::type& beta )
+
+   Set the real part of the real or complex variable :math:`\alpha` to 
+   :math:`\beta`.
+
+.. cpp:function:: void SetImagPart( F& alpha, typename Base<F>::type& beta )
+
+   Set the imaginary part of the complex variable :math:`\alpha` to 
+   :math:`\beta`. If :math:`\alpha` has a real type, an error is thrown.
+
+.. cpp:function:: void UpdateRealPart( F& alpha, typename Base<F>::type& beta )
+
+   Update the real part of the real or complex variable :math:`\alpha` to 
+   :math:`\beta`.
+
+.. cpp:function:: void UpdateImagPart( F& alpha, typename Base<F>::type& beta )
+
+   Update the imaginary part of the complex variable :math:`\alpha` to 
+   :math:`\beta`. If :math:`\alpha` has a real type, an error is thrown.
+
 .. cpp:function:: F Conj( const F& alpha )
 
    Return the complex conjugate of the real or complex variable :math:`\alpha`.

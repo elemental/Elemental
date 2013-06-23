@@ -120,58 +120,6 @@ private:
 
     void AssertValidEntry( Int i, Int j ) const;
 
-    template<typename Z>
-    struct SetRealPartHelper
-    {
-        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct SetRealPartHelper<Complex<Z> >
-    {
-        static void Func
-        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct SetRealPartHelper;
-
-    template<typename Z>
-    struct SetImagPartHelper
-    {
-        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct SetImagPartHelper<Complex<Z> >
-    {
-        static void Func
-        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct SetImagPartHelper;
-
-    template<typename Z>
-    struct UpdateRealPartHelper
-    {
-        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct UpdateRealPartHelper<Complex<Z> >
-    {
-        static void Func
-        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct UpdateRealPartHelper;
-
-    template<typename Z>
-    struct UpdateImagPartHelper
-    {
-        static void Func( Matrix<Z,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z>
-    struct UpdateImagPartHelper<Complex<Z> >
-    {
-        static void Func
-        ( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha );
-    };
-    template<typename Z> friend struct UpdateImagPartHelper;
-
 #ifndef SWIG
     friend void View<T,Int>
     ( Matrix<T,Int>& A, Matrix<T,Int>& B );

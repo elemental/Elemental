@@ -135,6 +135,26 @@ RealPart( const Complex<R>& alpha )
 { return alpha.real; }
 
 template<typename R>
+inline void 
+SetRealPart( R& alpha, const R& beta )
+{ alpha = beta; }
+
+template<typename R>
+inline void 
+SetRealPart( Complex<R>& alpha, const R& beta )
+{ alpha.real = beta; }
+
+template<typename R>
+inline void 
+UpdateRealPart( R& alpha, const R& beta )
+{ alpha += beta; }
+
+template<typename R>
+inline void 
+UpdateRealPart( Complex<R>& alpha, const R& beta )
+{ alpha.real += beta; }
+
+template<typename R>
 inline R
 ImagPart( const R& alpha )
 { return 0; }
@@ -143,6 +163,36 @@ template<typename R>
 inline R
 ImagPart( const Complex<R>& alpha )
 { return alpha.imag; }
+
+template<typename R>
+inline void 
+SetImagPart( R& alpha, const R& beta )
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("SetImagPart");
+#endif
+    throw std::logic_error("Nonsensical assignment"); 
+}
+
+template<typename R>
+inline void 
+SetImagPart( Complex<R>& alpha, const R& beta )
+{ alpha.imag = beta; }
+
+template<typename R>
+inline void 
+UpdateImagPart( R& alpha, const R& beta )
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("UpdateImagPart");
+#endif
+    throw std::logic_error("Nonsensical update"); 
+}
+
+template<typename R>
+inline void 
+UpdateImagPart( Complex<R>& alpha, const R& beta )
+{ alpha.imag += beta; }
 
 template<typename R>
 inline R 

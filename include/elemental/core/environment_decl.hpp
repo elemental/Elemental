@@ -75,11 +75,24 @@ R RealPart( const R& alpha );
 template<typename R>
 R RealPart( const Complex<R>& alpha );
 
+// Set the real part of a real or complex number
+template<typename R>
+void SetRealPart( R& alpha, const R& beta );
+template<typename R>
+void SetRealPart( Complex<R>& alpha, const R& beta );
+
 // Return the imaginary part of a real or complex number
 template<typename R>
 R ImagPart( const R& alpha );
 template<typename R>
 R ImagPart( const Complex<R>& alpha );
+
+// Set the imaginary part of a real or complex number
+// NOTE: The real version will fail and exists for generality
+template<typename R>
+void SetImagPart( R& alpha, const R& beta );
+template<typename R>
+void SetImagPart( Complex<R>& alpha, const R& beta );
 
 // Conjugation
 template<typename R>

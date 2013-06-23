@@ -21,8 +21,8 @@ Print
 Spy
 ---
 
-.. cpp:function:: void Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
-.. cpp:function:: void Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
+.. cpp:function:: void Spy( const Matrix<T>& A, std::string title="Default", typename Base<T>::type tol=0 )
+.. cpp:function:: void Spy( const DistMatrix<T,U,V>& A, std::string title="Default", typename Base<T>::type tol=0 )
 
    Only available if Qt5 was detected during configuration. A spy plot of 
    the elements with absolute values greater than or equal to ``tol`` is 

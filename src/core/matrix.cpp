@@ -344,143 +344,57 @@ Matrix<T,Int>::GetImagPart( Int i, Int j ) const
 }
 
 template<typename T,typename Int>
-void
+void 
 Matrix<T,Int>::SetRealPart( Int i, Int j, BASE(T) alpha )
-{ SetRealPartHelper<T>::Func( *this, i, j, alpha ); }
-
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::SetRealPartHelper<Z>::Func
-( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::SetRealPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
+    CallStackEntry cse("Matrix::SetRealPart");
+    AssertValidEntry( i, j );
+    if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    parent.data_[i+j*parent.ldim_] = alpha;
+    elem::SetRealPart( data_[i+j*ldim_], alpha );
 }
-    
+
 template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::SetRealPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
+void 
+Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::SetRealPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
+    CallStackEntry cse("Matrix::SetImagPart");
+    AssertValidEntry( i, j );
+    if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    const Z beta = parent.data_[i+j*parent.ldim_].imag;
-    parent.data_[i+j*parent.ldim_] = Complex<Z>( alpha, beta );
+    elem::SetImagPart( data_[i+j*ldim_], alpha );
 }
 
 template<typename T,typename Int>
-void
-Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha ) 
-{ SetImagPartHelper<T>::Func( *this, i, j, alpha ); }
-
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::SetImagPartHelper<Z>::Func
-( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::SetImagPartHelper::Func");
-#endif
-    throw std::logic_error("Called complex-only routine with real datatype");
-}
-    
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::SetImagPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha ) 
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::SetImagPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
-        throw std::logic_error("Cannot modify data of locked matrices");
-#endif
-    const Z beta = parent.data_[i+j*parent.ldim_].real;
-    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta, alpha );
-}
-
-template<typename T,typename Int>
-void
+void 
 Matrix<T,Int>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
-{ UpdateRealPartHelper<T>::Func( *this, i, j, alpha ); }
-
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::UpdateRealPartHelper<Z>::Func
-( Matrix<Z,Int>& parent, Int i, Int j, Z alpha ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateRealPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
+    CallStackEntry cse("Matrix::UpdateRealPart");
+    AssertValidEntry( i, j );
+    if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    parent.data_[i+j*parent.ldim_] += alpha;
+    elem::UpdateRealPart( data_[i+j*ldim_], alpha );
 }
-    
+
 template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::UpdateRealPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
+void 
+Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateRealPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
+    CallStackEntry cse("Matrix::UpdateImagPart");
+    AssertValidEntry( i, j );
+    if( lockedData_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
-    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real+alpha, beta.imag );
+    elem::UpdateImagPart( data_[i+j*ldim_], alpha );
 }
-
-template<typename T,typename Int>
-void
-Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha ) 
-{ UpdateImagPartHelper<T>::Func( *this, i, j, alpha ); }
-
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::UpdateImagPartHelper<Z>::Func
-( Matrix<Z,Int>& parent, Int i, Int j, Z alpha )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateImagPartHelper::Func");
-#endif
-    throw std::logic_error("Called complex-only routine with real datatype");
-}
-    
-template<typename T,typename Int>
-template<typename Z>
-void
-Matrix<T,Int>::UpdateImagPartHelper<Complex<Z> >::Func
-( Matrix<Complex<Z>,Int>& parent, Int i, Int j, Z alpha )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateImagPartHelper::Func");
-    parent.AssertValidEntry( i, j );
-    if( parent.lockedData_ )
-        throw std::logic_error("Cannot modify data of locked matrices");
-#endif
-    const Complex<Z> beta = parent.data_[i+j*parent.ldim_];
-    parent.data_[i+j*parent.ldim_] = Complex<Z>( beta.real, beta.imag+alpha );
-}
-
+   
 template<typename T,typename Int>
 void
 Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
