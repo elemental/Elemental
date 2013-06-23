@@ -357,13 +357,87 @@ void FC_GLOBAL_(elem_print_dist_mat_star_star,NAME)( int* AHandle )
 // Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
 //
 
+void FC_GLOBAL_(elem_symmetric_eig,NAME)
+( int* AHandle, int* wHandle, int* XHandle )
+{
+    DistMatrix<double>& A = GetDistMat( *AHandle );
+
+    *XHandle = CreateDistMat( A.Grid() );
+    DistMatrix<double>& X = GetDistMat( *XHandle );
+    
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianEig( LOWER, A, w_VR_STAR, X );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
+}
+
+void FC_GLOBAL_(elem_hermitian_eig,NAME)
+( int* AHandle, int* wHandle, int* XHandle )
+{
+    typedef Complex<double> C;
+
+    DistMatrix<C>& A = GetCpxDistMat( *AHandle );
+
+    *XHandle = CreateCpxDistMat( A.Grid() );
+    DistMatrix<C>& X = GetCpxDistMat( *XHandle );
+    
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianEig( LOWER, A, w_VR_STAR, X );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
+}
+
+void FC_GLOBAL_(elem_symmetric_axbx_reduce,NAME)
+( int* AHandle, int* BHandle )
+{
+    DistMatrix<double>& A = GetDistMat( *AHandle );
+    DistMatrix<double>& B = GetDistMat( *BHandle );
+
+    Cholesky( LOWER, B );
+    TwoSidedTrsm( LOWER, NON_UNIT, A, B );
+}
+
+void FC_GLOBAL_(elem_hermitian_axbx_reduce,NAME)
+( int* AHandle, int* BHandle )
+{
+    DistMatrix<Complex<double> >& A = GetCpxDistMat( *AHandle );
+    DistMatrix<Complex<double> >& B = GetCpxDistMat( *BHandle );
+
+    Cholesky( LOWER, B );
+    TwoSidedTrsm( LOWER, NON_UNIT, A, B );
+}
+
+void FC_GLOBAL_(elem_symmetric_axbx_expand,NAME)
+( int* AHandle, int* BHandle, int* XHandle )
+{
+    DistMatrix<double>& A = GetDistMat( *AHandle );
+    DistMatrix<double>& B = GetDistMat( *BHandle );
+    DistMatrix<double>& X = GetDistMat( *XHandle );
+    
+    Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, X );
+}
+
+void FC_GLOBAL_(elem_hermitian_axbx_expand,NAME)
+( int* AHandle, int* BHandle, int* XHandle )
+{
+    typedef Complex<double> C;
+    DistMatrix<C>& A = GetCpxDistMat( *AHandle );
+    DistMatrix<C>& B = GetCpxDistMat( *BHandle );
+    DistMatrix<C>& X = GetCpxDistMat( *XHandle );
+    
+    Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1.), B, X );
+}
+
 void FC_GLOBAL_(elem_symmetric_axbx,NAME)
 ( int* AHandle, int* BHandle,
   int* wHandle, int* XHandle )
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
-
 
     *XHandle = CreateDistMat( A.Grid() );
     DistMatrix<double>& X = GetDistMat( *XHandle );
@@ -383,7 +457,6 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
-
 
     *XHandle = CreateDistMat( A.Grid() );
     DistMatrix<double>& X = GetDistMat( *XHandle );
