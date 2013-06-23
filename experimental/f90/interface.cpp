@@ -22,6 +22,9 @@ typedef int ElemCpxDistMat_VC_STAR;
 typedef int ElemDistMat_VR_STAR;
 typedef int ElemCpxDistMat_VR_STAR;
 
+typedef int ElemDistMat_STAR_STAR;
+typedef int ElemCpxDistMat_STAR_STAR;
+
 namespace {
 
 const int maxInt = std::numeric_limits<int>::max();
@@ -31,8 +34,9 @@ std::vector<Grid*> gridList;
 std::vector<DistMatrix<double>*> distMatList;
 std::vector<DistMatrix<Complex<double> >*> cpxDistMatList;
 
-std::vector<DistMatrix<double,VC,STAR>*> distMatList_VC_STAR;
-std::vector<DistMatrix<double,VR,STAR>*> distMatList_VR_STAR;
+std::vector<DistMatrix<double,VC,  STAR>*> distMatList_VC_STAR;
+std::vector<DistMatrix<double,VR,  STAR>*> distMatList_VR_STAR;
+std::vector<DistMatrix<double,STAR,STAR>*> distMatList_STAR_STAR;
 
 const Grid& GetGrid( ElemGrid grid )
 {
@@ -53,6 +57,9 @@ DistMatrix<double,VC,STAR>& GetDistMat_VC_STAR( ElemDistMat_VC_STAR A )
 
 DistMatrix<double,VR,STAR>& GetDistMat_VR_STAR( ElemDistMat_VR_STAR A )
 { return *distMatList_VR_STAR[A]; }
+
+DistMatrix<double,STAR,STAR>& GetDistMat_STAR_STAR( ElemDistMat_STAR_STAR A )
+{ return *distMatList_STAR_STAR[A]; }
 
 template<typename T>
 int GetOpenIndex( std::vector<T*>& list )
@@ -91,6 +98,13 @@ ElemDistMat_VR_STAR CreateDistMat_VR_STAR( const Grid& grid )
 {
     const int index = GetOpenIndex( distMatList_VR_STAR );
     distMatList_VR_STAR[index] = new DistMatrix<double,VR,STAR>( grid );
+    return index;
+}
+
+ElemDistMat_STAR_STAR CreateDistMat_STAR_STAR( const Grid& grid )
+{
+    const int index = GetOpenIndex( distMatList_STAR_STAR );
+    distMatList_STAR_STAR[index] = new DistMatrix<double,STAR,STAR>( grid );
     return index;
 }
 
@@ -312,6 +326,34 @@ void FC_GLOBAL_(elem_print_dist_mat_vr_star,NAME)( int* AHandle )
 }
 
 //
+// [* ,* ] management
+//
+
+void FC_GLOBAL_(elem_create_dist_mat_star_star,NAME)
+( int* gridHandle, int* handle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( distMatList_STAR_STAR );
+    distMatList_STAR_STAR[index] = new DistMatrix<double,STAR,STAR>( grid );
+    *handle = index;
+}
+
+void FC_GLOBAL_(elem_free_dist_mat_star_star,NAME)( int* handle )
+{
+    if( distMatList_STAR_STAR[*handle] != 0 )
+    {
+        delete distMatList_STAR_STAR[*handle];
+        distMatList_STAR_STAR[*handle] = 0;
+    }
+}
+
+void FC_GLOBAL_(elem_print_dist_mat_star_star,NAME)( int* AHandle )
+{
+    const DistMatrix<double,STAR,STAR>& A = GetDistMat_STAR_STAR( *AHandle );
+    Print( A );
+}
+
+//
 // Generalized Hermitian-definite eigensolvers for A X = B X \Lambda
 //
 
@@ -322,12 +364,16 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
 
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
+
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
     DistMatrix<double>& X = GetDistMat( *XHandle );
     
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
@@ -338,12 +384,16 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
 
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
+
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
     DistMatrix<double>& X = GetDistMat( *XHandle );
     
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, *a, *b );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR; 
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
@@ -354,16 +404,21 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
 
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
+
     *XHandle = CreateDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
+
     DistMatrix<double>& X = GetDistMat( *XHandle );
 
     // Convert from Fortran to C indexing
     int aC = *a-1;
     int bC = *b-1;
     
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, aC, bC );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx,NAME)
@@ -375,12 +430,15 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
 
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
@@ -393,12 +451,15 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
     
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, *a, *b );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
@@ -410,17 +471,20 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
 
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
-    
-    *wHandle = CreateDistMat_VR_STAR( A.Grid() );
+
     *XHandle = CreateCpxDistMat( A.Grid() );
-    DistMatrix<double,VR,STAR>& w = GetDistMat_VR_STAR( *wHandle );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
     // Convert from Fortran to C indexing
     int aC = *a-1;
     int bC = *b-1;
 
-    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w, X, aC, bC );
+    DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
+    HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
+
+    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
+    DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
+    w = w_VR_STAR;
 }
 
 //
