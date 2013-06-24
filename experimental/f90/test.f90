@@ -64,8 +64,8 @@ program main
   end do
 
   ! Register the distributed matrices, A and B, with Elemental 
-  call elem_register_dist_mat( n, n, iZero, iZero, ALoc, mLoc, grid, a )
-  call elem_register_dist_mat( n, n, iZero, iZero, BLoc, mLoc, grid, b )
+  call elem_register_dist_mat( a, n, n, iZero, iZero, ALoc, mLoc, grid )
+  call elem_register_dist_mat( b, n, n, iZero, iZero, BLoc, mLoc, grid )
 
   ! I do not know of a good way to flush the output from F90, as the flush
   ! command is not standard. Thus, I chose not to write to stdout from F90.
@@ -96,6 +96,8 @@ program main
   ! the subgrid is best depends upon your network (hence the second choice).
 
   ! Given the pencil (A,B), solve for (w,X) such that AX=BX diag(w)
+  call elem_create_dist_mat_star_star( w, g )
+  call elem_create_dist_mat( X, g )
   call elem_symmetric_axbx( A, B, w, X )
 
   ! Print the eigenvalues and eigenvectors

@@ -194,8 +194,9 @@ void FC_GLOBAL_(elem_free_grid,NAME)( int* handle )
 //
 
 void FC_GLOBAL_(elem_register_dist_mat,NAME)
-( int* height, int* width, int* colAlignment, int* rowAlignment, 
-  double* buffer, int* ldim, int* gridHandle, int* handle )
+( int* handle, 
+  int* height, int* width, int* colAlignment, int* rowAlignment, 
+  double* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList );
@@ -205,18 +206,10 @@ void FC_GLOBAL_(elem_register_dist_mat,NAME)
     *handle = index;
 }
 
-void FC_GLOBAL_(elem_create_dist_mat,NAME)
-( int* gridHandle, int* handle )
-{
-    const Grid& grid = GetGrid( *gridHandle );
-    const int index = GetOpenIndex( distMatList );
-    distMatList[index] = new DistMatrix<double>( grid );
-    *handle = index;
-}
-
 void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
-( int* height, int* width, int* colAlignment, int* rowAlignment, 
-  void* voidBuffer, int* ldim, int* gridHandle, int* handle )
+( int* handle, 
+  int* height, int* width, int* colAlignment, int* rowAlignment, 
+  void* voidBuffer, int* ldim, int* gridHandle )
 {
     typedef Complex<double> C;
     C* buffer = static_cast<C*>(voidBuffer);
@@ -229,8 +222,17 @@ void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
     *handle = index;
 }
 
+void FC_GLOBAL_(elem_create_dist_mat,NAME)
+( int* handle, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( distMatList );
+    distMatList[index] = new DistMatrix<double>( grid );
+    *handle = index;
+}
+
 void FC_GLOBAL_(elem_create_cpx_dist_mat,NAME)
-( int* gridHandle, int* handle )
+( int* handle, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( cpxDistMatList );
@@ -273,8 +275,21 @@ void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
 // [VC,* ] management
 //
 
+void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
+( int* handle, 
+  int* height, int* width, int* colAlignment, 
+  double* buffer, int* ldim, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( distMatList );
+    distMatList_VC_STAR[index] = 
+        new DistMatrix<double,VC,STAR>
+        (*height,*width,*colAlignment,buffer,*ldim,grid);
+    *handle = index;
+}
+
 void FC_GLOBAL_(elem_create_dist_mat_vc_star,NAME)
-( int* gridHandle, int* handle )
+( int* handle, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList_VC_STAR );
@@ -301,8 +316,21 @@ void FC_GLOBAL_(elem_print_dist_mat_vc_star,NAME)( int* AHandle )
 // [VR,* ] management
 //
 
+void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
+( int* handle, 
+  int* height, int* width, int* colAlignment, 
+  double* buffer, int* ldim, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( distMatList );
+    distMatList_VR_STAR[index] = 
+        new DistMatrix<double,VR,STAR>
+        (*height,*width,*colAlignment,buffer,*ldim,grid);
+    *handle = index;
+}
+
 void FC_GLOBAL_(elem_create_dist_mat_vr_star,NAME)
-( int* gridHandle, int* handle )
+( int* handle, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList_VR_STAR );
@@ -329,8 +357,19 @@ void FC_GLOBAL_(elem_print_dist_mat_vr_star,NAME)( int* AHandle )
 // [* ,* ] management
 //
 
+void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
+( int* handle, 
+  int* height, int* width, double* buffer, int* ldim, int* gridHandle )
+{
+    const Grid& grid = GetGrid( *gridHandle );
+    const int index = GetOpenIndex( distMatList );
+    distMatList_STAR_STAR[index] = 
+        new DistMatrix<double,STAR,STAR>(*height,*width,buffer,*ldim,grid);
+    *handle = index;
+}
+
 void FC_GLOBAL_(elem_create_dist_mat_star_star,NAME)
-( int* gridHandle, int* handle )
+( int* handle, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
     const int index = GetOpenIndex( distMatList_STAR_STAR );
@@ -361,14 +400,11 @@ void FC_GLOBAL_(elem_symmetric_eig,NAME)
 ( int* AHandle, int* wHandle, int* XHandle )
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
-
-    *XHandle = CreateDistMat( A.Grid() );
     DistMatrix<double>& X = GetDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianEig( LOWER, A, w_VR_STAR, X );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -379,14 +415,11 @@ void FC_GLOBAL_(elem_hermitian_eig,NAME)
     typedef Complex<double> C;
 
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
-
-    *XHandle = CreateCpxDistMat( A.Grid() );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianEig( LOWER, A, w_VR_STAR, X );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -438,14 +471,11 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
-
-    *XHandle = CreateDistMat( A.Grid() );
     DistMatrix<double>& X = GetDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -457,14 +487,11 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
-
-    *XHandle = CreateDistMat( A.Grid() );
     DistMatrix<double>& X = GetDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR; 
 }
@@ -476,10 +503,6 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
 {
     DistMatrix<double>& A = GetDistMat( *AHandle );
     DistMatrix<double>& B = GetDistMat( *BHandle );
-
-
-    *XHandle = CreateDistMat( A.Grid() );
-
     DistMatrix<double>& X = GetDistMat( *XHandle );
 
     // Convert from Fortran to C indexing
@@ -489,7 +512,6 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -502,14 +524,11 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
 
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
-
-    *XHandle = CreateCpxDistMat( A.Grid() );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -523,14 +542,11 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
 
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
-    
-    *XHandle = CreateCpxDistMat( A.Grid() );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
@@ -544,8 +560,6 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
 
     DistMatrix<C>& A = GetCpxDistMat( *AHandle );
     DistMatrix<C>& B = GetCpxDistMat( *BHandle );
-
-    *XHandle = CreateCpxDistMat( A.Grid() );
     DistMatrix<C>& X = GetCpxDistMat( *XHandle );
     
     // Convert from Fortran to C indexing
@@ -555,7 +569,6 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
     DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
     HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
 
-    *wHandle = CreateDistMat_STAR_STAR( A.Grid() );
     DistMatrix<double,STAR,STAR>& w = GetDistMat_STAR_STAR( *wHandle );
     w = w_VR_STAR;
 }
