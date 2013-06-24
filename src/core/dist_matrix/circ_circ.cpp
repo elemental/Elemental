@@ -185,7 +185,7 @@ DistMatrix<T,CIRC,CIRC,Int>::Attach
     this->SetRoot( root );
     this->height_ = height;
     this->width_ = width;
-    this->viewtype_ = VIEW_SHRINKABLE;
+    this->viewtype_ = VIEW;
     if( this->Participating() )
         this->matrix_.Attach( height, width, buffer, ldim );
 }
@@ -203,7 +203,7 @@ DistMatrix<T,CIRC,CIRC,Int>::LockedAttach
     this->SetRoot( root );
     this->height_ = height;
     this->width_ = width;
-    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
+    this->viewtype_ = LOCKED_VIEW;
     if( this->Participating() )
         this->matrix_.LockedAttach( height, width, buffer, ldim );
 }

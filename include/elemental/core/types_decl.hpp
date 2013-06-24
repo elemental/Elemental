@@ -59,22 +59,22 @@ namespace viewtype_wrapper {
 enum ViewType
 {
     OWNER = 0x0,
-    VIEW_SHRINKABLE = 0x1,
-    OWNER_FIXED_SIZE = 0x2,
-    VIEW_FIXED_SIZE = 0x3,
+    VIEW = 0x1,
+    OWNER_FIXED = 0x2,
+    VIEW_FIXED = 0x3,
     LOCKED_OWNER = 0x4, // unused
-    LOCKED_VIEW_SHRINKABLE = 0x5,
-    LOCKED_OWNER_FIXED_SIZE = 0x6, // unused
-    LOCKED_VIEW_FIXED_SIZE = 0x7
+    LOCKED_VIEW = 0x5,
+    LOCKED_OWNER_FIXED = 0x6, // unused
+    LOCKED_VIEW_FIXED = 0x7
 };
 static inline bool IsOwner( ViewType v ) 
-{ return ( v & VIEW_SHRINKABLE  ) == 0; }
+{ return ( v & VIEW  ) == 0; }
 static inline bool IsViewing( ViewType v )
-{ return ( v & VIEW_SHRINKABLE  ) != 0; }
+{ return ( v & VIEW  ) != 0; }
 static inline bool IsShrinkable( ViewType v )
-{ return ( v & OWNER_FIXED_SIZE ) == 0; }
+{ return ( v & OWNER_FIXED ) == 0; }
 static inline bool IsFixedSize( ViewType v )
-{ return ( v & OWNER_FIXED_SIZE ) != 0; }
+{ return ( v & OWNER_FIXED ) != 0; }
 static inline bool IsUnlocked( ViewType v )
 { return ( v & LOCKED_OWNER     ) == 0; }
 static inline bool IsLocked( ViewType v )

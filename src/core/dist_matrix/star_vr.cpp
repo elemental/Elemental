@@ -168,7 +168,7 @@ DistMatrix<T,STAR,VR,Int>::Attach
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->viewtype_ = VIEW_SHRINKABLE;
+    this->viewtype_ = VIEW;
     this->SetRowShift();
     if( g.InGrid() )
     {
@@ -192,7 +192,7 @@ DistMatrix<T,STAR,VR,Int>::LockedAttach
     this->height_ = height;
     this->width_ = width;
     this->rowAlignment_ = rowAlignment;
-    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
+    this->viewtype_ = LOCKED_VIEW;
     this->SetRowShift();
     if( g.InGrid() )
     {

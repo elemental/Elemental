@@ -336,7 +336,7 @@ DistMatrix<T,MD,STAR,Int>::Attach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(colAlignmentVC);
     this->colAlignment_ = grid.DiagPathRank(colAlignmentVC);
-    this->viewtype_ = VIEW_SHRINKABLE;
+    this->viewtype_ = VIEW;
     this->SetColShift();
     if( this->Participating() )
     {
@@ -361,7 +361,7 @@ DistMatrix<T,MD,STAR,Int>::LockedAttach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(colAlignmentVC);
     this->colAlignment_ = grid.DiagPathRank(colAlignmentVC);
-    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
+    this->viewtype_ = LOCKED_VIEW;
     this->SetColShift();
     if( this->Participating() )
     {

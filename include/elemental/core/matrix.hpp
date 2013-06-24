@@ -21,11 +21,12 @@ public:
     // Constructors
     // 
 
-    Matrix( bool fixed_size = false );
-    Matrix( Int height, Int width, bool fixed_size = false );
-    Matrix( Int height, Int width, Int ldim, bool fixed_size = false );
-    Matrix( Int height, Int width, const T* buffer, Int ldim, bool fixed_size = false );
-    Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed_size = false );
+    Matrix( bool fixed=false );
+    Matrix( Int height, Int width, bool fixed=false );
+    Matrix( Int height, Int width, Int ldim, bool fixed=false );
+    Matrix
+    ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
+    Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
     Matrix( const Matrix<T,Int>& A );
 
     //
@@ -95,8 +96,9 @@ public:
     bool Viewing()     const;
     bool Locked()      const;
 
-    void Attach( Int height, Int width, T* buffer, Int ldim, bool fixed_size = false );
-    void LockedAttach( Int height, Int width, const T* buffer, Int ldim, bool fixed_size = false );
+    void Attach( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
+    void LockedAttach
+    ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
 
     // Use this memory *as if it were not a view*, but do not take control of 
     // its deallocation. If Resize() forces reallocation, this buffer is 

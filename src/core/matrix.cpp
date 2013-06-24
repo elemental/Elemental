@@ -15,15 +15,15 @@ namespace elem {
 //
 
 template<typename T,typename Int>
-Matrix<T,Int>::Matrix( bool fixed_size )
-: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+Matrix<T,Int>::Matrix( bool fixed )
+: viewtype_( fixed ? OWNER_FIXED : OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(0)
 { }
 
 template<typename T,typename Int>
-Matrix<T,Int>::Matrix( Int height, Int width, bool fixed_size )
-: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
+: viewtype_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(std::max(height,1))
 {
 #ifndef RELEASE
@@ -37,8 +37,8 @@ Matrix<T,Int>::Matrix( Int height, Int width, bool fixed_size )
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, Int ldim, bool fixed_size )
-: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+( Int height, Int width, Int ldim, bool fixed )
+: viewtype_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(ldim)
 {
 #ifndef RELEASE
@@ -62,8 +62,8 @@ Matrix<T,Int>::Matrix
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, const T* buffer, Int ldim, bool fixed_size )
-: viewtype_( fixed_size ? LOCKED_VIEW_FIXED_SIZE: LOCKED_VIEW_SHRINKABLE ),
+( Int height, Int width, const T* buffer, Int ldim, bool fixed )
+: viewtype_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
 {
@@ -86,8 +86,8 @@ Matrix<T,Int>::Matrix
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, T* buffer, Int ldim, bool fixed_size )
-: viewtype_( fixed_size ? VIEW_FIXED_SIZE: VIEW_SHRINKABLE ),
+( Int height, Int width, T* buffer, Int ldim, bool fixed )
+: viewtype_( fixed ? VIEW_FIXED: VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
 {
@@ -197,15 +197,15 @@ Matrix<T,Int>::Buffer()
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
 #endif
+    // NOTE: This const_cast has been carefully considered and should be safe
+    //       since the underlying data should be non-const if this is called.
     return const_cast<T*>(data_);
 }
 
 template<typename T,typename Int>
 const T*
 Matrix<T,Int>::LockedBuffer() const
-{
-    return data_;
-}
+{ return data_; }
 
 template<typename T,typename Int>
 T*
@@ -219,6 +219,8 @@ Matrix<T,Int>::Buffer( Int i, Int j )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
 #endif
+    // NOTE: This const_cast has been carefully considered and should be safe
+    //       since the underlying data should be non-const if this is called.
     return &const_cast<T*>(data_)[i+j*ldim_];
 }
 
@@ -241,14 +243,14 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 template<typename T,typename Int>
 const T&
 Matrix<T,Int>::Get_( Int i, Int j ) const
-{
-    return data_[i+j*ldim_];
-}
+{ return data_[i+j*ldim_]; }
 
 template<typename T,typename Int>
 T&
 Matrix<T,Int>::Set_( Int i, Int j ) 
 {
+    // NOTE: This const_cast has been carefully considered and should be safe
+    //       since the underlying data should be non-const if this is called.
     return (const_cast<T*>(data_))[i+j*ldim_];
 }
 
@@ -377,7 +379,7 @@ Matrix<T,Int>::SetRealPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetRealPart");
     AssertValidEntry( i, j );
-    if( data_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     elem::SetRealPart( Set_( i, j ), alpha );
@@ -390,7 +392,7 @@ Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetImagPart");
     AssertValidEntry( i, j );
-    if( data_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     elem::SetImagPart( Set_( i, j ), alpha );
@@ -403,7 +405,7 @@ Matrix<T,Int>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateRealPart");
     AssertValidEntry( i, j );
-    if( data_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     elem::UpdateRealPart( Set_( i, j ), alpha );
@@ -416,7 +418,7 @@ Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateImagPart");
     AssertValidEntry( i, j );
-    if( data_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
     elem::UpdateImagPart( Set_( i, j ), alpha );
@@ -547,8 +549,7 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::Control
-( Int height, Int width, T* buffer, Int ldim )
+Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Control");
@@ -564,8 +565,7 @@ Matrix<T,Int>::Control
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::Attach
-( Int height, Int width, T* buffer, Int ldim, bool fixed_size )
+Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim, bool fixed )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Attach");
@@ -576,13 +576,13 @@ Matrix<T,Int>::Attach
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = fixed_size ? VIEW_FIXED_SIZE : VIEW_SHRINKABLE;
+    viewtype_ = fixed ? VIEW_FIXED : VIEW;
 }
 
 template<typename T,typename Int>
 void
 Matrix<T,Int>::LockedAttach
-( Int height, Int width, const T* buffer, Int ldim, bool fixed_size )
+( Int height, Int width, const T* buffer, Int ldim, bool fixed )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedAttach");
@@ -593,7 +593,7 @@ Matrix<T,Int>::LockedAttach
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = fixed_size ? LOCKED_VIEW_FIXED_SIZE : LOCKED_VIEW_SHRINKABLE;
+    viewtype_ = fixed ? LOCKED_VIEW_FIXED : LOCKED_VIEW;
 }
 
 //
@@ -608,7 +608,7 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     CallStackEntry entry("Matrix::operator=");
     if( Locked() )
         throw std::logic_error("Cannot assign to a locked view");
-    if( viewtype_ != OWNER && ( A.Height() != Height() || A.Width() != Width() ) )
+    if( viewtype_ != OWNER && (A.Height() != Height() || A.Width() != Width()) )
         throw std::logic_error
         ("Cannot assign to a view of different dimensions");
 #endif
@@ -618,8 +618,8 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     const Int width = Width();
     const Int ldim = LDim();
     const Int ldimOfA = A.LDim();
-    const T* src = A.data_;
-    T* dst = const_cast<T*>(data_);
+    const T* src = A.LockedBuffer();
+    T* dst = this->Buffer();
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
@@ -646,13 +646,15 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width)");
-    if ( FixedSize() )
-        throw std::logic_error("Cannot change the size of this matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
+    if( height == height_ && width == width_ )
+        return;
     const bool reallocate = ( height > height_ || width > width_ );
 #ifndef RELEASE
+    if ( FixedSize() )
+        throw std::logic_error("Cannot change the size of this matrix");
     if ( Viewing() && reallocate )
         throw std::logic_error("Cannot increase the size of this matrix");
 #endif
