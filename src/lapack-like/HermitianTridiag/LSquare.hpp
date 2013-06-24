@@ -228,8 +228,9 @@ void LSquare
             A11_STAR_STAR = A11;
             t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
 
-            HermitianTridiag
-            ( LOWER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
+            if( A.Participating() )
+                HermitianTridiag
+                ( LOWER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
 
             A11 = A11_STAR_STAR;
             t1 = t1_STAR_STAR;
