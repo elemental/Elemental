@@ -528,7 +528,7 @@ AbstractDistMatrix<T,Int>::LocalResize_( Int hLocal, Int wLocal )
 {
     matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED_SIZE );
     matrix_.ResizeTo( hLocal, wLocal );
-    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | ~OWNER_FIXED_SIZE );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | OWNER_FIXED_SIZE );
 }
 
 template <typename T,typename Int>
@@ -537,7 +537,7 @@ AbstractDistMatrix<T,Int>::LocalResize_( Int hLocal, Int wLocal, Int LDim )
 {
     matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED_SIZE );
     matrix_.ResizeTo( hLocal, wLocal, LDim );
-    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | ~OWNER_FIXED_SIZE );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | OWNER_FIXED_SIZE );
 }
 
 template class AbstractDistMatrix<int,int>;
