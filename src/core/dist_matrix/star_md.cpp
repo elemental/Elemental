@@ -336,7 +336,7 @@ DistMatrix<T,STAR,MD,Int>::Attach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(rowAlignmentVC);
     this->rowAlignment_ = grid.DiagPathRank(rowAlignmentVC);
-    this->viewing_ = true;
+    this->viewtype_ = VIEW_SHRINKABLE;
     this->SetRowShift();
     if( this->Participating() )
     {
@@ -361,8 +361,7 @@ DistMatrix<T,STAR,MD,Int>::LockedAttach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(rowAlignmentVC);
     this->rowAlignment_ = grid.DiagPathRank(rowAlignmentVC);
-    this->viewing_ = true;
-    this->locked_ = true;
+    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
     this->SetRowShift();
     if( this->Participating() )
     {
@@ -386,7 +385,7 @@ DistMatrix<T,STAR,MD,Int>::ResizeTo( Int height, Int width )
     if( this->Participating() )
     {
         const Int lcm = this->Grid().LCM();
-        this->matrix_.ResizeTo( height, Length(width,this->RowShift(),lcm) );
+        this->LocalResize_( height, Length(width,this->RowShift(),lcm) );
     }
 }
 
@@ -405,7 +404,7 @@ DistMatrix<T,STAR,MD,Int>::ResizeTo( Int height, Int width, Int ldim )
     if( this->Participating() )
     {
         const Int lcm = this->Grid().LCM();
-        this->matrix_.ResizeTo
+        this->LocalResize_
         ( height, Length(width,this->RowShift(),lcm), ldim );
     }
 }

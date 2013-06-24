@@ -15,31 +15,31 @@ namespace elem {
 //
 
 template<typename T,typename Int>
-Matrix<T,Int>::Matrix()
-: viewing_(false), locked_(false),
-  height_(0), width_(0), ldim_(1), data_(0), lockedData_(0),
-  memory_()
+Matrix<T,Int>::Matrix( bool fixed_size )
+: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+  height_(0), width_(0), ldim_(1), 
+  data_(0)
 { }
 
 template<typename T,typename Int>
-Matrix<T,Int>::Matrix( Int height, Int width )
-: viewing_(false), locked_(false),
-  height_(height), width_(width), ldim_(std::max(height,1)), lockedData_(0)
+Matrix<T,Int>::Matrix( Int height, Int width, bool fixed_size )
+: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+  height_(height), width_(width), ldim_(std::max(height,1))
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
-    memory_.Require( ldim_*width );
+    memory_.Require( ldim_ * width );
     data_ = memory_.Buffer();
 }
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, Int ldim )
-: viewing_(false), locked_(false),
-  height_(height), width_(width), ldim_(ldim), lockedData_(0)
+( Int height, Int width, Int ldim, bool fixed_size )
+: viewtype_( fixed_size ? OWNER_FIXED_SIZE : OWNER ),
+  height_(height), width_(width), ldim_(ldim)
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
@@ -62,9 +62,10 @@ Matrix<T,Int>::Matrix
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, const T* buffer, Int ldim )
-: viewing_(true), locked_(true),
-  height_(height), width_(width), ldim_(ldim), data_(0), lockedData_(buffer)
+( Int height, Int width, const T* buffer, Int ldim, bool fixed_size )
+: viewtype_( fixed_size ? LOCKED_VIEW_FIXED_SIZE: LOCKED_VIEW_SHRINKABLE ),
+  height_(height), width_(width), ldim_(ldim), 
+  data_(buffer)
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
@@ -85,9 +86,10 @@ Matrix<T,Int>::Matrix
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
-( Int height, Int width, T* buffer, Int ldim )
-: viewing_(true), locked_(false),
-  height_(height), width_(width), ldim_(ldim), data_(buffer), lockedData_(0)
+( Int height, Int width, T* buffer, Int ldim, bool fixed_size )
+: viewtype_( fixed_size ? VIEW_FIXED_SIZE: VIEW_SHRINKABLE ),
+  height_(height), width_(width), ldim_(ldim), 
+  data_(buffer)
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
@@ -109,8 +111,9 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( const Matrix<T,Int>& A )
-: viewing_(false), locked_(false), 
-  height_(0), width_(0), ldim_(1), data_(0), lockedData_(0)
+: viewtype_( OWNER ),
+  height_(0), width_(0), ldim_(1), 
+  data_(0)
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix( const Matrix& )");
@@ -160,26 +163,48 @@ Matrix<T,Int>::MemorySize() const
 { return memory_.Size(); }
 
 template<typename T,typename Int>
+bool
+Matrix<T,Int>::Owner() const
+{ return IsOwner( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+Matrix<T,Int>::Viewing() const
+{ return !IsOwner( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+Matrix<T,Int>::Shrinkable() const
+{ return IsShrinkable( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+Matrix<T,Int>::FixedSize() const
+{ return !IsShrinkable( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+Matrix<T,Int>::Locked() const
+{ return IsLocked( viewtype_ ); }
+
+template<typename T,typename Int>
 T*
 Matrix<T,Int>::Buffer()
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Buffer");
-    if( locked_ )
+    if( Locked() )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
 #endif
-    return data_;
+    return const_cast<T*>(data_);
 }
 
 template<typename T,typename Int>
 const T*
 Matrix<T,Int>::LockedBuffer() const
 {
-    if( locked_ )
-        return lockedData_;
-    else
-        return data_;
+    return data_;
 }
 
 template<typename T,typename Int>
@@ -190,11 +215,11 @@ Matrix<T,Int>::Buffer( Int i, Int j )
     CallStackEntry entry("Matrix::Buffer");
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
-    if( locked_ )
+    if( Locked() )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
 #endif
-    return &data_[i+j*ldim_];
+    return &const_cast<T*>(data_)[i+j*ldim_];
 }
 
 template<typename T,typename Int>
@@ -206,15 +231,26 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
     if( i < 0 || j < 0 )
         throw std::logic_error("Indices must be non-negative");
 #endif
-    if( locked_ )
-        return &lockedData_[i+j*ldim_];
-    else
-        return &data_[i+j*ldim_];
+    return &data_[i+j*ldim_];
 }
 
 //
 // Entry manipulation
 //
+
+template<typename T,typename Int>
+const T&
+Matrix<T,Int>::Get_( Int i, Int j ) const
+{
+    return data_[i+j*ldim_];
+}
+
+template<typename T,typename Int>
+T&
+Matrix<T,Int>::Set_( Int i, Int j ) 
+{
+    return (const_cast<T*>(data_))[i+j*ldim_];
+}
 
 template<typename T,typename Int>
 T
@@ -224,10 +260,7 @@ Matrix<T,Int>::Get( Int i, Int j ) const
     CallStackEntry entry("Matrix::Get");
     AssertValidEntry( i, j );
 #endif
-    if( lockedData_ )
-        return lockedData_[i+j*ldim_];
-    else
-        return data_[i+j*ldim_];
+    return Get_( i, j );
 }
 
 template<typename T,typename Int>
@@ -237,10 +270,10 @@ Matrix<T,Int>::Set( Int i, Int j, T alpha )
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Set");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    data_[i+j*ldim_] = alpha;
+    Set_( i, j ) = alpha;
 }
 
 template<typename T,typename Int>
@@ -250,10 +283,10 @@ Matrix<T,Int>::Update( Int i, Int j, T alpha )
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Update");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    data_[i+j*ldim_] += alpha;
+    Set_( i, j ) += alpha;
 }
 
 template<typename T,typename Int>
@@ -273,10 +306,10 @@ Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, Get(j,j+offset) );
+            d.Set_( j, 0 ) = Get_(j,j+offset);
     else
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, Get(j-offset,j) );
+            d.Set_( j, 0 ) = Get_(j-offset,j);
 }
 
 template<typename T,typename Int>
@@ -291,10 +324,10 @@ Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            Set( j, j+offset, d.Get(j,0) );
+            Set_( j, j+offset ) = d.Get_(j,0);
     else
         for( Int j=0; j<diagLength; ++j )
-            Set( j-offset, j, d.Get(j,0) );
+            Set_( j-offset, j ) = d.Get_(j,0);
 }
 
 template<typename T,typename Int>
@@ -309,10 +342,10 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            Update( j, j+offset, d.Get(j,0) );
+            Set_( j, j+offset ) += d.Get(j,0);
     else
         for( Int j=0; j<diagLength; ++j )
-            Update( j-offset, j, d.Get(j,0) );
+            Set_( j-offset, j ) += d.Get(j,0);
 }
 
 template<typename T,typename Int>
@@ -323,10 +356,7 @@ Matrix<T,Int>::GetRealPart( Int i, Int j ) const
     CallStackEntry entry("Matrix::GetRealPart");
     AssertValidEntry( i, j );
 #endif
-    if( lockedData_ )
-        return RealPart(lockedData_[i+j*ldim_]);
-    else
-        return RealPart(data_[i+j*ldim_]);
+    return elem::RealPart( Get_( i, j ) );
 }
 
 template<typename T,typename Int>
@@ -337,10 +367,7 @@ Matrix<T,Int>::GetImagPart( Int i, Int j ) const
     CallStackEntry entry("Matrix::GetImagPart");
     AssertValidEntry( i, j );
 #endif
-    if( lockedData_ )
-        return ImagPart(lockedData_[i+j*ldim_]);
-    else
-        return ImagPart(data_[i+j*ldim_]);
+    return elem::ImagPart( Get_( i, j ) );
 }
 
 template<typename T,typename Int>
@@ -350,10 +377,10 @@ Matrix<T,Int>::SetRealPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetRealPart");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( data_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    elem::SetRealPart( data_[i+j*ldim_], alpha );
+    elem::SetRealPart( Set_( i, j ), alpha );
 }
 
 template<typename T,typename Int>
@@ -363,10 +390,10 @@ Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetImagPart");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( data_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    elem::SetImagPart( data_[i+j*ldim_], alpha );
+    elem::SetImagPart( Set_( i, j ), alpha );
 }
 
 template<typename T,typename Int>
@@ -376,10 +403,10 @@ Matrix<T,Int>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateRealPart");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( data_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    elem::UpdateRealPart( data_[i+j*ldim_], alpha );
+    elem::UpdateRealPart( Set_( i, j ), alpha );
 }
 
 template<typename T,typename Int>
@@ -389,10 +416,10 @@ Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateImagPart");
     AssertValidEntry( i, j );
-    if( lockedData_ )
+    if( data_ )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
-    elem::UpdateImagPart( data_[i+j*ldim_], alpha );
+    elem::UpdateImagPart( Set_( i, j ), alpha );
 }
    
 template<typename T,typename Int>
@@ -412,10 +439,10 @@ Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetRealPart(j,j+offset) );
+            d.Set_( j, 0 ) = elem::RealPart( Get_(j,j+offset) );
     else
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetRealPart(j-offset,j) );
+            d.Set_( j, 0 ) = elem::RealPart( Get_(j-offset,j) );
 }
 
 template<typename T,typename Int>
@@ -435,10 +462,10 @@ Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
         d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetImagPart(j,j+offset) );
+            d.Set_( j, 0 ) = elem::ImagPart( Get_(j,j+offset) );
     else
         for( Int j=0; j<diagLength; ++j )
-            d.Set( j, 0, GetImagPart(j-offset,j) );
+            d.Set_( j, 0 ) = elem::ImagPart( Get_(j-offset,j) );
 }
 
 template<typename T,typename Int>
@@ -453,10 +480,10 @@ Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            SetRealPart( j, j+offset, d.Get(j,0) );
+            elem::SetRealPart( Set_(j,j+offset), d.Get_(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            SetRealPart( j-offset, j, d.Get(j,0) );
+            elem::SetRealPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
 template<typename T,typename Int>
@@ -474,10 +501,10 @@ Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            SetImagPart( j, j+offset, d.Get(j,0) );
+            elem::SetImagPart( Set_(j,j+offset), d.Get_(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            SetImagPart( j-offset, j, d.Get(j,0) );
+            elem::SetImagPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
 template<typename T,typename Int>
@@ -492,10 +519,10 @@ Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            UpdateRealPart( j, j+offset, d.Get(j,0) );
+            elem::UpdateRealPart( Set_(j,j+offset), d.Get_(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            UpdateRealPart( j-offset, j, d.Get(j,0) );
+            elem::UpdateRealPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
 template<typename T,typename Int>
@@ -509,14 +536,13 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 #endif
     if( !IsComplex<T>::val )
         throw std::logic_error("Cannot update imaginary part of real matrix");
-
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
-            UpdateImagPart( j, j+offset, d.Get(j,0) );
+            elem::UpdateImagPart( Set_(j,j+offset), d.Get_(j,0) );
     else
         for( Int j=0; j<diagLength; ++j )
-            UpdateImagPart( j-offset, j, d.Get(j,0) );
+            elem::UpdateImagPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
 template<typename T,typename Int>
@@ -533,14 +559,13 @@ Matrix<T,Int>::Control
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewing_ = false;
-    locked_ = false;
+    viewtype_ = OWNER;
 }
 
 template<typename T,typename Int>
 void
 Matrix<T,Int>::Attach
-( Int height, Int width, T* buffer, Int ldim )
+( Int height, Int width, T* buffer, Int ldim, bool fixed_size )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Attach");
@@ -551,14 +576,13 @@ Matrix<T,Int>::Attach
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewing_ = true;
-    locked_ = false;
+    viewtype_ = fixed_size ? VIEW_FIXED_SIZE : VIEW_SHRINKABLE;
 }
 
 template<typename T,typename Int>
 void
 Matrix<T,Int>::LockedAttach
-( Int height, Int width, const T* buffer, Int ldim )
+( Int height, Int width, const T* buffer, Int ldim, bool fixed_size )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedAttach");
@@ -568,24 +592,9 @@ Matrix<T,Int>::LockedAttach
     height_ = height;
     width_ = width;
     ldim_ = ldim;
-    lockedData_ = buffer;
-    viewing_ = true;
-    locked_ = true;
+    data_ = buffer;
+    viewtype_ = fixed_size ? LOCKED_VIEW_FIXED_SIZE : LOCKED_VIEW_SHRINKABLE;
 }
-
-//
-// Viewing other Matrix instances
-//
-
-template<typename T,typename Int>
-bool
-Matrix<T,Int>::Viewing() const
-{ return viewing_; }
-
-template<typename T,typename Int>
-bool
-Matrix<T,Int>::Locked() const
-{ return locked_; }
 
 //
 // Utilities
@@ -597,25 +606,25 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::operator=");
-    if( locked_ )
+    if( Locked() )
         throw std::logic_error("Cannot assign to a locked view");
-    if( viewing_ && ( A.Height() != Height() || A.Width() != Width() ) )
+    if( viewtype_ != OWNER && ( A.Height() != Height() || A.Width() != Width() ) )
         throw std::logic_error
         ("Cannot assign to a view of different dimensions");
 #endif
-    if( !viewing_ )
+    if( viewtype_ == OWNER )
         ResizeTo( A.Height(), A.Width() );
-
     const Int height = Height();
     const Int width = Width();
     const Int ldim = LDim();
     const Int ldimOfA = A.LDim();
-    const T* data = A.LockedBuffer();
+    const T* src = A.data_;
+    T* dst = const_cast<T*>(data_);
 #ifdef HAVE_OPENMP
     #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
-        MemCopy( &data_[j*ldim], &data[j*ldimOfA], height );
+        MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );
     return *this;
 }
 
@@ -628,9 +637,7 @@ Matrix<T,Int>::Empty()
     width_ = 0;
     ldim_ = 1;
     data_ = 0;
-    lockedData_ = 0;
-    viewing_ = false;
-    locked_ = false;
+    viewtype_ = OWNER;
 }
 
 template<typename T,typename Int>
@@ -639,23 +646,24 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width)");
+    if ( FixedSize() )
+        throw std::logic_error("Cannot change the size of this matrix");
     if( height < 0 || width < 0 )
         throw std::logic_error("Height and width must be non-negative");
 #endif
     const bool reallocate = ( height > height_ || width > width_ );
 #ifndef RELEASE
-    if( viewing_ && reallocate )
-        throw std::logic_error("Cannot increase the size of a view");
+    if ( Viewing() && reallocate )
+        throw std::logic_error("Cannot increase the size of this matrix");
 #endif
     height_ = height;
     width_ = width;
-
     // Only change the ldim when necessary. Simply 'shrink' our view if 
     // possible.
     if( reallocate )
     {
         ldim_ = std::max( height, 1 );
-        memory_.Require(ldim_*width);
+        memory_.Require( ldim_ * width );
         data_ = memory_.Buffer();
     }
 }
@@ -666,8 +674,8 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
+    if ( FixedSize() )
+        throw std::logic_error("Cannot change the size of this matrix");
     if( ldim < height )
     {
         std::ostringstream msg;
@@ -675,17 +683,14 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
-    const bool reallocate = 
-        ( height > height_ || width > width_ || ldim != ldim_ );
+    const bool reallocate = ( height > height_ || width > width_ || ldim != ldim_ );
 #ifndef RELEASE
-    if( viewing_ && reallocate )
-        throw std::logic_error("Illogical ResizeTo on viewed data");
-
+    if ( Viewing() && reallocate )
+        throw std::logic_error( "Cannot increase the size of this matrix" );
 #endif
     height_ = height;
     width_ = width;
     ldim_ = ldim;
-
     if( reallocate )
     {
         memory_.Require(ldim*width);

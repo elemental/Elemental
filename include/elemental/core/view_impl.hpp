@@ -34,13 +34,12 @@ inline void View
 #ifndef RELEASE
     CallStackEntry entry("View");
 #endif
-    A.Empty();
-    A.height_ = B.Height();
-    A.width_ = B.Width();
-    A.ldim_ = B.LDim();
-    A.data_ = B.Buffer();
-    A.viewing_ = true;
-    A.locked_ = false;
+    A.memory_.Empty();
+    A.height_   = B.height_;
+    A.width_    = B.width_;
+    A.ldim_     = B.ldim_;
+    A.data_     = B.data_;
+    A.viewtype_ = VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -57,7 +56,7 @@ inline void View
     A.colAlignment_ = B.ColAlignment();
     A.rowAlignment_ = B.RowAlignment();
     HandleDiagPath( A, B );
-    A.viewing_ = true;
+    A.viewtype_ = VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = B.ColShift();
@@ -78,13 +77,12 @@ inline void LockedView
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
 #endif
-    A.Empty();
-    A.height_ = B.Height();
-    A.width_ = B.Width();
-    A.ldim_ = B.LDim();
-    A.lockedData_ = B.LockedBuffer();
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.memory_.Empty();
+    A.height_   = B.height_;
+    A.width_    = B.width_;
+    A.ldim_     = B.ldim_;
+    A.data_     = B.data_;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -101,8 +99,7 @@ inline void LockedView
     A.colAlignment_ = B.ColAlignment();
     A.rowAlignment_ = B.RowAlignment();
     HandleDiagPath( A, B );
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = B.ColShift();
@@ -137,13 +134,12 @@ inline void View
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
-    A.Empty();
-    A.height_ = height;
-    A.width_ = width;
-    A.ldim_ = B.LDim();
-    A.data_ = B.Buffer(i,j);
-    A.viewing_ = true;
-    A.locked_ = false;
+    A.memory_.Empty();
+    A.height_   = height;
+    A.width_    = width;
+    A.ldim_     = B.ldim_;
+    A.data_     = &B.data_[i+j*B.ldim_];
+    A.viewtype_ = VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -168,7 +164,7 @@ inline void View
     A.colAlignment_ = (B.ColAlignment()+i) % colStride;
     A.rowAlignment_ = (B.RowAlignment()+j) % rowStride;
     HandleDiagPath( A, B );
-    A.viewing_ = true;
+    A.viewtype_ = VIEW_SHRINKABLE;
 
     if( A.Participating() )
     {
@@ -215,13 +211,12 @@ inline void LockedView
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
-    A.Empty();
-    A.height_ = height;
-    A.width_ = width;
-    A.ldim_ = B.LDim();
-    A.lockedData_ = B.LockedBuffer(i,j);
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.memory_.Empty();
+    A.height_   = height;
+    A.width_    = width;
+    A.ldim_     = B.ldim_;
+    A.data_     = &B.data_[i+j*B.ldim_];
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -248,8 +243,7 @@ inline void LockedView
     A.colAlignment_ = (B.ColAlignment()+i) % colStride;
     A.rowAlignment_ = (B.RowAlignment()+j) % rowStride;
     HandleDiagPath( A, B );
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 
     if( A.Participating() )
     {
@@ -287,13 +281,12 @@ inline void View1x2
     if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
         throw std::logic_error("1x2 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BL.Height();
-    A.width_ = BL.Width() + BR.Width();
-    A.ldim_ = BL.LDim();
-    A.data_ = BL.Buffer();
-    A.viewing_ = true;
-    A.locked_ = false;
+    A.memory_.Empty();
+    A.height_   = BL.height_;
+    A.width_    = BL.width_ + BR.width_;
+    A.ldim_     = BL.ldim_;
+    A.data_     = BL.data_;
+    A.viewtype_ = VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -313,7 +306,7 @@ inline void View1x2
     A.colAlignment_ = BL.ColAlignment();
     A.rowAlignment_ = BL.RowAlignment();
     HandleDiagPath( A, BL );
-    A.viewing_ = true;
+    A.viewtype_ = VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BL.ColShift();
@@ -342,13 +335,12 @@ inline void LockedView1x2
     if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
         throw std::logic_error("1x2 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BL.Height();
-    A.width_ = BL.Width() + BR.Width();
-    A.ldim_ = BL.LDim();
-    A.lockedData_ = BL.LockedBuffer();
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.memory_.Empty();
+    A.height_   = BL.height_;
+    A.width_    = BL.width_ + BR.width_;
+    A.ldim_     = BL.ldim_;
+    A.data_     = BL.data_;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -369,8 +361,7 @@ inline void LockedView1x2
     A.colAlignment_ = BL.ColAlignment();
     A.rowAlignment_ = BL.RowAlignment();
     HandleDiagPath( A, BL );
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BL.ColShift();
@@ -399,13 +390,12 @@ inline void View2x1
     if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
         throw std::logic_error("2x1 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BT.Height() + BB.Height();
-    A.width_ = BT.Width();
-    A.ldim_ = BT.LDim();
-    A.data_ = BT.Buffer();
-    A.viewing_ = true;
-    A.locked_ = false;
+    A.memory_.Empty();
+    A.height_   = BT.height_ + BB.height_;
+    A.width_    = BT.width_;
+    A.ldim_     = BT.ldim_;
+    A.data_     = BT.data_;
+    A.viewtype_ = VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -426,7 +416,7 @@ inline void View2x1
     A.colAlignment_ = BT.ColAlignment();
     A.rowAlignment_ = BT.RowAlignment();
     HandleDiagPath( A, BT );
-    A.viewing_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BT.ColShift();
@@ -455,13 +445,12 @@ inline void LockedView2x1
     if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
         throw std::logic_error("2x1 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BT.Height() + BB.Height();
-    A.width_ = BT.Width();
-    A.ldim_ = BT.LDim();
-    A.lockedData_ = BT.LockedBuffer();
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.memory_.Empty();
+    A.height_   = BT.height_ + BB.height_;
+    A.width_    = BT.width_;
+    A.ldim_     = BT.ldim_;
+    A.data_     = BT.data_;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -482,8 +471,7 @@ inline void LockedView2x1
     A.colAlignment_ = BT.ColAlignment();
     A.rowAlignment_ = BT.RowAlignment();
     HandleDiagPath( A, BT );
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BT.ColShift();
@@ -519,13 +507,12 @@ inline void View2x2
         BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
         throw std::logic_error("2x2 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BTL.Height() + BBL.Height();
-    A.width_ = BTL.Width() + BTR.Width();
-    A.ldim_ = BTL.LDim();
-    A.data_ = BTL.Buffer();
-    A.viewing_ = true;
-    A.locked_ = false;
+    A.memory_.Empty();
+    A.height_   = BTL.height_ + BBL.height_;
+    A.width_    = BTL.width_ + BTR.width_;
+    A.ldim_     = BTL.ldim_;
+    A.data_     = BTL.data_;
+    A.viewtype_ = VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -548,7 +535,7 @@ inline void View2x2
     A.colAlignment_ = BTL.ColAlignment();
     A.rowAlignment_ = BTL.RowAlignment();
     HandleDiagPath( A, BTL );
-    A.viewing_ = true;
+    A.viewtype_ = VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BTL.ColShift();
@@ -588,13 +575,12 @@ inline void LockedView2x2
         BTR.LockedBuffer() != (BTL.LockedBuffer() + BTL.LDim()*BTL.Width()) )
         throw std::logic_error("2x2 must have contiguous memory");
 #endif
-    A.Empty();
-    A.height_ = BTL.Height() + BBL.Height();
-    A.width_ = BTL.Width() + BTR.Width();
-    A.ldim_ = BTL.LDim();
-    A.lockedData_ = BTL.LockedBuffer();
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.memory_.Empty();
+    A.height_   = BTL.height_ + BBL.height_;
+    A.width_    = BTL.width_ + BTR.width_;
+    A.ldim_     = BTL.ldim_;
+    A.data_     = BTL.data_;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -619,8 +605,7 @@ inline void LockedView2x2
     A.colAlignment_ = BTL.ColAlignment();
     A.rowAlignment_ = BTL.RowAlignment();
     HandleDiagPath( A, BTL );
-    A.viewing_ = true;
-    A.locked_ = true;
+    A.viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( A.Participating() )
     {
         A.colShift_ = BTL.ColShift();

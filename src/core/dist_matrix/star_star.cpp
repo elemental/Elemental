@@ -119,7 +119,7 @@ DistMatrix<T,STAR,STAR,Int>::Attach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->viewing_ = true;
+    this->viewtype_ = VIEW_SHRINKABLE;
     if( this->Participating() )
         this->matrix_.Attach( height, width, buffer, ldim );
 }
@@ -137,8 +137,7 @@ DistMatrix<T,STAR,STAR,Int>::LockedAttach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->viewing_ = true;
-    this->locked_ = true;
+    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( this->Participating() )
         this->matrix_.LockedAttach( height, width, buffer, ldim );
 }
@@ -156,7 +155,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->matrix_.ResizeTo( height, width );
+        this->LocalResize_( height, width );
 }
 
 template<typename T,typename Int>
@@ -172,7 +171,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->matrix_.ResizeTo( height, width, ldim );
+        this->LocalResize_( height, width, ldim );
 }
 
 template<typename T,typename Int>

@@ -185,8 +185,7 @@ DistMatrix<T,CIRC,CIRC,Int>::Attach
     this->SetRoot( root );
     this->height_ = height;
     this->width_ = width;
-    this->viewing_ = true;
-    this->locked_ = false;
+    this->viewtype_ = VIEW_SHRINKABLE;
     if( this->Participating() )
         this->matrix_.Attach( height, width, buffer, ldim );
 }
@@ -204,8 +203,7 @@ DistMatrix<T,CIRC,CIRC,Int>::LockedAttach
     this->SetRoot( root );
     this->height_ = height;
     this->width_ = width;
-    this->viewing_ = true;
-    this->locked_ = true;
+    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
     if( this->Participating() )
         this->matrix_.LockedAttach( height, width, buffer, ldim );
 }
@@ -223,7 +221,7 @@ DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->matrix_.ResizeTo( height, width );
+        this->LocalResize_( height, width );
 }
 
 template<typename T,typename Int>
@@ -239,7 +237,7 @@ DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->matrix_.ResizeTo( height, width, ldim );
+        this->LocalResize_( height, width, ldim );
 }
 
 template<typename T,typename Int>

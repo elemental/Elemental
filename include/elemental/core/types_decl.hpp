@@ -55,6 +55,33 @@ Distribution StringToDist( std::string s );
 }
 using namespace distribution_wrapper;
 
+namespace viewtype_wrapper {
+enum ViewType
+{
+    OWNER = 0x0,
+    VIEW_SHRINKABLE = 0x1,
+    OWNER_FIXED_SIZE = 0x2,
+    VIEW_FIXED_SIZE = 0x3,
+    LOCKED_OWNER = 0x4, // unused
+    LOCKED_VIEW_SHRINKABLE = 0x5,
+    LOCKED_OWNER_FIXED_SIZE = 0x6, // unused
+    LOCKED_VIEW_FIXED_SIZE = 0x7
+};
+static inline bool IsOwner( ViewType v ) 
+{ return ( v & VIEW_SHRINKABLE  ) == 0; }
+static inline bool IsViewing( ViewType v )
+{ return ( v & VIEW_SHRINKABLE  ) != 0; }
+static inline bool IsShrinkable( ViewType v )
+{ return ( v & OWNER_FIXED_SIZE ) == 0; }
+static inline bool IsFixedSize( ViewType v )
+{ return ( v & OWNER_FIXED_SIZE ) != 0; }
+static inline bool IsUnlocked( ViewType v )
+{ return ( v & LOCKED_OWNER     ) == 0; }
+static inline bool IsLocked( ViewType v )
+{ return ( v & LOCKED_OWNER     ) != 0; }
+}
+using namespace viewtype_wrapper;
+
 namespace forward_or_backward_wrapper {
 enum ForwardOrBackward
 {

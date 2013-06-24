@@ -112,8 +112,11 @@ public:
     // Viewing 
     //
 
-    bool Viewing() const;
-    bool Locked() const;
+    bool Owner()       const;
+    bool Shrinkable()  const;
+    bool FixedSize()   const;
+    bool Viewing()     const;
+    bool Locked()      const;
 
     //
     // Utilities
@@ -182,7 +185,7 @@ public:
     virtual void ResizeTo( Int height, Int width, Int ldim ) = 0;
 
 protected:
-    bool viewing_, locked_;
+    ViewType viewtype_;
     Int height_, width_;
     Memory<T> auxMemory_;
     elem::Matrix<T,Int> matrix_;
@@ -194,6 +197,9 @@ protected:
 
     // Build around a particular grid
     AbstractDistMatrix( const elem::Grid& g );
+    
+    void LocalResize_( Int hLocal, Int wLocal );
+    void LocalResize_( Int hLocal, Int wLocal, Int LDim );
 
 protected:
     void SetShifts();

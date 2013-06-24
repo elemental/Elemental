@@ -168,7 +168,7 @@ DistMatrix<T,VR,STAR,Int>::Attach
     this->height_ = height;
     this->width_ = width;
     this->colAlignment_ = colAlignment;
-    this->viewing_ = true;
+    this->viewtype_ = VIEW_SHRINKABLE;
     this->SetColShift();
     if( g.InGrid() )
     {
@@ -192,8 +192,7 @@ DistMatrix<T,VR,STAR,Int>::LockedAttach
     this->height_ = height;
     this->width_ = width;
     this->colAlignment_ = colAlignment;
-    this->viewing_ = true;
-    this->locked_ = true;
+    this->viewtype_ = LOCKED_VIEW_SHRINKABLE;
     this->SetColShift();
     if( g.InGrid() )
     {
@@ -216,7 +215,7 @@ DistMatrix<T,VR,STAR,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_  = width;
     if( g.InGrid() )
-        this->matrix_.ResizeTo
+        this->LocalResize_
         ( Length(height,this->ColShift(),g.Size()) ,width );
 }
 
@@ -234,7 +233,7 @@ DistMatrix<T,VR,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_  = width;
     if( g.InGrid() )
-        this->matrix_.ResizeTo
+        this->LocalResize_
         ( Length(height,this->ColShift(),g.Size()), width, ldim );
 }
 

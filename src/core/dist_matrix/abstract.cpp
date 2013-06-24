@@ -12,16 +12,16 @@ namespace elem {
 
 template<typename T,typename Int>
 AbstractDistMatrix<T,Int>::AbstractDistMatrix( const elem::Grid& grid )
-: viewing_(false), locked_(false), 
+: viewtype_(OWNER),
   height_(0), width_(0), 
   auxMemory_(), 
-  matrix_(0,0), 
+  matrix_(0,0,true), 
   constrainedColAlignment_(false), 
   constrainedRowAlignment_(false),
   colAlignment_(0), rowAlignment_(0),
   colShift_(0), rowShift_(0),
   grid_(&grid)
-{ } 
+{ }
 
 template<typename T,typename Int>
 AbstractDistMatrix<T,Int>::~AbstractDistMatrix() 
@@ -32,7 +32,7 @@ template<typename T,typename Int>
 void
 AbstractDistMatrix<T,Int>::AssertNotLocked() const
 {
-    if( viewing_ && locked_ )
+    if( Locked() )
         throw std::logic_error
         ("Assertion that matrix not be a locked view failed");
 }
@@ -264,13 +264,28 @@ AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
 
 template<typename T,typename Int>
 bool
+AbstractDistMatrix<T,Int>::Owner() const
+{ return IsOwner( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
 AbstractDistMatrix<T,Int>::Viewing() const
-{ return viewing_; }
+{ return !IsOwner( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+AbstractDistMatrix<T,Int>::Shrinkable() const
+{ return IsShrinkable( viewtype_ ); }
+
+template<typename T,typename Int>
+bool
+AbstractDistMatrix<T,Int>::FixedSize() const
+{ return !IsShrinkable( viewtype_ ); }
 
 template<typename T,typename Int>
 bool
 AbstractDistMatrix<T,Int>::Locked() const
-{ return locked_; }
+{ return IsLocked( viewtype_ ); }
 
 template<typename T,typename Int>
 Int
@@ -390,8 +405,7 @@ void
 AbstractDistMatrix<T,Int>::Empty()
 {
     matrix_.Empty();
-    locked_ = false;
-    viewing_ = false;
+    viewtype_ = OWNER;
     height_ = 0;
     width_ = 0;
     colAlignment_ = 0;
@@ -405,8 +419,7 @@ void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
     matrix_.Empty();
-    locked_ = false;
-    viewing_ = false;
+    viewtype_ = OWNER;
     height_ = 0;
     width_ = 0;
 }
@@ -508,6 +521,24 @@ template<typename T,typename Int>
 BASE(T)
 AbstractDistMatrix<T,Int>::GetImagPart( Int i, Int j ) const
 { return ImagPart(Get(i,j)); }
+
+template <typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::LocalResize_( Int hLocal, Int wLocal )
+{
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED_SIZE );
+    matrix_.ResizeTo( hLocal, wLocal );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | ~OWNER_FIXED_SIZE );
+}
+
+template <typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::LocalResize_( Int hLocal, Int wLocal, Int LDim )
+{
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED_SIZE );
+    matrix_.ResizeTo( hLocal, wLocal, LDim );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | ~OWNER_FIXED_SIZE );
+}
 
 template class AbstractDistMatrix<int,int>;
 #ifndef DISABLE_FLOAT

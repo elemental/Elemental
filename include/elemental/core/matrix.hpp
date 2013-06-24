@@ -21,11 +21,11 @@ public:
     // Constructors
     // 
 
-    Matrix(); 
-    Matrix( Int height, Int width );
-    Matrix( Int height, Int width, Int ldim );
-    Matrix( Int height, Int width, const T* buffer, Int ldim );
-    Matrix( Int height, Int width, T* buffer, Int ldim );
+    Matrix( bool fixed_size = false );
+    Matrix( Int height, Int width, bool fixed_size = false );
+    Matrix( Int height, Int width, Int ldim, bool fixed_size = false );
+    Matrix( Int height, Int width, const T* buffer, Int ldim, bool fixed_size = false );
+    Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed_size = false );
     Matrix( const Matrix<T,Int>& A );
 
     //
@@ -89,11 +89,14 @@ public:
     // Viewing other matrix instances (or buffers)
     //
 
-    bool Viewing() const;
-    bool Locked() const;
+    bool Owner()       const;
+    bool Shrinkable()  const;
+    bool FixedSize()   const;
+    bool Viewing()     const;
+    bool Locked()      const;
 
-    void Attach( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach( Int height, Int width, const T* buffer, Int ldim );
+    void Attach( Int height, Int width, T* buffer, Int ldim, bool fixed_size = false );
+    void LockedAttach( Int height, Int width, const T* buffer, Int ldim, bool fixed_size = false );
 
     // Use this memory *as if it were not a view*, but do not take control of 
     // its deallocation. If Resize() forces reallocation, this buffer is 
@@ -112,15 +115,19 @@ public:
     void ResizeTo( Int height, Int width, Int ldim );
 
 private:
-    bool viewing_, locked_;
+    ViewType viewtype_;
     Int height_, width_, ldim_;
-    T* data_;
-    const T* lockedData_;
+    const T* data_;
     Memory<T> memory_;
 
     void AssertValidEntry( Int i, Int j ) const;
+    const T& Get_( Int i, Int j ) const;
+    T& Set_( Int i, Int j );
 
 #ifndef SWIG
+    template <typename U,typename Ord> friend class Matrix;
+    friend class AbstractDistMatrix<T,Int>;
+
     friend void View<T,Int>
     ( Matrix<T,Int>& A, Matrix<T,Int>& B );
     friend void View<T,Int>
