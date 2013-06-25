@@ -154,7 +154,7 @@ void FC_GLOBAL_(elem_set_col_major_tridiag_subgrid,NAME)()
 void FC_GLOBAL_(elem_default_grid,NAME)( int* gridHandle )
 { *gridHandle = maxInt; }
 
-void FC_GLOBAL_(elem_create_grid,NAME)( MPI_Fint* fComm, int* gridHandle )
+void FC_GLOBAL_(elem_create_grid,NAME)( int* gridHandle, MPI_Fint* fComm )
 {
     MPI_Comm comm = MPI_Comm_f2c( *fComm );
     const int index = GetOpenIndex( gridList );
@@ -163,7 +163,7 @@ void FC_GLOBAL_(elem_create_grid,NAME)( MPI_Fint* fComm, int* gridHandle )
 }
 
 void FC_GLOBAL_(elem_create_specific_grid,NAME)
-( MPI_Fint* fComm, int* gridHandle, int* height )
+( int* gridHandle, MPI_Fint* fComm, int* height )
 {
     MPI_Comm comm = MPI_Comm_f2c( *fComm );
     const int index = GetOpenIndex( gridList );

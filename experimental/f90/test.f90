@@ -27,7 +27,7 @@ program main
   call elem_initialize()
 
   ! Create a process grid and extract the relevant information
-  call elem_create_grid( comm, grid )
+  call elem_create_grid( grid, comm )
   call elem_grid_height( grid, r )
   call elem_grid_width( grid, c )
   call elem_grid_size( grid, p )
