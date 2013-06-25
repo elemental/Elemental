@@ -742,7 +742,7 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
     AssertValidDimensions( height, width, ldim );
-    if ( FixedSize() )
+    if ( FixedSize() && ( height != height_ || width != width_ || ldim != ldim_ ) )
         throw std::logic_error("Cannot change the size of this matrix");
     if ( Viewing() && ( height > height_ || width > width_ ) )
         throw std::logic_error("Cannot increase the size of this matrix");
