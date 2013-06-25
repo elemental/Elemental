@@ -341,7 +341,7 @@ DistMatrix<T,MD,STAR,Int>::Attach
     if( this->Participating() )
     {
         const Int localHeight = Length(height,this->colShift_,grid.LCM());
-        this->LocalAttach_( localHeight, width, buffer, ldim );
+        this->matrix_.Attach_( localHeight, width, buffer, ldim );
     }
 }
 
@@ -366,7 +366,7 @@ DistMatrix<T,MD,STAR,Int>::LockedAttach
     if( this->Participating() )
     {
         const Int localHeight = Length(height,this->colShift_,grid.LCM());
-        this->LocalLockedAttach_( localHeight, width, buffer, ldim );
+        this->matrix_.LockedAttach_( localHeight, width, buffer, ldim );
     }
 }
 
@@ -383,7 +383,7 @@ DistMatrix<T,MD,STAR,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_
+        this->matrix_.ResizeTo_
         ( Length(height,this->ColShift(),this->Grid().LCM()), width );
 }
 
@@ -400,7 +400,7 @@ DistMatrix<T,MD,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_
+        this->matrix_.ResizeTo_
         ( Length(height,this->ColShift(),this->Grid().LCM()), width, ldim );
 }
 

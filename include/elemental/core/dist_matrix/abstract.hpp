@@ -112,11 +112,8 @@ public:
     // Viewing 
     //
 
-    bool Owner()       const;
-    bool Shrinkable()  const;
-    bool FixedSize()   const;
-    bool Viewing()     const;
-    bool Locked()      const;
+    bool Viewing() const;
+    bool Locked()  const;
 
     //
     // Utilities
@@ -198,11 +195,6 @@ protected:
     // Build around a particular grid
     AbstractDistMatrix( const elem::Grid& g );
     
-    void LocalResize_( Int hLocal, Int wLocal );
-    void LocalResize_( Int hLocal, Int wLocal, Int LDim );
-    void LocalAttach_( Int hLocal, Int wLocal, T* buffer, Int LDim );
-    void LocalLockedAttach_( Int hLocal, Int wLocal, const T* buffer, Int LDim );
-
     void SetShifts();
     void SetColShift();
     void SetRowShift();

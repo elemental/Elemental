@@ -121,7 +121,7 @@ DistMatrix<T,STAR,STAR,Int>::Attach
     this->width_ = width;
     this->viewtype_ = VIEW;
     if( this->Participating() )
-        this->LocalAttach_( height, width, buffer, ldim );
+        this->matrix_.Attach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>
@@ -139,7 +139,7 @@ DistMatrix<T,STAR,STAR,Int>::LockedAttach
     this->width_ = width;
     this->viewtype_ = LOCKED_VIEW;
     if( this->Participating() )
-        this->LocalLockedAttach_( height, width, buffer, ldim );
+        this->matrix_.LockedAttach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>
@@ -155,7 +155,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_( height, width );
+        this->matrix_.ResizeTo_( height, width );
 }
 
 template<typename T,typename Int>
@@ -171,7 +171,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_( height, width, ldim );
+        this->matrix_.ResizeTo_( height, width, ldim );
 }
 
 template<typename T,typename Int>

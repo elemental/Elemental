@@ -11,6 +11,55 @@
 namespace elem {
 
 //
+// Assertions
+//
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::AssertValidDimensions( Int height, Int width ) const
+{
+#ifndef RELEASE
+    CallStackEntry entry("Matrix::AssertValidDimensions");
+#endif
+    if( height < 0 || width < 0 )
+        throw std::logic_error("Height and width must be non-negative");
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::AssertValidDimensions( Int height, Int width, Int ldim ) const
+{
+#ifndef RELEASE
+    CallStackEntry entry("Matrix::AssertValidDimensions");
+#endif
+    AssertValidDimensions( height, width );
+    if( ldim < height )
+        throw std::logic_error("Leading dimension must be no less than height");
+    if( ldim == 0 )
+        throw std::logic_error
+        ("Leading dimension cannot be zero (for BLAS compatibility)");
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
+{
+#ifndef RELEASE
+    CallStackEntry entry("Matrix::AssertValidEntry");
+#endif
+    if( i < 0 || j < 0 )
+        throw std::logic_error("Indices must be non-negative");
+    if( i > this->Height() || j > this->Width() )
+    {
+        std::ostringstream msg;
+        msg << "Out of bounds: "
+            << "(" << i << "," << j << ") of " << this->Height()
+            << " x " << this->Width() << " Matrix.";
+        throw std::logic_error( msg.str() );
+    }
+}
+
+//
 // Constructors
 //
 
@@ -28,8 +77,7 @@ Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
+    AssertValidDimensions( height, width );
 #endif
     memory_.Require( ldim_ * width );
     data_ = memory_.Buffer();
@@ -43,18 +91,7 @@ Matrix<T,Int>::Matrix
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-    if( ldim < height )
-    {
-        std::ostringstream msg;
-        msg << "Initialized with ldim(" << ldim << ") < "
-            << "height(" << height << ").";
-        throw std::logic_error( msg.str() );
-    }
-    if( ldim == 0 )
-        throw std::logic_error
-        ("Leading dimensions cannot be zero (for BLAS compatibility)");
+    AssertValidDimensions( height, width, ldim );
 #endif
     memory_.Require( ldim*width );
     data_ = memory_.Buffer();
@@ -69,18 +106,7 @@ Matrix<T,Int>::Matrix
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-    if( ldim < height )
-    {
-        std::ostringstream msg;
-        msg << "Initialized with ldim(" << ldim << ") < "
-            << "height(" << height << ").";
-        throw std::logic_error( msg.str() );
-    }
-    if( ldim == 0 )
-        throw std::logic_error
-        ("Leading dimensions cannot be zero (for BLAS compatibility)");
+    AssertValidDimensions( height, width, ldim );
 #endif
 }
 
@@ -93,18 +119,7 @@ Matrix<T,Int>::Matrix
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-    if( ldim < height )
-    {
-        std::ostringstream msg;
-        msg << "Initialized with ldim(" << ldim << ") < "
-            << "height(" << height << ").";
-        throw std::logic_error( msg.str() );
-    }
-    if( ldim == 0 )
-        throw std::logic_error
-        ("Leading dimensions cannot be zero (for BLAS compatibility)");
+    AssertValidDimensions( height, width, ldim );
 #endif
 }
 
@@ -549,18 +564,37 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
+Matrix<T,Int>::Control_( Int height, Int width, T* buffer, Int ldim )
 {
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::Control");
-#endif
     Empty();
-
     height_ = height;
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = OWNER;
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Matrix::Control");
+    if( FixedSize() )
+        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
+#endif
+    Control_( height, width, buffer, ldim );
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::Attach_( Int height, Int width, T* buffer, Int ldim )
+{
+    Empty();
+    height_ = height;
+    width_ = width;
+    ldim_ = ldim;
+    data_ = buffer;
+    viewtype_ = (ViewType)( viewtype_ | VIEW );
 }
 
 template<typename T,typename Int>
@@ -572,13 +606,19 @@ Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim )
     if( FixedSize() )
         throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
 #endif
-    Empty();
+    Attach_( height, width, buffer, ldim );
+}
 
+template<typename T,typename Int>
+void
+Matrix<T,Int>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
+{
+    Empty();
     height_ = height;
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = VIEW;
+    viewtype_ = (ViewType)( viewtype_ | LOCKED_VIEW );
 }
 
 template<typename T,typename Int>
@@ -591,13 +631,7 @@ Matrix<T,Int>::LockedAttach
     if( FixedSize() )
         throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
 #endif
-    Empty();
-
-    height_ = height;
-    width_ = width;
-    ldim_ = ldim;
-    data_ = buffer;
-    viewtype_ = LOCKED_VIEW;
+    LockedAttach_( height, width, buffer, ldim );
 }
 
 //
@@ -634,14 +668,41 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::Empty()
+Matrix<T,Int>::Empty_()
 {
     memory_.Empty();
+    viewtype_ = (ViewType)( viewtype_ & ~LOCKED_VIEW );
     height_ = 0;
     width_ = 0;
     ldim_ = 1;
     data_ = 0;
-    viewtype_ = OWNER;
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::Empty()
+{
+#ifndef RELEASE
+    CallStackEntry("Matrix::Empty");
+    if ( FixedSize() )
+        throw std::logic_error("Cannot change the size of this matrix");
+#endif
+    Empty_();
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::ResizeTo_( Int height, Int width )
+{
+    const bool reallocate = height > height_ || width > width_;
+    height_ = height;
+    width_ = width;
+    if( reallocate )
+    {
+        ldim_ = std::max( height, 1 );
+        memory_.Require(ldim_*width);
+        data_ = memory_.Buffer();
+    }
 }
 
 template<typename T,typename Int>
@@ -650,26 +711,26 @@ Matrix<T,Int>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width)");
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-#endif
-    if( height == height_ && width == width_ )
-        return;
-    const bool reallocate = ( height > height_ || width > width_ );
-#ifndef RELEASE
-    if ( FixedSize() )
+    AssertValidDimensions( height, width );
+    if ( FixedSize() && ( height != height_ || width != width_ ) )
         throw std::logic_error("Cannot change the size of this matrix");
-    if ( Viewing() && reallocate )
+    if ( Viewing() && ( height > height_ || width > width_ ) )
         throw std::logic_error("Cannot increase the size of this matrix");
 #endif
+    ResizeTo_( height, width );
+}
+
+template<typename T,typename Int>
+void
+Matrix<T,Int>::ResizeTo_( Int height, Int width, Int ldim )
+{
+    const bool reallocate = height > height_ || width > width_ || ldim != ldim_;
     height_ = height;
     width_ = width;
-    // Only change the ldim when necessary. Simply 'shrink' our view if 
-    // possible.
     if( reallocate )
     {
-        ldim_ = std::max( height, 1 );
-        memory_.Require( ldim_ * width );
+        ldim_ = ldim;
+        memory_.Require(ldim_*width);
         data_ = memory_.Buffer();
     }
 }
@@ -680,47 +741,13 @@ Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
+    AssertValidDimensions( height, width, ldim );
     if ( FixedSize() )
         throw std::logic_error("Cannot change the size of this matrix");
-    if( ldim < height )
-    {
-        std::ostringstream msg;
-        msg << "Tried to set ldim(" << ldim << ") < height (" << height << ")";
-        throw std::logic_error( msg.str().c_str() );
-    }
+    if ( Viewing() && ( height > height_ || width > width_ ) )
+        throw std::logic_error("Cannot increase the size of this matrix");
 #endif
-    const bool reallocate = ( height > height_ || width > width_ || ldim != ldim_ );
-#ifndef RELEASE
-    if ( Viewing() && reallocate )
-        throw std::logic_error( "Cannot increase the size of this matrix" );
-#endif
-    height_ = height;
-    width_ = width;
-    ldim_ = ldim;
-    if( reallocate )
-    {
-        memory_.Require(ldim*width);
-        data_ = memory_.Buffer();
-    }
-}
-
-template<typename T,typename Int>
-void
-Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("Matrix::AssertValidEntry");
-#endif
-    if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
-    if( i > this->Height() || j > this->Width() )
-    {
-        std::ostringstream msg;
-        msg << "Out of bounds: "
-            << "(" << i << "," << j << ") of " << this->Height()
-            << " x " << this->Width() << " Matrix.";
-        throw std::logic_error( msg.str() );
-    }
+    ResizeTo_( height, width, ldim );
 }
 
 template class Matrix<int,int>;
