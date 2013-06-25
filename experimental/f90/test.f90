@@ -64,8 +64,8 @@ program main
   end do
 
   ! Register the distributed matrices, A and B, with Elemental 
-  call elem_register_dist_mat( a, n, n, iZero, iZero, ALoc, mLoc, grid )
-  call elem_register_dist_mat( b, n, n, iZero, iZero, BLoc, mLoc, grid )
+  call elem_register_dist_mat( A, n, n, iZero, iZero, ALoc, mLoc, grid )
+  call elem_register_dist_mat( B, n, n, iZero, iZero, BLoc, mLoc, grid )
 
   ! I do not know of a good way to flush the output from F90, as the flush
   ! command is not standard. Thus, I chose not to write to stdout from F90.

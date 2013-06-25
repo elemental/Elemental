@@ -1503,84 +1503,38 @@ DistMatrix<T,CIRC,CIRC,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
         this->UpdateLocalImagPart(i,j,u);
 }
 
-template class DistMatrix<int,CIRC,CIRC,int>;
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,MC,  MR,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,MC,  STAR,int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,MD,  STAR,int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,MR,  MC,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,MR,  STAR,int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,MC,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,MD,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,MR,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,VC,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,VR,  int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,VC,  STAR,int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,VR,  STAR,int>& A );
-template DistMatrix<int,CIRC,CIRC,int>::DistMatrix( const DistMatrix<int,STAR,STAR,int>& A );
+#define PROTO(T) \
+  template class DistMatrix<T,CIRC,CIRC,int>
+#define COPY(T,CD,RD) \
+  template DistMatrix<T,CIRC,CIRC,int>::DistMatrix( \
+    const DistMatrix<T,CD,RD,int>& A )
+#define FULL(T) \
+  PROTO(T); \
+  COPY(T,MC,  MR); \
+  COPY(T,MC,  STAR); \
+  COPY(T,MD,  STAR); \
+  COPY(T,MR,  MC  ); \
+  COPY(T,MR,  STAR); \
+  COPY(T,STAR,MC  ); \
+  COPY(T,STAR,MD  ); \
+  COPY(T,STAR,MR  ); \
+  COPY(T,STAR,STAR); \
+  COPY(T,STAR,VC  ); \
+  COPY(T,STAR,VR  ); \
+  COPY(T,VC,  STAR); \
+  COPY(T,VR,  STAR);
 
+FULL(int);
 #ifndef DISABLE_FLOAT
-template class DistMatrix<float,CIRC,CIRC,int>;
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,MC,  MR,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,MC,  STAR,int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,MD,  STAR,int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,MR,  MC,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,MR,  STAR,int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,MC,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,MD,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,MR,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,VC,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,VR,  int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,VC,  STAR,int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,VR,  STAR,int>& A );
-template DistMatrix<float,CIRC,CIRC,int>::DistMatrix( const DistMatrix<float,STAR,STAR,int>& A );
-#endif // ifndef DISABLE_FLOAT
-
-template class DistMatrix<double,CIRC,CIRC,int>;
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,MC,  MR,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,MC,  STAR,int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,MD,  STAR,int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,MR,  MC,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,MR,  STAR,int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,MC,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,MD,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,MR,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,VC,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,VR,  int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,VC,  STAR,int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,VR,  STAR,int>& A );
-template DistMatrix<double,CIRC,CIRC,int>::DistMatrix( const DistMatrix<double,STAR,STAR,int>& A );
+FULL(float);
+#endif
+FULL(double);
 
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-template class DistMatrix<Complex<float>,CIRC,CIRC,int>;
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  MR,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,MC,  STAR,int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,MD,  STAR,int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  MC,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,MR,  STAR,int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MC,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MD,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,MR,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VC,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,VR,  int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,VC,  STAR,int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,VR,  STAR,int>& A );
-template DistMatrix<Complex<float>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<float>,STAR,STAR,int>& A );
-#endif // ifndef DISABLE_FLOAT
-template class DistMatrix<Complex<double>,CIRC,CIRC,int>;
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  MR,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,MC,  STAR,int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,MD,  STAR,int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  MC,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,MR,  STAR,int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MC,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MD,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,MR,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VC,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,VR,  int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,VC,  STAR,int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,VR,  STAR,int>& A );
-template DistMatrix<Complex<double>,CIRC,CIRC,int>::DistMatrix( const DistMatrix<Complex<double>,STAR,STAR,int>& A );
-#endif // ifndef DISABLE_COMPLEX
+FULL(Complex<float>);
+#endif
+FULL(Complex<double>);
+#endif
 
 } // namespace elem
