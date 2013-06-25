@@ -30,7 +30,7 @@ MakeTrapezoidal
         if( side == LEFT )
         {
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=std::max(0,offset+1); j<width; ++j )
             {
@@ -42,7 +42,7 @@ MakeTrapezoidal
         else
         {
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=std::max(0,offset-height+width+1); j<width; ++j )
             {
@@ -57,7 +57,7 @@ MakeTrapezoidal
         if( side == LEFT )
         {
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
             {
@@ -70,7 +70,7 @@ MakeTrapezoidal
         else
         {
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=0; j<width; ++j )
             {
@@ -107,7 +107,7 @@ MakeTrapezoidal
     {
 
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
@@ -127,7 +127,7 @@ MakeTrapezoidal
     else
     {
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {

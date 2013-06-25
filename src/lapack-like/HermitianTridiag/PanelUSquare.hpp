@@ -42,9 +42,6 @@ void PanelUSquare
     const Grid& g = A.Grid();
     const int r = g.Height();
 
-    if( !g.InGrid() )
-        return;
-
     // Find the process holding our transposed data
     int transposeRank;
     {
@@ -690,9 +687,6 @@ void PanelUSquare
 
     const Grid& g = A.Grid();
     const int r = g.Height();
-
-    if( !g.InGrid() )
-        return;
 
     // Find the process holding our transposed data
     int transposeRank;

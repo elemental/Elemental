@@ -112,8 +112,11 @@ public:
     // Viewing 
     //
 
-    bool Viewing() const;
-    bool Locked()  const;
+    bool Owner()       const;
+    bool Shrinkable()  const;
+    bool FixedSize()   const;
+    bool Viewing()     const;
+    bool Locked()      const;
 
     //
     // Utilities
@@ -134,6 +137,8 @@ public:
     virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
     virtual void AlignRowsWith( const elem::DistData<Int>& data );
     virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
+
+    virtual void MakeConsistent();
 
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
@@ -182,7 +187,7 @@ public:
     virtual void ResizeTo( Int height, Int width, Int ldim ) = 0;
 
 protected:
-    ViewType viewtype_;
+    ViewType viewType_;
     Int height_, width_;
     Memory<T> auxMemory_;
     elem::Matrix<T,Int> matrix_;
@@ -195,6 +200,11 @@ protected:
     // Build around a particular grid
     AbstractDistMatrix( const elem::Grid& g );
     
+    void LocalResize_( Int hLocal, Int wLocal );
+    void LocalResize_( Int hLocal, Int wLocal, Int LDim );
+    void LocalAttach_( Int hLocal, Int wLocal, T* buffer, Int LDim );
+    void LocalLockedAttach_( Int hLocal, Int wLocal, const T* buffer, Int LDim );
+
     void SetShifts();
     void SetColShift();
     void SetRowShift();

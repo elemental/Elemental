@@ -18,13 +18,6 @@ class Matrix
 {
 public:    
     //
-    // Assertions
-    //
-    
-    void AssertValidDimensions( Int height, Int width ) const;
-    void AssertValidDimensions( Int height, Int width, Int ldim ) const;
-    void AssertValidEntry( Int i, Int j ) const;
-    
     // Constructors
     // 
 
@@ -119,31 +112,22 @@ public:
     const Matrix<T,Int>& operator=( const Matrix<T,Int>& A );
 
     void Empty();
+
     void ResizeTo( Int height, Int width );
     void ResizeTo( Int height, Int width, Int ldim );
 
 private:
-    ViewType viewtype_;
+    ViewType viewType_;
     Int height_, width_, ldim_;
     const T* data_;
     Memory<T> memory_;
 
+    void AssertValidEntry( Int i, Int j ) const;
     const T& Get_( Int i, Int j ) const;
     T& Set_( Int i, Int j );
 
-    // These bypass fixed-size checking and are used by DistMatrix
-    void Empty_();
-    void ResizeTo_( Int height, Int width );
-    void ResizeTo_( Int height, Int width, Int ldim );
-    void Control_( Int height, Int width, T* buffer, Int ldim );
-    void Attach_( Int height, Int width, T* buffer, Int ldim );
-    void LockedAttach_( Int height, Int width, const T* buffer, Int ldim );
-    
 #ifndef SWIG
-    template <typename F,typename Ord> 
-    friend class Matrix;
-    template <typename F,Distribution U,Distribution V,typename Ord> 
-    friend class DistMatrix;
+    template <typename U,typename Ord> friend class Matrix;
     friend class AbstractDistMatrix<T,Int>;
 
     friend void View<T,Int>
