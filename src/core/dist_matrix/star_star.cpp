@@ -119,9 +119,9 @@ DistMatrix<T,STAR,STAR,Int>::Attach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->viewType_ = VIEW;
+    this->viewtype_ = VIEW;
     if( this->Participating() )
-        this->LocalAttach_( height, width, buffer, ldim );
+        this->matrix_.Attach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>
@@ -137,9 +137,9 @@ DistMatrix<T,STAR,STAR,Int>::LockedAttach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->viewType_ = LOCKED_VIEW;
+    this->viewtype_ = LOCKED_VIEW;
     if( this->Participating() )
-        this->LocalLockedAttach_( height, width, buffer, ldim );
+        this->matrix_.LockedAttach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>
@@ -155,7 +155,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_( height, width );
+        this->matrix_.ResizeTo_( height, width );
 }
 
 template<typename T,typename Int>
@@ -171,7 +171,7 @@ DistMatrix<T,STAR,STAR,Int>::ResizeTo( Int height, Int width, Int ldim )
     this->height_ = height;
     this->width_ = width;
     if( this->Participating() )
-        this->LocalResize_( height, width, ldim );
+        this->matrix_.ResizeTo_( height, width, ldim );
 }
 
 template<typename T,typename Int>
@@ -243,7 +243,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int r = g.Height();
@@ -266,7 +266,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy
@@ -284,7 +284,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     const Int colAlignmentOfA = A.ColAlignment();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int l=0; l<c; ++l )
     {
@@ -296,7 +296,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
             const Int colShift = Shift_( k, colAlignmentOfA, r );
             const Int localHeight = Length_( height, colShift, r );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+            #pragma omp parallel for
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -325,7 +325,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int r = g.Height();
@@ -343,7 +343,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
         MemCopy
@@ -359,7 +359,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int colAlignmentOfA = A.ColAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<r; ++k )
     {
@@ -367,7 +367,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
         const Int colShift = Shift_( k, colAlignmentOfA, r );
         const Int localHeight = Length_( height, colShift, r );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
         {
@@ -395,7 +395,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int c = g.Width();
@@ -413,7 +413,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
@@ -428,7 +428,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<c; ++k )
     {
@@ -436,7 +436,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
         const Int rowShift = Shift_( k, rowAlignmentOfA, c );
         const Int localWidth = Length_( width, rowShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             MemCopy
@@ -461,7 +461,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -488,7 +488,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
         const Int ALDim = A.LDim();
         const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
             MemCopy( &sendBuf[j*localHeight], &ABuf[j*ALDim], localHeight );
@@ -503,7 +503,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -514,7 +514,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
             const Int thisColShift = Shift_( thisPathRank, ownerPathRank, lcm );
             const Int thisLocalHeight = Length_( height, thisColShift, lcm );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+            #pragma omp parallel for
 #endif
             for( Int j=0; j<width; ++j )
             {
@@ -543,7 +543,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -570,7 +570,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
         const Int ALDim = A.LDim();
         const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
@@ -585,7 +585,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -596,7 +596,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
             const Int thisRowShift = Shift_( thisPathRank, ownerPathRank, lcm );
             const Int thisLocalWidth = Length_( width, thisRowShift, lcm );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+            #pragma omp parallel for
 #endif
             for( Int jLoc=0; jLoc<thisLocalWidth; ++jLoc )
                 MemCopy
@@ -622,7 +622,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int r = g.Height();
@@ -645,7 +645,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy
@@ -663,7 +663,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     const Int colAlignmentOfA = A.ColAlignment();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int l=0; l<r; ++l )
     {
@@ -675,7 +675,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
             const Int colShift = Shift_( k, colAlignmentOfA, c );
             const Int localHeight = Length_( height, colShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+            #pragma omp parallel for
 #endif
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
@@ -704,7 +704,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int c = g.Width();
@@ -722,7 +722,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
         MemCopy
@@ -738,7 +738,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int colAlignmentOfA = A.ColAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<c; ++k )
     {
@@ -746,7 +746,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
         const Int colShift = Shift_( k, colAlignmentOfA, c );
         const Int localHeight = Length_( height, colShift, c );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int j=0; j<width; ++j )
         {
@@ -774,7 +774,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int r = g.Height();
@@ -792,7 +792,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
@@ -807,7 +807,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     const Int thisLDim = this->LDim();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<r; ++k )
     {
@@ -815,7 +815,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
         const Int rowShift = Shift_( k, rowAlignmentOfA, r );
         const Int localWidth = Length_( width, rowShift, r );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             MemCopy
@@ -840,7 +840,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -858,7 +858,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
         MemCopy
@@ -874,7 +874,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int colAlignmentOfA = A.ColAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -882,7 +882,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
         const Int colShift = Shift_( k, colAlignmentOfA, p );
         const Int localHeight = Length_( height, colShift, p );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for 
+        #pragma omp parallel for 
 #endif
         for( Int j=0; j<width; ++j )
         {
@@ -910,7 +910,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -928,7 +928,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
@@ -943,7 +943,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     const Int thisLDim = this->LDim();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -951,7 +951,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
         const Int rowShift = Shift_( k, rowAlignmentOfA, p );
         const Int localWidth = Length_( width, rowShift, p );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             MemCopy
@@ -976,7 +976,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -994,7 +994,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int j=0; j<width; ++j )
         MemCopy
@@ -1010,7 +1010,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int colAlignmentOfA = A.ColAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -1018,7 +1018,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
         const Int colShift = Shift_( k, colAlignmentOfA, p );
         const Int localHeight = Length_( height, colShift, p );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for 
+        #pragma omp parallel for 
 #endif
         for( Int j=0; j<width; ++j )
         {
@@ -1046,7 +1046,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     const elem::Grid& g = this->Grid();
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -1064,7 +1064,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     const Int ALDim = A.LDim();
     const T* ABuf = A.LockedBuffer();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidthOfA; ++jLoc )
         MemCopy( &sendBuf[jLoc*height], &ABuf[jLoc*ALDim], height );
@@ -1079,7 +1079,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     const Int thisLDim = this->LDim();
     const Int rowAlignmentOfA = A.RowAlignment();
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int k=0; k<p; ++k )
     {
@@ -1087,7 +1087,7 @@ DistMatrix<T,STAR,STAR,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
         const Int rowShift = Shift_( k, rowAlignmentOfA, p );
         const Int localWidth = Length_( width, rowShift, p );
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             MemCopy
@@ -1231,7 +1231,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverCol()
     this->AssertNotLocked();
 #endif
     const Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return;
 
     const Int localHeight = this->LocalHeight();
@@ -1245,7 +1245,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverCol()
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy
@@ -1257,7 +1257,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverCol()
 
     // Unpack
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy
@@ -1275,7 +1275,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverRow()
     this->AssertNotLocked();
 #endif
     const Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return;
 
     const Int localHeight = this->LocalHeight();
@@ -1289,7 +1289,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverRow()
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy
@@ -1301,7 +1301,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverRow()
 
     // Unpack
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy
@@ -1319,7 +1319,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverGrid()
     this->AssertNotLocked();
 #endif
     const Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return;
 
     const Int localHeight = this->LocalHeight();
@@ -1333,7 +1333,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverGrid()
     T* thisBuf = this->Buffer();
     const Int thisLDim = this->LDim();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy
@@ -1345,7 +1345,7 @@ DistMatrix<T,STAR,STAR,Int>::SumOverGrid()
 
     // Unpack
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         MemCopy

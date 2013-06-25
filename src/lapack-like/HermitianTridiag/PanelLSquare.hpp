@@ -45,6 +45,8 @@ void PanelLSquare
         W.RowAlignment() != A.RowAlignment() )
         throw std::logic_error("W and A must be aligned");
 #endif
+    if( !g.InGrid() )
+        return;
 
     // Find the process holding our transposed data
     int transposeRank;
@@ -716,6 +718,8 @@ void PanelLSquare
     if( !t.AlignedWithDiagonal(A,-1) )
         throw std::logic_error("t is not aligned with A's subdiagonal");
 #endif
+    if( !g.InGrid() )
+        return;
 
     // Find the process holding our transposed data
     const int r = g.Height();

@@ -49,14 +49,13 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         ASqrt = A;
-        if( ASqrt.Participating() )
-        {
-            if( print )
-                Print( ASqrt, "ASqrt := A" );
-            Scale( 2., ASqrt );
-            if( print )
-                Print( ASqrt, "ASqrt := 2 ASqrt" );
-        }
+        if( print )
+            Print( ASqrt, "ASqrt := A" );
+
+        Scale( 2., ASqrt );
+        if( print )
+            Print( ASqrt, "ASqrt := 2 ASqrt" );
+
         A = ASqrt;
         if( print )
             Print( A, "A := ASqrt" );

@@ -22,7 +22,7 @@ SetDiagonal( Matrix<T>& A, T alpha )
     const int height = A.Height();
     const int width = A.Width();
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+    #pragma omp parallel for
 #endif
     for( int j=0; j<std::min(height,width); ++j )
         A.Set(j,j,alpha);

@@ -27,7 +27,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     if( uplo == LOWER )
     {
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( int j=1; j<width; ++j )
         {
@@ -38,7 +38,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     else
     {
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( int j=0; j<std::min(width,height); ++j )
         {
@@ -70,7 +70,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     {
 
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
@@ -88,7 +88,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     else
     {
 #ifdef HAVE_OPENMP
-#pragma omp parallel for
+        #pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {

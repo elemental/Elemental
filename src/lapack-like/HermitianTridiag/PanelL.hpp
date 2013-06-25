@@ -53,6 +53,9 @@ void PanelL
     e.AlignWithDiagonal( A, -1 );
     e.ResizeTo( panelSize, 1 );
 
+    if( !g.InGrid() )
+        return;
+
     // Matrix views 
     DistMatrix<R> 
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g),  alpha21T(g),
@@ -745,6 +748,9 @@ void PanelL
     DistMatrix<R,MD,STAR> e(g);
     e.AlignWithDiagonal( A.DistData(), -1 );
     e.ResizeTo( panelSize, 1 );
+
+    if( !g.InGrid() )
+        return;
 
     // Matrix views 
     DistMatrix<C> 
