@@ -96,8 +96,8 @@ program main
   ! the subgrid is best depends upon your network (hence the second choice).
 
   ! Given the pencil (A,B), solve for (w,X) such that AX=BX diag(w)
-  call elem_create_dist_mat_star_star( w, g )
-  call elem_create_dist_mat( X, g )
+  call elem_create_dist_mat_star_star( w, grid )
+  call elem_create_dist_mat( X, grid )
   call elem_symmetric_axbx( A, B, w, X )
 
   ! Print the eigenvalues and eigenvectors
