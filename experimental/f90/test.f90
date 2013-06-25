@@ -106,5 +106,4 @@ program main
 
   ! Shut down Elemental and MPI
   call elem_finalize()
-
- end
+end
