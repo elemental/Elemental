@@ -16,14 +16,14 @@ namespace elem {
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix( bool fixed )
-: viewtype_( fixed ? OWNER_FIXED : OWNER ),
+: viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(0)
 { }
 
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
-: viewtype_( fixed ? OWNER_FIXED : OWNER ),
+: viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(std::max(height,1))
 {
 #ifndef RELEASE
@@ -38,7 +38,7 @@ Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, Int ldim, bool fixed )
-: viewtype_( fixed ? OWNER_FIXED : OWNER ),
+: viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(ldim)
 {
 #ifndef RELEASE
@@ -63,7 +63,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim, bool fixed )
-: viewtype_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
+: viewType_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
 {
@@ -87,7 +87,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( Int height, Int width, T* buffer, Int ldim, bool fixed )
-: viewtype_( fixed ? VIEW_FIXED: VIEW ),
+: viewType_( fixed ? VIEW_FIXED: VIEW ),
   height_(height), width_(width), ldim_(ldim), 
   data_(buffer)
 {
@@ -111,7 +111,7 @@ Matrix<T,Int>::Matrix
 template<typename T,typename Int>
 Matrix<T,Int>::Matrix
 ( const Matrix<T,Int>& A )
-: viewtype_( OWNER ),
+: viewType_( OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(0)
 {
@@ -165,27 +165,27 @@ Matrix<T,Int>::MemorySize() const
 template<typename T,typename Int>
 bool
 Matrix<T,Int>::Owner() const
-{ return IsOwner( viewtype_ ); }
+{ return IsOwner( viewType_ ); }
 
 template<typename T,typename Int>
 bool
 Matrix<T,Int>::Viewing() const
-{ return !IsOwner( viewtype_ ); }
+{ return !IsOwner( viewType_ ); }
 
 template<typename T,typename Int>
 bool
 Matrix<T,Int>::Shrinkable() const
-{ return IsShrinkable( viewtype_ ); }
+{ return IsShrinkable( viewType_ ); }
 
 template<typename T,typename Int>
 bool
 Matrix<T,Int>::FixedSize() const
-{ return !IsShrinkable( viewtype_ ); }
+{ return !IsShrinkable( viewType_ ); }
 
 template<typename T,typename Int>
 bool
 Matrix<T,Int>::Locked() const
-{ return IsLocked( viewtype_ ); }
+{ return IsLocked( viewType_ ); }
 
 template<typename T,typename Int>
 T*
@@ -560,7 +560,7 @@ Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = OWNER;
+    viewType_ = OWNER;
 }
 
 template<typename T,typename Int>
@@ -578,7 +578,7 @@ Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = VIEW;
+    viewType_ = VIEW;
 }
 
 template<typename T,typename Int>
@@ -597,7 +597,7 @@ Matrix<T,Int>::LockedAttach
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = LOCKED_VIEW;
+    viewType_ = LOCKED_VIEW;
 }
 
 //
@@ -612,11 +612,11 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     CallStackEntry entry("Matrix::operator=");
     if( Locked() )
         throw std::logic_error("Cannot assign to a locked view");
-    if( viewtype_ != OWNER && (A.Height() != Height() || A.Width() != Width()) )
+    if( viewType_ != OWNER && (A.Height() != Height() || A.Width() != Width()) )
         throw std::logic_error
         ("Cannot assign to a view of different dimensions");
 #endif
-    if( viewtype_ == OWNER )
+    if( viewType_ == OWNER )
         ResizeTo( A.Height(), A.Width() );
     const Int height = Height();
     const Int width = Width();
@@ -641,7 +641,7 @@ Matrix<T,Int>::Empty()
     width_ = 0;
     ldim_ = 1;
     data_ = 0;
-    viewtype_ = OWNER;
+    viewType_ = OWNER;
 }
 
 template<typename T,typename Int>

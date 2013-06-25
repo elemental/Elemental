@@ -97,10 +97,13 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
-        if( uplo == LOWER )
-            hermitian_tridiag::LSquare( ASquare );
-        else
-            hermitian_tridiag::USquare( ASquare ); 
+        if( ASquare.Participating() )
+        {
+            if( uplo == LOWER )
+                hermitian_tridiag::LSquare( ASquare );
+            else
+                hermitian_tridiag::USquare( ASquare ); 
+        }
         A = ASquare;
 
         mpi::GroupFree( squareGroup );
@@ -181,10 +184,14 @@ HermitianTridiag
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
-        if( uplo == LOWER )
-            hermitian_tridiag::LSquare( ASquare, tSquare );
-        else
-            hermitian_tridiag::USquare( ASquare, tSquare ); 
+        if( ASquare.Participating() )
+        {
+            if( uplo == LOWER )
+                hermitian_tridiag::LSquare( ASquare, tSquare );
+            else
+                hermitian_tridiag::USquare( ASquare, tSquare ); 
+        }
+        tSquare.MakeConsistent();
         A = ASquare;
         t = tSquare;
 

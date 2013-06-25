@@ -117,7 +117,7 @@ public:
     void ResizeTo( Int height, Int width, Int ldim );
 
 private:
-    ViewType viewtype_;
+    ViewType viewType_;
     Int height_, width_, ldim_;
     const T* data_;
     Memory<T> memory_;

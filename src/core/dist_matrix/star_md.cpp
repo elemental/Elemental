@@ -336,7 +336,7 @@ DistMatrix<T,STAR,MD,Int>::Attach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(rowAlignmentVC);
     this->rowAlignment_ = grid.DiagPathRank(rowAlignmentVC);
-    this->viewtype_ = VIEW;
+    this->viewType_ = VIEW;
     this->SetRowShift();
     if( this->Participating() )
     {
@@ -361,7 +361,7 @@ DistMatrix<T,STAR,MD,Int>::LockedAttach
     this->width_ = width;
     this->diagPath_ = grid.DiagPath(rowAlignmentVC);
     this->rowAlignment_ = grid.DiagPathRank(rowAlignmentVC);
-    this->viewtype_ = LOCKED_VIEW;
+    this->viewType_ = LOCKED_VIEW;
     this->SetRowShift();
     if( this->Participating() )
     {
@@ -482,6 +482,63 @@ DistMatrix<T,STAR,MD,Int>::Update( Int i, Int j, T u )
 //
 // Utility functions, e.g., operator=
 //
+
+template<typename T,typename Int>
+void
+DistMatrix<T,STAR,MD,Int>::MakeConsistent()
+{
+#ifndef RELEASE
+    CallStackEntry cse("[* ,MD]::MakeConsistent");
+#endif
+    const elem::Grid& g = this->Grid();
+    const int root = g.VCToViewingMap(0);
+    int message[6];
+    if( g.ViewingRank() == root )
+    {   
+        message[0] = this->viewType_;
+        message[1] = this->height_;
+        message[2] = this->width_;
+        message[3] = this->constrainedRowAlignment_;
+        message[4] = this->rowAlignment_;
+        message[5] = this->diagPath_;
+    }
+    mpi::Broadcast( message, 6, root, g.ViewingComm() );
+    const ViewType newViewType = static_cast<ViewType>(message[0]);
+    const int newHeight = message[1];
+    const int newWidth = message[2];
+    const bool newConstrainedRow = message[3];
+    const int newRowAlignment = message[4];
+    const int newDiagPath = message[5];
+    if( !this->Participating() )
+    {
+        this->viewType_ = newViewType;
+        this->height_ = newHeight;
+        this->width_ = newWidth;
+        this->constrainedRowAlignment_ = newConstrainedRow;
+        this->rowAlignment_ = newRowAlignment;
+        this->diagPath_ = newDiagPath;
+        this->constrainedColAlignment_ = 0;
+        this->colAlignment_ = 0;
+        this->colShift_ = 0;
+        this->rowShift_ = 0;
+    }
+#ifndef RELEASE
+    else
+    {
+        if( this->viewType_ != newViewType )
+            throw std::logic_error("Inconsistent ViewType");
+        if( this->height_ != newHeight )
+            throw std::logic_error("Inconsistent height");
+        if( this->width_ != newWidth )
+            throw std::logic_error("Inconsistent width");
+        if( this->constrainedRowAlignment_ != newConstrainedRow ||
+            this->rowAlignment_ != newRowAlignment )
+            throw std::logic_error("Inconsistent row constraint");
+        if( this->diagPath_ != newDiagPath )
+            throw std::logic_error("Inconsistent diagonal path");
+    }
+#endif
+}
 
 template<typename T,typename Int>
 const DistMatrix<T,STAR,MD,Int>&
@@ -701,28 +758,27 @@ DistMatrix<T,STAR,MD,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 #endif
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
+    if( !this->Participating() )
+        return *this;
 
-    if( this->Participating() )
-    {
-        const Int lcm = this->Grid().LCM();
-        const Int rowShift = this->RowShift();
+    const Int lcm = this->Grid().LCM();
+    const Int rowShift = this->RowShift();
 
-        const Int height = this->Height();
-        const Int localWidth = this->LocalWidth();
+    const Int height = this->Height();
+    const Int localWidth = this->LocalWidth();
 
-        T* thisBuf = this->Buffer();
-        const Int thisLDim = this->LDim();
-        const T* ABuf = A.LockedBuffer();
-        const Int ALDim = A.LDim();
+    T* thisBuf = this->Buffer();
+    const Int thisLDim = this->LDim();
+    const T* ABuf = A.LockedBuffer();
+    const Int ALDim = A.LDim();
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        {
-            const T* ACol = &ABuf[(rowShift+jLoc*lcm)*ALDim];
-            T* thisCol = &thisBuf[jLoc*thisLDim];
-            MemCopy( thisCol, ACol, height );
-        }
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    {
+        const T* ACol = &ABuf[(rowShift+jLoc*lcm)*ALDim];
+        T* thisCol = &thisBuf[jLoc*thisLDim];
+        MemCopy( thisCol, ACol, height );
     }
     return *this;
 }

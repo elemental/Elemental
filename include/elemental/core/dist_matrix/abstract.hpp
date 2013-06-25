@@ -138,6 +138,8 @@ public:
     virtual void AlignRowsWith( const elem::DistData<Int>& data );
     virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
 
+    virtual void MakeConsistent();
+
     //------------------------------------------------------------------------//
     // Routines that MUST be implemented in non-abstract derived classes      //
     //------------------------------------------------------------------------//
@@ -185,7 +187,7 @@ public:
     virtual void ResizeTo( Int height, Int width, Int ldim ) = 0;
 
 protected:
-    ViewType viewtype_;
+    ViewType viewType_;
     Int height_, width_;
     Memory<T> auxMemory_;
     elem::Matrix<T,Int> matrix_;
