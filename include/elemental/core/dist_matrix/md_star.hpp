@@ -129,6 +129,8 @@ public:
     virtual void AlignColsWith( const elem::DistData<Int>& data );
     virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
 
+    virtual void MakeConsistent();
+
     //
     // Though the following routines are meant for complex data, all but two
     // logically applies to real data.

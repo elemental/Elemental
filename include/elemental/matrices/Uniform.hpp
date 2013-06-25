@@ -103,7 +103,7 @@ struct MakeUniformHelper<T,MC,STAR>
             T* localBuffer = A.Buffer();
             const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=0; j<n; ++j )
             {
@@ -120,14 +120,11 @@ struct MakeUniformHelper<T,MD,STAR>
 {
     static void Func( DistMatrix<T,MD,STAR>& A, T center, BASE(T) radius )
     {
-        if( A.Participating() )
-        {
-            const int n = A.Width();
-            const int localHeight = A.LocalHeight();
-            for( int j=0; j<n; ++j )
-                for( int iLoc=0; iLoc<localHeight; ++iLoc )
-                    A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
-        }
+        const int n = A.Width();
+        const int localHeight = A.LocalHeight();
+        for( int j=0; j<n; ++j )
+            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -168,7 +165,7 @@ struct MakeUniformHelper<T,MR,STAR>
         T* localBuffer = A.Buffer();
         const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for COLLAPSE(2)
+#pragma omp parallel for COLLAPSE(2)
 #endif
         for( int j=0; j<n; ++j )
             for( int iLoc=0; iLoc<localHeight; ++iLoc )
@@ -200,7 +197,7 @@ struct MakeUniformHelper<T,STAR,MC>
         T* localBuffer = A.Buffer();
         const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
@@ -216,14 +213,11 @@ struct MakeUniformHelper<T,STAR,MD>
 {
     static void Func( DistMatrix<T,STAR,MD>& A, T center, BASE(T) radius )
     {
-        if( A.Participating() )
-        {
-            const int m = A.Height();
-            const int localWidth = A.LocalWidth();
-            for( int jLoc=0; jLoc<localWidth; ++jLoc )
-                for( int i=0; i<m; ++i )
-                    A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
-        }
+        const int m = A.Height();
+        const int localWidth = A.LocalWidth();
+        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( int i=0; i<m; ++i )
+                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
 
@@ -251,7 +245,7 @@ struct MakeUniformHelper<T,STAR,MR>
         T* localBuffer = A.Buffer();
         const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
-        #pragma omp parallel for
+#pragma omp parallel for
 #endif
         for( int jLoc=0; jLoc<localWidth; ++jLoc )
         {
@@ -288,7 +282,7 @@ struct MakeUniformHelper<T,STAR,STAR>
             T* localBuffer = A.Buffer();
             const int ldim = A.LDim();
 #ifdef HAVE_OPENMP
-            #pragma omp parallel for
+#pragma omp parallel for
 #endif
             for( int j=0; j<n; ++j )
             {

@@ -12,9 +12,9 @@ namespace elem {
 
 template<typename T,typename Int>
 AbstractDistMatrix<T,Int>::AbstractDistMatrix( const elem::Grid& grid )
-: viewtype_(OWNER),
+: viewType_(OWNER),
   height_(0), width_(0), 
-  auxMemory_(),
+  auxMemory_(), 
   matrix_(0,0,true), 
   constrainedColAlignment_(false), 
   constrainedRowAlignment_(false),
@@ -265,12 +265,12 @@ AbstractDistMatrix<T,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
 template<typename T,typename Int>
 bool
 AbstractDistMatrix<T,Int>::Viewing() const
-{ return !IsOwner( viewtype_ ); }
+{ return !IsOwner( viewType_ ); }
 
 template<typename T,typename Int>
 bool
 AbstractDistMatrix<T,Int>::Locked() const
-{ return IsLocked( viewtype_ ); }
+{ return IsLocked( viewType_ ); }
 
 template<typename T,typename Int>
 Int
@@ -390,7 +390,7 @@ void
 AbstractDistMatrix<T,Int>::Empty()
 {
     matrix_.Empty_();
-    viewtype_ = OWNER;
+    viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
     colAlignment_ = 0;
@@ -404,7 +404,7 @@ void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
     matrix_.Empty_();
-    viewtype_ = OWNER;
+    viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
 }
@@ -506,6 +506,65 @@ template<typename T,typename Int>
 BASE(T)
 AbstractDistMatrix<T,Int>::GetImagPart( Int i, Int j ) const
 { return ImagPart(Get(i,j)); }
+
+template<typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::MakeConsistent()
+{
+#ifndef RELEASE
+    CallStackEntry cse("AbstractDistMatrix::MakeConsistent");
+#endif
+    const elem::Grid& g = this->Grid();
+    const int root = g.VCToViewingMap(0);
+    int message[7];
+    if( g.ViewingRank() == root )
+    {
+        message[0] = viewType_;
+        message[1] = height_;
+        message[2] = width_;
+        message[3] = constrainedColAlignment_;
+        message[4] = constrainedRowAlignment_;
+        message[5] = colAlignment_;
+        message[6] = rowAlignment_;
+    }
+    mpi::Broadcast( message, 7, root, g.ViewingComm() );
+    const ViewType newViewType = static_cast<ViewType>(message[0]);
+    const int newHeight = message[1]; 
+    const int newWidth = message[2];
+    const bool newConstrainedCol = message[3];
+    const bool newConstrainedRow = message[4];
+    const int newColAlignment = message[5];
+    const int newRowAlignment = message[6];
+    if( !this->Participating() )
+    {
+        viewType_ = newViewType;
+        height_ = newHeight;
+        width_ = newWidth;
+        constrainedColAlignment_ = newConstrainedCol;
+        constrainedRowAlignment_ = newConstrainedRow;
+        colAlignment_ = newColAlignment;
+        rowAlignment_ = newRowAlignment;
+        colShift_ = 0;
+        rowShift_ = 0;
+    }
+#ifndef RELEASE
+    else
+    {
+        if( viewType_ != newViewType )
+            throw std::logic_error("Inconsistent ViewType");
+        if( height_ != newHeight )
+            throw std::logic_error("Inconsistent height");
+        if( width_ != newWidth )
+            throw std::logic_error("Inconsistent width");
+        if( constrainedColAlignment_ != newConstrainedCol || 
+            colAlignment_ != newColAlignment )
+            throw std::logic_error("Inconsistent column constraint");
+        if( constrainedRowAlignment_ != newConstrainedRow ||
+            rowAlignment_ != newRowAlignment )
+            throw std::logic_error("Inconsistent row constraint");
+    }
+#endif
+}
 
 template class AbstractDistMatrix<int,int>;
 #ifndef DISABLE_FLOAT
