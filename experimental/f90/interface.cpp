@@ -162,6 +162,15 @@ void FC_GLOBAL_(elem_create_grid,NAME)( MPI_Fint* fComm, int* gridHandle )
     *gridHandle = index;
 }
 
+void FC_GLOBAL_(elem_create_specific_grid,NAME)
+( MPI_Fint* fComm, int* gridHandle, int* height )
+{
+    MPI_Comm comm = MPI_Comm_f2c( *fComm );
+    const int index = GetOpenIndex( gridList );
+    gridList[index] = new Grid( comm, *height );
+    *gridHandle = index;
+}
+
 void FC_GLOBAL_(elem_grid_height,NAME)( int* handle, int* height )
 { *height = gridList[*handle]->Height(); }
 
