@@ -565,10 +565,12 @@ Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
 
 template<typename T,typename Int>
 void
-Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim, bool fixed )
+Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Attach");
+    if( FixedSize() )
+        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
 #endif
     Empty();
 
@@ -576,16 +578,18 @@ Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim, bool fixed )
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = fixed ? VIEW_FIXED : VIEW;
+    viewtype_ = VIEW;
 }
 
 template<typename T,typename Int>
 void
 Matrix<T,Int>::LockedAttach
-( Int height, Int width, const T* buffer, Int ldim, bool fixed )
+( Int height, Int width, const T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedAttach");
+    if( FixedSize() )
+        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
 #endif
     Empty();
 
@@ -593,7 +597,7 @@ Matrix<T,Int>::LockedAttach
     width_ = width;
     ldim_ = ldim;
     data_ = buffer;
-    viewtype_ = fixed ? LOCKED_VIEW_FIXED : LOCKED_VIEW;
+    viewtype_ = LOCKED_VIEW;
 }
 
 //

@@ -200,8 +200,9 @@ protected:
     
     void LocalResize_( Int hLocal, Int wLocal );
     void LocalResize_( Int hLocal, Int wLocal, Int LDim );
+    void LocalAttach_( Int hLocal, Int wLocal, T* buffer, Int LDim );
+    void LocalLockedAttach_( Int hLocal, Int wLocal, const T* buffer, Int LDim );
 
-protected:
     void SetShifts();
     void SetColShift();
     void SetRowShift();

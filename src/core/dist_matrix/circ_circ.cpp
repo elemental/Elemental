@@ -187,7 +187,7 @@ DistMatrix<T,CIRC,CIRC,Int>::Attach
     this->width_ = width;
     this->viewtype_ = VIEW;
     if( this->Participating() )
-        this->matrix_.Attach( height, width, buffer, ldim );
+        this->LocalAttach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>
@@ -205,7 +205,7 @@ DistMatrix<T,CIRC,CIRC,Int>::LockedAttach
     this->width_ = width;
     this->viewtype_ = LOCKED_VIEW;
     if( this->Participating() )
-        this->matrix_.LockedAttach( height, width, buffer, ldim );
+        this->LocalLockedAttach_( height, width, buffer, ldim );
 }
 
 template<typename T,typename Int>

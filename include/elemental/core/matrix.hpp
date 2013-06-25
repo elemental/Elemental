@@ -96,9 +96,9 @@ public:
     bool Viewing()     const;
     bool Locked()      const;
 
-    void Attach( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
+    void Attach( Int height, Int width, T* buffer, Int ldim );
     void LockedAttach
-    ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
+    ( Int height, Int width, const T* buffer, Int ldim );
 
     // Use this memory *as if it were not a view*, but do not take control of 
     // its deallocation. If Resize() forces reallocation, this buffer is 

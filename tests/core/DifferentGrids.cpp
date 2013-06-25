@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
         mpi::GroupIncl( group, sqrtRanks.size(), &sqrtRanks[0], sqrtGroup );
 
         const Grid grid( comm );
-        const Grid sqrtGrid( comm, sqrtGroup );
+        const Grid sqrtGrid( comm, sqrtGroup, grid.Height() );
 
         DistMatrix<double> A(grid), ASqrt(sqrtGrid);
 

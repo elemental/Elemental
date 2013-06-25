@@ -405,6 +405,7 @@ void
 AbstractDistMatrix<T,Int>::Empty()
 {
     matrix_.Empty();
+    matrix_.viewtype_ = OWNER_FIXED;
     viewtype_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -419,6 +420,7 @@ void
 AbstractDistMatrix<T,Int>::EmptyData()
 {
     matrix_.Empty();
+    matrix_.viewtype_ = OWNER_FIXED;
     viewtype_ = OWNER;
     height_ = 0;
     width_ = 0;
@@ -537,6 +539,24 @@ AbstractDistMatrix<T,Int>::LocalResize_( Int hLocal, Int wLocal, Int LDim )
 {
     matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED );
     matrix_.ResizeTo( hLocal, wLocal, LDim );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | OWNER_FIXED );
+}
+
+template <typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::LocalAttach_( Int hLocal, Int wLocal, T* buffer, Int LDim )
+{
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED );
+    matrix_.Attach( hLocal, wLocal, buffer, LDim );
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | OWNER_FIXED );
+}
+
+template <typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::LocalLockedAttach_( Int hLocal, Int wLocal, const T* buffer, Int LDim )
+{
+    matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ & ~OWNER_FIXED );
+    matrix_.LockedAttach( hLocal, wLocal, buffer, LDim );
     matrix_.viewtype_ = (ViewType)( matrix_.viewtype_ | OWNER_FIXED );
 }
 

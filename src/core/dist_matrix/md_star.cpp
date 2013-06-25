@@ -341,7 +341,7 @@ DistMatrix<T,MD,STAR,Int>::Attach
     if( this->Participating() )
     {
         const Int localHeight = Length(height,this->colShift_,grid.LCM());
-        this->matrix_.Attach( localHeight, width, buffer, ldim );
+        this->LocalAttach_( localHeight, width, buffer, ldim );
     }
 }
 
@@ -366,7 +366,7 @@ DistMatrix<T,MD,STAR,Int>::LockedAttach
     if( this->Participating() )
     {
         const Int localHeight = Length(height,this->colShift_,grid.LCM());
-        this->matrix_.LockedAttach( localHeight, width, buffer, ldim );
+        this->LocalLockedAttach_( localHeight, width, buffer, ldim );
     }
 }
 
