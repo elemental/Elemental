@@ -290,7 +290,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
   double* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
-    const int index = GetOpenIndex( distMatList );
+    const int index = GetOpenIndex( distMatList_VC_STAR );
     distMatList_VC_STAR[index] = 
         new DistMatrix<double,VC,STAR>
         (*height,*width,*colAlignment,buffer,*ldim,grid);
@@ -331,7 +331,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
   double* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
-    const int index = GetOpenIndex( distMatList );
+    const int index = GetOpenIndex( distMatList_VR_STAR );
     distMatList_VR_STAR[index] = 
         new DistMatrix<double,VR,STAR>
         (*height,*width,*colAlignment,buffer,*ldim,grid);
@@ -371,7 +371,7 @@ void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
   int* height, int* width, double* buffer, int* ldim, int* gridHandle )
 {
     const Grid& grid = GetGrid( *gridHandle );
-    const int index = GetOpenIndex( distMatList );
+    const int index = GetOpenIndex( distMatList_STAR_STAR );
     distMatList_STAR_STAR[index] = 
         new DistMatrix<double,STAR,STAR>(*height,*width,buffer,*ldim,grid);
     *handle = index;

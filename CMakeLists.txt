@@ -450,23 +450,51 @@ install(FILES ${PROJECT_BINARY_DIR}/conf/elemvariables DESTINATION conf)
 file(GLOB_RECURSE ELEM_CPP RELATIVE ${PROJECT_SOURCE_DIR} "src/*.c" "src/*.cpp")
 file(GLOB_RECURSE ELEM_HEADERS RELATIVE ${PROJECT_SOURCE_DIR} 
   "include/*.h" "include/*.hpp")
+if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
+  if(NOT MPI_C_FOUND)
+    message(FATAL_ERROR "Could not build C interface without C MPI")
+  endif()
+  include_directories(${MPI_C_INCLUDE_PATH})
+  set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
+  set(ELEM_CPP "${ELEM_CPP};experimental/c/interface.cpp")
+  set(ELEM_HEADERS "${ELEM_HEADERS};experimental/c/elemental.h")
+
+  if(HAVE_F90_INTERFACE)
+    if(NOT MPI_Fortran_FOUND)
+      message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
+    endif()
+    # We cannot simply use check_function_exists, since MPI_Comm_f2c is 
+    # a macro in some MPI implementations
+    set(MPI_COMM_F2C_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Fint fint;
+         MPI_Comm comm = MPI_Comm_f2c( fint );
+         MPI_Finalize();
+         return 0;
+     }")
+    check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
+    if(NOT HAVE_MPI_COMM_F2C)
+      message(FATAL_ERROR
+        "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
+    endif()
+    include_directories(${MPI_Fortran_INCLUDE_PATH})
+    set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
+    set(ELEM_CPP "${ELEM_CPP};experimental/f90/interface.cpp")
+  endif()
+endif()
 set(ELEM_SRC "${ELEM_CPP};${ELEM_HEADERS};${ELEM_MOC_SRC}")
 
-# Create a dummy library in order to be able to force the math (and potentially
-# MPI libraries) to be linked last
-add_library(elem-dummy-lib ${LIBRARY_TYPE} cmake/CMakeDummyFunction.cpp)
-if(HAVE_QT5)
-  target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES} 
-    ${Qt5Widgets_LIBRARIES})
-else()
-  target_link_libraries(elem-dummy-lib ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
-endif()
-install(TARGETS elem-dummy-lib DESTINATION lib)
-
 # The main library
+set(LINK_LIBS ${MATH_LIBS} ${MPI_CXX_LIBRARIES})
+if(HAVE_QT5)
+  set(LINK_LIBS ${LINK_LIBS} ${Qt5Widgets_LIBRARIES})  
+endif()
 if(HAVE_PMRRR)
   add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental pmrrr elem-dummy-lib)
+  target_link_libraries(elemental pmrrr ${LINK_LIBS})
   if(MPI_CXX_LINK_FLAGS AND MPI_C_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS} ${MPI_C_LINK_FLAGS}")
   elseif(MPI_CXX_LINK_FLAGS)
@@ -476,7 +504,7 @@ if(HAVE_PMRRR)
   endif()
 else()
   add_library(elemental ${LIBRARY_TYPE} ${ELEM_SRC})
-  target_link_libraries(elemental elem-dummy-lib)
+  target_link_libraries(elemental ${LINK_LIBS})
   if(MPI_CXX_LINK_FLAGS)
     set(MPI_LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
   endif()
@@ -633,23 +661,10 @@ endif()
 
 # Build experimental drivers that DO require an eigensolver
 if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
-  if(NOT MPI_C_FOUND)
-    message(FATAL_ERROR "Could not build C interface without C MPI")
-  endif()
-  include_directories(${MPI_C_INCLUDE_PATH})
-  set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${MPI_C_COMPILE_FLAGS}")
-
   set(EXPERIMENTAL_DIR ${PROJECT_SOURCE_DIR}/experimental)
   set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/c")
-
-  # Build the experimental C interface
-  file(GLOB_RECURSE EXPERIMENTAL_C_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-    "experimental/c/interface.cpp")
-  add_library(experimental-c ${LIBRARY_TYPE} ${EXPERIMENTAL_C_CPP})
-  install(TARGETS experimental-c DESTINATION lib)
-
   add_executable(experimental-c-test ${EXPERIMENTAL_DIR}/c/test.c)
-  target_link_libraries(experimental-c-test experimental-c elemental)
+  target_link_libraries(experimental-c-test elemental)
   set_target_properties(experimental-c-test 
     PROPERTIES OUTPUT_NAME c_test RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
   if(MPI_LINK_FLAGS)
@@ -657,53 +672,11 @@ if(ELEM_EXPERIMENTAL AND HAVE_PMRRR)
       PROPERTIES LINK_FLAGS ${MPI_LINK_FLAGS})
   endif()
   install(TARGETS experimental-c-test DESTINATION bin/experimental/c)  
-  add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/include/elemental.h
-    COMMAND ${CMAKE_COMMAND} -E copy 
-            ${PROJECT_SOURCE_DIR}/experimental/c/elemental.h
-            ${PROJECT_BINARY_DIR}/include/elemental.h
-    DEPENDS "${PROJECT_SOURCE_DIR}/experimental/c/elemental.h")
-  add_custom_target(c_elemental 
-    DEPENDS ${PROJECT_BINARY_DIR}/include/elemental.h)
-  add_dependencies(experimental-c-test c_elemental)
-  install(FILES ${PROJECT_BINARY_DIR}/include/elemental.h 
-    DESTINATION include/elemental.h)
 
   if(HAVE_F90_INTERFACE)
-    if(NOT MPI_Fortran_FOUND)
-      message(FATAL_ERROR "Could not build F90 interface without Fortran MPI")
-    endif()
-
-    # We cannot simply use check_function_exists, since MPI_Comm_f2c is 
-    # a macro in some MPI implementations
-    set(MPI_COMM_F2C_CODE
-    "#include \"mpi.h\"
-     int main( int argc, char* argv[] )
-     {
-         MPI_Init( &argc, &argv );
-         MPI_Fint fint;
-         MPI_Comm comm = MPI_Comm_f2c( fint );
-         MPI_Finalize();
-         return 0;
-     }")
-    check_c_source_compiles("${MPI_COMM_F2C_CODE}" HAVE_MPI_COMM_F2C)
-    if(NOT HAVE_MPI_COMM_F2C)  
-      message(WARNING 
-        "Could not find MPI_Comm_f2c, but it is needed for the F90 interface")
-    endif()
-
-    include_directories(${MPI_Fortran_INCLUDE_PATH})
-    set(CMAKE_Fortran_FLAGS_${UPPER_BUILD_TYPE} "${MPI_Fortran_COMPILE_FLAGS}")
     set(OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/experimental/f90")
-
-    # Build the experimental F90 interface
-    file(GLOB_RECURSE EXPERIMENTAL_F90_CPP RELATIVE ${PROJECT_SOURCE_DIR} 
-      "experimental/f90/interface.cpp")
-    add_library(experimental-f90 ${LIBRARY_TYPE} ${EXPERIMENTAL_F90_CPP})
-    add_dependencies(experimental-f90 elemental)
-    install(TARGETS experimental-f90 DESTINATION lib)
-
     add_executable(experimental-f90-test ${EXPERIMENTAL_DIR}/f90/test.f90) 
-    target_link_libraries(experimental-f90-test experimental-f90 elemental)
+    target_link_libraries(experimental-f90-test elemental)
     set_target_properties(experimental-f90-test PROPERTIES
       LINKER_LANGUAGE Fortran
       OUTPUT_NAME f90_test 
