@@ -102,7 +102,7 @@ DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
     CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
 #endif
     this->root_ = 0;
-    if( STAR != U || STAR != V || 
+    if( CIRC != U || CIRC != V || 
         reinterpret_cast<const DistMatrix<T,CIRC,CIRC,Int>*>(&A) != this )
         *this = A;
     else
@@ -350,7 +350,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int mLocalA = A.LocalHeight();
@@ -448,7 +448,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
-    if( !this->Participating() || g.Col() != owningCol )
+    if( !g.InGrid() || g.Col() != owningCol )
         return *this;
 
     const int colStride = A.ColStride();
@@ -533,7 +533,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
-    if( !this->Participating() || g.Col() != owningCol )
+    if( !g.InGrid() || g.Col() != owningCol )
         return *this;
 
     const int rowStride = A.RowStride();
@@ -611,7 +611,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MD,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -707,7 +707,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MD,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -799,7 +799,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,MC,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int mLocalA = A.LocalHeight();
@@ -897,7 +897,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MR,STAR,Int>& A )
     const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
-    if( !this->Participating() || g.Row() != owningRow )
+    if( !g.InGrid() || g.Row() != owningRow )
         return *this;
 
     const Int colStride = A.ColStride();
@@ -983,7 +983,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MC,Int>& A )
     const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
-    if( !this->Participating() || g.Col() != owningCol )
+    if( !g.InGrid() || g.Col() != owningCol )
         return *this;
 
     const Int rowStride = A.RowStride();
@@ -1061,7 +1061,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VC,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -1144,7 +1144,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VC,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -1222,7 +1222,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,VR,STAR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();
@@ -1308,7 +1308,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,VR,Int>& A )
     if( !this->Viewing() )
         this->ResizeTo( m, n );
     const elem::Grid& g = this->Grid();
-    if( !this->Participating() )
+    if( !g.InGrid() )
         return *this;
 
     const Int p = g.Size();

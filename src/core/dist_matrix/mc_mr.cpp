@@ -2205,6 +2205,8 @@ DistMatrix<T,MC,MR,Int>::operator=( const DistMatrix<T,STAR,STAR,Int>& A )
 #endif
     if( !this->Viewing() )
         this->ResizeTo( A.Height(), A.Width() );
+    if( !this->Participating() )
+        return *this;
 
     const Int r = this->Grid().Height();
     const Int c = this->Grid().Width();
