@@ -16,7 +16,7 @@ Implementations:
 
 1. [DPLASMA](http://icl.eecs.utk.edu/dplasma/)
 2. [PLAPACK](http://www.cs.utexas.edu/~plapack)
-3. [ScaLAPACK](http://www.netlib.org/scalapack)
+3. [ScaLAPACK](http://www.netlib.org/scalapack) (and the add-on, [ELPA](http://elpa.rzg.mpg.de/))
 
 Wrappers:
 
