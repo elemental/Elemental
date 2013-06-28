@@ -1,9 +1,0 @@
-Please go to http://poulson.github.com/Elemental/ for the current documentation.
-
-Elemental's documentation is written using Sphinx [http://sphinx.pocoo.org/],
-and the ".rst" files in the doc/source directory are human readable. On *nix 
-machines, Sphinx can often be installed with the command
-
-    easy_install -U Sphinx
-
-Please go to http://sphinx.pocoo.org/ for more details.
