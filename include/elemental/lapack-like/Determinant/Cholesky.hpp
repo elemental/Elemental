@@ -17,7 +17,7 @@ namespace hpd_determinant {
 
 template<typename F>
 inline SafeProduct<F> 
-AfterCholesky( UpperOrLower uplo, Matrix<F>& A )
+AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::AfterCholesky");
@@ -55,6 +55,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
     }
     catch( NonHPDMatrixException& e )
     {
+        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }
@@ -63,7 +64,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
-AfterCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::AfterCholesky");
@@ -107,6 +108,7 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     }
     catch( NonHPDMatrixException& e )
     {
+        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }

@@ -31,7 +31,7 @@ namespace inverse {
 
 template<typename F> 
 inline void
-AfterLUPartialPiv( Matrix<F>& A, Matrix<int>& p )
+AfterLUPartialPiv( Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("inverse::AfterLUPartialPiv");
@@ -109,7 +109,7 @@ LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 inline void
-AfterLUPartialPiv( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
+AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("inverse::AfterLUPartialPiv");

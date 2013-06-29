@@ -18,7 +18,7 @@ namespace determinant {
 
 template<typename F>
 inline SafeProduct<F> 
-AfterLUPartialPiv( Matrix<F>& A, Matrix<int>& p )
+AfterLUPartialPiv( const Matrix<F>& A, const Matrix<int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("determinant::AfterLUPartialPiv");
@@ -69,6 +69,7 @@ LUPartialPiv( Matrix<F>& A )
     } 
     catch( SingularMatrixException& e )
     {
+        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }
@@ -77,7 +78,7 @@ LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
-AfterLUPartialPiv( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
+AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("determinant::AfterLUPartialPiv");
@@ -140,6 +141,7 @@ LUPartialPiv( DistMatrix<F>& A )
     }
     catch( SingularMatrixException& e ) 
     {
+        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }
