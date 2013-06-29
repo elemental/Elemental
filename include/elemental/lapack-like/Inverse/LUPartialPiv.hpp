@@ -8,7 +8,7 @@
 */
 #pragma once
 #ifndef LAPACK_INVERSE_LUPARTIALPIV_HPP
-#define LAPACK_INVERSE_LUPARTIALPIV__HPP
+#define LAPACK_INVERSE_LUPARTIALPIV_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/Zero.hpp"
@@ -31,15 +31,16 @@ namespace inverse {
 
 template<typename F> 
 inline void
-LUPartialPiv( Matrix<F>& A )
+AfterLUPartialPiv( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
-    CallStackEntry entry("inverse::LUPartialPiv");
+    CallStackEntry entry("inverse::AfterLUPartialPiv");
+#endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
-#endif
-    Matrix<int> p;
-    elem::LU( A, p );
+    if( A.Height() != p.Height() )
+        throw std::logic_error("Pivot vector is incorrect length");
+
     TriangularInverse( UPPER, NON_UNIT, A );
 
     // Solve inv(A) L = inv(U) for inv(A)
@@ -94,16 +95,32 @@ LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 inline void
-LUPartialPiv( DistMatrix<F>& A )
+LUPartialPiv( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("inverse::LUPartialPiv");
+#endif
     if( A.Height() != A.Width() )
         throw std::logic_error("Cannot invert non-square matrices");
-#endif
-    const Grid& g = A.Grid();
-    DistMatrix<int,VC,STAR> p( g );
+    Matrix<int> p;
     elem::LU( A, p );
+    inverse::AfterLUPartialPiv( A, p );
+}
+
+template<typename F> 
+inline void
+AfterLUPartialPiv( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("inverse::AfterLUPartialPiv");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot invert non-square matrices");
+    if( A.Height() != p.Height() )
+        throw std::logic_error("Pivot vector is incorrect length");
+    if( A.Grid() != p.Grid() )
+        throw std::logic_error("A and p must have the same grid");
+    const Grid& g = A.Grid();
     TriangularInverse( UPPER, NON_UNIT, A );
 
     // Solve inv(A) L = inv(U) for inv(A)
@@ -169,6 +186,21 @@ LUPartialPiv( DistMatrix<F>& A )
 
     // inv(A) := inv(A) P
     ApplyInverseColumnPivots( A, p );
+}
+
+template<typename F> 
+inline void
+LUPartialPiv( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("inverse::LUPartialPiv");
+#endif
+    if( A.Height() != A.Width() )
+        throw std::logic_error("Cannot invert non-square matrices");
+    const Grid& g = A.Grid();
+    DistMatrix<int,VC,STAR> p( g );
+    elem::LU( A, p );
+    inverse::AfterLUPartialPiv( A, p );
 }
 
 } // namespace inverse

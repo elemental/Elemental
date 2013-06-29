@@ -15,10 +15,6 @@
 
 namespace elem {
 
-//
-// Set each eigenvalue of A to its absolute value.
-//
-
 template<typename F>
 inline void
 HermitianSign( UpperOrLower uplo, Matrix<F>& A )

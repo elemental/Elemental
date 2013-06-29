@@ -41,6 +41,7 @@
 #include "./lapack-like/Pseudoinverse.hpp"
 #include "./lapack-like/QR.hpp"
 #include "./lapack-like/Reflector.hpp"
+#include "./lapack-like/Sign.hpp"
 #include "./lapack-like/Skeleton.hpp"
 #include "./lapack-like/SkewHermitianEig.hpp"
 #include "./lapack-like/SVD.hpp"

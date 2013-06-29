@@ -17,32 +17,41 @@ namespace hpd_determinant {
 
 template<typename F>
 inline SafeProduct<F> 
+AfterCholesky( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hpd_determinant::AfterCholesky");
+#endif
+    typedef BASE(F) R;
+    const int n = A.Height();
+
+    Matrix<F> d;
+    A.GetDiagonal( d );
+    SafeProduct<F> det( n );
+    det.rho = F(1);
+
+    const R scale = R(n)/R(2);
+    for( int i=0; i<n; ++i )
+    {
+        const R delta = RealPart(d.Get(i,0));
+        det.kappa += Log(delta)/scale;
+    }
+
+    return det;
+}
+
+template<typename F>
+inline SafeProduct<F> 
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
-    typedef BASE(F) R;
-    const int n = A.Height();
-    const R scale = R(n)/R(2);
-    SafeProduct<F> det( n );
-
+    SafeProduct<F> det;
     try
     {
         elem::Cholesky( uplo, A );
-        
-        Matrix<F> d;
-        A.GetDiagonal( d );
-        det.rho = F(1);
-
-        for( int i=0; i<n; ++i )
-        {
-            const R delta = RealPart(d.Get(i,0));
-            det.kappa += Log(delta)/scale;
-        }
+        det = hpd_determinant::AfterCholesky( uplo, A );
     }
     catch( NonHPDMatrixException& e )
     {
@@ -54,38 +63,47 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
+AfterCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hpd_determinant::AfterCholesky");
+#endif
+    typedef BASE(F) R;
+    const int n = A.Height();
+    const Grid& g = A.Grid();
+
+    DistMatrix<F,MD,STAR> d(g);
+    A.GetDiagonal( d );
+    R localKappa = 0; 
+    if( d.Participating() )
+    {
+        const R scale = R(n)/R(2);
+        const int nLocalDiag = d.LocalHeight();
+        for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
+        {
+            const R delta = RealPart(d.GetLocal(iLoc,0));
+            localKappa += Log(delta)/scale;
+        }
+    }
+    SafeProduct<F> det( n );
+    mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
+    det.rho = F(1);
+
+    return det;
+}
+
+template<typename F> 
+inline SafeProduct<F> 
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
-    if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
-    typedef BASE(F) R;
-    const int n = A.Height();
-    const R scale = R(n)/R(2);
-    SafeProduct<F> det( n );
-    const Grid& g = A.Grid();
-
+    SafeProduct<F> det;
     try
     {
         elem::Cholesky( uplo, A );
-
-        DistMatrix<F,MD,STAR> d(g);
-        A.GetDiagonal( d );
-        R localKappa = 0; 
-        if( d.Participating() )
-        {
-            const int nLocalDiag = d.LocalHeight();
-            for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
-            {
-                const R delta = RealPart(d.GetLocal(iLoc,0));
-                localKappa += Log(delta)/scale;
-            }
-        }
-        mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
-        det.rho = F(1);
+        det = hpd_determinant::AfterCholesky( uplo, A );
     }
     catch( NonHPDMatrixException& e )
     {
