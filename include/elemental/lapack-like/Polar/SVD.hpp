@@ -25,27 +25,60 @@ namespace polar {
 
 template<typename F>
 inline void
-SVD( Matrix<F>& A, Matrix<F>& P )
+SVD( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::SVD");
 #endif
-    typedef BASE(F) R;
-    const int n = A.Width();
-
     // Get the SVD of A
+    typedef BASE(F) R;
     Matrix<R> s;
     Matrix<F> U, V;
     U = A;
     elem::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
+}
+
+template<typename F>
+inline void
+SVD( Matrix<F>& A, Matrix<F>& P )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::SVD");
+#endif
+    // Get the SVD of A
+    typedef BASE(F) R;
+    Matrix<R> s;
+    Matrix<F> U, V;
+    U = A;
+    elem::SVD( U, s, V );
+
+    // Form Q := U V^H in A
+    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
 
     // Form P := V Sigma V^H in P
-    Zeros( P, n, n );
-    hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
+    HermitianFromEVD( LOWER, P, s, V );
+}
+
+template<typename F>
+inline void
+SVD( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::SVD");
+#endif
+    // Get the SVD of A
+    typedef BASE(F) R;
+    const Grid& g = A.Grid();
+    DistMatrix<R,VR,STAR> s(g);
+    DistMatrix<F> U(g), V(g);
+    U = A;
+    elem::SVD( U, s, V );
+
+    // Form Q := U V^H in A
+    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
 }
 
 template<typename F>
@@ -55,23 +88,19 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
 #ifndef RELEASE
     CallStackEntry entry("polar::SVD");
 #endif
+    // Get the SVD of A
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int n = A.Width();
-
-    // Get the SVD of A
     DistMatrix<R,VR,STAR> s(g);
     DistMatrix<F> U(g), V(g);
     U = A;
     elem::SVD( U, s, V );
 
     // Form Q := U V^H in A
-    MakeZeros( A );
-    Gemm( NORMAL, ADJOINT, F(1), U, V, F(0), A );
+    Gemm( NORMAL, ADJOINT, F(1), U, V, A );
 
     // Form P := V Sigma V^H in P
-    Zeros( P, n, n );
-    hermitian_function::ReformHermitianMatrix( LOWER, P, s, V );
+    HermitianFromEVD( LOWER, P, s, V );
 }
 
 } // namespace polar

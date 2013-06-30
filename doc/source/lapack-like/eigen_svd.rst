@@ -339,12 +339,23 @@ the *polar decomposition* of :math:`A` and can be constructed as
 :math:`A = U \Sigma V^H` is the SVD of :math:`A`. Alternatively, it can be 
 computed through (a dynamically-weighted) Halley iteration.
 
+.. cpp:function:: void Polar( Matrix<F>& A )
+.. cpp:function:: void Polar( DistMatrix<F>& A )
 .. cpp:function:: void Polar( Matrix<F>& A, Matrix<F>& P )
 .. cpp:function:: void Polar( DistMatrix<F>& A, DistMatrix<F>& P )
 
    Compute the polar decomposition of :math:`A`, :math:`A=QP`, returning 
    :math:`Q` within `A` and :math:`P` within `P`. The current implementation
    first computes the SVD.
+
+.. cpp:function:: void HermitianPolar( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A )
+.. cpp:function:: void HermitianPolar( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P )
+.. cpp:function:: void HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P )
+
+   Compute the polar decomposition through a Hermitian EVD. Since this is 
+   equivalent to a Hermitian sign decomposition (if :math:`\text{sgn}(0)` is 
+   set to 1), these routines are equivalent to `HermitianSign`.
 
 .. cpp:function:: int QDWH( Matrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxits=100 )
 .. cpp:function:: int QDWH( DistMatrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxIts=100 )

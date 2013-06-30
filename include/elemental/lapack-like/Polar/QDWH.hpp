@@ -133,6 +133,20 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 
 template<typename F>
 inline int 
+QDWH
+( Matrix<F>& A, Matrix<F>& P, 
+  BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::QDWH");
+#endif
+    Matrix<F> ACopy( A );
+    QDWH( A, lowerBound, upperBound, maxIts );
+    Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
+}
+
+template<typename F>
+inline int 
 QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 {
 #ifndef RELEASE
@@ -222,6 +236,20 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
             break;
     }
     return numIts;
+}
+
+template<typename F>
+inline int 
+QDWH
+( DistMatrix<F>& A, DistMatrix<F>& P, 
+  BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::QDWH");
+#endif
+    DistMatrix<F> ACopy( A );
+    QDWH( A, lowerBound, upperBound, maxIts );
+    Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
 }
 
 } // namespace polar

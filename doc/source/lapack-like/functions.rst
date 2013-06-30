@@ -154,17 +154,25 @@ The matrix sign function can be written as
 
 as long as :math:`A` does not have any pure-imaginary eigenvalues.
 
-.. cpp:function:: void HermitianSign( UpperOrLower uplo, Matrix<F>& A )
-.. cpp:function:: void HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
-
-   Compute the Hermitian EVD, replace the eigenvalues with their sign, and then
-   reform the matrix.
-
 .. cpp:function:: void Sign( Matrix<F>& A )
 .. cpp:function:: void Sign( DistMatrix<F>& A )
+.. cpp:function:: void Sign( Matrix<F>& A, Matrix<F>& N )
+.. cpp:function:: void Sign( DistMatrix<F>& A, DistMatrix<F>& N )
 
-   Compute the sign function through a globally-convergent Newton iteration
+   Compute the matrix sign through a globally-convergent Newton iteration
    scaled with the Frobenius norm of the iterate and its inverse.
+   Optionally return the full decomposition, :math:`A=S N`, where :math:`A`
+   is overwritten by :math:`S`.
+
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N )
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
+
+   Compute the Hermitian EVD, replace the eigenvalues with their sign, and then
+   reform the matrix. Optionally return the full decomposition, :math:`A=SN`,
+   where :math:`A` is overwritten by :math:`S`. Note that this will also be 
+   a polar decomposition.
 
 .. cpp:type:: sign::Scaling
 

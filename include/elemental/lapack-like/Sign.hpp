@@ -12,6 +12,7 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/lapack-like/Inverse.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
@@ -219,12 +220,37 @@ Sign( Matrix<F>& A )
 
 template<typename F>
 inline void
+Sign( Matrix<F>& A, Matrix<F>& N )
+{
+#ifndef RELEASE
+    PushCallStack("Sign");
+#endif
+    Matrix<F> ACopy( A );
+    sign::Newton( A );
+    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
+}
+
+
+template<typename F>
+inline void
 Sign( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     PushCallStack("Sign");
 #endif
     sign::Newton( A );
+}
+
+template<typename F>
+inline void
+Sign( DistMatrix<F>& A, DistMatrix<F>& N )
+{
+#ifndef RELEASE
+    PushCallStack("Sign");
+#endif
+    DistMatrix<F> ACopy( A );
+    sign::Newton( A );
+    Gemm( NORMAL, NORMAL, F(1), A, ACopy, N );
 }
 
 } // namespace elem

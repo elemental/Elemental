@@ -65,7 +65,7 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
     }
 
     // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 template<typename F>
@@ -118,7 +118,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     }
 
     // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 } // namespace elem

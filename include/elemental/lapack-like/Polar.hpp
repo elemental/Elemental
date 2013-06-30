@@ -12,6 +12,7 @@
 
 #include "elemental/lapack-like/Polar/SVD.hpp"
 #include "elemental/lapack-like/Polar/QDWH.hpp"
+#include "elemental/lapack-like/HermitianSign.hpp"
 
 namespace elem {
 
@@ -19,8 +20,6 @@ namespace elem {
 // Compute the polar decomposition of A, A = Q P, where Q is unitary and P is 
 // Hermitian positive semi-definite. On exit, A is overwritten with Q.
 //
-
-// TODO: HermitianPolar
 
 template<typename F>
 inline void
@@ -40,6 +39,46 @@ Polar( DistMatrix<F>& A, DistMatrix<F>& P )
     CallStackEntry entry("Polar");
 #endif
     polar::SVD( A, P );
+}
+
+template<typename F>
+inline void
+HermitianPolar( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPolar");
+#endif
+    HermitianSign( uplo, A );
+}
+
+template<typename F>
+inline void
+HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPolar");
+#endif
+    HermitianSign( uplo, A );
+}
+
+template<typename F>
+inline void
+HermitianPolar( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPolar");
+#endif
+    HermitianSign( uplo, A, P );
+}
+
+template<typename F>
+inline void
+HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianPolar");
+#endif
+    HermitianSign( uplo, A, P );
 }
 
 } // namespace elem

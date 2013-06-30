@@ -99,7 +99,7 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
     }
 
     // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 template<typename F>
@@ -184,7 +184,7 @@ HermitianPseudoinverse
     }
 
     // Form the pseudoinverse
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 } // namespace elem

@@ -14,23 +14,22 @@
 #include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/lapack-like/HermitianEig.hpp"
+#include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
-
-namespace hermitian_function {
 
 // A :=  Z Omega Z^T, where Omega is diagonal and real-valued
 
 template<typename F>
 inline void
-ReformHermitianMatrix
+HermitianFromEVD
 ( UpperOrLower uplo,
         Matrix<F>& A,
   const Matrix<BASE(F)>& w,
   const Matrix<F>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_function::ReformHermitianMatrix");
+    CallStackEntry entry("HermitianFromEVD");
 #endif
     typedef BASE(F) R;
 
@@ -42,6 +41,7 @@ ReformHermitianMatrix
 
     Matrix<F> Z1Copy, Y1;
 
+    A.ResizeTo( Z.Height(), Z.Height() );
     if( uplo == LOWER )
         MakeTrapezoidal( UPPER, A, 1 );
     else
@@ -80,14 +80,14 @@ ReformHermitianMatrix
 
 template<typename F>
 inline void
-ReformHermitianMatrix
+HermitianFromEVD
 ( UpperOrLower uplo,
         DistMatrix<F>& A,
   const DistMatrix<BASE(F),VR,STAR>& w,
   const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_function::ReformHermitianMatrix");
+    CallStackEntry entry("HermitianFromEVD");
 #endif
     const Grid& g = A.Grid();
     typedef BASE(F) R;
@@ -103,6 +103,7 @@ ReformHermitianMatrix
     DistMatrix<F,STAR,MR  > Z1Adj_STAR_MR(g);
     DistMatrix<R,STAR,STAR> w1_STAR_STAR(g);
 
+    A.ResizeTo( Z.Height(), Z.Height() );
     if( uplo == LOWER )
         MakeTrapezoidal( UPPER, A, 1 );
     else
@@ -154,13 +155,13 @@ ReformHermitianMatrix
 
 template<typename R>
 inline void
-ReformNormalMatrix
+NormalFromEVD
 (       Matrix<Complex<R> >& A,
   const Matrix<Complex<R> >& w,
   const Matrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_function::ReformNormalMatrix");
+    CallStackEntry entry("NormalFromEVD");
 #endif
     typedef Complex<R> C;
 
@@ -172,7 +173,7 @@ ReformNormalMatrix
 
     Matrix<C> Y1, Z1Copy;
 
-    Zero( A );
+    Zeros( A, Z.Height(), Z.Height() );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -207,13 +208,13 @@ ReformNormalMatrix
 
 template<typename R>
 inline void
-ReformNormalMatrix
+NormalFromEVD
 (       DistMatrix<Complex<R> >& A,
   const DistMatrix<Complex<R>,VR,STAR>& w,
   const DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("hermitian_function::ReformNormalMatrix");
+    CallStackEntry entry("NormalFromEVD");
 #endif
     const Grid& g = A.Grid();
     typedef Complex<R> C;
@@ -229,7 +230,7 @@ ReformNormalMatrix
     DistMatrix<C,STAR,MR  > Z1Adj_STAR_MR(g);
     DistMatrix<C,STAR,STAR> w1_STAR_STAR(g);
 
-    Zero( A );
+    Zeros( A, Z.Height(), Z.Height() );
     LockedPartitionRight( Z, ZL, ZR, 0 );
     LockedPartitionDown
     ( w, wT,
@@ -273,8 +274,6 @@ ReformNormalMatrix
     }
 }
 
-} // namespace hermitian_eig
-
 //
 // Modify the eigenvalues of A with the real-valued function f, which will 
 // therefore result in a Hermitian matrix, which we store in-place.
@@ -305,8 +304,8 @@ RealHermitianFunction
         w.Set(i,0,f(omega));
     }
 
-    // Form the custom outer product, Z Omega Z^T
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    // A := Z f(Omega) Z^H
+    HermitianFromEVD( uplo, A, w, Z );
 }
 
 template<typename F,class RealFunctor>
@@ -336,8 +335,8 @@ RealHermitianFunction
         w.SetLocal(iLoc,0,f(omega));
     }
 
-    // Form the custom outer product, Z Omega Z^T
-    hermitian_function::ReformHermitianMatrix( uplo, A, w, Z );
+    // A := Z f(Omega) Z^H
+    HermitianFromEVD( uplo, A, w, Z ); 
 }
 
 //
@@ -373,8 +372,8 @@ ComplexHermitianFunction
         fw.Set(i,0,f(omega));
     }
 
-    // Form the custom outer product, Z f(Omega) Z^H
-    hermitian_function::ReformNormalMatrix( A, fw, Z );
+    // A := Z f(Omega) Z^H
+    NormalFromEVD( A, fw, Z );
 }
 
 template<typename R,class ComplexFunctor>
@@ -407,8 +406,8 @@ ComplexHermitianFunction
         fw.SetLocal(iLoc,0,f(omega));
     }
 
-    // Form the custom outer product, Z f(Omega) Z^H
-    hermitian_function::ReformNormalMatrix( A, fw, Z );
+    // A := Z f(Omega) Z^H
+    NormalFromEVD( A, fw, Z );
 }
 
 } // namespace elem
