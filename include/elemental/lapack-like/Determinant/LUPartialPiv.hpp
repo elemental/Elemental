@@ -60,7 +60,7 @@ LUPartialPiv( Matrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
-    SafeProduct<F> det;
+    SafeProduct<F> det( A.Height() );
     try 
     {
         Matrix<int> p;
@@ -69,7 +69,6 @@ LUPartialPiv( Matrix<F>& A )
     } 
     catch( SingularMatrixException& e )
     {
-        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }
@@ -132,7 +131,7 @@ LUPartialPiv( DistMatrix<F>& A )
     if( A.Height() != A.Width() )
         throw std::logic_error
         ("Cannot compute determinant of nonsquare matrix");
-    SafeProduct<F> det;
+    SafeProduct<F> det( A.Height() );
     try 
     {
         DistMatrix<int,VC,STAR> p( A.Grid() );
@@ -141,7 +140,6 @@ LUPartialPiv( DistMatrix<F>& A )
     }
     catch( SingularMatrixException& e ) 
     {
-        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }

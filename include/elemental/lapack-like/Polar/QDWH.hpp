@@ -30,7 +30,8 @@ namespace elem {
 // available here:
 //     http://www.mathworks.com/matlabcentral/fileexchange/36830
 //
-// No support for column-pivoting or row-sorting yet.
+// No support for column-pivoting or row-sorting yet 
+// (though qr::BusingerGolub exists).
 //
 // The careful calculation of the coefficients is due to a suggestion from
 // Gregorio Quintana Orti.
@@ -40,7 +41,7 @@ namespace polar {
 
 template<typename F>
 inline int 
-QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
+QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
@@ -61,18 +62,15 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
     // Form the first iterate
     Scale( 1/upperBound, A );
 
-    int numIts=0;
     R frobNormADiff;
-    Matrix<F> ALast;
+    Matrix<F> ALast, ATemp, C;
     Matrix<F> Q( height+width, width );
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
                       QB, height );
-    Matrix<F> C;
-    Matrix<F> ATemp;
-    do
+    int numIts=0;
+    while( numIts < maxIts )
     {
-        ++numIts;
         ALast = A;
 
         R L2;
@@ -124,16 +122,18 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
             Axpy( alpha, ATemp, A );
         }
 
+        ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = FrobeniusNorm( ALast );
+        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+            break;
     }
-    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
     return numIts;
 }
 
 template<typename F>
 inline int 
-QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
+QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
@@ -155,18 +155,15 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
     // Form the first iterate
     Scale( 1/upperBound, A );
 
-    int numIts=0;
     R frobNormADiff;
-    DistMatrix<F> ALast( g );
+    DistMatrix<F> ALast(g), ATemp(g), C(g);
     DistMatrix<F> Q( height+width, width, g );
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
                       QB, height );
-    DistMatrix<F> C( g );
-    DistMatrix<F> ATemp( g );
-    do
+    int numIts=0;
+    while( numIts < maxIts )
     {
-        ++numIts;
         ALast = A;
 
         R L2;
@@ -218,10 +215,12 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
             Axpy( alpha, ATemp, A );
         }
 
+        ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = FrobeniusNorm( ALast );
+        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+            break;
     }
-    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
     return numIts;
 }
 
@@ -231,7 +230,9 @@ namespace hermitian_polar {
 
 template<typename F>
 inline int
-QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
+QDWH
+( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, 
+  int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
@@ -251,18 +252,15 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
     // Form the first iterate
     Scale( 1/upperBound, A );
 
-    int numIts=0;
     R frobNormADiff;
-    Matrix<F> ALast;
+    Matrix<F> ALast, ATemp, C;
     Matrix<F> Q( 2*height, height );
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
                       QB, height );
-    Matrix<F> C;
-    Matrix<F> ATemp;
-    do
+    int it=0;
+    while( it < maxIts )
     {
-        ++numIts;
         ALast = A;
 
         R L2;
@@ -321,17 +319,21 @@ QDWH( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
 
         Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
+
+        ++it;
+        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+            break;
     }
-    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
 
     MakeHermitian( uplo, A );
-    return numIts;
+    return it;
 }
 
 template<typename F>
 inline int
 QDWH
-( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound )
+( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound,
+  int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
@@ -352,18 +354,15 @@ QDWH
     // Form the first iterate
     Scale( 1/upperBound, A );
 
-    int numIts=0;
     R frobNormADiff;
-    DistMatrix<F> ALast( g );
+    DistMatrix<F> ALast(g), ATemp(g), C(g);
     DistMatrix<F> Q( 2*height, height, g );
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
                       QB, height );
-    DistMatrix<F> C( g );
-    DistMatrix<F> ATemp( g );
-    do
+    int numIts=0;
+    while( numIts < maxIts )
     {
-        ++numIts;
         ALast = A;
 
         R L2;
@@ -420,11 +419,12 @@ QDWH
             Axpy( alpha, ATemp, A );
         }
 
+        ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
+        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+            break;
     }
-    while( frobNormADiff > cubeRootTol || Abs(1-lowerBound) > tol );
-
     MakeHermitian( uplo, A );
     return numIts;
 }

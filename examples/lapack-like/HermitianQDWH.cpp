@@ -67,31 +67,6 @@ main( int argc, char* argv[] )
                       << frobQDWHOrthog/frobA << "\n"
                       << std::endl;
         }
-
-        // Compute the polar decomp of A using a standard QR-based Halley
-        // iteration
-        Q = A;
-        const int numItsHalley = 
-            hermitian_polar::Halley( LOWER, Q, upperBound );
-        Zeros( P, n, n );
-        Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
-
-        // Check and report the overall and orthogonality error
-        B = A; 
-        Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
-        const R frobHalley = FrobeniusNorm( B );
-        Identity( B, n, n );
-        Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
-        const R frobHalleyOrthog = HermitianFrobeniusNorm( LOWER, B );
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << numItsHalley << " iterations of Halley\n"
-                      << "||A - QP||_F / ||A||_F = " 
-                      << frobHalley/frobA << "\n"
-                      << "||I - QQ^H||_F / ||A||_F = "
-                      << frobHalleyOrthog/frobA << "\n"
-                      << std::endl;
-        }
     }
     catch( exception& e ) { ReportException(e); }
 

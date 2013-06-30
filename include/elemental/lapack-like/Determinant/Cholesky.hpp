@@ -47,7 +47,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
-    SafeProduct<F> det;
+    SafeProduct<F> det( A.Height() );
     try
     {
         elem::Cholesky( uplo, A );
@@ -55,7 +55,6 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
     }
     catch( NonHPDMatrixException& e )
     {
-        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }
@@ -100,7 +99,7 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("hpd_determinant::Cholesky");
 #endif
-    SafeProduct<F> det;
+    SafeProduct<F> det( A.Height() );
     try
     {
         elem::Cholesky( uplo, A );
@@ -108,7 +107,6 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     }
     catch( NonHPDMatrixException& e )
     {
-        det.n = A.Height();
         det.rho = 0;
         det.kappa = 0;
     }

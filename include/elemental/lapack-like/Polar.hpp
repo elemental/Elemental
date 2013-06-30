@@ -11,7 +11,6 @@
 #define LAPACK_POLAR_HPP
 
 #include "elemental/lapack-like/Polar/SVD.hpp"
-#include "elemental/lapack-like/Polar/Halley.hpp"
 #include "elemental/lapack-like/Polar/QDWH.hpp"
 
 namespace elem {

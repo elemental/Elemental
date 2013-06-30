@@ -32,7 +32,7 @@ enum Scaling {
 
 template<typename F>
 inline void
-NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=DETERMINANT )
+NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
@@ -65,7 +65,7 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=DETERMINANT )
 template<typename F>
 inline void
 NewtonStep
-( const DistMatrix<F>& X, DistMatrix<F>& XNew, Scaling scaling=DETERMINANT )
+( const DistMatrix<F>& X, DistMatrix<F>& XNew, Scaling scaling=FROB_NORM )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
@@ -135,7 +135,7 @@ NewtonSchulzStep
 template<typename F>
 inline int
 Newton
-( Matrix<F>& A, Scaling scaling=DETERMINANT, int maxIts=100, BASE(F) tol=1e-6 )
+( Matrix<F>& A, Scaling scaling=FROB_NORM, int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
@@ -144,8 +144,11 @@ Newton
     Matrix<F> B;
     Matrix<F> *X=&A, *XNew=&B;
 
-    int it=0;
-    for( ; it<maxIts; ++it )
+    if( tol == R(0) )
+        tol = A.Height()*lapack::MachineEpsilon<R>();
+
+    int numIts=0;
+    while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( *X, *XNew, scaling );
@@ -156,18 +159,19 @@ Newton
         const R oneNew = OneNorm( *XNew );
 
         // Ensure that X holds the current iterate and break if possible
+        ++numIts;
         std::swap( X, XNew );
         if( oneDiff/oneNew <= tol )
             break;
     }
-    return it;
+    return numIts;
 }
 
 template<typename F>
 inline int
 Newton
-( DistMatrix<F>& A, Scaling scaling=DETERMINANT, 
-  int maxIts=100, BASE(F) tol=1e-6 )
+( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
+  int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
@@ -176,8 +180,11 @@ Newton
     DistMatrix<F> B( A.Grid() );
     DistMatrix<F> *X=&A, *XNew=&B;
 
-    int it=0;
-    for( ; it<maxIts; ++it )
+    if( tol == R(0) )
+        tol = A.Height()*lapack::MachineEpsilon<R>();
+
+    int numIts=0;
+    while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( *X, *XNew, scaling );
@@ -188,16 +195,38 @@ Newton
         const R oneNew = OneNorm( *XNew );
 
         // Ensure that X holds the current iterate and break if possible
+        ++numIts;
         std::swap( X, XNew );
         if( oneDiff/oneNew < tol )
             break;
     }
-    return it;
+    return numIts;
 }
 
 // TODO: NewtonSchulzHybrid which estimates when || X^2 - I ||_2 < 1
 
 } // namespace sign
+
+template<typename F>
+inline void
+Sign( Matrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Sign");
+#endif
+    sign::Newton( A );
+}
+
+template<typename F>
+inline void
+Sign( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    PushCallStack("Sign");
+#endif
+    sign::Newton( A );
+}
+
 } // namespace elem
 
 #endif // ifndef LAPACK_SIGN_HPP

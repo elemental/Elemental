@@ -156,13 +156,13 @@ OVERLOAD0_cpx(Bidiag)
 /*
  * EIGENSOLVERS AND SVD
  */
+// TODO: HermitianSign, Sign, and QDWH
  
 %include "elemental/lapack-like/HermitianEig/Sort.hpp"
 %include "elemental/lapack-like/SkewHermitianEig.hpp"
 %include "elemental/lapack-like/HermitianGenDefiniteEig.hpp"
 %include "elemental/lapack-like/SVD.hpp"
 %include "elemental/lapack-like/Polar.hpp"
-%include "elemental/lapack-like/Polar/Halley.hpp"
 // %include "elemental/lapack-like/Polar/QDWH.hpp"
 %include "elemental/lapack-like/HPSDCholesky.hpp"
 %include "elemental/lapack-like/HPSDSquareRoot.hpp"
@@ -175,7 +175,6 @@ OVERLOAD0(HermitianGenDefiniteEig)
 OVERLOAD0(HermitianSVD)
 OVERLOAD0(Polar)
 namespace polar { 
-OVERLOAD0(Halley)
 //OVERLOAD0(QDWH)
 };
 OVERLOAD0(SVD)

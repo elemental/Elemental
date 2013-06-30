@@ -28,6 +28,7 @@ main( int argc, char* argv[] )
     {
         const int m = Input("--height","height of matrix",100);
         const int n = Input("--width","width of matrix",100);
+        const int maxIts = Input("--maxits","max # of iter's",100);
         ProcessInput();
         PrintInputReport();
 
@@ -47,7 +48,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound );
+        const int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound, maxIts );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
@@ -65,30 +66,6 @@ main( int argc, char* argv[] )
                       << frobQDWH/frobA << "\n"
                       << "||I - QQ^H||_F / ||A||_F = " 
                       << frobQDWHOrthog/frobA << "\n"
-                      << std::endl;
-        }
-
-        // Compute the polar decomp of A using a standard QR-based Halley
-        // iteration
-        Q = A;
-        const int numItsHalley = polar::Halley( Q, upperBound );
-        Zeros( P, n, n );
-        Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
-
-        // Check and report the overall and orthogonality error
-        B = A; 
-        Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
-        const R frobHalley = FrobeniusNorm( B );
-        Identity( B, n, n );
-        Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
-        const R frobHalleyOrthog = HermitianFrobeniusNorm( LOWER, B );
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << numItsHalley << " iterations of Halley\n"
-                      << "||A - QP||_F / ||A||_F = " 
-                      << frobHalley/frobA << "\n"
-                      << "||I - QQ^H||_F / ||A||_F = "
-                      << frobHalleyOrthog/frobA << "\n"
                       << std::endl;
         }
     }

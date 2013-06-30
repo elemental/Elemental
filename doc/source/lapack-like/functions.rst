@@ -10,11 +10,11 @@ normal.
 
 When the user-defined function, say :math:`f`, is analytic, we can say much
 more about the result: if the eigenvalue decomposition of the 
-Hermitian matrix :math:`A` is :math:`A=Z \Omega Z^H`, then
+Hermitian matrix :math:`A` is :math:`A=Z \Lambda Z^H`, then
 
 .. math::
 
-   f(A) = f(Z \Omega Z^H) = Z f(\Omega) Z^H.
+   f(A) = f(Z \Lambda Z^H) = Z f(\Lambda) Z^H.
 
 Two important special cases are :math:`f(\lambda) = \exp(\lambda)` and 
 :math:`f(\lambda)=\exp(i \lambda)`, where the former results in a Hermitian 
@@ -25,19 +25,21 @@ matrix and the latter in a normal (in fact, unitary) matrix.
    Since Elemental currently depends on PMRRR for its tridiagonal 
    eigensolver, only double-precision results are supported as of now.
 
+.. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, Matrix<F>& A, const RealFunctor& f )
 .. cpp:function:: void RealHermitianFunction( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
 
    Modifies the eigenvalues of the passed-in Hermitian matrix by replacing 
-   each eigenvalue :math:`\omega_i` with :math:`f(\omega_i) \in \mathbb{R}`. 
+   each eigenvalue :math:`\lambda_i` with :math:`f(\lambda_i) \in \mathbb{R}`. 
    ``RealFunctor`` is any 
    class which has the member function ``R operator()( R omega ) const``.
    See `examples/lapack-like/RealSymmetricFunction.cpp <https://github.com/poulson/Elemental/tree/master/examples/lapack-like/RealHermitianFunction.cpp>`_ for an example usage.
 
+.. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, Matrix<Complex<R> >& A, const ComplexFunctor& f )
 .. cpp:function:: void ComplexHermitianFunction( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
 
    Modifies the eigenvalues of the passed-in complex Hermitian matrix by
-   replacing each eigenvalue :math:`\omega_i` with 
-   :math:`f(\omega_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
+   replacing each eigenvalue :math:`\lambda_i` with 
+   :math:`f(\lambda_i) \in \mathbb{C}`. ``ComplexFunctor`` can be any class
    which has the member function ``Complex<R> operator()( R omega ) const``.
    See `examples/lapack-like/ComplexHermitianFunction.cpp <https://github.com/poulson/Elemental/tree/master/examples/lapack-like/ComplexHermitianFunction.cpp>`_ for an example usage.
 
@@ -65,6 +67,7 @@ Pseudoinverse
    If a nonzero value for `tolerance` was specified, it is used instead of 
    :math:`\epsilon n \| A \|_2`.
 
+.. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, typename Base<F>::type tolerance=0 )
 .. cpp:function:: HermitianPseudoinverse( UpperOrLower uplo, DistMatrix<F>& A, typename Base<F>::type tolerance=0 )
 
    Computes the pseudoinverse of a Hermitian matrix through a customized version
@@ -103,13 +106,14 @@ is guaranteed to exist as long as :math:`A` is diagonalizable: if
 where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
 :math:`\sqrt{\lambda} = \sqrt{r} e^{i\theta/2}`. 
 
+.. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 .. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
-   Hermitian matrices with non-negative eigenvalues have a natural matrix 
-   square root which remains Hermitian. This routine attempts to overwrite a 
-   matrix with its square root and throws a :cpp:type:`NonHPSDMatrixException`
-   if any sufficiently negative eigenvalues are computed.
+   Computes the Hermitian EVD, square-roots the eigenvalues, and then 
+   reforms the matrix. If any of the eigenvalues were sufficiently negative,
+   a :cpp:type:`NonHPSDMatrixException` is thrown.
 
+**TODO: SquareRoot**
 **TODO: HermitianSquareRoot**
 
 Semi-definite Cholesky
@@ -135,7 +139,43 @@ If :math:`A` is found to have eigenvalues less than
 :math:`-n \epsilon \| A \|_2`, then a :cpp:type:`NonHPSDMatrixException` will 
 be thrown.
 
+.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
 .. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
-   Overwrite the `uplo` triangle of the potentially singular matrix `A` with its Cholesky factor.
+   Overwrite the `uplo` triangle of the potentially singular matrix `A` with 
+   its Cholesky factor.
 
+Sign
+----
+The matrix sign function can be written as
+
+.. math::
+   \text{sgn}(A) = A(A^2)^{-1/2},
+
+as long as :math:`A` does not have any pure-imaginary eigenvalues.
+
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
+
+   Compute the Hermitian EVD, replace the eigenvalues with their sign, and then
+   reform the matrix.
+
+.. cpp:function:: void Sign( Matrix<F>& A )
+.. cpp:function:: void Sign( DistMatrix<F>& A )
+
+   Compute the sign function through a globally-convergent Newton iteration
+   scaled with the Frobenius norm of the iterate and its inverse.
+
+.. cpp:type:: sign::Scaling
+
+   An enum for specifying the scaling strategy to be used for the Newton 
+   iteration for the matrix sign function. It must be either ``NONE``, 
+   ``DETERMINANT``, or ``FROB_NORM`` (the default).
+
+.. cpp:function:: int sign::Newton( Matrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, typename Base<F>::type tol=0 )
+.. cpp:function:: int sign::Newton( DistMatrix<F>& A, sign::Scaling scaling=FROB_NORM, int maxIts=100, typename Base<F>::type tol=0 )
+
+   Runs a (scaled) Newton iteration for at most ``maxIts`` iterations with 
+   the specified tolerance, which, if undefined, is set to :math:`n \epsilon`,
+   where :math:`n` is the matrix dimension and :math:`\epsilon` is the 
+   machine epsilon. The return value is the number of performed iterations.
