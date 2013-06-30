@@ -165,7 +165,7 @@ OVERLOAD0_cpx(Bidiag)
 %include "elemental/lapack-like/Polar.hpp"
 // %include "elemental/lapack-like/Polar/QDWH.hpp"
 %include "elemental/lapack-like/HPSDCholesky.hpp"
-%include "elemental/lapack-like/HPSDSquareRoot.hpp"
+%include "elemental/lapack-like/SquareRoot.hpp"
 
 namespace elem {
 OVERLOAD0(HermitianEig)
@@ -185,7 +185,7 @@ OVERLOAD0(SVD)
  */
  
 %include "elemental/lapack-like/Pseudoinverse.hpp"
-%include "elemental/lapack-like/HPSDSquareRoot.hpp"
+%include "elemental/lapack-like/SquareRoot.hpp"
 %include "elemental/lapack-like/HPSDCholesky.hpp"
  
 namespace elem {

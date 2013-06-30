@@ -66,10 +66,56 @@ QR( DistMatrix<Complex<Real> >& A,
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
-    if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,s} must be distributed over the same grid");
 #endif
     qr::Householder( A, t );
+}
+
+//
+// Variants which perform (Businger-Golub) column-pivoting
+//
+
+template<typename Real> 
+inline void
+QR( Matrix<Real>& A, Matrix<int>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("QR");
+#endif
+    qr::BusingerGolub( A, p );
+}
+
+template<typename Real> 
+inline void
+QR( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("QR");
+#endif
+    qr::BusingerGolub( A, p );
+}
+
+template<typename Real> 
+inline void
+QR( Matrix<Complex<Real> >& A, 
+    Matrix<Complex<Real> >& t,
+    Matrix<int>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("QR");
+#endif
+    qr::BusingerGolub( A, t, p );
+}
+
+template<typename Real> 
+inline void
+QR( DistMatrix<Complex<Real> >& A, 
+    DistMatrix<Complex<Real>,MD,STAR>& t,
+    DistMatrix<int,VR,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry entry("QR");
+#endif
+    qr::BusingerGolub( A, t, p );
 }
 
 } // namespace elem

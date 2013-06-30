@@ -12,7 +12,7 @@
 
 #include "elemental/lapack-like/Polar/SVD.hpp"
 #include "elemental/lapack-like/Polar/QDWH.hpp"
-#include "elemental/lapack-like/HermitianSign.hpp"
+#include "elemental/lapack-like/Sign.hpp"
 
 namespace elem {
 

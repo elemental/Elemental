@@ -12,7 +12,7 @@
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/lapack-like/HPSDSquareRoot.hpp"
+#include "elemental/lapack-like/SquareRoot.hpp"
 #include "elemental/lapack-like/LQ.hpp"
 #include "elemental/lapack-like/QR.hpp"
 

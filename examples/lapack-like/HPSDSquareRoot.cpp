@@ -10,7 +10,7 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
-#include "elemental/lapack-like/HPSDSquareRoot.hpp"
+#include "elemental/lapack-like/SquareRoot.hpp"
 #include "elemental/matrices/Uniform.hpp"
 using namespace std;
 using namespace elem;

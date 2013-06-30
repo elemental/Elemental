@@ -106,6 +106,12 @@ is guaranteed to exist as long as :math:`A` is diagonalizable: if
 where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
 :math:`\sqrt{\lambda} = \sqrt{r} e^{i\theta/2}`. 
 
+.. cpp:function:: void SquareRoot( Matrix<F>& A )
+.. cpp:function:: void SquareRoot( DistMatrix<F>& A )
+
+   Currently uses a Newton iteration to compute the general matrix square-root. 
+   See ``square_root::Newton`` for the more detailed interface.
+
 .. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 .. cpp:function:: void HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
@@ -113,37 +119,18 @@ where each eigenvalue :math:`\lambda = r e^{i\theta}` maps to
    reforms the matrix. If any of the eigenvalues were sufficiently negative,
    a :cpp:type:`NonHPSDMatrixException` is thrown.
 
-**TODO: SquareRoot**
 **TODO: HermitianSquareRoot**
 
-Semi-definite Cholesky
-----------------------
+Detailed interface
+^^^^^^^^^^^^^^^^^^
 
-It is possible to compute the Cholesky factor of a Hermitian positive
-semi-definite (HPSD) matrix through its eigenvalue decomposition, though it
-is significantly more expensive than the HPD case: Let :math:`A = U \Lambda U^H`
-be the eigenvalue decomposition of :math:`A`, where all entries of 
-:math:`\Lambda` are non-negative. Then :math:`B = U \sqrt \Lambda U^H` is the 
-matrix square root of :math:`A`, i.e., :math:`B B = A`, and it follows that the 
-QR and LQ factorizations of :math:`B` yield Cholesky factors of :math:`A`:
+.. cpp:function:: int square_root::Newton( Matrix<F>& A, int maxIts=100, typename Base<F>::tol=0 )
+.. cpp:function:: int square_root::Newton( DistMatrix<F>& A, int maxIts=100, typename Base<F>::tol=0 )
 
-.. math::
-   A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,
-
-and
-
-.. math::
-   A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
-
-If :math:`A` is found to have eigenvalues less than 
-:math:`-n \epsilon \| A \|_2`, then a :cpp:type:`NonHPSDMatrixException` will 
-be thrown.
-
-.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
-.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
-
-   Overwrite the `uplo` triangle of the potentially singular matrix `A` with 
-   its Cholesky factor.
+   Performs at most ``maxIts`` Newton steps in an attempt to compute the 
+   matrix square-root within the specified tolerance, which defaults to 
+   :math:`n \epsilon`, where :math:`n` is the matrix height and :math:`\epsilon`
+   is the machine precision.
 
 Sign
 ----
@@ -173,6 +160,9 @@ as long as :math:`A` does not have any pure-imaginary eigenvalues.
    reform the matrix. Optionally return the full decomposition, :math:`A=SN`,
    where :math:`A` is overwritten by :math:`S`. Note that this will also be 
    a polar decomposition.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
 
 .. cpp:type:: sign::Scaling
 

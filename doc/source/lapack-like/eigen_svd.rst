@@ -357,8 +357,11 @@ computed through (a dynamically-weighted) Halley iteration.
    equivalent to a Hermitian sign decomposition (if :math:`\text{sgn}(0)` is 
    set to 1), these routines are equivalent to `HermitianSign`.
 
-.. cpp:function:: int QDWH( Matrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxits=100 )
-.. cpp:function:: int QDWH( DistMatrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxIts=100 )
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: int polar::QDWH( Matrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxits=100 )
+.. cpp:function:: int polar::QDWH( DistMatrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxIts=100 )
 
    Overwrites :math:`A` with the :math:`Q` from the polar decomposition using 
    a QR-based dynamically weighted Halley iteration. The number of iterations

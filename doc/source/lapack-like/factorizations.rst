@@ -15,10 +15,31 @@ thrown.
 
    Overwrite the `uplo` triangle of the HPD matrix `A` with its Cholesky factor.
 
-.. note::
+It is possible to compute the Cholesky factor of a Hermitian positive
+semi-definite (HPSD) matrix through its eigenvalue decomposition, though it
+is significantly more expensive than the HPD case: Let :math:`A = U \Lambda U^H`
+be the eigenvalue decomposition of :math:`A`, where all entries of
+:math:`\Lambda` are non-negative. Then :math:`B = U \sqrt \Lambda U^H` is the
+matrix square root of :math:`A`, i.e., :math:`B B = A`, and it follows that the
+QR and LQ factorizations of :math:`B` yield Cholesky factors of :math:`A`:
 
-   See :cpp:func:`HPSDCholesky` for a generalization which also works for 
-   semi-definite matrices.
+.. math::
+   A = B B = B^H B = (Q R)^H (Q R) = R^H Q^H Q R = R^H R,
+
+and
+
+.. math::
+   A = B B = B B^H = (L Q) (L Q)^H = L Q Q^H L^H = L L^H.
+
+If :math:`A` is found to have eigenvalues less than
+:math:`-n \epsilon \| A \|_2`, then a :cpp:type:`NonHPSDMatrixException` will
+be thrown.
+
+.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+
+   Overwrite the `uplo` triangle of the potentially singular matrix `A` with
+   its Cholesky factor.
 
 :math:`LDL^H` factorization
 ---------------------------
@@ -141,17 +162,24 @@ trapezoid.
 
 .. cpp:function:: void QR( Matrix<R>& A )
 .. cpp:function:: void QR( DistMatrix<R>& A )
-
-   Overwrite the real matrix :math:`A` with :math:`R` and the 
-   Householder reflectors representing :math:`\hat Q`.
-
 .. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 .. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`R` and the 
-   Householder reflectors representing :math:`\hat Q`; unlike the real case, 
+   Householder reflectors representing :math:`\hat Q`. In the complex case,
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
+
+.. cpp:function:: void QR( Matrix<R>& A, Matrix<int>& p )
+.. cpp:function:: void QR( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
+.. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
+
+   Column-pivoted QR factorization. The current implementation uses 
+   Businger-Golub pivoting.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
 
 .. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p )
