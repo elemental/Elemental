@@ -62,8 +62,6 @@ MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
 #ifndef RELEASE
     CallStackEntry entry("MakeEgorov");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
     const int localHeight = A.LocalHeight();
     const int localWidth = A.LocalWidth();
     const int colShift = A.ColShift();

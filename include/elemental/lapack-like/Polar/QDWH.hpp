@@ -141,8 +141,9 @@ QDWH
     CallStackEntry entry("polar::QDWH");
 #endif
     Matrix<F> ACopy( A );
-    QDWH( A, lowerBound, upperBound, maxIts );
+    const int numIts = QDWH( A, lowerBound, upperBound, maxIts );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
+    return numIts;
 }
 
 template<typename F>
@@ -248,8 +249,9 @@ QDWH
     CallStackEntry entry("polar::QDWH");
 #endif
     DistMatrix<F> ACopy( A );
-    QDWH( A, lowerBound, upperBound, maxIts );
+    const int numIts = QDWH( A, lowerBound, upperBound, maxIts );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
+    return numIts;
 }
 
 } // namespace polar

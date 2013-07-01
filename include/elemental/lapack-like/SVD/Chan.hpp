@@ -57,11 +57,11 @@ ChanUpper
     }
 }
 
-template<typename Real>
+template<typename F>
 inline void
 ChanUpper
-( DistMatrix<Real>& A,
-  DistMatrix<Real,VR,STAR>& s,
+( DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& s,
   double heightRatio=1.2 )
 {
 #ifndef RELEASE
@@ -69,47 +69,14 @@ ChanUpper
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint");
 #endif
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const int m = A.Height();
     const int n = A.Width();
     if( m >= heightRatio*n )
     {
         QR( A );
-        DistMatrix<Real> AT(g),
-                         AB(g);
-        PartitionDown
-        ( A, AT,
-             AB, n );
-        MakeTriangular( UPPER, AT );
-        GolubReinschUpper( AT, s );
-    }
-    else
-    {
-        GolubReinschUpper( A, s );
-    }
-}
-
-template<typename Real>
-inline void
-ChanUpper
-( DistMatrix<Complex<Real> >& A,
-  DistMatrix<Real,VR,STAR>& s,
-  double heightRatio=1.2 )
-{
-#ifndef RELEASE
-    CallStackEntry entry("svd::ChanUpper");
-    if( heightRatio <= 1.0 )
-        throw std::logic_error("Nonsensical switchpoint");
-#endif
-    typedef Complex<Real> C;
-    const Grid& g = A.Grid();
-    const int m = A.Height();
-    const int n = A.Width();
-    if( m >= heightRatio*n )
-    {
-        DistMatrix<C,MD,STAR> t(g);
-        QR( A, t );
-        DistMatrix<C> AT(g),
+        DistMatrix<F> AT(g),
                       AB(g);
         PartitionDown
         ( A, AT,
@@ -173,15 +140,13 @@ Chan
 
 template<typename F>
 inline void
-Chan
-( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
+Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::Chan");
 #endif
-    typedef BASE(F) R;
-
     // Check if we need to rescale the matrix, and do so if necessary
+    typedef BASE(F) R;
     bool needRescaling;
     R scale;
     svd::CheckScale( A, needRescaling, scale );

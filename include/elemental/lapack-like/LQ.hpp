@@ -26,9 +26,9 @@ namespace elem {
 // where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
 // reflector.
 
-template<typename Real> 
+template<typename F> 
 inline void
-LQ( Matrix<Real>& A )
+LQ( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("LQ");
@@ -36,9 +36,9 @@ LQ( Matrix<Real>& A )
     lq::Householder( A );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-LQ( DistMatrix<Real>& A )
+LQ( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("LQ");

@@ -26,7 +26,6 @@
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"
 #include "./lapack-like/HilbertSchmidt.hpp"
 #include "./lapack-like/HPDSolve.hpp"
-#include "./lapack-like/HPSDCholesky.hpp"
 #include "./lapack-like/ID.hpp"
 #include "./lapack-like/Inverse.hpp"
 #include "./lapack-like/LDL.hpp"

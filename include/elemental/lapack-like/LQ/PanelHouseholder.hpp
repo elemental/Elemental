@@ -219,6 +219,17 @@ PanelHouseholder
 
 template<typename Real>
 inline void
+PanelHouseholder( Matrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("lq::PanelHouseholder");
+#endif
+    Matrix<Complex<Real> > t;
+    PanelHouseholder( A, t );
+}
+
+template<typename Real>
+inline void
 PanelHouseholder
 ( DistMatrix<Complex<Real> >& A,
   DistMatrix<Complex<Real>,MD,STAR>& t )
@@ -324,6 +335,17 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+}
+
+template<typename Real>
+inline void
+PanelHouseholder( DistMatrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("lq::PanelHouseholder");
+#endif
+    DistMatrix<Complex<Real>,MD,STAR> t(A.Grid());
+    PanelHouseholder( A, t );
 }
 
 } // namespace lq

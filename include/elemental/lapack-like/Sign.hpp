@@ -345,7 +345,6 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    const int n = A.Height();
     const int numLocalEigs = w.LocalHeight();
     for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {

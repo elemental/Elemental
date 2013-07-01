@@ -207,6 +207,17 @@ PanelHouseholder
     }
 }
 
+template<typename Real> 
+inline void
+PanelHouseholder( Matrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::PanelHouseholder");
+#endif
+    Matrix<Complex<Real> > t;
+    PanelHouseholder( A, t );
+}
+
 template<typename R> 
 inline void
 PanelHouseholder
@@ -294,6 +305,17 @@ PanelHouseholder
          /*************/ /**********************/
           ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
+}
+
+template<typename R> 
+inline void
+PanelHouseholder( DistMatrix<Complex<R> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::PanelHouseholder");
+#endif
+    DistMatrix<Complex<R>,MD,STAR> t(A.Grid());
+    PanelHouseholder( A, t );
 }
 
 } // namespace qr

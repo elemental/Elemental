@@ -137,7 +137,7 @@ Newton( DistMatrix<F>& A, int maxIts=100, BASE(F) tol=0 )
     return numIts;
 }
 
-} // namespace sign
+} // namespace square_root
 
 template<typename F>
 inline void

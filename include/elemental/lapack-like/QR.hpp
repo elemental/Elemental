@@ -28,9 +28,9 @@ namespace elem {
 // where tau_j is the j'th entry of t and u_j is the j'th unscaled Householder
 // reflector.
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( Matrix<Real>& A )
+QR( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -38,9 +38,9 @@ QR( Matrix<Real>& A )
     qr::Householder( A );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( DistMatrix<Real>& A )
+QR( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -74,9 +74,9 @@ QR( DistMatrix<Complex<Real> >& A,
 // Variants which perform (Businger-Golub) column-pivoting
 //
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( Matrix<Real>& A, Matrix<int>& p )
+QR( Matrix<F>& A, Matrix<int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -84,9 +84,9 @@ QR( Matrix<Real>& A, Matrix<int>& p )
     qr::BusingerGolub( A, p );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( DistMatrix<Real>& A, DistMatrix<int,VR,STAR>& p )
+QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");

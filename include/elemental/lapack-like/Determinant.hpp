@@ -120,7 +120,7 @@ SafeHPDDeterminant
         B = A;
     return hpd_determinant::Cholesky( uplo, B ); 
 }
-#endif
+#endif // ifndef SWIG
 
 template<typename F>
 inline F Determinant( const Matrix<F>& A )
@@ -204,7 +204,7 @@ HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
     SafeProduct<F> safeDet = SafeHPDDeterminant( uplo, A, canOverwrite );
     return Exp(safeDet.kappa*safeDet.n);
 }
-#endif
+#endif // ifndef SWIG
 
 } // namespace elem
 

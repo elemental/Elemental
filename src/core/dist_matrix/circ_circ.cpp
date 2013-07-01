@@ -533,7 +533,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,STAR,MR,Int>& A )
     const elem::Grid& g = this->Grid();
     const int owningRow = root % g.Height();
     const int owningCol = root / g.Height();
-    if( !g.InGrid() || g.Col() != owningCol )
+    if( !g.InGrid() || g.Row() != owningRow )
         return *this;
 
     const int rowStride = A.RowStride();

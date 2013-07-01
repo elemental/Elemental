@@ -199,6 +199,17 @@ Householder
 
 template<typename Real> 
 inline void
+Householder( Matrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::Householder");
+#endif
+    Matrix<Complex<Real> > t;
+    Householder( A, t );
+}
+
+template<typename Real> 
+inline void
 Householder
 ( DistMatrix<Complex<Real> >& A, 
   DistMatrix<Complex<Real>,MD,STAR>& t )
@@ -281,6 +292,17 @@ Householder
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
+}
+
+template<typename Real> 
+inline void
+Householder( DistMatrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("qr::Householder");
+#endif
+    DistMatrix<Complex<Real>,MD,STAR> t(A.Grid());
+    Householder( A, t );
 }
 
 } // namespace qr

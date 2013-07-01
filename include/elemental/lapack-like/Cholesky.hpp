@@ -76,4 +76,60 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
 } // namespace elem
 
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/lapack-like/SquareRoot.hpp"
+#include "elemental/lapack-like/LQ.hpp"
+#include "elemental/lapack-like/QR.hpp"
+
+namespace elem {
+
+template<typename F>
+inline void
+HPSDCholesky( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HPSDCholesky");
+#endif
+    HPSDSquareRoot( uplo, A );
+    MakeHermitian( uplo, A );
+
+    if( uplo == LOWER )
+    {
+        LQ( A );
+        MakeTriangular( LOWER, A );
+    }
+    else
+    {
+        QR( A );
+        MakeTriangular( UPPER, A );
+    }
+}
+
+template<typename F>
+inline void
+HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HPSDCholesky");
+#endif
+    EnsurePMRRR();
+
+    HPSDSquareRoot( uplo, A );
+    MakeHermitian( uplo, A );
+
+    if( uplo == LOWER )
+    {
+        LQ( A );
+        MakeTriangular( LOWER, A );
+    }
+    else
+    {
+        QR( A );
+        MakeTriangular( UPPER, A );
+    }
+}
+
+} // namespace elem
+
 #endif // ifndef LAPACK_CHOLESKY_HPP

@@ -133,17 +133,13 @@ stored in the lower trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the rows of the strictly upper 
 trapezoid.
 
-.. cpp:function:: void LQ( Matrix<R>& A )
-.. cpp:function:: void LQ( DistMatrix<R>& A )
-
-   Overwrite the real matrix :math:`A` with :math:`L` and the 
-   Householder reflectors representing :math:`\hat Q`.
-
+.. cpp:function:: void LQ( Matrix<F>& A )
+.. cpp:function:: void LQ( DistMatrix<F>& A )
 .. cpp:function:: void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 .. cpp:function:: void LQ( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`L` and the 
-   Householder reflectors representing :math:`\hat Q`; unlike the real case, 
+   Householder reflectors representing :math:`\hat Q`. In the complex case, 
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
 
@@ -160,8 +156,8 @@ stored in the upper trapezoid of :math:`A` and the Householder reflectors
 representing :math:`\hat Q` are stored within the columns of the strictly lower 
 trapezoid.
 
-.. cpp:function:: void QR( Matrix<R>& A )
-.. cpp:function:: void QR( DistMatrix<R>& A )
+.. cpp:function:: void QR( Matrix<F>& A )
+.. cpp:function:: void QR( DistMatrix<F>& A )
 .. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
 .. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
 
@@ -170,8 +166,8 @@ trapezoid.
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
 
-.. cpp:function:: void QR( Matrix<R>& A, Matrix<int>& p )
-.. cpp:function:: void QR( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void QR( Matrix<F>& A, Matrix<int>& p )
+.. cpp:function:: void QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
 .. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
 .. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
 
@@ -181,8 +177,8 @@ trapezoid.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
 .. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
 
@@ -190,16 +186,16 @@ Detailed interface
    strategy, i.e., the pivot is chosen as the remaining column with maximum
    two norm.
 
-.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p, int numSteps )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int numSteps )
 .. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int numSteps )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int numSteps )
 
    Same as above, but only execute a fixed number of steps of the rank-revealing
    factorization.
 
-.. cpp:function:: void qr::BusingerGolub( Matrix<R>& A, Matrix<int>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<R>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
 .. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int maxSteps, R tol )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
 

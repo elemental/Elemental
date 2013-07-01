@@ -184,7 +184,7 @@ ID
         B = A;
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
-#endif
+#endif // ifndef SWIG
 
 template<typename F> 
 inline void
@@ -208,7 +208,7 @@ ID
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
-#endif
+#endif // ifndef SWIG
 
 template<typename F> 
 inline void
@@ -240,7 +240,7 @@ ID
         B = A;
     id::BusingerGolub( B, p, Z, maxSteps, tol );
 }
-#endif
+#endif // ifndef SWIG
 
 template<typename F> 
 inline void
@@ -266,7 +266,7 @@ ID
 #endif
     ID( A, p, Z, numSteps, BASE(F)(-1), canOverwrite );
 }
-#endif
+#endif // ifndef SWIG
 
 } // namespace elem
 
