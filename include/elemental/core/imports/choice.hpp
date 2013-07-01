@@ -50,8 +50,7 @@ inline bool Cast( const std::string& input )
 class ArgException : public std::logic_error
 {
 public:
-    ArgException( const char* msg="Argument exception" )
-    : std::logic_error( msg ) { }
+    ArgException( const char* msg="" ) : std::logic_error( msg ) { }
 };
 
 class Args

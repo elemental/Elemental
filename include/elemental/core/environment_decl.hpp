@@ -275,7 +275,6 @@ public:
 
 void ReportException( std::exception& e );
 class ArgException;
-void ReportException( ArgException& e );
 
 void ComplainIfDebug();
 

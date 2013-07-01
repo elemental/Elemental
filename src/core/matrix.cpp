@@ -81,6 +81,7 @@ Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
 #endif
     memory_.Require( ldim_ * width );
     data_ = memory_.Buffer();
+    // TODO: Consider explicitly zeroing
 }
 
 template<typename T,typename Int>

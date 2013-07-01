@@ -32,18 +32,17 @@ PrintInputReport()
 
 inline void ReportException( std::exception& e )
 {
-    std::ostringstream os;
-    os << "Process " << mpi::WorldRank() << " caught error message:\n"
-       << e.what() << std::endl;
-    std::cout << os.str();
+    if( std::string(e.what()) != "" )
+    {
+        std::ostringstream os;
+        os << "Process " << mpi::WorldRank() << " caught error message:\n"
+           << e.what() << std::endl;
+        std::cout << os.str();
+    }
 #ifndef RELEASE
     DumpCallStack();
 #endif
 }
-
-// There is nothing to do in this case
-inline void ReportException( ArgException& e )
-{ }
 
 inline void ComplainIfDebug()
 {

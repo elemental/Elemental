@@ -49,7 +49,6 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
     typedef BASE(F) R;
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
 
     if( height < width )
@@ -157,7 +156,6 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
     const Grid& g = A.Grid();
     const int height = A.Height();
     const int width = A.Width();
-    const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
 
     if( height < width )
@@ -272,7 +270,6 @@ QDWH
 
     typedef BASE(F) R;
     const int height = A.Height();
-    const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
@@ -374,7 +371,6 @@ QDWH
     typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int height = A.Height();
-    const R oneHalf = R(1)/R(2);
     const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();

@@ -110,7 +110,6 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
     const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
 
     try
     {

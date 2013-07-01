@@ -1,5 +1,6 @@
 Functionality
 =============
+- Have matrix data zeroed by default? (to prevent NaN initialization bugs)
 - Spectral Divide and Conquer
 - More Sign algorithms (and algebraic Riccati equation solver)
 - Ostrowski matrices

@@ -326,7 +326,8 @@ void DumpCallStack()
         msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << "\n";
         ::callStack.pop();
     }
-    std::cerr << msg.str() << std::endl;
+    std::cerr << msg.str();
+    std::cerr.flush();
 }
 #endif // RELEASE
 
