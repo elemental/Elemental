@@ -1742,7 +1742,6 @@ DistMatrix<T,VC,STAR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1758,12 +1757,9 @@ DistMatrix<T,VC,STAR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[VC,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1781,7 +1777,6 @@ DistMatrix<T,VC,STAR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1797,12 +1792,9 @@ DistMatrix<T,VC,STAR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[VC,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -2174,10 +2166,8 @@ DistMatrix<T,VC,STAR,Int>::SetImagPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
     const elem::Grid& g = this->Grid();
     if( !this->Participating() )
         return;
@@ -2295,10 +2285,8 @@ DistMatrix<T,VC,STAR,Int>::SetImagPartOfDiagonal
     if( !d.AlignedWithDiagonal( this->DistData(), offset ) )
         throw std::logic_error("d must be aligned with the 'offset' diagonal");
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
     const elem::Grid& g = this->Grid();
     if( !this->Participating() )
         return;

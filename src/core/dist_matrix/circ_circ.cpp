@@ -1471,8 +1471,7 @@ DistMatrix<T,CIRC,CIRC,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[o ,o ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
+    this->ComplainIfReal();
     if( this->Participating() )
         this->SetLocalImagPart(i,j,u);
 }
@@ -1497,8 +1496,7 @@ DistMatrix<T,CIRC,CIRC,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[o ,o ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
+    this->ComplainIfReal();
     if( this->Participating() )
         this->UpdateLocalImagPart(i,j,u);
 }

@@ -365,6 +365,14 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
 }
 
 template<typename T,typename Int>
+void
+Matrix<T,Int>::ComplainIfReal() const
+{ 
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+}
+
+template<typename T,typename Int>
 BASE(T)
 Matrix<T,Int>::GetRealPart( Int i, Int j ) const
 {
@@ -409,6 +417,7 @@ Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha )
     if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
+    ComplainIfReal();
     elem::SetImagPart( Set_( i, j ), alpha );
 }
 
@@ -435,6 +444,7 @@ Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
     if( Locked() )
         throw std::logic_error("Cannot modify data of locked matrices");
 #endif
+    ComplainIfReal();
     elem::UpdateImagPart( Set_( i, j ), alpha );
 }
    
@@ -511,9 +521,7 @@ Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Cannot set imaginary part of real matrix");
-
+    ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
@@ -550,8 +558,7 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         throw std::logic_error("d is not a column-vector of the right length");
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Cannot update imaginary part of real matrix");
+    ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )

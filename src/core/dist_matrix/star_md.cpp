@@ -815,7 +815,6 @@ DistMatrix<T,STAR,MD,Int>::SetRealPart( Int i, Int j, BASE(T) u )
     const Int ownerRow = (j + this->rowAlignment_) % r;
     const Int ownerCol = (j + this->rowAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
@@ -831,16 +830,13 @@ DistMatrix<T,STAR,MD,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[* ,MD]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (j + this->rowAlignment_) % r;
     const Int ownerCol = (j + this->rowAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
@@ -862,7 +858,6 @@ DistMatrix<T,STAR,MD,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
     const Int ownerRow = (j + this->rowAlignment_) % r;
     const Int ownerCol = (j + this->rowAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();
@@ -878,16 +873,13 @@ DistMatrix<T,STAR,MD,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[* ,MD]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (j + this->rowAlignment_) % r;
     const Int ownerCol = (j + this->rowAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int jLoc = (j-this->RowShift()) / g.LCM();

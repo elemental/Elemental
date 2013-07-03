@@ -202,6 +202,8 @@ protected:
     void SetRowShift();
     void SetGrid();
 
+    void ComplainIfReal() const;
+
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V,typename Ord> 
     friend void View

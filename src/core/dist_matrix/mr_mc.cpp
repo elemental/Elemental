@@ -2869,7 +2869,6 @@ DistMatrix<T,MR,MC,Int>::SetRealPart( Int i, Int j, BASE(T) u )
     const Int ownerRow = (j + this->RowAlignment()) % g.Height();
     const Int ownerCol = (i + this->ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol*g.Height();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
@@ -2886,14 +2885,11 @@ DistMatrix<T,MR,MC,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MR,MC]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRow = (j + this->RowAlignment()) % g.Height();
     const Int ownerCol = (i + this->ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol*g.Height();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
@@ -2914,7 +2910,6 @@ DistMatrix<T,MR,MC,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
     const Int ownerRow = (j + this->RowAlignment()) % g.Height();
     const Int ownerCol = (i + this->ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol*g.Height();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
@@ -2931,14 +2926,11 @@ DistMatrix<T,MR,MC,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MR,MC]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRow = (j + this->RowAlignment()) % g.Height();
     const Int ownerCol = (i + this->ColAlignment()) % g.Width();
     const Int ownerRank = ownerRow + ownerCol*g.Height();
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Width();
@@ -3308,9 +3300,8 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
     if( !d.Participating() )
         return;
 
@@ -3434,6 +3425,7 @@ DistMatrix<T,MR,MC,Int>::SetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
     if( !d.Participating() )
         return;

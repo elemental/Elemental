@@ -3319,9 +3319,7 @@ DistMatrix<T,MC,MR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MC,MR]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-    
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid(); 
     const Int ownerRow = (i + this->ColAlignment()) % g.Height();
     const Int ownerCol = (j + this->RowAlignment()) % g.Width();
@@ -3330,7 +3328,7 @@ DistMatrix<T,MC,MR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     {
         const Int iLoc = (i-this->ColShift()) / g.Height();
         const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalRealPart( iLoc, jLoc, u );
+        this->SetLocalImagPart( iLoc, jLoc, u );
     }
 }
 
@@ -3362,9 +3360,7 @@ DistMatrix<T,MC,MR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MC,MR]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-    
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid(); 
     const Int ownerRow = (i + this->ColAlignment()) % g.Height();
     const Int ownerCol = (j + this->RowAlignment()) % g.Width();
@@ -3373,7 +3369,7 @@ DistMatrix<T,MC,MR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     {
         const Int iLoc = (i-this->ColShift()) / g.Height();
         const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalRealPart( iLoc, jLoc, u );
+        this->UpdateLocalImagPart( iLoc, jLoc, u );
     }
 }
 
@@ -3753,9 +3749,8 @@ DistMatrix<T,MC,MR,Int>::SetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
     if( !d.Participating() )
         return;
 
@@ -3879,9 +3874,8 @@ DistMatrix<T,MC,MR,Int>::SetImagPartOfDiagonal
         throw std::logic_error( msg.str().c_str() );
     }
 #endif
+    this->ComplainIfReal();
     typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
     if( !d.Participating() )
         return;
 

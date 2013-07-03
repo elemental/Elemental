@@ -1412,7 +1412,6 @@ DistMatrix<T,VR,STAR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1428,12 +1427,9 @@ DistMatrix<T,VR,STAR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[VR,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1451,7 +1447,6 @@ DistMatrix<T,VR,STAR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
 #endif
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();
@@ -1467,12 +1462,9 @@ DistMatrix<T,VR,STAR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[VR,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int ownerRank = (i + this->ColAlignment()) % g.Size();
-
     if( g.VRRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.Size();

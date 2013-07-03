@@ -498,6 +498,14 @@ AbstractDistMatrix<T,Int>::SetGrid( const elem::Grid& grid )
 }
 
 template<typename T,typename Int>
+void
+AbstractDistMatrix<T,Int>::ComplainIfReal() const
+{ 
+    if( !IsComplex<T>::val )
+        throw std::logic_error("Called complex-only routine with real data");
+}
+
+template<typename T,typename Int>
 BASE(T)
 AbstractDistMatrix<T,Int>::GetRealPart( Int i, Int j ) const
 { return RealPart(Get(i,j)); }
@@ -566,53 +574,38 @@ AbstractDistMatrix<T,Int>::MakeConsistent()
 #endif
 }
 
-template class AbstractDistMatrix<int,int>;
+#define PROTO(T) \
+  template class AbstractDistMatrix<T,int>
+
+PROTO(int);
 #ifndef DISABLE_FLOAT
-template class AbstractDistMatrix<float,int>;
+PROTO(float);
 #endif // ifndef DISABLE_FLOAT
-template class AbstractDistMatrix<double,int>;
+PROTO(double);
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-template class AbstractDistMatrix<Complex<float>,int>;
+PROTO(Complex<float>);
 #endif // ifndef DISABLE_FLOAT
-template class AbstractDistMatrix<Complex<double>,int>;
+PROTO(Complex<double>);
 #endif // ifndef DISABLE_COMPLEX
 
 #ifndef RELEASE
-template void AssertConforming1x2( const AbstractDistMatrix<int,int>& AL, const AbstractDistMatrix<int,int>& AR );
-template void AssertConforming2x1( const AbstractDistMatrix<int,int>& AT, const AbstractDistMatrix<int,int>& AB );
-template void AssertConforming2x2
-( const AbstractDistMatrix<int,int>& ATL, const AbstractDistMatrix<int,int>& ATR,
-  const AbstractDistMatrix<int,int>& ABL, const AbstractDistMatrix<int,int>& ABR );
 
+#define CONFORMING(T) \
+  template void AssertConforming1x2( const AbstractDistMatrix<T,int>& AL, const AbstractDistMatrix<T,int>& AR ); \
+  template void AssertConforming2x1( const AbstractDistMatrix<T,int>& AT, const AbstractDistMatrix<T,int>& AB ); \
+  template void AssertConforming2x2( const AbstractDistMatrix<T,int>& ATL, const AbstractDistMatrix<T,int>& ATR, const AbstractDistMatrix<T,int>& ABL, const AbstractDistMatrix<T,int>& ABR )
+
+CONFORMING(int);
 #ifndef DISABLE_FLOAT
-template void AssertConforming1x2( const AbstractDistMatrix<float,int>& AL, const AbstractDistMatrix<float,int>& AR );
-template void AssertConforming2x1( const AbstractDistMatrix<float,int>& AT, const AbstractDistMatrix<float,int>& AB );
-template void AssertConforming2x2
-( const AbstractDistMatrix<float,int>& ATL, const AbstractDistMatrix<float,int>& ATR,
-  const AbstractDistMatrix<float,int>& ABL, const AbstractDistMatrix<float,int>& ABR );
+CONFORMING(float);
 #endif // ifndef DISABLE_FLOAT
-
-template void AssertConforming1x2( const AbstractDistMatrix<double,int>& AL, const AbstractDistMatrix<double,int>& AR );
-template void AssertConforming2x1( const AbstractDistMatrix<double,int>& AT, const AbstractDistMatrix<double,int>& AB );
-template void AssertConforming2x2
-( const AbstractDistMatrix<double,int>& ATL, const AbstractDistMatrix<double,int>& ATR,
-  const AbstractDistMatrix<double,int>& ABL, const AbstractDistMatrix<double,int>& ABR );
-
+CONFORMING(double);
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-template void AssertConforming1x2( const AbstractDistMatrix<Complex<float>,int>& AL, const AbstractDistMatrix<Complex<float>,int>& AR );
-template void AssertConforming2x1( const AbstractDistMatrix<Complex<float>,int>& AT, const AbstractDistMatrix<Complex<float>,int>& AB );
-template void AssertConforming2x2
-( const AbstractDistMatrix<Complex<float>,int>& ATL, const AbstractDistMatrix<Complex<float>,int>& ATR,
-  const AbstractDistMatrix<Complex<float>,int>& ABL, const AbstractDistMatrix<Complex<float>,int>& ABR );
+CONFORMING(Complex<float>);
 #endif // ifndef DISABLE_FLOAT
-
-template void AssertConforming1x2( const AbstractDistMatrix<Complex<double>,int>& AL, const AbstractDistMatrix<Complex<double>,int>& AR );
-template void AssertConforming2x1( const AbstractDistMatrix<Complex<double>,int>& AT, const AbstractDistMatrix<Complex<double>,int>& AB );
-template void AssertConforming2x2
-( const AbstractDistMatrix<Complex<double>,int>& ATL, const AbstractDistMatrix<Complex<double>,int>& ATR,
-  const AbstractDistMatrix<Complex<double>,int>& ABL, const AbstractDistMatrix<Complex<double>,int>& ABR );
+CONFORMING(Complex<double>);
 #endif // ifndef DISABLE_COMPLEX
 #endif // ifndef RELEASE
 

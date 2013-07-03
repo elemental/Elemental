@@ -803,15 +803,12 @@ DistMatrix<T,MD,STAR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MD,* ]::SetRealPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef BASE(T) R;
-
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (i + this->colAlignment_) % r;
     const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.LCM();
@@ -827,17 +824,13 @@ DistMatrix<T,MD,STAR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MD,* ]::SetImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (i + this->colAlignment_) % r;
     const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.LCM();
@@ -853,15 +846,12 @@ DistMatrix<T,MD,STAR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MD,* ]::UpdateRealPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef BASE(T) R;
-
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (i + this->colAlignment_) % r;
     const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.LCM();
@@ -877,17 +867,13 @@ DistMatrix<T,MD,STAR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
     CallStackEntry entry("[MD,* ]::UpdateImagPart");
     this->AssertValidEntry( i, j );
 #endif
-    typedef BASE(T) R;
-    if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
-
+    this->ComplainIfReal();
     const elem::Grid& g = this->Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int ownerRow = (i + this->colAlignment_) % r;
     const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
     const Int ownerRank = ownerRow + r*ownerCol;
-
     if( g.VCRank() == ownerRank )
     {
         const Int iLoc = (i-this->ColShift()) / g.LCM();

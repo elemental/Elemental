@@ -69,7 +69,6 @@ ChanUpper
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint");
 #endif
-    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const int m = A.Height();
     const int n = A.Width();
@@ -106,11 +105,9 @@ Chan
     if( heightRatio <= 1.0 )
         throw std::logic_error("Nonsensical switchpoint for SVD");
 #endif
-    typedef BASE(F) Real;
-
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;
-    Real scale;
+    BASE(F) scale;
     svd::CheckScale( A, needRescaling, scale );
     if( needRescaling )
         Scale( scale, A );

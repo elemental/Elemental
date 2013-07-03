@@ -128,6 +128,8 @@ private:
     const T* data_;
     Memory<T> memory_;
 
+    void ComplainIfReal() const;
+
     const T& Get_( Int i, Int j ) const;
     T& Set_( Int i, Int j );
 
