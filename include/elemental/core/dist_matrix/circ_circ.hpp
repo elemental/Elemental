@@ -52,6 +52,9 @@ public:
 
     ~DistMatrix();
 
+    void CopyFromRoot( const Matrix<T>& A );
+    void CopyFromNonRoot();
+
     const DistMatrix<T,CIRC,CIRC,Int>& 
     operator=( const DistMatrix<T,MC,MR,Int>& A );
 

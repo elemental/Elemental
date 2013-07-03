@@ -58,14 +58,19 @@ int main( int argc, char *argv[] )
                       << gflops << " GFLops" << std::endl;
         }
 
-        DistMatrix<double,CIRC,CIRC> ARoot(m,k,g), BRoot(k,n,g); 
+        DistMatrix<double,CIRC,CIRC> ARoot(g), BRoot(g); 
         if( commRank == 0 ) 
         {
             timer.Start();
-            ARoot.Matrix() = A;
-            BRoot.Matrix() = B;
+            ARoot.CopyFromRoot( A );
+            BRoot.CopyFromRoot( B );
             std::cout << "Populate root node: " << timer.Stop() << " secs"
                       << std::endl;
+        }
+        else
+        {
+            ARoot.CopyFromNonRoot();
+            BRoot.CopyFromNonRoot();
         }
 
         mpi::Barrier( comm );

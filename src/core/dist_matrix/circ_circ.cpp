@@ -335,6 +335,43 @@ DistMatrix<T,CIRC,CIRC,Int>::MakeConsistent()
 }
 
 template<typename T,typename Int>
+void
+DistMatrix<T,CIRC,CIRC,Int>::CopyFromRoot( const Matrix<T>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[o ,o ]::CopyFromRoot");
+#endif
+    const Grid& grid = this->Grid();
+    if( grid.VCRank() != this->Root() )
+        throw std::logic_error("Called CopyFromRoot from non-root");
+
+    int dims[2];
+    dims[0] = A.Height();
+    dims[1] = A.Width();
+    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
+
+    this->ResizeTo( dims[0], dims[1] );
+    this->matrix_ = A;
+}
+
+template<typename T,typename Int>
+void
+DistMatrix<T,CIRC,CIRC,Int>::CopyFromNonRoot()
+{
+#ifndef RELEASE
+    CallStackEntry cse("[o ,o ]::CopyFromNonRoot");
+#endif
+    const Grid& grid = this->Grid();
+    if( grid.VCRank() == this->Root() )
+        throw std::logic_error("Called CopyFromNonRoot from root");
+
+    int dims[2];
+    mpi::Broadcast( dims, 2, this->Root(), grid.VCComm() );
+
+    this->ResizeTo( dims[0], dims[1] );
+}
+
+template<typename T,typename Int>
 const DistMatrix<T,CIRC,CIRC,Int>&
 DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,MC,MR,Int>& A )
 {
