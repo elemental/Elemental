@@ -135,8 +135,8 @@ trapezoid.
 
 .. cpp:function:: void LQ( Matrix<F>& A )
 .. cpp:function:: void LQ( DistMatrix<F>& A )
-.. cpp:function:: void LQ( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
-.. cpp:function:: void LQ( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
+.. cpp:function:: void LQ( Matrix<F>& A, Matrix<F>& t )
+.. cpp:function:: void LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`L` and the 
    Householder reflectors representing :math:`\hat Q`. In the complex case, 
@@ -158,8 +158,8 @@ trapezoid.
 
 .. cpp:function:: void QR( Matrix<F>& A )
 .. cpp:function:: void QR( DistMatrix<F>& A )
-.. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
-.. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t )
+.. cpp:function:: void QR( Matrix<F>& A, Matrix<F>& t )
+.. cpp:function:: void QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
    Overwrite the complex matrix :math:`A` with :math:`R` and the 
    Householder reflectors representing :math:`\hat Q`. In the complex case,
@@ -168,8 +168,8 @@ trapezoid.
 
 .. cpp:function:: void QR( Matrix<F>& A, Matrix<int>& p )
 .. cpp:function:: void QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
-.. cpp:function:: void QR( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
-.. cpp:function:: void QR( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void QR( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p )
+.. cpp:function:: void QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
 
    Column-pivoted QR factorization. The current implementation uses 
    Businger-Golub pivoting.
@@ -179,8 +179,8 @@ Detailed interface
 
 .. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
-.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
 
    Column-pivoted versions of the above routines which use the Businger/Golub 
    strategy, i.e., the pivot is chosen as the remaining column with maximum
@@ -188,16 +188,16 @@ Detailed interface
 
 .. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int numSteps )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int numSteps )
-.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int numSteps )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p, int numSteps )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int numSteps )
 
    Same as above, but only execute a fixed number of steps of the rank-revealing
    factorization.
 
 .. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int maxSteps, R tol )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( Matrix<Complex<R> >& A, Matrix<Complex<R> >& t, Matrix<int>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
 
    Either execute `maxSteps` iterations or stop after the maximum remaining 
    column norm is less than or equal to `tol` times the maximum original column

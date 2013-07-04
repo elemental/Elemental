@@ -18,248 +18,20 @@
 
 namespace elem {
 
-template<typename R>
+template<typename F> 
 inline void
 LeastSquares
-( Orientation orientation, 
-  Matrix<R>& A, const Matrix<R>& B,
-                      Matrix<R>& X )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LeastSquares");
-#endif
-    // TODO: Add scaling
-    const int m = A.Height();
-    const int n = A.Width();
-    if( orientation == NORMAL )
-    {
-        if( m != B.Height() )
-            throw std::logic_error("A and B do not conform");
-
-        if( m >= n )
-        {
-            // Overwrite A with its packed QR factorization
-            QR( A );
-
-            // Copy B into X
-            X = B;
-
-            // Apply Q' to X
-            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, FORWARD, 0, A, X );
-
-            // Shrink X to its new height
-            X.ResizeTo( n, X.Width() );
-
-            // Solve against R (checking for singularities)
-            Matrix<R> AT;
-            LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), AT, X, true );
-        }
-        else
-        {
-            // Overwrite A with its packed LQ factorization
-            LQ( A );
-
-            // Copy B into X
-            X.ResizeTo( n, B.Width() );
-            Matrix<R> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, m );
-            XT = B;
-            Zero( XB );
-
-            // Solve against L (checking for singularities)
-            Matrix<R> AL;
-            LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), AL, XT, true );
-
-            // Apply Q' to X 
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, X );
-        }
-    }
-    else // orientation == ADJOINT
-    {
-        if( n != B.Height() )
-            throw std::logic_error("A and B do not conform");
-
-        if( m >= n )
-        {
-            // Overwrite A with its packed QR factorization
-            QR( A );
-
-            // Copy B into X
-            X.ResizeTo( m, B.Width() );
-            Matrix<R> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, n );
-            XT = B; 
-            Zero( XB );
-
-            // Solve against R' (checking for singularities)
-            Matrix<R> AT;
-            LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), AT, XT, true );
-
-            // Apply Q to X
-            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, X );
-        }
-        else
-        {
-            // Overwrite A with its packed LQ factorization
-            LQ( A );
-
-            // Copy B into X
-            X = B;
-
-            // Apply Q to X
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, X );
-
-            // Shrink X to its new size
-            X.ResizeTo( m, X.Width() );
-
-            // Solve against L' (check for singularities)
-            Matrix<R> AL;
-            LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
-        }
-    }
-}
-
-template<typename R>
-inline void
-LeastSquares
-( Orientation orientation, 
-  DistMatrix<R>& A, const DistMatrix<R>& B,
-                          DistMatrix<R>& X )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LeastSquares");
-    if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
-        throw std::logic_error("Grids do not match");
-#endif
-    const Grid& g = A.Grid();
-
-    // TODO: Add scaling
-    const int m = A.Height();
-    const int n = A.Width();
-    if( orientation == NORMAL )
-    {
-        if( m != B.Height() )
-            throw std::logic_error("A and B do not conform");
-
-        if( m >= n )
-        {
-            // Overwrite A with its packed QR factorization
-            QR( A );
-
-            // Copy B into X
-            X = B;
-
-            // Apply Q' to X
-            ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, 0, A, X );
-
-            // Shrink X to its new height
-            X.ResizeTo( n, X.Width() );
-
-            // Solve against R (checking for singularities)
-            DistMatrix<R> AT( g );
-            LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), AT, X, true );
-        }
-        else
-        {
-            // Overwrite A with its packed LQ factorization
-            LQ( A );
-
-            // Copy B into X
-            X.ResizeTo( n, B.Width() );
-            DistMatrix<R> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, m );
-            XT = B;
-            Zero( XB );
-
-            // Solve against L (checking for singularities)
-            DistMatrix<R> AL( g );
-            LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, R(1), AL, XT, true );
-
-            // Apply Q' to X 
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, BACKWARD, 0, A, X );
-        }
-    }
-    else // orientation == ADJOINT
-    {
-        if( n != B.Height() )
-            throw std::logic_error("A and B do not conform");
-
-        if( m >= n )
-        {
-            // Overwrite A with its packed QR factorization
-            QR( A );
-
-            // Copy B into X
-            X.ResizeTo( m, B.Width() );
-            DistMatrix<R> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, n );
-            XT = B; 
-            Zero( XB );
-
-            // Solve against R' (checking for singularities)
-            DistMatrix<R> AT( g );
-            LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, R(1), AT, XT, true );
-
-            // Apply Q to X
-            ApplyPackedReflectors( LEFT, LOWER, VERTICAL, BACKWARD, 0, A, X );
-        }
-        else
-        {
-            // Overwrite A with its packed LQ factorization
-            LQ( A );
-
-            // Copy B into X
-            X = B;
-
-            // Apply Q to X
-            ApplyPackedReflectors( LEFT, UPPER, HORIZONTAL, FORWARD, 0, A, X );
-
-            // Shrink X to its new size
-            X.ResizeTo( m, X.Width() );
-
-            // Solve against L' (check for singularities)
-            DistMatrix<R> AL( g );
-            LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, R(1), AL, X, true );
-        }
-    }
-}
-
-template<typename R> 
-inline void
-LeastSquares
-( Orientation orientation, 
-  Matrix<Complex<R> >& A, 
-  const Matrix<Complex<R> >& B,
-        Matrix<Complex<R> >& X )
+( Orientation orientation, Matrix<F>& A, const Matrix<F>& B, Matrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry entry("LeastSquares");
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
 #endif
-    typedef Complex<R> C;
-
     // TODO: Add scaling
     const int m = A.Height();
     const int n = A.Width();
-    Matrix<C> t;
+    Matrix<F> t;
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -282,9 +54,9 @@ LeastSquares
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            Matrix<C> AT;
+            Matrix<F> AT;
             LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), AT, X, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
         }
         else
         {
@@ -294,7 +66,7 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            Matrix<C> XT,
+            Matrix<F> XT,
                       XB;
             PartitionDown( X, XT,
                               XB, m );
@@ -302,9 +74,9 @@ LeastSquares
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            Matrix<C> AL;
+            Matrix<F> AL;
             LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, C(1), AL, XT, true );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
             ApplyPackedReflectors
@@ -324,7 +96,7 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            Matrix<C> XT,
+            Matrix<F> XT,
                       XB;
             PartitionDown( X, XT,
                               XB, n );
@@ -332,9 +104,9 @@ LeastSquares
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            Matrix<C> AT;
+            Matrix<F> AT;
             LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, C(1), AT, XT, true );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
             ApplyPackedReflectors
@@ -357,20 +129,18 @@ LeastSquares
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            Matrix<C> AL;
+            Matrix<F> AL;
             LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
         }
     }
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 LeastSquares
 ( Orientation orientation, 
-  DistMatrix<Complex<R> >& A, 
-  const DistMatrix<Complex<R> >& B,
-        DistMatrix<Complex<R> >& X )
+  DistMatrix<F>& A, const DistMatrix<F>& B, DistMatrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry entry("LeastSquares");
@@ -379,13 +149,12 @@ LeastSquares
     if( orientation == TRANSPOSE )
         throw std::logic_error("Invalid orientation");
 #endif
-    typedef Complex<R> C;
     const Grid& g = A.Grid();
 
     // TODO: Add scaling
     const int m = A.Height();
     const int n = A.Width();
-    DistMatrix<C,MD,STAR> t( g );
+    DistMatrix<F,MD,STAR> t( g );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
@@ -408,9 +177,9 @@ LeastSquares
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            DistMatrix<C> AT( g );
+            DistMatrix<F> AT( g );
             LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), AT, X, true );
+            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
         }
         else
         {
@@ -420,7 +189,7 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            DistMatrix<C> XT( g ),
+            DistMatrix<F> XT( g ),
                           XB( g );
             PartitionDown( X, XT,
                               XB, m );
@@ -428,9 +197,9 @@ LeastSquares
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            DistMatrix<C> AL( g );
+            DistMatrix<F> AL( g );
             LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, C(1), AL, XT, true );
+            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
             ApplyPackedReflectors
@@ -450,7 +219,7 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            DistMatrix<C> XT( g ),
+            DistMatrix<F> XT( g ),
                           XB( g );
             PartitionDown( X, XT,
                               XB, n );
@@ -458,9 +227,9 @@ LeastSquares
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            DistMatrix<C> AT( g );
+            DistMatrix<F> AT( g );
             LockedView( AT, A, 0, 0, n, n );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, C(1), AT, XT, true );
+            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
             ApplyPackedReflectors
@@ -483,9 +252,9 @@ LeastSquares
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            DistMatrix<C> AL( g );
+            DistMatrix<F> AL( g );
             LockedView( AL, A, 0, 0, m, m );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1), AL, X, true );
+            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
         }
     }
 }

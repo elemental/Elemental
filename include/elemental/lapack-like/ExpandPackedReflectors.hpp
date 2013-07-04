@@ -16,55 +16,11 @@
 
 namespace elem {
 
-template<typename R> 
-inline void
-ExpandPackedReflectors
-( UpperOrLower uplo, VerticalOrHorizontal dir,
-  int offset, Matrix<R>& H )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ExpandPackedReflectors");
-#endif
-    // Since the complex version does not have the same argument list, there is
-    // currently no good way to ensure that this version is not called with 
-    // complex datatypes. Until C++11 compilers are commonplace, we cannot
-    // use static_assert either.
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-
-    if( uplo == LOWER && dir == VERTICAL )
-        expand_packed_reflectors::LV( offset, H );
-    else
-        throw std::logic_error("This option is not yet supported");
-}
-
-template<typename R> 
-inline void
-ExpandPackedReflectors
-( UpperOrLower uplo, VerticalOrHorizontal dir, 
-  int offset, DistMatrix<R>& H )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ExpandPackedReflectors");
-#endif
-    // Since the complex version does not have the same argument list, there is
-    // currently no good way to ensure that this version is not called with 
-    // complex datatypes. Until C++11 compilers are commonplace, we cannot
-    // use static_assert either.
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-
-    if( uplo == LOWER && dir == VERTICAL )
-        expand_packed_reflectors::LV( offset, H );
-    else
-        throw std::logic_error("This option is not yet supported");
-}
-
-template<typename R> 
+template<typename F> 
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset, Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t )
+  int offset, Matrix<F>& H, const Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");
@@ -75,13 +31,11 @@ ExpandPackedReflectors
         throw std::logic_error("This option is not yet supported");
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset, 
-        DistMatrix<Complex<R> >& H, 
-  const DistMatrix<Complex<R>,MD,STAR>& t )
+  int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");
@@ -92,18 +46,16 @@ ExpandPackedReflectors
         throw std::logic_error("This option is not yet supported");
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset,
-        DistMatrix<Complex<R> >& H, 
-  const DistMatrix<Complex<R>,STAR,STAR>& t )
+  int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");
 #endif
-    DistMatrix<Complex<R>,MD,STAR> tDiag(H.Grid());
+    DistMatrix<F,MD,STAR> tDiag(H.Grid());
     tDiag.AlignWithDiagonal( H, offset );
     tDiag = t;
     ExpandPackedReflectors( uplo, dir, conjugation, offset, H, tDiag );

@@ -9,21 +9,21 @@ the matrix to real symmetric tridiagonal form (usually through Householder
 transformations). This routine performs said reduction on a Hermitian matrix 
 and stores the scaled Householder vectors in place of the introduced zeroes. 
 
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
+
+
+
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
+.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
    Overwrites the main and sub (super) diagonal of the real matrix 
    `A` with its similar symmetric tridiagonal matrix and stores the scaled 
    Householder vectors below (above) its tridiagonal entries.
-
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
-.. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& t )
-
-   Similar to above, but the complex Hermitian matrix is reduced to 
-   real symmetric tridiagonal form, with the added complication of needing to 
+   Complex Hermitian reductions have the added complication of needing to 
    also store the phase information for the Householder vectors (the scaling can
-   be inferred since the Householder vectors must be unit length); the scales
-   with proper phases are returned in the column vector `t`.
+   be inferred since the Householder vectors must be unit length) if they are 
+   to be applied (in the column vector `t`). 
 
 Please see the :ref:`lapack-tuning` section for extensive information on 
 maximizing the performance of Householder tridiagonalization.
@@ -41,21 +41,16 @@ result is upper bidiagonal, otherwise it is lower bidiagonal. This routine is
 most commonly used as a preprocessing step in computing the SVD of a general
 matrix.
 
-.. cpp:function:: void Bidiag( Matrix<R>& A )
-.. cpp:function:: void Bidiag( DistMatrix<R>& A )
+.. cpp:function:: void Bidiag( Matrix<F>& A )
+.. cpp:function:: void Bidiag( DistMatrix<F>& A )
+.. cpp:function:: void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+.. cpp:function:: void Bidiag( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 
    Overwrites the main and sub (or super) diagonal of the real matrix `A` with 
    the resulting bidiagonal matrix and stores the scaled Householder vectors in 
    the remainder of the matrix.
-
-   .. note:: The :math:`m < n` case is not yet supported for the distributed 
-             version.
-
-.. cpp:function:: void Bidiag( Matrix<Complex<R> >& A, Matrix<Complex<R> >& tP, Matrix<Complex<R> >& tQ )
-.. cpp:function:: void Bidiag( DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& tP, DistMatrix<Complex<R>,STAR,STAR>& tQ )
-
-   Same as above, but the complex scalings for the Householder reflectors are 
-   returned in the vectors `tP` and `tQ`.
+   The complex case must also store the phases of the Householder 
+   transformations (in `tP` and `tQ`) if they are to be applied.
 
    .. note:: The :math:`m < n` case is not yet supported for the distributed 
              version.

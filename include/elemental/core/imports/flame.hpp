@@ -43,4 +43,34 @@ FLA_Error FLA_Bsvd_v_opz_var1
 
 } // extern "C"
 
+#ifdef HAVE_FLA_BSVD
+namespace elem {
+
+void FlaSVD
+( int k, int mU, int mV, double* d, double* e, 
+  double* U, int ldu, double* V, int ldv, 
+  int numAccum=32, int maxNumIts=30, int bAlg=512 )
+{
+    std::vector<Complex<double> > G( (k-1)*numAccum ),
+                                  H( (k-1)*numAccum ); 
+    FLA_Bsvd_v_opd_var1
+    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, &G[0], 1, k-1, &H[0], 1, k-1,
+      U, 1, ldu, V, 1, ldv, bAlg );
+}
+
+void FlaSVD
+( int k, int mU, int mV, double* d, double* e, 
+  Complex<double>* U, int ldu, Complex<double>* V, int ldv, 
+  int numAccum=32, int maxNumIts=30, int bAlg=512 )
+{
+    std::vector<Complex<double> > G( (k-1)*numAccum ),
+                                  H( (k-1)*numAccum ); 
+    FLA_Bsvd_v_opz_var1
+    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, &G[0], 1, k-1, &H[0], 1, k-1,
+      U, 1, ldu, V, 1, ldv, bAlg );
+}
+
+} // namespace elem
+#endif // ifdef HAVE_FLA_BSVD
+
 #endif // ifndef CORE_FLAME_HPP

@@ -19,40 +19,8 @@
 
 namespace elem {
 
-template<typename R>
-inline void
-Bidiag( Matrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Bidiag");
-#endif
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-    if( A.Height() >= A.Width() )
-        bidiag::U( A );
-    else
-        bidiag::L( A );
-}
-
-template<typename R> 
-inline void Bidiag( DistMatrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Bidiag");
-#endif
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-    if( A.Height() >= A.Width() )
-        bidiag::U( A );
-    else
-        bidiag::L( A );
-}
-
-template<typename R>
-inline void Bidiag
-( Matrix<Complex<R> >& A,
-  Matrix<Complex<R> >& tP,
-  Matrix<Complex<R> >& tQ )
+template<typename F>
+inline void Bidiag( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
 #ifndef RELEASE
     CallStackEntry entry("Bidiag");
@@ -63,11 +31,9 @@ inline void Bidiag
         bidiag::L( A, tP, tQ );
 }
 
-template<typename R> 
+template<typename F> 
 inline void Bidiag
-( DistMatrix<Complex<R> >& A,
-  DistMatrix<Complex<R>,STAR,STAR>& tP,
-  DistMatrix<Complex<R>,STAR,STAR>& tQ )
+( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 {
 #ifndef RELEASE
     CallStackEntry entry("Bidiag");
@@ -76,6 +42,26 @@ inline void Bidiag
         bidiag::U( A, tP, tQ );
     else
         bidiag::L( A, tP, tQ );
+}
+
+template<typename F>
+inline void Bidiag( Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Bidiag");
+#endif
+    Matrix<F> tP, tQ;
+    Bidiag( A, tP, tQ );
+}
+
+template<typename F> 
+inline void Bidiag( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Bidiag");
+#endif
+    DistMatrix<F,STAR,STAR> tP(A.Grid()), tQ(A.Grid());
+    Bidiag( A, tP, tQ );
 }
 
 } // namespace elem

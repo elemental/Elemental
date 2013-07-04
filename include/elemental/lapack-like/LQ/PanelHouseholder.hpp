@@ -19,133 +19,9 @@
 namespace elem {
 namespace lq {
 
-template<typename Real> 
+template<typename F>
 inline void
-PanelHouseholder( Matrix<Real>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-#endif
-    Matrix<Real>
-        ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
-        ABL, ABR,  a10, alpha11, a12,
-                   A20, a21,     A22;
-
-    Matrix<Real> z;
-
-    PartitionDownLeftDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        View1x2( aTopRow, alpha11, a12 );
-        View1x2( ABottomPan, a21, A22 );
-
-        //--------------------------------------------------------------------//
-        const Real tau = Reflector( alpha11, a12 );
-        const Real alpha = alpha11.Get(0,0);
-        alpha11.Set(0,0,1);
-
-        Zeros( z, ABottomPan.Height(), 1 );
-        Gemv( NORMAL, Real(1), ABottomPan, aTopRow, Real(0), z );
-        Ger( -tau, z, aTopRow, ABottomPan );
-        alpha11.Set(0,0,alpha);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-    }
-}
-
-template<typename Real> 
-inline void
-PanelHouseholder( DistMatrix<Real>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("lq::PanelHouseholder");
-#endif
-    const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<Real>
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
-                         A20(g), a21(g),     A22(g);
-
-    // Temporary distributions
-    DistMatrix<Real,STAR,MR> aTopRow_STAR_MR(g);
-    DistMatrix<Real,MC,STAR> z_MC_STAR(g);
-
-    PartitionDownLeftDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        View1x2( aTopRow, alpha11, a12 );
-        View1x2( ABottomPan, a21, A22 );
-
-        aTopRow_STAR_MR.AlignWith( ABottomPan );
-        z_MC_STAR.AlignWith( ABottomPan );
-        //--------------------------------------------------------------------//
-        const Real tau = Reflector( alpha11, a12 );
-
-        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
-                                       g.Col() == alpha11.RowAlignment() );
-        Real alpha = 0;
-        if( myDiagonalEntry )
-        {
-            alpha = alpha11.GetLocal(0,0);
-            alpha11.SetLocal(0,0,1);
-        }
-
-        aTopRow_STAR_MR = aTopRow;
-
-        Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
-        Gemv
-        ( NORMAL,
-          Real(1), ABottomPan.LockedMatrix(), aTopRow_STAR_MR.LockedMatrix(),
-          Real(0), z_MC_STAR.Matrix() );
-        z_MC_STAR.SumOverRow();
-
-        Ger
-        ( -tau,
-          z_MC_STAR.LockedMatrix(), aTopRow_STAR_MR.LockedMatrix(),
-          ABottomPan.Matrix() );
-
-        if( myDiagonalEntry )
-            alpha11.SetLocal(0,0,alpha);
-        //--------------------------------------------------------------------//
-        aTopRow_STAR_MR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-    }
-}
-
-template<typename Real>
-inline void
-PanelHouseholder
-( Matrix<Complex<Real> >& A,
-  Matrix<Complex<Real> >& t )
+PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
@@ -153,18 +29,16 @@ PanelHouseholder
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
 #endif
-    typedef Complex<Real> C;
-
-    Matrix<C>
+    Matrix<F>
         ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
         ABL, ABR,  a10, alpha11, a12,
                    A20, a21,     A22;
-    Matrix<C>
+    Matrix<F>
         tT,  t0,
         tB,  tau1,
              t2;
 
-    Matrix<C> z, aTopRowConj;
+    Matrix<F> z, aTopRowConj;
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
@@ -190,14 +64,14 @@ PanelHouseholder
         View1x2( ABottomPan, a21, A22 );
 
         //--------------------------------------------------------------------//
-        const C tau = Reflector( alpha11, a12 );
+        const F tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
-        const C alpha = alpha11.Get(0,0);
+        const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
 
         Conjugate( aTopRow, aTopRowConj );
         Zeros( z, ABottomPan.Height(), 1 );
-        Gemv( NORMAL, C(1), ABottomPan, aTopRowConj, C(0), z );
+        Gemv( NORMAL, F(1), ABottomPan, aTopRowConj, F(0), z );
         Ger( -Conj(tau), z, aTopRowConj, ABottomPan );
 
         alpha11.Set(0,0,alpha);
@@ -217,22 +91,20 @@ PanelHouseholder
     }
 }
 
-template<typename Real>
+template<typename F>
 inline void
-PanelHouseholder( Matrix<Complex<Real> >& A )
+PanelHouseholder( Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
 #endif
-    Matrix<Complex<Real> > t;
+    Matrix<F> t;
     PanelHouseholder( A, t );
 }
 
-template<typename Real>
+template<typename F>
 inline void
-PanelHouseholder
-( DistMatrix<Complex<Real> >& A,
-  DistMatrix<Complex<Real>,MD,STAR>& t )
+PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
@@ -244,23 +116,22 @@ PanelHouseholder
     if( !t.AlignedWithDiagonal( A, 0 ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
-    typedef Complex<Real> C;
     const Grid& g = A.Grid();
 
     // Matrix views
-    DistMatrix<C>
+    DistMatrix<F>
         ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
         ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
                          A20(g), a21(g),     A22(g);
-    DistMatrix<C,MD,STAR>
+    DistMatrix<F,MD,STAR>
         tT(g),  t0(g),
         tB(g),  tau1(g),
                 t2(g);
 
     // Temporary distributions
-    DistMatrix<C> aTopRowConj(g);
-    DistMatrix<C,STAR,MR  > aTopRowConj_STAR_MR(g);
-    DistMatrix<C,MC,  STAR> z_MC_STAR(g);
+    DistMatrix<F> aTopRowConj(g);
+    DistMatrix<F,STAR,MR  > aTopRowConj_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> z_MC_STAR(g);
 
     PartitionDownLeftDiagonal
     ( A, ATL, ATR,
@@ -288,12 +159,12 @@ PanelHouseholder
         aTopRowConj_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );
         //--------------------------------------------------------------------//
-        const C tau = Reflector( alpha11, a12 );
+        const F tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
 
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
                                        g.Col() == alpha11.RowAlignment() );
-        C alpha = 0;
+        F alpha = 0;
         if( myDiagonalEntry )
         {
             alpha = alpha11.GetLocal(0,0);
@@ -306,9 +177,9 @@ PanelHouseholder
         Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         Gemv
         ( NORMAL,
-          C(1), ABottomPan.LockedMatrix(),
+          F(1), ABottomPan.LockedMatrix(),
                 aTopRowConj_STAR_MR.LockedMatrix(),
-          C(0), z_MC_STAR.Matrix() );
+          F(0), z_MC_STAR.Matrix() );
         z_MC_STAR.SumOverRow();
 
         Ger
@@ -337,14 +208,14 @@ PanelHouseholder
     }
 }
 
-template<typename Real>
+template<typename F>
 inline void
-PanelHouseholder( DistMatrix<Complex<Real> >& A )
+PanelHouseholder( DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
 #endif
-    DistMatrix<Complex<Real>,MD,STAR> t(A.Grid());
+    DistMatrix<F,MD,STAR> t(A.Grid());
     PanelHouseholder( A, t );
 }
 

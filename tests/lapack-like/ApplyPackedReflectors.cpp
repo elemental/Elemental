@@ -18,85 +18,14 @@
 using namespace std;
 using namespace elem;
 
-template<typename R> 
-void TestCorrectness
-( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
-  int offset, bool printMatrices, const DistMatrix<R>& H )
-{
-    const Grid& g = H.Grid();
-    const int m = H.Height();
-
-    if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of transform..." << endl;
-
-    // Form Z := Q^H Q or Q^H Q as an approximation to identity
-    DistMatrix<R> Y(m,m,g);
-    MakeIdentity( Y );
-    ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, Y );
-    if( printMatrices )
-    {
-        DistMatrix<R> W(m,m,g);
-        MakeIdentity( W );
-        if( order == FORWARD )
-        {
-            ApplyPackedReflectors
-            ( side, uplo, VERTICAL, BACKWARD, offset, H, W );
-            Print( Y, "Q" );
-            Print( W, "Q^H" );
-        }
-        else
-        {
-            ApplyPackedReflectors
-            ( side, uplo, VERTICAL, FORWARD, offset, H, W );
-            Print( Y, "Q^H" );
-            Print( W, "Q" );
-        }
-    }
-    DistMatrix<R> Z(m,m,g);
-    Zero( Z );
-    Syrk( uplo, NORMAL, 1.0, Y, 0.0, Z );
-
-    // Form X := I - Q^H Q or Q Q^H
-    DistMatrix<R> X(m,m,g);
-    MakeIdentity( X );
-    Axpy( R(-1), Z, X );
-    if( printMatrices )
-    {
-        if( order == FORWARD )
-            Print( X, "I - Q Q^H" );
-        else
-            Print( X, "I - Q^H Q" );
-    }
-
-    const R oneNormOfError = OneNorm( X );
-    const R infNormOfError = InfinityNorm( X );
-    const R frobNormOfError = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-    {
-        if( order == FORWARD )
-        {
-            cout << "    ||Q Q^H - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||Q Q^H - I||_oo = " << infNormOfError << "\n"
-                 << "    ||Q Q^H - I||_F  = " << frobNormOfError << endl;
-        }
-        else
-        {
-            cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
-                 << "    ||Q^H Q - I||_oo = " << infNormOfError << "\n"
-                 << "    ||Q^H Q - I||_F  = " << frobNormOfError << endl;
-        }
-    }
-}
-
-template<typename R> 
+template<typename F> 
 void TestCorrectness
 ( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
   Conjugation conjugation, int offset, bool printMatrices,
-  const DistMatrix<Complex<R> >& H,
-  const DistMatrix<Complex<R>,MD,STAR>& t )
+  const DistMatrix<F>& H,
+  const DistMatrix<F,MD,STAR>& t )
 {
-    typedef Complex<R> C;
-
+    typedef BASE(F) R;
     const Grid& g = H.Grid();
     const int m = H.Height();
 
@@ -104,13 +33,13 @@ void TestCorrectness
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
-    DistMatrix<C> Y(m,m,g);
+    DistMatrix<F> Y(m,m,g);
     MakeIdentity( Y );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
-        DistMatrix<C> W(m,m,g);
+        DistMatrix<F> W(m,m,g);
         MakeIdentity( W );
         if( order == FORWARD )
         {
@@ -127,14 +56,14 @@ void TestCorrectness
             Print( W, "Q" );
         }
     }
-    DistMatrix<C> Z(m,m,g);
+    DistMatrix<F> Z(m,m,g);
     MakeZeros( Z );
-    Herk( uplo, NORMAL, C(1), Y, C(0), Z );
+    Herk( uplo, NORMAL, F(1), Y, F(0), Z );
     
     // Form X := I - Q^H Q or Q Q^H
-    DistMatrix<C> X(m,m,g);
+    DistMatrix<F> X(m,m,g);
     MakeIdentity( X );
-    Axpy( C(-1), Z, X );
+    Axpy( F(-1), Z, X );
     if( printMatrices )
     {
         if( order == FORWARD )
@@ -164,72 +93,31 @@ void TestCorrectness
     }
 }
 
-template<typename R>
-void TestRealUT
+template<typename F>
+void TestUT
 ( LeftOrRight side, UpperOrLower uplo, 
   ForwardOrBackward order, Conjugation conjugation,
   int m, int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    DistMatrix<R> H(g), A(g);
-    Uniform( H, m, m );
-    Uniform( A, m, m );
-    if( printMatrices )
-    {
-        Print( H, "H" );
-        Print( A, "A" );
-    }
-
-    if( g.Rank() == 0 )
-    {
-        cout << "  Starting UT transform...";
-        cout.flush();
-    }
-    mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    ApplyPackedReflectors( side, uplo, VERTICAL, order, offset, H, A );
-    mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    const double gFlops = 2.*Pow(double(m),3.)/(1.e9*runTime);
-    if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds. GFlops = " 
-             << gFlops << endl;
-    }
-    if( printMatrices )
-        Print( A, "A after factorization" );
-    if( testCorrectness )
-        TestCorrectness( side, uplo, order, offset, printMatrices, H );
-}
-
-template<typename R>
-void TestComplexUT
-( LeftOrRight side, UpperOrLower uplo, 
-  ForwardOrBackward order, Conjugation conjugation,
-  int m, int offset, bool testCorrectness, bool printMatrices,
-  const Grid& g )
-{
-    typedef Complex<R> C;
-
-    DistMatrix<C> H(g), A(g);
+    DistMatrix<F> H(g), A(g);
     Uniform( H, m, m );
     Uniform( A, m, m );
 
     const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
-    DistMatrix<C,MD,STAR> t(g);
+    DistMatrix<F,MD,STAR> t(g);
     t.AlignWithDiagonal( H, offset );
     t.ResizeTo( diagLength, 1 );
 
-    DistMatrix<C> HCol(g);
+    DistMatrix<F> HCol(g);
     if( uplo == LOWER )
     {
         for( int i=0; i<t.Height(); ++i )
         {
             // View below the diagonal containing the implicit 1
             View( HCol, H, i-offset+1, i, m-(i-offset+1), 1 );
-            C norm = Nrm2( HCol );
-            C alpha = 2./(norm*norm+1.);
+            F norm = Nrm2( HCol );
+            F alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
         }
     }
@@ -239,8 +127,8 @@ void TestComplexUT
         {
             // View above the diagonal containing the implicit 1
             View( HCol, H, 0, i+offset, i, 1 );
-            C norm = Nrm2( HCol );
-            C alpha = 2./(norm*norm+1.);
+            F norm = Nrm2( HCol );
+            F alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
         }
     }
@@ -263,7 +151,8 @@ void TestComplexUT
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, A );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
-    const double gFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
+    const double realGFlops = 8.*Pow(double(m),3.)/(1.e9*runTime);
+    const double gFlops = ( IsComplex<F>::val ? 4*realGFlops : realGFlops );
     if( g.Rank() == 0 )
     {
         cout << "DONE. " << endl
@@ -329,7 +218,7 @@ main( int argc, char* argv[] )
                  << "Testing with doubles:\n"
                  << "---------------------" << endl;
         }
-        TestRealUT<double>
+        TestUT<double>
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
 
@@ -339,7 +228,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestComplexUT<double>
+        TestUT<Complex<double> >
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }

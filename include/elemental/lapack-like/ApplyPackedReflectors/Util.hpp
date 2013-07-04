@@ -12,40 +12,10 @@
 
 namespace elem {
 
-template<typename R> 
-inline void 
-HalveMainDiagonal( Matrix<R>& SInv )
-{
-#ifndef RELEASE
-    CallStackEntry entry("HalveMainDiagonal");
-#endif
-    for( int j=0; j<SInv.Height(); ++j )
-    {
-        const R value = SInv.Get(j,j);
-        SInv.Set(j,j,value/2);
-    }
-}
-
-template<typename R> 
-inline void 
-HalveMainDiagonal( DistMatrix<R,STAR,STAR>& SInv )
-{
-#ifndef RELEASE
-    CallStackEntry entry("HalveMainDiagonal");
-#endif
-    for( int j=0; j<SInv.Height(); ++j )
-    {
-        const R value = SInv.GetLocal(j,j);
-        SInv.SetLocal(j,j,value/2);
-    }
-}
-
-template<typename R> 
+template<typename F> 
 inline void
 FixDiagonal
-( Conjugation conjugation,
-  const Matrix<Complex<R> >& t,
-        Matrix<Complex<R> >& SInv )
+( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
 {
 #ifndef RELEASE
     CallStackEntry entry("FixDiagonal");
@@ -54,7 +24,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/Conj(t.Get(j,0));
+            const F value = F(1)/Conj(t.Get(j,0));
             SInv.Set(j,j,value);
         }
     }
@@ -62,18 +32,18 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/t.Get(j,0);
+            const F value = F(1)/t.Get(j,0);
             SInv.Set(j,j,value);
         }
     }
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 FixDiagonal
 ( Conjugation conjugation,
-  const DistMatrix<Complex<R>,STAR,STAR>& t,
-        DistMatrix<Complex<R>,STAR,STAR>& SInv )
+  const DistMatrix<F,STAR,STAR>& t,
+        DistMatrix<F,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
     CallStackEntry entry("FixDiagonal");
@@ -82,7 +52,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/Conj(t.GetLocal(j,0));
+            const F value = F(1)/Conj(t.GetLocal(j,0));
             SInv.SetLocal(j,j,value);
         }
     }
@@ -90,7 +60,7 @@ FixDiagonal
     {
         for( int j=0; j<SInv.Height(); ++j )
         {
-            const Complex<R> value = Complex<R>(1)/t.GetLocal(j,0);
+            const F value = F(1)/t.GetLocal(j,0);
             SInv.SetLocal(j,j,value);
         }
     }

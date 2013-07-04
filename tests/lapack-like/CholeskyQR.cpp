@@ -25,7 +25,6 @@ void TestCorrectness
 {
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
-    const int m = A.Height();
     const int n = A.Width();
 
     // Form I - Q^H Q

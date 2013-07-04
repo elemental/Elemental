@@ -48,10 +48,9 @@ QR( DistMatrix<F>& A )
     qr::Householder( A );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( Matrix<Complex<Real> >& A, 
-    Matrix<Complex<Real> >& t )
+QR( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -59,10 +58,9 @@ QR( Matrix<Complex<Real> >& A,
     qr::Householder( A, t );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( DistMatrix<Complex<Real> >& A, 
-    DistMatrix<Complex<Real>,MD,STAR>& t )
+QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -94,11 +92,9 @@ QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
     qr::BusingerGolub( A, p );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( Matrix<Complex<Real> >& A, 
-    Matrix<Complex<Real> >& t,
-    Matrix<int>& p )
+QR( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -106,11 +102,9 @@ QR( Matrix<Complex<Real> >& A,
     qr::BusingerGolub( A, t, p );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-QR( DistMatrix<Complex<Real> >& A, 
-    DistMatrix<Complex<Real>,MD,STAR>& t,
-    DistMatrix<int,VR,STAR>& p )
+QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");

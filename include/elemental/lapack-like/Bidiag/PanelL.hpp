@@ -13,52 +13,16 @@
 namespace elem {
 namespace bidiag {
 
-template<typename R>
-inline void 
-PanelL
-( DistMatrix<R>& A, 
-  DistMatrix<R>& X, 
-  DistMatrix<R>& Y,
-  DistMatrix<R,MC,  STAR>& AColPan_MC_STAR,
-  DistMatrix<R,STAR,MR  >& ARowPan_STAR_MR )
-{
-#ifndef RELEASE
-    CallStackEntry entry("bidiag::PanelL");
-    if( A.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
-        Y.Grid() != AColPan_MC_STAR.Grid() || 
-        Y.Grid() != ARowPan_STAR_MR.Grid() )
-        throw std::logic_error("Grids must match");
-    if( A.Height() > A.Width() )
-        throw std::logic_error("A must be at least as wide as it is tall");
-    if( A.Height() != X.Height() )
-        throw std::logic_error("A and X must be the same height");
-    if( A.Width() != Y.Height() )
-        throw std::logic_error("Y must be the same height as A's width");
-    const int panelSize = X.Width();
-    if( X.Height() < panelSize )
-        throw std::logic_error("X must be a column panel");
-    if( Y.Width() != panelSize )
-        throw std::logic_error("Y is the wrong width");
-    if( A.ColAlignment() != X.ColAlignment() || 
-        A.RowAlignment() != X.RowAlignment() )
-        throw std::logic_error("A and X must be aligned");
-    if( A.ColAlignment() != Y.ColAlignment() ||
-        A.RowAlignment() != Y.RowAlignment() )
-        throw std::logic_error("A and Y must be aligned");
-#endif
-    throw std::logic_error("This routine is not yet written");
-}
-
-template<typename R> 
+template<typename F> 
 inline void
 PanelL
-( DistMatrix<Complex<R> >& A, 
-  DistMatrix<Complex<R>,MD,  STAR>& tP,
-  DistMatrix<Complex<R>,MD,  STAR>& tQ,
-  DistMatrix<Complex<R> >& X, 
-  DistMatrix<Complex<R> >& Y,
-  DistMatrix<Complex<R>,MC,  STAR>& AColPan_MC_STAR,
-  DistMatrix<Complex<R>,STAR,MR  >& ARowPan_STAR_MR )
+( DistMatrix<F>& A, 
+  DistMatrix<F,MD,STAR>& tP,
+  DistMatrix<F,MD,STAR>& tQ,
+  DistMatrix<F>& X, 
+  DistMatrix<F>& Y,
+  DistMatrix<F,MC,STAR>& AColPan_MC_STAR,
+  DistMatrix<F,STAR,MR>& ARowPan_STAR_MR )
 {
 #ifndef RELEASE
     CallStackEntry entry("bidiag::PanelL");

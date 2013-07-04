@@ -33,7 +33,8 @@ LQ( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LQ");
 #endif
-    lq::Householder( A );
+    Matrix<F> t;
+    lq::Householder( A, t );
 }
 
 template<typename F> 
@@ -43,13 +44,13 @@ LQ( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LQ");
 #endif
-    lq::Householder( A );
+    DistMatrix<F,MD,STAR> t(A.Grid());
+    lq::Householder( A, t );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-LQ( Matrix<Complex<Real> >& A, 
-    Matrix<Complex<Real> >& t )
+LQ( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("LQ");
@@ -57,10 +58,9 @@ LQ( Matrix<Complex<Real> >& A,
     lq::Householder( A, t );
 }
 
-template<typename Real> 
+template<typename F> 
 inline void
-LQ( DistMatrix<Complex<Real> >& A, 
-    DistMatrix<Complex<Real>,MD,STAR>& t )
+LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("LQ");

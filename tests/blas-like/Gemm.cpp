@@ -18,7 +18,7 @@ void TestGemm
 ( bool print, Orientation orientA, Orientation orientB,
   int m, int n, int k, T alpha, T beta, const Grid& g )
 {
-    double startTime, endTime, runTime, realGFlops, gFlops;
+    double startTime, runTime, realGFlops, gFlops;
     DistMatrix<T> A(g), B(g), C(g);
 
     if( orientA == NORMAL )

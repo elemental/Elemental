@@ -41,240 +41,9 @@ namespace expand_packed_reflectors {
 // where U is the matrix of Householder vectors and t is the vector of scalars.
 //
 
-template<typename R> 
+template<typename F>
 inline void
-LV( int offset, Matrix<R>& H )
-{
-#ifndef RELEASE
-    CallStackEntry entry("expand_packed_reflectors::LV");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-#endif
-    // Start by zeroing everything above the offset and setting that diagonal
-    // to all ones. We can also ensure that H is not wider than it is tall.
-    if( H.Width() > H.Height() )
-        H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, R(1), offset );
-    const int dimDiff = H.Height() - H.Width();
-
-    Matrix<R>
-        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy, HPanT,
-        HBL, HBR,  H10, H11, H12,                  HPanB,
-                   H20, H21, H22;
-    Matrix<R> HEffected,
-              HEffectedNew, HEffectedOld, 
-              HEffectedOldT,
-              HEffectedOldB;
-
-    Matrix<R> SInv, Z, ZNew, ZOld;
-
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
-         HBL, HBR, 0 );
-    int oldEffectedHeight=dimDiff;
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
-    {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
-
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int effectedHeight = std::max(HPanHeight+offset,0);
-        const int HPanWidth = std::min( H11.Width(), effectedHeight );
-
-        const int effectedWidth = effectedHeight - dimDiff;
-        const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-        const int newEffectedWidth = effectedWidth - oldEffectedWidth;
-
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-        LockedPartitionDown
-        ( HPan, HPanT,
-                HPanB, newEffectedWidth /* to match ZNew */ );
-
-        View
-        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
-          effectedHeight, effectedWidth ); 
-        PartitionLeft
-        ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
-        PartitionUp
-        ( HEffectedOld, HEffectedOldT,
-                        HEffectedOldB, oldEffectedHeight );
-
-        Z.ResizeTo( HPanWidth, effectedWidth );
-        PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
-        //--------------------------------------------------------------------//
-        Syrk( UPPER, TRANSPOSE, R(1), HPan, SInv );
-        HalveMainDiagonal( SInv );
-
-        // Interleave the updates of the already effected portion of the matrix
-        // with the newly effected portion to increase performance
-        Transpose( HPanT, ZNew );
-        MakeZeros( ZOld );
-        Gemm( TRANSPOSE, NORMAL, R(1), HPanB, HEffectedOldB, R(0), ZOld );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, R(1), SInv, Z );
-        HPanCopy = HPan;
-        MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, R(-1), HPanCopy, Z, R(1), HEffected );
-        //--------------------------------------------------------------------//
-
-        oldEffectedHeight = effectedHeight;
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
-    }
-
-    // Take care of any untouched columns on the left side of H
-    const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-    if( oldEffectedWidth < H.Width() )
-    {
-        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
-        MakeZeros( HEffectedNew );
-        SetDiagonal( HEffectedNew, R(1) );
-    }
-}
-
-template<typename R> 
-inline void
-LV( int offset, DistMatrix<R>& H )
-{
-#ifndef RELEASE
-    CallStackEntry entry("expand_packed_reflectors::LV");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-#endif
-    // Start by zeroing everything above the offset and setting that diagonal
-    // to all ones. We can also ensure that H is not wider than it is tall.
-    if( H.Width() > H.Height() )
-        H.ResizeTo( H.Height(), H.Height() );
-    MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, R(1), offset );
-    const int dimDiff = H.Height() - H.Width();
-
-    const Grid& g = H.Grid();
-    DistMatrix<R>
-        HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g),
-        HBL(g), HBR(g),  H10(g), H11(g), H12(g),  
-                         H20(g), H21(g), H22(g);
-    DistMatrix<R> HEffected(g),
-                  HEffectedNew(g), HEffectedOld(g),
-                  HEffectedOldT(g),
-                  HEffectedOldB(g);
-
-    DistMatrix<R,VC,STAR> HPan_VC_STAR(g);
-    DistMatrix<R,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g),
-                                           HPanB_MC_STAR(g);
-
-    DistMatrix<R,STAR,MR> Z_STAR_MR(g),
-                          ZNew_STAR_MR(g), ZOld_STAR_MR(g);
-    DistMatrix<R,STAR,VR> Z_STAR_VR(g),
-                          ZNew_STAR_VR(g), ZOld_STAR_VR(g);
-    DistMatrix<R,STAR,STAR> SInv_STAR_STAR(g);
-
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
-         HBL, HBR, 0 );
-    int oldEffectedHeight=dimDiff;
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
-    {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
-
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int effectedHeight = std::max(HPanHeight+offset,0);
-        const int HPanWidth = std::min( H11.Width(), effectedHeight );
-
-        const int effectedWidth = effectedHeight - dimDiff;
-        const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-        const int newEffectedWidth = effectedWidth - oldEffectedWidth;
-
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-
-        View
-        ( HEffected, H, H.Height()-effectedHeight, H.Width()-effectedWidth, 
-          effectedHeight, effectedWidth ); 
-        PartitionLeft
-        ( HEffected, HEffectedNew, HEffectedOld, oldEffectedWidth );
-        PartitionUp
-        ( HEffectedOld, HEffectedOldT,
-                        HEffectedOldB, oldEffectedHeight );
-
-        HPan_MC_STAR.AlignWith( HEffected );
-        Z_STAR_VR.AlignWith( HEffected );
-        Z_STAR_MR.AlignWith( HEffected );
-        Z_STAR_MR.ResizeTo( HPanWidth, effectedWidth );
-        Z_STAR_VR.ResizeTo( HPanWidth, effectedWidth );
-        PartitionLeft
-        ( Z_STAR_MR, ZNew_STAR_MR, ZOld_STAR_MR, oldEffectedWidth );
-        PartitionLeft
-        ( Z_STAR_VR, ZNew_STAR_VR, ZOld_STAR_VR, oldEffectedWidth );
-        //--------------------------------------------------------------------//
-        HPan_VC_STAR = HPan;
-        Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
-        Syrk
-        ( UPPER, TRANSPOSE, 
-          R(1), HPan_VC_STAR.LockedMatrix(), 
-          R(0), SInv_STAR_STAR.Matrix() );
-        SInv_STAR_STAR.SumOverGrid();
-        HalveMainDiagonal( SInv_STAR_STAR );
-
-        HPan_MC_STAR = HPan;
-        LockedPartitionDown
-        ( HPan_MC_STAR, HPanT_MC_STAR,
-                        HPanB_MC_STAR, newEffectedWidth /* to match ZNew */ );
-
-        // Interleave the updates of the already effected portion of the matrix
-        // with the newly effected portion in order to lower latency and 
-        // increase performance
-        Transpose( HPanT_MC_STAR, ZNew_STAR_VR );
-        MakeZeros( ZOld_STAR_MR );
-        LocalGemm
-        ( TRANSPOSE, NORMAL, 
-          R(1), HPanB_MC_STAR, HEffectedOldB, R(0), ZOld_STAR_MR );
-        ZOld_STAR_VR.SumScatterFrom( ZOld_STAR_MR );
-        LocalTrsm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, R(1), SInv_STAR_STAR, Z_STAR_VR );
-        Z_STAR_MR = Z_STAR_VR;
-        MakeIdentity( HEffectedNew );
-        LocalGemm
-        ( NORMAL, NORMAL, R(-1), HPan_MC_STAR, Z_STAR_MR, R(1), HEffected );
-        //--------------------------------------------------------------------//
-        HPan_MC_STAR.FreeAlignments();
-        Z_STAR_VR.FreeAlignments();
-        Z_STAR_MR.FreeAlignments();
-
-        oldEffectedHeight = effectedHeight;
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
-    }
-
-    // Take care of any untouched columns on the left side of H
-    const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-    if( oldEffectedWidth < H.Width() )
-    {
-        View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
-        MakeZeros( HEffectedNew );
-        SetDiagonal( HEffectedNew, R(1) );
-    }
-}
-
-template<typename R>
-inline void
-LV
-( Conjugation conjugation, int offset,
-  Matrix<Complex<R> >& H, const Matrix<Complex<R> >& t )
+LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("expand_packed_reflectors::LV");
@@ -283,30 +52,28 @@ LV
     if( t.Height() != H.DiagonalLength( offset ) )
         throw std::logic_error("t must be the same length as H's offset diag");
 #endif
-    typedef Complex<R> C;
-
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, C(1), offset );
+    SetDiagonal( H, F(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
-    Matrix<C>
+    Matrix<F>
         HTL, HTR,  H00, H01, H02,  HPan, HPanCopy, HPanT,
         HBL, HBR,  H10, H11, H12,                  HPanB,
                    H20, H21, H22;
-    Matrix<C> HEffected, 
+    Matrix<F> HEffected, 
               HEffectedNew, HEffectedOld, 
               HEffectedOldT,
               HEffectedOldB;
-    Matrix<C>
+    Matrix<F>
         tT,  t0,
         tB,  t1,
              t2;
 
-    Matrix<C> SInv, Z, ZNew, ZOld;
+    Matrix<F> SInv, Z, ZNew, ZOld;
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -354,18 +121,18 @@ LV
         Z.ResizeTo( HPanWidth, effectedWidth );
         PartitionLeft( Z, ZNew, ZOld, oldEffectedWidth );
         //--------------------------------------------------------------------//
-        Herk( UPPER, ADJOINT, C(1), HPan, SInv );
+        Herk( UPPER, ADJOINT, F(1), HPan, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
         // Interleave the updates of the already effected portion of the matrix
         // with the newly effected portion to increase performance
         Adjoint( HPanT, ZNew );
         MakeZeros( ZOld );
-        Gemm( ADJOINT, NORMAL, C(1), HPanB, HEffectedOldB, C(0), ZOld );
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, C(1), SInv, Z );
+        Gemm( ADJOINT, NORMAL, F(1), HPanB, HEffectedOldB, F(0), ZOld );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv, Z );
         HPanCopy = HPan;
         MakeIdentity( HEffectedNew );
-        Gemm( NORMAL, NORMAL, C(-1), HPanCopy, Z, C(1), HEffected );
+        Gemm( NORMAL, NORMAL, F(-1), HPanCopy, Z, F(1), HEffected );
         //--------------------------------------------------------------------//
 
         oldEffectedHeight = effectedHeight;
@@ -389,15 +156,15 @@ LV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( HEffectedNew, C(1) );
+        SetDiagonal( HEffectedNew, F(1) );
     }
 }
 
-template<typename R> 
+template<typename F>
 inline void
 LV
 ( Conjugation conjugation, int offset, 
-  DistMatrix<Complex<R> >& H, const DistMatrix<Complex<R>,MD,STAR>& t )
+  DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("expand_packed_reflectors::LV");
@@ -410,40 +177,38 @@ LV
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif
-    typedef Complex<R> C;
-
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
     if( H.Width() > H.Height() )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
-    SetDiagonal( H, C(1), offset );
+    SetDiagonal( H, F(1), offset );
     const int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
-    DistMatrix<C>
+    DistMatrix<F>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),  
                          H20(g), H21(g), H22(g);
-    DistMatrix<C> HEffected(g),
+    DistMatrix<F> HEffected(g),
                   HEffectedNew(g), HEffectedOld(g),
                   HEffectedOldT(g),
                   HEffectedOldB(g);
-    DistMatrix<C,MD,STAR>
+    DistMatrix<F,MD,STAR>
         tT(g),  t0(g),
         tB(g),  t1(g),
                 t2(g);
 
-    DistMatrix<C,VC,STAR> HPan_VC_STAR(g);
-    DistMatrix<C,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g),
+    DistMatrix<F,VC,STAR> HPan_VC_STAR(g);
+    DistMatrix<F,MC,STAR> HPan_MC_STAR(g), HPanT_MC_STAR(g),
                                            HPanB_MC_STAR(g);
 
-    DistMatrix<C,STAR,MR> Z_STAR_MR(g),
+    DistMatrix<F,STAR,MR> Z_STAR_MR(g),
                           ZNew_STAR_MR(g), ZOld_STAR_MR(g);
-    DistMatrix<C,STAR,VR> Z_STAR_VR(g),
+    DistMatrix<F,STAR,VR> Z_STAR_VR(g),
                           ZNew_STAR_VR(g), ZOld_STAR_VR(g);
-    DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
-    DistMatrix<C,STAR,STAR> SInv_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> SInv_STAR_STAR(g);
 
     LockedPartitionUpDiagonal
     ( H, HTL, HTR,
@@ -499,8 +264,8 @@ LV
         Zeros( SInv_STAR_STAR, HPanWidth, HPanWidth );
         Herk
         ( UPPER, ADJOINT, 
-          C(1), HPan_VC_STAR.LockedMatrix(), 
-          C(0), SInv_STAR_STAR.Matrix() );
+          F(1), HPan_VC_STAR.LockedMatrix(), 
+          F(0), SInv_STAR_STAR.Matrix() );
         SInv_STAR_STAR.SumOverGrid();
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
@@ -517,14 +282,14 @@ LV
         MakeZeros( ZOld_STAR_MR );
         LocalGemm
         ( ADJOINT, NORMAL, 
-          C(1), HPanB_MC_STAR, HEffectedOldB, C(0), ZOld_STAR_MR );
+          F(1), HPanB_MC_STAR, HEffectedOldB, F(0), ZOld_STAR_MR );
         ZOld_STAR_VR.SumScatterFrom( ZOld_STAR_MR );
         LocalTrsm
-        ( LEFT, UPPER, NORMAL, NON_UNIT, C(1), SInv_STAR_STAR, Z_STAR_VR );
+        ( LEFT, UPPER, NORMAL, NON_UNIT, F(1), SInv_STAR_STAR, Z_STAR_VR );
         Z_STAR_MR = Z_STAR_VR;
         MakeIdentity( HEffectedNew );
         LocalGemm
-        ( NORMAL, NORMAL, C(-1), HPan_MC_STAR, Z_STAR_MR, C(1), HEffected );
+        ( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), HEffected );
         //--------------------------------------------------------------------//
         HPan_MC_STAR.FreeAlignments();
         Z_STAR_VR.FreeAlignments();
@@ -551,7 +316,7 @@ LV
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
         MakeZeros( HEffectedNew );
-        SetDiagonal( HEffectedNew, C(1) );
+        SetDiagonal( HEffectedNew, F(1) );
     }
 }
 

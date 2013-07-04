@@ -13,6 +13,8 @@
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 
+// TODO: Make this code much more precise
+
 // The targeted number of pieces to break the eigenvectors into during the
 // redistribution from the [* ,VR] distribution after PMRRR to the [MC,MR]
 // distribution needed for backtransformation.
@@ -498,7 +500,8 @@ void HermitianEig
         ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
-    HermitianTridiag( uplo, A );
+    DistMatrix<R,STAR,STAR> t(g);
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
@@ -582,10 +585,12 @@ void HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+          subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1065,7 +1070,8 @@ void HermitianEig
         ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
-    HermitianTridiag( uplo, A );
+    DistMatrix<R,STAR,STAR> t(g);
+    HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
     DistMatrix<R,MD,STAR> d_MD_STAR( n,   1, g ),
@@ -1150,10 +1156,12 @@ void HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+          subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED,
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1612,6 +1620,7 @@ void HermitianEig
         ScaleTrapezoid( scale, uplo, A );
 
     // Tridiagonalize A
+    DistMatrix<R,STAR,STAR> t(g);
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
@@ -1718,10 +1727,12 @@ void HermitianEig
     paddedZ.ResizeTo( A.Height(), w.Height() );
     if( uplo == LOWER )
         ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, subdiagonal, A, paddedZ );
+        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
+          subdiagonal, A, t, paddedZ );
     else
         ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD,  subdiagonal, A, paddedZ );
+        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED,
+          subdiagonal, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )

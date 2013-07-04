@@ -19,23 +19,9 @@
 
 namespace elem {
 
-template<typename R>
-void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("HermitianTridiag");
-#endif
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-    if( uplo == LOWER )
-        hermitian_tridiag::L( A );
-    else
-        hermitian_tridiag::U( A );
-}
-
-template<typename R>
+template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTridiag");
@@ -46,101 +32,24 @@ void HermitianTridiag
         hermitian_tridiag::U( A, t );
 }
 
-template<typename R>
-void
-HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A )
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTridiag");
 #endif
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-    const Grid& g = A.Grid();
-    const HermitianTridiagApproach approach = GetHermitianTridiagApproach();
-    const GridOrder order = GetHermitianTridiagGridOrder();
-    if( approach == HERMITIAN_TRIDIAG_NORMAL )
-    {
-        // Use the pipelined algorithm for nonsquare meshes
-        if( uplo == LOWER )
-            hermitian_tridiag::L( A );
-        else 
-            hermitian_tridiag::U( A );
-    }
-    else if( approach == HERMITIAN_TRIDIAG_SQUARE )
-    {
-        // Drop down to a square mesh
-        const int p = g.Size();
-        const int pSqrt = int(sqrt(double(p)));
-
-        std::vector<int> squareRanks(pSqrt*pSqrt);
-        if( order == COLUMN_MAJOR )
-        {
-            for( int j=0; j<pSqrt; ++j )
-                for( int i=0; i<pSqrt; ++i )
-                    squareRanks[i+j*pSqrt] = i+j*pSqrt;
-        }
-        else
-        {
-            for( int j=0; j<pSqrt; ++j )
-                for( int i=0; i<pSqrt; ++i )
-                    squareRanks[i+j*pSqrt] = j+i*pSqrt;
-        }
-
-        mpi::Group owningGroup = g.OwningGroup();
-        mpi::Group squareGroup;
-        mpi::GroupIncl
-        ( owningGroup, squareRanks.size(), &squareRanks[0], squareGroup );
-
-        mpi::Comm viewingComm = g.ViewingComm();
-        const Grid squareGrid( viewingComm, squareGroup, pSqrt );
-        DistMatrix<R> ASquare(squareGrid);
-
-        // Perform the fast tridiagonalization on the square grid
-        ASquare = A;
-        if( ASquare.Participating() )
-        {
-            if( uplo == LOWER )
-                hermitian_tridiag::LSquare( ASquare );
-            else
-                hermitian_tridiag::USquare( ASquare ); 
-        }
-        A = ASquare;
-
-        mpi::GroupFree( squareGroup );
-    }
-    else
-    {
-        // Use the normal approach unless we're already on a square 
-        // grid, in which case we use the fast square method.
-        if( g.Height() == g.Width() )
-        {
-            if( uplo == LOWER )
-                hermitian_tridiag::LSquare( A );
-            else
-                hermitian_tridiag::USquare( A );
-        }
-        else
-        {
-            if( uplo == LOWER )
-                hermitian_tridiag::L( A );
-            else
-                hermitian_tridiag::U( A );
-        }
-    }
+    Matrix<F> t;
+    HermitianTridiag( uplo, A, t );
 }
 
-template<typename R> 
+template<typename F> 
 void
 HermitianTridiag
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& A,
-  DistMatrix<Complex<R>,STAR,STAR>& t )
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianTridiag");
 #endif
-    typedef Complex<R> C;
-
     const Grid& g = A.Grid();
     const HermitianTridiagApproach approach = GetHermitianTridiagApproach();
     const GridOrder order = GetHermitianTridiagGridOrder();
@@ -179,8 +88,8 @@ HermitianTridiag
 
         mpi::Comm viewingComm = g.ViewingComm();
         const Grid squareGrid( viewingComm, squareGroup, pSqrt );
-        DistMatrix<C> ASquare(squareGrid);
-        DistMatrix<C,STAR,STAR> tSquare(squareGrid);
+        DistMatrix<F> ASquare(squareGrid);
+        DistMatrix<F,STAR,STAR> tSquare(squareGrid);
 
         // Perform the fast tridiagonalization on the square grid
         ASquare = A;
@@ -218,20 +127,31 @@ HermitianTridiag
     }
 }
 
+template<typename F>
+void
+HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("HermitianTridiag");
+#endif
+    DistMatrix<F,STAR,STAR> t(A.Grid());
+    HermitianTridiag( uplo, A, t );
+}
+
+#define PROTO(T) \
+  template void HermitianTridiag<T>( UpperOrLower uplo, Matrix<T>& A ); \
+  template void HermitianTridiag<T>( UpperOrLower uplo, DistMatrix<T>& A )
+
 #ifndef DISABLE_FLOAT
-template void HermitianTridiag<float>( UpperOrLower uplo, Matrix<float>& A );
-template void HermitianTridiag<float>( UpperOrLower uplo, DistMatrix<float>& A );
+PROTO(float);
 #ifndef DISABLE_COMPLEX
-template void HermitianTridiag<float>( UpperOrLower uplo, Matrix<Complex<float> >& A, Matrix<Complex<float> >& t );
-template void HermitianTridiag<float>( UpperOrLower uplo, DistMatrix<Complex<float> >& A, DistMatrix<Complex<float>,STAR,STAR>& t );
+PROTO(Complex<float>);
 #endif // ifndef DISABLE_COMPLEX
 #endif // ifndef DISABLE_FLOAT
 
-template void HermitianTridiag<double>( UpperOrLower uplo, Matrix<double>& A );
-template void HermitianTridiag<double>( UpperOrLower uplo, DistMatrix<double>& A );
+PROTO(double);
 #ifndef DISABLE_COMPLEX
-template void HermitianTridiag<double>( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& t );
-template void HermitianTridiag<double>( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double>,STAR,STAR>& t );
+PROTO(Complex<double>);
 #endif // ifndef DISABLE_COMPLEX
 
 } // namespace elem

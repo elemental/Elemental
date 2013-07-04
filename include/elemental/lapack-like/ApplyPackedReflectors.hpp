@@ -30,156 +30,13 @@
 
 namespace elem {
 
-template<typename R> 
-inline void
-ApplyPackedReflectors
-( LeftOrRight side, UpperOrLower uplo, 
-  VerticalOrHorizontal dir, ForwardOrBackward order,
-  int offset, const Matrix<R>& H, Matrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ApplyPackedReflectors");
-#endif
-    // Since the complex version does not have the same argument list, there is
-    // currently no good way to ensure that this version is not called with 
-    // complex datatypes. Until C++11 compilers are commonplace, we cannot
-    // use static_assert either.
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-
-    if( side == LEFT )
-    {
-        if( uplo == LOWER )
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LLVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::LLVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::LLHF( offset, H, A );
-            else
-                apply_packed_reflectors::LLHB( offset, H, A );
-        }
-        else
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LUVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::LUVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::LUHF( offset, H, A );
-            else
-                apply_packed_reflectors::LUHB( offset, H, A );
-        }
-    }
-    else
-    {
-        if( uplo == LOWER )
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RLVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::RLVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::RLHF( offset, H, A );
-            else
-                apply_packed_reflectors::RLHB( offset, H, A );
-        }
-        else
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RUVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::RUVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::RUHF( offset, H, A );
-            else
-                apply_packed_reflectors::RUHB( offset, H, A );
-        }
-    }
-}
-
-template<typename R> 
-inline void
-ApplyPackedReflectors
-( LeftOrRight side, UpperOrLower uplo, 
-  VerticalOrHorizontal dir, ForwardOrBackward order,
-  int offset,
-  const DistMatrix<R>& H, 
-        DistMatrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ApplyPackedReflectors");
-#endif
-    // Since the complex version does not have the same argument list, there is
-    // currently no good way to ensure that this version is not called with 
-    // complex datatypes. Until C++11 compilers are commonplace, we cannot
-    // use static_assert either.
-    if( IsComplex<R>::val )
-        throw std::logic_error("Called real routine with complex datatype");
-
-    if( side == LEFT )
-    {
-        if( uplo == LOWER )
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LLVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::LLVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::LLHF( offset, H, A );
-            else
-                apply_packed_reflectors::LLHB( offset, H, A );
-        }
-        else
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::LUVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::LUVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::LUHF( offset, H, A );
-            else
-                apply_packed_reflectors::LUHB( offset, H, A );
-        }
-    }
-    else
-    {
-        if( uplo == LOWER )
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RLVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::RLVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::RLHF( offset, H, A );
-            else
-                apply_packed_reflectors::RLHB( offset, H, A );
-        }
-        else
-        {
-            if( dir == VERTICAL && order == FORWARD )
-                apply_packed_reflectors::RUVF( offset, H, A );
-            else if( dir == VERTICAL )
-                apply_packed_reflectors::RUVB( offset, H, A );
-            else if( order == FORWARD )
-                apply_packed_reflectors::RUHF( offset, H, A );
-            else
-                apply_packed_reflectors::RUHB( offset, H, A );
-        }
-    }
-}
-
-template<typename R> 
+template<typename F> 
 inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
-  int offset,
-  const Matrix<Complex<R> >& H, 
-  const Matrix<Complex<R> >& t,
-        Matrix<Complex<R> >& A )
+  int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyPackedReflectors");
@@ -236,16 +93,14 @@ ApplyPackedReflectors
     }
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
   int offset,
-  const DistMatrix<Complex<R> >& H, 
-  const DistMatrix<Complex<R>,MD,STAR>& t,
-        DistMatrix<Complex<R> >& A )
+  const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyPackedReflectors");
@@ -302,21 +157,19 @@ ApplyPackedReflectors
     }
 }
 
-template<typename R> 
+template<typename F> 
 inline void
 ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
   int offset,
-  const DistMatrix<Complex<R> >& H, 
-  const DistMatrix<Complex<R>,STAR,STAR>& t,
-        DistMatrix<Complex<R> >& A )
+  const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyPackedReflectors");
 #endif
-    DistMatrix<Complex<R>,MD,STAR> tDiag(A.Grid());
+    DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
     ApplyPackedReflectors

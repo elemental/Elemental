@@ -20,18 +20,16 @@ inline void EnsurePMRRR()
 #endif
 }
 
-template<typename R>
-void HermitianTridiag( UpperOrLower uplo, Matrix<R>& A );
-template<typename R>
-void HermitianTridiag( UpperOrLower uplo, DistMatrix<R>& A );
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A );
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A );
 
-template<typename R>
+template<typename F>
+void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t );
+template<typename F>
 void HermitianTridiag
-( UpperOrLower uplo, Matrix<Complex<R> >& A, Matrix<Complex<R> >& t );
-template<typename R>
-void HermitianTridiag
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& A, DistMatrix<Complex<R>,STAR,STAR>& t );
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t );
 
 // Compute the eigenvalues of a Hermitian matrix
 template<typename F>

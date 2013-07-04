@@ -20,14 +20,16 @@
 using namespace std;
 using namespace elem;
 
+template<typename F>
 void TestCorrectness
 ( bool print,
   UpperOrLower uplo,
-  const DistMatrix<double>& A,
-  const DistMatrix<double,VR,STAR>& w,
-  const DistMatrix<double>& Z,
-  const DistMatrix<double>& AOrig )
+  const DistMatrix<F>& A,
+  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<F>& Z,
+  const DistMatrix<F>& AOrig )
 {
+    typedef BASE(F) R;
     const Grid& g = A.Grid();
     const int n = Z.Height();
     const int k = Z.Width();
@@ -37,97 +39,19 @@ void TestCorrectness
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<double,MR,STAR> w_MR_STAR(g); 
-    w_MR_STAR.AlignWith( Z );
+    DistMatrix<R,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
     w_MR_STAR = w;
     if( g.Rank() == 0 )
         cout << "DONE" << endl;
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<double> X(g);
+    DistMatrix<F> X( g );
     Identity( X, k, k );
-    Herk( uplo, ADJOINT, -1., Z, 1., X );
-    double oneNormOfError = OneNorm( X );
-    double infNormOfError = InfinityNorm( X );
-    double frobNormOfError = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-    {
-        cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
-             << "    ||Z^H Z - I||_oo = " << infNormOfError << "\n"
-             << "    ||Z^H Z - I||_F  = " << frobNormOfError << "\n\n"
-             << "  Testing for deviation of AZ from ZW..." << endl;
-    }
-    // Set X := AZ
-    X.AlignWith( Z );
-    Zeros( X, n, k );
-    Hemm( LEFT, uplo, 1., AOrig, Z, 0., X );
-    // Set X := X - ZW = AZ - ZW
-    for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
-    {
-        const double omega = w_MR_STAR.GetLocal(jLocal,0);
-        for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
-        {
-            const double chi = X.GetLocal(iLocal,jLocal);
-            const double zeta = Z.GetLocal(iLocal,jLocal);
-            X.SetLocal(iLocal,jLocal,chi-omega*zeta);
-        }
-    }
-    // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-    double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-    double oneNormOfZ = OneNorm( Z );
-    double infNormOfZ = InfinityNorm( Z );
-    double frobNormOfZ = FrobeniusNorm( Z );
-    oneNormOfError = OneNorm( X );
-    infNormOfError = InfinityNorm( X );
-    frobNormOfError = FrobeniusNorm( X );
-    if( g.Rank() == 0 )
-    {
-        cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
-             << "    ||A||_F            = " << frobNormOfA << "\n"
-             << "    ||Z||_1            = " << oneNormOfZ << "\n"
-             << "    ||Z||_oo           = " << infNormOfZ << "\n"
-             << "    ||Z||_F            = " << frobNormOfZ << "\n"
-             << "    ||A Z - Z W||_1    = " << oneNormOfError << "\n"
-             << "    ||A Z - Z W||_oo   = " << infNormOfError << "\n"
-             << "    ||A Z - Z W||_F    = " << frobNormOfError << endl;
-    }
-}
-
-void TestCorrectness
-( bool print,
-  UpperOrLower uplo,
-  const DistMatrix<Complex<double> >& A,
-  const DistMatrix<double,VR,STAR>& w,
-  const DistMatrix<Complex<double> >& Z,
-  const DistMatrix<Complex<double> >& AOrig )
-{
-    const Grid& g = A.Grid();
-    const int n = Z.Height();
-    const int k = Z.Width();
-
-    if( g.Rank() == 0 )
-    {
-        cout << "  Gathering computed eigenvalues...";
-        cout.flush();
-    }
-    DistMatrix<double,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
-    w_MR_STAR = w;
-    if( g.Rank() == 0 )
-        cout << "DONE" << endl;
-
-    if( g.Rank() == 0 )
-        cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<Complex<double> > X( g );
-    Identity( X, k, k );
-    Herk
-    ( uplo, ADJOINT, 
-      Complex<double>(-1), Z, 
-      Complex<double>(1), X );
-    double oneNormOfError = OneNorm( X );
-    double infNormOfError = InfinityNorm( X );
-    double frobNormOfError = FrobeniusNorm( X );
+    Herk( uplo, ADJOINT, F(-1), Z, F(1), X );
+    R oneNormOfError = OneNorm( X );
+    R infNormOfError = InfinityNorm( X );
+    R frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -138,27 +62,24 @@ void TestCorrectness
     // X := AZ
     X.AlignWith( Z );
     Zeros( X, n, k );
-    Hemm
-    ( LEFT, uplo, 
-      Complex<double>(1), AOrig, Z, 
-      Complex<double>(0), X );
+    Hemm( LEFT, uplo, F(1), AOrig, Z, F(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
     for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
-        const double omega = w_MR_STAR.GetLocal(jLocal,0);
+        const R omega = w_MR_STAR.GetLocal(jLocal,0);
         for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
-            const Complex<double> chi = X.GetLocal(iLocal,jLocal);
-            const Complex<double> zeta = Z.GetLocal(iLocal,jLocal);
+            const F chi = X.GetLocal(iLocal,jLocal);
+            const F zeta = Z.GetLocal(iLocal,jLocal);
             X.SetLocal(iLocal,jLocal,chi-omega*zeta);
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    double infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-    double frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-    double oneNormOfZ = OneNorm( Z );
-    double infNormOfZ = InfinityNorm( Z );
-    double frobNormOfZ = FrobeniusNorm( Z );
+    R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+    R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+    R oneNormOfZ = OneNorm( Z );
+    R infNormOfZ = InfinityNorm( Z );
+    R frobNormOfZ = FrobeniusNorm( Z );
     oneNormOfError = OneNorm( X );
     infNormOfError = InfinityNorm( X );
     frobNormOfError = FrobeniusNorm( X );
@@ -175,81 +96,15 @@ void TestCorrectness
     }
 }
 
-void TestHermitianEigDouble
+template<typename F>
+void TestHermitianEig
 ( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
-  double vl, double vu, int il, int iu, const Grid& g )
+  BASE(F) vl, BASE(F) vu, int il, int iu, const Grid& g )
 {
-    DistMatrix<double> A(g), AOrig(g), Z(g);
-    DistMatrix<double,VR,STAR> w(g);
-
-    if( clustered )
-        Wilkinson( A, m/2 );
-    else
-        HermitianUniformSpectrum( A, m, -10, 10 );
-    if( testCorrectness && !onlyEigvals )
-    {
-        if( g.Rank() == 0 )
-        {
-            cout << "  Making copy of original matrix...";
-            cout.flush();
-        }
-        AOrig = A;
-        if( g.Rank() == 0 )
-            cout << "DONE" << endl;
-    }
-    if( print )
-        Print( A, "A" );
-
-    if( g.Rank() == 0 )
-    {
-        cout << "  Starting Hermitian eigensolver...";
-        cout.flush();
-    }
-    mpi::Barrier( g.Comm() );
-    const double startTime = mpi::Time();
-    if( onlyEigvals )
-    {
-        if( range == 'A' )
-            HermitianEig( uplo, A, w );
-        else if( range == 'I' )
-            HermitianEig( uplo, A, w, il, iu );
-        else
-            HermitianEig( uplo, A, w, vl, vu );
-    }
-    else
-    {
-        if( range == 'A' )
-            HermitianEig( uplo, A, w, Z );
-        else if( range == 'I' )
-            HermitianEig( uplo, A, w, Z, il, iu );
-        else
-            HermitianEig( uplo, A, w, Z, vl, vu );
-    }
-    mpi::Barrier( g.Comm() );
-    const double runTime = mpi::Time() - startTime;
-    if( g.Rank() == 0 )
-    {
-        cout << "DONE. " << endl
-             << "  Time = " << runTime << " seconds." << endl;
-    }
-    if( print )
-    {
-        Print( w, "eigenvalues:" );
-        if( !onlyEigvals )
-            Print( Z, "eigenvectors:" );
-    }
-    if( testCorrectness && !onlyEigvals )
-        TestCorrectness( print, uplo, A, w, Z, AOrig );
-}
-    
-void TestHermitianEigDoubleComplex
-( bool testCorrectness, bool print,
-  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
-  double vl, double vu, int il, int iu, const Grid& g )
-{
-    DistMatrix<Complex<double> > A(g), AOrig(g), Z(g);
-    DistMatrix<double,VR,STAR> w(g);
+    typedef BASE(F) R;
+    DistMatrix<F> A(g), AOrig(g), Z(g);
+    DistMatrix<R,VR,STAR> w(g);
 
     if( clustered )
         Wilkinson( A, m/2 );
@@ -366,7 +221,7 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianEigDouble
+        TestHermitianEig<double>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -379,7 +234,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianEigDouble
+        TestHermitianEig<double>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
  
@@ -392,7 +247,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianEigDouble
+        TestHermitianEig<double>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -404,7 +259,7 @@ main( int argc, char* argv[] )
                  << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianEigDoubleComplex
+        TestHermitianEig<Complex<double> >
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -418,7 +273,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianEigDoubleComplex
+        TestHermitianEig<Complex<double> >
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -432,7 +287,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianEigDoubleComplex
+        TestHermitianEig<Complex<double> >
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
     }

@@ -14,109 +14,8 @@
 namespace elem {
 namespace hermitian_tridiag {
 
-template<typename R> 
-void LSquare( DistMatrix<R>& A )
-{
-#ifndef RELEASE
-    CallStackEntry entry("hermitian_tridiag::LSquare");
-    if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-    if( A.Grid().Height() != A.Grid().Width() )
-        throw std::logic_error("The process grid must be square");
-#endif
-    const Grid& g = A.Grid();
-
-    // Matrix views 
-    DistMatrix<R> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary distributions
-    DistMatrix<R> WPan(g);
-    DistMatrix<R,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<R,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),
-                                              A21_MC_STAR(g);
-    DistMatrix<R,MR,  STAR> APan_MR_STAR(g),  A11_MR_STAR(g),
-                                              A21_MR_STAR(g);
-    DistMatrix<R,MC,  STAR> WPan_MC_STAR(g),  W11_MC_STAR(g),
-                                              W21_MC_STAR(g);
-    DistMatrix<R,MR,  STAR> WPan_MR_STAR(g),  W11_MR_STAR(g),
-                                              W21_MR_STAR(g);
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
-        if( A22.Height() > 0 )
-        {
-            WPan.AlignWith( A11 );
-            APan_MC_STAR.AlignWith( A11 );
-            WPan_MC_STAR.AlignWith( A11 );
-            APan_MR_STAR.AlignWith( A11 );
-            WPan_MR_STAR.AlignWith( A11 );
-            //----------------------------------------------------------------//
-            WPan.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
-
-            hermitian_tridiag::PanelLSquare
-            ( ABR, WPan, 
-              APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
-
-            PartitionDown
-            ( APan_MC_STAR, A11_MC_STAR,
-                            A21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( APan_MR_STAR, A11_MR_STAR,
-                            A21_MR_STAR, A11.Height() );
-            PartitionDown
-            ( WPan_MC_STAR, W11_MC_STAR,
-                            W21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( WPan_MR_STAR, W11_MR_STAR,
-                            W21_MR_STAR, A11.Height() );
-
-            LocalTrr2k
-            ( LOWER, TRANSPOSE, TRANSPOSE,
-              R(-1), A21_MC_STAR, W21_MR_STAR,
-                     W21_MC_STAR, A21_MR_STAR,
-              R(1), A22 );
-            //----------------------------------------------------------------//
-            WPan_MR_STAR.FreeAlignments();
-            APan_MR_STAR.FreeAlignments();
-            WPan_MC_STAR.FreeAlignments();
-            APan_MC_STAR.FreeAlignments();
-            WPan.FreeAlignments();
-        }
-        else
-        {
-            A11_STAR_STAR = A11;
-            HermitianTridiag( LOWER, A11_STAR_STAR.Matrix() );
-            A11 = A11_STAR_STAR;
-        }
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-    }
-}
-
-template<typename R> 
-void LSquare
-( DistMatrix<Complex<R> >& A,
-  DistMatrix<Complex<R>,STAR,STAR>& t )
+template<typename F> 
+void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::LSquare");
@@ -132,32 +31,30 @@ void LSquare
     if( t.Viewing() )
         throw std::logic_error("t must not be a view");
 #endif
-    typedef Complex<R> C;
-
-    DistMatrix<C,MD,STAR> tDiag(g);
+    DistMatrix<F,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, -1 );
     tDiag.ResizeTo( A.Height()-1, 1 );
 
     // Matrix views 
-    DistMatrix<C> 
+    DistMatrix<F> 
         ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),
                          A20(g), A21(g), A22(g);
-    DistMatrix<C,MD,STAR> tT(g),  t0(g), 
+    DistMatrix<F,MD,STAR> tT(g),  t0(g), 
                           tB(g),  t1(g),
                                   t2(g);
 
     // Temporary distributions
-    DistMatrix<C> WPan(g);
-    DistMatrix<C,STAR,STAR> t1_STAR_STAR(g);
-    DistMatrix<C,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<C,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),
+    DistMatrix<F> WPan(g);
+    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),
                                               A21_MC_STAR(g);
-    DistMatrix<C,MR,  STAR> APan_MR_STAR(g),  A11_MR_STAR(g),
+    DistMatrix<F,MR,  STAR> APan_MR_STAR(g),  A11_MR_STAR(g),
                                               A21_MR_STAR(g);
-    DistMatrix<C,MC,  STAR> WPan_MC_STAR(g),  W11_MC_STAR(g),
+    DistMatrix<F,MC,  STAR> WPan_MC_STAR(g),  W11_MC_STAR(g),
                                               W21_MC_STAR(g);
-    DistMatrix<C,MR,  STAR> WPan_MR_STAR(g),  W11_MR_STAR(g),
+    DistMatrix<F,MR,  STAR> WPan_MR_STAR(g),  W11_MR_STAR(g),
                                               W21_MR_STAR(g);
 
     PartitionDownDiagonal
@@ -213,9 +110,9 @@ void LSquare
 
             LocalTrr2k
             ( LOWER, ADJOINT, ADJOINT,
-              C(-1), A21_MC_STAR, W21_MR_STAR,
+              F(-1), A21_MC_STAR, W21_MR_STAR,
                      W21_MC_STAR, A21_MR_STAR,
-              C(1), A22 );
+              F(1), A22 );
             //----------------------------------------------------------------//
             WPan_MR_STAR.FreeAlignments();
             APan_MR_STAR.FreeAlignments();
