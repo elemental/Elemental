@@ -61,7 +61,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
           0, ABottomPan, t1, ATopPan ); 
         //--------------------------------------------------------------------//
 
@@ -149,7 +149,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, VERTICAL, BACKWARD, CONJUGATED, 
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
           0, ABottomPan, t1, ATopPan );
         //--------------------------------------------------------------------//
 
