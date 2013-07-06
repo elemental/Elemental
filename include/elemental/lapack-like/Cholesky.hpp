@@ -14,6 +14,8 @@
 namespace elem {
 template<typename F>
 void LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
+template<typename F>
+void LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A );
 } // namespace elem
 
 #include "./Cholesky/LVar3.hpp"
@@ -36,6 +38,16 @@ LocalCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 
 template<typename F>
 inline void
+LocalReverseCholesky( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LocalReverseCholesky");
+#endif
+    ReverseCholesky( uplo, A.Matrix() );
+}
+
+template<typename F>
+inline void
 Cholesky( UpperOrLower uplo, Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -49,6 +61,21 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
         cholesky::UVar3( A );
 }
 
+template<typename F>
+inline void
+ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ReverseCholesky");
+    if( A.Height() != A.Width() )
+        throw std::logic_error("A must be square");
+#endif
+    if( uplo == LOWER )
+        cholesky::ReverseLVar3( A );
+    else
+        cholesky::ReverseUVar3( A );
+}
+
 template<typename F> 
 inline void
 Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
@@ -57,7 +84,6 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
     CallStackEntry entry("Cholesky");
 #endif
     const Grid& g = A.Grid();
-
     if( g.Height() == g.Width() )
     {
         if( uplo == LOWER )
@@ -72,6 +98,36 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
         else
             cholesky::UVar3( A );
     }
+}
+
+template<typename F> 
+inline void
+ReverseCholesky( UpperOrLower uplo, DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ReverseCholesky");
+#endif
+    if( uplo == LOWER )
+        cholesky::ReverseLVar3( A );
+    else
+        cholesky::ReverseUVar3( A );
+    /*
+    const Grid& g = A.Grid();
+    if( g.Height() == g.Width() )
+    {
+        if( uplo == LOWER )
+            cholesky::ReverseLVar3Square( A );
+        else
+            cholesky::ReverseUVar3Square( A );
+    }
+    else
+    {
+        if( uplo == LOWER )
+            cholesky::ReverseLVar3( A );
+        else
+            cholesky::ReverseUVar3( A );
+    }
+    */
 }
 
 } // namespace elem

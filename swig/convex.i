@@ -26,7 +26,7 @@
 namespace elem {
 OVERLOAD0(LogBarrier)
 OVERLOAD0(LogDetDivergence)
-OVERLOAD0_cpx(SingularValueSoftThreshold)
+OVERLOAD0(SingularValueSoftThreshold)
 OVERLOAD0(SoftThreshold)
 OVERLOAD0(UnitaryCoherence)
 }

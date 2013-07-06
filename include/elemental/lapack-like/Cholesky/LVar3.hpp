@@ -50,6 +50,38 @@ LVar3Unb( Matrix<F>& A )
 
 template<typename F>
 inline void
+ReverseLVar3Unb( Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("cholesky::ReverseLVar3Unb");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    typedef BASE(F) R;
+
+    const int n = A.Height();
+    const int lda = A.LDim();
+    F* ABuffer = A.Buffer();
+    for( int j=n-1; j>=0; --j )
+    {
+        R alpha = RealPart(ABuffer[j+j*lda]);
+        if( alpha <= R(0) )
+            throw std::logic_error("A was not numerically HPD");
+        alpha = Sqrt( alpha );
+        ABuffer[j+j*lda] = alpha;
+
+        for( int k=0; k<j; ++k )
+            ABuffer[j+k*lda] /= alpha;
+
+        for( int k=0; k<j; ++k )
+            for( int i=k; i<j; ++i )
+                ABuffer[i+k*lda] -= ABuffer[j+k*lda]*Conj(ABuffer[j+i*lda]);
+    }
+}
+
+template<typename F>
+inline void
 LVar3( Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -87,6 +119,48 @@ LVar3( Matrix<F>& A )
                /**/       A10, A11, /**/ A12,
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+}
+
+template<typename F>
+inline void
+ReverseLVar3( Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("cholesky::ReverseLVar3");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    // Matrix views
+    Matrix<F> 
+        ATL, ATR,  A00, A01, A02,
+        ABL, ABR,  A10, A11, A12,
+                   A20, A21, A22;
+
+    // Start the algorithm
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() > 0 )
+    {
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/   
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        //--------------------------------------------------------------------//
+        cholesky::ReverseLVar3Unb( A11 );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
+        Herk( LOWER, ADJOINT, F(-1), A10, F(1), A00 );
+        //--------------------------------------------------------------------//
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 } 
 
@@ -162,6 +236,75 @@ LVar3( DistMatrix<F>& A )
                /**/       A10, A11, /**/ A12,
          /*************/ /******************/
           ABL, /**/ ABR,  A20, A21, /**/ A22 );
+    }
+} 
+
+template<typename F>
+inline void
+ReverseLVar3( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("cholesky::ReverseLVar3");
+    if( A.Height() != A.Width() )
+        throw std::logic_error
+        ("Can only compute Cholesky factor of square matrices");
+#endif
+    const Grid& g = A.Grid();
+
+    // Matrix views
+    DistMatrix<F> 
+        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
+        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
+                         A20(g), A21(g), A22(g);
+
+    // Temporary matrices
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
+    DistMatrix<F,STAR,VR  > A10_STAR_VR(g);
+    DistMatrix<F,STAR,MC  > A10_STAR_MC(g);
+    DistMatrix<F,STAR,MR  > A10_STAR_MR(g);
+
+    // Start the algorithm
+    PartitionUpDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, 0 );
+    while( ATL.Height() > 0 )
+    {
+        RepartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
+               /**/       A10, A11, /**/ A12,
+         /*************/ /******************/   
+          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+
+        A10_STAR_VR.AlignWith( A00 );
+        A10_STAR_MC.AlignWith( A00 );
+        A10_STAR_MR.AlignWith( A00 );
+        //--------------------------------------------------------------------//
+        A11_STAR_STAR = A11;
+        LocalReverseCholesky( LOWER, A11_STAR_STAR );
+        A11 = A11_STAR_STAR;
+
+        A10_STAR_VR = A10;
+        LocalTrsm
+        ( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A10_STAR_VR );
+
+        A10_STAR_MC = A10_STAR_VR;
+        A10_STAR_MR = A10_STAR_VR;
+
+        // (A10[* ,MC])^H A10[* ,MR] = (A10^H A10)[MC,MR]
+        LocalTrrk
+        ( LOWER, ADJOINT, F(-1), A10_STAR_MC, A10_STAR_MR, F(1), A00 );
+
+        A10 = A10_STAR_MR;
+        //--------------------------------------------------------------------//
+        A10_STAR_VR.FreeAlignments();
+        A10_STAR_MC.FreeAlignments();
+        A10_STAR_MR.FreeAlignments();
+
+        SlidePartitionUpDiagonal
+        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
+         /*************/ /******************/
+               /**/       A10, /**/ A11, A12,
+          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 } 
 

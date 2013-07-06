@@ -13,6 +13,8 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 
+// TODO: Reverse version
+
 namespace elem {
 namespace cholesky {
 

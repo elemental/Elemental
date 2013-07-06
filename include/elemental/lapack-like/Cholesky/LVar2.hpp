@@ -16,6 +16,8 @@
 
 #include "elemental/lapack-like/Cholesky/LVar3.hpp"
 
+// TODO: Reverse variants
+
 namespace elem {
 namespace cholesky {
 

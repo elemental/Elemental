@@ -88,20 +88,22 @@ OVERLOAD01(HilbertSchmidt)
 %include "elemental/lapack-like/LQ.hpp"
 %include "elemental/lapack-like/QR.hpp"
 %include "elemental/lapack-like/QR/BusingerGolub.hpp"
+%include "elemental/lapack-like/RQ.hpp"
 %include "elemental/lapack-like/ID.hpp"
 %include "elemental/lapack-like/Skeleton.hpp"
 
 namespace elem {
 OVERLOAD0(Cholesky)
-OVERLOAD0_cpx(HPSDCholesky)
+OVERLOAD0(HPSDCholesky)
 OVERLOAD0(LDLH)
 OVERLOAD0(LDLT)
 OVERLOAD0(LU)
-OVERLOAD0_cpx(LQ)
-OVERLOAD0_cpx(QR)
+OVERLOAD0(LQ)
+OVERLOAD0(QR)
 namespace qr { 
-OVERLOAD0_cpx(BusingerGolub) 
+OVERLOAD0(BusingerGolub) 
 };
+OVERLOAD0(RQ)
 OVERLOAD0(ID)
 OVERLOAD0(Skeleton)
 };
@@ -120,7 +122,7 @@ namespace elem {
 OVERLOAD0(HPDSolve)
 OVERLOAD0(RowEchelon)
 OVERLOAD0(GaussianElimination)
-OVERLOAD0_cpx(LeastSquares)
+OVERLOAD0(LeastSquares)
 namespace cholesky { OVERLOAD0_R(SolveAfter,SolveAfter_Cholesky) };
 namespace lu       { OVERLOAD0_R(SolveAfter,SolveAfter_LU) };
 };
@@ -150,8 +152,8 @@ OVERLOAD0(TriangularInverse)
 %include "elemental/lapack-like/Bidiag.hpp"
 
 namespace elem {
-OVERLOAD0_cpx(HermitianTridiag)
-OVERLOAD0_cpx(Bidiag)
+OVERLOAD0(HermitianTridiag)
+OVERLOAD0(Bidiag)
 };
 
 /*

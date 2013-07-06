@@ -15,6 +15,8 @@
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky/UVar3.hpp"
 
+// TODO: Reverse variants
+
 namespace elem {
 namespace cholesky {
 
