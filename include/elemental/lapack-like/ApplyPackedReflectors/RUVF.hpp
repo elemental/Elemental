@@ -87,8 +87,8 @@ RUVF
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( UPPER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( UPPER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
  
         Herk( UPPER, ADJOINT, F(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -176,8 +176,8 @@ RUVF
         ZAdj_STAR_VC.AlignWith( ALeft );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( UPPER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( UPPER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
  
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );

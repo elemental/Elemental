@@ -262,8 +262,10 @@ RepartitionUpDiagonal
 #ifndef RELEASE
     CallStackEntry cse("RepartitionUpDiagonal [Matrix]");
 #endif
-    PartitionUpDiagonal( ATL, A00, A01,
-                              A10, A11, bsize );
+    PartitionUpOffsetDiagonal
+    ( ATL.Width()-ATL.Height(),
+      ATL, A00, A01,
+           A10, A11, bsize );
     PartitionUp( ATR, A02, A12, A11.Height() );
     PartitionLeft( ABL, A20, A21, A11.Width() );
     View( A22, ABR );
@@ -279,8 +281,10 @@ RepartitionUpDiagonal
 #ifndef RELEASE
     CallStackEntry cse("RepartitionUpDiagonal [DistMatrix]");
 #endif
-    PartitionUpDiagonal( ATL, A00, A01,
-                              A10, A11, bsize );
+    PartitionUpOffsetDiagonal
+    ( ATL.Width()-ATL.Height(),
+      ATL, A00, A01,
+           A10, A11, bsize );
     PartitionUp( ATR, A02, A12, A11.Height() );
     PartitionLeft( ABL, A20, A21, A11.Width() );
     View( A22, ABR );
@@ -296,8 +300,10 @@ LockedRepartitionUpDiagonal
 #ifndef RELEASE
     CallStackEntry cse("LockedRepartitionUpDiagonal [Matrix]");
 #endif
-    LockedPartitionUpDiagonal( ATL, A00, A01,
-                                    A10, A11, bsize );
+    LockedPartitionUpOffsetDiagonal
+    ( ATL.Width()-ATL.Height(),
+      ATL, A00, A01,
+           A10, A11, bsize );
     LockedPartitionUp( ATR, A02, A12, A11.Height() );
     LockedPartitionLeft( ABL, A20, A21, A11.Width() );
     LockedView( A22, ABR );
@@ -313,8 +319,10 @@ LockedRepartitionUpDiagonal
 #ifndef RELEASE
     CallStackEntry cse("LockedRepartitionUpDiagonal [DistMatrix]");
 #endif
-    LockedPartitionUpDiagonal( ATL, A00, A01,
-                                    A10, A11, bsize );
+    LockedPartitionUpOffsetDiagonal
+    ( ATL.Width()-ATL.Height(),
+      ATL, A00, A01,
+           A10, A11, bsize );
     LockedPartitionUp( ATR, A02, A12, A11.Height() );
     LockedPartitionLeft( ABL, A20, A21, A11.Width() );
     LockedView( A22, ABR );

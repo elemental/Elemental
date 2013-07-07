@@ -437,7 +437,7 @@ PartitionDownOffsetDiagonal
     const int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
     diagDist = std::max(std::min(diagDist,diagLength),0);
-    
+
     const int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
     const int nCut = ( offset<=0 ? diagDist : offset+diagDist );
     View( ATL, A, 0,    0,    mCut,   nCut   );

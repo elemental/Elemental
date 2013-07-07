@@ -33,7 +33,6 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
-    Print( t, "t" );
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);

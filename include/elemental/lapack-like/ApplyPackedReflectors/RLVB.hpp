@@ -10,7 +10,7 @@
 #ifndef LAPACK_APPLYPACKEDREFLECTORS_RLVB_HPP
 #define LAPACK_APPLYPACKEDREFLECTORS_RLVB_HPP
 
-#include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
+#include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -88,8 +88,8 @@ RLVB
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset );
-        SetDiagonal( HPanCopy, F(1), offset );
+        MakeTriangular( LOWER, HPanCopy );
+        SetDiagonal( HPanCopy, F(1) );
 
         Herk( LOWER, ADJOINT, F(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -178,8 +178,8 @@ RLVB
         ZAdj_STAR_VC.AlignWith( ARight );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset );
-        SetDiagonal( HPanCopy, F(1), offset );
+        MakeTriangular( LOWER, HPanCopy );
+        SetDiagonal( HPanCopy, F(1) );
 
         HPan_VC_STAR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );

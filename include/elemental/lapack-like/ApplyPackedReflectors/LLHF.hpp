@@ -100,8 +100,8 @@ LLHF
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
         Herk( LOWER, NORMAL, F(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
 
@@ -206,8 +206,8 @@ LLHF
         Z_STAR_VR.AlignWith( ATop );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
         HPan_STAR_VR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
         Herk

@@ -53,6 +53,8 @@ void TestCorrectness
     B.SetRealPartOfDiagonal( d );
     B.SetRealPartOfDiagonal( e, subdiagonal );
     B.SetRealPartOfDiagonal( eOpposite, -subdiagonal );
+    if( print )
+        Print( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
     if( uplo == LOWER )
@@ -60,6 +62,8 @@ void TestCorrectness
         ApplyPackedReflectors
         ( LEFT, LOWER, VERTICAL, BACKWARD, 
           UNCONJUGATED, subdiagonal, A, t, B );
+        if( print )
+            Print( B, "Partially rotated tridiagonal" );
         ApplyPackedReflectors
         ( RIGHT, LOWER, VERTICAL, BACKWARD, 
           CONJUGATED, subdiagonal, A, t, B );
@@ -69,15 +73,21 @@ void TestCorrectness
         ApplyPackedReflectors
         ( LEFT, UPPER, VERTICAL, FORWARD, 
           UNCONJUGATED, subdiagonal, A, t, B );
+        if( print )
+            Print( B, "Partially rotated tridiagonal" );
         ApplyPackedReflectors
         ( RIGHT, UPPER, VERTICAL, FORWARD, 
           CONJUGATED, subdiagonal, A, t, B );
     }
+    if( print )
+        Print( B, "Rotated tridiagonal" );
 
     // Compare the appropriate triangle of AOrig and B
     MakeTriangular( uplo, AOrig );
     MakeTriangular( uplo, B );
     Axpy( F(-1), AOrig, B );
+    if( print )
+        Print( B, "Error in rotated tridiagonal" );
 
     const R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
     const R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );

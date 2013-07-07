@@ -87,8 +87,8 @@ RLHB
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
 
         Herk( LOWER, NORMAL, F(1), HPanCopy, SInv );
         FixDiagonal( conjugation, t1, SInv );
@@ -176,8 +176,8 @@ RLHB
         ZAdj_STAR_VC.AlignWith( ALeft );
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
-        MakeTrapezoidal( LOWER, HPanCopy, offset, RIGHT );
-        SetDiagonal( HPanCopy, F(1), offset, RIGHT );
+        MakeTrapezoidal( LOWER, HPanCopy, 0, RIGHT );
+        SetDiagonal( HPanCopy, F(1), 0, RIGHT );
 
         HPan_STAR_VR = HPanCopy;
         Zeros( SInv_STAR_STAR, HPan.Height(), HPan.Height() );
