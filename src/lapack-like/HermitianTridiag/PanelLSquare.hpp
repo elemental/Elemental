@@ -102,10 +102,10 @@ void PanelLSquare
     DistMatrix<F,MC,STAR> w21Last_MC_STAR(g);
     DistMatrix<F,MR,STAR> w21Last_MR_STAR(g);
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, 0 );
     PartitionDown

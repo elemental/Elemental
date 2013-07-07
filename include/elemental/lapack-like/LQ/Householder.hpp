@@ -46,7 +46,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         tB,  t1,
              t2;
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
@@ -134,7 +134,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         tB(g),  t1(g),
                 t2(g);
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown

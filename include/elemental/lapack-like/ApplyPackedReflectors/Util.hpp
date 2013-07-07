@@ -18,7 +18,7 @@ FixDiagonal
 ( Conjugation conjugation, const Matrix<F>& t, Matrix<F>& SInv )
 {
 #ifndef RELEASE
-    CallStackEntry entry("FixDiagonal");
+    CallStackEntry cse("FixDiagonal");
 #endif
     if( conjugation == CONJUGATED )
     {
@@ -46,7 +46,7 @@ FixDiagonal
         DistMatrix<F,STAR,STAR>& SInv )
 {
 #ifndef RELEASE
-    CallStackEntry entry("FixDiagonal");
+    CallStackEntry cse("FixDiagonal");
 #endif
     if( conjugation == CONJUGATED )
     {

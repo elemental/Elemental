@@ -42,8 +42,9 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
              t2;
     Matrix<F> z;
 
-    PartitionUpRightDiagonal
-    ( A, ATL, ATR,
+    PartitionUpOffsetDiagonal
+    ( A.Width()-A.Height(),
+      A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
     ( t, tT,
@@ -136,8 +137,9 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     DistMatrix<F,STAR,MR  > aBottomRow_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z_MC_STAR(g);
 
-    PartitionUpRightDiagonal
-    ( A, ATL, ATR,
+    PartitionUpOffsetDiagonal
+    ( A.Width()-A.Height(),
+      A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
     ( t, tT,

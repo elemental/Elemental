@@ -31,8 +31,7 @@ SlidePartitionUp
     CallStackEntry entry("SlidePartitionUp [Matrix]");
 #endif
     View( AT, A0 );
-    View2x1( AB, A1,
-                 A2 );
+    View2x1( AB, A1, A2 );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -46,8 +45,7 @@ SlidePartitionUp
     CallStackEntry entry("SlidePartitionUp [DistMatrix]");
 #endif
     View( AT, A0 );
-    View2x1( AB, A1,
-                 A2 );
+    View2x1( AB, A1, A2 );
 }
 
 template<typename T,typename Int>
@@ -61,8 +59,7 @@ SlideLockedPartitionUp
     CallStackEntry entry("SlideLockedPartitionUp [Matrix]");
 #endif
     LockedView( AT, A0 );
-    LockedView2x1( AB, A1,
-                       A2 );
+    LockedView2x1( AB, A1, A2 );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -76,8 +73,7 @@ SlideLockedPartitionUp
     CallStackEntry entry("SlideLockedPartitionUp [DistMatrix]");
 #endif
     LockedView( AT, A0 );
-    LockedView2x1( AB, A1,
-                       A2 );
+    LockedView2x1( AB, A1, A2 );
 }
 
 //
@@ -94,8 +90,7 @@ SlidePartitionDown
 #ifndef RELEASE
     CallStackEntry entry("SlidePartitionDown [Matrix]");
 #endif
-    View2x1( AT, A0,
-                 A1 );
+    View2x1( AT, A0, A1 );
     View( AB, A2 );
 }
 
@@ -109,8 +104,7 @@ SlidePartitionDown
 #ifndef RELEASE
     CallStackEntry entry("SlidePartitionDown [DistMatrix]");
 #endif
-    View2x1( AT, A0,
-                 A1 );
+    View2x1( AT, A0, A1 );
     View( AB, A2 );
 }
 
@@ -124,8 +118,7 @@ SlideLockedPartitionDown
 #ifndef RELEASE
     CallStackEntry entry("SlideLockedPartitionDown [Matrix]");
 #endif
-    LockedView2x1( AT, A0,
-                       A1 );
+    LockedView2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
 
@@ -139,8 +132,7 @@ SlideLockedPartitionDown
 #ifndef RELEASE
     CallStackEntry entry("SlideLockedPartitionDown [DistMatrix]");
 #endif
-    LockedView2x1( AT, A0,
-                       A1 );
+    LockedView2x1( AT, A0, A1 );
     LockedView( AB, A2 );
 }
 
@@ -272,8 +264,7 @@ SlidePartitionUpDiagonal
 #endif
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
-    View2x1( ABL, A10,
-                  A20 );
+    View2x1( ABL, A10, A20 );
     View2x2( ABR, A11, A12,
                   A21, A22 );
 }
@@ -290,8 +281,7 @@ SlidePartitionUpDiagonal
 #endif
     View( ATL, A00 );
     View1x2( ATR, A01, A02 );
-    View2x1( ABL, A10,
-                  A20 );
+    View2x1( ABL, A10, A20 );
     View2x2( ABR, A11, A12,
                   A21, A22 );
 }
@@ -308,8 +298,7 @@ SlideLockedPartitionUpDiagonal
 #endif
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
-    LockedView2x1( ABL, A10,
-                        A20 );
+    LockedView2x1( ABL, A10, A20 );
     LockedView2x2( ABR, A11, A12,
                         A21, A22 );
 }
@@ -326,8 +315,7 @@ SlideLockedPartitionUpDiagonal
 #endif
     LockedView( ATL, A00 );
     LockedView1x2( ATR, A01, A02 );
-    LockedView2x1( ABL, A10,
-                        A20 );
+    LockedView2x1( ABL, A10, A20 );
     LockedView2x2( ABR, A11, A12,
                         A21, A22 );
 }
@@ -348,8 +336,7 @@ SlidePartitionDownDiagonal
 #endif
     View2x2( ATL, A00, A01,
                   A10, A11 );
-    View2x1( ATR, A02,
-                  A12 );
+    View2x1( ATR, A02, A12 );
     View1x2( ABL, A20, A21 );
     View( ABR, A22 );
 }
@@ -366,8 +353,7 @@ SlidePartitionDownDiagonal
 #endif
     View2x2( ATL, A00, A01,
                   A10, A11 );
-    View2x1( ATR, A02,
-                  A12 );
+    View2x1( ATR, A02, A12 );
     View1x2( ABL, A20, A21 );
     View( ABR, A22 );
 }
@@ -384,8 +370,7 @@ SlideLockedPartitionDownDiagonal
 #endif
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
-    LockedView2x1( ATR, A02,
-                        A12 );
+    LockedView2x1( ATR, A02, A12 );
     LockedView1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
 }
@@ -402,8 +387,7 @@ SlideLockedPartitionDownDiagonal
 #endif
     LockedView2x2( ATL, A00, A01,
                         A10, A11 );
-    LockedView2x1( ATR, A02,
-                        A12 );
+    LockedView2x1( ATR, A02, A12 );
     LockedView1x2( ABL, A20, A21 );
     LockedView( ABR, A22 );
 }

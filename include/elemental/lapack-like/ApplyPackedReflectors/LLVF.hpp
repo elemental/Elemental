@@ -45,13 +45,9 @@ LLVF
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("apply_packed_reflectors::LLVF");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-    if( H.Height() != A.Height() )
-        throw std::logic_error
-        ("Height of transforms must equal height of target matrix");
-    if( t.Height() != H.DiagonalLength( offset ) )
+    CallStackEntry cse("apply_packed_reflectors::LLVF");
+    // TODO: Proper dimension checks
+    if( t.Height() != H.DiagonalLength(offset) )
         throw std::logic_error("t must be the same length as H's offset diag.");
 #endif
     Matrix<F>
@@ -66,11 +62,11 @@ LLVF
         tT,  t0,
         tB,  t1,
              t2;
-
     Matrix<F> SInv, Z;
 
-    LockedPartitionDownDiagonal
-    ( H, HTL, HTR,
+    LockedPartitionDownOffsetDiagonal
+    ( offset,
+      H, HTL, HTR,
          HBL, HBR, 0 );
     LockedPartitionDown
     ( t, tT,
@@ -86,21 +82,19 @@ LLVF
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-
         LockedRepartitionDown
         ( tT,  t0,
          /**/ /**/
                t1,
-          tB,  t2, HPanWidth );
+          tB,  t2 );
 
         RepartitionDown
         ( AT,  A0,
          /**/ /**/
                A1,
-          AB,  A2 );
+          AB,  A2, H11.Height() );
+
+        LockedView2x1( HPan, H11, H21 );
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -142,22 +136,17 @@ LLVF
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("apply_packed_reflectors::LLVF");
+    CallStackEntry cse("apply_packed_reflectors::LLVF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-    if( H.Height() != A.Height() )
-        throw std::logic_error
-        ("Height of transforms must equal height of target matrix");
-    if( t.Height() != H.DiagonalLength( offset ) )
+    // TODO: Proper dimension checks
+    if( t.Height() != H.DiagonalLength(offset) )
         throw std::logic_error("t must be the same length as H's offset diag.");
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif
     const Grid& g = H.Grid();
-
     DistMatrix<F>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
@@ -178,8 +167,9 @@ LLVF
     DistMatrix<F,STAR,MR  > Z_STAR_MR(g);
     DistMatrix<F,STAR,VR  > Z_STAR_VR(g);
 
-    LockedPartitionDownDiagonal
-    ( H, HTL, HTR,
+    LockedPartitionDownOffsetDiagonal
+    ( offset,
+      H, HTL, HTR,
          HBL, HBR, 0 );
     LockedPartitionDown
     ( t, tT,
@@ -195,21 +185,19 @@ LLVF
                /**/       H10, /**/ H11, H12,
           HBL, /**/ HBR,  H20, /**/ H21, H22 );
 
-        int HPanHeight = H11.Height() + H21.Height();
-        int HPanWidth = std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-
         LockedRepartitionDown
         ( tT,  t0,
          /**/ /**/
                t1,
-          tB,  t2, HPanWidth );
+          tB,  t2 );
 
         RepartitionDown
         ( AT,  A0,
          /**/ /**/
                A1,
-          AB,  A2 );
+          AB,  A2, H11.Height() );
+
+        LockedView2x1( HPan, H11, H21 );
 
         HPan_MC_STAR.AlignWith( AB );
         Z_STAR_MR.AlignWith( AB );

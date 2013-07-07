@@ -35,8 +35,9 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         tB,  t1,
              t2;
 
-    PartitionUpRightDiagonal
-    ( A, ATL, ATR,
+    PartitionUpOffsetDiagonal
+    ( A.Width()-A.Height(),
+      A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
     ( t, tT,
@@ -61,7 +62,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, 
           0, ABottomPan, t1, ATopPan ); 
         //--------------------------------------------------------------------//
 
@@ -123,8 +124,9 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         tB(g),  t1(g),
                 t2(g);
 
-    PartitionUpLeftDiagonal
-    ( A, ATL, ATR,
+    PartitionUpOffsetDiagonal
+    ( A.Width()-A.Height(),
+      A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
     ( t, tT,
@@ -149,7 +151,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, 
           0, ABottomPan, t1, ATopPan );
         //--------------------------------------------------------------------//
 

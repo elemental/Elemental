@@ -90,11 +90,13 @@ void PanelU
     DistMatrix<F,MC,STAR> w01Last_MC_STAR(g);
     DistMatrix<F,MR,STAR> w01Last_MR_STAR(g);
 
-    PartitionUpRightDiagonal
-    ( A, ATL, ATR,
+    PartitionUpOffsetDiagonal
+    ( A.Width()-A.Height(),
+      A, ATL, ATR,
          ABL, ABR, 0 );
-    PartitionUpRightDiagonal
-    ( W, WTL, WTR,
+    PartitionUpOffsetDiagonal
+    ( W.Width()-W.Height(),
+      W, WTL, WTR,
          WBL, WBR, 0 );
     PartitionUp
     ( e, eT,

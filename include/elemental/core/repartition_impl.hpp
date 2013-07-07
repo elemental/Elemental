@@ -28,14 +28,9 @@ RepartitionUp
   M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionUp [Matrix]");
-    if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
-        throw std::logic_error("Noncontiguous 2x1 array of matrices");
+    CallStackEntry cse("RepartitionUp [Matrix]");
 #endif
-    A1Height = std::min(A1Height,AT.Height());
-    const Int offset = AT.Height()-A1Height; 
-    View( A0, AT, 0,      0, offset,   AT.Width() );
-    View( A1, AT, offset, 0, A1Height, AT.Width() );
+    PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
 
@@ -47,15 +42,9 @@ RepartitionUp
   DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionUp [DistMatrix]");
-    if( (AT.Matrix().Buffer() + AT.LocalHeight()) != AB.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x1 array of distributed matrices");
+    CallStackEntry cse("RepartitionUp [DistMatrix]");
 #endif
-    A1Height = std::min(A1Height,AT.Height());
-    const Int offset = AT.Height()-A1Height; 
-    View( A0, AT, 0,      0, offset,   AT.Width() );
-    View( A1, AT, offset, 0, A1Height, AT.Width() );
+    PartitionUp( AT, A0, A1, A1Height );
     View( A2, AB );
 }
 
@@ -67,14 +56,9 @@ LockedRepartitionUp
   const M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionUp [Matrix]");
-    if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 2x1 array of matrices");
+    CallStackEntry cse("LockedRepartitionUp [Matrix]");
 #endif
-    A1Height = std::min(A1Height,AT.Height());
-    const Int offset = AT.Height()-A1Height;
-    LockedView( A0, AT, 0,      0, offset,   AT.Width() );
-    LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
+    LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
 
@@ -86,16 +70,9 @@ LockedRepartitionUp
   const DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionUp [DistMatrix]");
-    if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
-         AB.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x1 array of distributed matrices");
+    CallStackEntry cse("LockedRepartitionUp [DistMatrix]");
 #endif
-    A1Height = std::min(A1Height,AT.Height());
-    const Int offset = AT.Height()-A1Height;
-    LockedView( A0, AT, 0,      0, offset,   AT.Width() );
-    LockedView( A1, AT, offset, 0, A1Height, AT.Width() );
+    LockedPartitionUp( AT, A0, A1, A1Height );
     LockedView( A2, AB );
 }
 
@@ -111,15 +88,10 @@ RepartitionDown
   M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionDown [Matrix]");
-    if( (AT.Buffer() + AT.Height()) != AB.Buffer() )
-        throw std::logic_error("Noncontiguous 2x1 array of matrices");
+    CallStackEntry cse("RepartitionDown [Matrix]");
 #endif
-    A1Height = std::min(A1Height,AB.Height());
-    const Int offset = AB.Height()-A1Height; 
     View( A0, AT );
-    View( A1, AB, 0,        0, A1Height, AB.Width() );
-    View( A2, AB, A1Height, 0, offset,   AB.Width() );
+    PartitionDown( AB, A1, A2, A1Height );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -130,17 +102,10 @@ RepartitionDown
   DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionDown [DistMatrix]");
-    if( (AT.Matrix().Buffer() + AT.LocalHeight()) != 
-         AB.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x1 array of distributed matrices");
+    CallStackEntry cse("RepartitionDown [DistMatrix]");
 #endif
-    A1Height = std::min(A1Height,AB.Height());
-    const Int offset = AB.Height()-A1Height; 
     View( A0, AT );
-    View( A1, AB, 0,        0, A1Height, AB.Width() );
-    View( A2, AB, A1Height, 0, offset, AB.Width() );
+    PartitionDown( AB, A1, A2, A1Height );
 }
 
 template<typename T,typename Int>
@@ -151,15 +116,10 @@ LockedRepartitionDown
   const M& AB, M& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionDown [Matrix]");
-    if( (AT.LockedBuffer() + AT.Height()) != AB.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 2x1 array of matrices");
+    CallStackEntry cse("LockedRepartitionDown [Matrix]");
 #endif
-    A1Height = std::min(A1Height,AB.Height());
-    const Int offset = AB.Height()-A1Height;
     LockedView( A0, AT );
-    LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
-    LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
+    LockedPartitionDown( AB, A1, A2, A1Height );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -170,17 +130,10 @@ LockedRepartitionDown
   const DM& AB, DM& A2, Int A1Height )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionDown [DistMatrix]");
-    if( (AT.LockedMatrix().LockedBuffer() + AT.LocalHeight()) != 
-         AB.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x1 array of distributed matrices");
+    CallStackEntry cse("LockedRepartitionDown [DistMatrix]");
 #endif
-    A1Height = std::min(A1Height,AB.Height());
-    const Int offset = AB.Height()-A1Height;
     LockedView( A0, AT );
-    LockedView( A1, AB, 0,        0, A1Height, AB.Width() );
-    LockedView( A2, AB, A1Height, 0, offset,   AB.Width() );
+    LockedPartitionDown( AB, A1, A2, A1Height );
 }
 
 //
@@ -194,14 +147,9 @@ RepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionLeft [Matrix]");
-    if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
-        throw std::logic_error("Noncontiguous 1x2 array of matrices");
+    CallStackEntry cse("RepartitionLeft [Matrix]");
 #endif
-    A1Width = std::min(A1Width,AL.Width());
-    const Int offset = AL.Width()-A1Width;
-    View( A0, AL, 0, 0,      AL.Height(), offset   );
-    View( A1, AL, 0, offset, AL.Height(), A1Width  );
+    PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
 
@@ -212,16 +160,9 @@ RepartitionLeft
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionLeft [DistMatrix]");
-    if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
-         AR.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 1x2 array of distributed matrices");
+    CallStackEntry cse("RepartitionLeft [DistMatrix]");
 #endif
-    A1Width = std::min(A1Width,AL.Width());
-    const Int offset = AL.Width()-A1Width;
-    View( A0, AL, 0, 0,      AL.Height(), offset  );
-    View( A1, AL, 0, offset, AL.Height(), A1Width );
+    PartitionLeft( AL, A0, A1, A1Width );
     View( A2, AR );
 }
 
@@ -232,14 +173,9 @@ LockedRepartitionLeft
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionLeft [Matrix]");
-    if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 1x2 array of matrices");
+    CallStackEntry cse("LockedRepartitionLeft [Matrix]");
 #endif
-    A1Width = std::min(A1Width,AL.Width());
-    const Int offset = AL.Width()-A1Width;
-    LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
-    LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
+    LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
 
@@ -250,16 +186,9 @@ LockedRepartitionLeft
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionLeft [DistMatrix]");
-    if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
-         AR.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 1x1 array of distributed matrices");
+    CallStackEntry cse("LockedRepartitionLeft [DistMatrix]");
 #endif
-    A1Width = std::min(A1Width,AL.Width());
-    const Int offset = AL.Width()-A1Width;
-    LockedView( A0, AL, 0, 0,      AL.Height(), offset  );
-    LockedView( A1, AL, 0, offset, AL.Height(), A1Width );
+    LockedPartitionLeft( AL, A0, A1, A1Width );
     LockedView( A2, AR );
 }
 
@@ -274,15 +203,10 @@ RepartitionRight
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionRight [Matrix]");
-    if( (AL.Buffer() + AL.Width()*AL.LDim()) != AR.Buffer() )
-        throw std::logic_error("Noncontiguous 1x2 array of matrices");
+    CallStackEntry cse("RepartitionRight [Matrix]");
 #endif
-    A1Width = std::min(A1Width,AR.Width());
-    const Int offset = AR.Width()-A1Width;
     View( A0, AL );
-    View( A1, AR, 0, 0,       AR.Height(), A1Width );
-    View( A2, AR, 0, A1Width, AR.Height(), offset  );
+    PartitionRight( AR, A1, A2, A1Width );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -292,17 +216,10 @@ RepartitionRight
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionRight [DistMatrix]");
-    if( (AL.Matrix().Buffer() + AL.LocalWidth()*AL.LDim()) !=
-         AR.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 1x2 array of distributed matrices");
+    CallStackEntry cse("RepartitionRight [DistMatrix]");
 #endif
-    A1Width = std::min(A1Width,AR.Width());
-    const Int offset = AR.Width()-A1Width;
     View( A0, AL );
-    View( A1, AR, 0, 0,       AR.Height(), A1Width );
-    View( A2, AR, 0, A1Width, AR.Height(), offset  );
+    PartitionRight( AR, A1, A2, A1Width );
 }
 
 template<typename T,typename Int>
@@ -312,15 +229,10 @@ LockedRepartitionRight
   M& A0, M& A1, M& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionRight [Matrix]");
-    if( (AL.LockedBuffer() + AL.Width()*AL.LDim()) != AR.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 1x2 array of matrices");
+    CallStackEntry cse("LockedRepartitionRight [Matrix]");
 #endif
-    A1Width = std::min(A1Width,AR.Width());
-    const Int offset = AR.Width()-A1Width;
     LockedView( A0, AL );
-    LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
-    LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
+    LockedPartitionRight( AR, A1, A2, A1Width );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -330,17 +242,10 @@ LockedRepartitionRight
   DM& A0, DM& A1, DM& A2, Int A1Width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionRight [DistMatrix]");
-    if( (AL.LockedMatrix().LockedBuffer() + AL.LocalWidth()*AL.LDim()) !=
-         AR.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 1x2 DistMatrices in LockedRepartitionRight");
+    CallStackEntry cse("LockedRepartitionRight [DistMatrix]");
 #endif
-    A1Width = std::min(A1Width,AR.Width());
-    const Int offset = AR.Width()-A1Width;
     LockedView( A0, AL );
-    LockedView( A1, AR, 0, 0,       AR.Height(), A1Width );
-    LockedView( A2, AR, 0, A1Width, AR.Height(), offset  );
+    LockedPartitionRight( AR, A1, A2, A1Width );
 }
 
 //
@@ -355,24 +260,12 @@ RepartitionUpDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionUpDiagonal [Matrix]");
-    if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
-        (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
-        (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
-        (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
-        throw std::logic_error("Noncontiguous 2x2 grid of matrices");
+    CallStackEntry cse("RepartitionUpDiagonal [Matrix]");
 #endif
-    bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
-    const Int vOffset = ATL.Height()-bsize;
-    const Int hOffset = ATL.Width()-bsize;
-    View( A00, ATL, 0,       0,       vOffset,      hOffset     );
-    View( A01, ATL, 0,       hOffset, vOffset,      bsize       );
-    View( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
-    View( A10, ATL, vOffset, 0,       bsize,        hOffset     );
-    View( A11, ATL, vOffset, hOffset, bsize,        bsize       );
-    View( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
-    View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
-    View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    PartitionUpDiagonal( ATL, A00, A01,
+                              A10, A11, bsize );
+    PartitionUp( ATR, A02, A12, A11.Height() );
+    PartitionLeft( ABL, A20, A21, A11.Width() );
     View( A22, ABR );
 }
 
@@ -384,29 +277,12 @@ RepartitionUpDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionUpDiagonal [DistMatrix]");
-    if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
-         ABL.Matrix().Buffer() ||
-        (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
-         ABR.Matrix().Buffer() ||
-        (ATL.Matrix().Buffer() + ATL.LocalWidth()*ATL.LDim()) !=
-         ATR.Matrix().Buffer() ||
-        (ABL.Matrix().Buffer() + ABL.LocalWidth()*ABL.LDim()) !=
-         ABR.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x2 grid of distributed matrices");
+    CallStackEntry cse("RepartitionUpDiagonal [DistMatrix]");
 #endif
-    bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
-    const Int vOffset = ATL.Height()-bsize;
-    const Int hOffset = ATL.Width()-bsize;
-    View( A00, ATL, 0,       0,       vOffset,      hOffset     );
-    View( A01, ATL, 0,       hOffset, vOffset,      bsize       );
-    View( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
-    View( A10, ATL, vOffset, 0,       bsize,        hOffset     );
-    View( A11, ATL, vOffset, hOffset, bsize,        bsize       );
-    View( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
-    View( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
-    View( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    PartitionUpDiagonal( ATL, A00, A01,
+                              A10, A11, bsize );
+    PartitionUp( ATR, A02, A12, A11.Height() );
+    PartitionLeft( ABL, A20, A21, A11.Width() );
     View( A22, ABR );
 }
 
@@ -418,24 +294,12 @@ LockedRepartitionUpDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionUpDiagonal [Matrix]");
-    if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
-        (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
-        (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
-        (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 2x2 grid of matrices");
+    CallStackEntry cse("LockedRepartitionUpDiagonal [Matrix]");
 #endif
-    bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
-    const Int vOffset = ATL.Height()-bsize;
-    const Int hOffset = ATL.Width()-bsize;
-    LockedView( A00, ATL, 0,       0,       vOffset,      hOffset     );
-    LockedView( A01, ATL, 0,       hOffset, vOffset,      bsize       );
-    LockedView( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
-    LockedView( A10, ATL, vOffset, 0,       bsize,        hOffset     );
-    LockedView( A11, ATL, vOffset, hOffset, bsize,        bsize       );
-    LockedView( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
-    LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
-    LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    LockedPartitionUpDiagonal( ATL, A00, A01,
+                                    A10, A11, bsize );
+    LockedPartitionUp( ATR, A02, A12, A11.Height() );
+    LockedPartitionLeft( ABL, A20, A21, A11.Width() );
     LockedView( A22, ABR );
 }
 
@@ -447,31 +311,12 @@ LockedRepartitionUpDiagonal
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionUpDiagonal [DistMatrix]");
-    if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
-         ABL.LockedMatrix().LockedBuffer() ||
-        (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
-         ABR.LockedMatrix().LockedBuffer() ||
-        (ATL.LockedMatrix().LockedBuffer()+
-         ATL.LocalWidth()*ATL.LDim()) != 
-         ATR.LockedMatrix().LockedBuffer() ||
-        (ABL.LockedMatrix().LockedBuffer()+
-         ABL.LocalWidth()*ABL.LDim()) !=
-         ABR.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x2 grid of distributed matrices");
+    CallStackEntry cse("LockedRepartitionUpDiagonal [DistMatrix]");
 #endif
-    bsize = std::min(bsize,std::min(ATL.Height(),ATL.Width()));
-    const Int vOffset = ATL.Height()-bsize;
-    const Int hOffset = ATL.Width()-bsize;
-    LockedView( A00, ATL, 0,       0,       vOffset,      hOffset     );
-    LockedView( A01, ATL, 0,       hOffset, vOffset,      bsize       );
-    LockedView( A02, ATR, 0,       0,       vOffset,      ATR.Width() );
-    LockedView( A10, ATL, vOffset, 0,       bsize,        hOffset     );
-    LockedView( A11, ATL, vOffset, hOffset, bsize,        bsize       );
-    LockedView( A12, ATR, vOffset, 0,       bsize,        ATR.Width() );
-    LockedView( A20, ABL, 0,       0,       ABL.Height(), hOffset     );
-    LockedView( A21, ABL, 0,       hOffset, ABL.Height(), bsize       );
+    LockedPartitionUpDiagonal( ATL, A00, A01,
+                                    A10, A11, bsize );
+    LockedPartitionUp( ATR, A02, A12, A11.Height() );
+    LockedPartitionLeft( ABL, A20, A21, A11.Width() );
     LockedView( A22, ABR );
 }
 
@@ -487,25 +332,13 @@ RepartitionDownDiagonal
   M& ABL, M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionDownDiagonal [Matrix]");
-    if( (ATL.Buffer() + ATL.Height()) != ABL.Buffer() ||
-        (ATR.Buffer() + ATR.Height()) != ABR.Buffer() ||
-        (ATL.Buffer() + ATL.Width()*ATL.LDim()) != ATR.Buffer() ||
-        (ABL.Buffer() + ABL.Width()*ABL.LDim()) != ABR.Buffer()    )
-        throw std::logic_error("Noncontiguous 2x2 grid of matrices");
+    CallStackEntry cse("RepartitionDownDiagonal [Matrix]");
 #endif
-    bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
-    const Int vOffset = ABR.Height()-bsize;
-    const Int hOffset = ABR.Width()-bsize;
     View( A00, ATL );
-    View( A01, ATR, 0,     0,     ATL.Height(), bsize       );
-    View( A02, ATR, 0,     bsize, ATL.Height(), hOffset     );
-    View( A10, ABL, 0,     0,     bsize,        ABL.Width() );
-    View( A11, ABR, 0,     0,     bsize,        bsize       );
-    View( A12, ABR, 0,     bsize, bsize,        hOffset     );
-    View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
-    View( A21, ABR, bsize, 0,     vOffset,      bsize       );
-    View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
+    PartitionDownDiagonal( ABR, A11, A12,
+                                A21, A22, bsize );
+    PartitionDown( ABL, A10, A20, A11.Height() );
+    PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -516,30 +349,13 @@ RepartitionDownDiagonal
   DM& ABL, DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("RepartitionDownDiagonal [DistMatrix]");
-    if( (ATL.Matrix().Buffer() + ATL.LocalHeight()) != 
-         ABL.Matrix().Buffer() ||
-        (ATR.Matrix().Buffer() + ATR.LocalHeight()) != 
-         ABR.Matrix().Buffer() ||
-        (ATL.Matrix().Buffer() + ATL.LocalWidth()*ATL.LDim()) !=
-         ATR.Matrix().Buffer() ||
-        (ABL.Matrix().Buffer() + ABL.LocalWidth()*ABL.LDim()) != 
-         ABR.Matrix().Buffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x2 grid of distributed matrices");
+    CallStackEntry cse("RepartitionDownDiagonal [DistMatrix]");
 #endif
-    bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
-    const Int vOffset = ABR.Height()-bsize;
-    const Int hOffset = ABR.Width()-bsize;
     View( A00, ATL );
-    View( A01, ATR, 0,     0,     ATL.Height(), bsize       );
-    View( A02, ATR, 0,     bsize, ATL.Height(), hOffset     );
-    View( A10, ABL, 0,     0,     bsize,        ABL.Width() );
-    View( A11, ABR, 0,     0,     bsize,        bsize       );
-    View( A12, ABR, 0,     bsize, bsize,        hOffset     );
-    View( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
-    View( A21, ABR, bsize, 0,     vOffset,      bsize       );
-    View( A22, ABR, bsize, bsize, vOffset,      hOffset     );
+    PartitionDownDiagonal( ABR, A11, A12,
+                                A21, A22, bsize );
+    PartitionDown( ABL, A10, A20, A11.Height() );
+    PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
 template<typename T,typename Int>
@@ -550,25 +366,13 @@ LockedRepartitionDownDiagonal
   const M& ABL, const M& ABR, M& A20, M& A21, M& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionDownDiagonal [Matrix]");
-    if( (ATL.LockedBuffer() + ATL.Height()) != ABL.LockedBuffer() ||
-        (ATR.LockedBuffer() + ATR.Height()) != ABR.LockedBuffer() ||
-        (ATL.LockedBuffer() + ATL.Width()*ATL.LDim()) != ATR.LockedBuffer() ||
-        (ABL.LockedBuffer() + ABL.Width()*ABL.LDim()) != ABR.LockedBuffer() )
-        throw std::logic_error("Noncontiguous 2x2 grid of matrices");
+    CallStackEntry cse("LockedRepartitionDownDiagonal [Matrix]");
 #endif
-    bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
-    const Int vOffset = ABR.Height()-bsize;
-    const Int hOffset = ABR.Width()-bsize;
     LockedView( A00, ATL );
-    LockedView( A01, ATR, 0,     0,     ATL.Height(), bsize       );
-    LockedView( A02, ATR, 0,     bsize, ATL.Height(), hOffset     ); 
-    LockedView( A10, ABL, 0,     0,     bsize,        ABL.Width() );
-    LockedView( A11, ABR, 0,     0,     bsize,        bsize       );
-    LockedView( A12, ABR, 0,     bsize, bsize,        hOffset     );
-    LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
-    LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
-    LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
+    LockedPartitionDownDiagonal( ABR, A11, A12,
+                                      A21, A22, bsize );
+    LockedPartitionDown( ABL, A10, A20, A11.Height() );
+    LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
 template<typename T,Distribution U,Distribution V,typename Int>
@@ -579,32 +383,13 @@ LockedRepartitionDownDiagonal
   const DM& ABL, const DM& ABR, DM& A20, DM& A21, DM& A22, Int bsize )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LockedRepartitionDownDiagonal [DistMatrix]");
-    if( (ATL.LockedMatrix().LockedBuffer()+ATL.LocalHeight()) != 
-         ABL.LockedMatrix().LockedBuffer() ||
-        (ATR.LockedMatrix().LockedBuffer()+ATR.LocalHeight()) != 
-         ABR.LockedMatrix().LockedBuffer() ||
-        (ATL.LockedMatrix().LockedBuffer()+
-         ATL.LocalWidth()*ATL.LDim()) !=
-         ATR.LockedMatrix().LockedBuffer() ||
-        (ABL.LockedMatrix().LockedBuffer()+
-         ABL.LocalWidth()*ABL.LDim()) !=
-         ABR.LockedMatrix().LockedBuffer() )
-        throw std::logic_error
-        ("Noncontiguous 2x2 grid of distributed matrices");
+    CallStackEntry cse("LockedRepartitionDownDiagonal [DistMatrix]");
 #endif
-    bsize = std::min(bsize,std::min(ABR.Height(),ABR.Width()));
-    const Int vOffset = ABR.Height()-bsize;
-    const Int hOffset = ABR.Width()-bsize;
     LockedView( A00, ATL );
-    LockedView( A01, ATR, 0,     0,     ATR.Height(), bsize  );
-    LockedView( A02, ATR, 0,     bsize, ATR.Height(), hOffset     );
-    LockedView( A10, ABL, 0,     0,     bsize,        ABL.Width() );
-    LockedView( A11, ABR, 0,     0,     bsize,        bsize       );
-    LockedView( A12, ABR, 0,     bsize, bsize,        hOffset     );
-    LockedView( A20, ABL, bsize, 0,     vOffset,      ABL.Width() );
-    LockedView( A21, ABR, bsize, 0,     vOffset,      bsize       );
-    LockedView( A22, ABR, bsize, bsize, vOffset,      hOffset     );
+    LockedPartitionDownDiagonal( ABR, A11, A12,
+                                      A21, A22, bsize );
+    LockedPartitionDown( ABL, A10, A20, A11.Height() );
+    LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
 #undef DM

@@ -45,13 +45,9 @@ RLVB
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("apply_packed_reflectors::RLVB");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-    if( H.Height() != A.Width() )
-        throw std::logic_error
-        ("Height of transforms must equal width of target matrix");
-    if( t.Height() != H.DiagonalLength( offset ) )
+    CallStackEntry cse("apply_packed_reflectors::RLVB");
+    // TODO: Proper dimension checks
+    if( t.Height() != H.DiagonalLength(offset) )
         throw std::logic_error("t must be the same length as H's offset diag");
 #endif
     Matrix<F>
@@ -63,11 +59,11 @@ RLVB
         tT,  t0,
         tB,  t1,
              t2;
-    
     Matrix<F> SInv, Z;
 
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
+    LockedPartitionUpOffsetDiagonal
+    ( offset,
+      H, HTL, HTR,
          HBL, HBR, 0 );
     LockedPartitionUp
     ( t, tT,
@@ -80,19 +76,15 @@ RLVB
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int HPanWidth = 
-            std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        const int leftover = A.Width()-HPanHeight;
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-
         LockedRepartitionUp
         ( tT,  t0,
                t1,
          /**/ /**/
-          tB,  t2, HPanWidth );
+          tB,  t2 );
 
-        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
+        LockedView2x1( HPan, H11, H21 );
+        View
+        ( ARight, A, 0, A.Width()-HPan.Height(), A.Height(), HPan.Height() );
 
         //--------------------------------------------------------------------//
         HPanCopy = HPan;
@@ -128,22 +120,17 @@ RLVB
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("apply_packed_reflectors::RLVB");
+    CallStackEntry cse("apply_packed_reflectors::RLVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         throw std::logic_error
         ("{H,t,A} must be distributed over the same grid");
-    if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
-    if( H.Height() != A.Width() )
-        throw std::logic_error
-        ("Height of transforms must equal width of target matrix");
-    if( t.Height() != H.DiagonalLength( offset ) )
+    // TODO: Proper dimension checks
+    if( t.Height() != H.DiagonalLength(offset) )
         throw std::logic_error("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiagonal( H, offset ) )
         throw std::logic_error("t must be aligned with H's 'offset' diagonal");
 #endif
     const Grid& g = H.Grid();
-
     DistMatrix<F>
         HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
         HBL(g), HBR(g),  H10(g), H11(g), H12(g),
@@ -161,8 +148,9 @@ RLVB
     DistMatrix<F,STAR,MC  > ZAdj_STAR_MC(g);
     DistMatrix<F,STAR,VC  > ZAdj_STAR_VC(g);
 
-    LockedPartitionUpDiagonal
-    ( H, HTL, HTR,
+    LockedPartitionUpOffsetDiagonal
+    ( offset,
+      H, HTL, HTR,
          HBL, HBR, 0 );
     LockedPartitionUp
     ( t, tT,
@@ -175,19 +163,15 @@ RLVB
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int HPanWidth = 
-            std::min( H11.Width(), std::max(HPanHeight+offset,0) );
-        const int leftover = A.Width()-HPanHeight;
-        LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
-
         LockedRepartitionUp
         ( tT,  t0,
                t1,
          /**/ /**/
-          tB,  t2, HPanWidth );
+          tB,  t2 );
 
-        View( ARight, A, 0, leftover, A.Height(), HPanHeight );
+        LockedView2x1( HPan, H11, H21 );
+        View
+        ( ARight, A, 0, A.Width()-HPan.Height(), A.Height(), HPan.Height() );
 
         HPan_MR_STAR.AlignWith( ARight );
         ZAdj_STAR_MC.AlignWith( ARight );

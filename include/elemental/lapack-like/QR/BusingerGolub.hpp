@@ -95,7 +95,7 @@ BusingerGolub
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     for( int col=0; col<maxSteps; ++col )
@@ -457,7 +457,7 @@ BusingerGolub
     DistMatrix<F,MR,STAR> z_MR_STAR(g);
     DistMatrix<F,STAR,MR> a12_STAR_MR(g);
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     for( int col=0; col<maxSteps; ++col )

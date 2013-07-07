@@ -38,7 +38,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
                    A20, a21,     A22;
     Matrix<F> z;
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
@@ -117,7 +117,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     DistMatrix<F,MC,STAR> aLeftCol_MC_STAR(g);
     DistMatrix<F,MR,STAR> z_MR_STAR(g);
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )

@@ -33,6 +33,7 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
+    Print( t, "t" );
 
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);
@@ -133,7 +134,10 @@ void TestRQ( bool testCorrectness, bool print, int m, int n, const Grid& g )
              << gFlops << endl;
     }
     if( print )
+    {
         Print( A, "A after factorization" );
+        Print( t, "phases");
+    }
     if( testCorrectness )
         TestCorrectness( A, t, AOrig );
 }

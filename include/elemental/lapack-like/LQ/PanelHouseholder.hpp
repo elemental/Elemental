@@ -40,7 +40,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 
     Matrix<F> z, aTopRowConj;
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
@@ -133,7 +133,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     DistMatrix<F,STAR,MR  > aTopRowConj_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z_MC_STAR(g);
 
-    PartitionDownLeftDiagonal
+    PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionDown
