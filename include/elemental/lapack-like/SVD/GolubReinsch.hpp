@@ -133,9 +133,7 @@ GolubReinschUpper_FLA
 #ifndef RELEASE
     CallStackEntry entry("svd::GolubReinschUpper_FLA");
 #endif
-    typedef double Real;
-    typedef Complex<Real> C;
-
+    typedef BASE(F) Real;
     const int m = A.Height();
     const int n = A.Width();
     const int k = std::min( m, n );
@@ -143,7 +141,7 @@ GolubReinschUpper_FLA
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    DistMatrix<C,STAR,STAR> tP( g ), tQ( g );
+    DistMatrix<F,STAR,STAR> tP( g ), tQ( g );
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
@@ -158,8 +156,8 @@ GolubReinschUpper_FLA
                                e_STAR_STAR( e_MD_STAR );
 
     // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<C,VC,STAR> U_VC_STAR( g );
-    DistMatrix<C,VC,STAR> V_VC_STAR( g );
+    DistMatrix<F,VC,STAR> U_VC_STAR( g );
+    DistMatrix<F,VC,STAR> V_VC_STAR( g );
     U_VC_STAR.AlignWith( A );
     V_VC_STAR.AlignWith( V );
     Identity( U_VC_STAR, m, k );
@@ -173,12 +171,12 @@ GolubReinschUpper_FLA
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and V into a standard matrix dist.
-    DistMatrix<C> B( A );
+    DistMatrix<F> B( A );
     if( m >= n )
     {
-        DistMatrix<C> AT( g ),
+        DistMatrix<F> AT( g ),
                       AB( g );
-        DistMatrix<C,VC,STAR> UT_VC_STAR( g ), 
+        DistMatrix<F,VC,STAR> UT_VC_STAR( g ), 
                               UB_VC_STAR( g );
         PartitionDown( A, AT,
                           AB, n );
@@ -190,9 +188,9 @@ GolubReinschUpper_FLA
     }
     else
     {
-        DistMatrix<C> VT( g ), 
+        DistMatrix<F> VT( g ), 
                       VB( g );
-        DistMatrix<C,VC,STAR> VT_VC_STAR( g ), 
+        DistMatrix<F,VC,STAR> VT_VC_STAR( g ), 
                               VB_VC_STAR( g );
         PartitionDown( V, VT, 
                           VB, m );

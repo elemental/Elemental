@@ -46,7 +46,7 @@ FLA_Error FLA_Bsvd_v_opz_var1
 #ifdef HAVE_FLA_BSVD
 namespace elem {
 
-void FlaSVD
+inline void FlaSVD
 ( int k, int mU, int mV, double* d, double* e, 
   double* U, int ldu, double* V, int ldv, 
   int numAccum=32, int maxNumIts=30, int bAlg=512 )
@@ -58,7 +58,7 @@ void FlaSVD
       U, 1, ldu, V, 1, ldv, bAlg );
 }
 
-void FlaSVD
+inline void FlaSVD
 ( int k, int mU, int mV, double* d, double* e, 
   Complex<double>* U, int ldu, Complex<double>* V, int ldv, 
   int numAccum=32, int maxNumIts=30, int bAlg=512 )

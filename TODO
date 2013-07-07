@@ -1,7 +1,7 @@
 Functionality
 =============
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-- Spectral Divide and Conquer
+- (Generalized) Spectral Divide and Conquer
 - More Sign algorithms (and algebraic Riccati equation solver)
 - Ostrowski matrices
 - Power-method-like p-norm estimation (especially when p=2)
@@ -36,7 +36,7 @@ Maintenance
 - Update documentation for imported routines (and in general)
 - References for Interpolative and Skeleton Decomposition 
 - Experiment with using scope to avoid SlidePartition
-- Document UnitaryCoherence
+- Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
 - Further improvements for the speed of the build process
 - Consistent handling of unblocked routines
