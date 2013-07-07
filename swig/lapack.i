@@ -79,6 +79,7 @@ OVERLOAD01(HilbertSchmidt)
  */
 
 %ignore elem::LocalCholesky;
+%ignore elem::LocalReverseCholesky;
 %ignore elem::LocalLDL;
 %ignore elem::LocalLU;
 
