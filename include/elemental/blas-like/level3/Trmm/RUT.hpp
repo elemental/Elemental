@@ -119,7 +119,6 @@ LocalTrmmAccumulateRUT
         LocalGemm
         ( NORMAL, NORMAL, alpha, U01, X1Trans_MR_STAR, T(1), Z0Trans_MC_STAR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
@@ -192,7 +191,6 @@ TrmmRUTA
         Z1Trans_MR_MC = Z1Trans;
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix(), conjugate );
         //--------------------------------------------------------------------//
-        Z1Trans_MR_MC.FreeAlignments();
 
         SlidePartitionDown
         ( XT,  X0,
@@ -275,8 +273,6 @@ TrmmRUTC
         LocalGemm( NORMAL, NORMAL, T(1), X2, U12Trans_MR_STAR, D1_MC_STAR );
         X1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
-        U12Trans_MR_STAR.FreeAlignments();
-        D1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,

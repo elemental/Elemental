@@ -224,16 +224,6 @@ TwoSidedTrmmUVar1
         // A12 := A12 U22'
         Trmm( RIGHT, UPPER, ADJOINT, diag, F(1), U22, A12 );
         //--------------------------------------------------------------------//
-        A12_STAR_VR.FreeAlignments();
-        U12_STAR_MC.FreeAlignments();
-        U12_STAR_VR.FreeAlignments();
-        U12Adj_MR_STAR.FreeAlignments();
-        U12Adj_VC_STAR.FreeAlignments();
-        Y12.FreeAlignments();
-        Z12Adj.FreeAlignments();
-        Z12Adj_MR_MC.FreeAlignments(); 
-        Z12Adj_MC_STAR.FreeAlignments();
-        Z12Adj_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

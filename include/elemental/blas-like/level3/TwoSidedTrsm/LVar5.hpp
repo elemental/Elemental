@@ -220,16 +220,6 @@ TwoSidedTrsmLVar5
         // This is the bottleneck because A21 only has blocksize columns
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), L22, A21 );
         //--------------------------------------------------------------------//
-        A21_MC_STAR.FreeAlignments();
-        A21_VC_STAR.FreeAlignments();
-        A21_VR_STAR.FreeAlignments();
-        A21Adj_STAR_MR.FreeAlignments();
-        L21_MC_STAR.FreeAlignments();
-        L21_VC_STAR.FreeAlignments();
-        L21_VR_STAR.FreeAlignments();
-        L21Adj_STAR_MR.FreeAlignments();
-        Y21.FreeAlignments();
-        Y21_VC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

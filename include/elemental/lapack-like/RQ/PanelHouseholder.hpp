@@ -190,8 +190,6 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//
-        aBottomRow_STAR_MR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
 
         SlidePartitionUp
         ( tT,  t0,

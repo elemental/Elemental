@@ -119,9 +119,6 @@ LVar3Square( DistMatrix<F>& A )
 
         A21.TransposeFrom( A21Trans_STAR_MC );
         //--------------------------------------------------------------------//
-        A21_VC_STAR.FreeAlignments();
-        A21Trans_STAR_MC.FreeAlignments();
-        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

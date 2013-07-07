@@ -228,9 +228,6 @@ LUHF
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( ADJOINT, NORMAL, F(-1), HPan_STAR_MC, Z_STAR_MR, F(1), AB );
         //--------------------------------------------------------------------//
-        HPan_STAR_MC.FreeAlignments();
-        Z_STAR_MR.FreeAlignments();
-        Z_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,

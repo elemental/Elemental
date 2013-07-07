@@ -581,8 +581,6 @@ BusingerGolub
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColumnNorms( A, inaccurateNorms, norms, origNorms );
         //--------------------------------------------------------------------//
-        aLeftCol_MC_STAR.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,

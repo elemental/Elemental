@@ -103,8 +103,6 @@ TrsvLT
             x1_MC_STAR = x1_STAR_STAR;
             LocalGemv( orientation, F(-1), L10, x1_MC_STAR, F(1), z0_MR_STAR );
             //----------------------------------------------------------------//
-            x1_MC_STAR.FreeAlignments();
-            z1.FreeAlignments();
 
             SlidePartitionUp
             ( xT,  x0,
@@ -165,7 +163,6 @@ TrsvLT
             x1_STAR_MC = x1_STAR_STAR;
             LocalGemv( orientation, F(-1), L10, x1_STAR_MC, F(1), z0_STAR_MR );
             //----------------------------------------------------------------//
-            x1_STAR_MC.FreeAlignments();
 
             SlidePartitionLeft
             ( xL, /**/ xR,

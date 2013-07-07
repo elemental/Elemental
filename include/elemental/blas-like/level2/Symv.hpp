@@ -129,11 +129,6 @@ Symv
         z.SumScatterUpdate( T(1), z_MC_STAR );
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        x_MR_STAR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -173,12 +168,6 @@ Symv
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        x_MR_STAR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z.FreeAlignments();
-        z_MR_MC.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -218,12 +207,6 @@ Symv
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        x_STAR_MR.FreeAlignments();
-        z_STAR_MC.FreeAlignments();
-        z_STAR_MR.FreeAlignments();
-        z.FreeAlignments();
-        z_MR_MC.FreeAlignments();
     }
     else
     {
@@ -262,12 +245,6 @@ Symv
         z.SumScatterUpdate( T(1), z_STAR_MR );
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        x_STAR_MR.FreeAlignments();
-        z_STAR_MC.FreeAlignments();
-        z_STAR_MR.FreeAlignments();
-        z.FreeAlignments();
-        z_MR_MC.FreeAlignments();
     }
 }
 

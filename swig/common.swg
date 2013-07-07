@@ -34,13 +34,12 @@ template <> struct NPY<double> { static const int DType = NPY_DOUBLE; };
 template <> struct NPY<elem::Complex<float> > { static const int DType = NPY_CFLOAT; };
 template <> struct NPY<elem::Complex<double> > { static const int DType = NPY_CDOUBLE; };
 
-class SwigException : public std::exception {
-    int _type;
-    const char* _msg;
+class SwigException : public std::runtime_error {
+    int type_;
 public:
-    SwigException( int type, const char* msg ) : _type(type), _msg(msg) {}
-    const char* what() const throw() { return _msg; }
-    int type() const throw() { return _type; }
+    SwigException( int type, const char* msg ) 
+    : type_(type), std::runtime_error(msg) {}
+    int type() const throw() { return type_; }
 };
     
 template <typename T>

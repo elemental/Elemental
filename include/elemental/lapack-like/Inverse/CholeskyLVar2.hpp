@@ -162,13 +162,6 @@ CholeskyLVar2( DistMatrix<F>& A )
         A10 = A10_STAR_VR;
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10_STAR_VR.FreeAlignments();
-        A21_VC_STAR.FreeAlignments();
-        A10_STAR_MC.FreeAlignments();
-        A10_STAR_MR.FreeAlignments();
-        A21Trans_STAR_MC.FreeAlignments();
-        A21_VR_STAR.FreeAlignments();
-        A21Adj_STAR_MR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

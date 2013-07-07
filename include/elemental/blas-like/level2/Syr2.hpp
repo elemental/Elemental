@@ -138,10 +138,6 @@ Syr2
             }
         }
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        x_MR_STAR.FreeAlignments();
-        y_MC_STAR.FreeAlignments();
-        y_MR_STAR.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -198,10 +194,6 @@ Syr2
             }
         }
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        x_MR_STAR.FreeAlignments();
-        y_STAR_MC.FreeAlignments();
-        y_STAR_MR.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -258,10 +250,6 @@ Syr2
             }
         }
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        x_STAR_MR.FreeAlignments();
-        y_MC_STAR.FreeAlignments();
-        y_MR_STAR.FreeAlignments();
     }
     else
     {
@@ -317,10 +305,6 @@ Syr2
             }
         }
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        x_STAR_MR.FreeAlignments();
-        y_STAR_MC.FreeAlignments();
-        y_STAR_MR.FreeAlignments();
     }
 }
 

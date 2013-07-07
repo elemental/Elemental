@@ -220,16 +220,6 @@ TwoSidedTrsmUVar5
         // This is the bottleneck because A12 only has blocksize rows
         Trsm( RIGHT, UPPER, NORMAL, diag, F(1), U22, A12 );
         //--------------------------------------------------------------------//
-        A12_STAR_MC.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A12_STAR_VC.FreeAlignments();
-        A12_STAR_VR.FreeAlignments();
-        U12_STAR_MC.FreeAlignments();
-        U12_STAR_MR.FreeAlignments();
-        U12_STAR_VC.FreeAlignments();
-        U12_STAR_VR.FreeAlignments();
-        Y12.FreeAlignments();
-        Y12_STAR_VR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

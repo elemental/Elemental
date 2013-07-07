@@ -252,12 +252,6 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
             LocalGemm
             ( NORMAL, NORMAL, F(-1), X21_MC_STAR, A12_STAR_MR, F(1), A22 );
             //----------------------------------------------------------------//
-            ARowPan_STAR_MR.FreeAlignments();
-            AColPan_MC_STAR.FreeAlignments();
-            Y21_MR_STAR.FreeAlignments();
-            X21_MC_STAR.FreeAlignments();
-            Y.FreeAlignments();
-            X.FreeAlignments();
         }
         else
         {

@@ -114,11 +114,6 @@ void LSquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
                      W21_MC_STAR, A21_MR_STAR,
               F(1), A22 );
             //----------------------------------------------------------------//
-            WPan_MR_STAR.FreeAlignments();
-            APan_MR_STAR.FreeAlignments();
-            WPan_MC_STAR.FreeAlignments();
-            APan_MC_STAR.FreeAlignments();
-            WPan.FreeAlignments();
         }
         else
         {

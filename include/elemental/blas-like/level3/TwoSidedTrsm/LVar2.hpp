@@ -239,16 +239,6 @@ TwoSidedTrsmLVar2
         ( RIGHT, LOWER, ADJOINT, diag, F(1), L11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10Adj_MR_STAR.FreeAlignments();
-        F10Adj_MR_STAR.FreeAlignments();
-        L10Adj_MR_STAR.FreeAlignments();
-        L10Adj_VC_STAR.FreeAlignments();
-        L10_STAR_MC.FreeAlignments();
-        X11.FreeAlignments();
-        X11_MC_STAR.FreeAlignments();
-        X21_MC_STAR.FreeAlignments();
-        Y10Adj_MC_STAR.FreeAlignments();
-        Y10Adj_MR_MC.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

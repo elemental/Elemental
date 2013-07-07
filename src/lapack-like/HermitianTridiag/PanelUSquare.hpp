@@ -393,10 +393,6 @@ void PanelUSquare
                         Conj(a01_MR_STAR_Buffer[jLocal]) +
                         a01_MC_STAR_Buffer[iLocal]*
                         Conj(w01_MR_STAR_Buffer[jLocal]);
-
-            // We are through with the last iteration's w01
-            w01Last_MC_STAR.FreeAlignments();
-            w01Last_MR_STAR.FreeAlignments();
         }
 
         // Form the local portions of (A00 a01) into p01[MC,* ] and q01[MR,* ]:
@@ -654,12 +650,6 @@ void PanelUSquare
             }
         }
         //--------------------------------------------------------------------//
-        a01_MC_STAR.FreeAlignments();
-        a01_MR_STAR.FreeAlignments();
-        p01_MC_STAR.FreeAlignments();
-        q01_MR_STAR.FreeAlignments();
-        x21_MR_STAR.FreeAlignments();
-        y21_MR_STAR.FreeAlignments();
 
         SlidePartitionUp
         ( tT,  t0,

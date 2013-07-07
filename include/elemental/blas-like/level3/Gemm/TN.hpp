@@ -87,7 +87,6 @@ SUMMA_TNA
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//
-        D1.FreeAlignments();
 
         SlideLockedPartitionRight
         ( BL,     /**/ BR,

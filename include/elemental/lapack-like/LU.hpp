@@ -130,9 +130,6 @@ LU( DistMatrix<F>& A )
         LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
-        A12_STAR_VR.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -308,9 +305,6 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
         A21 = A21_MC_STAR;
         p1 = p1_STAR_STAR;
         //--------------------------------------------------------------------//
-        A12_STAR_VR.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

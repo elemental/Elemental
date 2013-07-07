@@ -132,13 +132,6 @@ UVar2( DistMatrix<F>& A )
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
         A12 = A12_STAR_VR;
         //--------------------------------------------------------------------//
-        A01_MC_STAR.FreeAlignments();
-        X11Adj_MR_STAR.FreeAlignments();
-        X11Adj_MR_MC.FreeAlignments();
-        X11.FreeAlignments();
-        X12Adj_MR_STAR.FreeAlignments();
-        X12Adj_MR_MC.FreeAlignments();
-        X12.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

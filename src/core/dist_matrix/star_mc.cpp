@@ -122,7 +122,6 @@ DistMatrix<T,STAR,MC,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
     CallStackEntry entry("[* ,MC]::AlignWith");
-    this->AssertFreeRowAlignment();
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
@@ -203,7 +202,6 @@ DistMatrix<T,STAR,MC,Int>::AlignWithDiagonal
 {
 #ifndef RELEASE
     CallStackEntry entry("[* ,MC]::AlignWithDiagonal");
-    this->AssertFreeRowAlignment();
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );

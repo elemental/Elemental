@@ -149,8 +149,6 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
         U11 = U11_STAR_STAR;
         U12 = U12_STAR_VR;
         //--------------------------------------------------------------------//
-        U01Trans_STAR_MC.FreeAlignments();
-        U12Trans_MR_STAR.FreeAlignments();
 
         SlidePartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

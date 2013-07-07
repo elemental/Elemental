@@ -115,7 +115,6 @@ LocalTrmmAccumulateRUN
         ( orientation, orientation,
           alpha, U01, X0_STAR_MC, T(1), Z1Trans_MR_STAR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
@@ -186,7 +185,6 @@ TrmmRUNA
         Z1Trans_MR_MC.SumScatterFrom( Z1Trans_MR_STAR );
         Transpose( Z1Trans_MR_MC.Matrix(), X1.Matrix() );
         //--------------------------------------------------------------------//
-        Z1Trans_MR_MC.FreeAlignments();
 
         SlidePartitionDown
         ( XT,  X0,
@@ -265,8 +263,6 @@ TrmmRUNCOld
         LocalGemm( NORMAL, NORMAL, T(1), X0, U01_MR_STAR, D1_MC_STAR );
         X1.SumScatterUpdate( T(1), D1_MC_STAR );
         //--------------------------------------------------------------------//
-        U01_MR_STAR.FreeAlignments();
-        D1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,
@@ -351,9 +347,6 @@ TrmmRUNC
         ( RIGHT, UPPER, NORMAL, diag, T(1), U11_STAR_STAR, X1_VC_STAR );
         X1 = X1_VC_STAR;
         //--------------------------------------------------------------------//
-        X1_MC_STAR.FreeAlignments();
-        U12Trans_MR_STAR.FreeAlignments();
-        X1_VC_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

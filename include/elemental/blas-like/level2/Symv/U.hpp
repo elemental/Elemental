@@ -118,7 +118,6 @@ LocalSymvColAccumulateU
         LocalGemv( NORMAL, alpha, A12, x2_MR_STAR, T(1), z1_MC_STAR );
         LocalGemv( orientation, alpha, A12, x1_MC_STAR, T(1), z2_MR_STAR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionDown
         ( xT_MR_STAR,  x0_MR_STAR,
@@ -224,7 +223,6 @@ LocalSymvRowAccumulateU
         LocalGemv( NORMAL, alpha, A12, x2_STAR_MR, T(1), z1_STAR_MC );
         LocalGemv( orientation, alpha, A12, x1_STAR_MC, T(1), z2_STAR_MR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionRight
         ( xL_STAR_MR,             /**/ xR_STAR_MR,

@@ -124,8 +124,6 @@ DistMatrix<T,MR,MC,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
     CallStackEntry entry("[MR,MC]::AlignWith");
-    this->AssertFreeColAlignment();
-    this->AssertFreeRowAlignment();
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
@@ -201,7 +199,6 @@ DistMatrix<T,MR,MC,Int>::AlignColsWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
     CallStackEntry entry("[MR,MC]::AlignColsWith");
-    this->AssertFreeColAlignment();
     if( *this->grid_ != *data.grid )
         throw std::logic_error("Grids do not match");
 #endif
@@ -231,7 +228,6 @@ DistMatrix<T,MR,MC,Int>::AlignRowsWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
     CallStackEntry entry("[MR,MC]::AlignRowsWith");
-    this->AssertFreeRowAlignment();
     if( *this->grid_ != *data.grid )
         throw std::logic_error("Grids do not match");
 #endif

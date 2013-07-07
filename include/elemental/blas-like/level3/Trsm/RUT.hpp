@@ -94,10 +94,6 @@ TrsmRUT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, U01AdjOrTrans_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
-        X1_VC_STAR.FreeAlignments();
-        X1Trans_STAR_MC.FreeAlignments();
-        U01_VR_STAR.FreeAlignments();
-        U01AdjOrTrans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

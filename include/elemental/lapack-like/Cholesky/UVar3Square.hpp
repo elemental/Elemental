@@ -111,9 +111,6 @@ UVar3Square( DistMatrix<F>& A )
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
         //--------------------------------------------------------------------//
-        A12_STAR_MC.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A12_STAR_VR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

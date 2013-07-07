@@ -219,15 +219,6 @@ TwoSidedTrmmLVar1
         // A21 := L22' A21
         Trmm( LEFT, LOWER, ADJOINT, diag, F(1), L22, A21 );
         //--------------------------------------------------------------------//
-        A21_VC_STAR.FreeAlignments();
-        L21_MC_STAR.FreeAlignments();
-        L21Adj_STAR_MR.FreeAlignments();
-        L21_VC_STAR.FreeAlignments();
-        L21_VR_STAR.FreeAlignments();
-        Y21.FreeAlignments();
-        Z21_MC_STAR.FreeAlignments();
-        Z21_MR_STAR.FreeAlignments();
-        Z21_MR_MC.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

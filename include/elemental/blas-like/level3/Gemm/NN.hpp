@@ -441,7 +441,6 @@ SUMMA_NNDot
                 ( C1L,      /**/ C1R,
                   C10, C11, /**/ C12 );
             }
-            B1_VC_STAR.FreeAlignments();
 
             SlideLockedPartitionDown
             ( AT,  A0,
@@ -531,7 +530,6 @@ SUMMA_NNDot
                  /***/ /***/
                   C1B,  C21 );
             }
-            A1_STAR_VR.FreeAlignments();
 
             SlideLockedPartitionRight
             ( BL,     /**/ BR,

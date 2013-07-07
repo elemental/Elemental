@@ -217,9 +217,6 @@ RUHF
         LocalGemm
         ( ADJOINT, NORMAL, F(-1), ZAdj_STAR_MC, HPan_STAR_MR, F(1), AR );
         //--------------------------------------------------------------------//
-        HPan_STAR_MR.FreeAlignments();
-        ZAdj_STAR_MC.FreeAlignments();
-        ZAdj_STAR_VC.FreeAlignments();
 
         SlidePartitionRight
         ( AL,     /**/ AR,

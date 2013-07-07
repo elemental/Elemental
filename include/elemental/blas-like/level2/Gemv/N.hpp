@@ -61,8 +61,6 @@ GemvN
         LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
         y.SumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
-        x_MR_STAR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -83,10 +81,6 @@ GemvN
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_MR_STAR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
-        z.FreeAlignments();
-        zTrans.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -102,8 +96,6 @@ GemvN
         LocalGemv( NORMAL, alpha, A, x_STAR_MR, T(0), z_MC_STAR );
         y.SumScatterUpdate( T(1), z_MC_STAR );
         //--------------------------------------------------------------------//
-        x_STAR_MR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
     }
     else
     {
@@ -124,10 +116,6 @@ GemvN
         Transpose( z, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_STAR_MR.FreeAlignments();
-        z_MC_STAR.FreeAlignments();
-        z.FreeAlignments();
-        zTrans.FreeAlignments();
     }
 }
 
@@ -169,8 +157,6 @@ GemvN
     LocalGemv( NORMAL, alpha, A, x_MR_STAR, T(0), z_MC_STAR );
     y.SumScatterUpdate( T(1), z_MC_STAR );
     //--------------------------------------------------------------------//
-    x_MR_STAR.FreeAlignments();
-    z_MC_STAR.FreeAlignments();
 }
 
 } // namespace internal

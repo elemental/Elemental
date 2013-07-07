@@ -181,11 +181,6 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
                      W01_MC_STAR, A01_MR_STAR,
               F(1),  A00 );
             //----------------------------------------------------------------//
-            WPan_MR_STAR.FreeAlignments();
-            APan_MR_STAR.FreeAlignments();
-            WPan_MC_STAR.FreeAlignments();
-            APan_MC_STAR.FreeAlignments();
-            WPan.FreeAlignments();
         }
         else
         {

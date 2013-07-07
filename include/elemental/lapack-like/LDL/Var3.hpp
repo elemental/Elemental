@@ -241,10 +241,6 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A21_VC_STAR.FreeAlignments();
-        A21_VR_STAR.FreeAlignments();
-        S21Trans_STAR_MC.FreeAlignments();
-        A21AdjOrTrans_STAR_MR.FreeAlignments();
 
         SlidePartitionDown
         ( dT,  d0,

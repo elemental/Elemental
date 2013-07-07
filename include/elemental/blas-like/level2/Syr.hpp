@@ -118,8 +118,6 @@ Syr
             }
         }
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        x_MR_STAR.FreeAlignments();
     }
     else
     {
@@ -163,8 +161,6 @@ Syr
             }
         }
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        x_STAR_MR.FreeAlignments();
     }
 }
 

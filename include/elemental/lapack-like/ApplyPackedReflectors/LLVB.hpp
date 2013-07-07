@@ -229,9 +229,6 @@ LLVB
         LocalGemm
         ( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), ABottom );
         //--------------------------------------------------------------------//
-        HPan_MC_STAR.FreeAlignments();
-        Z_STAR_MR.FreeAlignments();
-        Z_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( HTL, /**/ HTR,  H00, /**/ H01, H02,

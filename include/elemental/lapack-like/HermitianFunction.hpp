@@ -136,9 +136,6 @@ HermitianFromEVD
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
         LocalTrrk( uplo, F(1), Z1_MC_STAR, Z1Adj_STAR_MR, F(1), A );
         //--------------------------------------------------------------------//
-        Z1Adj_STAR_MR.FreeAlignments();
-        Z1_VR_STAR.FreeAlignments();
-        Z1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionDown
         ( wT,  w0,
@@ -259,9 +256,6 @@ NormalFromEVD
         Z1Adj_STAR_MR.AdjointFrom( Z1_VR_STAR );
         LocalGemm( NORMAL, NORMAL, C(1), Z1_MC_STAR, Z1Adj_STAR_MR, C(1), A );
         //--------------------------------------------------------------------//
-        Z1Adj_STAR_MR.FreeAlignments();
-        Z1_VR_STAR.FreeAlignments();
-        Z1_MC_STAR.FreeAlignments();
 
         SlideLockedPartitionDown
         ( wT,  w0,

@@ -213,14 +213,6 @@ TwoSidedTrmmUVar5
         LocalTwoSidedTrmm( UPPER, diag, A11_STAR_STAR, U11_STAR_STAR );
         A11 = A11_STAR_STAR;
         //--------------------------------------------------------------------//
-        A01_MC_STAR.FreeAlignments();
-        A01_MR_STAR.FreeAlignments();
-        A01_VC_STAR.FreeAlignments();
-        U01_MC_STAR.FreeAlignments();
-        U01_MR_STAR.FreeAlignments();
-        U01_VC_STAR.FreeAlignments();
-        Y01.FreeAlignments();
-        Y01_VC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

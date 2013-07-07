@@ -278,15 +278,6 @@ TwoSidedTrsmLVar3
         LocalGemm( NORMAL, ADJOINT, F(1), L20, A10_STAR_MR, Z21_MC_STAR );
         Y21.SumScatterUpdate( F(1), Z21_MC_STAR );
         //--------------------------------------------------------------------//
-        A11_STAR_MR.FreeAlignments();
-        A21_VC_STAR.FreeAlignments();
-        A10_STAR_VR.FreeAlignments();
-        A10_STAR_MR.FreeAlignments();
-        L10_STAR_VR.FreeAlignments();
-        L10_STAR_MR.FreeAlignments();
-        L21_MC_STAR.FreeAlignments();
-        X21_MC_STAR.FreeAlignments();
-        Z21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

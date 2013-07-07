@@ -68,10 +68,6 @@ GemvT
         z = z_MR_MC;
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z_MR_MC.FreeAlignments();
-        z.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -93,10 +89,6 @@ GemvT
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z_MR_MC.FreeAlignments();
-        zTrans.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -118,10 +110,6 @@ GemvT
         z = z_MR_MC;
         Axpy( T(1), z, y );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z_MR_MC.FreeAlignments();
-        z.FreeAlignments();
     }
     else
     {
@@ -143,10 +131,6 @@ GemvT
         Transpose( z_MR_MC, zTrans );
         Axpy( T(1), zTrans, y );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        z_MR_STAR.FreeAlignments();
-        z_MR_MC.FreeAlignments();
-        zTrans.FreeAlignments();
     }
 }
 
@@ -195,10 +179,6 @@ GemvT
     z = z_VR_STAR;
     Axpy( T(1), z, y );
     //--------------------------------------------------------------------//
-    x_MC_STAR.FreeAlignments();
-    z_MR_STAR.FreeAlignments();
-    z_VR_STAR.FreeAlignments();
-    z.FreeAlignments();
 }
 
 } // namespace internal

@@ -79,23 +79,6 @@ AbstractDistMatrix<T,Int>::AssertValidSubmatrix
     }
 }
 
-template<typename T,typename Int>
-void
-AbstractDistMatrix<T,Int>::AssertFreeColAlignment() const
-{
-    if( constrainedColAlignment_ )
-        throw std::logic_error
-        ("Assertion that column alignment be free failed");
-}
-
-template<typename T,typename Int>
-void
-AbstractDistMatrix<T,Int>::AssertFreeRowAlignment() const
-{
-    if( constrainedRowAlignment_ )
-        throw std::logic_error("Assertion that row alignment be free failed");
-}
-
 template<typename T,typename Int> 
 void
 AbstractDistMatrix<T,Int>::AssertSameGrid( const elem::Grid& grid ) const
@@ -183,8 +166,6 @@ AbstractDistMatrix<T,Int>::Align( Int colAlignment, Int rowAlignment )
 { 
 #ifndef RELEASE
     CallStackEntry entry("AbstractDistMatrix::Align");    
-    AssertFreeColAlignment();
-    AssertFreeRowAlignment();
 #endif
     Empty();
     colAlignment_ = colAlignment;
@@ -200,7 +181,6 @@ AbstractDistMatrix<T,Int>::AlignCols( Int colAlignment )
 { 
 #ifndef RELEASE
     CallStackEntry entry("AbstractDistMatrix::AlignCols"); 
-    AssertFreeColAlignment();
 #endif
     EmptyData();
     colAlignment_ = colAlignment;
@@ -214,7 +194,6 @@ AbstractDistMatrix<T,Int>::AlignRows( Int rowAlignment )
 { 
 #ifndef RELEASE
     CallStackEntry entry("AbstractDistMatrix::AlignRows"); 
-    AssertFreeRowAlignment();
 #endif
     EmptyData();
     rowAlignment_ = rowAlignment;

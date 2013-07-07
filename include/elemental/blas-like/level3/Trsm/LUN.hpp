@@ -86,8 +86,6 @@ TrsmLUNLarge
         // X0[MC,MR] -= U01[MC,* ] X1[* ,MR]
         LocalGemm( NORMAL, NORMAL, F(-1), U01_MC_STAR, X1_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
-        U01_MC_STAR.FreeAlignments();
-        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,
@@ -170,8 +168,6 @@ TrsmLUNMedium
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), U01_MC_STAR, X1Trans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
-        U01_MC_STAR.FreeAlignments();
-        X1Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( UTL, /**/ UTR,  U00, /**/ U01, U02,

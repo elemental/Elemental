@@ -94,7 +94,6 @@ SUMMA_TTA
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//
-        D1.FreeAlignments();
         
         SlideLockedPartitionDown
         ( BT,  B0,
@@ -192,7 +191,6 @@ SUMMA_TTB
         D1 = D1_MR_MC; 
         Axpy( T(1), D1, C1 );
         //--------------------------------------------------------------------//
-        D1.FreeAlignments();
 
         SlideLockedPartitionRight
         ( AL,     /**/ AR,

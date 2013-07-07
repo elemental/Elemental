@@ -227,9 +227,6 @@ LLVF
         Z_STAR_MR = Z_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), HPan_MC_STAR, Z_STAR_MR, F(1), AB );
         //--------------------------------------------------------------------//
-        HPan_MC_STAR.FreeAlignments();
-        Z_STAR_MR.FreeAlignments();
-        Z_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,

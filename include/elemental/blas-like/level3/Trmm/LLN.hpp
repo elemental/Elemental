@@ -117,7 +117,6 @@ LocalTrmmAccumulateLLN
         LocalGemm
         ( NORMAL, orientation, alpha, L21, X1Trans_STAR_MR, T(1), Z2_MC_STAR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,
@@ -276,10 +275,6 @@ TrmmLLNCOld
         Transpose( D1Trans_MR_MC.Matrix(), D1.Matrix() );
         Axpy( T(1), D1, X1 );
         //--------------------------------------------------------------------//
-        D1.FreeAlignments();
-        D1Trans_MR_MC.FreeAlignments();
-        D1Trans_MR_STAR.FreeAlignments();
-        L10_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,
@@ -369,9 +364,6 @@ TrmmLLNC
         LocalTrmm( LEFT, LOWER, NORMAL, diag, T(1), L11_STAR_STAR, X1_STAR_VR );
         X1 = X1_STAR_VR;
         //--------------------------------------------------------------------//
-        L21_MC_STAR.FreeAlignments();
-        X1Trans_MR_STAR.FreeAlignments();
-        X1_STAR_VR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,

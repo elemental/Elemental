@@ -145,8 +145,6 @@ LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
         L11 = L11_STAR_STAR;
         L21 = L21_VC_STAR;
         //--------------------------------------------------------------------//
-        L10_STAR_MR.FreeAlignments();
-        L21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

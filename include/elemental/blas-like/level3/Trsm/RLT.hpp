@@ -94,10 +94,6 @@ TrsmRLT
         ( TRANSPOSE, NORMAL, 
           F(-1), X1Trans_STAR_MC, L21AdjOrTrans_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
-        X1_VC_STAR.FreeAlignments();
-        X1Trans_STAR_MC.FreeAlignments();
-        L21_VR_STAR.FreeAlignments();
-        L21AdjOrTrans_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

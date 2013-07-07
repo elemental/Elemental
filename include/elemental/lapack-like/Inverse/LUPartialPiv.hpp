@@ -173,9 +173,6 @@ AfterLUPartialPiv( DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
         ( RIGHT, LOWER, NORMAL, UNIT, F(1), L11_STAR_STAR, A1_VC_STAR );
         A1 = A1_VC_STAR;
         //--------------------------------------------------------------------//
-        Z1.FreeAlignments();
-        L21Trans_STAR_MR.FreeAlignments();
-        L21_VR_STAR.FreeAlignments();
 
         SlidePartitionUpDiagonal
         ( ATL, /**/ ATR,  A00, /**/ A01, A02,

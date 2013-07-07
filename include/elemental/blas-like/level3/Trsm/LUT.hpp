@@ -94,8 +94,6 @@ TrsmLUTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), U12_STAR_MC, X1_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
-        U12_STAR_MC.FreeAlignments();
-        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,   U00, U01, /**/ U02,
@@ -193,8 +191,6 @@ TrsmLUTMedium
         ( orientation, orientation, 
           F(-1), U12_STAR_MC, X1AdjOrTrans_MR_STAR, F(1), X2 );
         //--------------------------------------------------------------------//
-        U12_STAR_MC.FreeAlignments();
-        X1AdjOrTrans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,   U00, U01, /**/ U02,

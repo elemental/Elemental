@@ -83,8 +83,6 @@ TrsmRLN
         ( TRANSPOSE, TRANSPOSE, 
           F(-1), X1Trans_STAR_MC, L10Trans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
-        X1Trans_STAR_MC.FreeAlignments();
-        L10Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,

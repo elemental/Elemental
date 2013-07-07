@@ -433,10 +433,6 @@ void PanelL
                         Conj(a21_MR_STAR_Buffer[jLocal]) +
                         a21_MC_STAR_Buffer[iLocal]*
                         Conj(w21_MR_STAR_Buffer[jLocal]);
-
-            // We are through with the last iteration's w21
-            w21Last_MC_STAR.FreeAlignments();
-            w21Last_MR_STAR.FreeAlignments();
         }
 
         // Form the local portions of (A22 a21) into p21[MC,* ] and q21[MR,* ]:
@@ -695,12 +691,6 @@ void PanelL
             w21_MR_STAR = w21_MC_STAR;
         }
         //--------------------------------------------------------------------//
-        a21_MC_STAR.FreeAlignments();
-        a21_MR_STAR.FreeAlignments();
-        p21_MC_STAR.FreeAlignments();
-        q21_MR_STAR.FreeAlignments();
-        x01_MR_STAR.FreeAlignments();
-        y01_MR_STAR.FreeAlignments();
 
         SlidePartitionDown
         ( tT,  t0,

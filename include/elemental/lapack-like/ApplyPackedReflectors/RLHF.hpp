@@ -201,9 +201,6 @@ RLHF
         LocalGemm
         ( ADJOINT, NORMAL, F(-1), ZAdj_STAR_MC, HPan_STAR_MR, F(1), ALeft );
         //--------------------------------------------------------------------//
-        HPan_STAR_MR.FreeAlignments();
-        ZAdj_STAR_MC.FreeAlignments();
-        ZAdj_STAR_VC.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( HTL, /**/ HTR,  H00, H01, /**/ H02,

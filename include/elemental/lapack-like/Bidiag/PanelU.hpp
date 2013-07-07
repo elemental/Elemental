@@ -386,27 +386,6 @@ PanelU
         Conjugate( a12 );
         Conjugate( a12_STAR_MR );
         //--------------------------------------------------------------------//
-        // Auxilliary alignments
-        sB1_MR_STAR.FreeAlignments();
-        s21_MC_STAR.FreeAlignments();
-        s01_MR_STAR.FreeAlignments();
-        s01_MC_STAR.FreeAlignments();
-        q21_MR_STAR.FreeAlignments();
-        q21_MC_STAR.FreeAlignments();
-        q21_MR_MC.FreeAlignments();
-        q21.FreeAlignments();
-        z21_MR_STAR.FreeAlignments();
-        z21_MC_STAR.FreeAlignments();
-        z01_MR_STAR.FreeAlignments();
-        z01_MC_STAR.FreeAlignments();
-        uB1_MC_STAR.FreeAlignments();
-
-        // Main alignments
-        y10_STAR_MR.FreeAlignments();
-        x10_STAR_MC.FreeAlignments();
-        a12_STAR_MC.FreeAlignments();
-        a10_STAR_MR.FreeAlignments();
-        a01_MR_STAR.FreeAlignments();
 
         SlidePartitionDown
         ( tQT,  tQ0,

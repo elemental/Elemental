@@ -79,8 +79,6 @@ Geru
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        y_MR_STAR.FreeAlignments();
     }
     else if( x.Width() == 1 )
     {
@@ -99,8 +97,6 @@ Geru
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
         //--------------------------------------------------------------------//
-        x_MC_STAR.FreeAlignments();
-        y_STAR_MR.FreeAlignments();
     }
     else if( y.Width() == 1 )
     {
@@ -119,8 +115,6 @@ Geru
                  y_MR_STAR.LockedMatrix(),
                  A.Matrix() );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        y_MR_STAR.FreeAlignments();
     }
     else
     {
@@ -139,8 +133,6 @@ Geru
                  y_STAR_MR.LockedMatrix(),
                  A.Matrix() );
         //--------------------------------------------------------------------//
-        x_STAR_MC.FreeAlignments();
-        y_STAR_MR.FreeAlignments();
     }
 }
 

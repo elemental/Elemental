@@ -93,7 +93,6 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             x1_MR_STAR = x1_STAR_STAR;
             LocalGemv( NORMAL, F(-1), U01, x1_MR_STAR, F(1), z0_MC_STAR );
             //----------------------------------------------------------------//
-            x1_MR_STAR.FreeAlignments();
 
             SlidePartitionUp
             ( xT,  x0,
@@ -162,8 +161,6 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             x1_STAR_MR = x1_STAR_STAR;
             LocalGemv( NORMAL, F(-1), U01, x1_STAR_MR, F(1), z0_STAR_MC );
             //----------------------------------------------------------------//
-            x1_STAR_MR.FreeAlignments();
-            z1.FreeAlignments(); 
 
             SlidePartitionLeft
             ( xL, /**/ xR,

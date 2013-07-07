@@ -88,8 +88,6 @@ TrsmLLNLarge
         LocalGemm
         ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X1_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
-        L21_MC_STAR.FreeAlignments();
-        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,
@@ -173,8 +171,6 @@ TrsmLLNMedium
         LocalGemm
         ( NORMAL, TRANSPOSE, F(-1), L21_MC_STAR, X1Trans_MR_STAR, F(1), X2 );
         //--------------------------------------------------------------------//
-        L21_MC_STAR.FreeAlignments();
-        X1Trans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

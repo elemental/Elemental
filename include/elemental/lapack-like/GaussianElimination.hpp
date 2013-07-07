@@ -198,13 +198,6 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         A12 = A12_STAR_MR;
         B1 = B1_STAR_MR;
         //--------------------------------------------------------------------//
-        A12_STAR_VR.FreeAlignments();
-        A12_STAR_MR.FreeAlignments();
-        A21_MC_STAR.FreeAlignments();
-        B1_STAR_VR.FreeAlignments();
-        B1_STAR_MR.FreeAlignments();
-        if( ! BAligned )
-            A21_MC_STAR_B.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

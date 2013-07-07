@@ -43,8 +43,6 @@ public:
     void AssertNotStoringData() const;
     void AssertValidEntry( Int i, Int j ) const;
     void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
-    void AssertFreeColAlignment() const;
-    void AssertFreeRowAlignment() const;
     void AssertSameGrid( const elem::Grid& grid ) const;
     void AssertSameSize( int height, int width ) const;
 #endif // ifndef RELEASE

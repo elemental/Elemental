@@ -93,8 +93,6 @@ TrsmLLTLarge
         LocalGemm
         ( orientation, NORMAL, F(-1), L10_STAR_MC, X1_STAR_MR, F(1), X0 );
         //--------------------------------------------------------------------//
-        L10_STAR_MC.FreeAlignments();
-        X1_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,
@@ -190,8 +188,6 @@ TrsmLLTMedium
         ( orientation, orientation, 
           F(-1), L10_STAR_MC, X1AdjOrTrans_MR_STAR, F(1), X0 );
         //--------------------------------------------------------------------//
-        L10_STAR_MC.FreeAlignments();
-        X1AdjOrTrans_MR_STAR.FreeAlignments();
 
         SlideLockedPartitionUpDiagonal
         ( LTL, /**/ LTR,  L00, /**/ L01, L02,

@@ -150,10 +150,6 @@ inline void LUnb
                 alpha21T.SetLocal(0,0,epsilonQ);
         }
         //--------------------------------------------------------------------//
-        a21_MC_STAR.FreeAlignments();
-        a1R_STAR_MR.FreeAlignments();
-        x12Adj_MR_STAR.FreeAlignments();
-        w21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, a01,     /**/ A02,

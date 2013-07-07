@@ -116,7 +116,6 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         throw std::logic_error("{A,s} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
-
     if( t.Viewing() )
     {
         if( !t.AlignedWithDiagonal( A ) ) 

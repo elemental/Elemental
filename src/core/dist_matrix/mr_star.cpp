@@ -122,7 +122,6 @@ DistMatrix<T,MR,STAR,Int>::AlignWith( const elem::DistData<Int>& data )
 {
 #ifndef RELEASE
     CallStackEntry entry("[MR,* ]::AlignWith");
-    this->AssertFreeColAlignment();
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );

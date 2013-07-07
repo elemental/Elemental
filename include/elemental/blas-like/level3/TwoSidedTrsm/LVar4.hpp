@@ -229,17 +229,6 @@ TwoSidedTrsmLVar4
         Axpy( F(-1)/F(2), Y21_VC_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10_STAR_MR.FreeAlignments();
-        A10_STAR_VR.FreeAlignments();
-        A21_VC_STAR.FreeAlignments();
-        A21_VR_STAR.FreeAlignments();
-        A21Trans_STAR_MC.FreeAlignments();
-        A21Adj_STAR_MR.FreeAlignments();
-        L21_VC_STAR.FreeAlignments();
-        L21_VR_STAR.FreeAlignments();
-        L21_MC_STAR.FreeAlignments();
-        L21Adj_STAR_MR.FreeAlignments();
-        Y21_VC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

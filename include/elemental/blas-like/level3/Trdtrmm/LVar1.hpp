@@ -123,7 +123,6 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
         LocalTrdtrmm( orientation, LOWER, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         //--------------------------------------------------------------------//
-        d1.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

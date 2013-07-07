@@ -121,9 +121,6 @@ LVar2( DistMatrix<F>& A )
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
         //--------------------------------------------------------------------//
-        A10Adj_MR_STAR.FreeAlignments();
-        X11_MC_STAR.FreeAlignments();
-        X21_MC_STAR.FreeAlignments();
 
         SlidePartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

@@ -161,7 +161,6 @@ LocalSymmetricAccumulateLL
         LocalGemm
         ( orientation, NORMAL, alpha, A21, B2_MC_STAR, T(1), Z1_MR_STAR );
         //--------------------------------------------------------------------//
-        D11.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,
@@ -263,7 +262,6 @@ SymmLLA
         Z1.SumScatterUpdate( T(1), Z1_MC_STAR );
         Axpy( T(1), Z1, C1 );
         //--------------------------------------------------------------------//
-        Z1.FreeAlignments();
 
         SlideLockedPartitionRight
         ( BL,     /**/ BR,
@@ -373,8 +371,6 @@ SymmLLC
         ( orientation, TRANSPOSE, 
           alpha, ARowPan_STAR_MC, B1Trans_MR_STAR, T(1), CAbove );
         //--------------------------------------------------------------------//
-        AColPan_MC_STAR.FreeAlignments();
-        ARowPan_STAR_MC.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( ATL, /**/ ATR,  A00, A01, /**/ A02,

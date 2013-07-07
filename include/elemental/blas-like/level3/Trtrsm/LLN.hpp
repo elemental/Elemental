@@ -200,9 +200,6 @@ TrtrsmLLN
         LocalGemm
         ( NORMAL, NORMAL, F(-1), L21_MC_STAR, X11_STAR_MR, F(1), X21 );
         //--------------------------------------------------------------------//
-        L21_MC_STAR.FreeAlignments();
-        X10_STAR_MR.FreeAlignments();
-        X11_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( LTL, /**/ LTR,  L00, L01, /**/ L02,

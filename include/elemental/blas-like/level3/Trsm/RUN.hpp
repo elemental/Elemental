@@ -82,9 +82,6 @@ TrsmRUN
         LocalGemm
         ( TRANSPOSE, NORMAL, F(-1), X1Trans_STAR_MC, U12_STAR_MR, F(1), X2 );
         //--------------------------------------------------------------------//
-        X1_VC_STAR.FreeAlignments();
-        X1Trans_STAR_MC.FreeAlignments();
-        U12_STAR_MR.FreeAlignments();
 
         SlideLockedPartitionDownDiagonal
         ( UTL, /**/ UTR,  U00, U01, /**/ U02,
