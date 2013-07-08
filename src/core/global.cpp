@@ -318,7 +318,7 @@ void PopCallStack()
     ::callStack.pop(); 
 }
 
-void DumpCallStack()
+void DumpCallStack( std::ostream& os )
 {
     std::ostringstream msg;
     while( ! ::callStack.empty() )
@@ -326,8 +326,8 @@ void DumpCallStack()
         msg << "[" << ::callStack.size() << "]: " << ::callStack.top() << "\n";
         ::callStack.pop();
     }
-    std::cerr << msg.str();
-    std::cerr.flush();
+    os << msg.str();
+    os.flush();
 }
 #endif // RELEASE
 

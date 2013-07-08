@@ -30,17 +30,15 @@ inline void
 PrintInputReport()
 { GetArgs().PrintReport(); }
 
-inline void ReportException( std::exception& e )
+inline void ReportException( const std::exception& e, std::ostream& os )
 {
     if( std::string(e.what()) != "" )
     {
-        std::ostringstream os;
         os << "Process " << mpi::WorldRank() << " caught error message:\n"
            << e.what() << std::endl;
-        std::cout << os.str();
     }
 #ifndef RELEASE
-    DumpCallStack();
+    DumpCallStack( os );
 #endif
 }
 

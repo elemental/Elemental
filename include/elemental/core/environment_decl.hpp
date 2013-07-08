@@ -255,7 +255,7 @@ public:
 #ifndef RELEASE
 void PushCallStack( std::string s );
 void PopCallStack();
-void DumpCallStack();
+void DumpCallStack( std::ostream& os=std::cerr );
 
 class CallStackEntry 
 {
@@ -273,7 +273,7 @@ public:
 };
 #endif // ifndef RELEASE
 
-void ReportException( std::exception& e );
+void ReportException( const std::exception& e, std::ostream& os=std::cerr );
 class ArgException;
 
 void ComplainIfDebug();

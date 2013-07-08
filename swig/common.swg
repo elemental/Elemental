@@ -11,17 +11,16 @@
 %include <attribute.i>
 %include <typemaps.i>
 %include <exception.i>
-%import <std_except.i>
+%import  <std_except.i>
 %include <std_string.i>
+
+%include "elemental/config.h"
 
 %init %{
   import_array();
 %}
 
-#define RELEASE
-
 %{
-#define RELEASE
 #include "elemental.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
@@ -34,10 +33,20 @@ template <> struct NPY<double> { static const int DType = NPY_DOUBLE; };
 template <> struct NPY<elem::Complex<float> > { static const int DType = NPY_CFLOAT; };
 template <> struct NPY<elem::Complex<double> > { static const int DType = NPY_CDOUBLE; };
 
+static void SwigErrorString( const std::exception& exc )
+{
+	std::ostringstream msg;
+	msg << "Exception caught from Elemental" << std::endl;
+	msg << "----------" << std::endl;
+	elem::ReportException( exc, msg );
+	msg << "----------";
+	SWIG_Error( SWIG_RuntimeError, msg.str().c_str() );
+}
+
 class SwigException : public std::runtime_error {
     int type_;
 public:
-    SwigException( int type, const char* msg ) 
+    SwigException( int type, const char* msg )
     : type_(type), std::runtime_error(msg) {}
     int type() const throw() { return type_; }
 };
@@ -275,7 +284,7 @@ void ElemPyMatrix<T>::UpdateArray()
 %define TYPEMAPIN(T,ISCONST)
     try { 
         $1 = new ElemPyMatrix<T >( $input, ISCONST );
-    } catch (SwigException exc) { 
+    } catch ( const SwigException& exc ) { 
         SWIG_exception( exc.type(), exc.what() ); 
     }
 %enddef
@@ -283,7 +292,7 @@ void ElemPyMatrix<T>::UpdateArray()
     try {
         reinterpret_cast<ElemPyMatrix<T >*>($1)->UpdateArray();
         delete $1;
-    } catch (SwigException exc) {
+    } catch ( const SwigException& exc ) {
         delete $1;
         SWIG_exception( exc.type(), exc.what() );
     }
@@ -319,9 +328,9 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 %exception {
     try {
         $action
-    } catch (std::exception exc) {
-        const char* msg = exc.what();
-        PyErr_SetString( PyExc_RuntimeError, msg ? msg : "Exception caught from Elemental" );
+    } catch ( const std::exception& exc ) {
+    	SwigErrorString( exc );
+    	SWIG_fail;
     }
 }
 

@@ -140,7 +140,9 @@ HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
 
 #define PROTO(T) \
   template void HermitianTridiag<T>( UpperOrLower uplo, Matrix<T>& A ); \
-  template void HermitianTridiag<T>( UpperOrLower uplo, DistMatrix<T>& A )
+  template void HermitianTridiag<T>( UpperOrLower uplo, Matrix<T>& A, Matrix<T>& t ); \
+  template void HermitianTridiag<T>( UpperOrLower uplo, DistMatrix<T>& A ); \
+  template void HermitianTridiag<T>( UpperOrLower uplo, DistMatrix<T>& A, DistMatrix<T,STAR,STAR>& t );
 
 #ifndef DISABLE_FLOAT
 PROTO(float);

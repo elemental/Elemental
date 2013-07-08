@@ -56,6 +56,11 @@ import elem_mpi
 %ignore *::Attach;
 %ignore *::LockedAttach;
 %ignore elem::Grid::FindFactor;
+%ignore elem::PushCallStack;
+%ignore elem::PopCallStack;
+%ignore elem::DumpCallStack;
+%ignore elem::CallStackEntry;
+%ignore elem::ComplainIfDebug;
 
 /*
  * TYPES, GRID, MPI
