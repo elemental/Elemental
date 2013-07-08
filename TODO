@@ -1,8 +1,9 @@
 Functionality
 =============
+- Test results of new Lyapunov/Sylvester/Ricatti solvers
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
 - (Generalized) Spectral Divide and Conquer
-- More Sign algorithms (and algebraic Riccati equation solver)
+- More Sign algorithms
 - Ostrowski matrices
 - Power-method-like p-norm estimation (especially when p=2)
 - Support for BLIS and fused Trmv's to accelerate HermitianEig

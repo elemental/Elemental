@@ -15,6 +15,7 @@ Welcome to Elemental's documentation!
    blas-like
    lapack-like
    convex
+   control
    matrices
    io
    indices

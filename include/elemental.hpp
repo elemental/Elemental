@@ -19,6 +19,7 @@
 #include "elemental/blas-like.hpp"
 #include "elemental/lapack-like.hpp"
 #include "elemental/convex.hpp"
+#include "elemental/control.hpp"
 #include "elemental/matrices.hpp"
 
 #include "elemental/io.hpp"
