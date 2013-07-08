@@ -82,7 +82,6 @@ DisplayWidget<T>::DisplayReal
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayReal");
 #endif
-    typedef BASE(T) R;
     const int m = A->Height();
     const int n = A->Width();
 
@@ -154,7 +153,6 @@ DisplayWidget<T>::DisplayImag
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayImag");
 #endif
-    typedef BASE(T) R;
     const int m = A->Height();
     const int n = A->Width();
 
