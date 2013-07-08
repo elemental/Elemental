@@ -26,7 +26,7 @@ An example usage might be:
    using namespace elem;
    ...
    // Create an 8 x 8 distributed matrix over the given grid
-   DistMatrix<double,MC,MR> A( 8, 8, grid );
+   DistMatrix<double> A( 8, 8, grid );
 
    // Set every entry of A to zero
    MakeZeros( A );
@@ -52,7 +52,7 @@ An example usage might be:
    interface.Detach();
 
    // Print the updated A
-   A.Print("Distributed A");
+   Print( A, "Distributed A" );
 
    // Reattach to A, but in the GLOBAL_TO_LOCAL direction
    interface.Attach( GLOBAL_TO_LOCAL, A );
@@ -73,7 +73,7 @@ An example usage might be:
    
    // Process 0 can now locally print its copy of A
    if( g.VCRank() == 0 )
-       C.Print("Process 0's local copy of A");
+       Print( C, "Process 0's local copy of A" );
 
 The output would be ::
 
