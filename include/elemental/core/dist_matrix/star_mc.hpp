@@ -18,8 +18,39 @@ namespace elem {
 // processes (*), and the rows will be distributed like "Matrix Columns" 
 // (MC). Thus the rows will be distributed among columns of the process
 // grid.
+
+template <typename Int>
+class DistMatrix_Dist<STAR,MC,Int> : virtual public DistMatrix_Base<Int>
+{
+protected:
+    DistMatrix_Dist( const elem::Grid& g );
+    DistMatrix_Dist( const elem::Grid&, Int rowAlignment );    
+    public:
+    elem::Distribution RowDist() const;
+    elem::Distribution ColDist() const;
+    
+    Int ColStride() const; 
+    Int RowStride() const;
+    Int ColRank() const;
+    Int RowRank() const;
+    
+    // View of the matrix's buffer (only valid pointer on root)
+    void Attach
+        ( Int height, Int width, Int rowAlignment, void* buffer, Int ldim, const elem::Grid& grid );
+    // (Immutable) view of the matrix's buffer (only valid pointer on root)
+    void LockedAttach
+        ( Int height, Int width, Int rowAlignment, const void* buffer, Int ldim, const elem::Grid& grid );
+    // Map distributed indices to owner rank and local indices
+    bool Index( Int i, Int j, Int& iLocal, Int& jLocal, int& mpiSrc, mpi::Comm& mpiDst ) const;
+
+    void AlignWith( const DistMatrix_Base<Int>& A );
+    void AlignRowsWith( const DistMatrix_Base<Int>& A );
+    void AlignWithDiagonal( const DistMatrix_Base<Int>& A, Int offset=0 );
+    bool AlignedWithDiagonal( const DistMatrix_Base<Int>& A, Int offset=0 ) const;
+};
+
 template<typename T,typename Int>
-class DistMatrix<T,STAR,MC,Int> : public AbstractDistMatrix<T,Int>
+class DistMatrix<T,STAR,MC,Int> : public DistMatrix_Dist<STAR,MC,Int>, public DistMatrix_Type<T,Int>
 {
 public:
     // Create a 0 x 0 distributed matrix
@@ -57,7 +88,7 @@ public:
     operator=( const DistMatrix<T,MC,MR,Int>& A );
 
     const DistMatrix<T,STAR,MC,Int>& 
-    operator=( const DistMatrix<T,MC,STAR,Int>& A );
+    operator=( const DistMatrix<T,STAR,MC,Int>& A );
 
     const DistMatrix<T,STAR,MC,Int>& 
     operator=( const DistMatrix<T,STAR,MR,Int>& A );
@@ -75,7 +106,7 @@ public:
     operator=( const DistMatrix<T,MR,STAR,Int>& A );
 
     const DistMatrix<T,STAR,MC,Int>& 
-    operator=( const DistMatrix<T,STAR,MC,Int>& A );
+    operator=( const DistMatrix<T,MC,STAR,Int>& A );
 
     const DistMatrix<T,STAR,MC,Int>& 
     operator=( const DistMatrix<T,VC,STAR,Int>& A );
@@ -96,73 +127,8 @@ public:
     operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
 
     //------------------------------------------------------------------------//
-    // Overrides of AbstractDistMatrix                                        //
-    //------------------------------------------------------------------------//
-
-    //
-    // Non-collective routines
-    //
-
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
-
-    //
-    // Collective routines
-    //
-
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void Update( Int i, Int j, T alpha );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
-    // Distribution alignment
-    virtual void AlignWith( const elem::DistData<Int>& data );
-    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignRowsWith( const elem::DistData<Int>& data );
-    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    //------------------------------------------------------------------------//
     // Routines specific to [* ,MC] distribution                              //
     //------------------------------------------------------------------------//
-
-    //
-    // Collective routines
-    //
-
-    bool AlignedWithDiagonal
-    ( const elem::DistData<Int>& data, Int offset=0 ) const;
-    bool AlignedWithDiagonal
-    ( const AbstractDistMatrix<T,Int>& A, Int offset=0 ) const;
-
-    void AlignWithDiagonal
-    ( const elem::DistData<Int>& data, Int offset=0 );
-    void AlignWithDiagonal
-    ( const AbstractDistMatrix<T,Int>& A, Int offset=0 );
-
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int rowAlignment,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int rowAlignment,
-      const T* buffer, Int ldim, const elem::Grid& grid );
 
     // AllReduce over process row
     void SumOverRow();

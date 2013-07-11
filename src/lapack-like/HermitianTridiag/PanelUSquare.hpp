@@ -66,7 +66,7 @@ void PanelUSquare
     DistMatrix<R,MD,STAR> e(g);
     DistMatrix<F> expandedABR(g);
     View( expandedABR, A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
-    e.AlignWithDiagonal( expandedABR.DistData(), 1 );
+    e.AlignWithDiagonal( expandedABR, 1 );
     e.ResizeTo( panelSize, 1 );
 
     // Matrix views 

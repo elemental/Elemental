@@ -10,290 +10,125 @@
 
 namespace elem {
 
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
-#endif
-    this->root_ = root; 
-}
+/*
+ * DistMatrix_Dist<CIRC,CIRC,Int>
+ */
 
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
-( Int height, Int width, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
-#endif
-    this->root_ = root;
-    this->ResizeTo( height, width );
-}
-
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
-( Int height, Int width, Int ldim, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
-#endif
-    this->root_ = root;
-    this->ResizeTo( height, width, ldim );
-}
-
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
-( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g, 
-  int root )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
-#endif
-    this->root_ = root;
-    this->LockedAttach( height, width, buffer, ldim, g, root );
-}
-
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
-( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, int root )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::DistMatrix");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
-#endif
-    this->root_ = root;
-    this->Attach( height, width, buffer, ldim, g, root );
-}
-
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A )
-: AbstractDistMatrix<T,Int>(A.Grid())
-{
-#ifndef RELEASE
-    CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
-#endif
-    this->root_ = A.Root();
-    if( &A != this )
-        *this = A;
-    else
-        throw std::logic_error("Tried to construct [o ,o ] with itself");
-}
-
-template<typename T,typename Int>
-template<Distribution U,Distribution V>
-DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(A.Grid())
-{
-#ifndef RELEASE
-    CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
-#endif
-    this->root_ = 0;
-    if( CIRC != U || CIRC != V || 
-        reinterpret_cast<const DistMatrix<T,CIRC,CIRC,Int>*>(&A) != this )
-        *this = A;
-    else
-        throw std::logic_error("Tried to construct [o ,o ] with itself");
-}
-
-template<typename T,typename Int>
-DistMatrix<T,CIRC,CIRC,Int>::~DistMatrix()
-{ }
-
-template<typename T,typename Int>
+template<typename Int>
 void
-DistMatrix<T,CIRC,CIRC,Int>::SetRoot( int root )
+DistMatrix_Dist<CIRC,CIRC,Int>::AssertValidRoot( Int root )
+{
+    if( root < 0 || root >= this->Grid().Size() )
+        throw std::logic_error("Invalid root");
+}
+
+template<typename Int>
+DistMatrix_Dist<CIRC,CIRC,Int>::DistMatrix_Dist( const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>( g ), root_( root )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[o ,o ]::DistMatrix");
+    AssertValidRoot( root );
+#endif
+    this->SetShifts();
+}
+
+template<typename Int>
+elem::Distribution
+DistMatrix_Dist<CIRC,CIRC,Int>::ColDist() const { return CIRC; }
+
+template<typename Int>
+elem::Distribution
+DistMatrix_Dist<CIRC,CIRC,Int>::RowDist() const { return CIRC; }
+
+template<typename Int>
+Int
+DistMatrix_Dist<CIRC,CIRC,Int>::ColRank() const
+{ return 0; }
+
+template<typename Int>
+Int
+DistMatrix_Dist<CIRC,CIRC,Int>::RowRank() const
+{ return 0; }
+
+template<typename Int>
+Int
+DistMatrix_Dist<CIRC,CIRC,Int>::ColStride() const
+{ return 1; }
+
+template<typename Int>
+Int
+DistMatrix_Dist<CIRC,CIRC,Int>::RowStride() const
+{ return 1; }
+
+template<typename Int>
+bool
+DistMatrix_Dist<CIRC,CIRC,Int>::Participating() const
+{ return this->Grid().Rank() == this->root_; }
+
+template<typename Int>
+Int
+DistMatrix_Dist<CIRC,CIRC,Int>::Root() const
+{ return root_; }
+
+template<typename Int>
+void
+DistMatrix_Dist<CIRC,CIRC,Int>::SetRoot( Int root )
 {
 #ifndef RELEASE
     CallStackEntry entry("[o ,o ]::SetRoot");
-    if( root < 0 || root >= this->grid_->Size() )
-        throw std::logic_error("Invalid root");
+    AssertValidRoot( root );
 #endif
     if( root != this->root_ )
         this->Empty();
+    root_ = root;
+}
+
+template <typename Int>
+void 
+DistMatrix_Dist<CIRC,CIRC,Int>::Attach
+( Int height, Int width, void* buffer, Int ldim, const elem::Grid& g, Int root )
+{
     this->root_ = root;
+    DistMatrix_Base<Int>::Attach( height, width, 0, 0, buffer, ldim, g );
 }
 
-template<typename T,typename Int>
-int
-DistMatrix<T,CIRC,CIRC,Int>::Root() const
-{ return this->root_; }
-
-template<typename T,typename Int>
-elem::DistData<Int>
-DistMatrix<T,CIRC,CIRC,Int>::DistData() const
+template <typename Int>
+void 
+DistMatrix_Dist<CIRC,CIRC,Int>::LockedAttach
+( Int height, Int width, const void* buffer, Int ldim, const elem::Grid& g, Int root )
 {
-    elem::DistData<Int> data;
-    data.colDist = CIRC;
-    data.rowDist = CIRC;
-    data.colAlignment = 0;
-    data.rowAlignment = 0;
-    data.root = 0;
-    data.diagPath = 0;
-    data.grid = this->grid_;
-    return data;
+    this->root_ = root;
+    DistMatrix_Base<Int>::LockedAttach( height, width, 0, 0, buffer, ldim, g );
 }
 
-template<typename T,typename Int>
-Int
-DistMatrix<T,CIRC,CIRC,Int>::ColStride() const
-{ return 1; }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,CIRC,CIRC,Int>::RowStride() const
-{ return 1; }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,CIRC,CIRC,Int>::ColRank() const
-{ return 0; }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,CIRC,CIRC,Int>::RowRank() const
-{ return 0; }
-
-template<typename T,typename Int>
+template<typename Int>
 bool
-DistMatrix<T,CIRC,CIRC,Int>::Participating() const
-{ return ( this->Grid().Rank() == this->root_ ); }
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::Attach
-( Int height, Int width, 
-  T* buffer, Int ldim, const elem::Grid& grid, int root )
+DistMatrix_Dist<CIRC,CIRC,Int>::Index( Int i, Int j, Int& iLocal, Int& jLocal, int& mpiSrc, mpi::Comm& mpiDst ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::Attach");
-#endif
-    this->grid_ = &grid;
-    this->SetRoot( root );
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = VIEW;
-    if( this->Participating() )
-        this->matrix_.Attach_( height, width, buffer, ldim );
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::LockedAttach
-( Int height, Int width, 
-  const T* buffer, Int ldim, const elem::Grid& grid, int root )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::LockedAttach");
-#endif
-    this->grid_ = &grid;
-    this->SetRoot( root );
-    this->height_ = height;
-    this->width_ = width;
-    this->viewType_ = LOCKED_VIEW;
-    if( this->Participating() )
-        this->matrix_.LockedAttach_( height, width, buffer, ldim );
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::ResizeTo");
-    this->AssertNotLocked();
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-#endif
-    this->height_ = height;
-    this->width_ = width;
-    if( this->Participating() )
-        this->matrix_.ResizeTo_( height, width );
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::ResizeTo( Int height, Int width, Int ldim )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::ResizeTo");
-    this->AssertNotLocked();
-    if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
-#endif
-    this->height_ = height;
-    this->width_ = width;
-    if( this->Participating() )
-        this->matrix_.ResizeTo_( height, width, ldim );
-}
-
-template<typename T,typename Int>
-T
-DistMatrix<T,CIRC,CIRC,Int>::Get( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::Get");
+    CallStackEntry entry("[o ,o ]::Index");
     this->AssertValidEntry( i, j );
 #endif
-    const Grid& g = this->Grid();
-    T u;
-    if( this->Participating() )
-        u = this->GetLocal( i, j );
-    mpi::Broadcast( &u, 1, g.VCToViewingMap(this->root_), g.ViewingComm() );
-    return u;
+    const elem::Grid& g = this->Grid();
+    mpiSrc = g.VCToViewingMap(root_);
+    mpiDst = g.ViewingComm();
+    if ( g.Rank() != root_ ) return false;
+    iLocal = i; 
+    jLocal = j;
+    return true;
 }
 
-template<typename T,typename Int>
+template<typename Int>
 void
-DistMatrix<T,CIRC,CIRC,Int>::Set( Int i, Int j, T u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::Set");
-    this->AssertValidEntry( i, j );
-#endif
-    if( this->Participating() )
-        this->SetLocal(i,j,u);
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::Update( Int i, Int j, T u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::Update");
-    this->AssertValidEntry( i, j );
-#endif
-    if( this->Participating() )
-        this->UpdateLocal(i,j,u);
-}
-
-//
-// Utility functions, e.g., operator=
-//
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::MakeConsistent()
+DistMatrix_Dist<CIRC,CIRC,Int>::MakeConsistent()
 {
 #ifndef RELEASE
     CallStackEntry cse("[o ,o ]::MakeConsistent");
 #endif
     const elem::Grid& g = this->Grid();
     const int root = g.VCToViewingMap(0);
-    int message[4];
+    Int message[4];
     if( g.ViewingRank() == root )
     {
         message[0] = this->viewType_;
@@ -303,9 +138,9 @@ DistMatrix<T,CIRC,CIRC,Int>::MakeConsistent()
     }
     mpi::Broadcast( message, 4, root, g.ViewingComm() );
     const ViewType newViewType = static_cast<ViewType>(message[0]);
-    const int newHeight = message[1];
-    const int newWidth = message[2];
-    const int newRoot = message[3];
+    const Int newHeight = message[1];
+    const Int newWidth = message[2];
+    const Int newRoot = message[3];
     if( !this->Participating() )
     {
         this->viewType_ = newViewType;
@@ -333,6 +168,74 @@ DistMatrix<T,CIRC,CIRC,Int>::MakeConsistent()
     }
 #endif
 }
+
+/*
+ * DistMatrix<T,CIRC,CIRC,Int>
+ */
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<CIRC,CIRC,Int>(g,root), DistMatrix_Type<T,Int>(g)
+{}
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
+( Int height, Int width, const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<CIRC,CIRC,Int>(g,root), DistMatrix_Type<T,Int>(g)
+{ this->ResizeTo( height, width ); }
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
+( Int height, Int width, Int ldim, const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<CIRC,CIRC,Int>(g,root), DistMatrix_Type<T,Int>(g)
+{ this->ResizeTo( height, width, ldim ); }
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
+( Int height, Int width, const T* buffer, Int ldim, const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<CIRC,CIRC,Int>(g,root), DistMatrix_Type<T,Int>(g)
+{ this->LockedAttach( height, width, buffer, ldim, g, root ); }
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix
+( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, Int root )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<CIRC,CIRC,Int>(g,root), DistMatrix_Type<T,Int>(g)
+{ this->Attach( height, width, buffer, ldim, g, root ); }
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A )
+: DistMatrix_Base<Int>(A.Grid()), DistMatrix_Dist<CIRC,CIRC,Int>(A.Grid(),A.Root()), DistMatrix_Type<T,Int>(A.Grid())
+{
+#ifndef RELEASE
+    CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
+#endif
+    if( &A != this )
+        *this = A;
+    else
+        throw std::logic_error("Tried to construct [o ,o ] with itself");
+}
+
+template<typename T,typename Int>
+template<Distribution U,Distribution V>
+DistMatrix<T,CIRC,CIRC,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
+: DistMatrix_Base<Int>(A.Grid()), DistMatrix_Dist<CIRC,CIRC,Int>(A.Grid(),0), DistMatrix_Type<T,Int>(A.Grid())
+{
+#ifndef RELEASE
+    CallStackEntry entry("DistMatrix[o ,o ]::DistMatrix");
+#endif
+    if( CIRC != U || CIRC != V || reinterpret_cast<const DistMatrix_Base<Int>*>(&A) != this )
+        *this = A;
+    else
+        throw std::logic_error("Tried to construct [CIRC,CIRC] with itself");
+}
+
+template<typename T,typename Int>
+DistMatrix<T,CIRC,CIRC,Int>::~DistMatrix()
+{ }
+
+//
+// Utility functions, e.g., operator=
+//
 
 template<typename T,typename Int>
 void
@@ -1484,59 +1387,7 @@ DistMatrix<T,CIRC,CIRC,Int>::operator=( const DistMatrix<T,CIRC,CIRC,Int>& A )
     return *this;
 }
 
-//
-// Routines which explicitly work in the complex plane
-//
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::SetRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::SetRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    if( this->Participating() )
-        this->SetLocalRealPart(i,j,u);
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::SetImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::SetImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    if( this->Participating() )
-        this->SetLocalImagPart(i,j,u);
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::UpdateRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    if( this->Participating() )
-        this->UpdateLocalRealPart(i,j,u);
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,CIRC,CIRC,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[o ,o ]::UpdateImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    if( this->Participating() )
-        this->UpdateLocalImagPart(i,j,u);
-}
+template class DistMatrix_Dist<CIRC,CIRC,int>;
 
 #define PROTO(T) \
   template class DistMatrix<T,CIRC,CIRC,int>

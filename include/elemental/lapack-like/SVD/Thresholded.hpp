@@ -118,7 +118,7 @@ ThresholdedTall
     A = Y;
     {
         DistMatrix<R,MR,STAR> s_MR_STAR( g );
-        s_MR_STAR.AlignWith( A.DistData() );
+        s_MR_STAR.AlignWith( A );
         s_MR_STAR = s;
         const int localWidth = A.LocalWidth();
         const int localHeight = A.LocalHeight();
@@ -229,7 +229,7 @@ ThresholdedWide
     //       from the corresponding computed singular value.
     {
         DistMatrix<R,MR,STAR> s_MR_STAR( g );
-        s_MR_STAR.AlignWith( V.DistData() );
+        s_MR_STAR.AlignWith( V );
         s_MR_STAR = s;
         const int localWidth = V.LocalWidth();
         const int localHeight = V.LocalHeight();

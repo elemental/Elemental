@@ -117,55 +117,75 @@ GATTP(ViewingComm)
  * ABSTRACTDISTMATRIX
  */
 
-%ignore elem::AbstractDistMatrix::Buffer;
-%ignore elem::AbstractDistMatrix::LockedBuffer;
-%ignore elem::AbstractDistMatrix::DistData;
+%define DMBT(Type,N)
+%attribute_readonly(%arg(elem::DistMatrix_Base<int>),Type,N,N,self_->N())
+%enddef
+DMBT(int,Height)
+DMBT(int,Width)
+DMBT(int,LocalHeight)
+DMBT(int,LocalWidth)
+DMBT(int,LDim)
+DMBT(size_t,DataSize)
+DMBT(size_t,AllocatedMemory)
+DMBT(bool,ConstrainedColAlignment)
+DMBT(bool,ConstrainedRowAlignment)
+DMBT(int,ColAlignment)
+DMBT(int,RowAlignment)
+DMBT(int,ColShift)
+DMBT(int,RowShift)
+DMBT(bool,Viewing)
+DMBT(bool,Locked)
+DMBT(int,Root)
+DMBT(int,DiagPath)
+DMBT(bool,Participating)
+DMBT(elem::Distribution,RowDist)
+DMBT(elem::Distribution,ColDist)
+DMBT(int,ColStride)
+DMBT(int,RowStride)
+DMBT(int,ColRank)
+DMBT(int,RowRank)
+%attribute_custom(%arg(elem::DistMatrix_Base<int>),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
+#undef DMBT
 
-%define AbDMT(T,Type,N) 
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),Type,N,N,self_->N())
+%ignore *::Buffer;
+%ignore *::LockedBuffer;
+
+%define DMTT(T)
+%attribute_readonly(%arg(elem::DistMatrix_Type<T,int>),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
+%attribute_readonly(%arg(elem::DistMatrix_Type<T,int>),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
 %enddef
-%define AbDM(T)
-AbDMT(T,int,Height)
-AbDMT(T,int,Width)
-AbDMT(T,int,LocalHeight)
-AbDMT(T,int,LocalWidth)
-AbDMT(T,int,LDim)
-AbDMT(T,size_t,AllocatedMemory)
-%attribute_custom(%arg(elem::AbstractDistMatrix<T,int>),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
-AbDMT(T,bool,ConstrainedColAlignment)
-AbDMT(T,bool,ConstrainedRowAlignment)
-AbDMT(T,int,ColAlignment)
-AbDMT(T,int,RowAlignment)
-AbDMT(T,int,ColShift)
-AbDMT(T,int,RowShift)
-AbDMT(T,int,ColStride)
-AbDMT(T,int,RowStride)
-AbDMT(T,int,ColRank)
-AbDMT(T,int,RowRank)
-AbDMT(T,bool,Locked)
-AbDMT(T,bool,Viewing)
-AbDMT(T,bool,Participating)
-%enddef
-AbDM(int)
-AbDM(float)
-AbDM(double)
-AbDM(elem::Complex<float>)
-AbDM(elem::Complex<double>)
-#undef AbDMT
-#undef AbDM
+DMTT(int)
+DMTT(float)
+DMTT(double)
+DMTT(elem::Complex<float>)
+DMTT(elem::Complex<double>)
+#undef DMTT
 
 %include "elemental/core/dist_matrix_forward_decl.hpp"
 %include "elemental/core/dist_matrix.hpp"
 %include "elemental/core/dist_matrix/abstract.hpp"
 
 namespace elem {
-%template(AbstractDistMatrix_i) AbstractDistMatrix<int,int>;
-%template(AbstractDistMatrix_s) AbstractDistMatrix<float,int>;
-%template(AbstractDistMatrix_d) AbstractDistMatrix<double,int>;
-%template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float>,int>;
-%template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double>,int>;
+%template(DistMatrix_Base_i)         DistMatrix_Base<int>;
+%template(DistMatrix_Type_i)         DistMatrix_Type<int,int>;
+%template(DistMatrix_Type_s)         DistMatrix_Type<float,int>;
+%template(DistMatrix_Type_d)         DistMatrix_Type<double,int>;
+%template(DistMatrix_Type_c)         DistMatrix_Type<Complex<float>,int>;
+%template(DistMatrix_Type_z)         DistMatrix_Type<Complex<double>,int>;
+%template(DistMatrix_Dist_CIRC_CIRC) DistMatrix_Dist<CIRC,CIRC,int>;
+%template(DistMatrix_Dist_MC_MR)     DistMatrix_Dist<MC,MR,int>;
+%template(DistMatrix_Dist_MC_STAR)   DistMatrix_Dist<MC,STAR,int>;
+%template(DistMatrix_Dist_MD_STAR)   DistMatrix_Dist<MD,STAR,int>;
+%template(DistMatrix_Dist_MR_MC)     DistMatrix_Dist<MR,MC,int>;
+%template(DistMatrix_Dist_MR_STAR)   DistMatrix_Dist<MR,STAR,int>;
+%template(DistMatrix_Dist_STAR_MC)   DistMatrix_Dist<STAR,MC,int>;
+%template(DistMatrix_Dist_STAR_MD)   DistMatrix_Dist<STAR,MD,int>;
+%template(DistMatrix_Dist_STAR_MR)   DistMatrix_Dist<STAR,MR,int>;
+%template(DistMatrix_Dist_STAR_STAR) DistMatrix_Dist<STAR,STAR,int>;
+%template(DistMatrix_Dist_STAR_VC)   DistMatrix_Dist<STAR,VC,int>;
+%template(DistMatrix_Dist_STAR_VR)   DistMatrix_Dist<STAR,VR,int>;
+%template(DistMatrix_Dist_VC_STAR)   DistMatrix_Dist<VC,STAR,int>;
+%template(DistMatrix_Dist_VR_STAR)   DistMatrix_Dist<VR,STAR,int>;
 };
 
 /*
@@ -173,11 +193,11 @@ namespace elem {
  */
 
 %ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid& );
-%ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid&, int );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid&, Int );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, const T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, const T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid& ); 
-%ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid&, int );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid&, Int );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, const elem::Grid& );
 

@@ -12,65 +12,235 @@
 
 namespace elem {
 
-template<typename T,typename Int>
-DistMatrix<T,MC,MR,Int>::DistMatrix( const elem::Grid& grid )
-: AbstractDistMatrix<T,Int>(grid)
+/*
+ * DistMatrix_Dist
+ */
+
+template <typename Int>
+DistMatrix_Dist<MC,MR,Int>::DistMatrix_Dist( const elem::Grid& g )
+: DistMatrix_Base<Int>(g)
 { this->SetShifts(); }
 
+template <typename Int>
+DistMatrix_Dist<MC,MR,Int>::DistMatrix_Dist( const elem::Grid& g, Int rowAlignment, Int colAlignment )
+: DistMatrix_Base<Int>(g)
+{ this->Align( rowAlignment, colAlignment ); }
+
+template <typename Int>
+elem::Distribution
+DistMatrix_Dist<MC,MR,Int>::ColDist() const { return MC; }
+
+template <typename Int>
+elem::Distribution
+DistMatrix_Dist<MC,MR,Int>::RowDist() const { return MR; }
+
+template <typename Int>
+Int
+DistMatrix_Dist<MC,MR,Int>::ColRank() const
+{ return this->grid_->Row(); }
+
+template <typename Int>
+Int
+DistMatrix_Dist<MC,MR,Int>::RowRank() const
+{ return this->grid_->Col(); }
+
+template <typename Int>
+Int
+DistMatrix_Dist<MC,MR,Int>::ColStride() const
+{ return this->grid_->Height(); }
+
+template <typename Int>
+Int
+DistMatrix_Dist<MC,MR,Int>::RowStride() const
+{ return this->grid_->Width(); }
+
+template <typename Int>
+void
+DistMatrix_Dist<MC,MR,Int>::AlignWith( const DistMatrix_Base<Int>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[MC,MR]::AlignWith");
+#endif
+    this->SetGrid( A.Grid() );
+    elem::Distribution CD = A.ColDist(), RD = A.RowDist();
+    if( CD == MC && RD == MR )
+    {
+        this->colAlignment_ = A.colAlignment_;
+        this->rowAlignment_ = A.rowAlignment_;
+        this->constrainedColAlignment_ = true;
+        this->constrainedRowAlignment_ = true;
+    }
+    else if( CD == MC && RD == STAR )
+    {
+        this->colAlignment_ = A.colAlignment_;
+        this->constrainedColAlignment_ = true; 
+    }
+    else if( CD == MR && RD == MC )
+    {
+        this->colAlignment_ = A.rowAlignment_;
+        this->rowAlignment_ = A.colAlignment_;
+        this->constrainedColAlignment_ = true;
+        this->constrainedRowAlignment_ = true;
+    }
+    else if( CD == MR && RD == STAR )
+    {
+        this->rowAlignment_ = A.colAlignment_;
+        this->constrainedRowAlignment_ = true;
+    }
+    else if( CD == STAR && RD == MC )
+    {
+        this->colAlignment_ = A.rowAlignment_;
+        this->constrainedColAlignment_ = true;
+    }
+    else if( CD == STAR && RD == MR )
+    {
+        this->rowAlignment_ = A.rowAlignment_;
+        this->constrainedRowAlignment_ = true;
+    }
+    else if( CD == STAR && RD == VC )
+    {
+        this->colAlignment_ = A.rowAlignment_ % this->ColStride();
+        this->constrainedColAlignment_ = true;
+    }
+    else if( CD == STAR && RD == VR )
+    {
+        this->rowAlignment_ = A.rowAlignment_ % this->RowStride();
+        this->constrainedRowAlignment_ = true;
+    }
+    else if( CD == VC && RD == STAR )
+    {
+        this->colAlignment_ = A.colAlignment_ % this->ColStride();
+        this->constrainedColAlignment_ = true;
+    }
+    else if( CD == VR && RD == STAR )
+    {
+        this->rowAlignment_ = A.colAlignment_ % this->RowStride();
+        this->constrainedRowAlignment_ = true;
+    }
+#ifndef RELEASE
+    else throw std::logic_error("Nonsensical alignment");
+#endif
+    this->SetShifts();
+}
+
+template <typename Int>
+void
+DistMatrix_Dist<MC,MR,Int>::AlignColsWith( const DistMatrix_Base<Int>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[MC,MR]::AlignColsWith");
+    if( this->grid_ != A.grid_ )
+        throw std::logic_error("Grids do not match");
+#endif
+    elem::Distribution CD = A.ColDist(), RD = A.RowDist();
+    if( CD == MC )
+        this->colAlignment_ = A.colAlignment_;
+    else if( RD == MC )
+        this->colAlignment_ = A.rowAlignment_;
+    else if( CD == VC )
+        this->colAlignment_ = A.colAlignment_ % this->ColStride();
+    else if( RD == VC )
+        this->colAlignment_ = A.rowAlignment_ % this->ColStride();
+#ifndef RELEASE
+    else throw std::logic_error("Nonsensical alignment");
+#endif
+    this->constrainedColAlignment_ = true;
+    this->SetShifts();
+}
+
+template <typename Int>
+void
+DistMatrix_Dist<MC,MR,Int>::AlignRowsWith( const DistMatrix_Base<Int>& A )
+{
+#ifndef RELEASE
+    CallStackEntry entry("[MC,MR]::AlignRowsWith");
+    if( this->grid_ != A.grid_ )
+        throw std::logic_error("Grids do not match");
+#endif
+    elem::Distribution CD = A.ColDist(), RD = A.RowDist();
+    if( CD == MR )
+        this->rowAlignment_ = A.colAlignment_;
+    else if( RD == MR )
+        this->rowAlignment_ = A.rowAlignment_;
+    else if( CD == VR )
+        this->rowAlignment_ = A.colAlignment_ % this->RowStride();
+    else if( RD == VR )
+        this->rowAlignment_ = A.rowAlignment_ % this->RowStride();
+#ifndef RELEASE
+    else throw std::logic_error("Nonsensical alignment");
+#endif
+    this->constrainedRowAlignment_ = true;
+    this->SetShifts();
+}
+
+template <typename Int>
+bool
+DistMatrix_Dist<MC,MR,Int>::Index( Int i, Int j, Int& iLocal, Int& jLocal, int& mpiSrc, mpi::Comm& mpiDst ) const
+{
+#ifndef RELEASE
+    CallStackEntry entry("[MC,MR]::Index");
+    this->AssertValidEntry( i, j );
+#endif
+    const Int ownerRow = (i + this->ColAlignment()) % this->ColStride();
+    const Int ownerCol = (j + this->RowAlignment()) % this->RowStride();
+    const Int ownerRank = ownerRow + ownerCol*this->ColStride();
+    const elem::Grid& g = this->Grid();
+    mpiSrc = g.VCToViewingMap(ownerRank);
+    mpiDst = g.ViewingComm();
+    if ( g.VCRank() != ownerRank ) return false;
+    iLocal = (i-this->ColShift()) / this->ColStride();
+    jLocal = (j-this->RowShift()) / this->RowStride();
+    return true;
+}
+
+/*
+ * DistMatrix
+ */
+
 template<typename T,typename Int>
-DistMatrix<T,MC,MR,Int>::DistMatrix
-( Int height, Int width, const elem::Grid& grid )
-: AbstractDistMatrix<T,Int>(grid)
-{ this->SetShifts(); this->ResizeTo( height, width ); }
+DistMatrix<T,MC,MR,Int>::DistMatrix( const elem::Grid& g )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g), DistMatrix_Type<T,Int>(g)
+{ }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
-( Int height, Int width, 
-  Int colAlignment, Int rowAlignment, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-    this->Align( colAlignment, rowAlignment );
-    this->ResizeTo( height, width );
-}
+( Int height, Int width, const elem::Grid& g )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g), DistMatrix_Type<T,Int>(g)
+{ this->ResizeTo( height, width );  }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
-( Int height, Int width,
-  Int colAlignment, Int rowAlignment, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-    this->Align( colAlignment, rowAlignment );
-    this->ResizeTo( height, width, ldim );
-}
+( Int height, Int width, Int colAlignment, Int rowAlignment, const elem::Grid& g )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g,colAlignment,rowAlignment), DistMatrix_Type<T,Int>(g)
+{ this->ResizeTo( height, width );  }
+
+template<typename T,typename Int>
+DistMatrix<T,MC,MR,Int>::DistMatrix
+( Int height, Int width, Int colAlignment, Int rowAlignment, Int ldim, const elem::Grid& g )
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g,colAlignment,rowAlignment), DistMatrix_Type<T,Int>(g)
+{ this->ResizeTo( height, width, ldim );  }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, Int rowAlignment,
   const T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-    this->LockedAttach
-    ( height, width, colAlignment, rowAlignment, buffer, ldim, g ); 
-}
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g), DistMatrix_Type<T,Int>(g)
+{ this->LockedAttach( height, width, colAlignment, rowAlignment, buffer, ldim, g );  }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix
 ( Int height, Int width, Int colAlignment, Int rowAlignment,
   T* buffer, Int ldim, const elem::Grid& g )
-: AbstractDistMatrix<T,Int>(g)
-{ 
-    this->Attach
-    ( height, width, colAlignment, rowAlignment, buffer, ldim, g );
-}
+: DistMatrix_Base<Int>(g), DistMatrix_Dist<MC,MR,Int>(g), DistMatrix_Type<T,Int>(g)
+{ this->Attach( height, width, colAlignment, rowAlignment, buffer, ldim, g ); }
 
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,MC,MR,Int>& A )
-: AbstractDistMatrix<T,Int>(A.Grid())
+: DistMatrix_Base<Int>(A.Grid()), DistMatrix_Dist<MC,MR>(A.Grid()), DistMatrix_Type<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MC,MR]::DistMatrix");
 #endif
-    this->SetShifts();
     if( &A != this )
         *this = A;
     else
@@ -80,14 +250,12 @@ DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,MC,MR,Int>& A )
 template<typename T,typename Int>
 template<Distribution U,Distribution V>
 DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
-: AbstractDistMatrix<T,Int>(A.Grid())
+: DistMatrix_Base<Int>(A.Grid()), DistMatrix_Dist<MC,MR>(A.Grid()), DistMatrix_Type<T,Int>(A.Grid())
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrix[MC,MR]::DistMatrix");
 #endif
-    this->SetShifts();
-    if( MC != U || MR != V ||
-        reinterpret_cast<const DistMatrix<T,MC,MR,Int>*>(&A) != this )
+    if( MC != U || MR != V || reinterpret_cast<const DistMatrix_Base<Int>*>(&A) != this )
         *this = A;
     else
         throw std::logic_error("Tried to construct [MC,MR] with itself");
@@ -96,321 +264,6 @@ DistMatrix<T,MC,MR,Int>::DistMatrix( const DistMatrix<T,U,V,Int>& A )
 template<typename T,typename Int>
 DistMatrix<T,MC,MR,Int>::~DistMatrix()
 { }
-
-template<typename T,typename Int>
-elem::DistData<Int>
-DistMatrix<T,MC,MR,Int>::DistData() const
-{
-    elem::DistData<Int> data;
-    data.colDist = MC;
-    data.rowDist = MR;
-    data.colAlignment = this->colAlignment_;
-    data.rowAlignment = this->rowAlignment_;
-    data.root = 0;
-    data.diagPath = 0;
-    data.grid = this->grid_;
-    return data;
-}
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,MC,MR,Int>::ColStride() const
-{ return this->grid_->Height(); }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,MC,MR,Int>::RowStride() const
-{ return this->grid_->Width(); }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,MC,MR,Int>::ColRank() const
-{ return this->grid_->Row(); }
-
-template<typename T,typename Int>
-Int
-DistMatrix<T,MC,MR,Int>::RowRank() const
-{ return this->grid_->Col(); }
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignWith( const elem::DistData<Int>& data )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::AlignWith");
-#endif
-    const Grid& grid = *data.grid;
-    this->SetGrid( grid );
-    if( data.colDist == MC && data.rowDist == MR )
-    {
-        this->colAlignment_ = data.colAlignment;
-        this->rowAlignment_ = data.rowAlignment;
-        this->constrainedColAlignment_ = true;
-        this->constrainedRowAlignment_ = true;
-    }
-    else if( data.colDist == MC && data.rowDist == STAR )
-    {
-        this->colAlignment_ = data.colAlignment;
-        this->constrainedColAlignment_ = true; 
-    }
-    else if( data.colDist == MR && data.rowDist == MC )
-    {
-        this->colAlignment_ = data.rowAlignment;
-        this->rowAlignment_ = data.colAlignment;
-        this->constrainedColAlignment_ = true;
-        this->constrainedRowAlignment_ = true;
-    }
-    else if( data.colDist == MR && data.rowDist == STAR )
-    {
-        this->rowAlignment_ = data.colAlignment;
-        this->constrainedRowAlignment_ = true;
-    }
-    else if( data.colDist == STAR && data.rowDist == MC )
-    {
-        this->colAlignment_ = data.rowAlignment;
-        this->constrainedColAlignment_ = true;
-    }
-    else if( data.colDist == STAR && data.rowDist == MR )
-    {
-        this->rowAlignment_ = data.rowAlignment;
-        this->constrainedRowAlignment_ = true;
-    }
-    else if( data.colDist == STAR && data.rowDist == VC )
-    {
-        this->colAlignment_ = data.rowAlignment % this->ColStride();
-        this->constrainedColAlignment_ = true;
-    }
-    else if( data.colDist == STAR && data.rowDist == VR )
-    {
-        this->rowAlignment_ = data.rowAlignment % this->RowStride();
-        this->constrainedRowAlignment_ = true;
-    }
-    else if( data.colDist == VC && data.rowDist == STAR )
-    {
-        this->colAlignment_ = data.colAlignment % this->ColStride();
-        this->constrainedColAlignment_ = true;
-    }
-    else if( data.colDist == VR && data.rowDist == STAR )
-    {
-        this->rowAlignment_ = data.colAlignment % this->RowStride();
-        this->constrainedRowAlignment_ = true;
-    }
-#ifndef RELEASE
-    else throw std::logic_error("Nonsensical alignment");
-#endif
-    this->SetShifts();
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignWith( const AbstractDistMatrix<T,Int>& A )
-{ this->AlignWith( A.DistData() ); }
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignColsWith( const elem::DistData<Int>& data )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::AlignColsWith");
-    if( *this->grid_ != *data.grid )
-        throw std::logic_error("Grids do not match");
-#endif
-    if( data.colDist == MC )
-        this->colAlignment_ = data.colAlignment;
-    else if( data.rowDist == MC )
-        this->colAlignment_ = data.rowAlignment;
-    else if( data.colDist == VC )
-        this->colAlignment_ = data.colAlignment % this->ColStride();
-    else if( data.rowDist == VC )
-        this->colAlignment_ = data.rowAlignment % this->ColStride();
-#ifndef RELEASE
-    else throw std::logic_error("Nonsensical alignment");
-#endif
-    this->constrainedColAlignment_ = true;
-    this->SetShifts();
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignColsWith( const AbstractDistMatrix<T,Int>& A )
-{ this->AlignColsWith( A.DistData() ); }
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith( const elem::DistData<Int>& data )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::AlignRowsWith");
-    if( *this->grid_ != *data.grid )
-        throw std::logic_error("Grids do not match");
-#endif
-    if( data.colDist == MR )
-        this->rowAlignment_ = data.colAlignment;
-    else if( data.rowDist == MR )
-        this->rowAlignment_ = data.rowAlignment;
-    else if( data.colDist == VR )
-        this->rowAlignment_ = data.colAlignment % this->RowStride();
-    else if( data.rowDist == VR )
-        this->rowAlignment_ = data.rowAlignment % this->RowStride();
-#ifndef RELEASE
-    else throw std::logic_error("Nonsensical alignment");
-#endif
-    this->constrainedRowAlignment_ = true;
-    this->SetShifts();
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::AlignRowsWith( const AbstractDistMatrix<T,Int>& A )
-{ this->AlignRowsWith( A.DistData() ); }
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::Attach
-( Int height, Int width, Int colAlignment, Int rowAlignment, 
-  T* buffer, Int ldim, const elem::Grid& g )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::Attach");
-#endif
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlignment_ = colAlignment;
-    this->rowAlignment_ = rowAlignment;
-    this->viewType_ = VIEW;
-    this->SetShifts();
-    if( this->Participating() )
-    {
-        Int localHeight = Length(height,this->colShift_,this->ColStride());
-        Int localWidth = Length(width,this->rowShift_,this->RowStride());
-        this->matrix_.Attach_( localHeight, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::LockedAttach
-( Int height, Int width, Int colAlignment, Int rowAlignment, 
-  const T* buffer, Int ldim, const elem::Grid& g )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::LockedAttach");
-#endif
-    this->Empty();
-
-    this->grid_ = &g;
-    this->height_ = height;
-    this->width_ = width;
-    this->colAlignment_ = colAlignment;
-    this->rowAlignment_ = rowAlignment;
-    this->viewType_ = LOCKED_VIEW;
-    this->SetShifts();
-    if( this->Participating() )
-    {
-        Int localHeight = Length(height,this->colShift_,this->ColStride());
-        Int localWidth = Length(width,this->rowShift_,this->RowStride());
-        this->matrix_.LockedAttach_( localHeight, localWidth, buffer, ldim );
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::ResizeTo( Int height, Int width )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::ResizeTo");
-    this->AssertNotLocked();
-#endif
-    this->height_ = height;
-    this->width_ = width;
-    if( this->Participating() )
-        this->matrix_.ResizeTo_
-        ( Length(height,this->ColShift(),this->ColStride()),
-          Length(width, this->RowShift(),this->RowStride()) );
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::ResizeTo( Int height, Int width, Int ldim )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::ResizeTo");
-    this->AssertNotLocked();
-#endif
-    this->height_ = height;
-    this->width_ = width;
-    if( this->Participating() )
-        this->matrix_.ResizeTo_
-        ( Length(height,this->ColShift(),this->ColStride()),
-          Length(width, this->RowShift(),this->RowStride()), ldim );
-}
-
-template<typename T,typename Int>
-T
-DistMatrix<T,MC,MR,Int>::Get( Int i, Int j ) const
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::Get");
-    this->AssertValidEntry( i, j );
-#endif
-    // We will determine the owner of the (i,j) entry and have him Broadcast
-    // throughout the entire process grid
-    const Int ownerRow = (i + this->ColAlignment()) % this->ColStride();
-    const Int ownerCol = (j + this->RowAlignment()) % this->RowStride();
-    const Int ownerRank = ownerRow + ownerCol*this->ColStride();
-
-    T u;
-    const elem::Grid& g = this->Grid();
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / this->ColStride();
-        const Int jLoc = (j-this->RowShift()) / this->RowStride();
-        u = this->GetLocal(iLoc,jLoc);
-    }
-    mpi::Broadcast( &u, 1, g.VCToViewingMap(ownerRank), g.ViewingComm() );
-    return u;
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::Set( Int i, Int j, T u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::Set");
-    this->AssertValidEntry( i, j );
-#endif
-    const Int ownerRow = (i + this->ColAlignment()) % this->ColStride();
-    const Int ownerCol = (j + this->RowAlignment()) % this->RowStride();
-    const Int ownerRank = ownerRow + ownerCol*this->ColStride();
-    if( this->Grid().VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / this->ColStride();
-        const Int jLoc = (j-this->RowShift()) / this->RowStride();
-        this->SetLocal(iLoc,jLoc,u);
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::Update( Int i, Int j, T u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::Update");
-    this->AssertValidEntry( i, j );
-#endif
-    const Int ownerRow = (i + this->ColAlignment()) % this->ColStride();
-    const Int ownerCol = (j + this->RowAlignment()) % this->RowStride();
-    const Int ownerRank = ownerRow + ownerCol*this->ColStride();
-    if( this->Grid().VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / this->ColStride();
-        const Int jLoc = (j-this->RowShift()) / this->RowStride();
-        this->UpdateLocal(iLoc,jLoc,u);
-    }
-}
 
 template<typename T,typename Int>
 void
@@ -3282,92 +3135,6 @@ DistMatrix<T,MC,MR,Int>::SumScatterUpdate
     this->auxMemory_.Release();
 }
 
-//
-// Functions which explicitly work in the complex plane
-//
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::SetRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::SetRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid(); 
-    const Int ownerRow = (i + this->ColAlignment()) % g.Height();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    const Int ownerRank = ownerRow + ownerCol*g.Height();
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Height();
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalRealPart( iLoc, jLoc, u );
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::SetImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::SetImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid(); 
-    const Int ownerRow = (i + this->ColAlignment()) % g.Height();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    const Int ownerRank = ownerRow + ownerCol*g.Height();
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Height();
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalImagPart( iLoc, jLoc, u );
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::UpdateRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::UpdateRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid(); 
-    const Int ownerRow = (i + this->ColAlignment()) % g.Height();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    const Int ownerRank = ownerRow + ownerCol*g.Height();
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Height();
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalRealPart( iLoc, jLoc, u );
-    }
-}
-
-template<typename T,typename Int>
-void
-DistMatrix<T,MC,MR,Int>::UpdateImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MC,MR]::UpdateImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid(); 
-    const Int ownerRow = (i + this->ColAlignment()) % g.Height();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    const Int ownerRank = ownerRow + ownerCol*g.Height();
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.Height();
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalImagPart( iLoc, jLoc, u );
-    }
-}
-
 template<typename T,typename Int>
 void
 DistMatrix<T,MC,MR,Int>::GetRealPartOfDiagonal
@@ -3397,7 +3164,7 @@ DistMatrix<T,MC,MR,Int>::GetRealPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiagonal( this->DistData(), offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( length, 1 );
     }
     if( !d.Participating() )
@@ -3470,7 +3237,7 @@ DistMatrix<T,MC,MR,Int>::GetImagPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedColAlignment() )
-            d.AlignWithDiagonal( this->DistData(), offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( length, 1 );
     }
     if( !d.Participating() )
@@ -3543,7 +3310,7 @@ DistMatrix<T,MC,MR,Int>::GetRealPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiagonal( this->DistData(), offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, length );
     }
     if( !d.Participating() )
@@ -3617,7 +3384,7 @@ DistMatrix<T,MC,MR,Int>::GetImagPartOfDiagonal
     {
         d.SetGrid( g );
         if( !d.ConstrainedRowAlignment() )
-            d.AlignWithDiagonal( this->DistData(), offset );
+            d.AlignWithDiagonal( *this, offset );
         d.ResizeTo( 1, length );
     }
     if( !d.Participating() )
@@ -3910,6 +3677,8 @@ DistMatrix<T,MC,MR,Int>::SetImagPartOfDiagonal
         this->SetLocalImagPart( iLoc, jLoc, dBuf[k*dLDim] );
     }
 }
+
+template class DistMatrix_Dist<MC,MR,int>;
 
 #define PROTO(T) \
   template class DistMatrix<T,MC,MR,int>

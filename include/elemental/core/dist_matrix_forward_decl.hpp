@@ -12,11 +12,16 @@
 
 namespace elem {
 
-template<typename T,typename Int=int>
-class AbstractDistMatrix;
+template <typename Int=int>
+class DistMatrix_Base;
 
-template<typename T,Distribution ColDist=MC,Distribution RowDist=MR,
-         typename Int=int>
+template <Distribution ColDist=MC,Distribution RowDist=MR,typename Int=int>
+class DistMatrix_Dist;
+
+template <typename T,typename Int=int>
+class DistMatrix_Type;
+
+template<typename T,Distribution ColDist=MC,Distribution RowDist=MR,typename Int=int>
 class DistMatrix;
 
 } // namespace elem

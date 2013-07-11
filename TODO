@@ -2,7 +2,6 @@ Functionality
 =============
 - Test results of new Lyapunov/Sylvester/Ricatti solvers
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-- Way for DistMatrix with single process to view Matrix, and operator=
 - (Generalized) Spectral Divide and Conquer
 - More Sign algorithms
 - Ostrowski matrices
@@ -15,7 +14,6 @@ Functionality
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - LU with full and rook pivoting
 - Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
-- Blocked Aasen's
 - Pivoted Cholesky
 - TSQR
 - TSLU (via tournament pivoting)
@@ -26,13 +24,13 @@ Functionality
 - Wrappers for more LAPACK eigensolvers
 - Sequential versions of Trr2k 
 - More explicit expansions of packed Householder reflectors
-- More Trtrmm/Trtrsm routines
+- More TwoSidedTrmm/TwoSidedTrsm routines
 - Compressed pseudoinverse solves which avoid unnecessary backtransformations
 
 Maintenance
 ===========
 - Documentation for detailed interfaces which reside in sub-namespaces
-- Provide way to zoom in/out and add colorbar to DisplayWidget
+- Provide way to zoom in/out for DisplayWidget
 - Update elemvariables to support usage of Qt5
 - Many more references
 - Update documentation for new special matrices
@@ -41,7 +39,7 @@ Maintenance
 - Experiment with using scope to avoid SlidePartition
 - Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
+- Further improvements for the speed of the build process
 - Consistent handling of unblocked routines
 - Switch to C++11 for better 64-bit integer and std::complex support, as well as
-  std::thread, extern templates, _Pragma, auto, and syntactic sugar
-- Further improvements for the speed of the build process
+  std::thread, extern templates, _Pragma, and syntactic sugar

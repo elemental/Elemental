@@ -144,9 +144,8 @@ private:
 #ifndef SWIG
     template <typename F,typename Ord> 
     friend class Matrix;
-    template <typename F,Distribution U,Distribution V,typename Ord> 
-    friend class DistMatrix;
-    friend class AbstractDistMatrix<T,Int>;
+    template <typename F,typename Ord> 
+    friend class DistMatrix_Type;
 
     friend void View<T,Int>
     ( Matrix<T,Int>& A, Matrix<T,Int>& B );

@@ -48,6 +48,12 @@ inline Int GCD_( Int a, Int b )
 }
 
 template<typename Int>
+inline Int Length_( Int n, Int shift, Int stride )
+{
+    return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
+}
+
+template<typename Int>
 inline Int Length( Int n, Int shift, Int stride )
 {
 #ifndef RELEASE
@@ -65,12 +71,6 @@ inline Int Length( Int n, Int shift, Int stride )
         throw std::logic_error("Modulus must be positive");
 #endif
     return Length_( n, shift, stride );
-}
-
-template<typename Int>
-inline Int Length_( Int n, Int shift, Int stride )
-{
-    return ( n > shift ? (n - shift - 1)/stride + 1 : 0 );
 }
 
 template<typename Int>

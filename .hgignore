@@ -1,7 +1,0 @@
-syntax: glob
-
-*.swp
-*.o
-*.a
-*~
-./build/*

@@ -15,8 +15,34 @@ namespace elem {
 // Partial specialization to A[* ,* ].
 //
 // The entire matrix is replicated across all processes.
+
+template <typename Int>
+class DistMatrix_Dist<STAR,STAR,Int> : virtual public DistMatrix_Base<Int>
+{
+protected:
+    DistMatrix_Dist( const elem::Grid& g );
+    
+public:
+    elem::Distribution RowDist() const;
+    elem::Distribution ColDist() const;
+    
+    Int ColStride() const; 
+    Int RowStride() const;
+    Int ColRank() const;
+    Int RowRank() const;
+    
+    // View of the matrix's buffer (only valid pointer on root)
+    void Attach( Int height, Int width, void* buffer, Int ldim, const elem::Grid& grid );
+    
+    // (Immutable) view of the matrix's buffer (only valid pointer on root)
+    void LockedAttach( Int height, Int width, const void* buffer, Int ldim, const elem::Grid& grid );
+    
+    // Map distributed indices to owner rank and local indices
+    bool Index( Int i, Int j, Int& iLocal, Int& jLocal, int& mpiSrc, mpi::Comm& mpiDst ) const;
+};
+
 template<typename T,typename Int>
-class DistMatrix<T,STAR,STAR,Int> : public AbstractDistMatrix<T,Int>
+class DistMatrix<T,STAR,STAR,Int> : public DistMatrix_Dist<STAR,STAR,Int>, public DistMatrix_Type<T,Int>
 {
 public:
     // TODO: Construct from a Matrix.
@@ -90,57 +116,12 @@ public:
     operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
 
     //------------------------------------------------------------------------//
-    // Overrides of AbstractDistMatrix                                        //
-    //------------------------------------------------------------------------//
-
-    //
-    // Non-collective routines
-    //
-
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
-
-    //
-    // Collective routines
-    //
-
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void Update( Int i, Int j, T alpha );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    //------------------------------------------------------------------------//
     // Routines specific to [* ,* ] distribution                              //
     //------------------------------------------------------------------------//
 
     //
     // Collective routines
     //
-    
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
 
     void SumOverCol();
     void SumOverRow();

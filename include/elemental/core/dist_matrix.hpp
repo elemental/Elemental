@@ -10,20 +10,6 @@
 #ifndef CORE_DISTMATRIX_HPP
 #define CORE_DISTMATRIX_HPP
 
-namespace elem {
-template<typename Int=int>
-struct DistData
-{
-    Distribution colDist;
-    Distribution rowDist;
-    Int colAlignment; 
-    Int rowAlignment;
-    Int root;     // only relevant for [o ,o ]
-    Int diagPath; // only relevant for [MD,* ]/[* ,MD] distributions
-    const Grid* grid;
-};
-} // namespace elem
-
 #include "elemental/core/dist_matrix/abstract.hpp"
 #include "elemental/core/dist_matrix/circ_circ.hpp"
 #include "elemental/core/dist_matrix/mc_mr.hpp"

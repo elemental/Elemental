@@ -19,8 +19,46 @@ namespace elem {
 // of a sufficiently large distributed matrix is distributed amongst the 
 // entire process grid if and only if the dimensions of the process grid
 // are coprime.
+
+template <typename Int>
+class DistMatrix_Dist<MD,STAR,Int> : virtual public DistMatrix_Base<Int>
+{
+protected:
+    DistMatrix_Dist( const elem::Grid& g );
+    DistMatrix_Dist( const elem::Grid&, Int colAlignmentVC );    
+    public:
+    elem::Distribution RowDist() const;
+    elem::Distribution ColDist() const;
+    
+    Int ColStride() const; 
+    Int RowStride() const;
+    Int ColRank() const;
+    Int RowRank() const;
+    bool Participating() const;
+    Int DiagPath() const;
+    
+    // View of the matrix's buffer (only valid pointer on root)
+    void Attach
+        ( Int height, Int width, Int colAlignmentVC, void* buffer, Int ldim, const elem::Grid& grid );
+    // (Immutable) view of the matrix's buffer (only valid pointer on root)
+    void LockedAttach
+        ( Int height, Int width, Int colAlignmentVC, const void* buffer, Int ldim, const elem::Grid& grid );
+    // Map distributed indices to owner rank and local indices
+    bool Index( Int i, Int j, Int& iLocal, Int& jLocal, int& mpiSrc, mpi::Comm& mpiDst ) const;
+        
+    virtual void MakeConsistent();
+
+    void AlignWith( const DistMatrix_Base<Int>& A );
+    void AlignColsWith( const DistMatrix_Base<Int>& A );
+    void AlignWithDiagonal( const DistMatrix_Base<Int>& A, Int offset=0 );
+    bool AlignedWithDiagonal( const DistMatrix_Base<Int>& A, Int offset=0 ) const;
+
+protected:
+    Int diagPath_;
+};
+
 template<typename T,typename Int>
-class DistMatrix<T,MD,STAR,Int> : public AbstractDistMatrix<T,Int>
+class DistMatrix<T,MD,STAR,Int> : public DistMatrix_Dist<MD,STAR,Int>, public DistMatrix_Type<T,Int>
 {
 public:
     // Create a 0 x 0 distributed matrix
@@ -96,80 +134,7 @@ public:
     const DistMatrix<T,MD,STAR,Int>& 
     operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
 
-    //------------------------------------------------------------------------//
-    // Overrides of AbstractDistMatrix                                        //
-    //------------------------------------------------------------------------//
-
-    //
-    // Non-collective routines
-    //
-
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
-
-    virtual bool Participating() const;
-
-    //
-    // Collective routines
-    //
-
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void Update( Int i, Int j, T alpha );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
-    // Distribution alignment
-    virtual void AlignWith( const elem::DistData<Int>& data );
-    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignColsWith( const elem::DistData<Int>& data );
-    virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
-
-    virtual void MakeConsistent();
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    //------------------------------------------------------------------------//
-    // Routines specific to [MD,* ] distribution                              //
-    //------------------------------------------------------------------------//
-
-    //
-    // Collective routines
-    //
-
-    void AlignWithDiagonal( const elem::DistData<Int>& data, Int offset=0 );
-    void AlignWithDiagonal( const AbstractDistMatrix<T,Int>& A, Int offset=0 );
-    bool AlignedWithDiagonal
-    ( const elem::DistData<Int>& data, Int offset=0 ) const;
-    bool AlignedWithDiagonal 
-    ( const AbstractDistMatrix<T,Int>& A, Int offset=0 ) const;
-
-    // (Immutable) view of a distributed matrix's buffer
-    void Attach
-    ( Int height, Int width, Int colAlignmentVC,
-      T* buffer, Int ldim, const elem::Grid& grid );
-    void LockedAttach
-    ( Int height, Int width, Int colAlignmentVC, 
-      const T* buffer, Int ldim, const elem::Grid& grid );
-
-    Int DiagPath() const;
-
 private:
-    Int diagPath_;
 #ifndef SWIG
     friend void HandleDiagPath<>
     ( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );
