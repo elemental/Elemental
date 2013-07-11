@@ -29,7 +29,7 @@ void TestCorrectness
   UpperOrLower uplo,
   const DistMatrix<F>& A,
   const DistMatrix<F>& B,
-  const DistMatrix<BASE(F)>& w,
+  const DistMatrix<BASE(F),VR,STAR>& w,
   const DistMatrix<F>& X,
   const DistMatrix<F>& AOrig,
   const DistMatrix<F>& BOrig )
