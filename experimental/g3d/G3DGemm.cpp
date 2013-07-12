@@ -144,7 +144,6 @@ void DistributeCols
         DistMatrix<double,MC,MR>& B )
 {
     const Grid& meshGrid = A.Grid();
-    const int meshSize = meshGrid.Size();
     const int depthSize = mpi::CommSize( depthComm );
     const int depthRank = mpi::CommRank( depthComm );
 
@@ -180,11 +179,9 @@ void DistributeRows
   const DistMatrix<double,MC,MR>& A, 
         DistMatrix<double,MC,MR>& B )
 {
-    const int rank = mpi::CommRank( mpi::COMM_WORLD );
     const int depthRank = mpi::CommRank( depthComm );
     const int depthSize = mpi::CommSize( depthComm );
     const Grid& meshGrid = A.Grid();
-    const int meshSize = meshGrid.Size();
 
     const int sendCount = A.LocalHeight()*A.LocalWidth();
     const int recvCount = sendCount / depthSize;
@@ -273,9 +270,7 @@ void InitializeMatrices
   DistMatrix<double,MC,MR>& COut,
   bool print )
 {
-    const int rank = mpi::CommRank(mpi::COMM_WORLD);
     const Grid& meshGrid = AOut.Grid();
-    const int meshSize = meshGrid.Size();
 
     DistMatrix<double,MC,MR> A( m, k, meshGrid );
     DistMatrix<double,MC,MR> B( k, n, meshGrid );
@@ -315,7 +310,6 @@ void SumContributions
   const DistMatrix<double,MC,MR>& APartial,
         DistMatrix<double,MC,MR>& A )
 {
-    const int rank = mpi::CommRank( mpi::COMM_WORLD );
     const Grid& meshGrid = APartial.Grid();
 
     A.Empty();
