@@ -108,6 +108,13 @@ ElemDistMat_STAR_STAR CreateDistMat_STAR_STAR( const Grid& grid )
     return index;
 }
 
+void Cleanup( std::exception& e )
+{
+    ReportException(e);
+    Finalize();
+    exit(0);
+}
+
 } // anonymous namespace
 
 extern "C" {
@@ -214,7 +221,7 @@ void FC_GLOBAL_(elem_register_dist_mat,NAME)
         distMatList[index] = 
             new DistMatrix<double>
             (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -233,7 +240,7 @@ void FC_GLOBAL_(elem_register_cpx_dist_mat,NAME)
         cpxDistMatList[index] = 
             new DistMatrix<C>
             (*height,*width,*colAlignment,*rowAlignment,buffer,*ldim,grid);
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -245,7 +252,7 @@ void FC_GLOBAL_(elem_create_dist_mat,NAME)
     try
     {
         distMatList[index] = new DistMatrix<double>( grid );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -257,7 +264,7 @@ void FC_GLOBAL_(elem_create_cpx_dist_mat,NAME)
     try
     {
         cpxDistMatList[index] = new DistMatrix<Complex<double> >( grid );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -285,7 +292,7 @@ void FC_GLOBAL_(elem_print_dist_mat,NAME)( int* AHandle )
     try
     {
         Print( A );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
@@ -295,7 +302,7 @@ void FC_GLOBAL_(elem_print_cpx_dist_mat,NAME)( int* AHandle )
     try
     {
         Print( A );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 //
@@ -314,7 +321,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vc_star,NAME)
         distMatList_VC_STAR[index] = 
             new DistMatrix<double,VC,STAR>
             (*height,*width,*colAlignment,buffer,*ldim,grid);
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -326,7 +333,7 @@ void FC_GLOBAL_(elem_create_dist_mat_vc_star,NAME)
     try
     {
         distMatList_VC_STAR[index] = new DistMatrix<double,VC,STAR>( grid );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -345,7 +352,7 @@ void FC_GLOBAL_(elem_print_dist_mat_vc_star,NAME)( int* AHandle )
     try
     {
         Print( A );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 //
@@ -364,7 +371,7 @@ void FC_GLOBAL_(elem_register_dist_mat_vr_star,NAME)
         distMatList_VR_STAR[index] = 
             new DistMatrix<double,VR,STAR>
             (*height,*width,*colAlignment,buffer,*ldim,grid);
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -376,7 +383,7 @@ void FC_GLOBAL_(elem_create_dist_mat_vr_star,NAME)
     try
     {
         distMatList_VR_STAR[index] = new DistMatrix<double,VR,STAR>( grid );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -395,7 +402,7 @@ void FC_GLOBAL_(elem_print_dist_mat_vr_star,NAME)( int* AHandle )
     try
     {
         Print( A );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 //
@@ -412,7 +419,7 @@ void FC_GLOBAL_(elem_register_dist_mat_star_star,NAME)
     {
         distMatList_STAR_STAR[index] = 
             new DistMatrix<double,STAR,STAR>(*height,*width,buffer,*ldim,grid);
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -424,7 +431,7 @@ void FC_GLOBAL_(elem_create_dist_mat_star_star,NAME)
     try
     {
         distMatList_STAR_STAR[index] = new DistMatrix<double,STAR,STAR>( grid );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
     *handle = index;
 }
 
@@ -443,7 +450,7 @@ void FC_GLOBAL_(elem_print_dist_mat_star_star,NAME)( int* AHandle )
     try
     {
         Print( A );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 //
@@ -462,7 +469,7 @@ void FC_GLOBAL_(elem_symmetric_eig,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianEig( LOWER, A, w_VR_STAR, X );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_eig,NAME)
@@ -478,7 +485,7 @@ void FC_GLOBAL_(elem_hermitian_eig,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianEig( LOWER, A, w_VR_STAR, X );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_reduce,NAME)
@@ -491,7 +498,7 @@ void FC_GLOBAL_(elem_symmetric_axbx_reduce,NAME)
     {
         Cholesky( LOWER, B );
         TwoSidedTrsm( LOWER, NON_UNIT, A, B );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_reduce,NAME)
@@ -504,7 +511,7 @@ void FC_GLOBAL_(elem_hermitian_axbx_reduce,NAME)
     {
         Cholesky( LOWER, B );
         TwoSidedTrsm( LOWER, NON_UNIT, A, B );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_expand,NAME)
@@ -517,7 +524,7 @@ void FC_GLOBAL_(elem_symmetric_axbx_expand,NAME)
     try
     {
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, 1., B, X );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_expand,NAME)
@@ -531,7 +538,7 @@ void FC_GLOBAL_(elem_hermitian_axbx_expand,NAME)
     try
     {
         Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, C(1.), B, X );
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx,NAME)
@@ -548,7 +555,7 @@ void FC_GLOBAL_(elem_symmetric_axbx,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
@@ -566,7 +573,7 @@ void FC_GLOBAL_(elem_symmetric_axbx_range,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
         w = w_VR_STAR; 
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
@@ -588,7 +595,7 @@ void FC_GLOBAL_(elem_symmetric_axbx_indices,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx,NAME)
@@ -606,7 +613,7 @@ void FC_GLOBAL_(elem_hermitian_axbx,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
@@ -625,7 +632,7 @@ void FC_GLOBAL_(elem_hermitian_axbx_range,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, *a, *b );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
@@ -648,7 +655,7 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
         DistMatrix<double,VR,STAR> w_VR_STAR( A.Grid() );
         HermitianGenDefiniteEig( AXBX, LOWER, A, B, w_VR_STAR, X, aC, bC );
         w = w_VR_STAR;
-    } catch( std::exception& e ) { ReportException(e); }
+    } catch( std::exception& e ) { Cleanup(e); }
 }
 
 //
@@ -657,7 +664,7 @@ void FC_GLOBAL_(elem_hermitian_axbx_indices,NAME)
 
 void FC_GLOBAL_(elem_length,NAME)
 ( int* n, int* shift, int* modulus, int* length )
-{ *length = Length<int>(*n,*shift,*modulus); }
+{ *length = Length(*n,*shift,*modulus); }
 
 // Returns the global and local sizes of zero-aligned n x k matrix
 void FC_GLOBAL_(elem_padded_eigvec_size,NAME)
@@ -670,7 +677,7 @@ void FC_GLOBAL_(elem_padded_eigvec_size,NAME)
     const int row = grid.Row();
     const int col = grid.Col();
     *nPad = MaxLength(*n,r)*r;
-    *kPad = MaxLength(*n,p)*p;
+    *kPad = MaxLength(*k,p)*p;
     *nLoc = Length(*nPad,row,r);
     *kLoc = Length(*kPad,col,c);
 }
