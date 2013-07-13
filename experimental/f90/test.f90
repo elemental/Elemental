@@ -9,16 +9,16 @@ program main
   integer :: r, c, p, row, col, rank
 
   ! Our process's local matrix size (for A and B)
-  integer :: mLoc, nLoc
+  integer :: mLoc, nLoc, mPad, nPad, mPadLoc, nPadLoc
 
   ! Local buffers for distributed A and B matrices
-  real*8, allocatable, dimension(:,:) :: ALoc, BLoc
+  real*8, allocatable, dimension(:,:) :: ALoc, BLoc, wLoc, XLoc
 
   ! Indices
   integer :: i, j, iLoc, jLoc
 
   ! Useful constants
-  integer :: iZero = 0
+  integer :: iOne = 1, iZero = 0
   integer :: n = 10                ! problem size
   integer :: nb = 96               ! algorithmic blocksize
   integer :: comm = MPI_COMM_WORLD ! global communicator
@@ -38,8 +38,11 @@ program main
   ! Create buffers for passing into data for distributed matrices 
   call elem_length( n, row, r, mLoc )
   call elem_length( n, col, c, nLoc )
+  call elem_padded_eigvec_size( n, n, grid, mPad, nPad, mPadLoc, nPadLoc )
   allocate(ALoc(mLoc,nLoc))
   allocate(BLoc(mLoc,nLoc))
+  allocate(wLoc(n,1))
+  allocate(XLoc(mPadLoc,nPadLoc))
 
   ! Set entry (i,j) of the A matrix to i+j, which is symmetric 
   do jLoc=1,nLoc
@@ -66,6 +69,9 @@ program main
   ! Register the distributed matrices, A and B, with Elemental 
   call elem_register_dist_mat( A, n, n, iZero, iZero, ALoc, mLoc, grid )
   call elem_register_dist_mat( B, n, n, iZero, iZero, BLoc, mLoc, grid )
+  call elem_register_dist_mat_star_star( w, n, iOne, wLoc, n, grid )
+  call elem_register_dist_mat( X, mPad, nPad, iZero, iZero, &
+    & XLoc, mPadLoc, grid )
 
   ! I do not know of a good way to flush the output from F90, as the flush
   ! command is not standard. Thus, I chose not to write to stdout from F90.
@@ -96,8 +102,6 @@ program main
   ! the subgrid is best depends upon your network (hence the second choice).
 
   ! Given the pencil (A,B), solve for (w,X) such that AX=BX diag(w)
-  call elem_create_dist_mat_star_star( w, grid )
-  call elem_create_dist_mat( X, grid )
   call elem_symmetric_axbx( A, B, w, X )
 
   ! Print the eigenvalues and eigenvectors
