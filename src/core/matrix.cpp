@@ -229,7 +229,6 @@ Matrix<T,Int>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Buffer");
-    AssertValidEntry( i, j );
     if( Locked() )
         throw std::logic_error
         ("Cannot return non-const buffer of locked Matrix");
@@ -245,7 +244,6 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedBuffer");
-    AssertValidEntry( i, j );
 #endif
     return &data_[i+j*ldim_];
 }
