@@ -46,7 +46,7 @@ public:
     mpi::Comm VRComm() const;
 
     // Advanced routines
-    Grid( mpi::Comm viewers, mpi::Group owners, int height ); 
+    Grid( mpi::Comm viewers, mpi::Group owners, int height );
     int GCD() const; // greatest common denominator of grid height and width
     int LCM() const; // lowest common multiple of grid height and width
     bool InGrid() const;
