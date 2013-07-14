@@ -133,8 +133,8 @@ void FC_GLOBAL(elem_initialize,NAME)()
 void FC_GLOBAL(elem_finalize,NAME)()
 { Finalize(); }
 
-void FC_GLOBAL_(elem_set_blocksize,NAME)( int blocksize )
-{ SetBlocksize( blocksize ); }
+void FC_GLOBAL_(elem_set_blocksize,NAME)( int* blocksize )
+{ SetBlocksize( *blocksize ); }
 
 void FC_GLOBAL(elem_blocksize,NAME)( int* blocksize )
 { *blocksize = Blocksize(); }
