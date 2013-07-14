@@ -6,7 +6,7 @@ program main
   integer :: grid, A, B, w, X
 
   ! Process grid information
-  integer :: r, c, p, row, col, rank
+  integer :: r, c, row, col
 
   ! Our process's local matrix size (for A and B)
   integer :: mLoc, nLoc, mPad, nPad, mPadLoc, nPadLoc
@@ -19,7 +19,7 @@ program main
 
   ! Useful constants
   integer :: iOne = 1, iZero = 0
-  integer :: n = 10                ! problem size
+  integer :: n = 1000              ! problem size
   integer :: nb = 96               ! algorithmic blocksize
   integer :: comm = MPI_COMM_WORLD ! global communicator
 
@@ -30,10 +30,8 @@ program main
   call elem_create_grid( grid, comm )
   call elem_grid_height( grid, r )
   call elem_grid_width( grid, c )
-  call elem_grid_size( grid, p )
   call elem_grid_row( grid, row )
   call elem_grid_col( grid, col )
-  call elem_grid_rank( grid, rank )
 
   ! Create buffers for passing into data for distributed matrices 
   call elem_length( n, row, r, mLoc )
@@ -73,19 +71,10 @@ program main
   call elem_register_dist_mat( X, mPad, nPad, iZero, iZero, &
     & XLoc, mPadLoc, grid )
 
-  ! I do not know of a good way to flush the output from F90, as the flush
-  ! command is not standard. Thus, I chose not to write to stdout from F90.
-
-  ! Print the input matrices 
-  call elem_print_dist_mat( A )
-  call elem_print_dist_mat( B )
-
   ! Set the algorithmic blocksize to 'nb'
   call elem_set_blocksize( nb )
 
   ! For tuning purposes choose one of the following
-  ! (see http://elemental.googlecode.com/hg/doc/build/html/advanced/tuning.html
-  !  for more details)
   !
   !call elem_set_normal_tridiag_approach
   call elem_set_square_tridiag_approach
@@ -105,7 +94,6 @@ program main
   call elem_symmetric_axbx( A, B, w, X )
 
   ! Print the eigenvalues and eigenvectors
-  call elem_print_dist_mat( X )
   call elem_print_dist_mat_star_star( w )
 
   ! Shut down Elemental and MPI
