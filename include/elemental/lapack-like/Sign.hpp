@@ -13,11 +13,11 @@
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/Inverse.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/Determinant.hpp"
+#include "elemental/matrices/HermitianFromEVD.hpp"
 
 // See Chapter 5 of Nicholas J. Higham's "Functions of Matrices: Theory and
 // Computation", which is currently available at:

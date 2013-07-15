@@ -12,9 +12,9 @@
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/SVD.hpp"
+#include "elemental/matrices/HermitianFromEVD.hpp"
 
 namespace elem {
 

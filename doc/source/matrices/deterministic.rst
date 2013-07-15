@@ -65,18 +65,35 @@ An :math:`n \times n` matrix :math:`A` is called *diagonal* if each entry :math:
 
 Egorov
 ------
-**TODO**
+Sets :math:`A` to an :math:`n \times n` matrix with the :math:`(i,j)` entry
+equal to
+
+.. math::
+   \exp(i \phi(i,j)).
+
+.. cpp:function:: void Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, int n )
+.. cpp:function:: void Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, int n )
 
 Extended Kahan
 --------------
 **TODO**
 
+.. cpp:function:: void ExtendedKahan( Matrix<F>& A, int k, typename Base<F>::type phi, typename Base<F>::type mu )
+.. cpp:function:: void ExtendedKahan( DistMatrix<F,U,V>& A, int k, typename Base<F>::type phi, typename Base<F>::type mu )
+
 Fiedler
 -------
+**TODO**
+
+.. cpp:function:: void Fiedler( Matrix<F>& A, const std::vector<F>& c )
+.. cpp:function:: void Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
 
 Forsythe
 --------
 **TODO**
+
+.. cpp:function:: void Forsythe( Matrix<T>& J, int n, T alpha, T lambda )
+.. cpp:function:: void Forsythe( DistMatrix<T,U,V>& J, int n, T alpha, T lambda )
 
 Fourier
 -------
@@ -100,17 +117,29 @@ GCDMatrix
 ---------
 **TODO**
 
+.. cpp:function:: void GCDMatrix( Matrix<T>& G, int m, int n )
+.. cpp:function:: void GCDMatrix( DistMatrix<T,U,V>& G, int m, int n )
+
 Gear
 ----
 **TODO**
+
+.. cpp:function:: void Gear( Matrix<T>& G, int n, int s, int t )
+.. cpp:function:: void Gear( DistMatrix<T,U,V>& int n, int s, int t )
 
 Golub/Klema/Stewart 
 -------------------
 **TODO**
 
+.. cpp:function:: void GKS( Matrix<F>& A, int n )
+.. cpp:function:: void GKS( DistMatrix<F,U,V>& A, int n )
+
 Grcar
 -----
 **TODO**
+
+.. cpp:function:: void Grcar( Matrix<T>& A, int n, int k=3 )
+.. cpp:function:: void Grcar( DistMatrix<T,U,V>& A, int n, int k=3 )
 
 Hankel
 ------
@@ -134,9 +163,27 @@ Hanowa
 ------
 **TODO**
 
+.. cpp:function:: void Hanowa( Matrix<T>& A, int n, T mu )
+.. cpp:function:: void Hanowa( DistMatrix<T,U,V>& A, int n, T mu )
+
 Helmholtz
 ---------
 **TODO**
+
+.. cpp:function:: void Helmholtz( Matrix<F>& H, int n, F shift )
+.. cpp:function:: void Helmholtz( DistMatrix<F,U,V>& H, int n, F shift )
+
+   1D Helmholtz: **TODO**
+
+.. cpp:function:: void Helmholtz( Matrix<F>& H, int nx, int ny, F shift )
+.. cpp:function:: void Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, F shift )
+
+   2D Helmholtz: **TODO**
+
+.. cpp:function:: void Helmholtz( Matrix<F>& H, int nx, int ny, int nz, F shift )
+.. cpp:function:: void Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, int nz, F shift )
+
+   3D Helmholtz: **TODO**
 
 Hilbert
 -------
@@ -152,6 +199,19 @@ entry :math:`(i,j)` is equal to :math:`1/(i+j+1)`.
 .. cpp:function:: void MakeHilbert( DistMatrix<F,U,V>& A )
 
    Turn the square matrix ``A`` into a Hilbert matrix.
+
+HermitianFromEVD
+----------------
+Form
+.. math::
+   A := Z \Omega Z^H,
+
+where :math:`\Omega` is a real diagonal matrix.
+
+.. cpp:function:: void HermitianFromEVD( UpperOrLower uplo, Matrix<F>& A, const Matrix<typename Base<F>::val>& w, const Matrix<F>& Z )
+.. cpp:function:: void HermitianFromEVD( UpperOrLower uplo, DistMatrix<F>& A, const DistMatrix<typename Base<F>::val,VR,STAR>& w, const DistMatrix<F>& Z )
+
+   The diagonal entries of :math:`\Omega` are given by the vector :math:`w`.
 
 Identity
 --------
@@ -173,6 +233,9 @@ matrices.
 Jordan
 ------
 **TODO**
+
+.. cpp:function:: void Jordan( Matrix<T>& J, int n, T lambda )
+.. cpp:function:: void Jordan( DistMatrix<T,U,V>& J, int n, T lambda )
 
 Kahan
 -----
@@ -198,13 +261,34 @@ KMS
 ---
 **TODO**
 
+.. cpp:function:: void KMS( Matrix<T>& K, int n, T rho )
+.. cpp:function:: void KMS( DistMatrix<T,U,V>& K, int n, T rho )
+
 Laplacian
 ---------
 **TODO**
 
+.. cpp:function:: void Laplacian( Matrix<F>& L, int n )
+.. cpp:function:: void Laplacian( DistMatrix<F,U,V>& L, int n )
+
+   1D Laplacian: **TODO**
+
+.. cpp:function:: void Laplacian( Matrix<F>& L, int nx, int ny )
+.. cpp:function:: void Laplacian( DistMatrix<F,U,V>& L, int nx, int ny )
+
+   2D Laplacian: **TODO**
+
+.. cpp:function:: void Laplacian( Matrix<F>& L, int nx, int ny, int nz )
+.. cpp:function:: void Laplacian( DistMatrix<F,U,V>& L, int nx, int ny, int nz )
+
+   3D Laplacian: **TODO**
+
 Lauchli
 -------
 **TODO**
+
+.. cpp:function:: void Lauchli( Matrix<T>& A, int n, T mu )
+.. cpp:function:: void Lauchli( DistMatrix<T,U,V>& A, int n, T mu )
 
 Legendre
 --------
@@ -232,13 +316,35 @@ Lehmer
 ------
 **TODO**
 
+.. cpp:function:: void Lehmer( Matrix<F>& L, int n )
+.. cpp:function:: void Lehmer( DistMatrix<F,U,V>& L, int n )
+
 Lotkin
 ------
 **TODO**
 
+.. cpp:function:: void Lotkin( Matrix<F>& A, int n )
+.. cpp:function:: void Lotkin( DistMatrix<F,U,V>& A, int n )
+
 MinIJ
 -----
 **TODO**
+
+.. cpp:function:: void MinIJ( Matrix<T>& M, int n )
+.. cpp:function:: void MinIJ( DistMatrix<T,U,V>& M, int n )
+
+NormalFromEVD
+-------------
+Form
+.. math::
+   A := Z \Omega Z^H,
+
+where :math:`\Omega` is a complex diagonal matrix.
+
+.. cpp:function:: void NormalFromEVD( Matrix<Complex<R> >& A, const Matrix<Complex<R> >& w, const Matrix<Complex<R> >& Z )
+.. cpp:function:: void NormalFromEVD( DistMatrix<Complex<R> >& A, const DistMatrix<Complex<R>,VR,STAR>& w, const DistMatrix<Complex<R> >& Z )
+
+   The diagonal entries of :math:`\Omega` are given by the vector :math:`w`.
 
 Ones
 ----
@@ -275,21 +381,36 @@ Parter
 ------
 **TODO**
 
+.. cpp:function:: void Parter( Matrix<F>& P, int n )
+.. cpp:function:: void Parter( DistMatrix<F,U,V>& P, int n )
+
 Pei
 ---
 **TODO**
+
+.. cpp:function:: void Pei( Matrix<T>& P, int n, T alpha )
+.. cpp:function:: void Pei( DistMatrix<T,U,V>& P, int n, T alpha )
 
 Redheffer
 ---------
 **TODO**
 
+.. cpp:function:: void Redheffer( Matrix<T>& R, int n )
+.. cpp:function:: void Redheffer( DistMatrix<T,U,V>& R, int n )
+
 Riemann
 -------
 **TODO**
 
+.. cpp:function:: void Riemann( Matrix<T>& R, int n )
+.. cpp:function:: void Riemann( DistMatrix<T,U,V>& R, int n )
+
 Ris
 ---
 **TODO**
+
+.. cpp:function:: void Ris( Matrix<F>& R, int n )
+.. cpp:function:: void Ris( DistMatrix<F,U,V>& R, int n )
 
 Toeplitz
 --------
@@ -309,6 +430,9 @@ where :math:`\beta_k` is the :math:`k`'th entry of :math:`b`.
 TriW
 ----
 **TODO**
+
+.. cpp:function:: void TriW( Matrix<T>& A, int m, int n, T alpha, int k )
+.. cpp:function:: void TriW( DistMatrix<T,U,V>& A, int m, int n, T alpha, int k )
 
 Walsh
 -----

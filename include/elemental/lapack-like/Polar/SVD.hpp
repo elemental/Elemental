@@ -11,8 +11,8 @@
 #define LAPACK_POLAR_SVD_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/SVD.hpp"
+#include "elemental/matrices/HermitianFromEVD.hpp"
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {

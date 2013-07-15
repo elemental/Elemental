@@ -11,10 +11,10 @@
 #define LAPACK_SQUAREROOT_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
-#include "elemental/lapack-like/HermitianFunction.hpp"
 #include "elemental/lapack-like/LU.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
+#include "elemental/matrices/HermitianFromEVD.hpp"
 
 // See Eq. 6.3 of Nicholas J. Higham and Awad H. Al-Mohy's "Computing Matrix
 // Functions", which is currently available at:
