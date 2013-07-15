@@ -203,6 +203,21 @@ Detailed interface
    column norm is less than or equal to `tol` times the maximum original column
    norm.
 
+:math:`RQ` factorization
+------------------------
+Just like an LQ factorization, but the orthogonalization process starts from the bottom row and produces a 
+much sparser triangular factor when the matrix is wider than it is tall.
+
+.. cpp:function:: void RQ( Matrix<F>& A )
+.. cpp:function:: void RQ( DistMatrix<F>& A )
+.. cpp:function:: void RQ( Matrix<F>& A, Matrix<F>& t )
+.. cpp:function:: void RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
+
+   Overwrite the complex matrix :math:`A` with :math:`R` and the 
+   Householder reflectors representing :math:`\hat Q`. In the complex case, 
+   phase information is needed in order to define the (generalized) 
+   Householder transformations and is stored in the column vector `t`.
+
 Interpolative Decomposition (ID)
 --------------------------------
 Interpolative Decompositions (ID's) are closely related to pivoted QR 

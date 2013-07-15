@@ -62,18 +62,18 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 
         View1x2( aTopRow, alpha11, a12 );
         View1x2( ABottomPan, a21, A22 );
-
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const F tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
+
+        // Apply the Householder reflector
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
-
         Conjugate( aTopRow, aTopRowConj );
         Zeros( z, ABottomPan.Height(), 1 );
         Gemv( NORMAL, F(1), ABottomPan, aTopRowConj, F(0), z );
         Ger( -Conj(tau), z, aTopRowConj, ABottomPan );
-
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
 
@@ -159,9 +159,11 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         aTopRowConj_STAR_MR.AlignWith( ABottomPan );
         z_MC_STAR.AlignWith( ABottomPan );
         //--------------------------------------------------------------------//
+        // Compute the Householder reflector
         const F tau = Reflector( alpha11, a12 );
         tau1.Set( 0, 0, tau );
 
+        // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
                                        g.Col() == alpha11.RowAlignment() );
         F alpha = 0;
@@ -170,24 +172,17 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
-
         Conjugate( aTopRow, aTopRowConj );
         aTopRowConj_STAR_MR = aTopRowConj;
-
         Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
-        Gemv
-        ( NORMAL,
-          F(1), ABottomPan.LockedMatrix(),
-                aTopRowConj_STAR_MR.LockedMatrix(),
-          F(0), z_MC_STAR.Matrix() );
+        LocalGemv
+        ( NORMAL, F(1), ABottomPan, aTopRowConj_STAR_MR, F(0), z_MC_STAR );
         z_MC_STAR.SumOverRow();
-
         Ger
         ( -Conj(tau),
           z_MC_STAR.LockedMatrix(),
           aTopRowConj_STAR_MR.LockedMatrix(),
           ABottomPan.Matrix() );
-
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//

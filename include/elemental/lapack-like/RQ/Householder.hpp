@@ -58,12 +58,11 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 
         View1x2( ATopPan, A00, A01 );
         View1x2( ABottomPan, A10, A11 );
-
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, 
-          0, ABottomPan, t1, ATopPan ); 
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
+          ABottomPan.Width()-ABottomPan.Height(), ABottomPan, t1, ATopPan ); 
         //--------------------------------------------------------------------//
 
         SlidePartitionUp
@@ -100,16 +99,17 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     if( A.Grid() != t.Grid() )
         throw std::logic_error("{A,s} must be distributed over the same grid");
 #endif
+    const int offset = A.Width()-A.Height();
     if( t.Viewing() )
     {
-        if( !t.AlignedWithDiagonal( A ) ) 
+        if( !t.AlignedWithDiagonal( A, offset ) ) 
             throw std::logic_error("t was not aligned with A");
         if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
             throw std::logic_error("t was not the appropriate shape");
     }
     else
     {
-        t.AlignWithDiagonal( A );
+        t.AlignWithDiagonal( A, offset );
         t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
     }
 
@@ -125,7 +125,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
                 t2(g);
 
     PartitionUpOffsetDiagonal
-    ( A.Width()-A.Height(),
+    ( offset,
       A, ATL, ATR,
          ABL, ABR, 0 );
     PartitionUp
@@ -147,12 +147,11 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
         View1x2( ATopPan, A00, A01 );
         View1x2( ABottomPan, A10, A11 );
-
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, 
-          0, ABottomPan, t1, ATopPan );
+        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
+          ABottomPan.Width()-ABottomPan.Height(), ABottomPan, t1, ATopPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionUp

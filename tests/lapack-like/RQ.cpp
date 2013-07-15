@@ -30,17 +30,18 @@ void TestCorrectness
     const int m = A.Height();
     const int n = A.Width();
     const int minDim = std::min(m,n);
+    const int offset = A.Width()-A.Height();
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
 
-    // Form Z := Q^H Q as an approximation to identity
+    // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
     ApplyPackedReflectors
-    ( LEFT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
+    ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, offset, A, t, Z );
     ApplyPackedReflectors
-    ( LEFT, LOWER, HORIZONTAL, FORWARD, CONJUGATED, 0, A, t, Z );
+    ( RIGHT, LOWER, HORIZONTAL, FORWARD, CONJUGATED, offset, A, t, Z );
     
     DistMatrix<F> ZUpper(g);
     View( ZUpper, Z, 0, 0, minDim, minDim );
@@ -49,7 +50,7 @@ void TestCorrectness
     DistMatrix<F> X(g);
     Identity( X, minDim, minDim );
 
-    // Form X := I - Q^H Q
+    // Form X := I - Q Q^H
     Axpy( F(-1), ZUpper, X );
 
     R oneNormOfError = OneNorm( X );
@@ -69,7 +70,7 @@ void TestCorrectness
     DistMatrix<F> U( A );
     MakeTrapezoidal( UPPER, U, 0, RIGHT );
     ApplyPackedReflectors
-    ( RIGHT, LOWER, HORIZONTAL, FORWARD, UNCONJUGATED, 0, A, t, U );
+    ( RIGHT, LOWER, HORIZONTAL, FORWARD, UNCONJUGATED, offset, A, t, U );
 
     // Form R Q - A
     Axpy( F(-1), AOrig, U );
@@ -114,7 +115,7 @@ void TestRQ( bool testCorrectness, bool print, int m, int n, const Grid& g )
 
     if( g.Rank() == 0 )
     {
-        cout << "  Starting QR factorization...";
+        cout << "  Starting RQ factorization...";
         cout.flush();
     }
     mpi::Barrier( g.Comm() );

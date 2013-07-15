@@ -68,7 +68,6 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 
         View1x2( ATopPan, A11, A12 );
         View1x2( ABottomPan, A21, A22 );
-
         //--------------------------------------------------------------------//
         PanelHouseholder( ATopPan, t1 );
         ApplyPackedReflectors
@@ -156,7 +155,6 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
         View1x2( ATopPan, A11, A12 );
         View1x2( ABottomPan, A21, A22 );
-
         //--------------------------------------------------------------------//
         PanelHouseholder( ATopPan, t1 );
         ApplyPackedReflectors

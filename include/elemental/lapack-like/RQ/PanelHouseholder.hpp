@@ -40,7 +40,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         tT,  t0,
         tB,  t1,
              t2;
-    Matrix<F> z;
+    Matrix<F> z, aBottomRowConj;
 
     PartitionUpOffsetDiagonal
     ( A.Width()-A.Height(),
@@ -73,9 +73,10 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         // Apply the Householder reflector
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
+        Conjugate( aBottomRow, aBottomRowConj );
         Zeros( z, ATopPan.Height(), 1 );
-        Gemv( NORMAL, F(1), ATopPan, aBottomRow, F(0), z );
-        Ger( -Conj(tau), z, aBottomRow, ATopPan ); // Conj?
+        Gemv( NORMAL, F(1), ATopPan, aBottomRowConj, F(0), z );
+        Ger( -Conj(tau), z, aBottomRowConj, ATopPan );
         alpha11.Set(0,0,alpha);
         //--------------------------------------------------------------------//
 
@@ -116,7 +117,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
         throw std::logic_error
         ("t must be a vector of height equal to the minimum dimension of A");
-    if( !t.AlignedWithDiagonal( A, 0 ) )
+    if( !t.AlignedWithDiagonal( A, A.Width()-A.Height() ) )
         throw std::logic_error("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
@@ -134,7 +135,8 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
                 t2(g);
 
     // Temporary distributions
-    DistMatrix<F,STAR,MR  > aBottomRow_STAR_MR(g);
+    DistMatrix<F> aBottomRowConj(g);
+    DistMatrix<F,STAR,MR  > aBottomRowConj_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z_MC_STAR(g);
 
     PartitionUpOffsetDiagonal
@@ -161,7 +163,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         View1x2( ATopPan, A00, a01 );
         View1x2( aBottomRow, a10, alpha11 );
 
-        aBottomRow_STAR_MR.AlignWith( ATopPan );
+        aBottomRowConj_STAR_MR.AlignWith( ATopPan );
         z_MC_STAR.AlignWith( ATopPan );
         //--------------------------------------------------------------------//
         // Compute the Householder reflector
@@ -177,16 +179,17 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
-        aBottomRow_STAR_MR = aBottomRow;
+        Conjugate( aBottomRow, aBottomRowConj );
+        aBottomRowConj_STAR_MR = aBottomRowConj;
         Zeros( z_MC_STAR, ATopPan.Height(), 1 );
         LocalGemv
-        ( NORMAL, F(1), ATopPan, aBottomRow_STAR_MR, F(0), z_MC_STAR );
+        ( NORMAL, F(1), ATopPan, aBottomRowConj_STAR_MR, F(0), z_MC_STAR );
         z_MC_STAR.SumOverRow(); 
         Ger
         ( -Conj(tau), 
           z_MC_STAR.LockedMatrix(),
-          aBottomRow_STAR_MR.LockedMatrix(),
-          ATopPan.Matrix() ); // Conj?
+          aBottomRowConj_STAR_MR.LockedMatrix(),
+          ATopPan.Matrix() ); 
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
         //--------------------------------------------------------------------//

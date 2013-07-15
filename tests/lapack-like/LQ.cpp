@@ -36,8 +36,8 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q Q^H as an approximation to identity
-    DistMatrix<F> Z(m,n,g);
-    MakeIdentity( Z );
+    DistMatrix<F> Z(g);
+    Identity( Z, m, n );
     ApplyPackedReflectors
     ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
     ApplyPackedReflectors
@@ -47,8 +47,8 @@ void TestCorrectness
     View( ZUpper, Z, 0, 0, minDim, minDim );
 
     // Form Identity
-    DistMatrix<F> X(minDim,minDim,g);
-    MakeIdentity( X );
+    DistMatrix<F> X(g);
+    Identity( X, minDim, minDim );
 
     // Form X := I - Q Q^H
     Axpy( F(-1), ZUpper, X );
