@@ -143,6 +143,15 @@ trapezoid.
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
 
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void lq::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void lq::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+
+   Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
+   `A` and `t` from either the left or the right to :math:`B`.
+
 :math:`QR` factorization
 ------------------------
 Given :math:`A \in \mathbb{F}^{m \times n}`, a QR factorization typically 
@@ -176,6 +185,12 @@ trapezoid.
 
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+
+   Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
+   `A` and `t` from either the left or the right to :math:`B`.
 
 .. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p )
 .. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
@@ -217,6 +232,15 @@ much sparser triangular factor when the matrix is wider than it is tall.
    Householder reflectors representing :math:`\hat Q`. In the complex case, 
    phase information is needed in order to define the (generalized) 
    Householder transformations and is stored in the column vector `t`.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+
+   Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
+   `A` and `t` from either the left or the right to :math:`B`.
 
 Interpolative Decomposition (ID)
 --------------------------------

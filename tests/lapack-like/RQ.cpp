@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
@@ -30,7 +29,6 @@ void TestCorrectness
     const int m = A.Height();
     const int n = A.Width();
     const int minDim = std::min(m,n);
-    const int offset = A.Width()-A.Height();
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
@@ -38,10 +36,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    ApplyPackedReflectors
-    ( RIGHT, LOWER, HORIZONTAL, BACKWARD, UNCONJUGATED, offset, A, t, Z );
-    ApplyPackedReflectors
-    ( RIGHT, LOWER, HORIZONTAL, FORWARD, CONJUGATED, offset, A, t, Z );
+    rq::Apply( RIGHT, NORMAL, A, t, Z );
+    rq::Apply( RIGHT, ADJOINT, A, t, Z );
     
     DistMatrix<F> ZUpper(g);
     View( ZUpper, Z, 0, 0, minDim, minDim );
@@ -69,8 +65,7 @@ void TestCorrectness
     // Form RQ
     DistMatrix<F> U( A );
     MakeTrapezoidal( UPPER, U, 0, RIGHT );
-    ApplyPackedReflectors
-    ( RIGHT, LOWER, HORIZONTAL, FORWARD, UNCONJUGATED, offset, A, t, U );
+    rq::Apply( RIGHT, NORMAL, A, t, U );
 
     // Form R Q - A
     Axpy( F(-1), AOrig, U );

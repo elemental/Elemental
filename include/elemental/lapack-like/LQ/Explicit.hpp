@@ -11,7 +11,6 @@
 #define LAPACK_LQ_EXPLICIT_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/LQ.hpp"
 #include "elemental/matrices/Identity.hpp"
 
@@ -31,8 +30,7 @@ Explicit( Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    ApplyPackedReflectors
-    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
+    lq::Apply( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -51,8 +49,7 @@ Explicit( DistMatrix<F>& A )
     DistMatrix<F> Q( g );
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
-    ApplyPackedReflectors
-    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
+    lq::Apply( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -71,8 +68,7 @@ Explicit( Matrix<F>& L, Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    ApplyPackedReflectors
-    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
+    lq::Apply( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -92,8 +88,7 @@ Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q( g );
     Identity( Q, A.Height(), A.Width() );
-    ApplyPackedReflectors
-    ( RIGHT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, A, t, Q );
+    lq::Apply( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 

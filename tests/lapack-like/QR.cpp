@@ -9,7 +9,6 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
@@ -37,10 +36,8 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, Z );
-    ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, Z );
+    qr::Apply( LEFT, NORMAL, A, t, Z );
+    qr::Apply( LEFT, ADJOINT, A, t, Z );
     
     DistMatrix<F> ZUpper(g);
     View( ZUpper, Z, 0, 0, minDim, minDim );
@@ -68,8 +65,7 @@ void TestCorrectness
     // Form Q R
     DistMatrix<F> U( A );
     MakeTriangular( UPPER, U );
-    ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, U );
+    qr::Apply( LEFT, NORMAL, A, t, U );
 
     // Form Q R - A
     Axpy( F(-1), AOrig, U );

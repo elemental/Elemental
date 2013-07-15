@@ -10,7 +10,7 @@
 #ifndef LAPACK_RQ_HOUSEHOLDER_HPP
 #define LAPACK_RQ_HOUSEHOLDER_HPP
 
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/RQ/Apply.hpp"
 #include "elemental/lapack-like/RQ/PanelHouseholder.hpp"
 
 namespace elem {
@@ -60,9 +60,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         View1x2( ABottomPan, A10, A11 );
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
-        ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
-          ABottomPan.Width()-ABottomPan.Height(), ABottomPan, t1, ATopPan ); 
+        Apply( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionUp
@@ -149,9 +147,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         View1x2( ABottomPan, A10, A11 );
         //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
-        ApplyPackedReflectors
-        ( RIGHT, LOWER, HORIZONTAL, BACKWARD, CONJUGATED, 
-          ABottomPan.Width()-ABottomPan.Height(), ABottomPan, t1, ATopPan );
+        Apply( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionUp

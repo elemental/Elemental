@@ -10,6 +10,7 @@
 #ifndef LAPACK_LQ_HPP
 #define LAPACK_LQ_HPP
 
+#include "elemental/lapack-like/LQ/Apply.hpp"
 #include "elemental/lapack-like/LQ/Householder.hpp"
 #include "elemental/lapack-like/LQ/Explicit.hpp"
 

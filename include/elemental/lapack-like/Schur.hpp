@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Sign.hpp"
@@ -36,6 +35,7 @@ NewtonSDC( Matrix<F>& A )
     CallStackEntry cse("schur::NewtonSDC");
 #endif
     typedef BASE(F) R;
+    const int n = A.Height();
     const R oneA = OneNorm( A );
 
     // S := sgn(A)
@@ -43,7 +43,6 @@ NewtonSDC( Matrix<F>& A )
     Sign( S );
 
     // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    const int n = A.Height();
     Matrix<F> B; 
     Identity( B, n, n );
     Axpy( F(1), S, B );
@@ -59,10 +58,8 @@ NewtonSDC( Matrix<F>& A )
     QR( B, t, p );
 
     // A := Q^H A Q
-    ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, B, t, A );
-    ApplyPackedReflectors
-    ( RIGHT, LOWER, VERTICAL, FORWARD, UNCONJUGATED, 0, B, t, A );
+    qr::Apply( LEFT, ADJOINT, B, t, A );
+    qr::Apply( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
     Matrix<F> E21;
@@ -78,6 +75,8 @@ NewtonSDC( DistMatrix<F>& A )
     CallStackEntry cse("schur::NewtonSDC");
 #endif
     typedef BASE(F) R;
+    const int n = A.Height();
+    const Grid& g = A.Grid();
     const R oneA = OneNorm( A );
 
     // S := sgn(A)
@@ -85,8 +84,6 @@ NewtonSDC( DistMatrix<F>& A )
     Sign( S );
 
     // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    const int n = A.Height();
-    const Grid& g = A.Grid();
     DistMatrix<F> B(g);
     Identity( B, n, n );
     Axpy( F(1), S, B );
@@ -102,10 +99,8 @@ NewtonSDC( DistMatrix<F>& A )
     QR( B, t, p );
 
     // A := Q^H A Q
-    ApplyPackedReflectors
-    ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, B, t, A );
-    ApplyPackedReflectors
-    ( RIGHT, LOWER, VERTICAL, FORWARD, UNCONJUGATED, 0, B, t, A );
+    qr::Apply( LEFT, ADJOINT, B, t, A );
+    qr::Apply( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
     DistMatrix<F> E21(g);

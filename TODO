@@ -2,6 +2,7 @@ Functionality
 =============
 - Test results of new Lyapunov/Sylvester/Ricatti solvers
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
+- 'PartitionTracker' class instead of Repartition/SlidePartition
 - Way for DistMatrix with single process to view Matrix, and operator=
 - (Generalized) Spectral Divide and Conquer
 - More Sign algorithms
@@ -9,6 +10,7 @@ Functionality
 - Power-method-like p-norm estimation (especially when p=2)
 - Support for BLIS and fused Trmv's to accelerate HermitianEig
 - Transpose option for LeastSquares
+- QL factorization
 - Strong RRQR and RRLQ 
 - CUR decompositions (already have (pseudo-)skeleton)
 - Complete Orthogonal Decompositions (especially URV)
@@ -38,7 +40,6 @@ Maintenance
 - Update documentation for new special matrices
 - Update documentation for imported routines (and in general)
 - References for Interpolative and Skeleton Decomposition 
-- Experiment with using scope to avoid SlidePartition
 - Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
 - Consistent handling of unblocked routines

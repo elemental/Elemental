@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Zero.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/LQ.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
@@ -47,8 +46,7 @@ LeastSquares
             X = B;
 
             // Apply Q' to X
-            ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, X );
+            qr::Apply( LEFT, ADJOINT, A, t, X );
 
             // Shrink X to its new height
             X.ResizeTo( n, X.Width() );
@@ -79,8 +77,7 @@ LeastSquares
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
-            ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, X );
+            lq::Apply( LEFT, ADJOINT, A, t, X );
         }
     }
     else // orientation == ADJOINT
@@ -109,8 +106,7 @@ LeastSquares
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
-            ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, X );
+            qr::Apply( LEFT, NORMAL, A, t, X );
         }
         else
         {
@@ -122,8 +118,7 @@ LeastSquares
             X = B;
 
             // Apply Q to X
-            ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, UNCONJUGATED, 0, A, t, X );
+            lq::Apply( LEFT, NORMAL, A, t, X );
 
             // Shrink X to its new height
             X.ResizeTo( m, X.Width() );
@@ -170,8 +165,7 @@ LeastSquares
             X = B;
 
             // Apply Q' to X
-            ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, FORWARD, CONJUGATED, 0, A, t, X );
+            qr::Apply( LEFT, ADJOINT, A, t, X );
 
             // Shrink X to its new height
             X.ResizeTo( n, X.Width() );
@@ -202,8 +196,7 @@ LeastSquares
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
-            ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, BACKWARD, CONJUGATED, 0, A, t, X );
+            lq::Apply( LEFT, ADJOINT, A, t, X );
         }
     }
     else // orientation == ADJOINT
@@ -232,8 +225,7 @@ LeastSquares
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
-            ApplyPackedReflectors
-            ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, A, t, X );
+            qr::Apply( LEFT, NORMAL, A, t, X );
         }
         else
         {
@@ -245,8 +237,7 @@ LeastSquares
             X = B;
 
             // Apply Q to X
-            ApplyPackedReflectors
-            ( LEFT, UPPER, HORIZONTAL, FORWARD, UNCONJUGATED, 0, A, t, X );
+            lq::Apply( LEFT, NORMAL, A, t, X );
 
             // Shrink X to its new height
             X.ResizeTo( m, X.Width() );
