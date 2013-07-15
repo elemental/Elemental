@@ -69,6 +69,7 @@ Sets :math:`A` to an :math:`n \times n` matrix with the :math:`(i,j)` entry
 equal to
 
 .. math::
+
    \exp(i \phi(i,j)).
 
 .. cpp:function:: void Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, int n )
@@ -203,7 +204,9 @@ entry :math:`(i,j)` is equal to :math:`1/(i+j+1)`.
 HermitianFromEVD
 ----------------
 Form
+
 .. math::
+
    A := Z \Omega Z^H,
 
 where :math:`\Omega` is a real diagonal matrix.
@@ -336,7 +339,9 @@ MinIJ
 NormalFromEVD
 -------------
 Form
+
 .. math::
+
    A := Z \Omega Z^H,
 
 where :math:`\Omega` is a complex diagonal matrix.
