@@ -10,7 +10,7 @@
 #ifndef LAPACK_RQ_HPP
 #define LAPACK_RQ_HPP
 
-#include "elemental/lapack-like/RQ/Apply.hpp"
+#include "elemental/lapack-like/RQ/ApplyQ.hpp"
 #include "elemental/lapack-like/RQ/Cholesky.hpp"
 #include "elemental/lapack-like/RQ/Householder.hpp"
 

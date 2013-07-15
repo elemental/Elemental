@@ -9,7 +9,7 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
@@ -57,28 +57,8 @@ void TestCorrectness
         Print( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    if( uplo == LOWER )
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, 
-          UNCONJUGATED, subdiagonal, A, t, B );
-        if( print )
-            Print( B, "Partially rotated tridiagonal" );
-        ApplyPackedReflectors
-        ( RIGHT, LOWER, VERTICAL, BACKWARD, 
-          CONJUGATED, subdiagonal, A, t, B );
-    }
-    else
-    {
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, 
-          UNCONJUGATED, subdiagonal, A, t, B );
-        if( print )
-            Print( B, "Partially rotated tridiagonal" );
-        ApplyPackedReflectors
-        ( RIGHT, UPPER, VERTICAL, FORWARD, 
-          CONJUGATED, subdiagonal, A, t, B );
-    }
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     if( print )
         Print( B, "Rotated tridiagonal" );
 

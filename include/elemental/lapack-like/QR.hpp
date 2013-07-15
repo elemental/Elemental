@@ -10,7 +10,7 @@
 #ifndef LAPACK_QR_HPP
 #define LAPACK_QR_HPP
 
-#include "elemental/lapack-like/QR/Apply.hpp"
+#include "elemental/lapack-like/QR/ApplyQ.hpp"
 #include "elemental/lapack-like/QR/BusingerGolub.hpp"
 #include "elemental/lapack-like/QR/Cholesky.hpp"
 #include "elemental/lapack-like/QR/Householder.hpp"

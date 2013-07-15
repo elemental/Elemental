@@ -36,8 +36,8 @@ void TestCorrectness
     // Form Z := Q^H Q as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    qr::Apply( LEFT, NORMAL, A, t, Z );
-    qr::Apply( LEFT, ADJOINT, A, t, Z );
+    qr::ApplyQ( LEFT, NORMAL, A, t, Z );
+    qr::ApplyQ( LEFT, ADJOINT, A, t, Z );
     
     DistMatrix<F> ZUpper(g);
     View( ZUpper, Z, 0, 0, minDim, minDim );
@@ -65,7 +65,7 @@ void TestCorrectness
     // Form Q R
     DistMatrix<F> U( A );
     MakeTriangular( UPPER, U );
-    qr::Apply( LEFT, NORMAL, A, t, U );
+    qr::ApplyQ( LEFT, NORMAL, A, t, U );
 
     // Form Q R - A
     Axpy( F(-1), AOrig, U );

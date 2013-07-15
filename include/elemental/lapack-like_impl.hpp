@@ -24,6 +24,7 @@
 #include "./lapack-like/HermitianEig.hpp"
 #include "./lapack-like/HermitianFunction.hpp"
 #include "./lapack-like/HermitianGenDefiniteEig.hpp"
+#include "./lapack-like/HermitianTridiag.hpp"
 #include "./lapack-like/HilbertSchmidt.hpp"
 #include "./lapack-like/HPDSolve.hpp"
 #include "./lapack-like/ID.hpp"

@@ -58,8 +58,8 @@ NewtonSDC( Matrix<F>& A )
     QR( B, t, p );
 
     // A := Q^H A Q
-    qr::Apply( LEFT, ADJOINT, B, t, A );
-    qr::Apply( RIGHT, NORMAL, B, t, A );
+    qr::ApplyQ( LEFT, ADJOINT, B, t, A );
+    qr::ApplyQ( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
     Matrix<F> E21;
@@ -99,8 +99,8 @@ NewtonSDC( DistMatrix<F>& A )
     QR( B, t, p );
 
     // A := Q^H A Q
-    qr::Apply( LEFT, ADJOINT, B, t, A );
-    qr::Apply( RIGHT, NORMAL, B, t, A );
+    qr::ApplyQ( LEFT, ADJOINT, B, t, A );
+    qr::ApplyQ( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
     DistMatrix<F> E21(g);

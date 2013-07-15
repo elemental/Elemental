@@ -10,7 +10,7 @@
 #ifndef LAPACK_QR_HOUSEHOLDER_HPP
 #define LAPACK_QR_HOUSEHOLDER_HPP
 
-#include "elemental/lapack-like/QR/Apply.hpp"
+#include "elemental/lapack-like/QR/ApplyQ.hpp"
 #include "elemental/lapack-like/QR/PanelHouseholder.hpp"
 
 namespace elem {
@@ -76,7 +76,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 
         //--------------------------------------------------------------------//
         PanelHouseholder( ALeftPan, t1 );
-        Apply( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
+        ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
@@ -167,7 +167,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
         //--------------------------------------------------------------------//
         PanelHouseholder( ALeftPan, t1 );
-        Apply( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
+        ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown

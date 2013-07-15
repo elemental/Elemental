@@ -12,7 +12,6 @@
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/blas-like/level1/Transpose.hpp"
-#include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Bidiag.hpp"
 #include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Zeros.hpp"
@@ -105,20 +104,8 @@ GolubReinschUpper
     }
 
     // Backtransform U and V
-    if( m >= n )
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, B, tQ, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 1, B, tP, V );
-    }
-    else
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, -1, B, tQ, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, B, tP, V );
-    }
+    bidiag::ApplyU( LEFT, NORMAL, B, tQ, A );
+    bidiag::ApplyV( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;
@@ -202,20 +189,8 @@ GolubReinschUpper_FLA
     }
 
     // Backtransform U and V
-    if( m >= n )
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 0, B, tQ, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 1, B, tP, V );
-    }
-    else
-    {
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, -1, B, tQ, A );
-        ApplyPackedReflectors
-        ( LEFT, UPPER, HORIZONTAL, BACKWARD, UNCONJUGATED, 0, B, tP, V );
-    }
+    bidiag::ApplyU( LEFT, NORMAL, B, tQ, A );
+    bidiag::ApplyV( LEFT, NORMAL, B, tP, V );
 
     // Copy out the appropriate subset of the singular values
     s = d_STAR_STAR;

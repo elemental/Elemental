@@ -10,6 +10,7 @@
 #ifndef LAPACK_BIDIAG_HPP
 #define LAPACK_BIDIAG_HPP
 
+#include "./Bidiag/Apply.hpp"
 #include "./Bidiag/PanelL.hpp"
 #include "./Bidiag/PanelU.hpp"
 #include "./Bidiag/L.hpp"

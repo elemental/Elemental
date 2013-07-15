@@ -36,8 +36,8 @@ void TestCorrectness
     // Form Z := Q Q^H as an approximation to identity
     DistMatrix<F> Z(g);
     Identity( Z, m, n );
-    rq::Apply( RIGHT, NORMAL, A, t, Z );
-    rq::Apply( RIGHT, ADJOINT, A, t, Z );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, Z );
+    rq::ApplyQ( RIGHT, ADJOINT, A, t, Z );
     
     DistMatrix<F> ZUpper(g);
     View( ZUpper, Z, 0, 0, minDim, minDim );
@@ -65,7 +65,7 @@ void TestCorrectness
     // Form RQ
     DistMatrix<F> U( A );
     MakeTrapezoidal( UPPER, U, 0, RIGHT );
-    rq::Apply( RIGHT, NORMAL, A, t, U );
+    rq::ApplyQ( RIGHT, NORMAL, A, t, U );
 
     // Form R Q - A
     Axpy( F(-1), AOrig, U );

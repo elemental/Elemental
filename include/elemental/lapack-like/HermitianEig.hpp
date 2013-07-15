@@ -12,6 +12,7 @@
 
 // NOTE: HermitianEig declarations are in lapack-like_decl.hpp
 
+#include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/HermitianEig/Sort.hpp"
 
 #endif // ifndef LAPACK_HERMITIANEIG_HPP

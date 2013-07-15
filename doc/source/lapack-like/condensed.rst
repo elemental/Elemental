@@ -11,9 +11,6 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
 
 .. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A )
 .. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A )
-
-
-
 .. cpp:function:: void HermitianTridiag( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& t )
 .. cpp:function:: void HermitianTridiag( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
@@ -27,6 +24,17 @@ and stores the scaled Householder vectors in place of the introduced zeroes.
 
 Please see the :ref:`lapack-tuning` section for extensive information on 
 maximizing the performance of Householder tridiagonalization.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void hermitian_tridiag::ApplyQ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void hermitian_tridiag::ApplyQ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void hermitian_tridiag::ApplyQ( LeftOrRight side, UpperOrLower uplo, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
+
+   Apply (from the left or right) the implicitly defined unitary matrix 
+   (or its adjoint) represented by the Householder transformations stored within
+   the specified triangle of `A` and the phase information stored in `t`.
 
 General to Hessenberg
 ---------------------
@@ -54,3 +62,16 @@ matrix.
 
    .. note:: The :math:`m < n` case is not yet supported for the distributed 
              version.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+**TODO**
+
+.. cpp:function:: void ApplyU( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void ApplyU( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void ApplyU( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
+
+.. cpp:function:: void ApplyV( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void ApplyV( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void ApplyV( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
+

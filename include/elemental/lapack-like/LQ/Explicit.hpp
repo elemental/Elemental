@@ -30,7 +30,7 @@ Explicit( Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::Apply( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -49,7 +49,7 @@ Explicit( DistMatrix<F>& A )
     DistMatrix<F> Q( g );
     Q.AlignWith( A );
     Identity( Q, A.Height(), A.Width() );
-    lq::Apply( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -68,7 +68,7 @@ Explicit( Matrix<F>& L, Matrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     Matrix<F> Q;
     Identity( Q, A.Height(), A.Width() );
-    lq::Apply( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 
@@ -88,7 +88,7 @@ Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
     // TODO: Replace this with an in-place expansion of Q
     DistMatrix<F> Q( g );
     Identity( Q, A.Height(), A.Width() );
-    lq::Apply( RIGHT, NORMAL, A, t, Q );
+    lq::ApplyQ( RIGHT, NORMAL, A, t, Q );
     A = Q;
 }
 

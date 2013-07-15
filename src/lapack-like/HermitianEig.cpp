@@ -11,6 +11,7 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 
 // TODO: Make this code much more precise
@@ -583,14 +584,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); // We can simply shrink matrices
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -753,14 +747,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() ); 
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1154,14 +1141,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED,
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1327,14 +1307,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1725,14 +1698,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED,
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )
@@ -1911,14 +1877,7 @@ void HermitianEig
 
     // Backtransform the tridiagonal eigenvectors, Z
     paddedZ.ResizeTo( A.Height(), w.Height() );
-    if( uplo == LOWER )
-        ApplyPackedReflectors
-        ( LEFT, LOWER, VERTICAL, BACKWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
-    else
-        ApplyPackedReflectors
-        ( LEFT, UPPER, VERTICAL, FORWARD, UNCONJUGATED, 
-          subdiagonal, A, t, paddedZ );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, paddedZ );
 
     // Rescale the eigenvalues if necessary
     if( needRescaling )

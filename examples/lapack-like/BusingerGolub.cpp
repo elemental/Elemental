@@ -87,7 +87,7 @@ main( int argc, char* argv[] )
         // || A P - Q R ||_F / || A ||_F
         DistMatrix<C> E( QRPiv );
         MakeTriangular( UPPER, E );
-        qr::Apply( LEFT, NORMAL, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
         ApplyInverseColumnPivots( E, p ); 
         Axpy( C(-1), A, E );
         const Real frobQRPiv = FrobeniusNorm( E );
@@ -100,7 +100,7 @@ main( int argc, char* argv[] )
         // || A - Q R ||_F / || A ||_F
         E = QRNoPiv;
         MakeTriangular( UPPER, E );
-        qr::Apply( LEFT, NORMAL, QRNoPiv, tNoPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRNoPiv, tNoPiv, E );
         Axpy( C(-1), A, E );
         const Real frobQRNoPiv = FrobeniusNorm( E );
         if( display )
@@ -110,8 +110,8 @@ main( int argc, char* argv[] )
 
         // Check orthogonality of pivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
-        qr::Apply( LEFT, NORMAL, QRPiv, tPiv, E );
-        qr::Apply( LEFT, ADJOINT, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, E );
         const int k = std::min(m,n);
         DistMatrix<C> EUpper;
         View( EUpper, E, 0, 0, k, k );
@@ -126,8 +126,8 @@ main( int argc, char* argv[] )
 
         // Check orthogonality of unpivoted Q, || I - Q^H Q ||_F / || A ||_F
         Identity( E, m, n );
-        qr::Apply( LEFT, NORMAL, QRPiv, tPiv, E );
-        qr::Apply( LEFT, ADJOINT, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
+        qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, E );
         View( EUpper, E, 0, 0, k, k );
         Identity( I, k, k );
         Axpy( C(-1), I, EUpper );

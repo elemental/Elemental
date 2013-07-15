@@ -146,8 +146,9 @@ trapezoid.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void lq::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
-.. cpp:function:: void lq::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void lq::ApplyQ( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void lq::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void lq::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 
    Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
    `A` and `t` from either the left or the right to :math:`B`.
@@ -186,8 +187,9 @@ trapezoid.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
-.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 
    Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
    `A` and `t` from either the left or the right to :math:`B`.
@@ -236,8 +238,9 @@ much sparser triangular factor when the matrix is wider than it is tall.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
-.. cpp:function:: void qr::Apply( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void rq::ApplyQ( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
+.. cpp:function:: void rq::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
+.. cpp:function:: void rq::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )
 
    Applies the implicitly-defined :math:`Q` (or its adjoint) stored within
    `A` and `t` from either the left or the right to :math:`B`.

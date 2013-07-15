@@ -10,7 +10,7 @@
 #ifndef LAPACK_LQ_HOUSEHOLDER_HPP
 #define LAPACK_LQ_HOUSEHOLDER_HPP
 
-#include "elemental/lapack-like/LQ/Apply.hpp"
+#include "elemental/lapack-like/LQ/ApplyQ.hpp"
 #include "elemental/lapack-like/LQ/PanelHouseholder.hpp"
 
 namespace elem {
@@ -70,7 +70,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
         View1x2( ABottomPan, A21, A22 );
         //--------------------------------------------------------------------//
         PanelHouseholder( ATopPan, t1 );
-        Apply( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
+        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
@@ -155,7 +155,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         View1x2( ABottomPan, A21, A22 );
         //--------------------------------------------------------------------//
         PanelHouseholder( ATopPan, t1 );
-        Apply( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
+        ApplyQ( RIGHT, ADJOINT, ATopPan, t1, ABottomPan );
         //--------------------------------------------------------------------//
 
         SlidePartitionDown
