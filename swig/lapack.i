@@ -160,11 +160,12 @@ OVERLOAD0(Bidiag)
 /*
  * EIGENSOLVERS AND SVD
  */
-// TODO: HermitianSign, Sign, and QDWH
+// TODO: HermitianSign and QDWH
  
 %include "elemental/lapack-like/HermitianEig/Sort.hpp"
 %include "elemental/lapack-like/SkewHermitianEig.hpp"
 %include "elemental/lapack-like/HermitianGenDefiniteEig.hpp"
+%include "elemental/lapack-like/Sign.hpp"
 %include "elemental/lapack-like/SVD.hpp"
 %include "elemental/lapack-like/Polar.hpp"
 // %include "elemental/lapack-like/Polar/QDWH.hpp"
@@ -180,6 +181,7 @@ OVERLOAD0(Polar)
 namespace polar { 
 //OVERLOAD0(QDWH)
 };
+OVERLOAD0(Sign)
 OVERLOAD0(SVD)
 };
 

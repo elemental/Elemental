@@ -36,11 +36,11 @@ Ricatti( Matrix<F>& W, Matrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("Ricatti");
 #endif
-    const int numIts = Sign( W );
+    const int numIts = sign::Newton( W );
     const int n = W.Height()/2;
     Matrix<F> WTL, WTR,
               WBL, WBR;
-    PartititionDownDiagonal
+    PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
 
@@ -67,11 +67,11 @@ Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
     CallStackEntry cse("Ricatti");
 #endif
     const Grid& g = W.Grid();
-    const int numIts = Sign( W );
+    const int numIts = sign::Newton( W );
     const int n = W.Height()/2;
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
-    PartititionDownDiagonal
+    PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, n );
 
@@ -106,8 +106,6 @@ Ricatti
         throw std::logic_error("L must be square");
     if( A.Height() != K.Height() || A.Height() != L.Height() )
         throw std::logic_error("A, K, and L must be the same size");
-    if( A.Grid() != K.Grid() || K.Grid() != L.Grid() )
-        throw std::logic_error("A, K, and L must have the same grid");
 #endif
     const int n = A.Height();
     Matrix<F> W, WTL, WTR,

@@ -25,6 +25,7 @@ from elem_lapack import *
 from elem_view import *
 from elem_matrices import *
 from elem_convex import *
+from elem_control import *
 from elem_io import *
 import elem_mpi
 %}

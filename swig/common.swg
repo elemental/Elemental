@@ -47,7 +47,7 @@ class SwigException : public std::runtime_error {
     int type_;
 public:
     SwigException( int type, const char* msg )
-    : type_(type), std::runtime_error(msg) {}
+    : std::runtime_error(msg), type_(type) {}
     int type() const throw() { return type_; }
 };
     

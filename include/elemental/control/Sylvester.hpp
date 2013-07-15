@@ -35,10 +35,10 @@ Sylvester( int m, Matrix<F>& W, Matrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
 #endif
-    const int numIts = Sign( W );
+    const int numIts = sign::Newton( W );
     Matrix<F> WTL, WTR,
               WBL, WBR;
-    PartititionDownDiagonal
+    PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
     // WTL and WBR should be the positive and negative identity, WBL should be 
@@ -72,10 +72,10 @@ Sylvester( int m, DistMatrix<F>& W, DistMatrix<F>& X )
     CallStackEntry cse("Sylvester");
 #endif
     const Grid& g = W.Grid();
-    const int numIts = Sign( W );
+    const int numIts = sign::Newton( W );
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
-    PartititionDownDiagonal
+    PartitionDownDiagonal
     ( W, WTL, WTR,
          WBL, WBR, m );
     // WTL and WBR should be the positive and negative identity, WBL should be 
