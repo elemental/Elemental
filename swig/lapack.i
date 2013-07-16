@@ -151,6 +151,7 @@ OVERLOAD0(TriangularInverse)
 
 %include "elemental/lapack-like_decl.hpp"
 %include "elemental/lapack-like/Bidiag.hpp"
+%include "elemental/lapack-like/HermitianTridiag.hpp"
 
 namespace elem {
 OVERLOAD0(HermitianTridiag)
