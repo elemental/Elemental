@@ -1,11 +1,9 @@
 Control theory
 **************
 
-.. note::
-   The following algorithms draw heavily from the second chapter of 
-   Nicholas J. Higham's "Functions of Matrices: Theory and Computation", depend
-   heavily on the matrix sign function, and are, as of yet, untested and 
-   unoptimized.
+The following algorithms draw heavily from the second chapter of 
+Nicholas J. Higham's "Functions of Matrices: Theory and Computation" and depend
+heavily on the matrix sign function. They have only undergone cursory testing.
 
 Sylvester
 ---------
