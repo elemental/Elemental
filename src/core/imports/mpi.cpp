@@ -33,31 +33,28 @@ namespace mpi {
 
 // NOTE: This data structure is inspired by Justin Holewinski's blog post at
 //       http://jholewinski.org/blog/the-beauty-of-c-templates/
+//       and a later suggestion by Wolfgang Bangerth on SciComp that the type 
+//       be made static const.
 template<typename T>
-struct MpiMap
-{
-    Datatype type;
-    MpiMap();
-};
-
+struct MpiMap { static const Datatype type; };
 template<>
-MpiMap<byte>::MpiMap() : type(MPI_UNSIGNED_CHAR) { }
+const Datatype MpiMap<byte>::type              = MPI_UNSIGNED_CHAR;
 template<>
-MpiMap<int>::MpiMap() : type(MPI_INT) { }
+const Datatype MpiMap<int>::type               = MPI_INT;
 template<>
-MpiMap<float>::MpiMap() : type(MPI_FLOAT) { }
+const Datatype MpiMap<float>::type             = MPI_FLOAT;
 template<>
-MpiMap<double>::MpiMap() : type(MPI_DOUBLE) { }
+const Datatype MpiMap<double>::type            = MPI_DOUBLE;
 template<>
-MpiMap<Complex<float> >::MpiMap() : type(MPI_COMPLEX) { }
+const Datatype MpiMap<Complex<float> >::type   = MPI_COMPLEX;
 template<>
-MpiMap<Complex<double> >::MpiMap() : type(MPI_DOUBLE_COMPLEX) { }
+const Datatype MpiMap<Complex<double> >::type  = MPI_DOUBLE_COMPLEX;
 template<>
-MpiMap<ValueInt<int> >::MpiMap() : type(MPI_2INT) { }
+const Datatype MpiMap<ValueInt<int> >::type    = MPI_2INT;
 template<>
-MpiMap<ValueInt<float> >::MpiMap() : type(MPI_FLOAT_INT) { }
+const Datatype MpiMap<ValueInt<float> >::type  = MPI_FLOAT_INT;
 template<>
-MpiMap<ValueInt<double> >::MpiMap() : type(MPI_DOUBLE_INT) { }
+const Datatype MpiMap<ValueInt<double> >::type = MPI_DOUBLE_INT;
 
 //----------------------------//
 // MPI environmental routines //
@@ -224,11 +221,10 @@ void CartCreate
 #ifndef RELEASE
     CallStackEntry entry("mpi::CartCreate");
 #endif
-    SafeMpi( 
-        MPI_Cart_create
-        ( comm, numDims, const_cast<int*>(dimensions), 
-          const_cast<int*>(periods), reorder, &cartComm ) 
-    );
+    SafeMpi
+    ( MPI_Cart_create
+      ( comm, numDims, const_cast<int*>(dimensions), 
+        const_cast<int*>(periods), reorder, &cartComm ) );
 }
 
 void CartSub( Comm comm, const int* remainingDims, Comm& subComm )
@@ -302,10 +298,9 @@ void GroupTranslateRanks
 #ifndef RELEASE
     CallStackEntry entry("mpi::GroupTranslateRanks");
 #endif
-    SafeMpi( 
-        MPI_Group_translate_ranks
-        ( origGroup, size, const_cast<int*>(origRanks), newGroup, newRanks ) 
-    );
+    SafeMpi
+    ( MPI_Group_translate_ranks
+      ( origGroup, size, const_cast<int*>(origRanks), newGroup, newRanks ) );
 }
 
 // Wait until every process in comm reaches this statement
@@ -385,8 +380,7 @@ int GetCount( Status& status )
     CallStackEntry entry("mpi::GetCount");
 #endif
     int count;
-    MpiMap<T> map;
-    SafeMpi( MPI_Get_count( &status, map.type, &count ) );
+    SafeMpi( MPI_Get_count( &status, MpiMap<T>::type, &count ) );
     return count;
 }
 template int GetCount<byte>( Status& status );
@@ -402,8 +396,8 @@ void Send( const R* buf, int count, int to, int tag, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::Send");
 #endif
-    MpiMap<R> map;
-    SafeMpi( MPI_Send( const_cast<R*>(buf), count, map.type, to, tag, comm ) );
+    SafeMpi
+    ( MPI_Send( const_cast<R*>(buf), count, MpiMap<R>::type, to, tag, comm ) );
 }
 
 template<typename R>
@@ -413,17 +407,15 @@ void Send( const Complex<R>* buf, int count, int to, int tag, Comm comm )
     CallStackEntry entry("mpi::Send");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Send
-        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm )
-    );
+    SafeMpi
+    ( MPI_Send
+      ( const_cast<Complex<R>*>(buf), 2*count, MpiMap<R>::type, to, 
+        tag, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Send
-        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm )
-    );
+    SafeMpi
+    ( MPI_Send
+      ( const_cast<Complex<R>*>(buf), count, 
+        MpiMap<Complex<R> >::type, to, tag, comm ) );
 #endif
 }
 
@@ -441,11 +433,10 @@ void ISend
 #ifndef RELEASE
     CallStackEntry entry("mpi::ISend");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<R*>(buf), count, map.type, to, tag, comm, &request )
-    );
+    SafeMpi
+    ( MPI_Isend
+      ( const_cast<R*>(buf), count, MpiMap<R>::type, to, 
+        tag, comm, &request ) );
 }
 
 template<typename R>
@@ -457,19 +448,15 @@ void ISend
     CallStackEntry entry("mpi::ISend");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Isend
-        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm,
-          &request )
-    );
+    SafeMpi
+    ( MPI_Isend
+      ( const_cast<Complex<R>*>(buf), 2*count, MpiMap<R>::type, to, tag, comm,
+        &request ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Isend
-        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm,
-          &request )
-    );
+    SafeMpi
+    ( MPI_Isend
+      ( const_cast<Complex<R>*>(buf), count, 
+        MpiMap<Complex<R> >::type, to, tag, comm, &request ) );
 #endif
 }
 
@@ -487,11 +474,10 @@ void ISSend
 #ifndef RELEASE
     CallStackEntry entry("mpi::ISSend");
 #endif
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<R*>(buf), count, map.type, to, tag, comm, &request )
-    );
+    SafeMpi
+    ( MPI_Issend
+      ( const_cast<R*>(buf), count, MpiMap<R>::type, to, 
+        tag, comm, &request ) );
 }
 
 template<typename R>
@@ -503,19 +489,15 @@ void ISSend
     CallStackEntry entry("mpi::ISSend");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<Complex<R>*>(buf), 2*count, map.type, to, tag, comm,
-          &request )
-    );
+    SafeMpi
+    ( MPI_Issend
+      ( const_cast<Complex<R>*>(buf), 2*count, MpiMap<R>::type, to, tag, comm,
+        &request ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi(
-        MPI_Issend
-        ( const_cast<Complex<R>*>(buf), count, map.type, to, tag, comm,
-          &request )
-    );
+    SafeMpi
+    ( MPI_Issend
+      ( const_cast<Complex<R>*>(buf), count, 
+        MpiMap<Complex<R> >::type, to, tag, comm, &request ) );
 #endif
 }
 
@@ -532,9 +514,9 @@ void Recv( R* buf, int count, int from, int tag, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::Recv");
 #endif
-    MpiMap<R> map;
     Status status;
-    SafeMpi( MPI_Recv( buf, count, map.type, from, tag, comm, &status ) );
+    SafeMpi
+    ( MPI_Recv( buf, count, MpiMap<R>::type, from, tag, comm, &status ) );
 }
 
 template<typename R>
@@ -545,11 +527,12 @@ void Recv( Complex<R>* buf, int count, int from, int tag, Comm comm )
 #endif
     Status status;
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi( MPI_Recv( buf, 2*count, map.type, from, tag, comm, &status ) );
+    SafeMpi
+    ( MPI_Recv( buf, 2*count, MpiMap<R>::type, from, tag, comm, &status ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( MPI_Recv( buf, count, map.type, from, tag, comm, &status ) );
+    SafeMpi
+    ( MPI_Recv
+      ( buf, count, MpiMap<Complex<R> >::type, from, tag, comm, &status ) );
 #endif
 }
 
@@ -566,8 +549,8 @@ void IRecv( R* buf, int count, int from, int tag, Comm comm, Request& request )
 #ifndef RELEASE
     CallStackEntry entry("mpi::IRecv");
 #endif
-    MpiMap<R> map;
-    SafeMpi( MPI_Irecv( buf, count, map.type, from, tag, comm, &request ) );
+    SafeMpi
+    ( MPI_Irecv( buf, count, MpiMap<R>::type, from, tag, comm, &request ) );
 }
 
 template<typename R>
@@ -578,11 +561,12 @@ void IRecv
     CallStackEntry entry("mpi::IRecv");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi( MPI_Irecv( buf, 2*count, map.type, from, tag, comm, &request ) );
+    SafeMpi
+    ( MPI_Irecv( buf, 2*count, MpiMap<R>::type, from, tag, comm, &request ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( MPI_Irecv( buf, count, map.type, from, tag, comm, &request ) );
+    SafeMpi
+    ( MPI_Irecv
+      ( buf, count, MpiMap<Complex<R> >::type, from, tag, comm, &request ) );
 #endif
 }
 
@@ -602,12 +586,11 @@ void SendRecv
     CallStackEntry entry("mpi::SendRecv");
 #endif
     Status status;
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<R*>(sbuf), sc, map.type, to,   stag,
-          rbuf,                 rc, map.type, from, rtag, comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type, to,   stag,
+        rbuf,                 rc, MpiMap<R>::type, from, rtag, 
+        comm, &status ) );
 }
 
 template<typename R>
@@ -620,21 +603,18 @@ void SendRecv
 #endif
     Status status;
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Sendrecv
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type, to,   stag,
-          rbuf,                          2*rc, map.type, from, rtag, 
-          comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type, to,   stag,
+        rbuf,                          2*rc, MpiMap<R>::type, from, rtag, 
+        comm, &status ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Sendrecv
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type, to,   stag,
-          rbuf,                          rc, map.type, from, rtag, 
-          comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv
+      ( const_cast<Complex<R>*>(sbuf), 
+        sc, MpiMap<Complex<R> >::type, to,   stag,
+        rbuf,                          
+        rc, MpiMap<Complex<R> >::type, from, rtag, comm, &status ) );
 #endif
 }
 
@@ -665,11 +645,9 @@ void SendRecv
     CallStackEntry entry("mpi::SendRecv");
 #endif
     Status status;
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Sendrecv_replace
-        ( buf, count, map.type, to, stag, from, rtag, comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv_replace
+      ( buf, count, MpiMap<R>::type, to, stag, from, rtag, comm, &status ) );
 }
 
 template<typename R>
@@ -681,17 +659,14 @@ void SendRecv
 #endif
     Status status;
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Sendrecv_replace
-        ( buf, 2*count, map.type, to, stag, from, rtag, comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv_replace
+      ( buf, 2*count, MpiMap<R>::type, to, stag, from, rtag, comm, &status ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Sendrecv_replace
-        ( buf, count, map.type, to, stag, from, rtag, comm, &status )
-    );
+    SafeMpi
+    ( MPI_Sendrecv_replace
+      ( buf, count, MpiMap<Complex<R> >::type, 
+        to, stag, from, rtag, comm, &status ) );
 #endif
 }
 
@@ -716,8 +691,7 @@ void Broadcast( R* buf, int count, int root, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::Broadcast");
 #endif
-    MpiMap<R> map;
-    SafeMpi( MPI_Bcast( buf, count, map.type, root, comm ) );
+    SafeMpi( MPI_Bcast( buf, count, MpiMap<R>::type, root, comm ) );
 }
 
 template<typename R>
@@ -727,11 +701,9 @@ void Broadcast( Complex<R>* buf, int count, int root, Comm comm )
     CallStackEntry entry("mpi::Broadcast");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi( MPI_Bcast( buf, 2*count, map.type, root, comm ) );
+    SafeMpi( MPI_Bcast( buf, 2*count, MpiMap<R>::type, root, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( MPI_Bcast( buf, count, map.type, root, comm ) );
+    SafeMpi( MPI_Bcast( buf, count, MpiMap<Complex<R> >::type, root, comm ) );
 #endif
 }
 
@@ -749,8 +721,7 @@ void IBroadcast( R* buf, int count, int root, Comm comm, Request& request )
 #ifndef RELEASE
     CallStackEntry entry("mpi::IBroadcast");
 #endif
-    MpiMap<R> map;
-    SafeMpi( MPI_Ibcast( buf, count, map.type, root, comm, &request ) );
+    SafeMpi( MPI_Ibcast( buf, count, MpiMap<R>::type, root, comm, &request ) );
 }
 
 template<typename R>
@@ -761,11 +732,12 @@ void IBroadcast
     CallStackEntry entry("mpi::IBroadcast");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi( MPI_Ibcast( buf, 2*count, map.type, root, comm, &request ) );
+    SafeMpi
+    ( MPI_Ibcast( buf, 2*count, MpiMap<R>::type, root, comm, &request ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( MPI_Ibcast( buf, count, map.type, root, comm, &request ) );
+    SafeMpi
+    ( MPI_Ibcast
+      ( buf, count, MpiMap<Complex<R> >::type, root, comm, &request ) );
 #endif
 }
 
@@ -785,12 +757,10 @@ void Gather
 #ifndef RELEASE
     CallStackEntry entry("mpi::Gather");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<R*>(sbuf), sc, map.type,
-          rbuf,                 rc, map.type, root, comm ) 
-    );
+    SafeMpi
+    ( MPI_Gather
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type,
+        rbuf,                 rc, MpiMap<R>::type, root, comm ) );
 }
 
 template<typename R>
@@ -802,19 +772,16 @@ void Gather
     CallStackEntry entry("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Gather
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf,                          2*rc, map.type, root, comm )
-    );
+    SafeMpi
+    ( MPI_Gather
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf,                          2*rc, MpiMap<R>::type, root, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Gather
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
-          rbuf,                          rc, map.type, root, comm ) 
-    );
+    SafeMpi
+    ( MPI_Gather
+      ( const_cast<Complex<R>*>(sbuf), sc, MpiMap<Complex<R> >::type,
+        rbuf,                          rc, MpiMap<Complex<R> >::type, 
+        root, comm ) );
 #endif
 }
 
@@ -834,12 +801,10 @@ void IGather
 #ifndef RELEASE
     CallStackEntry entry("mpi::IGather");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<R*>(sbuf), sc, map.type,
-          rbuf,                 rc, map.type, root, comm, &request )
-    );
+    SafeMpi
+    ( MPI_Igather
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type,
+        rbuf,                 rc, MpiMap<R>::type, root, comm, &request ) );
 }
 
 template<typename R>
@@ -851,21 +816,17 @@ void IGather
     CallStackEntry entry("mpi::IGather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Igather
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf,                          2*rc, map.type, 
-          root, comm, &request )
-    );
+    SafeMpi
+    ( MPI_Igather
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf,                          2*rc, MpiMap<R>::type, 
+        root, comm, &request ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Igather
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
-          rbuf,                          rc, map.type, 
-          root, comm, &request ) 
-    );
+    SafeMpi
+    ( MPI_Igather
+      ( const_cast<Complex<R>*>(sbuf), sc, MpiMap<Complex<R> >::type,
+        rbuf,                          rc, MpiMap<Complex<R> >::type, 
+        root, comm, &request ) );
 #endif
 }
 
@@ -897,19 +858,17 @@ void Gather
 #ifndef RELEASE
     CallStackEntry entry("mpi::Gather");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<R*>(sbuf), 
-          sc,       
-          map.type,
-          rbuf,                    
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type,
-          root, 
-          comm ) 
-    );
+    SafeMpi
+    ( MPI_Gatherv
+      ( const_cast<R*>(sbuf), 
+        sc,       
+        MpiMap<R>::type,
+        rbuf,                    
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<R>::type,
+        root, 
+        comm ) );
 }
 
 template<typename R>
@@ -921,7 +880,6 @@ void Gather
     CallStackEntry entry("mpi::Gather");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
     const int commRank = CommRank( comm );
     const int commSize = CommSize( comm );
     std::vector<int> rcsDouble, rdsDouble;
@@ -935,26 +893,23 @@ void Gather
             rdsDouble[i] = 2*rds[i];
         }
     }
-    SafeMpi(
-        MPI_Gatherv
-        ( const_cast<Complex<R>*>(sbuf), 2*sc,                         map.type,
-          rbuf,                          &rcsDouble[0], &rdsDouble[0], map.type,
-          root, comm )
-    );
+    SafeMpi
+    ( MPI_Gatherv
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf, &rcsDouble[0], &rdsDouble[0], MpiMap<R>::type,
+        root, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Gatherv
-        ( const_cast<Complex<R>*>(sbuf), 
-          sc,       
-          map.type,
-          rbuf,  
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type,
-          root, 
-          comm ) 
-    );
+    SafeMpi
+    ( MPI_Gatherv
+      ( const_cast<Complex<R>*>(sbuf), 
+        sc,       
+        MpiMap<Complex<R> >::type,
+        rbuf,  
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<Complex<R> >::type,
+        root, 
+        comm ) );
 #endif
 }
 
@@ -972,10 +927,12 @@ template void Gather
         double* rbuf, const int* rcs, const int* rds, int root, Comm comm );
 template void Gather
 ( const Complex<float>* sbuf, int sc, 
-        Complex<float>* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+        Complex<float>* rbuf, const int* rcs, const int* rds, 
+  int root, Comm comm );
 template void Gather
 ( const Complex<double>* sbuf, int sc, 
-        Complex<double>* rbuf, const int* rcs, const int* rds, int root, Comm comm );
+        Complex<double>* rbuf, const int* rcs, const int* rds, 
+  int root, Comm comm );
 
 template<typename R>
 void AllGather
@@ -986,18 +943,15 @@ void AllGather
     CallStackEntry entry("mpi::AllGather");
 #endif
 #ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                 sizeof(R)*rc, MPI_UNSIGNED_CHAR, comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgather
+      ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+        rbuf,                 sizeof(R)*rc, MPI_UNSIGNED_CHAR, comm ) );
 #else
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<R*>(sbuf), sc, map.type, 
-          rbuf,                 rc, map.type, comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgather
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type, 
+        rbuf,                 rc, MpiMap<R>::type, comm ) );
 #endif
 }
 
@@ -1010,27 +964,22 @@ void AllGather
     CallStackEntry entry("mpi::AllGather");
 #endif
 #ifdef USE_BYTE_ALLGATHERS
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf,                          2*sizeof(R)*rc, MPI_UNSIGNED_CHAR, 
-          comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgather
+      ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+        rbuf,                          2*sizeof(R)*rc, MPI_UNSIGNED_CHAR, 
+        comm ) );
 #else
  #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Allgather
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf,                          2*rc, map.type, comm )
-    );
+    SafeMpi
+    ( MPI_Allgather
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf,                          2*rc, MpiMap<R>::type, comm ) );
  #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Allgather
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
-          rbuf,                          rc, map.type, comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgather
+      ( const_cast<Complex<R>*>(sbuf), sc, MpiMap<Complex<R> >::type,
+        rbuf,                          rc, MpiMap<Complex<R> >::type, comm ) );
  #endif
 #endif
 }
@@ -1058,24 +1007,21 @@ void AllGather
         byteRcs[i] = sizeof(R)*rcs[i];
         byteRds[i] = sizeof(R)*rds[i];
     }
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0],     MPI_UNSIGNED_CHAR, comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( const_cast<R*>(sbuf), sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+        rbuf, &byteRcs[0], &byteRds[0],     MPI_UNSIGNED_CHAR, comm ) );
 #else
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<R*>(sbuf), 
-          sc, 
-          map.type, 
-          rbuf,   
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type, 
-          comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( const_cast<R*>(sbuf), 
+        sc, 
+        MpiMap<R>::type, 
+        rbuf,   
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<R>::type, 
+        comm ) );
 #endif
 }
 
@@ -1095,14 +1041,12 @@ void AllGather
         byteRcs[i] = 2*sizeof(R)*rcs[i];
         byteRds[i] = 2*sizeof(R)*rds[i];
     }
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
-          rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm )
-    );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( const_cast<Complex<R>*>(sbuf), 2*sizeof(R)*sc, MPI_UNSIGNED_CHAR, 
+        rbuf, &byteRcs[0], &byteRds[0], MPI_UNSIGNED_CHAR, comm ) );
 #else
  #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
     const int commSize = CommSize( comm );
     std::vector<int> realRcs( commSize ), realRds( commSize );
     for( int i=0; i<commSize; ++i )
@@ -1110,24 +1054,21 @@ void AllGather
         realRcs[i] = 2*rcs[i];
         realRds[i] = 2*rds[i];
     }
-    SafeMpi(
-        MPI_Allgatherv
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf, &realRcs[0], &realRds[0],      map.type, comm )
-    );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf, &realRcs[0], &realRds[0],      MpiMap<R>::type, comm ) );
  #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Allgatherv
-        ( const_cast<Complex<R>*>(sbuf), 
-          sc, 
-          map.type,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type,
-          comm ) 
-    );
+    SafeMpi
+    ( MPI_Allgatherv
+      ( const_cast<Complex<R>*>(sbuf), 
+        sc, 
+        MpiMap<Complex<R> >::type,
+        rbuf, 
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<Complex<R> >::type,
+        comm ) );
  #endif
 #endif
 }
@@ -1159,12 +1100,10 @@ void Scatter
 #ifndef RELEASE
     CallStackEntry entry("mpi::Scatter");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<R*>(sbuf), sc, map.type,
-          rbuf,                 rc, map.type, root, comm ) 
-    );
+    SafeMpi
+    ( MPI_Scatter
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type,
+        rbuf,                 rc, MpiMap<R>::type, root, comm ) );
 }
 
 template<typename R>
@@ -1176,19 +1115,16 @@ void Scatter
     CallStackEntry entry("mpi::Scatter");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Scatter
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf,                          2*rc, map.type, root, comm )
-    );
+    SafeMpi
+    ( MPI_Scatter
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf,                          2*rc, MpiMap<R>::type, root, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Scatter
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
-          rbuf,                          rc, map.type, root, comm ) 
-    );
+    SafeMpi
+    ( MPI_Scatter
+      ( const_cast<Complex<R>*>(sbuf), sc, MpiMap<Complex<R> >::type,
+        rbuf,                          rc, MpiMap<Complex<R> >::type, 
+        root, comm ) );
 #endif
 }
 
@@ -1218,34 +1154,30 @@ void Scatter( R* buf, int sc, int rc, int root, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::Scatter");
 #endif
-    MpiMap<R> map;
     const int commRank = CommRank( comm );
     if( commRank == root )
     {
 #ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, map.type, 
-              MPI_IN_PLACE, rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( buf,          sc, MpiMap<R>::type, 
+            MPI_IN_PLACE, rc, MpiMap<R>::type, root, comm ) );
 #else
         const int commSize = CommSize( comm );
         std::vector<R> sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, map.type, 
-              buf,         rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( &sendBuf[0], sc, MpiMap<R>::type, 
+            buf,         rc, MpiMap<R>::type, root, comm ) );
 #endif
     }
     else
     {
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, map.type, 
-              buf, rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( 0,   sc, MpiMap<R>::type, 
+            buf, rc, MpiMap<R>::type, root, comm ) );
     }
 }
 
@@ -1259,59 +1191,49 @@ void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm )
     if( commRank == root )
     {
 #ifdef AVOID_COMPLEX_MPI
-        MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          2*sc, map.type, 
-              MPI_IN_PLACE, 2*rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( buf,          2*sc, MpiMap<R>::type, 
+            MPI_IN_PLACE, 2*rc, MpiMap<R>::type, root, comm ) );
 # else
         const int commSize = CommSize( comm );
         std::vector<Complex<R> > sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], 2*sc, map.type,          
-              buf,         2*rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( &sendBuf[0], 2*sc, MpiMap<R>::type,          
+            buf,         2*rc, MpiMap<R>::type, root, comm ) );
 # endif
 #else
 # ifdef HAVE_MPI_IN_PLACE
-        MpiMap<Complex<R> > map;
-        SafeMpi(
-            MPI_Scatter
-            ( buf,          sc, map.type, 
-              MPI_IN_PLACE, rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( buf,          sc, MpiMap<Complex<R> >::type, 
+            MPI_IN_PLACE, rc, MpiMap<Complex<R> >::type, root, comm ) );
 # else
         const int commSize = CommSize( comm );
         std::vector<Complex<R> > sendBuf( sc*commSize );
         MemCopy( &sendBuf[0], buf, sc*commSize );
-        SafeMpi(
-            MPI_Scatter
-            ( &sendBuf[0], sc, map.type,
-              buf,         rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( &sendBuf[0], sc, MpiMap<Complex<R> >::type,
+            buf,         rc, MpiMap<Complex<R> >::type, root, comm ) );
 # endif
 #endif
     }
     else
     {
 #ifdef AVOID_COMPLEX_MPI
-        MpiMap<R> map;
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   2*sc, map.type, 
-              buf, 2*rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( 0,   2*sc, MpiMap<R>::type, 
+            buf, 2*rc, MpiMap<R>::type, root, comm ) );
 #else
-        MpiMap<Complex<R> > map;
-        SafeMpi(
-            MPI_Scatter
-            ( 0,   sc, map.type, 
-              buf, rc, map.type, root, comm )
-        );
+        SafeMpi
+        ( MPI_Scatter
+          ( 0,   sc, MpiMap<Complex<R> >::type, 
+            buf, rc, MpiMap<Complex<R> >::type, root, comm ) );
 #endif
     }
 }
@@ -1331,12 +1253,10 @@ void AllToAll
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllToAll");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<R*>(sbuf), sc, map.type,
-          rbuf,                 rc, map.type, comm ) 
-    );
+    SafeMpi
+    ( MPI_Alltoall
+      ( const_cast<R*>(sbuf), sc, MpiMap<R>::type,
+        rbuf,                 rc, MpiMap<R>::type, comm ) );
 }
 
 template<typename R>
@@ -1348,19 +1268,15 @@ void AllToAll
     CallStackEntry entry("mpi::AllToAll");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi(
-        MPI_Alltoall
-        ( const_cast<Complex<R>*>(sbuf), 2*sc, map.type,
-          rbuf,                          2*rc, map.type, comm )
-    );
+    SafeMpi
+    ( MPI_Alltoall
+      ( const_cast<Complex<R>*>(sbuf), 2*sc, MpiMap<R>::type,
+        rbuf,                          2*rc, MpiMap<R>::type, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Alltoall
-        ( const_cast<Complex<R>*>(sbuf), sc, map.type,
-          rbuf,                          rc, map.type, comm ) 
-    );
+    SafeMpi
+    ( MPI_Alltoall
+      ( const_cast<Complex<R>*>(sbuf), sc, MpiMap<Complex<R> >::type,
+        rbuf,                          rc, MpiMap<Complex<R> >::type, comm ) );
 #endif
 }
 
@@ -1391,19 +1307,17 @@ void AllToAll
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllToAll");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<R*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          map.type,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type,
-          comm ) 
-    ); 
+    SafeMpi
+    ( MPI_Alltoallv
+      ( const_cast<R*>(sbuf), 
+        const_cast<int*>(scs), 
+        const_cast<int*>(sds), 
+        MpiMap<R>::type,
+        rbuf, 
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<R>::type,
+        comm ) );
 }
 
 template<typename R>
@@ -1415,7 +1329,6 @@ void AllToAll
     CallStackEntry entry("mpi::AllToAll");
 #endif
 #ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
     int p;
     MPI_Comm_size( comm, &p );
     std::vector<int> scsDoubled(p);
@@ -1430,26 +1343,23 @@ void AllToAll
         rcsDoubled[i] = 2*rcs[i];
     for( int i=0; i<p; ++i )
         rdsDoubled[i] = 2*rds[i];
-    SafeMpi(
-        MPI_Alltoallv
-        ( const_cast<Complex<R>*>(sbuf),
-                &scsDoubled[0], &sdsDoubled[0], map.type,
-          rbuf, &rcsDoubled[0], &rdsDoubled[0], map.type, comm )
-    );
+    SafeMpi
+    ( MPI_Alltoallv
+      ( const_cast<Complex<R>*>(sbuf),
+              &scsDoubled[0], &sdsDoubled[0], MpiMap<R>::type,
+        rbuf, &rcsDoubled[0], &rdsDoubled[0], MpiMap<R>::type, comm ) );
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Alltoallv
-        ( const_cast<Complex<R>*>(sbuf), 
-          const_cast<int*>(scs), 
-          const_cast<int*>(sds), 
-          map.type,
-          rbuf, 
-          const_cast<int*>(rcs), 
-          const_cast<int*>(rds), 
-          map.type,
-          comm )
-    );
+    SafeMpi
+    ( MPI_Alltoallv
+      ( const_cast<Complex<R>*>(sbuf), 
+        const_cast<int*>(scs), 
+        const_cast<int*>(sds), 
+        MpiMap<Complex<R> >::type,
+        rbuf, 
+        const_cast<int*>(rcs), 
+        const_cast<int*>(rds), 
+        MpiMap<Complex<R> >::type,
+        comm ) );
 #endif
 }
 
@@ -1479,13 +1389,12 @@ void Reduce
 #ifndef RELEASE
     CallStackEntry entry("mpi::Reduce");
 #endif
-    MpiMap<T> map;
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<T*>(sbuf), rbuf, count, map.type, op, root, comm )
-        );
+        SafeMpi
+        ( MPI_Reduce
+          ( const_cast<T*>(sbuf), rbuf, count, MpiMap<T>::type, op, 
+            root, comm ) );
     }
 }
 
@@ -1502,29 +1411,23 @@ void Reduce
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MpiMap<R> map;
-            SafeMpi(
-                MPI_Reduce
-                ( const_cast<Complex<R>*>(sbuf),
-                  rbuf, 2*count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( const_cast<Complex<R>*>(sbuf),
+                rbuf, 2*count, MpiMap<R>::type, op, root, comm ) );
         }
         else
         {
-            MpiMap<Complex<R> > map;
-            SafeMpi(
-                MPI_Reduce
-                ( const_cast<Complex<R>*>(sbuf),
-                  rbuf, count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( const_cast<Complex<R>*>(sbuf),
+                rbuf, count, MpiMap<Complex<R> >::type, op, root, comm ) );
         }
 #else
-        MpiMap<Complex<R> > map;
-        SafeMpi( 
-            MPI_Reduce
-            ( const_cast<Complex<R>*>(sbuf), 
-              rbuf, count, map.type, op, root, comm ) 
-        );
+        SafeMpi
+        ( MPI_Reduce
+          ( const_cast<Complex<R>*>(sbuf), 
+            rbuf, count, MpiMap<Complex<R> >::type, op, root, comm ) );
 #endif
     }
 }
@@ -1545,26 +1448,26 @@ void Reduce( T* buf, int count, Op op, int root, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::Reduce");
 #endif
-    MpiMap<T> map;
     if( count != 0 )
     {
         const int commRank = CommRank( comm );
         if( commRank == root )
         {
 #ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( MPI_IN_PLACE, buf, count, MpiMap<T>::type, op, root, comm ) );
 #else
             std::vector<T> sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( &sendBuf[0], buf, count, MpiMap<T>::type, op, root, comm ) );
 #endif
         }
         else
-            SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
+            SafeMpi
+            ( MPI_Reduce( buf, 0, count, MpiMap<T>::type, op, root, comm ) );
     }
 }
 
@@ -1580,70 +1483,72 @@ void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MpiMap<R> map;
             if( commRank == root )
             {
 # ifdef HAVE_MPI_IN_PLACE
-                SafeMpi(
-                    MPI_Reduce
-                    ( MPI_IN_PLACE, buf, 2*count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( MPI_IN_PLACE, buf, 2*count, MpiMap<R>::type, op, 
+                    root, comm ) );
 # else
                 std::vector<Complex<R> > sendBuf( count );
                 MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, 2*count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( &sendBuf[0], buf, 2*count, MpiMap<R>::type, op, 
+                    root, comm ) );
 # endif
             }
             else
-                SafeMpi(
-                    MPI_Reduce( buf, 0, 2*count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( buf, 0, 2*count, MpiMap<R>::type, op, root, comm ) );
         }
         else
         {
-            MpiMap<Complex<R> > map;
             if( commRank == root )
             {
 # ifdef HAVE_MPI_IN_PLACE
-                SafeMpi(
-                    MPI_Reduce
-                    ( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( MPI_IN_PLACE, buf, count, MpiMap<Complex<R> >::type, op, 
+                    root, comm ) );
 # else
                 std::vector<Complex<R> > sendBuf( count );
                 MemCopy( &sendBuf[0], buf, count );
-                SafeMpi(
-                    MPI_Reduce
-                    ( &sendBuf[0], buf, count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( &sendBuf[0], buf, count, MpiMap<Complex<R> >::type, op, 
+                    root, comm ) );
 # endif
             }
             else
-                SafeMpi(
-                    MPI_Reduce( buf, 0, count, map.type, op, root, comm )
-                );
+                SafeMpi
+                ( MPI_Reduce
+                  ( buf, 0, count, MpiMap<Complex<R> >::type, op, 
+                    root, comm ) );
         }
 #else
-        MpiMap<Complex<R> > map;
         if( commRank == root )
         {
 # ifdef HAVE_MPI_IN_PLACE
-            SafeMpi( 
-                MPI_Reduce( MPI_IN_PLACE, buf, count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( MPI_IN_PLACE, buf, count, MpiMap<Complex<R> >::type, op, 
+                root, comm ) );
 # else
             std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Reduce( &sendBuf[0], buf, count, map.type, op, root, comm )
-            );
+            SafeMpi
+            ( MPI_Reduce
+              ( &sendBuf[0], buf, count, MpiMap<Complex<R> >::type, op, 
+                root, comm ) );
 # endif
         }
         else
-            SafeMpi( MPI_Reduce( buf, 0, count, map.type, op, root, comm ) );
+            SafeMpi
+            ( MPI_Reduce
+              ( buf, 0, count, MpiMap<Complex<R> >::type, op, root, comm ) );
 #endif
     }
 }
@@ -1664,13 +1569,11 @@ void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllReduce");
 #endif
-    MpiMap<T> map;
     if( count != 0 )
     {
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<T*>(sbuf), rbuf, count, map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Allreduce
+          ( const_cast<T*>(sbuf), rbuf, count, MpiMap<T>::type, op, comm ) );
     }
 }
 
@@ -1686,29 +1589,23 @@ void AllReduce
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MpiMap<R> map;
-            SafeMpi(
-                MPI_Allreduce
+            SafeMpi
+            ( MPI_Allreduce
                 ( const_cast<Complex<R>*>(sbuf),
-                  rbuf, 2*count, map.type, op, comm )
-            );
+                  rbuf, 2*count, MpiMap<R>::type, op, comm ) );
         }
         else
         {
-            MpiMap<Complex<R> > map;
-            SafeMpi(
-                MPI_Allreduce
-                ( const_cast<Complex<R>*>(sbuf),
-                  rbuf, count, map.type, op, comm )
-            );
+            SafeMpi
+            ( MPI_Allreduce
+              ( const_cast<Complex<R>*>(sbuf),
+                rbuf, count, MpiMap<Complex<R> >::type, op, comm ) );
         }
 #else
-        MpiMap<Complex<R> > map;
-        SafeMpi( 
-            MPI_Allreduce
-            ( const_cast<Complex<R>*>(sbuf), 
-              rbuf, count, map.type, op, comm ) 
-        );
+        SafeMpi
+        ( MPI_Allreduce
+          ( const_cast<Complex<R>*>(sbuf), 
+            rbuf, count, MpiMap<Complex<R> >::type, op, comm ) );
 #endif
     }
 }
@@ -1729,19 +1626,17 @@ void AllReduce( T* buf, int count, Op op, Comm comm )
 #ifndef RELEASE
     CallStackEntry entry("mpi::AllReduce");
 #endif
-    MpiMap<T> map;
     if( count != 0 )
     {
 #ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Allreduce
+          ( MPI_IN_PLACE, buf, count, MpiMap<T>::type, op, comm ) );
 #else
         std::vector<T> sendBuf( count );
         MemCopy( &sendBuf[0], buf, count );
-        SafeMpi(
-            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Allreduce( &sendBuf[0], buf, count, MpiMap<T>::type, op, comm ) );
 #endif
     }
 }
@@ -1757,46 +1652,46 @@ void AllReduce( Complex<R>* buf, int count, Op op, Comm comm )
 #ifdef AVOID_COMPLEX_MPI
         if( op == SUM )
         {
-            MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
-            SafeMpi(
-                MPI_Allreduce( MPI_IN_PLACE, buf, 2*count, map.type, op, comm )
-            );
+            SafeMpi
+            ( MPI_Allreduce
+              ( MPI_IN_PLACE, buf, 2*count, MpiMap<R>::type, op, comm ) );
 # else
             std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, 2*count, map.type, op, comm )
-            );
+            SafeMpi
+            ( MPI_Allreduce
+              ( &sendBuf[0], buf, 2*count, MpiMap<R>::type, op, comm ) );
 # endif
         }
         else
         {
             MpiMap<Complex<R> > map;
 # ifdef HAVE_MPI_IN_PLACE
-            SafeMpi(
-                MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
-            );
+            SafeMpi
+            ( MPI_Allreduce
+              ( MPI_IN_PLACE, buf, count, MpiMap<Complex<R> >::type, 
+                op, comm ) );
 # else
             std::vector<Complex<R> > sendBuf( count );
             MemCopy( &sendBuf[0], buf, count );
-            SafeMpi(
-                MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-            );
+            SafeMpi
+            ( MPI_Allreduce
+              ( &sendBuf[0], buf, count, MpiMap<Complex<R> >::type, 
+                op, comm ) );
 # endif
         }
 #else
-        MpiMap<Complex<R> > map;
 # ifdef HAVE_MPI_IN_PLACE
-        SafeMpi( 
-            MPI_Allreduce( MPI_IN_PLACE, buf, count, map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Allreduce
+          ( MPI_IN_PLACE, buf, count, MpiMap<Complex<R> >::type, op, comm ) );
 # else
         std::vector<Complex<R> > sendBuf( count );
         MemCopy( &sendBuf[0], buf, count );
-        SafeMpi( 
-            MPI_Allreduce( &sendBuf[0], buf, count, map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Allreduce
+          ( &sendBuf[0], buf, count, MpiMap<Complex<R> >::type, op, comm ) );
 # endif
 #endif
     }
@@ -1824,8 +1719,8 @@ void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
     AllReduce( sbuf, rc*commSize, op, comm );
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MpiMap<R> map;
-    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
+    SafeMpi
+    ( MPI_Reduce_scatter_block( sbuf, rbuf, rc, MpiMap<R>::type, op, comm ) );
 #else
     const int commSize = CommSize( comm );
     Reduce( sbuf, rc*commSize, op, 0, comm );
@@ -1847,11 +1742,12 @@ void ReduceScatter
     MemCopy( rbuf, &sbuf[commRank*rc], rc );
 #elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
-    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, 2*rc, map.type, op, comm ) );
+    SafeMpi
+    ( MPI_Reduce_scatter_block( sbuf, rbuf, 2*rc, MpiMap<R>::type, op, comm ) );
 # else
-    MpiMap<Complex<R> > map;
-    SafeMpi( MPI_Reduce_scatter_block( sbuf, rbuf, rc, map.type, op, comm ) );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( sbuf, rbuf, rc, MpiMap<Complex<R> >::type, op, comm ) );
 # endif
 #else
     const int commSize = CommSize( comm );
@@ -1880,18 +1776,17 @@ void ReduceScatter( R* buf, int rc, Op op, Comm comm )
     if( commRank != 0 )
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
-    MpiMap<R> map;
 # ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( MPI_IN_PLACE, buf, rc, MpiMap<R>::type, op, comm ) );
 # else
     const int commSize = CommSize( comm );
     std::vector<R> sendBuf( rc*commSize );
     MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( &sendBuf[0], buf, rc, MpiMap<R>::type, op, comm ) );
 # endif
 #else
     const int commSize = CommSize( comm );
@@ -1915,32 +1810,30 @@ void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm )
         MemCopy( buf, &buf[commRank*rc], rc );
 #elif defined(HAVE_MPI_REDUCE_SCATTER_BLOCK)
 # ifdef AVOID_COMPLEX_MPI
-    MpiMap<R> map;
 #  ifdef HAVE_MPI_IN_PLACE
-    SafeMpi(
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, 2*rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( MPI_IN_PLACE, buf, 2*rc, MpiMap<R>::type, op, comm ) );
 #  else 
     const int commSize = CommSize( comm );
     std::vector<Complex<R> > sendBuf( rc*commSize );
     MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi(
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, 2*rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( &sendBuf[0], buf, 2*rc, MpiMap<R>::type, op, comm ) );
 #  endif
 # else
-    MpiMap<Complex<R> > map;
 #  ifdef HAVE_MPI_IN_PLACE
-    SafeMpi( 
-        MPI_Reduce_scatter_block( MPI_IN_PLACE, buf, rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( MPI_IN_PLACE, buf, rc, MpiMap<Complex<R> >::type, op, comm ) );
 #  else
     const int commSize = CommSize( comm );
     std::vector<Complex<R> > sendBuf( rc*commSize );
     MemCopy( &sendBuf[0], buf, rc*commSize );
-    SafeMpi( 
-        MPI_Reduce_scatter_block( &sendBuf[0], buf, rc, map.type, op, comm )
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter_block
+      ( &sendBuf[0], buf, rc, MpiMap<Complex<R> >::type, op, comm ) );
 #  endif
 # endif
 #else
@@ -1964,12 +1857,10 @@ void ReduceScatter
 #ifndef RELEASE
     CallStackEntry entry("mpi::ReduceScatter");
 #endif
-    MpiMap<R> map;
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<R*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), map.type, op, comm ) 
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter
+      ( const_cast<R*>(sbuf), 
+        rbuf, const_cast<int*>(rcs), MpiMap<R>::type, op, comm ) );
 }
 
 template<typename R>
@@ -1982,34 +1873,29 @@ void ReduceScatter
 #ifdef AVOID_COMPLEX_MPI
     if( op == SUM )
     {
-        MpiMap<R> map;
         int p;
         MPI_Comm_size( comm, &p );
         std::vector<int> rcsDoubled(p);
         for( int i=0; i<p; ++i )
             rcsDoubled[i] = 2*rcs[i];
-        SafeMpi(
-            MPI_Reduce_scatter
-            ( const_cast<Complex<R>*>(sbuf),
-              rbuf, &rcsDoubled[0], map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Reduce_scatter
+          ( const_cast<Complex<R>*>(sbuf),
+            rbuf, &rcsDoubled[0], MpiMap<R>::type, op, comm ) );
     }
     else
     {
-        MpiMap<Complex<R> > map;
-        SafeMpi(
-            MPI_Reduce_scatter
-            ( const_cast<Complex<R>*>(sbuf),
-              rbuf, const_cast<int*>(rcs), map.type, op, comm )
-        );
+        SafeMpi
+        ( MPI_Reduce_scatter
+          ( const_cast<Complex<R>*>(sbuf),
+            rbuf, const_cast<int*>(rcs), MpiMap<Complex<R> >::type, 
+            op, comm ) );
     }
 #else
-    MpiMap<Complex<R> > map;
-    SafeMpi( 
-        MPI_Reduce_scatter
-        ( const_cast<Complex<R>*>(sbuf), 
-          rbuf, const_cast<int*>(rcs), map.type, op, comm ) 
-    );
+    SafeMpi
+    ( MPI_Reduce_scatter
+      ( const_cast<Complex<R>*>(sbuf), 
+        rbuf, const_cast<int*>(rcs), MpiMap<Complex<R> >::type, op, comm ) );
 #endif
 }
 
