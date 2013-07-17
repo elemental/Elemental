@@ -39,17 +39,17 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Calculate mu while forming XNew := inv(X)
-    R mu;
+    Real mu;
     Matrix<int> p;
     XNew = X;
     LU( XNew, p );
     if( scaling == DETERMINANT )
     {
         SafeProduct<F> det = determinant::AfterLUPartialPiv( XNew, p );
-        mu = R(1)/Exp(det.kappa);
+        mu = Real(1)/Exp(det.kappa);
     }
     inverse::AfterLUPartialPiv( XNew, p );
     if( scaling == FROB_NORM )
@@ -58,8 +58,8 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
         mu = 1;
 
     // Overwrite XNew with the new iterate
-    const R halfMu = mu/R(2);
-    const R halfMuInv = R(1)/(2*mu); 
+    const Real halfMu = mu/Real(2);
+    const Real halfMuInv = Real(1)/(2*mu); 
     Scale( halfMuInv, XNew );
     Axpy( halfMu, X, XNew );
 }
@@ -72,17 +72,17 @@ NewtonStep
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonStep");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Calculate mu while forming B := inv(X)
-    R mu;
+    Real mu;
     DistMatrix<int,VC,STAR> p( X.Grid() );
     XNew = X;
     LU( XNew, p );
     if( scaling == DETERMINANT )
     {
         SafeProduct<F> det = determinant::AfterLUPartialPiv( XNew, p );
-        mu = R(1)/Exp(det.kappa);
+        mu = Real(1)/Exp(det.kappa);
     }
     inverse::AfterLUPartialPiv( XNew, p );
     if( scaling == FROB_NORM )
@@ -91,8 +91,8 @@ NewtonStep
         mu = 1;
 
     // Overwrite XNew with the new iterate
-    const R halfMu = mu/R(2);
-    const R halfMuInv = R(1)/(2*mu); 
+    const Real halfMu = mu/Real(2);
+    const Real halfMuInv = Real(1)/(2*mu); 
     Scale( halfMuInv, XNew );
     Axpy( halfMu, X, XNew );
 }
@@ -104,15 +104,15 @@ NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const int n = X.Height();
  
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
-    Gemm( NORMAL, NORMAL, R(-1), X, X, R(3), XTmp );
+    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
 
     // XNew := 1/2 X XTmp
-    Gemm( NORMAL, NORMAL, R(1)/R(2), X, XTmp, XNew );
+    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
 }
 
 template<typename F>
@@ -123,15 +123,15 @@ NewtonSchulzStep
 #ifndef RELEASE
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const int n = X.Height();
 
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
-    Gemm( NORMAL, NORMAL, R(-1), X, X, R(3), XTmp );
+    Gemm( NORMAL, NORMAL, Real(-1), X, X, Real(3), XTmp );
 
     // XNew := 1/2 X XTmp
-    Gemm( NORMAL, NORMAL, R(1)/R(2), X, XTmp, XNew );
+    Gemm( NORMAL, NORMAL, Real(1)/Real(2), X, XTmp, XNew );
 }
 
 template<typename F>
@@ -142,23 +142,22 @@ Newton
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
 #endif
-    typedef BASE(F) R;
-    Matrix<F> B;
-    Matrix<F> *X=&A, *XNew=&B;
-
-    if( tol == R(0) )
-        tol = A.Height()*lapack::MachineEpsilon<R>();
+    typedef BASE(F) Real;
+    if( tol == Real(0) )
+        tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     int numIts=0;
+    Matrix<F> B;
+    Matrix<F> *X=&A, *XNew=&B;
     while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( *X, *XNew, scaling );
 
         // Use the difference in the iterates to test for convergence
-        Axpy( R(-1), *XNew, *X );
-        const R oneDiff = OneNorm( *X );
-        const R oneNew = OneNorm( *XNew );
+        Axpy( Real(-1), *XNew, *X );
+        const Real oneDiff = OneNorm( *X );
+        const Real oneNew = OneNorm( *XNew );
 
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
@@ -180,28 +179,27 @@ Newton
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
 #endif
-    typedef BASE(F) R;
-    DistMatrix<F> B( A.Grid() );
-    DistMatrix<F> *X=&A, *XNew=&B;
-
-    if( tol == R(0) )
-        tol = A.Height()*lapack::MachineEpsilon<R>();
+    typedef BASE(F) Real;
+    if( tol == Real(0) )
+        tol = A.Height()*lapack::MachineEpsilon<Real>();
 
     int numIts=0;
+    DistMatrix<F> B( A.Grid() );
+    DistMatrix<F> *X=&A, *XNew=&B;
     while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
         NewtonStep( *X, *XNew, scaling );
 
         // Use the difference in the iterates to test for convergence
-        Axpy( R(-1), *XNew, *X );
-        const R oneDiff = OneNorm( *X );
-        const R oneNew = OneNorm( *XNew );
+        Axpy( Real(-1), *XNew, *X );
+        const Real oneDiff = OneNorm( *X );
+        const Real oneNew = OneNorm( *XNew );
 
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( oneDiff/oneNew < tol )
+        if( oneDiff/oneNew <= tol )
             break;
     }
     if( X != &A )
@@ -272,21 +270,21 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("HermitianSign");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Get the EVD of A
-    Matrix<R> w;
+    Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
 
     const int n = A.Height();
     for( int i=0; i<n; ++i )
     {
-        const R omega = w.Get(i,0);
+        const Real omega = w.Get(i,0);
         if( omega >= 0 )
-            w.Set(i,0,R(1));
+            w.Set(i,0,Real(1));
         else
-            w.Set(i,0,R(-1));
+            w.Set(i,0,Real(-1));
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
@@ -300,26 +298,26 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N )
 #ifndef RELEASE
     CallStackEntry entry("HermitianSign");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Get the EVD of A
-    Matrix<R> w;
+    Matrix<Real> w;
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
 
     const int n = A.Height();
-    Matrix<R> wSgn( n, 1 ), wAbs( n, 1 );
+    Matrix<Real> wSgn( n, 1 ), wAbs( n, 1 );
     for( int i=0; i<n; ++i )
     {
-        const R omega = w.Get(i,0);
+        const Real omega = w.Get(i,0);
         if( omega >= 0 )
         {
-            wSgn.Set(i,0,R(1));
+            wSgn.Set(i,0,Real(1));
             wAbs.Set(i,0,omega);
         }
         else
         {
-            wSgn.Set(i,0,R(-1));
+            wSgn.Set(i,0,Real(-1));
             wAbs.Set(i,0,-omega);
         }
     }
@@ -337,22 +335,22 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     CallStackEntry entry("HermitianSign");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     const int numLocalEigs = w.LocalHeight();
     for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLoc,0);
+        const Real omega = w.GetLocal(iLoc,0);
         if( omega >= 0 )
-            w.SetLocal(iLoc,0,R(1));
+            w.SetLocal(iLoc,0,Real(1));
         else
-            w.SetLocal(iLoc,0,R(-1));
+            w.SetLocal(iLoc,0,Real(-1));
     }
 
     // Reform the Hermitian matrix with the modified eigenvalues
@@ -367,32 +365,32 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
     CallStackEntry entry("HermitianSign");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     // Get the EVD of A
     const Grid& g = A.Grid();
-    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
     const int n = A.Height();
     const int numLocalEigs = w.LocalHeight();
-    DistMatrix<R,VR,STAR> wSgn(g), wAbs(g);
+    DistMatrix<Real,VR,STAR> wSgn(g), wAbs(g);
     wSgn.AlignWith( w );
     wAbs.AlignWith( w );
     wSgn.ResizeTo( n, 1 );
     wAbs.ResizeTo( n, 1 );
     for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
-        const R omega = w.GetLocal(iLoc,0);
+        const Real omega = w.GetLocal(iLoc,0);
         if( omega >= 0 )
         {
-            wSgn.SetLocal(iLoc,0,R(1));
+            wSgn.SetLocal(iLoc,0,Real(1));
             wAbs.SetLocal(iLoc,0,omega);
         }
         else
         {
-            wSgn.SetLocal(iLoc,0,R(-1));
+            wSgn.SetLocal(iLoc,0,Real(-1));
             wAbs.SetLocal(iLoc,0,-omega);
         }
     }
