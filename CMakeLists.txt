@@ -139,6 +139,11 @@ if("${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}")
   message(FATAL_ERROR "In-source build attempted; please clean the CMake cache and then switch to an out-of-source build, e.g., rm CMakeCache.txt && rm -Rf CMakeFiles/ && mkdir build/ && cd build/ && cmake ..")
 endif()
 
+# Get the Git revision
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+include(GetGitRevisionDescription)
+get_git_head_revision(GIT_REFSPEC Elemental_SHA1)
+
 # Extract a few booleans from the build type and default to PureRelease
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "Build mode not specified, defaulting to PureRelease build.")
@@ -419,6 +424,7 @@ if(USE_PMRRR)
 endif()
 
 # Create the Elemental configuration header
+set(CXX_FLAGS ${CXX_FLAGS_${UPPER_BUILD_TYPE}})
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
                ${PROJECT_BINARY_DIR}/include/elemental/config.h)
 install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 
@@ -572,7 +578,7 @@ if(ELEM_TESTS)
   set(TEST_DIR ${PROJECT_SOURCE_DIR}/tests)
   set(TEST_TYPES core blas-like lapack-like)
 
-  set(core_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix)
+  set(core_TESTS AxpyInterface Complex DifferentGrids DistMatrix Matrix Version)
   set(blas-like_TESTS 
     Gemm Hemm Her2k Herk Symm Symv Syr2k Syrk Trmm Trsm Trsv TwoSidedTrmm
     TwoSidedTrsm)

@@ -30,11 +30,12 @@ Functionality
 - More explicit expansions of packed Householder reflectors
 - More Trtrmm/Trtrsm routines
 - Compressed pseudoinverse solves which avoid unnecessary backtransformations
+- Means of easily tracking/plotting heap memory usage over time
+- Provide way to zoom in/out and add colorbar to DisplayWidget
 
 Maintenance
 ===========
 - Documentation for detailed interfaces which reside in sub-namespaces
-- Provide way to zoom in/out and add colorbar to DisplayWidget
 - Update elemvariables to support usage of Qt5
 - Many more references
 - Update documentation for new special matrices

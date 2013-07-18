@@ -12,6 +12,10 @@
 
 namespace elem {
 
+void PrintVersion( std::ostream& os=std::cout );
+void PrintCCompilerInfo( std::ostream& os=std::cout );
+void PrintCxxCompilerInfo( std::ostream& os=std::cout );
+
 // For initializing and finalizing Elemental
 void Initialize( int& argc, char**& argv );
 void Finalize();

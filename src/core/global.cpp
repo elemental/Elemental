@@ -58,6 +58,41 @@ GridOrder gridOrder = ROW_MAJOR;
 
 namespace elem {
 
+void PrintVersion( std::ostream& os )
+{
+    os << "Elemental version information:\n"
+       << "  Git revision: " << Elemental_SHA1 << "\n"
+       << "  Version:      " << Elemental_VERSION_MAJOR << "."
+                             << Elemental_VERSION_MINOR << "\n"
+       << "  Build type:   " << CMAKE_BUILD_TYPE << "\n"
+       << std::endl;
+}
+
+void PrintCCompilerInfo( std::ostream& os )
+{
+    os << "Elemental's C compiler info:\n"
+       << "  CMAKE_C_COMPILER:    " << CMAKE_C_COMPILER << "\n"
+       << "  MPI_C_COMPILER:      " << MPI_C_COMPILER << "\n"
+       << "  MPI_C_INCLUDE_PATH:  " << MPI_C_INCLUDE_PATH << "\n"
+       << "  MPI_C_COMPILE_FLAGS: " << MPI_C_COMPILE_FLAGS << "\n"
+       << "  MPI_C_LINK_FLAGS:    " << MPI_C_LINK_FLAGS << "\n"
+       << "  MPI_C_LIBRARIES:     " << MPI_C_LIBRARIES << "\n"
+       << std::endl;
+}
+
+void PrintCxxCompilerInfo( std::ostream& os )
+{
+    os << "Elemental's C++ compiler info:\n"
+       << "  CMAKE_CXX_COMPILER:    " << CMAKE_CXX_COMPILER << "\n"
+       << "  CXX_FLAGS:             " << CXX_FLAGS << "\n"
+       << "  MPI_CXX_COMPILER:      " << MPI_CXX_COMPILER << "\n"
+       << "  MPI_CXX_INCLUDE_PATH:  " << MPI_CXX_INCLUDE_PATH << "\n"
+       << "  MPI_CXX_COMPILE_FLAGS: " << MPI_CXX_COMPILE_FLAGS << "\n"
+       << "  MPI_CXX_LINK_FLAGS:    " << MPI_CXX_LINK_FLAGS << "\n"
+       << "  MPI_CXX_LIBRARIES:     " << MPI_CXX_LIBRARIES << "\n"
+       << std::endl;
+}
+
 #ifdef HAVE_QT5
 void OpenedWindow()
 { ::elemOpenedWindow = true; }

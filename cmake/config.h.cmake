@@ -10,33 +10,34 @@
 #define ELEMENTAL_CONFIG_H 1
 
 /* Build type and version information */
-#define CMAKE_BUILD_TYPE @CMAKE_BUILD_TYPE@
-#define Elemental_VERSION_MAJOR @Elemental_VERSION_MAJOR@
-#define Elemental_VERSION_MINOR @Elemental_VERSION_MINOR@
+#define Elemental_SHA1 "@Elemental_SHA1@"
+#define Elemental_VERSION_MAJOR "@Elemental_VERSION_MAJOR@"
+#define Elemental_VERSION_MINOR "@Elemental_VERSION_MINOR@"
+#define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+#cmakedefine RELEASE
 
 /* C compiler info */
-#define CMAKE_C_COMPILER    @CMAKE_C_COMPILER@
-#define MPI_C_COMPILER      @MPI_C_COMPILER@
-#define MPI_C_INCLUDE_PATH  @MPI_C_INCLUDE_PATH@
-#define MPI_C_COMPILE_FLAGS @MPI_C_COMPILE_FLAGS@
-#define MPI_C_LINK_FLAGS    @MPI_C_LINK_FLAGS@
-#define MPI_C_LIBRARIES     @MPI_C_LIBRARIES@
+#define CMAKE_C_COMPILER    "@CMAKE_C_COMPILER@"
+#define MPI_C_COMPILER      "@MPI_C_COMPILER@"
+#define MPI_C_INCLUDE_PATH  "@MPI_C_INCLUDE_PATH@"
+#define MPI_C_COMPILE_FLAGS "@MPI_C_COMPILE_FLAGS@"
+#define MPI_C_LINK_FLAGS    "@MPI_C_LINK_FLAGS@"
+#define MPI_C_LIBRARIES     "@MPI_C_LIBRARIES@"
 
 /* C++ compiler info */
-#define CMAKE_CXX_COMPILER    @CMAKE_CXX_COMPILER@
-#define CXX_FLAGS             @CXX_FLAGS@
-#define MPI_CXX_COMPILER      @MPI_CXX_COMPILER@
-#define MPI_CXX_INCLUDE_PATH  @MPI_CXX_INCLUDE_PATH@
-#define MPI_CXX_COMPILE_FLAGS @MPI_CXX_COMPILE_FLAGS@
-#define MPI_CXX_LINK_FLAGS    @MPI_CXX_LINK_FLAGS@
-#define MPI_CXX_LIBRARIES     @MPI_CXX_LIBRARIES@
+#define CMAKE_CXX_COMPILER    "@CMAKE_CXX_COMPILER@"
+#define CXX_FLAGS             "@CXX_FLAGS@"
+#define MPI_CXX_COMPILER      "@MPI_CXX_COMPILER@"
+#define MPI_CXX_INCLUDE_PATH  "@MPI_CXX_INCLUDE_PATH@"
+#define MPI_CXX_COMPILE_FLAGS "@MPI_CXX_COMPILE_FLAGS@"
+#define MPI_CXX_LINK_FLAGS    "@MPI_CXX_LINK_FLAGS@"
+#define MPI_CXX_LIBRARIES     "@MPI_CXX_LIBRARIES@"
 
 /* Math libraries */
-#define MATH_LIBS @MATH_LIBS@
+#define MATH_LIBS "@MATH_LIBS@"
 
 /* Basic configuration options */
 #define RESTRICT @RESTRICT@
-#cmakedefine RELEASE
 #cmakedefine BLAS_POST
 #cmakedefine LAPACK_POST
 #cmakedefine HAVE_OPENMP
