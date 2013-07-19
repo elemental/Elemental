@@ -47,9 +47,9 @@ Full spectrum computation
    `A`.
 
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
 
    Compute the full set of eigenpairs of the double-precision Hermitian matrix 
    `A`.
@@ -66,9 +66,9 @@ Index-based subset computation
    indices in the range :math:`a,a+1,...,b`.
 
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
 
    Compute the eigenpairs of a double-precision Hermitian matrix `A` with 
    indices in the range :math:`a,a+1,...,b`.
@@ -85,9 +85,9 @@ Range-based subset computation
    the half-open interval :math:`(a,b]`.
 
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
 .. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
 
    Compute the eigenpairs of a double-precision Hermitian matrix `A` with 
    eigenvalues lying in the half-open interval :math:`(a,b]`.
