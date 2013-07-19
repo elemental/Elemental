@@ -142,7 +142,7 @@ endif()
 # Get the Git revision
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 include(GetGitRevisionDescription)
-get_git_head_revision(GIT_REFSPEC Elemental_SHA1)
+get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 
 # Extract a few booleans from the build type and default to PureRelease
 if(NOT CMAKE_BUILD_TYPE)

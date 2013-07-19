@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #ifndef ELEMENTAL_CONFIG_H
-#define ELEMENTAL_CONFIG_H 1
+#define ELEMENTAL_CONFIG_H
 
 /* Build type and version information */
-#define Elemental_SHA1 "@Elemental_SHA1@"
+#define GIT_SHA1 "@GIT_SHA1@"
 #define Elemental_VERSION_MAJOR "@Elemental_VERSION_MAJOR@"
 #define Elemental_VERSION_MINOR "@Elemental_VERSION_MINOR@"
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
@@ -63,4 +63,4 @@
 #cmakedefine POOL_MEMORY
 #cmakedefine AVOID_OMP_FMA
 
-#endif // ELEMENTAL_CONFIG_H
+#endif /* ELEMENTAL_CONFIG_H */

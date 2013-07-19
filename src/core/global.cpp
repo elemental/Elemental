@@ -61,7 +61,7 @@ namespace elem {
 void PrintVersion( std::ostream& os )
 {
     os << "Elemental version information:\n"
-       << "  Git revision: " << Elemental_SHA1 << "\n"
+       << "  Git revision: " << GIT_SHA1 << "\n"
        << "  Version:      " << Elemental_VERSION_MAJOR << "."
                              << Elemental_VERSION_MINOR << "\n"
        << "  Build type:   " << CMAKE_BUILD_TYPE << "\n"
