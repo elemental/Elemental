@@ -27,7 +27,7 @@ double minRealWindowVal, maxRealWindowVal,
 #endif
 std::stack<int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
-elem::MpiArgs* args = 0;
+elem::Args* args = 0;
 
 // Debugging
 #ifndef RELEASE
@@ -66,6 +66,43 @@ void PrintVersion( std::ostream& os )
                              << Elemental_VERSION_MINOR << "\n"
        << "  Build type:   " << CMAKE_BUILD_TYPE << "\n"
        << std::endl;
+}
+
+void PrintConfig( std::ostream& os )
+{
+    os << "Elemental configuration:\n"
+       << "  Math libraries: " << MATH_LIBS "\n";
+#ifdef HAVE_FLA_BSVD
+    os << "  HAVE_FLA_BSVD\n";
+#endif
+#ifdef HAVE_OPENMP
+    os << "  HAVE_OPENMP\n";
+#endif
+#ifdef HAVE_QT5
+    os << "  HAVE_QT5\n";
+#endif
+#ifdef HAVE_F90_INTERFACE
+    os << "  HAVE_F90_INTERFACE\n";
+#endif 
+#ifdef HAVE_PMRRR
+    os << "  HAVE_PMRRR\n";
+#endif
+#ifdef AVOID_COMPLEX_MPI
+    os << "  AVOID_COMPLEX_MPI\n";
+#endif
+#ifdef HAVE_MPI_REDUCE_SCATTER_BLOCK
+    os << "  HAVE_MPI_REDUCE_SCATTER_BLOCK\n";
+#endif
+#ifdef HAVE_MPI_IN_PLACE
+    os << "  HAVE_MPI_IN_PLACE\n";
+#endif
+#ifdef REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE
+    os << "  REDUCE_SCATTER_BLOCK_VIA_ALLREDUCE\n";
+#endif
+#ifdef USE_BYTE_ALLGATHERS
+    os << "  USE_BYTE_ALLGATHERS\n";
+#endif
+    os << std::endl;
 }
 
 void PrintCCompilerInfo( std::ostream& os )
@@ -177,7 +214,7 @@ void Initialize( int& argc, char**& argv )
         return;
     }
 
-    ::args = new MpiArgs( argc, argv );
+    ::args = new Args( argc, argv );
 
     ::numElemInits = 1;
     if( !mpi::Initialized() )
@@ -302,7 +339,7 @@ void Finalize()
     }
 }
 
-MpiArgs& GetArgs()
+Args& GetArgs()
 { 
     if( args == 0 )
         throw std::runtime_error("No available instance of MpiArgs");

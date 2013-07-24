@@ -12,6 +12,37 @@
 
 namespace elem {
 
+inline void Args::HandleVersion( std::ostream& os ) const
+{
+    std::string version = "--version";
+    char** arg = std::find( argv_, argv_+argc_, version );
+    const bool foundVersion = ( arg != argv_+argc_ );
+    if( foundVersion )
+    {
+        if( mpi::WorldRank() == 0 )
+            PrintVersion();
+        throw ArgException();
+    }
+}
+
+inline void Args::HandleBuild( std::ostream& os ) const
+{
+    std::string build = "--build";
+    char** arg = std::find( argv_, argv_+argc_, build );
+    const bool foundBuild = ( arg != argv_+argc_ );
+    if( foundBuild )
+    {
+        if( mpi::WorldRank() == 0 )
+        {
+            PrintVersion();
+            PrintConfig();
+            PrintCCompilerInfo();
+            PrintCxxCompilerInfo();
+        }
+        throw ArgException();
+    }
+}
+
 template<typename T>
 inline T
 Input( std::string name, std::string desc )

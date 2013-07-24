@@ -188,14 +188,13 @@ Getting Elemental's source
 There are two basic approaches:
 
 1. Download a tarball of the most recent version from 
-   `http://code.google.com/p/elemental/downloads/list 
-   <http://code.google.com/p/elemental/downloads/list>`_. A new version is 
-   released roughly once a month, on average.
+   `libelemental.org/releases <http://libelemental.org/releases/>`_. 
+   A new version is typically released every one to two months.
 
-2. Install `Mercurial <http://mercurial.selenic.com>`_ and check out a copy of 
+2. Install `git <http://git-scm.com/>`_ and check out a copy of 
    the repository by running ::
 
-    hg clone https://elemental.googlecode.com/hg elemental
+    git clone git://github.com/poulson/Elemental.git
 
 Building Elemental
 ==================

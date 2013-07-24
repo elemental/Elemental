@@ -13,6 +13,7 @@
 #define CORE_MPI_CHOICE_HPP
 
 namespace elem {
+namespace choice {
 
 class MpiArgs
 {
@@ -20,21 +21,25 @@ public:
     MpiArgs
     ( int argc, char** argv, 
       mpi::Comm comm=mpi::COMM_WORLD, std::ostream& error=std::cerr );
+    virtual ~MpiArgs() { }
 
     template<typename T>
     T Input( std::string name, std::string desc );
     template<typename T>
     T Input( std::string name, std::string desc, T defaultVal );
 
-    void Process( std::ostream& output=std::cout ) const;
-    void PrintReport( std::ostream& output=std::cout ) const;
+    void Process( std::ostream& os=std::cout ) const;
+    void PrintReport( std::ostream& os=std::cout ) const;
 
-private:
+protected:
     int argc_;
     char** argv_;
     std::vector<bool> usedArgs_;
     std::ostream& error_;
     mpi::Comm comm_;
+
+    virtual void HandleVersion( std::ostream& os=std::cout ) const { }
+    virtual void HandleBuild( std::ostream& os=std::cout ) const { }
 
     struct RequiredArg
     { 
@@ -175,12 +180,15 @@ MpiArgs::Input( std::string name, std::string desc, T defaultVal )
 }
 
 inline void 
-MpiArgs::Process( std::ostream& output ) const
+MpiArgs::Process( std::ostream& os ) const
 {
+    HandleVersion( os );
+    HandleBuild( os );
+
     std::string help = "--help";
     char** arg = std::find( argv_, argv_+argc_, help );
     const bool foundHelp = ( arg != argv_+argc_ );
-
+    
     int numFailed = 0;
     const int numRequired = requiredArgs_.size();
     for( int i=0; i<numRequired; ++i )
@@ -188,13 +196,13 @@ MpiArgs::Process( std::ostream& output ) const
             ++numFailed;
     if( numFailed > 0 || foundHelp )
     {
-        PrintReport( output );
+        PrintReport( os );
         throw ArgException(); 
     }
 }
 
 inline void 
-MpiArgs::PrintReport( std::ostream& output ) const
+MpiArgs::PrintReport( std::ostream& os ) const
 {
     const int commRank = mpi::CommRank( comm_ );
     if( commRank != 0 )
@@ -204,7 +212,7 @@ MpiArgs::PrintReport( std::ostream& output ) const
     const int numOptional = optionalArgs_.size();
 
     if( numRequired > 0 )
-        output << "Required arguments:\n";
+        os << "Required arguments:\n";
     int numReqFailed = 0;
     for( int i=0; i<numRequired; ++i )
     {
@@ -212,14 +220,14 @@ MpiArgs::PrintReport( std::ostream& output ) const
         if( !reqArg.found )
             ++numReqFailed;
         std::string foundString = ( reqArg.found ? "found" : "NOT found" );
-        output << "  " << reqArg.name
-               << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
-               << foundString << "]\n"
-               << "    " << reqArg.desc << "\n\n";
+        os << "  " << reqArg.name
+           << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
+           << foundString << "]\n"
+           << "    " << reqArg.desc << "\n\n";
     }
 
     if( numOptional > 0 )
-        output << "Optional arguments:\n";
+        os << "Optional arguments:\n";
     int numOptFailed = 0;
     for( int i=0; i<numOptional; ++i )
     {
@@ -227,20 +235,21 @@ MpiArgs::PrintReport( std::ostream& output ) const
         if( !optArg.found )
             ++numOptFailed;
         std::string foundString = ( optArg.found ? "found" : "NOT found" );
-        output << "  " << optArg.name
-               << " [" << optArg.typeInfo
-               << "," << optArg.defaultVal << "," << optArg.usedVal << ","
-               << foundString << "]\n"
-               << "    " << optArg.desc << "\n\n";
+        os << "  " << optArg.name
+           << " [" << optArg.typeInfo
+           << "," << optArg.defaultVal << "," << optArg.usedVal << ","
+           << foundString << "]\n"
+           << "    " << optArg.desc << "\n\n";
     }
 
-    output << "Out of " << numRequired << " required arguments, " 
-           << numReqFailed << " were not specified." << std::endl;
+    os << "Out of " << numRequired << " required arguments, " 
+       << numReqFailed << " were not specified." << std::endl;
 
-    output << "Out of " << numOptional << " optional arguments, "
-           << numOptFailed << " were not specified.\n" << std::endl;
+    os << "Out of " << numOptional << " optional arguments, "
+       << numOptFailed << " were not specified.\n" << std::endl;
 }
 
+} // namespace choice
 } // namespace elem
 
 #endif // ifndef CORE_MPI_CHOICE_HPP

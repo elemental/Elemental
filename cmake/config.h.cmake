@@ -35,17 +35,17 @@
 
 /* Math libraries */
 #define MATH_LIBS "@MATH_LIBS@"
+#cmakedefine BLAS_POST
+#cmakedefine LAPACK_POST
+#cmakedefine HAVE_FLA_BSVD
 
 /* Basic configuration options */
 #define RESTRICT @RESTRICT@
-#cmakedefine BLAS_POST
-#cmakedefine LAPACK_POST
 #cmakedefine HAVE_OPENMP
 #cmakedefine HAVE_QT5
 #cmakedefine HAVE_F90_INTERFACE
 #cmakedefine HAVE_PMRRR
 #cmakedefine AVOID_COMPLEX_MPI
-#cmakedefine HAVE_FLA_BSVD
 #cmakedefine HAVE_MPI_REDUCE_SCATTER_BLOCK
 #cmakedefine HAVE_MPI_IN_PLACE
 #cmakedefine HAVE_MPI_COMM_SET_ERRHANDLER

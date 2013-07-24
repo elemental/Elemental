@@ -13,6 +13,7 @@
 namespace elem {
 
 void PrintVersion( std::ostream& os=std::cout );
+void PrintConfig( std::ostream& os=std::cout );
 void PrintCCompilerInfo( std::ostream& os=std::cout );
 void PrintCxxCompilerInfo( std::ostream& os=std::cout );
 
@@ -22,8 +23,20 @@ void Finalize();
 bool Initialized();
 
 // For getting the MPI argument instance (for internal usage)
-class MpiArgs;
-MpiArgs& GetArgs();
+class Args : public choice::MpiArgs
+{
+public:
+    Args
+    ( int argc, char** argv,
+      mpi::Comm comm=mpi::COMM_WORLD, std::ostream& error=std::cerr )
+    : choice::MpiArgs(argc,argv,comm,error)
+    { }
+    virtual ~Args() { }
+protected:
+    virtual void HandleVersion( std::ostream& os=std::cout ) const;
+    virtual void HandleBuild( std::ostream& os=std::cout ) const;
+};
+Args& GetArgs();
 
 // For processing command-line arguments
 template<typename T>

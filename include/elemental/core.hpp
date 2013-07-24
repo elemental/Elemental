@@ -63,15 +63,14 @@
 #include "elemental/core/imports/mpi.hpp"
 #include "elemental/core/grid_decl.hpp"
 #include "elemental/core/dist_matrix.hpp"
+#include "elemental/core/imports/choice.hpp"
+#include "elemental/core/imports/mpi_choice.hpp"
 #include "elemental/core/environment_decl.hpp"
 #include "elemental/core/indexing_decl.hpp"
-
 #include "elemental/core/imports/blas.hpp"
 #include "elemental/core/imports/lapack.hpp"
 #include "elemental/core/imports/flame.hpp"
 #include "elemental/core/imports/pmrrr.hpp"
-#include "elemental/core/imports/choice.hpp"
-#include "elemental/core/imports/mpi_choice.hpp"
 
 // Implement the intertwined parts of the library
 #include "elemental/core/timer_impl.hpp"

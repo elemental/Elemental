@@ -16,6 +16,14 @@
 
 namespace elem {
 
+class ArgException : public std::logic_error
+{
+public:
+    ArgException( const char* msg="" ) : std::logic_error( msg ) { }
+};
+
+namespace choice {
+
 template<typename TOut,typename TIn>
 inline TOut Cast( const TIn& input )
 {
@@ -47,30 +55,28 @@ inline bool Cast( const std::string& input )
     }
 }
 
-class ArgException : public std::logic_error
-{
-public:
-    ArgException( const char* msg="" ) : std::logic_error( msg ) { }
-};
-
 class Args
 {
 public:
     Args( int argc, char** argv, std::ostream& error=std::cerr );
+    virtual ~Args() { }
 
     template<typename T>
     T Input( std::string name, std::string desc );
     template<typename T>
     T Input( std::string name, std::string desc, T defaultVal );
 
-    void Process( std::ostream& output=std::cout ) const;
-    void PrintReport( std::ostream& output=std::cout ) const;
+    void Process( std::ostream& os=std::cout ) const;
+    void PrintReport( std::ostream& os=std::cout ) const;
 
-private:
+protected:
     int argc_;
     char** argv_;
     std::vector<bool> usedArgs_;
     std::ostream& error_;
+
+    virtual void HandleVersion( std::ostream& os=std::cout ) const { }
+    virtual void HandleBuild( std::ostream& os=std::cout ) const { }
 
     struct RequiredArg
     { 
@@ -203,8 +209,11 @@ Args::Input( std::string name, std::string desc, T defaultVal )
 }
 
 inline void
-Args::Process( std::ostream& output ) const
+Args::Process( std::ostream& os ) const
 {
+    HandleVersion( os );
+    HandleBuild( os );
+
     std::string help = "--help";
     char** arg = std::find( argv_, argv_+argc_, help );
     const bool foundHelp = ( arg != argv_+argc_ );
@@ -216,19 +225,19 @@ Args::Process( std::ostream& output ) const
             ++numFailed;
     if( numFailed > 0 || foundHelp )
     {
-        PrintReport( output );
+        PrintReport( os );
         throw ArgException();
     }
 }
 
 inline void
-Args::PrintReport( std::ostream& output ) const
+Args::PrintReport( std::ostream& os ) const
 {
     const int numRequired = requiredArgs_.size();
     const int numOptional = optionalArgs_.size();
 
     if( numRequired > 0 )
-        output << "Required arguments:\n";
+        os << "Required arguments:\n";
     int numReqFailed = 0;
     for( int i=0; i<numRequired; ++i )
     {
@@ -236,14 +245,14 @@ Args::PrintReport( std::ostream& output ) const
         if( !reqArg.found )
             ++numReqFailed;
         std::string foundString = ( reqArg.found ? "found" : "NOT found" );
-        output << "  " << reqArg.name
-               << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
-               << foundString << "]\n"
-               << "    " << reqArg.desc << "\n\n";
+        os << "  " << reqArg.name
+           << " [" << reqArg.typeInfo << "," << reqArg.usedVal << ","
+           << foundString << "]\n"
+           << "    " << reqArg.desc << "\n\n";
     }
 
     if( numOptional > 0 )
-        output << "Optional arguments:\n";
+        os << "Optional arguments:\n";
     int numOptFailed = 0;
     for( int i=0; i<numOptional; ++i )
     {
@@ -251,20 +260,21 @@ Args::PrintReport( std::ostream& output ) const
         if( !optArg.found )
             ++numOptFailed;
         std::string foundString = ( optArg.found ? "found" : "NOT found" );
-        output << "  " << optArg.name
-               << " [" << optArg.typeInfo
-               << "," << optArg.defaultVal << "," << optArg.usedVal << ","
-               << foundString << "]\n"
-               << "    " << optArg.desc << "\n\n";
+        os << "  " << optArg.name
+           << " [" << optArg.typeInfo
+           << "," << optArg.defaultVal << "," << optArg.usedVal << ","
+           << foundString << "]\n"
+           << "    " << optArg.desc << "\n\n";
     }
 
-    output << "Out of " << numRequired << " required arguments, " 
-           << numReqFailed << " were not specified." << std::endl;
+    os << "Out of " << numRequired << " required arguments, " 
+       << numReqFailed << " were not specified." << std::endl;
 
-    output << "Out of " << numOptional << " optional arguments, "
-           << numOptFailed << " were not specified.\n" << std::endl;
+    os << "Out of " << numOptional << " optional arguments, "
+       << numOptFailed << " were not specified.\n" << std::endl;
 }
 
+} // namespace choice
 } // namespace elem
 
 #endif // ifndef CORE_CHOICE_HPP

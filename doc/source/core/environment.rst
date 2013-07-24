@@ -7,6 +7,60 @@ call stack manipulation, a custom data structure for complex data, many routines
 for manipulating real and complex data, a litany of custom enums, and a few 
 useful routines for simplifying index calculations.
 
+Build and version information
+-----------------------------
+
+Every Elemental driver with proper command-line argument processing will run
+`PrintVersion` if the ``--version`` argument is used. If ``--build`` is used,
+then all of the below information is reported.
+
+.. cpp:function:: void PrintVersion( std::ostream& os=std::cout )
+
+   Prints the Git revision, (pre-)release version, and build type. 
+   For example::
+
+    Elemental version information:
+      Git revision: 3c6fbdaad901a554fc27a83378d63dab55af0dd3
+      Version:      0.81-dev
+      Build type:   PureDebug
+   
+.. cpp:function:: void PrintConfig( std::ostream& os=std::cout )
+
+   Prints the relevant configuration details. For example::
+
+    Elemental configuration:
+      Math libraries: /usr/lib/liblapack.so;/usr/lib/libblas.so
+      HAVE_F90_INTERFACE
+      HAVE_PMRRR
+      HAVE_MPI_REDUCE_SCATTER_BLOCK
+      HAVE_MPI_IN_PLACE
+      USE_BYTE_ALLGATHERS
+
+.. cpp:function:: void PrintCCompilerInfo( std::ostream& os=std::cout )
+
+   Prints the relevant C compilation information. For example::
+
+    Elemental's C compiler info:
+      CMAKE_C_COMPILER:    /usr/local/bin/gcc
+      MPI_C_COMPILER:      /home/poulson/Install/bin/mpicc
+      MPI_C_INCLUDE_PATH:  /home/poulson/Install/include
+      MPI_C_COMPILE_FLAGS: 
+      MPI_C_LINK_FLAGS:     -Wl,-rpath  -Wl,/home/poulson/Install/lib
+      MPI_C_LIBRARIES:     /home/poulson/Install/lib/libmpich.so;/home/poulson/Install/lib/libopa.so;/home/poulson/Install/lib/libmpl.so;/usr/lib/i386-linux-gnu/librt.so;/usr/lib/i386-linux-gnu/libpthread.so
+
+.. cpp:function:: void PrintCxxCompilerInfo( std::ostream& os=std::cout )
+
+   Prints the relevant C++ compilation information. For example::
+
+    Elemental's C++ compiler info:
+      CMAKE_CXX_COMPILER:    /usr/local/bin/g++
+      CXX_FLAGS:             -Wall
+      MPI_CXX_COMPILER:      /home/poulson/Install/bin/mpicxx
+      MPI_CXX_INCLUDE_PATH:  /home/poulson/Install/include
+      MPI_CXX_COMPILE_FLAGS: 
+      MPI_CXX_LINK_FLAGS:     -Wl,-rpath  -Wl,/home/poulson/Install/lib
+      MPI_CXX_LIBRARIES:     /home/poulson/Install/lib/libmpichcxx.so;/home/poulson/Install/lib/libmpich.so;/home/poulson/Install/lib/libopa.so;/home/poulson/Install/lib/libmpl.so;/usr/lib/i386-linux-gnu/librt.so;/usr/lib/i386-linux-gnu/libpthread.so
+
 Set up and clean up
 -------------------
 
@@ -18,14 +72,10 @@ Set up and clean up
    .. code-block:: cpp
 
       #include "elemental.hpp"
-
-      int
-      main( int argc, char* argv[] )
+      int main( int argc, char* argv[] )
       {
           elem::Initialize( argc, argv );
-
           // ...
-
           elem::Finalize();
           return 0;
       }
@@ -37,6 +87,23 @@ Set up and clean up
 .. cpp:function:: bool Initialized()
 
    Returns whether or not Elemental is currently initialized.
+
+.. cpp:function:: void ReportException( std::exception& e )
+
+   Used for handling Elemental's various exceptions, e.g.,
+
+   .. code-block:: cpp
+
+      #include "elemental.hpp"
+      int main( int argc, char* argv[] )
+      {
+          elem::Initialize( argc, argv );
+          try {
+              // ...
+          } catch( std::exception& e ) { ReportException(e); }
+          elem::Finalize();
+          return 0;
+      }
 
 Blocksize manipulation
 ----------------------
