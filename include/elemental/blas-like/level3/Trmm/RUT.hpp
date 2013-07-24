@@ -10,8 +10,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRMM_RUT_HPP
-#define BLAS_TRMM_RUT_HPP
+#ifndef ELEM_BLAS_TRMM_RUT_HPP
+#define ELEM_BLAS_TRMM_RUT_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
@@ -312,4 +312,4 @@ TrmmRUT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRMM_RUT_HPP
+#endif // ifndef ELEM_BLAS_TRMM_RUT_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_POLAR_HPP
-#define LAPACK_POLAR_HPP
+#ifndef ELEM_LAPACK_POLAR_HPP
+#define ELEM_LAPACK_POLAR_HPP
 
 #include "elemental/lapack-like/Polar/SVD.hpp"
 #include "elemental/lapack-like/Polar/QDWH.hpp"
@@ -83,4 +83,4 @@ HermitianPolar( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_POLAR_HPP
+#endif // ifndef ELEM_LAPACK_POLAR_HPP

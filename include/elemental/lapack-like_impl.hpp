@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_IMPL_HPP
-#define LAPACK_IMPL_HPP
+#ifndef ELEM_LAPACK_IMPL_HPP
+#define ELEM_LAPACK_IMPL_HPP
 
 #include "./lapack-like/ApplyPackedReflectors.hpp"
 #include "./lapack-like/ApplyColumnPivots.hpp"
@@ -54,4 +54,4 @@
 #include "./lapack-like/Norm/Schatten.hpp"
 #include "./lapack-like/Norm/Zero.hpp"
 
-#endif // ifndef LAPACK_IMPL_HPP
+#endif // ifndef ELEM_LAPACK_IMPL_HPP

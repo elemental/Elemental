@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_CAUCHY_HPP
-#define MATRICES_CAUCHY_HPP
+#ifndef ELEM_MATRICES_CAUCHY_HPP
+#define ELEM_MATRICES_CAUCHY_HPP
 
 namespace elem {
 
@@ -84,4 +84,4 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_CAUCHY_HPP
+#endif // ifndef ELEM_MATRICES_CAUCHY_HPP

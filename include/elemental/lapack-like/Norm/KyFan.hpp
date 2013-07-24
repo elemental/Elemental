@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_KYFAN_HPP
-#define LAPACK_NORM_KYFAN_HPP
+#ifndef ELEM_LAPACK_NORM_KYFAN_HPP
+#define ELEM_LAPACK_NORM_KYFAN_HPP
 
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/MakeSymmetric.hpp"
@@ -161,4 +161,4 @@ SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, int k )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_KYFAN_HPP
+#endif // ifndef ELEM_LAPACK_NORM_KYFAN_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_TRIANGULARINVERSE_HPP
-#define LAPACK_TRIANGULARINVERSE_HPP
+#ifndef ELEM_LAPACK_TRIANGULARINVERSE_HPP
+#define ELEM_LAPACK_TRIANGULARINVERSE_HPP
 
 namespace elem {
 template<typename F>
@@ -85,4 +85,4 @@ LocalTriangularInverse
 
 } // namespace elem
 
-#endif // ifndef LAPACK_TRIANGULARINVERSE_HPP
+#endif // ifndef ELEM_LAPACK_TRIANGULARINVERSE_HPP

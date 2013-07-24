@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_L_HPP
-#define LAPACK_BIDIAG_L_HPP
+#ifndef ELEM_LAPACK_BIDIAG_L_HPP
+#define ELEM_LAPACK_BIDIAG_L_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -285,4 +285,4 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_L_HPP
+#endif // ifndef ELEM_LAPACK_BIDIAG_L_HPP

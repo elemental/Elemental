@@ -8,8 +8,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_MPI_HPP
-#define CORE_MPI_HPP
+#ifndef ELEM_CORE_MPI_HPP
+#define ELEM_CORE_MPI_HPP
 
 namespace elem {
 namespace mpi {
@@ -336,4 +336,4 @@ void ReduceScatter
 } // mpi
 } // elem
 
-#endif // ifndef CORE_MPI_HPP
+#endif // ifndef ELEM_CORE_MPI_HPP

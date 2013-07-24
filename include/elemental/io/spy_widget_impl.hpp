@@ -7,9 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_SPYWIDGET_IMPL_HPP
-#define IO_SPYWIDGET_IMPL_HPP
-
+#ifndef ELEM_IO_SPYWIDGET_IMPL_HPP
+#define ELEM_IO_SPYWIDGET_IMPL_HPP
 #ifdef HAVE_QT5
 
 #include <QPainter>
@@ -83,5 +82,4 @@ SpyWidget::Spy( const Matrix<int>* A )
 } // namespace elem
 
 #endif // ifdef HAVE_QT5
-
-#endif // ifndef IO_SPYWIDGET_IMPL_HPP
+#endif // ifndef ELEM_IO_SPYWIDGET_IMPL_HPP

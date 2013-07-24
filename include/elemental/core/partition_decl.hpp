@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_PARTITION_DECL_HPP
-#define CORE_PARTITION_DECL_HPP
+#ifndef ELEM_CORE_PARTITION_DECL_HPP
+#define ELEM_CORE_PARTITION_DECL_HPP
 
 namespace elem {
 
@@ -213,4 +213,4 @@ void LockedPartitionDownOffsetDiagonal
 
 } // namespace elem
 
-#endif // ifndef CORE_PARTITION_DECL_HPP
+#endif // ifndef ELEM_CORE_PARTITION_DECL_HPP

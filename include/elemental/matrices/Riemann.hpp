@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_RIEMANN_HPP
-#define MATRICES_RIEMANN_HPP
+#ifndef ELEM_MATRICES_RIEMANN_HPP
+#define ELEM_MATRICES_RIEMANN_HPP
 
 namespace elem {
 
@@ -62,4 +62,4 @@ Riemann( DistMatrix<T,U,V>& R, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_RIEMANN_HPP
+#endif // ifndef ELEM_MATRICES_RIEMANN_HPP

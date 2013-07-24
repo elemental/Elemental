@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYRK_UT_HPP
-#define BLAS_SYRK_UT_HPP
+#ifndef ELEM_BLAS_SYRK_UT_HPP
+#define ELEM_BLAS_SYRK_UT_HPP
 
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 
@@ -85,4 +85,4 @@ SyrkUT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_SYRK_UT_HPP
+#endif // ifndef ELEM_BLAS_SYRK_UT_HPP

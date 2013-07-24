@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_EXPANDPACKEDREFLECTORS_HPP
-#define LAPACK_EXPANDPACKEDREFLECTORS_HPP
+#ifndef ELEM_LAPACK_EXPANDPACKEDREFLECTORS_HPP
+#define ELEM_LAPACK_EXPANDPACKEDREFLECTORS_HPP
 
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 
@@ -63,4 +63,4 @@ ExpandPackedReflectors
 
 } // namespace elem
 
-#endif // ifndef LAPACK_EXPANDPACKEDREFLECTORS_HPP
+#endif // ifndef ELEM_LAPACK_EXPANDPACKEDREFLECTORS_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_ENTRYWISE_HPP
-#define LAPACK_NORM_ENTRYWISE_HPP
+#ifndef ELEM_LAPACK_NORM_ENTRYWISE_HPP
+#define ELEM_LAPACK_NORM_ENTRYWISE_HPP
 
 namespace elem {
 
@@ -182,4 +182,4 @@ SymmetricEntrywiseNorm
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_ENTRYWISE_HPP
+#endif // ifndef ELEM_LAPACK_NORM_ENTRYWISE_HPP

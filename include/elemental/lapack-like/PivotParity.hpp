@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_PIVOTPARITY_HPP
-#define LAPACK_PIVOTPARITY_HPP
+#ifndef ELEM_LAPACK_PIVOTPARITY_HPP
+#define ELEM_LAPACK_PIVOTPARITY_HPP
 
 namespace elem {
 
@@ -66,4 +66,4 @@ PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_PIVOTPARITY_HPP
+#endif // ifndef ELEM_LAPACK_PIVOTPARITY_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_FOURIER_HPP
-#define MATRICES_FOURIER_HPP
+#ifndef ELEM_MATRICES_FOURIER_HPP
+#define ELEM_MATRICES_FOURIER_HPP
 
 namespace elem {
 
@@ -98,4 +98,4 @@ MakeFourier( DistMatrix<Complex<R>,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_FOURIER_HPP
+#endif // ifndef ELEM_MATRICES_FOURIER_HPP

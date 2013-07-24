@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP
-#define LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP
+#ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP
+#define ELEM_LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
@@ -239,4 +239,4 @@ RUHF
 } // namespace apply_packed_reflectors
 } // namespace elem
 
-#endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP
+#endif // ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_RUHF_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_HPP
-#define CORE_HPP
+#ifndef ELEM_CORE_HPP
+#define ELEM_CORE_HPP
 
 #include "mpi.h"
 #include <algorithm>
@@ -97,4 +97,4 @@
 
 #include "elemental/core/ReduceComm.hpp"
 
-#endif // ifndef CORE_HPP
+#endif // ifndef ELEM_CORE_HPP

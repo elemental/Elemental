@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LDL_HPP
-#define LAPACK_LDL_HPP
+#ifndef ELEM_LAPACK_LDL_HPP
+#define ELEM_LAPACK_LDL_HPP
 
 // TODO: Reorganize LDL implementation?
 namespace elem {
@@ -125,4 +125,4 @@ LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_LDL_HPP
+#endif // ifndef ELEM_LAPACK_LDL_HPP

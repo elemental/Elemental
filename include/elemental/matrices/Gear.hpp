@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_GEAR_HPP
-#define MATRICES_GEAR_HPP
+#ifndef ELEM_MATRICES_GEAR_HPP
+#define ELEM_MATRICES_GEAR_HPP
 
 #include "elemental/matrices/Zeros.hpp"
 
@@ -76,4 +76,4 @@ Gear( DistMatrix<T,U,V>& G, int n, int s, int t )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_GEAR_HPP
+#endif // ifndef ELEM_MATRICES_GEAR_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_HPP
-#define LAPACK_BIDIAG_HPP
+#ifndef ELEM_LAPACK_BIDIAG_HPP
+#define ELEM_LAPACK_BIDIAG_HPP
 
 #include "./Bidiag/Apply.hpp"
 #include "./Bidiag/PanelL.hpp"
@@ -67,4 +67,4 @@ inline void Bidiag( DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_HPP
+#endif // ifndef ELEM_LAPACK_BIDIAG_HPP

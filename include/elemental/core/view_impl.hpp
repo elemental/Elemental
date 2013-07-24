@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_VIEW_IMPL_HPP
-#define CORE_VIEW_IMPL_HPP
+#ifndef ELEM_CORE_VIEW_IMPL_HPP
+#define ELEM_CORE_VIEW_IMPL_HPP
 
 namespace elem {
 
@@ -623,4 +623,4 @@ inline void LockedView2x2
 
 } // namespace elem
 
-#endif // ifndef CORE_VIEW_IMPL_HPP
+#endif // ifndef ELEM_CORE_VIEW_IMPL_HPP

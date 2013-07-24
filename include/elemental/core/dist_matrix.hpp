@@ -7,17 +7,15 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_DISTMATRIX_HPP
-#define CORE_DISTMATRIX_HPP
+#ifndef ELEM_CORE_DISTMATRIX_HPP
+#define ELEM_CORE_DISTMATRIX_HPP
 
 namespace elem {
 template<typename Int=int>
 struct DistData
 {
-    Distribution colDist;
-    Distribution rowDist;
-    Int colAlignment; 
-    Int rowAlignment;
+    Distribution colDist, rowDist;
+    Int colAlignment, rowAlignment; 
     Int root;     // only relevant for [o ,o ]
     Int diagPath; // only relevant for [MD,* ]/[* ,MD] distributions
     const Grid* grid;
@@ -40,4 +38,4 @@ struct DistData
 #include "elemental/core/dist_matrix/vc_star.hpp"
 #include "elemental/core/dist_matrix/vr_star.hpp"
 
-#endif // ifndef CORE_DISTMATRIX_HPP
+#endif // ifndef ELEM_CORE_DISTMATRIX_HPP

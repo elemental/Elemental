@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRTRMM_HPP
-#define BLAS_TRTRMM_HPP
+#ifndef ELEM_BLAS_TRTRMM_HPP
+#define ELEM_BLAS_TRTRMM_HPP
 
 #include "./Trtrmm/Unblocked.hpp"
 #include "./Trtrmm/LVar1.hpp"
@@ -59,4 +59,4 @@ Trtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<T>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_TRTRMM_HPP
+#endif // ifndef ELEM_BLAS_TRTRMM_HPP

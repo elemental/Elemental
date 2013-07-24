@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYR_HPP
-#define BLAS_SYR_HPP
+#ifndef ELEM_BLAS_SYR_HPP
+#define ELEM_BLAS_SYR_HPP
 
 namespace elem {
 
@@ -166,4 +166,4 @@ Syr
 
 } // namespace elem
 
-#endif // ifndef BLAS_SYR_HPP
+#endif // ifndef ELEM_BLAS_SYR_HPP

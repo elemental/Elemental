@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TWOSIDEDTRSM_LVAR2_HPP
-#define BLAS_TWOSIDEDTRSM_LVAR2_HPP
+#ifndef ELEM_BLAS_TWOSIDEDTRSM_LVAR2_HPP
+#define ELEM_BLAS_TWOSIDEDTRSM_LVAR2_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
@@ -257,4 +257,4 @@ TwoSidedTrsmLVar2
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TWOSIDEDTRSM_LVAR2_HPP
+#endif // ifndef ELEM_BLAS_TWOSIDEDTRSM_LVAR2_HPP

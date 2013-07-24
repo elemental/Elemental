@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_SPY_HPP
-#define IO_SPY_HPP
+#ifndef ELEM_IO_SPY_HPP
+#define ELEM_IO_SPY_HPP
 
 #ifdef HAVE_QT5
 
@@ -82,4 +82,4 @@ Spy( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef IO_SPY_HPP
+#endif // ifndef ELEM_IO_SPY_HPP

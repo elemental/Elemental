@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_FORSYTHE_HPP
-#define MATRICES_FORSYTHE_HPP
+#ifndef ELEM_MATRICES_FORSYTHE_HPP
+#define ELEM_MATRICES_FORSYTHE_HPP
 
 #include "elemental/matrices/Jordan.hpp"
 
@@ -66,4 +66,4 @@ MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_FORSYTHE_HPP
+#endif // ifndef ELEM_MATRICES_FORSYTHE_HPP

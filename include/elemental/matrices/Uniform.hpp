@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_UNIFORM_HPP
-#define MATRICES_UNIFORM_HPP
+#ifndef ELEM_MATRICES_UNIFORM_HPP
+#define ELEM_MATRICES_UNIFORM_HPP
 
 namespace elem {
 
@@ -371,4 +371,4 @@ Uniform( DistMatrix<T,U,V>& A, int m, int n, T center=0, BASE(T) radius=1 )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_UNIFORM_HPP
+#endif // ifndef ELEM_MATRICES_UNIFORM_HPP

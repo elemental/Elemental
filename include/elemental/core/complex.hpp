@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_COMPLEX_HPP
-#define CORE_COMPLEX_HPP
+#ifndef ELEM_CORE_COMPLEX_HPP
+#define ELEM_CORE_COMPLEX_HPP
 
 #include "elemental/core/complex_decl.hpp"
 #include "elemental/core/complex_impl.hpp"
 
-#endif // ifndef CORE_COMPLEX_HPP
+#endif // ifndef ELEM_CORE_COMPLEX_HPP

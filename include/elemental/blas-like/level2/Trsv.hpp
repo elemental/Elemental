@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRSV_HPP
-#define BLAS_TRSV_HPP
+#ifndef ELEM_BLAS_TRSV_HPP
+#define ELEM_BLAS_TRSV_HPP
 
 #include "./Trsv/LN.hpp"
 #include "./Trsv/LT.hpp"
@@ -73,4 +73,4 @@ Trsv
 
 } // namespace elem
 
-#endif // ifndef BLAS_TRSV_HPP
+#endif // ifndef ELEM_BLAS_TRSV_HPP

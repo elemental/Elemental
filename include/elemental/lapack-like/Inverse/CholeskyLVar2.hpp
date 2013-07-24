@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
-#define LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
+#ifndef ELEM_LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
+#define ELEM_LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -174,4 +174,4 @@ CholeskyLVar2( DistMatrix<F>& A )
 } // namespace hpd_inverse
 } // namespace elem
 
-#endif // ifndef LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP
+#endif // ifndef ELEM_LAPACK_HPDINVERSE_CHOLESKYLVAR2_HPP

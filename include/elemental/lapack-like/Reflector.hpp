@@ -12,8 +12,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_REFLECTOR_HPP
-#define LAPACK_REFLECTOR_HPP
+#ifndef ELEM_LAPACK_REFLECTOR_HPP
+#define ELEM_LAPACK_REFLECTOR_HPP
 
 #include "elemental/blas-like/level1/Nrm2.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -313,4 +313,4 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_REFLECTOR_HPP
+#endif // ifndef ELEM_LAPACK_REFLECTOR_HPP

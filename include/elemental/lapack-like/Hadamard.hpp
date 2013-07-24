@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HADAMARD_HPP
-#define LAPACK_HADAMARD_HPP
+#ifndef ELEM_LAPACK_HADAMARD_HPP
+#define ELEM_LAPACK_HADAMARD_HPP
 
 //
 // C(i,j) := A(i,j) B(i,j)
@@ -67,4 +67,4 @@ inline void Hadamard
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HADAMARD_HPP
+#endif // ifndef ELEM_LAPACK_HADAMARD_HPP

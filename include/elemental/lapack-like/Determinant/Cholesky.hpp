@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HPDDETERMINANT_CHOLESKY_HPP
-#define LAPACK_HPDDETERMINANT_CHOLESKY_HPP
+#ifndef ELEM_LAPACK_HPDDETERMINANT_CHOLESKY_HPP
+#define ELEM_LAPACK_HPDDETERMINANT_CHOLESKY_HPP
 
 #include "elemental/lapack-like/Cholesky.hpp"
 
@@ -116,4 +116,4 @@ Cholesky( UpperOrLower uplo, DistMatrix<F>& A )
 } // namespace hpd_determinant
 } // namespace elem
 
-#endif // ifndef LAPACK_HPDDETERMINANT_CHOLESKY_HPP
+#endif // ifndef ELEM_LAPACK_HPDDETERMINANT_CHOLESKY_HPP

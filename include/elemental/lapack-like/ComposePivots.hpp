@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_COMPOSEPIVOTS_HPP
-#define LAPACK_COMPOSEPIVOTS_HPP
+#ifndef ELEM_LAPACK_COMPOSEPIVOTS_HPP
+#define ELEM_LAPACK_COMPOSEPIVOTS_HPP
 
 #include <algorithm>
 
@@ -132,4 +132,4 @@ ComposePivots
 
 } // namespace elem
 
-#endif // ifndef LAPACK_COMPOSEPIVOTS_HPP
+#endif // ifndef ELEM_LAPACK_COMPOSEPIVOTS_HPP

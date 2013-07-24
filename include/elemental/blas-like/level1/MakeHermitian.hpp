@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_MAKEHERMITIAN_HPP
-#define BLAS_MAKEHERMITIAN_HPP
+#ifndef ELEM_BLAS_MAKEHERMITIAN_HPP
+#define ELEM_BLAS_MAKEHERMITIAN_HPP
 
 #include "elemental/blas-like/level1/MakeSymmetric.hpp"
 
@@ -36,4 +36,4 @@ MakeHermitian( UpperOrLower uplo, DistMatrix<T>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_MAKEHERMITIAN_HPP
+#endif // ifndef ELEM_BLAS_MAKEHERMITIAN_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRDTRMM_HPP
-#define BLAS_TRDTRMM_HPP
+#ifndef ELEM_BLAS_TRDTRMM_HPP
+#define ELEM_BLAS_TRDTRMM_HPP
 
 namespace elem {
 
@@ -63,4 +63,4 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_TRDTRMM_HPP
+#endif // ifndef ELEM_BLAS_TRDTRMM_HPP

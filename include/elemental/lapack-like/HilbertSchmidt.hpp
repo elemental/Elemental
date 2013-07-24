@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HILBERTSCHMIDT_HPP
-#define LAPACK_HILBERTSCHMIDT_HPP
+#ifndef ELEM_LAPACK_HILBERTSCHMIDT_HPP
+#define ELEM_LAPACK_HILBERTSCHMIDT_HPP
 
 namespace elem {
 
@@ -63,4 +63,4 @@ HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HILBERTSCHMIDT_HPP
+#endif // ifndef ELEM_LAPACK_HILBERTSCHMIDT_HPP

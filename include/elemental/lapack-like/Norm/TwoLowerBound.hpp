@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_TWOLOWERBOUND_HPP
-#define LAPACK_NORM_TWOLOWERBOUND_HPP
+#ifndef ELEM_LAPACK_NORM_TWOLOWERBOUND_HPP
+#define ELEM_LAPACK_NORM_TWOLOWERBOUND_HPP
 
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
@@ -61,4 +61,4 @@ TwoNormLowerBound( const DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_TWOLOWERBOUND_HPP
+#endif // ifndef ELEM_LAPACK_NORM_TWOLOWERBOUND_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRMV_HPP
-#define BLAS_TRMV_HPP
+#ifndef ELEM_BLAS_TRMV_HPP
+#define ELEM_BLAS_TRMV_HPP
 
 // TODO: Implement distributed version
 
@@ -42,4 +42,4 @@ Trmv
 
 } // namespace elem
 
-#endif // ifndef BLAS_TRMV_HPP
+#endif // ifndef ELEM_BLAS_TRMV_HPP

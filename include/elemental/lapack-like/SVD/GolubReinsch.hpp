@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SVD_GOLUBREINSCH_HPP
-#define LAPACK_SVD_GOLUBREINSCH_HPP
+#ifndef ELEM_LAPACK_SVD_GOLUBREINSCH_HPP
+#define ELEM_LAPACK_SVD_GOLUBREINSCH_HPP
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/blas-like/level1/Transpose.hpp"
@@ -266,4 +266,4 @@ GolubReinschUpper
 } // namespace svd
 } // namespace elem
 
-#endif // ifndef LAPACK_SVD_GOLUBREINSCH_HPP
+#endif // ifndef ELEM_LAPACK_SVD_GOLUBREINSCH_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRTRSM_LLN_HPP
-#define BLAS_TRTRSM_LLN_HPP
+#ifndef ELEM_BLAS_TRTRSM_LLN_HPP
+#define ELEM_BLAS_TRTRSM_LLN_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
@@ -218,4 +218,4 @@ TrtrsmLLN
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRTRSM_LLN_HPP
+#endif // ifndef ELEM_BLAS_TRTRSM_LLN_HPP

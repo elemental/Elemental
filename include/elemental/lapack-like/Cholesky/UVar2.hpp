@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_UVAR2_HPP
-#define LAPACK_CHOLESKY_UVAR2_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_UVAR2_HPP
+#define ELEM_LAPACK_CHOLESKY_UVAR2_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -144,4 +144,4 @@ UVar2( DistMatrix<F>& A )
 } // namespace cholesky
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_UVAR2_HPP
+#endif // ifndef ELEM_LAPACK_CHOLESKY_UVAR2_HPP

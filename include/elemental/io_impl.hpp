@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_IMPL_HPP
-#define IO_IMPL_HPP
+#ifndef ELEM_IO_IMPL_HPP
+#define ELEM_IO_IMPL_HPP
 
 #include "elemental/io/Print.hpp"
 #include "elemental/io/Write.hpp"
@@ -21,4 +21,4 @@
 
 #include "elemental/io/Display.hpp"
 
-#endif // ifndef IO_IMPL_HPP
+#endif // ifndef ELEM_IO_IMPL_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SCALETRAPEZOID_HPP
-#define BLAS_SCALETRAPEZOID_HPP
+#ifndef ELEM_BLAS_SCALETRAPEZOID_HPP
+#define ELEM_BLAS_SCALETRAPEZOID_HPP
 
 namespace elem {
 
@@ -141,4 +141,4 @@ ScaleTrapezoid
 
 } // namespace elem
 
-#endif // ifndef BLAS_SCALETRAPEZOID_HPP
+#endif // ifndef ELEM_BLAS_SCALETRAPEZOID_HPP

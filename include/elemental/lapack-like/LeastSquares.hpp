@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LEASTSQUARES_HPP
-#define LAPACK_LEASTSQUARES_HPP
+#ifndef ELEM_LAPACK_LEASTSQUARES_HPP
+#define ELEM_LAPACK_LEASTSQUARES_HPP
 
 #include "elemental/blas-like/level1/Zero.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -252,4 +252,4 @@ LeastSquares
 
 } // namespace elem
 
-#endif // ifndef LAPACK_LEASTSQUARES_HPP
+#endif // ifndef ELEM_LAPACK_LEASTSQUARES_HPP

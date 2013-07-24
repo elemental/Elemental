@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SVD_CHAN_HPP
-#define LAPACK_SVD_CHAN_HPP
+#ifndef ELEM_LAPACK_SVD_CHAN_HPP
+#define ELEM_LAPACK_SVD_CHAN_HPP
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
@@ -173,4 +173,4 @@ Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 } // namespace svd
 } // namespace elem
 
-#endif // ifndef LAPACK_SVD_CHAN_HPP
+#endif // ifndef ELEM_LAPACK_SVD_CHAN_HPP

@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLASLIKE_HPP
-#define BLASLIKE_HPP
+#ifndef ELEM_BLASLIKE_HPP
+#define ELEM_BLASLIKE_HPP
 
 #include "elemental/blas-like_decl.hpp"
 #include "elemental/blas-like_impl.hpp"
 
-#endif // ifndef BLASLIKE_HPP
+#endif // ifndef ELEM_BLASLIKE_HPP

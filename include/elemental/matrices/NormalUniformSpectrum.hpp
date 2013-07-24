@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_NORMALUNIFORMSPECTRUM_HPP
-#define MATRICES_NORMALUNIFORMSPECTRUM_HPP
+#ifndef ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP
+#define ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP
 
 #include "elemental/blas-like/level1/Dot.hpp"
 #include "elemental/blas-like/level1/Nrm2.hpp"
@@ -212,4 +212,4 @@ MakeNormalUniformSpectrum
 
 } // namespace elem
 
-#endif // ifndef MATRICES_NORMALUNIFORMSPECTRUM_HPP
+#endif // ifndef ELEM_MATRICES_NORMALUNIFORMSPECTRUM_HPP

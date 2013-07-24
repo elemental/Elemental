@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYMM_LU_HPP
-#define BLAS_SYMM_LU_HPP
+#ifndef ELEM_BLAS_SYMM_LU_HPP
+#define ELEM_BLAS_SYMM_LU_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
@@ -410,4 +410,4 @@ SymmLU
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_SYMM_LU_HPP
+#endif // ifndef ELEM_BLAS_SYMM_LU_HPP

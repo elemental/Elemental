@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SETDIAGONAL_HPP
-#define BLAS_SETDIAGONAL_HPP
+#ifndef ELEM_BLAS_SETDIAGONAL_HPP
+#define ELEM_BLAS_SETDIAGONAL_HPP
 
 namespace elem {
 
@@ -126,4 +126,4 @@ SetDiagonal
 
 } // namespace elem
 
-#endif // ifndef BLAS_SETDIAGONAL_HPP
+#endif // ifndef ELEM_BLAS_SETDIAGONAL_HPP

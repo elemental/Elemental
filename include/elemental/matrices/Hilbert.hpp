@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HILBERT_HPP
-#define MATRICES_HILBERT_HPP
+#ifndef ELEM_MATRICES_HILBERT_HPP
+#define ELEM_MATRICES_HILBERT_HPP
 
 namespace elem {
 
@@ -84,4 +84,4 @@ MakeHilbert( DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HILBERT_HPP
+#endif // ifndef ELEM_MATRICES_HILBERT_HPP

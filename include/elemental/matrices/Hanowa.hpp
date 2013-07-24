@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HANOWA_HPP
-#define MATRICES_HANOWA_HPP
+#ifndef ELEM_MATRICES_HANOWA_HPP
+#define ELEM_MATRICES_HANOWA_HPP
 
 #include "elemental/matrices/Diagonal.hpp"
 
@@ -82,4 +82,4 @@ Hanowa( DistMatrix<T,U,V>& A, int n, T mu )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HANOWA_HPP
+#endif // ifndef ELEM_MATRICES_HANOWA_HPP

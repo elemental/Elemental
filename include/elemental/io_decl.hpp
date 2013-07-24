@@ -7,9 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_DECL_HPP
-#define IO_DECL_HPP
-
+#ifndef ELEM_IO_DECL_HPP
+#define ELEM_IO_DECL_HPP
 #ifdef HAVE_QT5
 
 #include "elemental/io/display_widget_decl.hpp"
@@ -35,5 +34,4 @@ void UpdateMaxImagWindowVal( double maxVal );
 } // namespace elem
 
 #endif // ifdef HAVE_QT5
-
-#endif // ifndef IO_DECL_HPP
+#endif // ifndef ELEM_IO_DECL_HPP

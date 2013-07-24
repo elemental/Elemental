@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_DIAGONALSOLVE_HPP
-#define BLAS_DIAGONALSOLVE_HPP
+#ifndef ELEM_BLAS_DIAGONALSOLVE_HPP
+#define ELEM_BLAS_DIAGONALSOLVE_HPP
 
 namespace elem {
 
@@ -201,4 +201,4 @@ DiagonalSolve
 
 } // namespace elem
 
-#endif // ifndef BLAS_DIAGONALSOLVE_HPP
+#endif // ifndef ELEM_BLAS_DIAGONALSOLVE_HPP

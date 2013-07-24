@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_PRINT_HPP
-#define IO_PRINT_HPP
+#ifndef ELEM_IO_PRINT_HPP
+#define ELEM_IO_PRINT_HPP
 
 namespace elem {
 
@@ -74,4 +74,4 @@ Print
 
 } // namespace elem
 
-#endif // ifndef IO_PRINT_HPP
+#endif // ifndef ELEM_IO_PRINT_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_HEMM_HPP
-#define BLAS_HEMM_HPP
+#ifndef ELEM_BLAS_HEMM_HPP
+#define ELEM_BLAS_HEMM_HPP
 
 #include "elemental/blas-like/level3/Symm.hpp"
 
@@ -42,4 +42,4 @@ Hemm
 
 } // namespace elem
 
-#endif // ifndef BLAS_HEMM_HPP
+#endif // ifndef ELEM_BLAS_HEMM_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_LVAR3SQUARE_HPP
-#define LAPACK_CHOLESKY_LVAR3SQUARE_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_LVAR3SQUARE_HPP
+#define ELEM_LAPACK_CHOLESKY_LVAR3SQUARE_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -131,4 +131,4 @@ LVar3Square( DistMatrix<F>& A )
 } // namespace cholesky
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_LVAR3SQUARE_HPP
+#endif // ifndef ELEM_LAPACK_CHOLESKY_LVAR3SQUARE_HPP

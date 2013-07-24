@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_JORDAN_HPP
-#define MATRICES_JORDAN_HPP
+#ifndef ELEM_MATRICES_JORDAN_HPP
+#define ELEM_MATRICES_JORDAN_HPP
 
 #include "elemental/blas-like/level1/Zero.hpp"
 
@@ -85,4 +85,4 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_JORDAN_HPP
+#endif // ifndef ELEM_MATRICES_JORDAN_HPP

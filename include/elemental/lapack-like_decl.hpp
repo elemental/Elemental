@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_DECL_HPP
-#define LAPACK_DECL_HPP
+#ifndef ELEM_LAPACK_DECL_HPP
+#define ELEM_LAPACK_DECL_HPP
 
 namespace elem {
 
@@ -118,4 +118,4 @@ template<> void DestroyPivotOp<dcomplex>();
 
 } // namespace elem
 
-#endif // ifndef LAPACK_DECL_HPP
+#endif // ifndef ELEM_LAPACK_DECL_HPP

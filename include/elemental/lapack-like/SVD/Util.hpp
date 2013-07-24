@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SVD_UTIL_HPP
-#define LAPACK_SVD_UTIL_HPP
+#ifndef ELEM_LAPACK_SVD_UTIL_HPP
+#define ELEM_LAPACK_SVD_UTIL_HPP
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
@@ -89,4 +89,4 @@ QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 } // namespace svd
 } // namespace elem
 
-#endif // ifndef LAPACK_SVD_UTIL_HPP
+#endif // ifndef ELEM_LAPACK_SVD_UTIL_HPP

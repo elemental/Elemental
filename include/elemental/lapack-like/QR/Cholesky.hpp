@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_QR_HPP
-#define LAPACK_CHOLESKY_QR_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_QR_HPP
+#define ELEM_LAPACK_CHOLESKY_QR_HPP
 
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -62,4 +62,4 @@ Cholesky( DistMatrix<F,VC,STAR>& A, DistMatrix<F,STAR,STAR>& R )
 } // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_QR_CHOLESKY_HPP
+#endif // ifndef ELEM_LAPACK_QR_CHOLESKY_HPP

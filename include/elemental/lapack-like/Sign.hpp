@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SIGN_HPP
-#define LAPACK_SIGN_HPP
+#ifndef ELEM_LAPACK_SIGN_HPP
+#define ELEM_LAPACK_SIGN_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -402,4 +402,4 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_SIGN_HPP
+#endif // ifndef ELEM_LAPACK_SIGN_HPP

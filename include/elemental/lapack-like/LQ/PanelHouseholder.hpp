@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LQ_PANELHOUSEHOLDER_HPP
-#define LAPACK_LQ_PANELHOUSEHOLDER_HPP
+#ifndef ELEM_LAPACK_LQ_PANELHOUSEHOLDER_HPP
+#define ELEM_LAPACK_LQ_PANELHOUSEHOLDER_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -215,4 +215,4 @@ PanelHouseholder( DistMatrix<F>& A )
 } // namespace lq
 } // namespace elem
 
-#endif // ifndef LAPACK_LQ_PANELHOUSEHOLDER_HPP
+#endif // ifndef ELEM_LAPACK_LQ_PANELHOUSEHOLDER_HPP

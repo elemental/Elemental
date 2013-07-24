@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_IMPL_HPP
-#define BLAS_IMPL_HPP
+#ifndef ELEM_BLAS_IMPL_HPP
+#define ELEM_BLAS_IMPL_HPP
 
 #include "./matrices_decl.hpp"
 #include "./matrices/Identity.hpp"
@@ -18,4 +18,4 @@
 #include "./blas-like/level2.hpp"
 #include "./blas-like/level3.hpp"
 
-#endif // ifndef BLAS_IMPL_HPP
+#endif // ifndef ELEM_BLAS_IMPL_HPP

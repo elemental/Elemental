@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_HER2K_HPP
-#define BLAS_HER2K_HPP
+#ifndef ELEM_BLAS_HER2K_HPP
+#define ELEM_BLAS_HER2K_HPP
 
 #include "elemental/blas-like/level3/Syr2k.hpp"
 
@@ -70,4 +70,4 @@ Her2k
 
 } // namespace elem
 
-#endif // ifndef BLAS_HER2K_HPP
+#endif // ifndef ELEM_BLAS_HER2K_HPP

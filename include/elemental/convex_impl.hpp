@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_IMPL_HPP
-#define CONVEX_IMPL_HPP
+#ifndef ELEM_CONVEX_IMPL_HPP
+#define ELEM_CONVEX_IMPL_HPP
 
 #include "elemental/convex/LogBarrier.hpp"
 #include "elemental/convex/LogDetDivergence.hpp"
@@ -16,4 +16,4 @@
 #include "elemental/convex/SoftThreshold.hpp"
 #include "elemental/convex/UnitaryCoherence.hpp"
 
-#endif // ifndef CONVEX_IMPL_HPP
+#endif // ifndef ELEM_CONVEX_IMPL_HPP

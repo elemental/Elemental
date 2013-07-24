@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_INDEXING_IMPL_HPP
-#define CORE_INDEXING_IMPL_HPP
+#ifndef ELEM_CORE_INDEXING_IMPL_HPP
+#define ELEM_CORE_INDEXING_IMPL_HPP
 
 namespace elem {
 
@@ -146,4 +146,4 @@ inline Int Shift_( Int rank, Int alignment, Int stride )
 
 } // namespace elem
 
-#endif // ifndef CORE_INDEXING_IMPL_HPP
+#endif // ifndef ELEM_CORE_INDEXING_IMPL_HPP

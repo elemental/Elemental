@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRDTRMM_UVAR1_HPP
-#define BLAS_TRDTRMM_UVAR1_HPP
+#ifndef ELEM_BLAS_TRDTRMM_UVAR1_HPP
+#define ELEM_BLAS_TRDTRMM_UVAR1_HPP
 
 #include "elemental/blas-like/level1/DiagonalSolve.hpp"
 #include "elemental/blas-like/level3/Trmm.hpp"
@@ -141,4 +141,4 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F>& U )
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRDTRMM_UVAR1_HPP
+#endif // ifndef ELEM_BLAS_TRDTRMM_UVAR1_HPP

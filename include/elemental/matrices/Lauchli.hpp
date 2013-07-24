@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_LAUCHLI_HPP
-#define MATRICES_LAUCHLI_HPP
+#ifndef ELEM_MATRICES_LAUCHLI_HPP
+#define ELEM_MATRICES_LAUCHLI_HPP
 
 #include "elemental/matrices/Diagonal.hpp"
 #include "elemental/matrices/Ones.hpp"
@@ -55,4 +55,4 @@ Lauchli( DistMatrix<T,U,V>& A, int n, T mu )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_LAUCHLI_HPP
+#endif // ifndef ELEM_MATRICES_LAUCHLI_HPP

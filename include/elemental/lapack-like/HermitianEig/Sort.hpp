@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANEIG_SORT_HPP
-#define LAPACK_HERMITIANEIG_SORT_HPP
+#ifndef ELEM_LAPACK_HERMITIANEIG_SORT_HPP
+#define ELEM_LAPACK_HERMITIANEIG_SORT_HPP
 
 namespace elem {
 
@@ -162,4 +162,4 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANEIG_SORT_HPP
+#endif // ifndef ELEM_LAPACK_HERMITIANEIG_SORT_HPP

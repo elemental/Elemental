@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_REDUCE_COMM_HPP
-#define CORE_REDUCE_COMM_HPP
+#ifndef ELEM_CORE_REDUCE_COMM_HPP
+#define ELEM_CORE_REDUCE_COMM_HPP
 
 namespace elem {
 
@@ -93,4 +93,4 @@ ReduceRowComm( const Grid& grid )
 
 } // namespace elem
 
-#endif // ifndef CORE_REDUCE_COMM_HPP
+#endif // ifndef ELEM_CORE_REDUCE_COMM_HPP

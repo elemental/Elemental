@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HPP
-#define MATRICES_HPP
+#ifndef ELEM_MATRICES_HPP
+#define ELEM_MATRICES_HPP
 
 #include "elemental/matrices_decl.hpp"
 #include "elemental/matrices_impl.hpp"
 
-#endif // ifndef MATRICES_HPP
+#endif // ifndef ELEM_MATRICES_HPP

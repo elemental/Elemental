@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_TWOUPPERBOUND_HPP
-#define LAPACK_NORM_TWOUPPERBOUND_HPP
+#ifndef ELEM_LAPACK_NORM_TWOUPPERBOUND_HPP
+#define ELEM_LAPACK_NORM_TWOUPPERBOUND_HPP
 
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
@@ -60,4 +60,4 @@ TwoNormUpperBound( const DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_TWOUPPERBOUND_HPP
+#endif // ifndef ELEM_LAPACK_NORM_TWOUPPERBOUND_HPP

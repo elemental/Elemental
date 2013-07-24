@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LQ_HPP
-#define LAPACK_LQ_HPP
+#ifndef ELEM_LAPACK_LQ_HPP
+#define ELEM_LAPACK_LQ_HPP
 
 #include "elemental/lapack-like/LQ/ApplyQ.hpp"
 #include "elemental/lapack-like/LQ/Householder.hpp"
@@ -73,4 +73,4 @@ LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_LQ_HPP
+#endif // ifndef ELEM_LAPACK_LQ_HPP

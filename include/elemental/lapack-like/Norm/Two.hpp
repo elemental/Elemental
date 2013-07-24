@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_TWO_HPP
-#define LAPACK_NORM_TWO_HPP
+#ifndef ELEM_LAPACK_NORM_TWO_HPP
+#define ELEM_LAPACK_NORM_TWO_HPP
 
 #include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
@@ -105,4 +105,4 @@ SymmetricTwoNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_TWO_HPP
+#endif // ifndef ELEM_LAPACK_NORM_TWO_HPP

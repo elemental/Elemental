@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_IDENTITY_HPP
-#define MATRICES_IDENTITY_HPP
+#ifndef ELEM_MATRICES_IDENTITY_HPP
+#define ELEM_MATRICES_IDENTITY_HPP
 
 #include "elemental/blas-like/level1/Zero.hpp"
 
@@ -79,4 +79,4 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_IDENTITY_HPP
+#endif // ifndef ELEM_MATRICES_IDENTITY_HPP

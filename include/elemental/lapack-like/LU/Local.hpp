@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LU_LOCAL_HPP
-#define LAPACK_LU_LOCAL_HPP
+#ifndef ELEM_LAPACK_LU_LOCAL_HPP
+#define ELEM_LAPACK_LU_LOCAL_HPP
 
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level2/Geru.hpp"
@@ -84,4 +84,4 @@ Unb( Matrix<F>& A )
 } // namespace lu
 } // namespace elem
 
-#endif // ifndef LAPACK_LU_LOCAL_HPP
+#endif // ifndef ELEM_LAPACK_LU_LOCAL_HPP

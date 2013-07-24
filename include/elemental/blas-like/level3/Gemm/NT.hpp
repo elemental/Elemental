@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_GEMM_NT_HPP
-#define BLAS_GEMM_NT_HPP
+#ifndef ELEM_BLAS_GEMM_NT_HPP
+#define ELEM_BLAS_GEMM_NT_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -303,4 +303,4 @@ SUMMA_NT
 } // namespace gemm
 } // namespace elem
 
-#endif // ifndef BLAS_GEMM_NT_HPP
+#endif // ifndef ELEM_BLAS_GEMM_NT_HPP

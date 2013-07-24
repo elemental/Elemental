@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_UNITARYCOHERENCE_HPP
-#define CONVEX_UNITARYCOHERENCE_HPP
+#ifndef ELEM_CONVEX_UNITARYCOHERENCE_HPP
+#define ELEM_CONVEX_UNITARYCOHERENCE_HPP
 
 // Definition taken from Eq. (1.8) from: 
 //   Emmanuel J. Candes and Benjamin Recht, 
@@ -94,4 +94,4 @@ UnitaryCoherence( DistMatrix<F>& U )
 
 } // namespace elem
 
-#endif // ifndef CONVEX_UNITARYCOHERENCE_HPP
+#endif // ifndef ELEM_CONVEX_UNITARYCOHERENCE_HPP

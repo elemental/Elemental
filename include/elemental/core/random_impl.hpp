@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_RANDOM_IMPL_HPP
-#define CORE_RANDOM_IMPL_HPP
+#ifndef ELEM_CORE_RANDOM_IMPL_HPP
+#define ELEM_CORE_RANDOM_IMPL_HPP
 
 namespace elem {
 
@@ -69,4 +69,4 @@ SampleUnitBall<Complex<double> >()
 
 } // namespace elem
 
-#endif // ifndef CORE_RANDOM_IMPL_HPP
+#endif // ifndef ELEM_CORE_RANDOM_IMPL_HPP

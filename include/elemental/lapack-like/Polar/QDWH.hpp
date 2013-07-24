@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_POLAR_QDWH_HPP
-#define LAPACK_POLAR_QDWH_HPP
+#ifndef ELEM_LAPACK_POLAR_QDWH_HPP
+#define ELEM_LAPACK_POLAR_QDWH_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
@@ -459,4 +459,4 @@ QDWH
 
 } // namespace elem
 
-#endif // ifndef LAPACK_POLAR_QDWH_HPP
+#endif // ifndef ELEM_LAPACK_POLAR_QDWH_HPP

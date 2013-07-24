@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANFUNCTION_HPP
-#define LAPACK_HERMITIANFUNCTION_HPP
+#ifndef ELEM_LAPACK_HERMITIANFUNCTION_HPP
+#define ELEM_LAPACK_HERMITIANFUNCTION_HPP
 
 #include "elemental/lapack-like/HermitianEig.hpp"
 #include "elemental/matrices/HermitianFromEVD.hpp"
@@ -154,4 +154,4 @@ ComplexHermitianFunction
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANFUNCTION_HPP
+#endif // ifndef ELEM_LAPACK_HERMITIANFUNCTION_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_UUNB_HPP
-#define LAPACK_BIDIAG_UUNB_HPP
+#ifndef ELEM_LAPACK_BIDIAG_UUNB_HPP
+#define ELEM_LAPACK_BIDIAG_UUNB_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -165,4 +165,4 @@ inline void UUnb
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_UNBLOCKEDU_HPP
+#endif // ifndef ELEM_LAPACK_BIDIAG_UNBLOCKEDU_HPP

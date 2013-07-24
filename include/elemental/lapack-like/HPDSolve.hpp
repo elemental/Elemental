@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HPDSOLVE_HPP
-#define LAPACK_HPDSOLVE_HPP
+#ifndef ELEM_LAPACK_HPDSOLVE_HPP
+#define ELEM_LAPACK_HPDSOLVE_HPP
 
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
@@ -42,4 +42,4 @@ HPDSolve
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HPDSOLVE_HPP
+#endif // ifndef ELEM_LAPACK_HPDSOLVE_HPP

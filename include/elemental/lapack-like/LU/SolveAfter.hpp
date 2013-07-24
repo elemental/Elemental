@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LU_SOLVEAFTER_HPP
-#define LAPACK_LU_SOLVEAFTER_HPP
+#ifndef ELEM_LAPACK_LU_SOLVEAFTER_HPP
+#define ELEM_LAPACK_LU_SOLVEAFTER_HPP
 
 #include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -197,4 +197,4 @@ SolveAfter
 } // namespace lu
 } // namespace elem
 
-#endif // ifndef LAPACK_LU_SOLVEAFTER_HPP
+#endif // ifndef ELEM_LAPACK_LU_SOLVEAFTER_HPP

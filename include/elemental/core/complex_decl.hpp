@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_COMPLEX_DECL_HPP
-#define CORE_COMPLEX_DECL_HPP
+#ifndef ELEM_CORE_COMPLEX_DECL_HPP
+#define ELEM_CORE_COMPLEX_DECL_HPP
 
 namespace elem {
 
@@ -198,4 +198,4 @@ struct IsComplex<Complex<R> > { enum { val=1 }; };
 
 } // namespace elem
 
-#endif // ifndef CORE_COMPLEX_DECL_HPP
+#endif // ifndef ELEM_CORE_COMPLEX_DECL_HPP

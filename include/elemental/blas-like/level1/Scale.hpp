@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SCALE_HPP
-#define BLAS_SCALE_HPP
+#ifndef ELEM_BLAS_SCALE_HPP
+#define ELEM_BLAS_SCALE_HPP
 
 namespace elem {
 
@@ -76,4 +76,4 @@ Scal( BASE(T) alpha, DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_SCALE_HPP
+#endif // ifndef ELEM_BLAS_SCALE_HPP

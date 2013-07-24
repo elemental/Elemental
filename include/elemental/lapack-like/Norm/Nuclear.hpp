@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_NUCLEAR_HPP
-#define LAPACK_NORM_NUCLEAR_HPP
+#ifndef ELEM_LAPACK_NORM_NUCLEAR_HPP
+#define ELEM_LAPACK_NORM_NUCLEAR_HPP
 
 #include "elemental/lapack-like/Norm/Schatten.hpp"
 
@@ -76,4 +76,4 @@ SymmetricNuclearNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_NUCLEAR_HPP
+#endif // ifndef ELEM_LAPACK_NORM_NUCLEAR_HPP

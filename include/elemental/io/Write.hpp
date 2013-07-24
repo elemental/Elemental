@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_WRITE_HPP
-#define IO_WRITE_HPP
+#ifndef ELEM_IO_WRITE_HPP
+#define ELEM_IO_WRITE_HPP
 
 #include "elemental/io/Print.hpp"
 
@@ -69,4 +69,4 @@ Write
 
 } // namespace elem
 
-#endif // ifndef IO_WRITE_HPP
+#endif // ifndef ELEM_IO_WRITE_HPP

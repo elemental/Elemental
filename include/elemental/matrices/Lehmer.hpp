@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_LEHMER_HPP
-#define MATRICES_LEHMER_HPP
+#ifndef ELEM_MATRICES_LEHMER_HPP
+#define ELEM_MATRICES_LEHMER_HPP
 
 namespace elem {
 
@@ -59,4 +59,4 @@ Lehmer( DistMatrix<F,U,V>& L, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_LEHMER_HPP
+#endif // ifndef ELEM_MATRICES_LEHMER_HPP

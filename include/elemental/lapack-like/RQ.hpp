@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_RQ_HPP
-#define LAPACK_RQ_HPP
+#ifndef ELEM_LAPACK_RQ_HPP
+#define ELEM_LAPACK_RQ_HPP
 
 #include "elemental/lapack-like/RQ/ApplyQ.hpp"
 #include "elemental/lapack-like/RQ/Cholesky.hpp"
@@ -60,4 +60,4 @@ RQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_RQ_HPP
+#endif // ifndef ELEM_LAPACK_RQ_HPP

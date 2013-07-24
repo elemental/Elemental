@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_DECL_HPP
-#define BLAS_DECL_HPP
+#ifndef ELEM_BLAS_DECL_HPP
+#define ELEM_BLAS_DECL_HPP
 
 namespace elem {
 
@@ -271,4 +271,4 @@ template<> int LocalTrr2kBlocksize<dcomplex>();
 
 } // namespace elem
 
-#endif // ifndef BLAS_DECL_HPP
+#endif // ifndef ELEM_BLAS_DECL_HPP

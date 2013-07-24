@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LU_HPP
-#define LAPACK_LU_HPP
+#ifndef ELEM_LAPACK_LU_HPP
+#define ELEM_LAPACK_LU_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -322,4 +322,4 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_LU_HPP
+#endif // ifndef ELEM_LAPACK_LU_HPP

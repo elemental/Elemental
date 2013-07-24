@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_DETERMINANT_HPP
-#define LAPACK_DETERMINANT_HPP
+#ifndef ELEM_LAPACK_DETERMINANT_HPP
+#define ELEM_LAPACK_DETERMINANT_HPP
 
 #include "elemental/lapack-like/Determinant/Cholesky.hpp"
 #include "elemental/lapack-like/Determinant/LUPartialPiv.hpp"
@@ -208,4 +208,4 @@ HPDDeterminant( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_DETERMINANT_HPP
+#endif // ifndef ELEM_LAPACK_DETERMINANT_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
-#define MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
+#ifndef ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
+#define ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 
 #include "elemental/blas-like/level1/Dot.hpp"
 #include "elemental/blas-like/level1/Nrm2.hpp"
@@ -215,4 +215,4 @@ MakeHermitianUniformSpectrum
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
+#endif // ifndef ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP

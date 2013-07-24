@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_LEVEL1_HPP
-#define BLAS_LEVEL1_HPP
+#ifndef ELEM_BLAS_LEVEL1_HPP
+#define ELEM_BLAS_LEVEL1_HPP
 
 #include "./level1/Adjoint.hpp"
 #include "./level1/Axpy.hpp"
@@ -31,4 +31,4 @@
 #include "./level1/Transpose.hpp"
 #include "./level1/Zero.hpp"
 
-#endif // ifndef BLAS_LEVEL1_HPP
+#endif // ifndef ELEM_BLAS_LEVEL1_HPP

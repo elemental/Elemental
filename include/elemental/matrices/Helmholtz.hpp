@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HELMHOLTZ_HPP
-#define MATRICES_HELMHOLTZ_HPP
+#ifndef ELEM_MATRICES_HELMHOLTZ_HPP
+#define ELEM_MATRICES_HELMHOLTZ_HPP
 
 #include "elemental/matrices/Zeros.hpp"
 
@@ -230,4 +230,4 @@ Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, int nz, F shift )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HELMHOLTZ_HPP
+#endif // ifndef ELEM_MATRICES_HELMHOLTZ_HPP

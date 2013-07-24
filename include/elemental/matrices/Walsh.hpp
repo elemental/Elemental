@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_WALSH_HPP
-#define MATRICES_WALSH_HPP
+#ifndef ELEM_MATRICES_WALSH_HPP
+#define ELEM_MATRICES_WALSH_HPP
 
 namespace elem {
 
@@ -139,4 +139,4 @@ Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_WALSH_HPP
+#endif // ifndef ELEM_MATRICES_WALSH_HPP

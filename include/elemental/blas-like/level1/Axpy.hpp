@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_AXPY_HPP
-#define BLAS_AXPY_HPP
+#ifndef ELEM_BLAS_AXPY_HPP
+#define ELEM_BLAS_AXPY_HPP
 
 namespace elem {
 
@@ -119,4 +119,4 @@ Axpy
 
 } // namespace elem
 
-#endif // ifndef BLAS_AXPY_HPP
+#endif // ifndef ELEM_BLAS_AXPY_HPP

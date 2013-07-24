@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_LAPLACIAN_HPP
-#define MATRICES_LAPLACIAN_HPP
+#ifndef ELEM_MATRICES_LAPLACIAN_HPP
+#define ELEM_MATRICES_LAPLACIAN_HPP
 
 #include "elemental/matrices/Helmholtz.hpp"
 
@@ -82,4 +82,4 @@ Laplacian( DistMatrix<F,U,V>& L, int nx, int ny, int nz )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_LAPLACIAN_HPP
+#endif // ifndef ELEM_MATRICES_LAPLACIAN_HPP

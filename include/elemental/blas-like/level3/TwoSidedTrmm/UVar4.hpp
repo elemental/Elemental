@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TWOSIDEDTRMM_UVAR4_HPP
-#define BLAS_TWOSIDEDTRMM_UVAR4_HPP
+#ifndef ELEM_BLAS_TWOSIDEDTRMM_UVAR4_HPP
+#define ELEM_BLAS_TWOSIDEDTRMM_UVAR4_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
@@ -249,4 +249,4 @@ TwoSidedTrmmUVar4
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TWOSIDEDTRMM_UVAR4_HPP
+#endif // ifndef ELEM_BLAS_TWOSIDEDTRMM_UVAR4_HPP

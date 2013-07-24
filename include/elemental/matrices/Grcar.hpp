@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_GRCAR_HPP
-#define MATRICES_GRCAR_HPP
+#ifndef ELEM_MATRICES_GRCAR_HPP
+#define ELEM_MATRICES_GRCAR_HPP
 
 #include "elemental/matrices/Toeplitz.hpp"
 
@@ -60,4 +60,4 @@ Grcar( DistMatrix<T,U,V>& A, int n, int k=3 )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_GRCAR_HPP
+#endif // ifndef ELEM_MATRICES_GRCAR_HPP

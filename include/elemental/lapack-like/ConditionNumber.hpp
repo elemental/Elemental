@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CONDITIONNUMBER_HPP
-#define LAPACK_CONDITIONNUMBER_HPP
+#ifndef ELEM_LAPACK_CONDITIONNUMBER_HPP
+#define ELEM_LAPACK_CONDITIONNUMBER_HPP
 
 #include "elemental/lapack-like/SVD.hpp"
 
@@ -56,4 +56,4 @@ ConditionNumber( const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_CONDITIONNUMBER_HPP
+#endif // ifndef ELEM_LAPACK_CONDITIONNUMBER_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_EGOROV_HPP
-#define MATRICES_EGOROV_HPP
+#ifndef ELEM_MATRICES_EGOROV_HPP
+#define ELEM_MATRICES_EGOROV_HPP
 
 namespace elem {
 
@@ -84,4 +84,4 @@ MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_EGOROV_HPP
+#endif // ifndef ELEM_MATRICES_EGOROV_HPP

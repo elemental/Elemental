@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_RQ_HPP
-#define LAPACK_CHOLESKY_RQ_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_RQ_HPP
+#define ELEM_LAPACK_CHOLESKY_RQ_HPP
 
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -59,4 +59,4 @@ Cholesky( DistMatrix<F,STAR,VR>& A, DistMatrix<F,STAR,STAR>& R )
 } // namespace rq
 } // namespace elem
 
-#endif // ifndef LAPACK_RQ_CHOLESKY_HPP
+#endif // ifndef ELEM_LAPACK_RQ_CHOLESKY_HPP

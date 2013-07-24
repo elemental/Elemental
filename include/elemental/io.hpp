@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_HPP
-#define IO_HPP
+#ifndef ELEM_IO_HPP
+#define ELEM_IO_HPP
 
 #include "elemental/io_decl.hpp"
 #include "elemental/io_impl.hpp"
 
-#endif // ifndef IO_HPP
+#endif // ifndef ELEM_IO_HPP

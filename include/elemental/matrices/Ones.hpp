@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_ONES_HPP
-#define MATRICES_ONES_HPP
+#ifndef ELEM_MATRICES_ONES_HPP
+#define ELEM_MATRICES_ONES_HPP
 
 namespace elem {
 
@@ -64,4 +64,4 @@ MakeOnes( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_ONES_HPP
+#endif // ifndef ELEM_MATRICES_ONES_HPP

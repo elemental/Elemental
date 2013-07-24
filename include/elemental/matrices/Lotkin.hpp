@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_LOTKIN_HPP
-#define MATRICES_LOTKIN_HPP
+#ifndef ELEM_MATRICES_LOTKIN_HPP
+#define ELEM_MATRICES_LOTKIN_HPP
 
 #include "elemental/matrices/Hilbert.hpp"
 
@@ -48,4 +48,4 @@ Lotkin( DistMatrix<F,U,V>& A, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_LOTKIN_HPP
+#endif // ifndef ELEM_MATRICES_LOTKIN_HPP

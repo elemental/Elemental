@@ -7,9 +7,9 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_DECL_HPP
-#define MATRICES_DECL_HPP
+#ifndef ELEM_MATRICES_DECL_HPP
+#define ELEM_MATRICES_DECL_HPP
 
 // Nothing for now
 
-#endif // ifndef MATRICES_DECL_HPP
+#endif // ifndef ELEM_MATRICES_DECL_HPP

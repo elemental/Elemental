@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_TRACE_HPP
-#define LAPACK_TRACE_HPP
+#ifndef ELEM_LAPACK_TRACE_HPP
+#define ELEM_LAPACK_TRACE_HPP
 
 namespace elem {
 
@@ -56,4 +56,4 @@ inline F Trace( const DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_TRACE_HPP
+#endif // ifndef ELEM_LAPACK_TRACE_HPP

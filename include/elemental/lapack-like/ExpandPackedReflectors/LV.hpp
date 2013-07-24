@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
-#define LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
+#ifndef ELEM_LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
+#define ELEM_LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/blas-like/level1/MakeTrapezoidal.hpp"
@@ -320,4 +320,4 @@ LV
 } // namespace expand_packed_reflectors
 } // namespace elem
 
-#endif // ifndef LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP
+#endif // ifndef ELEM_LAPACK_EXPANDPACKEDREFLECTORS_LV_HPP

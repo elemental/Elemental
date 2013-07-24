@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_MAKEREAL_HPP
-#define BLAS_MAKEREAL_HPP
+#ifndef ELEM_BLAS_MAKEREAL_HPP
+#define ELEM_BLAS_MAKEREAL_HPP
 
 namespace elem {
 
@@ -40,4 +40,4 @@ MakeReal( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_MAKEREAL_HPP
+#endif // ifndef ELEM_BLAS_MAKEREAL_HPP

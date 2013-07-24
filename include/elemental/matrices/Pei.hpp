@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_PEI_HPP
-#define MATRICES_PEI_HPP
+#ifndef ELEM_MATRICES_PEI_HPP
+#define ELEM_MATRICES_PEI_HPP
 
 namespace elem {
 
@@ -56,4 +56,4 @@ Pei( DistMatrix<T,U,V>& P, int n, T alpha )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_PEI_HPP
+#endif // ifndef ELEM_MATRICES_PEI_HPP

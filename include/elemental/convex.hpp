@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_HPP
-#define CONVEX_HPP
+#ifndef ELEM_CONVEX_HPP
+#define ELEM_CONVEX_HPP
 
 #include "elemental/convex_decl.hpp"
 #include "elemental/convex_impl.hpp"
 
-#endif // ifndef CONVEX_HPP
+#endif // ifndef ELEM_CONVEX_HPP

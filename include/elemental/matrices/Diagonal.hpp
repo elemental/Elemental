@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_DIAGONAL_HPP
-#define MATRICES_DIAGONAL_HPP
+#ifndef ELEM_MATRICES_DIAGONAL_HPP
+#define ELEM_MATRICES_DIAGONAL_HPP
 
 #include "elemental/matrices/Zeros.hpp"
 
@@ -56,4 +56,4 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_DIAGONAL_HPP
+#endif // ifndef ELEM_MATRICES_DIAGONAL_HPP

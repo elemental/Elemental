@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_LOGDETDIVERGENCE_HPP
-#define CONVEX_LOGDETDIVERGENCE_HPP
+#ifndef ELEM_CONVEX_LOGDETDIVERGENCE_HPP
+#define ELEM_CONVEX_LOGDETDIVERGENCE_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -115,4 +115,4 @@ LogDetDivergence
 
 } // namespace elem
 
-#endif // ifndef CONVEX_LOGDETDIVERGENCE_HPP
+#endif // ifndef ELEM_CONVEX_LOGDETDIVERGENCE_HPP

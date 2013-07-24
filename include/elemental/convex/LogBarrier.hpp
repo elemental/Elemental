@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_LOGBARRIER_HPP
-#define CONVEX_LOGBARRIER_HPP
+#ifndef ELEM_CONVEX_LOGBARRIER_HPP
+#define ELEM_CONVEX_LOGBARRIER_HPP
 
 #include "elemental/lapack-like/Determinant.hpp"
 
@@ -64,4 +64,4 @@ LogBarrier( UpperOrLower uplo, DistMatrix<F>& A, bool canOverwrite=false )
 
 } // namespace elem
 
-#endif // ifndef CONVEX_LOGBARRIER_HPP
+#endif // ifndef ELEM_CONVEX_LOGBARRIER_HPP

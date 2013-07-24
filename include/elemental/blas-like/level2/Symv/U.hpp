@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYMV_U_HPP
-#define BLAS_SYMV_U_HPP
+#ifndef ELEM_BLAS_SYMV_U_HPP
+#define ELEM_BLAS_SYMV_U_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
@@ -234,4 +234,4 @@ LocalSymvRowAccumulateU
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_SYMV_U_HPP
+#endif // ifndef ELEM_BLAS_SYMV_U_HPP

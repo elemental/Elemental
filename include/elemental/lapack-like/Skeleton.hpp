@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SKELETON_HPP
-#define LAPACK_SKELETON_HPP
+#ifndef ELEM_LAPACK_SKELETON_HPP
+#define ELEM_LAPACK_SKELETON_HPP
 
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/lapack-like/QR/BusingerGolub.hpp"
@@ -108,4 +108,4 @@ Skeleton
 
 } // namespace elem
 
-#endif // ifndef LAPACK_SKELETON_HPP
+#endif // ifndef ELEM_LAPACK_SKELETON_HPP

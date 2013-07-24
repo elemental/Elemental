@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_GAUSSIANELIMINATION_HPP
-#define LAPACK_GAUSSIANELIMINATION_HPP
+#ifndef ELEM_LAPACK_GAUSSIANELIMINATION_HPP
+#define ELEM_LAPACK_GAUSSIANELIMINATION_HPP
 
 #include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/lapack-like/LU.hpp"
@@ -253,4 +253,4 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_GAUSSIANELIMINATION_HPP
+#endif // ifndef ELEM_LAPACK_GAUSSIANELIMINATION_HPP

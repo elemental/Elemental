@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_UVAR3_HPP
-#define LAPACK_CHOLESKY_UVAR3_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_UVAR3_HPP
+#define ELEM_LAPACK_CHOLESKY_UVAR3_HPP
 
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -298,4 +298,4 @@ ReverseUVar3( DistMatrix<F>& A )
 } // namespace cholesky
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_UVAR3_HPP
+#endif // ifndef ELEM_LAPACK_CHOLESKY_UVAR3_HPP

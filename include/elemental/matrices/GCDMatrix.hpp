@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_GCDMATRIX_HPP
-#define MATRICES_GCDMATRIX_HPP
+#ifndef ELEM_MATRICES_GCDMATRIX_HPP
+#define ELEM_MATRICES_GCDMATRIX_HPP
 
 namespace elem {
 
@@ -74,4 +74,4 @@ GCDMatrix( DistMatrix<T,U,V>& G, int m, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_GCDMATRIX_HPP
+#endif // ifndef ELEM_MATRICES_GCDMATRIX_HPP

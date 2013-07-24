@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_RQ_HOUSEHOLDER_HPP
-#define LAPACK_RQ_HOUSEHOLDER_HPP
+#ifndef ELEM_LAPACK_RQ_HOUSEHOLDER_HPP
+#define ELEM_LAPACK_RQ_HOUSEHOLDER_HPP
 
 #include "elemental/lapack-like/RQ/ApplyQ.hpp"
 #include "elemental/lapack-like/RQ/PanelHouseholder.hpp"
@@ -178,4 +178,4 @@ Householder( DistMatrix<F>& A )
 } // namespace rq
 } // namespace elem
 
-#endif // ifndef LAPACK_RQ_HOUSEHOLDER_HPP
+#endif // ifndef ELEM_LAPACK_RQ_HOUSEHOLDER_HPP

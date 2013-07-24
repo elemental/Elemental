@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_SOFTTHRESHOLD_HPP
-#define CONVEX_SOFTTHRESHOLD_HPP
+#ifndef ELEM_CONVEX_SOFTTHRESHOLD_HPP
+#define ELEM_CONVEX_SOFTTHRESHOLD_HPP
 
 namespace elem {
 
@@ -52,4 +52,4 @@ SoftThreshold( DistMatrix<F,U,V>& A, BASE(F) tau )
 
 } // namespace elem
 
-#endif // ifndef CONVEX_SOFTTHRESHOLD_HPP
+#endif // ifndef ELEM_CONVEX_SOFTTHRESHOLD_HPP

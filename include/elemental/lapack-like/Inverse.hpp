@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_INVERSE_HPP
-#define LAPACK_INVERSE_HPP
+#ifndef ELEM_LAPACK_INVERSE_HPP
+#define ELEM_LAPACK_INVERSE_HPP
 
 #include "elemental/lapack-like/Inverse/CholeskyLVar2.hpp"
 #include "elemental/lapack-like/Inverse/CholeskyUVar2.hpp"
@@ -84,4 +84,4 @@ LocalHPDInverse( UpperOrLower uplo, DistMatrix<F,STAR,STAR>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_INVERSE_HPP
+#endif // ifndef ELEM_LAPACK_INVERSE_HPP

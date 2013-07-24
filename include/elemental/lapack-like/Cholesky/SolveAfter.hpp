@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_SOLVEAFTER_HPP
-#define LAPACK_CHOLESKY_SOLVEAFTER_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_SOLVEAFTER_HPP
+#define ELEM_LAPACK_CHOLESKY_SOLVEAFTER_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
 #include "elemental/blas-like/level2/Trsv.hpp"
@@ -136,4 +136,4 @@ SolveAfter
 } // namespace cholesky
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_SOLVEAFTER_HPP
+#endif // ifndef ELEM_LAPACK_CHOLESKY_SOLVEAFTER_HPP

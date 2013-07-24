@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SVD_THRESHOLDED_HPP
-#define LAPACK_SVD_THRESHOLDED_HPP
+#ifndef ELEM_LAPACK_SVD_THRESHOLDED_HPP
+#define ELEM_LAPACK_SVD_THRESHOLDED_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
@@ -276,4 +276,4 @@ Thresholded
 } // namespace svd
 } // namespace elem
 
-#endif // ifndef LAPACK_SVD_THRESHOLDED_HPP
+#endif // ifndef ELEM_LAPACK_SVD_THRESHOLDED_HPP

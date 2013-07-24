@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_ZERO_HPP
-#define BLAS_ZERO_HPP
+#ifndef ELEM_BLAS_ZERO_HPP
+#define ELEM_BLAS_ZERO_HPP
 
 namespace elem {
 
@@ -40,4 +40,4 @@ Zero( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef BLAS_ZERO_HPP
+#endif // ifndef ELEM_BLAS_ZERO_HPP

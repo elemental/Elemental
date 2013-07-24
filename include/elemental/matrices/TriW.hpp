@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_TRIW_HPP
-#define MATRICES_TRIW_HPP
+#ifndef ELEM_MATRICES_TRIW_HPP
+#define ELEM_MATRICES_TRIW_HPP
 
 #include "elemental/matrices/Toeplitz.hpp"
 
@@ -56,4 +56,4 @@ TriW( DistMatrix<T,U,V>& A, int m, int n, T alpha, int k )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_TRIW_HPP
+#endif // ifndef ELEM_MATRICES_TRIW_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_LEGENDRE_HPP
-#define MATRICES_LEGENDRE_HPP
+#ifndef ELEM_MATRICES_LEGENDRE_HPP
+#define ELEM_MATRICES_LEGENDRE_HPP
 
 #include "elemental/matrices/Zeros.hpp"
 
@@ -93,4 +93,4 @@ MakeLegendre( DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_LEGENDRE_HPP
+#endif // ifndef ELEM_MATRICES_LEGENDRE_HPP

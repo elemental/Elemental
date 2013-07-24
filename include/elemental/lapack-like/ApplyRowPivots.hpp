@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_APPLYROWPIVOTS_HPP
-#define LAPACK_APPLYROWPIVOTS_HPP
+#ifndef ELEM_LAPACK_APPLYROWPIVOTS_HPP
+#define ELEM_LAPACK_APPLYROWPIVOTS_HPP
 
 #include "elemental/lapack-like/ComposePivots.hpp"
 
@@ -349,4 +349,4 @@ ApplyRowPivots
 
 } // namespace elem
 
-#endif // ifndef LAPACK_APPLYROWPIVOTS_HPP
+#endif // ifndef ELEM_LAPACK_APPLYROWPIVOTS_HPP

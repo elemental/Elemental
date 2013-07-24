@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRSV_UT_HPP
-#define BLAS_TRSV_UT_HPP
+#ifndef ELEM_BLAS_TRSV_UT_HPP
+#define ELEM_BLAS_TRSV_UT_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -176,4 +176,4 @@ TrsvUT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRSV_UT_HPP
+#endif // ifndef ELEM_BLAS_TRSV_UT_HPP

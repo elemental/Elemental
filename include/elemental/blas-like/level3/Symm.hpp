@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYMM_HPP
-#define BLAS_SYMM_HPP
+#ifndef ELEM_BLAS_SYMM_HPP
+#define ELEM_BLAS_SYMM_HPP
 
 #include "./Symm/LL.hpp"
 #include "./Symm/LU.hpp"
@@ -70,4 +70,4 @@ Symm
 
 } // namespace elem
 
-#endif // ifndef BLAS_SYMM_HPP
+#endif // ifndef ELEM_BLAS_SYMM_HPP

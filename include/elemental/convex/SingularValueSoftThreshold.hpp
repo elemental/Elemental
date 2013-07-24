@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
-#define CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
+#ifndef ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
+#define ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
@@ -134,4 +134,4 @@ SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau, int numSteps )
 
 } // namespace elem
 
-#endif // ifndef CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
+#endif // ifndef ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP

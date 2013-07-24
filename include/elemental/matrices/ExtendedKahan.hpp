@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_EXTENDEDKAHAN_HPP
-#define MATRICES_EXTENDEDKAHAN_HPP
+#ifndef ELEM_MATRICES_EXTENDEDKAHAN_HPP
+#define ELEM_MATRICES_EXTENDEDKAHAN_HPP
 
 #include "elemental/matrices/Walsh.hpp"
 
@@ -149,4 +149,4 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_EXTENDEDKAHAN_HPP
+#endif // ifndef ELEM_MATRICES_EXTENDEDKAHAN_HPP

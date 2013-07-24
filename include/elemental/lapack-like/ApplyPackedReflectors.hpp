@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_APPLYPACKEDREFLECTORS_HPP
-#define LAPACK_APPLYPACKEDREFLECTORS_HPP
+#ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_HPP
+#define ELEM_LAPACK_APPLYPACKEDREFLECTORS_HPP
 
 #include "./ApplyPackedReflectors/Util.hpp"
 #include "./ApplyPackedReflectors/LLHB.hpp"
@@ -178,4 +178,4 @@ ApplyPackedReflectors
 
 } // namespace elem
 
-#endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_HPP
+#endif // ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRSV_UN_HPP
-#define BLAS_TRSV_UN_HPP
+#ifndef ELEM_BLAS_TRSV_UN_HPP
+#define ELEM_BLAS_TRSV_UN_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level2/Gemv.hpp"
@@ -172,4 +172,4 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRSV_UN_HPP
+#endif // ifndef ELEM_BLAS_TRSV_UN_HPP

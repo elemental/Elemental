@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_ZEROS_HPP
-#define MATRICES_ZEROS_HPP
+#ifndef ELEM_MATRICES_ZEROS_HPP
+#define ELEM_MATRICES_ZEROS_HPP
 
 #include "elemental/blas-like/level1/Zero.hpp"
 
@@ -58,4 +58,4 @@ MakeZeros( DistMatrix<T,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_ZEROS_HPP
+#endif // ifndef ELEM_MATRICES_ZEROS_HPP

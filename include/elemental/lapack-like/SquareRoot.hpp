@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SQUAREROOT_HPP
-#define LAPACK_SQUAREROOT_HPP
+#ifndef ELEM_LAPACK_SQUAREROOT_HPP
+#define ELEM_LAPACK_SQUAREROOT_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/lapack-like/LU.hpp"
@@ -266,4 +266,4 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_SQUAREROOT_HPP
+#endif // ifndef ELEM_LAPACK_SQUAREROOT_HPP

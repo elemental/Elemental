@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_ID_HPP
-#define LAPACK_ID_HPP
+#ifndef ELEM_LAPACK_ID_HPP
+#define ELEM_LAPACK_ID_HPP
 
 #include "elemental/lapack-like/QR/BusingerGolub.hpp"
 
@@ -270,4 +270,4 @@ ID
 
 } // namespace elem
 
-#endif // ifndef LAPACK_ID_HPP
+#endif // ifndef ELEM_LAPACK_ID_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_POLAR_SVD_HPP
-#define LAPACK_POLAR_SVD_HPP
+#ifndef ELEM_LAPACK_POLAR_SVD_HPP
+#define ELEM_LAPACK_POLAR_SVD_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/lapack-like/SVD.hpp"
@@ -106,4 +106,4 @@ SVD( DistMatrix<F>& A, DistMatrix<F>& P )
 } // namespace polar
 } // namespace elem
 
-#endif // ifndef LAPACK_POLAR_SVD_HPP
+#endif // ifndef ELEM_LAPACK_POLAR_SVD_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_QR_BUSINGERGOLUB_HPP
-#define LAPACK_QR_BUSINGERGOLUB_HPP
+#ifndef ELEM_LAPACK_QR_BUSINGERGOLUB_HPP
+#define ELEM_LAPACK_QR_BUSINGERGOLUB_HPP
 
 #include "elemental/blas-like/level2/Gemv.hpp"
 #include "elemental/blas-like/level2/Ger.hpp"
@@ -660,4 +660,4 @@ BusingerGolub
 } // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_QR_BUSINGERGOLUB_HPP
+#endif // ifndef ELEM_LAPACK_QR_BUSINGERGOLUB_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CORE_RANDOM_DECL_HPP
-#define CORE_RANDOM_DECL_HPP
+#ifndef ELEM_CORE_RANDOM_DECL_HPP
+#define ELEM_CORE_RANDOM_DECL_HPP
 
 namespace elem {
 
@@ -20,4 +20,4 @@ template<typename T> T SampleUnitBall();
 
 } // namespace elem
 
-#endif // ifndef CORE_RANDOM_DECL_HPP
+#endif // ifndef ELEM_CORE_RANDOM_DECL_HPP

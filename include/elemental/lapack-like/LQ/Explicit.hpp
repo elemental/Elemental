@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LQ_EXPLICIT_HPP
-#define LAPACK_LQ_EXPLICIT_HPP
+#ifndef ELEM_LAPACK_LQ_EXPLICIT_HPP
+#define ELEM_LAPACK_LQ_EXPLICIT_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/LQ.hpp"
@@ -95,4 +95,4 @@ Explicit( DistMatrix<F>& L, DistMatrix<F>& A )
 } // namespace lq
 } // namespace elem
 
-#endif // ifndef LAPACK_LQ_EXPLICIT_HPP
+#endif // ifndef ELEM_LAPACK_LQ_EXPLICIT_HPP

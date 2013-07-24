@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_SPYWINDOW_DECL_HPP
-#define IO_SPYWINDOW_DECL_HPP
+#ifndef ELEM_IO_SPYWINDOW_DECL_HPP
+#define ELEM_IO_SPYWINDOW_DECL_HPP
 
 #include <QScrollArea>
 #include <QWidget>
@@ -36,4 +36,4 @@ private:
 
 } // namespace elem
 
-#endif // ifndef IO_SPYWINDOW_DECL_HPP
+#endif // ifndef ELEM_IO_SPYWINDOW_DECL_HPP

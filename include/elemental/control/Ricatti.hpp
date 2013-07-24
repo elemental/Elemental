@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONTROL_RICATTI_HPP
-#define CONTROL_RICATTI_HPP
+#ifndef ELEM_CONTROL_RICATTI_HPP
+#define ELEM_CONTROL_RICATTI_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
@@ -162,4 +162,4 @@ Ricatti
 
 } // namespace elem
 
-#endif // ifndef CONTROL_RICATTI_HPP
+#endif // ifndef ELEM_CONTROL_RICATTI_HPP

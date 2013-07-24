@@ -7,9 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_DISPLAYWIDGET_DECL_HPP
-#define IO_DISPLAYWIDGET_DECL_HPP
-
+#ifndef ELEM_IO_DISPLAYWIDGET_DECL_HPP
+#define ELEM_IO_DISPLAYWIDGET_DECL_HPP
 #ifdef HAVE_QT5
 
 #include <QWidget>
@@ -41,5 +40,4 @@ private:
 } // namespace elem
 
 #endif // ifdef HAVE_QT5
-
-#endif // ifndef IO_DISPLAYWIDGET_DECL_HPP
+#endif // ifndef ELEM_IO_DISPLAYWIDGET_DECL_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_KMS_HPP
-#define MATRICES_KMS_HPP
+#ifndef ELEM_MATRICES_KMS_HPP
+#define ELEM_MATRICES_KMS_HPP
 
 namespace elem {
 
@@ -57,4 +57,4 @@ KMS( DistMatrix<T,U,V>& K, int n, T rho )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_KMS_HPP
+#endif // ifndef ELEM_MATRICES_KMS_HPP

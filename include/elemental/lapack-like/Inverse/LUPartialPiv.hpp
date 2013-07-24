@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_INVERSE_LUPARTIALPIV_HPP
-#define LAPACK_INVERSE_LUPARTIALPIV_HPP
+#ifndef ELEM_LAPACK_INVERSE_LUPARTIALPIV_HPP
+#define ELEM_LAPACK_INVERSE_LUPARTIALPIV_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/Zero.hpp"
@@ -203,4 +203,4 @@ LUPartialPiv( DistMatrix<F>& A )
 } // namespace inverse
 } // namespace elem
 
-#endif // ifndef LAPACK_INVERSE_LUPARTIALPIV_HPP
+#endif // ifndef ELEM_LAPACK_INVERSE_LUPARTIALPIV_HPP

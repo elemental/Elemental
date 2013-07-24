@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_TRSM_RUN_HPP
-#define BLAS_TRSM_RUN_HPP
+#ifndef ELEM_BLAS_TRSM_RUN_HPP
+#define ELEM_BLAS_TRSM_RUN_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 
@@ -98,4 +98,4 @@ TrsmRUN
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_TRSM_RUN_HPP
+#endif // ifndef ELEM_BLAS_TRSM_RUN_HPP

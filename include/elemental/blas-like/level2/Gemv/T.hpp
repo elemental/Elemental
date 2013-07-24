@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_GEMV_T_HPP
-#define BLAS_GEMV_T_HPP
+#ifndef ELEM_BLAS_GEMV_T_HPP
+#define ELEM_BLAS_GEMV_T_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -184,4 +184,4 @@ GemvT
 } // namespace internal
 } // namespace elem
 
-#endif // ifndef BLAS_GEMV_T_HPP
+#endif // ifndef ELEM_BLAS_GEMV_T_HPP

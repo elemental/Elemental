@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_PANELL_HPP
-#define LAPACK_BIDIAG_PANELL_HPP
+#ifndef ELEM_LAPACK_BIDIAG_PANELL_HPP
+#define ELEM_LAPACK_BIDIAG_PANELL_HPP
 
 namespace elem {
 namespace bidiag {
@@ -59,4 +59,4 @@ PanelL
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_PANELL_HPP
+#endif // ifndef ELEM_LAPACK_BIDIAG_PANELL_HPP

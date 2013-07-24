@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_QR_EXPLICIT_HPP
-#define LAPACK_QR_EXPLICIT_HPP
+#ifndef ELEM_LAPACK_QR_EXPLICIT_HPP
+#define ELEM_LAPACK_QR_EXPLICIT_HPP
 
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/lapack-like/ExpandPackedReflectors.hpp"
@@ -84,4 +84,4 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R )
 } // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_QR_EXPLICIT_HPP
+#endif // ifndef ELEM_LAPACK_QR_EXPLICIT_HPP

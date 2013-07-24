@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_COMPLEXDISPLAYWINDOW_DECL_HPP
-#define IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+#ifndef ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+#define ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP
 
 // Not currently guarded due to CMake MOC handling requiring extra flags
 //#ifdef HAVE_QT5
@@ -55,4 +55,4 @@ public slots:
 
 //#endif // ifdef HAVE_QT5
 
-#endif // ifndef IO_COMPLEXDISPLAYWINDOW_DECL_HPP
+#endif // ifndef ELEM_IO_COMPLEXDISPLAYWINDOW_DECL_HPP

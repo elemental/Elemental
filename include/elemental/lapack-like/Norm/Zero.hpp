@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_NORM_ZERO_HPP
-#define LAPACK_NORM_ZERO_HPP
+#ifndef ELEM_LAPACK_NORM_ZERO_HPP
+#define ELEM_LAPACK_NORM_ZERO_HPP
 
 // The number of nonzeros in a matrix isn't really a norm...but it's useful
 
@@ -47,4 +47,4 @@ ZeroNorm( const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_NORM_ZERO_HPP
+#endif // ifndef ELEM_LAPACK_NORM_ZERO_HPP

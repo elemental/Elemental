@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SCHUR_SDC_HPP
-#define LAPACK_SCHUR_SDC_HPP
+#ifndef ELEM_LAPACK_SCHUR_SDC_HPP
+#define ELEM_LAPACK_SCHUR_SDC_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -110,4 +110,4 @@ SpectralDivide( DistMatrix<F>& A )
 } // namespace schur
 } // namespace elem
 
-#endif // ifndef LAPACK_SCHUR_SDC_HPP
+#endif // ifndef ELEM_LAPACK_SCHUR_SDC_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_DISPLAYWIDGET_IMPL_HPP
-#define IO_DISPLAYWIDGET_IMPL_HPP
+#ifndef ELEM_IO_DISPLAYWIDGET_IMPL_HPP
+#define ELEM_IO_DISPLAYWIDGET_IMPL_HPP
 
 #ifdef HAVE_QT5
 
@@ -205,4 +205,4 @@ DisplayWidget<T>::SavePng( std::string basename ) const
 
 #endif // ifdef HAVE_QT5
 
-#endif // ifndef IO_DISPLAYWIDGET_IMPL_HPP
+#endif // ifndef ELEM_IO_DISPLAYWIDGET_IMPL_HPP

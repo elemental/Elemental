@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP
-#define LAPACK_HERMITIANGENDEFINITEEIG_HPP
+#ifndef ELEM_LAPACK_HERMITIANGENDEFINITEEIG_HPP
+#define ELEM_LAPACK_HERMITIANGENDEFINITEEIG_HPP
 
 #include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -392,4 +392,4 @@ HermitianGenDefiniteEig
 
 } // namespace elem
 
-#endif // ifndef LAPACK_HERMITIANGENDEFINITEEIG_HPP
+#endif // ifndef ELEM_LAPACK_HERMITIANGENDEFINITEEIG_HPP

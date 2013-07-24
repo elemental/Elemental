@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_WILKINSON_HPP
-#define MATRICES_WILKINSON_HPP
+#ifndef ELEM_MATRICES_WILKINSON_HPP
+#define ELEM_MATRICES_WILKINSON_HPP
 
 #include "elemental/matrices/Zeros.hpp"
 
@@ -77,4 +77,4 @@ Wilkinson( DistMatrix<T,U,V>& A, int k )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_WILKINSON_HPP
+#endif // ifndef ELEM_MATRICES_WILKINSON_HPP

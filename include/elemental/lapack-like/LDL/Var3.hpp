@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_LDL_VAR3_HPP
-#define LAPACK_LDL_VAR3_HPP
+#ifndef ELEM_LAPACK_LDL_VAR3_HPP
+#define ELEM_LAPACK_LDL_VAR3_HPP
 
 #include "elemental/blas-like/level1/DiagonalSolve.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -259,4 +259,4 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 } // namespace ldl
 } // namespace elem
 
-#endif // ifndef LAPACK_LDL_VAR3_HPP
+#endif // ifndef ELEM_LAPACK_LDL_VAR3_HPP

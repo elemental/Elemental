@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef IO_DISPLAY_HPP
-#define IO_DISPLAY_HPP
+#ifndef ELEM_IO_DISPLAY_HPP
+#define ELEM_IO_DISPLAY_HPP
 
 #ifdef HAVE_QT5
 #include "elemental/io/display_window_decl.hpp"
@@ -139,4 +139,4 @@ Display( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default" )
 
 } // namespace elem
 
-#endif // ifndef IO_DISPLAY_HPP
+#endif // ifndef ELEM_IO_DISPLAY_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_HANKEL_HPP
-#define MATRICES_HANKEL_HPP
+#ifndef ELEM_MATRICES_HANKEL_HPP
+#define ELEM_MATRICES_HANKEL_HPP
 
 namespace elem {
 
@@ -60,4 +60,4 @@ Hankel( DistMatrix<T,U,V>& A, int m, int n, const std::vector<T>& a )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_HANKEL_HPP
+#endif // ifndef ELEM_MATRICES_HANKEL_HPP

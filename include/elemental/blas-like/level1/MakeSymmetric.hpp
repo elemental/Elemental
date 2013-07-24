@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_MAKESYMMETRIC_HPP
-#define BLAS_MAKESYMMETRIC_HPP
+#ifndef ELEM_BLAS_MAKESYMMETRIC_HPP
+#define ELEM_BLAS_MAKESYMMETRIC_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeReal.hpp"
@@ -75,4 +75,4 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
 
 } // namespace elem
 
-#endif // ifndef BLAS_MAKESYMMETRIC_HPP
+#endif // ifndef ELEM_BLAS_MAKESYMMETRIC_HPP

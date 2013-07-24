@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_PSEUDOINVERSE_HPP
-#define LAPACK_PSEUDOINVERSE_HPP
+#ifndef ELEM_LAPACK_PSEUDOINVERSE_HPP
+#define ELEM_LAPACK_PSEUDOINVERSE_HPP
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/blas-like/level3/Gemm.hpp"
@@ -189,4 +189,4 @@ HermitianPseudoinverse
 
 } // namespace elem
 
-#endif // ifndef LAPACK_PSEUDOINVERSE_HPP
+#endif // ifndef ELEM_LAPACK_PSEUDOINVERSE_HPP

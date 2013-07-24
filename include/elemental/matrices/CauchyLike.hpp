@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_CAUCHYLIKE_HPP
-#define MATRICES_CAUCHYLIKE_HPP
+#ifndef ELEM_MATRICES_CAUCHYLIKE_HPP
+#define ELEM_MATRICES_CAUCHYLIKE_HPP
 
 namespace elem {
 
@@ -96,4 +96,4 @@ CauchyLike
 
 } // namespace elem
 
-#endif // ifndef MATRICES_CAUCHYLIKE_HPP
+#endif // ifndef ELEM_MATRICES_CAUCHYLIKE_HPP

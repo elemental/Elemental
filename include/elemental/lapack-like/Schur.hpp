@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_SCHUR_HPP
-#define LAPACK_SCHUR_HPP
+#ifndef ELEM_LAPACK_SCHUR_HPP
+#define ELEM_LAPACK_SCHUR_HPP
 
 #include "elemental/lapack-like/Schur/InverseFreeSDC.hpp"
 #include "elemental/lapack-like/Schur/SDC.hpp"
@@ -39,4 +39,4 @@ Schur( DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_SCHUR_HPP
+#endif // ifndef ELEM_LAPACK_SCHUR_HPP

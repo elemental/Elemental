@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_DIAGONALSCALE_HPP
-#define BLAS_DIAGONALSCALE_HPP
+#ifndef ELEM_BLAS_DIAGONALSCALE_HPP
+#define ELEM_BLAS_DIAGONALSCALE_HPP
 
 namespace elem {
 
@@ -176,4 +176,4 @@ DiagonalScale
 
 } // namespace elem
 
-#endif // ifndef BLAS_DIAGONALSCALE_HPP
+#endif // ifndef ELEM_BLAS_DIAGONALSCALE_HPP

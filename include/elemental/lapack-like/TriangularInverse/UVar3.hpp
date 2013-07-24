@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_TRIANGULARINVERSE_UVAR3_HPP
-#define LAPACK_TRIANGULARINVERSE_UVAR3_HPP
+#ifndef ELEM_LAPACK_TRIANGULARINVERSE_UVAR3_HPP
+#define ELEM_LAPACK_TRIANGULARINVERSE_UVAR3_HPP
 
 #include "elemental/blas-like/level3/Gemm.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
@@ -161,4 +161,4 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 } // namespace triangular_inverse
 } // namespace elem
 
-#endif // ifndef LAPACK_TRIANGULARINVERSE_UVAR3_HPP
+#endif // ifndef ELEM_LAPACK_TRIANGULARINVERSE_UVAR3_HPP

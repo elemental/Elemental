@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_DETERMINANT_LUPARTIALPIV_HPP
-#define LAPACK_DETERMINANT_LUPARTIALPIV_HPP
+#ifndef ELEM_LAPACK_DETERMINANT_LUPARTIALPIV_HPP
+#define ELEM_LAPACK_DETERMINANT_LUPARTIALPIV_HPP
 
 #include "elemental/lapack-like/LU.hpp"
 #include "elemental/lapack-like/PivotParity.hpp"
@@ -149,4 +149,4 @@ LUPartialPiv( DistMatrix<F>& A )
 } // namespace determinant
 } // namespace elem
 
-#endif // ifndef LAPACK_DETERMINANT_LUPARTIALPIV_HPP
+#endif // ifndef ELEM_LAPACK_DETERMINANT_LUPARTIALPIV_HPP

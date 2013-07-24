@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONTROL_DECL_HPP
-#define CONTROL_DECL_HPP
+#ifndef ELEM_CONTROL_DECL_HPP
+#define ELEM_CONTROL_DECL_HPP
 
 namespace elem {
 
@@ -16,4 +16,4 @@ namespace elem {
 
 } // namespace elem
 
-#endif // ifndef CONTROL_DECL_HPP
+#endif // ifndef ELEM_CONTROL_DECL_HPP

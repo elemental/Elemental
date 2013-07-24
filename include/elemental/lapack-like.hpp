@@ -7,10 +7,10 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACKLIKE_HPP
-#define LAPACKLIKE_HPP
+#ifndef ELEM_LAPACK_HPP
+#define ELEM_LAPACK_HPP
 
 #include "elemental/lapack-like_decl.hpp"
 #include "elemental/lapack-like_impl.hpp"
 
-#endif // ifndef LAPACKLIKE_HPP
+#endif // ifndef ELEM_LAPACK_HPP

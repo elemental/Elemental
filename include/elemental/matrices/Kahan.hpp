@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_KAHAN_HPP
-#define MATRICES_KAHAN_HPP
+#ifndef ELEM_MATRICES_KAHAN_HPP
+#define ELEM_MATRICES_KAHAN_HPP
 
 // I haven't decided on the appropriate generalization to complex cosine/sine
 // pairs. For now, given phi, we will compute the corresponding partner as the
@@ -109,4 +109,4 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_KAHAN_HPP
+#endif // ifndef ELEM_MATRICES_KAHAN_HPP

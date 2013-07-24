@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONTROL_SYLVESTER_HPP
-#define CONTROL_SYLVESTER_HPP
+#ifndef ELEM_CONTROL_SYLVESTER_HPP
+#define ELEM_CONTROL_SYLVESTER_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -164,4 +164,4 @@ Sylvester
 
 } // namespace elem
 
-#endif // ifndef CONTROL_SYLVESTER_HPP
+#endif // ifndef ELEM_CONTROL_SYLVESTER_HPP

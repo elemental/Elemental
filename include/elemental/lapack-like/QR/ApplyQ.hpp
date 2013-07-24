@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_QR_APPLYQ_HPP
-#define LAPACK_QR_APPLYQ_HPP
+#ifndef ELEM_LAPACK_QR_APPLYQ_HPP
+#define ELEM_LAPACK_QR_APPLYQ_HPP
 
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 
@@ -67,4 +67,4 @@ ApplyQ
 } // namespace qr
 } // namespace elem
 
-#endif // ifndef LAPACK_QR_APPLYQ_HPP
+#endif // ifndef ELEM_LAPACK_QR_APPLYQ_HPP

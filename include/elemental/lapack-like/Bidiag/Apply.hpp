@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_BIDIAG_APPLY_HPP
-#define LAPACK_BIDIAG_APPLY_HPP
+#ifndef ELEM_LAPACK_BIDIAG_APPLY_HPP
+#define ELEM_LAPACK_BIDIAG_APPLY_HPP
 
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 
@@ -122,4 +122,4 @@ ApplyV
 } // namespace bidiag
 } // namespace elem
 
-#endif // ifndef LAPACK_BIDIAG_APPLY_HPP
+#endif // ifndef ELEM_LAPACK_BIDIAG_APPLY_HPP

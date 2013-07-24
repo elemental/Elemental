@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_CHOLESKY_HPP
-#define LAPACK_CHOLESKY_HPP
+#ifndef ELEM_LAPACK_CHOLESKY_HPP
+#define ELEM_LAPACK_CHOLESKY_HPP
 
 // TODO: Reorganize Cholesky implementation?
 namespace elem {
@@ -188,4 +188,4 @@ HPSDCholesky( UpperOrLower uplo, DistMatrix<F>& A )
 
 } // namespace elem
 
-#endif // ifndef LAPACK_CHOLESKY_HPP
+#endif // ifndef ELEM_LAPACK_CHOLESKY_HPP

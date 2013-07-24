@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
-#define LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
+#ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
+#define ELEM_LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
 
 namespace elem {
 
@@ -68,4 +68,4 @@ FixDiagonal
 
 } // namespace elem
 
-#endif // ifndef LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP
+#endif // ifndef ELEM_LAPACK_APPLYPACKEDREFLECTORS_UTIL_HPP

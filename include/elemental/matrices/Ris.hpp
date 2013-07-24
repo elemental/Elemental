@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_RIS_HPP
-#define MATRICES_RIS_HPP
+#ifndef ELEM_MATRICES_RIS_HPP
+#define ELEM_MATRICES_RIS_HPP
 
 namespace elem {
 
@@ -54,4 +54,4 @@ Ris( DistMatrix<F,U,V>& R, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_RIS_HPP
+#endif // ifndef ELEM_MATRICES_RIS_HPP

@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef CONVEX_DECL_HPP
-#define CONVEX_DECL_HPP
+#ifndef ELEM_CONVEX_DECL_HPP
+#define ELEM_CONVEX_DECL_HPP
 
 namespace elem {
 
@@ -16,4 +16,4 @@ namespace elem {
 
 } // namespace elem
 
-#endif // ifndef CONVEX_DECL_HPP
+#endif // ifndef ELEM_CONVEX_DECL_HPP

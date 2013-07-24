@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_AXPYTRIANGLE_HPP
-#define BLAS_AXPYTRIANGLE_HPP
+#ifndef ELEM_BLAS_AXPYTRIANGLE_HPP
+#define ELEM_BLAS_AXPYTRIANGLE_HPP
 
 namespace elem {
 
@@ -116,4 +116,4 @@ AxpyTriangle
 
 } // namespace elem
 
-#endif // ifndef BLAS_AXPYTRIANGLE_HPP
+#endif // ifndef ELEM_BLAS_AXPYTRIANGLE_HPP

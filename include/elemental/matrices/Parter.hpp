@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef MATRICES_PARTER_HPP
-#define MATRICES_PARTER_HPP
+#ifndef ELEM_MATRICES_PARTER_HPP
+#define ELEM_MATRICES_PARTER_HPP
 
 namespace elem {
 
@@ -54,4 +54,4 @@ Parter( DistMatrix<F,U,V>& P, int n )
 
 } // namespace elem
 
-#endif // ifndef MATRICES_PARTER_HPP
+#endif // ifndef ELEM_MATRICES_PARTER_HPP

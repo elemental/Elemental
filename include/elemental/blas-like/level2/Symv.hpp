@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef BLAS_SYMV_HPP
-#define BLAS_SYMV_HPP
+#ifndef ELEM_BLAS_SYMV_HPP
+#define ELEM_BLAS_SYMV_HPP
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
@@ -250,4 +250,4 @@ Symv
 
 } // namespace elem
 
-#endif // ifndef BLAS_SYMV_HPP
+#endif // ifndef ELEM_BLAS_SYMV_HPP
