@@ -342,7 +342,7 @@ void Finalize()
 Args& GetArgs()
 { 
     if( args == 0 )
-        throw std::runtime_error("No available instance of MpiArgs");
+        throw std::runtime_error("No available instance of Args");
     return *::args; 
 }
 
