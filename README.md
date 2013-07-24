@@ -6,6 +6,9 @@ The library was initially released in
 and is the key building block for the distributed-memory sparse-direct solver 
 [Clique](http://www.github.com/poulson/Clique.git).
 
+Please visit [the download page](http://libelemental.org/download/) for 
+download instructions.
+
 ### Documentation
 
 The [documentation for the development version of Elemental](http://poulson.github.com/Elemental) is built using [Sphinx](http://sphinx.pocoo.org).
