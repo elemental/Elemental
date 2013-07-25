@@ -108,9 +108,11 @@ GATTP(ViewingComm)
 #undef GATTB
 
 %import  "elemental/core/complex_decl.hpp"
+%import  "elemental/core/imports/mpi.hpp"
+%import  "elemental/core/imports/choice.hpp"
+%include "elemental/core/imports/mpi_choice.hpp"
 %include "elemental/core/types_decl.hpp"
 %include "elemental/core/environment_decl.hpp"
-%import  "elemental/core/imports/mpi.hpp"
 %include "elemental/core/grid_decl.hpp"
 %import  "elemental/core/matrix.hpp"
 
