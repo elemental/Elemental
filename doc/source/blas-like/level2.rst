@@ -2,8 +2,8 @@ Level 2
 =======
 
 The prototypes for the following routines can be found at          
-`include/elemental/blas-like_decl.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/blas-like_decl.hpp>`_, while the
-implementations are in `include/elemental/blas-like/level2/ <https://github.com/poulson/Elemental/tree/master/include/elemental/blas-like/level2>`_.
+`include/elemental/blas-like_decl.hpp <https://github.com/elemental/Elemental/tree/master/include/elemental/blas-like_decl.hpp>`_, while the
+implementations are in `include/elemental/blas-like/level2/ <https://github.com/elemental/Elemental/tree/master/include/elemental/blas-like/level2>`_.
 
 Gemv
 ----

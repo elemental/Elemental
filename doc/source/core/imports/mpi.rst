@@ -8,9 +8,9 @@ for porting Elemental to architectures that do not have full MPI
 implementations available.
 
 The prototypes can be found in
-`include/elemental/core/imports/mpi.hpp <https://github.com/poulson/Elemental/tree/master/include/elemental/core/imports/mpi.hpp>`_,
+`include/elemental/core/imports/mpi.hpp <https://github.com/elemental/Elemental/tree/master/include/elemental/core/imports/mpi.hpp>`_,
 while the implementations are in
-`src/imports/mpi.cpp <https://github.com/poulson/Elemental/tree/master/src/imports/mpi.cpp>`_.
+`src/imports/mpi.cpp <https://github.com/elemental/Elemental/tree/master/src/imports/mpi.cpp>`_.
 
 Datatypes
 ^^^^^^^^^

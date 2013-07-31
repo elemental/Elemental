@@ -105,4 +105,4 @@ Most source files contain the copyright notice::
     All rights reserved.
 
 For an up-to-date list of contributing authors, please see the 
-`AUTHORS file <https://github.com/poulson/Elemental/blob/master/AUTHORS>`__.
+`AUTHORS file <https://github.com/elemental/Elemental/blob/master/AUTHORS>`__.

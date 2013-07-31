@@ -194,7 +194,7 @@ There are two basic approaches:
 2. Install `git <http://git-scm.com/>`_ and check out a copy of 
    the repository by running ::
 
-    git clone git://github.com/poulson/Elemental.git
+    git clone git://github.com/elemental/Elemental.git
 
 Building Elemental
 ==================
@@ -269,7 +269,7 @@ Testing the installation
 Once Elemental has been installed, it is a good idea to verify that it is 
 functioning properly. An example of generating a random distributed matrix, 
 computing its Singular Value Decomposition (SVD), and checking for numerical 
-error is available in `examples/lapack-like/SVD.cpp <https://github.com/poulson/Elemental/blob/master/examples/lapack-like/SVD.cpp>`__.
+error is available in `examples/lapack-like/SVD.cpp <https://github.com/elemental/Elemental/blob/master/examples/lapack-like/SVD.cpp>`__.
 
 As you can see, the only required header is ``elemental.hpp``, which must be
 in the include path when compiling this simple driver, ``SVD.cpp``. 

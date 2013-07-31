@@ -11,7 +11,7 @@ download instructions.
 
 ### Documentation
 
-The [documentation for the development version of Elemental](http://poulson.github.com/Elemental) is built using [Sphinx](http://sphinx.pocoo.org).
+The [documentation for the development version of Elemental](http://elemental.github.com/Elemental) is built using [Sphinx](http://sphinx.pocoo.org).
 
 ### Related open-source packages
 
@@ -27,5 +27,5 @@ Wrappers:
 2. [Trilinos](http://trilinos.sandia.gov)
 
 Note that [PETSc](https://www.mcs.anl.gov/petsc/) contains interfaces for both 
-[Elemental](http://github.com/poulson/Elemental.git) and
+[Elemental](http://github.com/elemental/Elemental.git) and
 [Clique](http://github.com/poulson/Clique.git).
