@@ -16,8 +16,8 @@ namespace elem {
 class Grid
 {
 public:
-    Grid( mpi::Comm comm=mpi::COMM_WORLD );
-    Grid( mpi::Comm comm, int height );
+    explicit Grid( mpi::Comm comm=mpi::COMM_WORLD );
+    explicit Grid( mpi::Comm comm, int height );
     ~Grid();
 
     // Simple interface (simpler version of distributed-based interface)
@@ -46,7 +46,7 @@ public:
     mpi::Comm VRComm() const;
 
     // Advanced routines
-    Grid( mpi::Comm viewers, mpi::Group owners, int height );
+    explicit Grid( mpi::Comm viewers, mpi::Group owners, int height );
     int GCD() const; // greatest common denominator of grid height and width
     int LCM() const; // lowest common multiple of grid height and width
     bool InGrid() const;
