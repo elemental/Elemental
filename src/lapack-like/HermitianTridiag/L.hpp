@@ -28,12 +28,12 @@ void L( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::L");
 #endif
-    const int tHeight = std::max(A.Height()-1,0);
+    const Int tHeight = std::max(A.Height()-1,0);
 #ifndef RELEASE
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
-        throw std::logic_error("t is of the wrong size");
+        LogicError("t is of the wrong size");
 #endif
     typedef BASE(F) R;
 
@@ -92,11 +92,11 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::L");
     if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,t} must be distributed over the same grid");
+        LogicError("{A,t} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( t.Viewing() )
-        throw std::logic_error("t must not be a view");
+        LogicError("t must not be a view");
 #endif
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tDiag(g);

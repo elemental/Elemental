@@ -38,7 +38,7 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("Trdtrdmm");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
 #endif
     if( uplo == LOWER )
         internal::TrdtrmmLVar1( orientation, A );
@@ -53,7 +53,7 @@ Trdtrmm( Orientation orientation, UpperOrLower uplo, DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("Trdtrmm");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
 #endif
     if( uplo == LOWER )
         internal::TrdtrmmLVar1( orientation, A );

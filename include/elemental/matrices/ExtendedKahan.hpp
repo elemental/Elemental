@@ -26,24 +26,24 @@ namespace elem {
 
 template<typename F>
 inline void
-ExtendedKahan( Matrix<F>& A, int k, BASE(F) phi, BASE(F) mu )
+ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExtendedKahan");
 #endif
-    const int n = 3*(1u<<k);
+    const Int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );
 }
 
 template<typename F,Distribution U,Distribution V>
 inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, int k, BASE(F) phi, BASE(F) mu )
+ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExtendedKahan");
 #endif
-    const int n = 3*(1u<<k);
+    const Int n = 3*(1u<<k);
     A.ResizeTo( n, n );
     MakeExtendedKahan( A, phi, mu );
 }
@@ -58,21 +58,21 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     typedef BASE(F) R;
 
     if( A.Height() != A.Width() )
-        throw std::logic_error("Extended Kahan matrices must be square");
-    const int n = A.Height();
+        LogicError("Extended Kahan matrices must be square");
+    const Int n = A.Height();
     if( n % 3 != 0 )
-        throw std::logic_error("Dimension must be an integer multiple of 3");
-    const int l = n / 3;
+        LogicError("Dimension must be an integer multiple of 3");
+    const Int l = n / 3;
     if( !l || (l & (l-1)) )
-        throw std::logic_error("n/3 is not a power of two");
-    int k=0;
-    while( int(1u<<k) < l )
+        LogicError("n/3 is not a power of two");
+    Int k=0;
+    while( Int(1u<<k) < l )
         ++k;
 
     if( phi <= R(0) || phi >= R(1) )
-        throw std::logic_error("phi must be in (0,1)");
+        LogicError("phi must be in (0,1)");
     if( mu <= R(0) || mu >= R(1) )
-        throw std::logic_error("mu must be in (0,1)");
+        LogicError("mu must be in (0,1)");
 
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
@@ -90,7 +90,7 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     // Now scale R by S
     const R zeta = Sqrt(R(1)-phi*phi);
     Matrix<R> d( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         d.Set( i, 0, Pow(zeta,R(i)) );
     DiagonalScale( LEFT, NORMAL, d, A );
 }
@@ -105,21 +105,21 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     typedef BASE(F) R;
 
     if( A.Height() != A.Width() )
-        throw std::logic_error("Extended Kahan matrices must be square");
-    const int n = A.Height();
+        LogicError("Extended Kahan matrices must be square");
+    const Int n = A.Height();
     if( n % 3 != 0 )
-        throw std::logic_error("Dimension must be an integer multiple of 3");
-    const int l = n / 3;
+        LogicError("Dimension must be an integer multiple of 3");
+    const Int l = n / 3;
     if( !l || (l & (l-1)) )
-        throw std::logic_error("n/3 is not a power of two");
-    int k=0;
-    while( int(1u<<k) < l )
+        LogicError("n/3 is not a power of two");
+    Int k=0;
+    while( Int(1u<<k) < l )
         ++k;
 
     if( phi <= R(0) || phi >= R(1) )
-        throw std::logic_error("phi must be in (0,1)");
+        LogicError("phi must be in (0,1)");
     if( mu <= R(0) || mu >= R(1) )
-        throw std::logic_error("mu must be in (0,1)");
+        LogicError("mu must be in (0,1)");
 
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
@@ -137,11 +137,11 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     // Now scale R by S
     const R zeta = Sqrt(R(1)-phi*phi);
     DistMatrix<R,U,STAR> d( n, 1, A.Grid() );
-    const int colShift = d.ColShift();
-    const int colStride = d.ColStride();
-    for( int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
+    const Int colShift = d.ColShift();
+    const Int colStride = d.ColStride();
+    for( Int iLoc=0; iLoc<d.LocalHeight(); ++iLoc )
     {
-        const int i = colShift + iLoc*colStride;
+        const Int i = colShift + iLoc*colStride;
         d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );

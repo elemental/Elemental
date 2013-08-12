@@ -21,7 +21,7 @@ Nrm2( const Matrix<F>& x )
 #ifndef RELEASE
     CallStackEntry entry("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error("Expected vector input");
+        LogicError("Expected vector input");
 #endif
     BASE(F) norm;
     if( x.Width() == 1 )
@@ -38,7 +38,7 @@ Nrm2( const DistMatrix<F>& x )
 #ifndef RELEASE
     CallStackEntry entry("Nrm2");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error("x must be a vector");
+        LogicError("x must be a vector");
 #endif
     return FrobeniusNorm( x );
 }

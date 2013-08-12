@@ -13,7 +13,7 @@
 namespace elem {
 
 // Matrix base for arbitrary rings
-template<typename T,typename Int>
+template<typename T>
 class Matrix
 {
 public:    
@@ -34,7 +34,7 @@ public:
     Matrix
     ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
-    Matrix( const Matrix<T,Int>& A );
+    Matrix( const Matrix<T>& A );
 
     //
     // Destructor
@@ -66,9 +66,9 @@ public:
     void Set( Int i, Int j, T alpha );
     void Update( Int i, Int j, T alpha );
 
-    void GetDiagonal( Matrix<T,Int>& d, Int offset=0 ) const;
-    void SetDiagonal( const Matrix<T,Int>& d, Int offset=0 );
-    void UpdateDiagonal( const Matrix<T,Int>& d, Int offset=0 );
+    void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
+    void SetDiagonal( const Matrix<T>& d, Int offset=0 );
+    void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
 
     //
     // Though the following routines are meant for complex data, all but four
@@ -116,7 +116,7 @@ public:
     // Utilities
     //
 
-    const Matrix<T,Int>& operator=( const Matrix<T,Int>& A );
+    const Matrix<T>& operator=( const Matrix<T>& A );
 
     void Empty();
     void ResizeTo( Int height, Int width );
@@ -142,43 +142,31 @@ private:
     void LockedAttach_( Int height, Int width, const T* buffer, Int ldim );
     
 #ifndef SWIG
-    template <typename F,typename Ord> 
+    template <typename F> 
     friend class Matrix;
-    template <typename F,Distribution U,Distribution V,typename Ord> 
+    template <typename F,Distribution U,Distribution V> 
     friend class DistMatrix;
-    friend class AbstractDistMatrix<T,Int>;
+    friend class AbstractDistMatrix<T>;
 
-    friend void View<T,Int>
-    ( Matrix<T,Int>& A, Matrix<T,Int>& B );
-    friend void View<T,Int>
-    ( Matrix<T,Int>& A, Matrix<T,Int>& B, Int i, Int j, Int height, Int width );
-    friend void View1x2<T,Int>
-    ( Matrix<T,Int>& A, Matrix<T,Int>& BL, Matrix<T,Int>& BR );
-    friend void View2x1<T,Int>
-    ( Matrix<T,Int>& A,
-      Matrix<T,Int>& BT,
-      Matrix<T,Int>& BB );
-    friend void View2x2<T,Int>
-    ( Matrix<T,Int>& A,
-      Matrix<T,Int>& BTL, Matrix<T,Int>& BTR,
-      Matrix<T,Int>& BBL, Matrix<T,Int>& BBR );
+    friend void View<T>( Matrix<T>& A, Matrix<T>& B );
+    friend void View<T>
+    ( Matrix<T>& A, Matrix<T>& B, Int i, Int j, Int height, Int width );
+    friend void View1x2<T>( Matrix<T>& A, Matrix<T>& BL, Matrix<T>& BR );
+    friend void View2x1<T>( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB );
+    friend void View2x2<T>
+    ( Matrix<T>& A, Matrix<T>& BTL, Matrix<T>& BTR,
+                    Matrix<T>& BBL, Matrix<T>& BBR );
 
-    friend void LockedView<T,Int>
-    ( Matrix<T,Int>& A, const Matrix<T,Int>& B );
-    friend void LockedView<T,Int>
-    (       Matrix<T,Int>& A, 
-      const Matrix<T,Int>& B, Int i, Int j, Int height, Int width );
-    friend void LockedView1x2<T,Int>
-    (       Matrix<T,Int>& A,
-      const Matrix<T,Int>& BL, const Matrix<T,Int>& BR );
-    friend void LockedView2x1<T,Int>
-    (       Matrix<T,Int>& A,
-      const Matrix<T,Int>& BT,
-      const Matrix<T,Int>& BB );
-    friend void LockedView2x2<T,Int>
-    (       Matrix<T,Int>& A,
-      const Matrix<T,Int>& BTL, const Matrix<T,Int>& BTR,
-      const Matrix<T,Int>& BBL, const Matrix<T,Int>& BBR );
+    friend void LockedView<T>( Matrix<T>& A, const Matrix<T>& B );
+    friend void LockedView<T>
+    ( Matrix<T>& A, const Matrix<T>& B, Int i, Int j, Int height, Int width );
+    friend void LockedView1x2<T>
+    ( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR );
+    friend void LockedView2x1<T>
+    ( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB );
+    friend void LockedView2x2<T>
+    ( Matrix<T>& A, const Matrix<T>& BTL, const Matrix<T>& BTR,
+                    const Matrix<T>& BBL, const Matrix<T>& BBR );
 #endif // ifndef SWIG
 };
 

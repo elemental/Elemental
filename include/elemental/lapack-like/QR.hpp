@@ -75,7 +75,7 @@ QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 
 template<typename F> 
 inline void
-QR( Matrix<F>& A, Matrix<int>& p )
+QR( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -85,7 +85,7 @@ QR( Matrix<F>& A, Matrix<int>& p )
 
 template<typename F> 
 inline void
-QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
+QR( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -95,7 +95,7 @@ QR( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p )
 
 template<typename F> 
 inline void
-QR( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p )
+QR( Matrix<F>& A, Matrix<F>& t, Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");
@@ -105,7 +105,7 @@ QR( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p )
 
 template<typename F> 
 inline void
-QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p )
+QR( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<Int,VR,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("QR");

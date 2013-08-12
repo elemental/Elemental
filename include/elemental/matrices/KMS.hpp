@@ -14,39 +14,39 @@ namespace elem {
 
 template<typename T> 
 inline void
-KMS( Matrix<T>& K, int n, T rho )
+KMS( Matrix<T>& K, Int n, T rho )
 {
 #ifndef RELEASE
     CallStackEntry entry("KMS");
 #endif
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<j; ++i )
+        for( Int i=0; i<j; ++i )
             K.Set( i, j, Pow(rho,T(j-i)) );
-        for( int i=j; i<n; ++i )
+        for( Int i=j; i<n; ++i )
             K.Set( i, j, Conj(Pow(rho,T(i-j))) );
     }
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-KMS( DistMatrix<T,U,V>& K, int n, T rho )
+KMS( DistMatrix<T,U,V>& K, Int n, T rho )
 {
 #ifndef RELEASE
     CallStackEntry entry("KMS");
 #endif
-    const int localHeight = K.LocalHeight();
-    const int localWidth = K.LocalWidth();
-    const int colShift = K.ColShift();
-    const int rowShift = K.RowShift();
-    const int colStride = K.ColStride();
-    const int rowStride = K.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = K.LocalHeight();
+    const Int localWidth = K.LocalWidth();
+    const Int colShift = K.ColShift();
+    const Int rowShift = K.RowShift();
+    const Int colStride = K.ColStride();
+    const Int rowStride = K.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i < j )
                 K.SetLocal( iLoc, jLoc, Pow(rho,T(j-i)) );
             else

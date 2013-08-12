@@ -14,39 +14,39 @@ namespace elem {
 
 template<typename F> 
 inline void
-Ris( Matrix<F>& R, int n )
+Ris( Matrix<F>& R, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Ris");
 #endif
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<n; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i )
             R.Set( i, j, oneHalf/(n-i-j-oneHalf) );
 }
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Ris( DistMatrix<F,U,V>& R, int n )
+Ris( DistMatrix<F,U,V>& R, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Ris");
 #endif
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
-    const int localHeight = R.LocalHeight();
-    const int localWidth = R.LocalWidth();
-    const int colShift = R.ColShift();
-    const int rowShift = R.RowShift();
-    const int colStride = R.ColStride();
-    const int rowStride = R.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = R.LocalHeight();
+    const Int localWidth = R.LocalWidth();
+    const Int colShift = R.ColShift();
+    const Int rowShift = R.RowShift();
+    const Int colStride = R.ColStride();
+    const Int rowStride = R.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             R.SetLocal( iLoc, jLoc, oneHalf/(n-i-j-oneHalf) );
         }
     }

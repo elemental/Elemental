@@ -23,9 +23,9 @@ TrdtrmmUVar1( Orientation orientation, Matrix<F>& U )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtdrmmUVar1");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Orientation must be (conjugate-)transpose");
+        LogicError("Orientation must be (conjugate-)transpose");
 #endif
     Matrix<F>
         UTL, UTR,  U00, U01, U02,
@@ -68,9 +68,9 @@ TrdtrmmUVar1( Orientation orientation, DistMatrix<F>& U )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmUVar1");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Orientation must be (conjugate-)transpose");
+        LogicError("Orientation must be (conjugate-)transpose");
 #endif
     const Grid& g = U.Grid();
 

@@ -36,8 +36,8 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int n = X.Height();
-    const int k = X.Width();
+    const Int n = X.Height();
+    const Int k = X.Width();
 
     if( g.Rank() == 0 )
     {
@@ -116,10 +116,10 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), AOrig, Y, F(0), Z );
         // Set Z := Z - XW = ABX - XW
-        for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
+        for( Int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const R omega = w_MR_STAR.GetLocal(jLocal,0); 
-            for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
+            for( Int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
                 const F chi = X.GetLocal(iLocal,jLocal);
                 const F zeta = Z.GetLocal(iLocal,jLocal);
@@ -180,10 +180,10 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), BOrig, Y, F(0), Z );
         // Set Z := Z - XW = BAX-XW
-        for( int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
+        for( Int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
         {
             const R omega = w_MR_STAR.GetLocal(jLocal,0); 
-            for( int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
+            for( Int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
             {
                 const F chi = X.GetLocal(iLocal,jLocal);
                 const F zeta = Z.GetLocal(iLocal,jLocal);
@@ -238,7 +238,7 @@ void TestHermitianGenDefiniteEig
 ( bool testCorrectness, bool print,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigvals, UpperOrLower uplo, 
-  int m, char range, BASE(F) vl, BASE(F) vu, int il, int iu, const Grid& g )
+  Int m, char range, BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
 {
     typedef BASE(F) R;
     DistMatrix<F> A(g), AOrig(g);
@@ -327,13 +327,13 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
-        const int eigInt = Input("--eigType",
+        Int r = Input("--gridHeight","height of process grid",0);
+        const Int eigInt = Input("--eigType",
              "1 is A x = lambda B x, "
              "2 is A B x = lambda x, "
              "3 is B A x = lambda x",1);
@@ -343,14 +343,14 @@ main( int argc, char* argv[] )
             ("--range",
              "range of eigenpairs: 'A' for all, 'I' for index range, "
              "'V' for value range",'A');
-        const int il = Input("--il","lower bound of index range",0);
-        const int iu = Input("--iu","upper bound of index range",100);
+        const Int il = Input("--il","lower bound of index range",0);
+        const Int iu = Input("--iu","upper bound of index range",100);
         const double vl = Input("--vl","lower bound of value range",0.);
         const double vu = Input("--vu","upper bound of value range",100.);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
-        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -386,7 +386,7 @@ main( int argc, char* argv[] )
             eigTypeString = "BAX";
         }
         else
-            throw logic_error("Invalid eigenvalue problem integer");
+            LogicError("Invalid eigenvalue problem integer");
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test " 

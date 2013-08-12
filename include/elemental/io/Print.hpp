@@ -22,11 +22,11 @@ Print( const Matrix<T>& A, std::string title="", std::ostream& os=std::cout )
     if( title != "" )
         os << title << std::endl;
     
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int i=0; i<height; ++i )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int i=0; i<height; ++i )
     {
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
             os << A.Get(i,j) << " ";
         os << std::endl;
     }

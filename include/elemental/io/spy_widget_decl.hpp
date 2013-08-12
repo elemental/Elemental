@@ -20,7 +20,7 @@ class SpyWidget : public QWidget
 public:
     SpyWidget( QWidget* parent=0 );
     ~SpyWidget();
-    void Spy( const Matrix<int>* A );
+    void Spy( const Matrix<Int>* A );
     // TODO: Change style
 protected:
     void paintEvent( QPaintEvent* event );

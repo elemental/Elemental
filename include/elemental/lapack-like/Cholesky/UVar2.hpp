@@ -27,8 +27,7 @@ UVar2( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::UVar2");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     // Matrix views
     Matrix<F> 
@@ -70,8 +69,7 @@ UVar2( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::UVar2");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     const Grid& g = A.Grid();
 

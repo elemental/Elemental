@@ -24,13 +24,8 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::PanelHouseholder");
-    if( t.Viewing() && 
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
-        throw std::logic_error
-        ("t must be a vector of height equal to the minimum dimension of A");
 #endif
-    if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     Matrix<F>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -95,17 +90,12 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::PanelHouseholder");
     if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,t} must be distributed over the same grid");
-    if( t.Viewing() && 
-        (t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1) )
-        throw std::logic_error
-        ("t must be a vector of height equal to the minimum dimension of A");
+        LogicError("{A,t} must be distributed over the same grid");
     if( !t.AlignedWithDiagonal( A, 0 ) )
-        throw std::logic_error("t must be aligned with A's main diagonal");
+        LogicError("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
-    if( !t.Viewing() )
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>

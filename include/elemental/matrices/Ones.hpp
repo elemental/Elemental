@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Ones( Matrix<T>& A, int m, int n )
+Ones( Matrix<T>& A, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Ones");
@@ -25,7 +25,7 @@ Ones( Matrix<T>& A, int m, int n )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Ones( DistMatrix<T,U,V>& A, int m, int n )
+Ones( DistMatrix<T,U,V>& A, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Ones");
@@ -41,10 +41,10 @@ MakeOnes( Matrix<T>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeOnes");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             A.Set( i, j, T(1) );
 }
 
@@ -55,10 +55,10 @@ MakeOnes( DistMatrix<T,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeOnes");
 #endif
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             A.SetLocal( iLoc, jLoc, T(1) );
 }
 

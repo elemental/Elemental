@@ -20,19 +20,18 @@ namespace svd {
 
 template<typename F>
 inline void
-ThresholdedTall
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedTall");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
+        LogicError("A must be at least as tall as it is wide");
     if( tol < 0 )
-        throw std::logic_error("negative threshold does not make sense");
+        LogicError("negative threshold does not make sense");
 #endif
     typedef BASE(F) R;
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
     {
@@ -48,8 +47,8 @@ ThresholdedTall
     HermitianEig( LOWER, C, s, V, tol*tol, frobNorm*frobNorm );
     
     // Sigma := sqrt(Sigma^2)
-    const int k = s.Height();
-    for( int i=0; i<k; ++i )
+    const Int k = s.Height();
+    for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
     // Y := A V
@@ -61,10 +60,10 @@ ThresholdedTall
     //       each column of A and normalize via it, as it might vary slightly
     //       from the corresponding computed singular value.
     A = Y;
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         const R sigma = s.Get( j, 0 );
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
             A.Set( i, j, A.Get(i,j)/sigma );
     }
 }
@@ -78,14 +77,14 @@ ThresholdedTall
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedTall");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
+        LogicError("A must be at least as tall as it is wide");
     if( tol < 0 )
-        throw std::logic_error("negative threshold does not make sense");
+        LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = A.Height();
+    const Int m = A.Height();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
     {
@@ -94,7 +93,7 @@ ThresholdedTall
     }
 
     // C := A^H A
-    DistMatrix<F> C( g );
+    DistMatrix<F> C(g);
     Herk( LOWER, ADJOINT, F(1), A, C );
 
     // [V,Sigma^2] := eig(C), where each sigma > tol
@@ -102,13 +101,13 @@ ThresholdedTall
     
     // Sigma := sqrt(Sigma^2)
     {
-        const int localHeight = s.LocalHeight();
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int localHeight = s.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
     // Y := A V
-    DistMatrix<F> Y( g );
+    DistMatrix<F> Y(g);
     Gemm( NORMAL, NORMAL, F(1), A, V, Y );
 
     // Set each column of A to be the corresponding normalized column of Y
@@ -117,15 +116,15 @@ ThresholdedTall
     //       from the corresponding computed singular value.
     A = Y;
     {
-        DistMatrix<R,MR,STAR> s_MR_STAR( g );
+        DistMatrix<R,MR,STAR> s_MR_STAR(g);
         s_MR_STAR.AlignWith( A.DistData() );
         s_MR_STAR = s;
-        const int localWidth = A.LocalWidth();
-        const int localHeight = A.LocalHeight();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        const Int localWidth = A.LocalWidth();
+        const Int localHeight = A.LocalHeight();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)/sigma );
         }
     }
@@ -133,18 +132,17 @@ ThresholdedTall
 
 template<typename F>
 inline void
-ThresholdedWide
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedWide");
     if( A.Width() < A.Height() )
-        throw std::logic_error("A must be at least as wide as it is tall");
+        LogicError("A must be at least as wide as it is tall");
     if( tol < 0 )
-        throw std::logic_error("negative threshold does not make sense");
+        LogicError("negative threshold does not make sense");
 #endif
     typedef BASE(F) R;
-    const int n = A.Width();
+    const Int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
     {
@@ -161,8 +159,8 @@ ThresholdedWide
     HermitianEig( LOWER, C, s, U, tol*tol, frobNorm*frobNorm );
     
     // Sigma := sqrt(Sigma^2)
-    const int k = s.Height();
-    for( int i=0; i<k; ++i )
+    const Int k = s.Height();
+    for( Int i=0; i<k; ++i )
         s.Set( i, 0, Sqrt(s.Get(i,0)) );
 
     // (Sigma V) := A^H U
@@ -172,10 +170,10 @@ ThresholdedWide
     // NOTE: A (potentially better) alternative would be to compute the norm of
     //       each column of V and normalize via it, as it might vary slightly
     //       from the corresponding computed singular value.
-    for( int j=0; j<k; ++j )
+    for( Int j=0; j<k; ++j )
     {
         const R sigma = s.Get( j, 0 );
-        for( int i=0; i<n; ++i )
+        for( Int i=0; i<n; ++i )
             V.Set( i, j, V.Get(i,j)/sigma );
     }
     A = U;
@@ -190,14 +188,14 @@ ThresholdedWide
 #ifndef RELEASE
     CallStackEntry entry("svd::ThresholdedWide");
     if( A.Width() < A.Height() )
-        throw std::logic_error("A must be at least as wide as it is tall");
+        LogicError("A must be at least as wide as it is tall");
     if( tol < 0 )
-        throw std::logic_error("negative threshold does not make sense");
+        LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int n = A.Width();
+    const Int n = A.Width();
     const R frobNorm = FrobeniusNorm( A );
     if( tol == R(0) )
     {
@@ -210,13 +208,13 @@ ThresholdedWide
     Herk( LOWER, NORMAL, F(1), A, C );
 
     // [U,Sigma^2] := eig(C), where each sigma > tol
-    DistMatrix<F> U( g );
+    DistMatrix<F> U(g);
     HermitianEig( LOWER, C, s, U, tol*tol, frobNorm*frobNorm );
     
     // Sigma := sqrt(Sigma^2)
     {
-        const int localHeight = s.LocalHeight();
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int localHeight = s.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             s.SetLocal( iLoc, 0, Sqrt(s.GetLocal(iLoc,0)) );
     }
 
@@ -231,12 +229,12 @@ ThresholdedWide
         DistMatrix<R,MR,STAR> s_MR_STAR( g );
         s_MR_STAR.AlignWith( V.DistData() );
         s_MR_STAR = s;
-        const int localWidth = V.LocalWidth();
-        const int localHeight = V.LocalHeight();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        const Int localWidth = V.LocalWidth();
+        const Int localHeight = V.LocalHeight();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 V.SetLocal( iLoc, jLoc, V.GetLocal(iLoc,jLoc)/sigma );
         }
     }
@@ -245,8 +243,7 @@ ThresholdedWide
 
 template<typename F>
 inline void
-Thresholded
-( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
+Thresholded( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::Thresholded");

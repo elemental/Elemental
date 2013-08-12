@@ -13,29 +13,29 @@
 namespace elem {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T,Int>
-#define DM DistMatrix<T,U,V,Int>
+#define M  Matrix<T>
+#define DM DistMatrix<T,U,V>
 
 //
 // PartitionUp
 // 
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionUp
 ( M& A, M& AT,
         M& AB, Int heightAB=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionUp
 ( DM& A, DM& AT,
          DM& AB, Int heightAB=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionUp
 ( const M& A, M& AT,
               M& AB, Int heightAB=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionUp
 ( const DM& A, DM& AT,
                DM& AB, Int heightAB=Blocksize() );
@@ -44,22 +44,22 @@ void LockedPartitionUp
 // PartitionDown
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionDown
 ( M& A, M& AT,
         M& AB, Int heightAT=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionDown
 ( DM& A, DM& AT,
          DM& AB, Int heightAT=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionDown
 ( const M& A, M& AT,
               M& AB, Int heightAT=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionDown
 ( const DM& A, DM& AT,
                DM& AB, Int heightAT=Blocksize() );
@@ -68,19 +68,19 @@ void LockedPartitionDown
 // PartitionLeft
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionLeft
 ( M& A, M& AL, M& AR, Int widthAR=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionLeft
 ( DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionLeft
 ( const M& A, M& AL, M& AR, Int widthAR=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionLeft
 ( const DM& A, DM& AL, DM& AR, Int widthAR=Blocksize() );
 
@@ -88,19 +88,19 @@ void LockedPartitionLeft
 // PartitionRight
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionRight
 ( M& A, M& AL, M& AR, Int widthAL=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionRight
 ( DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionRight
 ( const M& A, M& AL, M& AR, Int widthAL=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionRight
 ( const DM& A, DM& AL, DM& AR, Int widthAL=Blocksize() );
 
@@ -108,22 +108,22 @@ void LockedPartitionRight
 // PartitionUpDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -132,25 +132,25 @@ void LockedPartitionUpDiagonal
 // PartitionUpOffsetDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionUpOffsetDiagonal
 ( Int offset,
   M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionUpOffsetDiagonal
 ( Int offset,
   DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionUpOffsetDiagonal
 ( Int offset,
   const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionUpOffsetDiagonal
 ( Int offset,
   const DM& A, DM& ATL, DM& ATR,
@@ -160,22 +160,22 @@ void LockedPartitionUpOffsetDiagonal
 // PartitionDownDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
                DM& ABL, DM& ABR, Int diagDist=Blocksize() );
@@ -184,25 +184,25 @@ void LockedPartitionDownDiagonal
 // PartitionDownOffsetDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 void PartitionDownOffsetDiagonal
 ( Int offset,
   M& A, M& ATL, M& ATR,
         M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void PartitionDownOffsetDiagonal
 ( Int offset,
   DM& A, DM& ATL, DM& ATR,
          DM& ABL, DM& ABR, Int diagDist=Blocksize() );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedPartitionDownOffsetDiagonal
 ( Int offset,
   const M& A, M& ATL, M& ATR,
               M& ABL, M& ABR, Int diagDist=Blocksize() );
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 void LockedPartitionDownOffsetDiagonal
 ( Int offset,
   const DM& A, DM& ATL, DM& ATR,

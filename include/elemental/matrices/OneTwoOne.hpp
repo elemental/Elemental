@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T> 
 inline void
-OneTwoOne( Matrix<T>& A, int n )
+OneTwoOne( Matrix<T>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("OneTwoOne");
@@ -27,7 +27,7 @@ OneTwoOne( Matrix<T>& A, int n )
 
 template<typename T,Distribution U,Distribution V> 
 inline void
-OneTwoOne( DistMatrix<T,U,V>& A, int n )
+OneTwoOne( DistMatrix<T,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("OneTwoOne");
@@ -44,11 +44,11 @@ MakeOneTwoOne( Matrix<T>& A )
     CallStackEntry entry("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+        LogicError("Cannot make a non-square matrix 1-2-1");
     MakeZeros( A );
 
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
     {
         A.Set( j, j, T(2) );
         if( j < n-1 )
@@ -67,21 +67,21 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
     CallStackEntry entry("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix 1-2-1");
+        LogicError("Cannot make a non-square matrix 1-2-1");
     MakeZeros( A );
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i == j )
                 A.SetLocal( iLoc, jLoc, T(2) );
             else if( i == j-1 || i == j+1 )

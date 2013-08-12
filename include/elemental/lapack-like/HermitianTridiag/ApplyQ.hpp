@@ -28,7 +28,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( uplo==UPPER ? 1 : -1 );
+    const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
 }
@@ -46,7 +46,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( uplo==UPPER ? 1 : -1 );
+    const Int offset = ( uplo==UPPER ? 1 : -1 );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, direction, conjugation, offset, A, t, B );
 }
@@ -60,7 +60,7 @@ ApplyQ
 #ifndef RELEASE
     CallStackEntry cse("hermitian_tridiag::ApplyQ");
 #endif
-    const int offset = ( uplo==UPPER ? 1 : -1 );
+    const Int offset = ( uplo==UPPER ? 1 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;

@@ -16,18 +16,18 @@ namespace elem {
 
 template<typename T> 
 inline void
-Gear( Matrix<T>& G, int n, int s, int t )
+Gear( Matrix<T>& G, Int n, Int s, Int t )
 {
 #ifndef RELEASE
     CallStackEntry entry("Gear");
 #endif
     if( s == 0 || s > n || s < -n )
-        throw std::logic_error("Invalid s value");
+        LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )
-        throw std::logic_error("Invalid t value");
+        LogicError("Invalid t value");
     
     Zeros( G, n, n );
-    for( int j=0; j<n-1; ++j ) 
+    for( Int j=0; j<n-1; ++j ) 
     {
         G.Set( j, j+1, T(1) );
         G.Set( j+1, j, T(1) );
@@ -46,18 +46,18 @@ Gear( Matrix<T>& G, int n, int s, int t )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Gear( DistMatrix<T,U,V>& G, int n, int s, int t )
+Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
 {
 #ifndef RELEASE
     CallStackEntry entry("Gear");
 #endif
     if( s == 0 || s > n || s < -n )
-        throw std::logic_error("Invalid s value");
+        LogicError("Invalid s value");
     if( t == 0 || t > n || t < -n )
-        throw std::logic_error("Invalid t value");
+        LogicError("Invalid t value");
     
     Zeros( G, n, n );
-    for( int j=0; j<n-1; ++j ) 
+    for( Int j=0; j<n-1; ++j ) 
     {
         G.Set( j, j+1, T(1) );
         G.Set( j+1, j, T(1) );

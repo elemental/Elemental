@@ -20,9 +20,9 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int nx = Input("--nx","size of x dimension",10);
-        const int ny = Input("--ny","size of y dimension",10);
-        const int nz = Input("--nz","size of z dimension",10);
+        const Int nx = Input("--nx","size of x dimension",10);
+        const Int ny = Input("--ny","size of y dimension",10);
+        const Int nz = Input("--nz","size of z dimension",10);
         const double realShift = Input("--realShift","real part of shift",0.);
         const double imagShift = Input("--imagShift","imag part of shift",0.);
         const bool display = Input("--display","display matrix?",true);

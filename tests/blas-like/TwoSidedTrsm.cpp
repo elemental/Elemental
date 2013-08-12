@@ -25,9 +25,9 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = AOrig.Height();
+    const Int m = AOrig.Height();
 
-    const int k=100;
+    const Int k=100;
     DistMatrix<F> X(g), Y(g), Z(g);
     Uniform( X, m, k );
     Y = X;
@@ -106,7 +106,7 @@ void TestCorrectness
 template<typename F> 
 void TestTwoSidedTrsm
 ( bool testCorrectness, bool print, UpperOrLower uplo, UnitOrNonUnit diag,
-  int m, const Grid& g )
+  Int m, const Grid& g )
 {
     DistMatrix<F> A(g), B(g), AOrig(g);
 
@@ -162,17 +162,17 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char uploChar = Input
             ("--uplo","lower or upper triangular storage: L/U",'L');
         const char diagChar = Input("--unit","(non-)unit diagonal: N/U",'N');
-        const int m = Input("--m","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--m","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);

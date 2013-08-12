@@ -17,17 +17,17 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try 
     {
-        const int m = 3*commSize;
-        const int n = 2*commSize;
+        const Int m = 3*commSize;
+        const Int n = 2*commSize;
 
         Grid g( comm );
 
-        for( int k=0; k<50; ++k )
+        for( Int k=0; k<50; ++k )
         {
             if( commRank == 0 )
                 std::cout << "Iteration " << k << std::endl;
@@ -38,10 +38,10 @@ main( int argc, char* argv[] )
             AxpyInterface<double> interface;
             interface.Attach( LOCAL_TO_GLOBAL, A );
             Matrix<double> X( commSize, 1 );
-            for( int j=0; j<X.Width(); ++j )
-                for( int i=0; i<commSize; ++i )
+            for( Int j=0; j<X.Width(); ++j )
+                for( Int i=0; i<commSize; ++i )
                     X.Set(i,j,commRank+1);
-            for( int i=0; i<5; ++i )
+            for( Int i=0; i<5; ++i )
             {
                 interface.Axpy( 2, X, 2*commRank, commRank );
                 interface.Axpy( 2, X, 2*commRank, commRank+1 );

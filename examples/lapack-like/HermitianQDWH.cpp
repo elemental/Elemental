@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int n = Input("--size","size of Hermitian matrix",100);
+        const Int n = Input("--size","size of Hermitian matrix",100);
         ProcessInput();
         PrintInputReport();
 
@@ -46,7 +46,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const int numItsQDWH = 
+        const Int numItsQDWH = 
             hermitian_polar::QDWH( LOWER, Q, lowerBound, upperBound );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );

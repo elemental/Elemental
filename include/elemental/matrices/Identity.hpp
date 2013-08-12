@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Identity( Matrix<T>& I, int m, int n )
+Identity( Matrix<T>& I, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Identity");
@@ -27,7 +27,7 @@ Identity( Matrix<T>& I, int m, int n )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Identity( DistMatrix<T,U,V>& I, int m, int n )
+Identity( DistMatrix<T,U,V>& I, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Identity");
@@ -44,9 +44,9 @@ MakeIdentity( Matrix<T>& I )
     CallStackEntry entry("MakeIdentity");
 #endif
     Zero( I );
-    const int m = I.Height();
-    const int n = I.Width();
-    for( int j=0; j<std::min(m,n); ++j )
+    const Int m = I.Height();
+    const Int n = I.Width();
+    for( Int j=0; j<std::min(m,n); ++j )
         I.Set( j, j, T(1) );
 }
 
@@ -59,18 +59,18 @@ MakeIdentity( DistMatrix<T,U,V>& I )
 #endif
     Zero( I.Matrix() );
 
-    const int localHeight = I.LocalHeight();
-    const int localWidth = I.LocalWidth();
-    const int colShift = I.ColShift();
-    const int rowShift = I.RowShift();
-    const int colStride = I.ColStride();
-    const int rowStride = I.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = I.LocalHeight();
+    const Int localWidth = I.LocalWidth();
+    const Int colShift = I.ColShift();
+    const Int rowShift = I.RowShift();
+    const Int colStride = I.ColStride();
+    const Int rowStride = I.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i == j )
                 I.SetLocal( iLoc, jLoc, T(1) );
         }

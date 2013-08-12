@@ -143,17 +143,12 @@ LU( DistMatrix<F>& A )
 
 template<typename F> 
 inline void
-LU( Matrix<F>& A, Matrix<int>& p )
+LU( Matrix<F>& A, Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("LU");
-    if( p.Viewing() && 
-        (p.Height() != std::min(A.Height(),A.Width()) || p.Width() != 1) ) 
-        throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A");
 #endif
-    if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     Matrix<F>
@@ -161,13 +156,13 @@ LU( Matrix<F>& A, Matrix<int>& p )
         ABL, ABR,  A10, A11, A12,  
                    A20, A21, A22;
 
-    Matrix<int>
+    Matrix<Int>
         pT,  p0, 
         pB,  p1,
              p2;
 
     // Pivot composition
-    std::vector<int> image, preimage;
+    std::vector<Int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -192,7 +187,7 @@ LU( Matrix<F>& A, Matrix<int>& p )
 
         PartitionRight( ABR, ABRL, ABRR, A11.Width() );
 
-        const int pivotOffset = A01.Height();
+        const Int pivotOffset = A01.Height();
         //--------------------------------------------------------------------//
         lu::Panel( ABRL, p1, pivotOffset );
         ComposePivots( p1, pivotOffset, image, preimage );
@@ -219,20 +214,15 @@ LU( Matrix<F>& A, Matrix<int>& p )
 
 template<typename F> 
 inline void
-LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
+LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("LU");
     if( A.Grid() != p.Grid() )
-        throw std::logic_error("{A,p} must be distributed over the same grid");
-    if( p.Viewing() && 
-        (std::min(A.Height(),A.Width()) != p.Height() || p.Width() != 1) ) 
-        throw std::logic_error
-        ("p must be a vector of the same height as the min dimension of A.");
+        LogicError("{A,p} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
-    if( !p.Viewing() )
-        p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>
@@ -240,7 +230,7 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
         ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
                          A20(g), A21(g), A22(g);
 
-    DistMatrix<int,VC,STAR>
+    DistMatrix<Int,VC,STAR>
         pT(g),  p0(g), 
         pB(g),  p1(g),
                 p2(g);
@@ -250,10 +240,10 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
-    DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
+    DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
     // Pivot composition
-    std::vector<int> image, preimage;
+    std::vector<Int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -278,7 +268,7 @@ LU( DistMatrix<F>& A, DistMatrix<int,VC,STAR>& p )
 
         View1x2( AB, ABL, ABR );
 
-        const int pivotOffset = A01.Height();
+        const Int pivotOffset = A01.Height();
         A12_STAR_VR.AlignWith( A22 );
         A12_STAR_MR.AlignWith( A22 );
         A21_MC_STAR.AlignWith( A22 );

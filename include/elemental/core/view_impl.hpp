@@ -12,24 +12,24 @@
 
 namespace elem {
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void HandleDiagPath
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B )
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 { }
 
-template<typename T,typename Int>
+template<typename T>
 inline void HandleDiagPath
-( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B )
+( DistMatrix<T,MD,STAR>& A, const DistMatrix<T,MD,STAR>& B )
 { A.diagPath_ = B.diagPath_; } 
 
-template<typename T,typename Int>
+template<typename T>
 inline void HandleDiagPath
-( DistMatrix<T,STAR,MD,Int>& A, const DistMatrix<T,STAR,MD,Int>& B )
+( DistMatrix<T,STAR,MD>& A, const DistMatrix<T,STAR,MD>& B )
 { A.diagPath_ = B.diagPath_; } 
 
-template<typename T,typename Int>
+template<typename T>
 inline void View
-( Matrix<T,Int>& A, Matrix<T,Int>& B )
+( Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
@@ -42,9 +42,9 @@ inline void View
     A.viewType_ = VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void View
-( DistMatrix<T,U,V,Int>& A, DistMatrix<T,U,V,Int>& B )
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
@@ -70,9 +70,9 @@ inline void View
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void LockedView
-( Matrix<T,Int>& A, const Matrix<T,Int>& B )
+( Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
@@ -85,9 +85,9 @@ inline void LockedView
     A.viewType_ = LOCKED_VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void LockedView
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B )
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
@@ -113,17 +113,17 @@ inline void LockedView
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void View
-( Matrix<T,Int>& A, Matrix<T,Int>& B,
+( Matrix<T>& A, Matrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
     if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
+        LogicError("Indices must be non-negative");
     if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
+        LogicError("Height and width must be non-negative");
     if( (i+height) > B.Height() || (j+width) > B.Width() )
     {
         std::ostringstream msg;
@@ -131,7 +131,7 @@ inline void View
             << "(" << i << "," << j << ") up to (" 
             << i+height-1 << "," << j+width-1 << ") "
             << "of " << B.Height() << " x " << B.Width() << " Matrix.";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     A.memory_.Empty();
@@ -142,9 +142,9 @@ inline void View
     A.viewType_ = VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void View
-( DistMatrix<T,U,V,Int>& A, DistMatrix<T,U,V,Int>& B,
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
@@ -190,17 +190,17 @@ inline void View
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void LockedView
-( Matrix<T,Int>& A, const Matrix<T,Int>& B,
+( Matrix<T>& A, const Matrix<T>& B,
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
     if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
+        LogicError("Indices must be non-negative");
     if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
+        LogicError("Height and width must be non-negative");
     if( (i+height) > B.Height() || (j+width) > B.Width() )
     {
         std::ostringstream msg;
@@ -208,7 +208,7 @@ inline void LockedView
             << "(" << i << "," << j << ") up to (" 
             << i+height-1 << "," << j+width-1 << ") "
             << "of " << B.Height() << " x " << B.Width() << " Matrix.";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     A.memory_.Empty();
@@ -219,9 +219,9 @@ inline void LockedView
     A.viewType_ = LOCKED_VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void LockedView
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B,
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width )
 {
 #ifndef RELEASE
@@ -267,19 +267,19 @@ inline void LockedView
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void View1x2
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BL, Matrix<T,Int>& BR )
+( Matrix<T>& A,
+  Matrix<T>& BL, Matrix<T>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("View1x2");
     if( BL.Height() != BR.Height() )
-        throw std::logic_error("1x2 must have consistent height to combine");
+        LogicError("1x2 must have consistent height to combine");
     if( BL.LDim() != BR.LDim() )
-        throw std::logic_error("1x2 must have consistent ldims to combine");
+        LogicError("1x2 must have consistent ldims to combine");
     if( BR.Buffer() != (BL.Buffer()+BL.LDim()*BL.Width()) )
-        throw std::logic_error("1x2 must have contiguous memory");
+        LogicError("1x2 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BL.height_;
@@ -289,10 +289,10 @@ inline void View1x2
     A.viewType_ = VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void View1x2
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BL, DistMatrix<T,U,V,Int>& BR )
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("View1x2");
@@ -320,20 +320,20 @@ inline void View1x2
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void LockedView1x2
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BL,
-  const Matrix<T,Int>& BR )
+(       Matrix<T>& A,
+  const Matrix<T>& BL,
+  const Matrix<T>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView1x2");
     if( BL.Height() != BR.Height() )
-        throw std::logic_error("1x2 must have consistent height to combine");
+        LogicError("1x2 must have consistent height to combine");
     if( BL.LDim() != BR.LDim() )
-        throw std::logic_error("1x2 must have consistent ldims to combine");
+        LogicError("1x2 must have consistent ldims to combine");
     if( BR.LockedBuffer() != (BL.LockedBuffer()+BL.LDim()*BL.Width()) )
-        throw std::logic_error("1x2 must have contiguous memory");
+        LogicError("1x2 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BL.height_;
@@ -343,11 +343,11 @@ inline void LockedView1x2
     A.viewType_ = LOCKED_VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void LockedView1x2
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BL,
-  const DistMatrix<T,U,V,Int>& BR )
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BL,
+  const DistMatrix<T,U,V>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView1x2");
@@ -375,20 +375,20 @@ inline void LockedView1x2
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void View2x1
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BT,
-  Matrix<T,Int>& BB )
+( Matrix<T>& A,
+  Matrix<T>& BT,
+  Matrix<T>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x1");
     if( BT.Width() != BB.Width() )
-        throw std::logic_error("2x1 must have consistent width to combine");
+        LogicError("2x1 must have consistent width to combine");
     if( BT.LDim() != BB.LDim() )
-        throw std::logic_error("2x1 must have consistent ldim to combine");
+        LogicError("2x1 must have consistent ldim to combine");
     if( BB.Buffer() != (BT.Buffer() + BT.Height()) )
-        throw std::logic_error("2x1 must have contiguous memory");
+        LogicError("2x1 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BT.height_ + BB.height_;
@@ -398,11 +398,11 @@ inline void View2x1
     A.viewType_ = VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void View2x1
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BT,
-  DistMatrix<T,U,V,Int>& BB )
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BT,
+  DistMatrix<T,U,V>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x1");
@@ -430,20 +430,20 @@ inline void View2x1
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void LockedView2x1
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BT,
-  const Matrix<T,Int>& BB )
+(       Matrix<T>& A,
+  const Matrix<T>& BT,
+  const Matrix<T>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x1");
     if( BT.Width() != BB.Width() )
-        throw std::logic_error("2x1 must have consistent width to combine");
+        LogicError("2x1 must have consistent width to combine");
     if( BT.LDim() != BB.LDim() )
-        throw std::logic_error("2x1 must have consistent ldim to combine");
+        LogicError("2x1 must have consistent ldim to combine");
     if( BB.LockedBuffer() != (BT.LockedBuffer() + BT.Height()) )
-        throw std::logic_error("2x1 must have contiguous memory");
+        LogicError("2x1 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BT.height_ + BB.height_;
@@ -453,11 +453,11 @@ inline void LockedView2x1
     A.viewType_ = LOCKED_VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void LockedView2x1
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BT,
-  const DistMatrix<T,U,V,Int>& BB )
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BT,
+  const DistMatrix<T,U,V>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x1");
@@ -485,11 +485,11 @@ inline void LockedView2x1
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void View2x2
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BTL, Matrix<T,Int>& BTR,
-  Matrix<T,Int>& BBL, Matrix<T,Int>& BBR )
+( Matrix<T>& A,
+  Matrix<T>& BTL, Matrix<T>& BTR,
+  Matrix<T>& BBL, Matrix<T>& BBR )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x2");
@@ -497,15 +497,15 @@ inline void View2x2
         BTR.Width() != BBR.Width()   ||
         BTL.Height() != BTR.Height() ||
         BBL.Height() != BBR.Height()   )
-        throw std::logic_error("2x2 must conform to combine");
+        LogicError("2x2 must conform to combine");
     if( BTL.LDim() != BTR.LDim() ||
         BTR.LDim() != BBL.LDim() ||
         BBL.LDim() != BBR.LDim()   )
-        throw std::logic_error("2x2 must have consistent ldims to combine");
+        LogicError("2x2 must have consistent ldims to combine");
     if( BBL.Buffer() != (BTL.Buffer() + BTL.Height()) ||
         BBR.Buffer() != (BTR.Buffer() + BTR.Height()) ||
         BTR.Buffer() != (BTL.Buffer() + BTL.LDim()*BTL.Width()) )
-        throw std::logic_error("2x2 must have contiguous memory");
+        LogicError("2x2 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BTL.height_ + BBL.height_;
@@ -515,11 +515,11 @@ inline void View2x2
     A.viewType_ = VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void View2x2
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BTL, DistMatrix<T,U,V,Int>& BTR,
-  DistMatrix<T,U,V,Int>& BBL, DistMatrix<T,U,V,Int>& BBR )
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
+  DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x2");
@@ -551,13 +551,13 @@ inline void View2x2
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void LockedView2x2
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BTL,
-  const Matrix<T,Int>& BTR,
-  const Matrix<T,Int>& BBL,
-  const Matrix<T,Int>& BBR )
+(       Matrix<T>& A,
+  const Matrix<T>& BTL,
+  const Matrix<T>& BTR,
+  const Matrix<T>& BBL,
+  const Matrix<T>& BBR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x2");
@@ -565,15 +565,15 @@ inline void LockedView2x2
         BTR.Width() != BBR.Width()   ||
         BTL.Height() != BTR.Height() ||
         BBL.Height() != BBR.Height()   )
-        throw std::logic_error("2x2 must conform to combine");
+        LogicError("2x2 must conform to combine");
     if( BTL.LDim() != BTR.LDim() ||
         BTR.LDim() != BBL.LDim() ||
         BBL.LDim() != BBR.LDim()   )
-        throw std::logic_error("2x2 must have consistent ldims to combine");
+        LogicError("2x2 must have consistent ldims to combine");
     if( BBL.LockedBuffer() != (BTL.LockedBuffer() + BTL.Height()) ||
         BBR.LockedBuffer() != (BTR.LockedBuffer() + BTR.Height()) ||
         BTR.LockedBuffer() != (BTL.LockedBuffer() + BTL.LDim()*BTL.Width()) )
-        throw std::logic_error("2x2 must have contiguous memory");
+        LogicError("2x2 must have contiguous memory");
 #endif
     A.memory_.Empty();
     A.height_   = BTL.height_ + BBL.height_;
@@ -583,13 +583,13 @@ inline void LockedView2x2
     A.viewType_ = LOCKED_VIEW;
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void LockedView2x2
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BTL,
-  const DistMatrix<T,U,V,Int>& BTR,
-  const DistMatrix<T,U,V,Int>& BBL,
-  const DistMatrix<T,U,V,Int>& BBR )
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BTL,
+  const DistMatrix<T,U,V>& BTR,
+  const DistMatrix<T,U,V>& BBL,
+  const DistMatrix<T,U,V>& BBR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x2");

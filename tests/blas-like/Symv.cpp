@@ -15,7 +15,7 @@ using namespace elem;
 
 template<typename T> 
 void TestSymv
-( const UpperOrLower uplo, const int m, const T alpha, const T beta, 
+( const UpperOrLower uplo, const Int m, const T alpha, const T beta, 
   const bool print, const Grid& g )
 {
     DistMatrix<T> A(g), x(g), y(g);
@@ -62,18 +62,18 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const int m = Input("--m","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
-        const int nbLocalDouble = Input
+        const Int m = Input("--m","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int nbLocalDouble = Input
             ("--nbLocalDouble","local blocksize for real doubles",32);
-        const int nbLocalComplexDouble = Input
+        const Int nbLocalComplexDouble = Input
             ("--nbLocalComplexDouble","local blocksize for complex doubles",32);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();

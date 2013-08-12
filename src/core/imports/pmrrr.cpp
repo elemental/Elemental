@@ -64,11 +64,11 @@ Estimate EigEstimate
     {
         std::ostringstream msg;
         msg << "PMRRR returned " << retval; 
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     estimate.numLocalEigenvalues = nz;
-    mpi::AllReduce( &nz, &estimate.numGlobalEigenvalues, 1, mpi::SUM, comm );
+    estimate.numGlobalEigenvalues = mpi::AllReduce( nz, comm );
 #else
     EnsurePMRRR();
 #endif
@@ -98,7 +98,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;
@@ -133,7 +133,7 @@ Info Eig
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;
@@ -169,7 +169,7 @@ Info Eig
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;
@@ -204,7 +204,7 @@ Info Eig
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;
@@ -242,7 +242,7 @@ Info Eig
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;
@@ -280,7 +280,7 @@ Info Eig
     {
         std::ostringstream msg;        
         msg << "PMRRR returned " << retval;
-        throw std::runtime_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 
     info.numLocalEigenvalues=nz;

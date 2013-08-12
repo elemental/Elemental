@@ -19,7 +19,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int k = Input("--order","generate 2k+1 x 2k+1 matrix",5);
+        const Int k = Input("--order","generate 2k+1 x 2k+1 matrix",5);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();

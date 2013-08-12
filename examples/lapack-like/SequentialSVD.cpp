@@ -30,23 +30,23 @@ main( int argc, char* argv[] )
     Initialize( argc, argv );
 
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
 
     enum TestType { FOURIER=0, HILBERT=1, IDENTITY=2, ONES=3, ONE_TWO_ONE=4,
                     UNIFORM=5, WILKINSON=6, ZEROS=7 }; 
 
     try 
     {
-        const int k = Input("--size","problem size",100);
+        const Int k = Input("--size","problem size",100);
         ProcessInput();
         PrintInputReport();
 
         Matrix<C> A, U, V;
         Matrix<R> s;
 
-        for( int test=0; test<16; ++test )
+        for( Int test=0; test<16; ++test )
         {
-            int n;
+            Int n;
             const TestType testType = TestType(test/2);
             const bool useQR = test % 2;
             const std::string qrString = ( useQR ? "with QR:" : "with D&C:" );

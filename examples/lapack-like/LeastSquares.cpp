@@ -20,17 +20,17 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try 
     {
         const bool adjoint = Input("--adjoint","adjoint solve?",false);
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int numRhs = Input("--numRhs","# of right-hand sides",1);
-        const int blocksize = Input("--blocksize","algorithmic blocksize",64);
-        int gridHeight = Input("--gridHeight","grid height",0);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int numRhs = Input("--numRhs","# of right-hand sides",1);
+        const Int blocksize = Input("--blocksize","algorithmic blocksize",64);
+        Int gridHeight = Input("--gridHeight","grid height",0);
         ProcessInput();
         PrintInputReport();
 
@@ -48,10 +48,10 @@ main( int argc, char* argv[] )
         // Set up random A and B, then make the copies X := B and ACopy := A
         typedef Complex<double> F;
         DistMatrix<F> A(grid), B(grid), ACopy(grid), X(grid), Z(grid);
-        for( int test=0; test<3; ++test )
+        for( Int test=0; test<3; ++test )
         {
-            const int k = ( orientation==NORMAL ? m : n );
-            const int N = ( orientation==NORMAL ? n : m );
+            const Int k = ( orientation==NORMAL ? m : n );
+            const Int N = ( orientation==NORMAL ? n : m );
             Uniform( A, m, n );
             Zeros( B, k, numRhs );
             ACopy = A;

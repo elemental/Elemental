@@ -25,16 +25,16 @@ LeastSquares
 #ifndef RELEASE
     CallStackEntry entry("LeastSquares");
     if( orientation == TRANSPOSE )
-        throw std::logic_error("Invalid orientation");
+        LogicError("Invalid orientation");
 #endif
     // TODO: Add scaling
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     Matrix<F> t;
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
-            throw std::logic_error("A and B do not conform");
+            LogicError("A and B do not conform");
 
         if( m >= n )
         {
@@ -83,7 +83,7 @@ LeastSquares
     else // orientation == ADJOINT
     {
         if( n != B.Height() )
-            throw std::logic_error("A and B do not conform");
+            LogicError("A and B do not conform");
 
         if( m >= n )
         {
@@ -140,20 +140,20 @@ LeastSquares
 #ifndef RELEASE
     CallStackEntry entry("LeastSquares");
     if( A.Grid() != B.Grid() || A.Grid() != X.Grid() )
-        throw std::logic_error("Grids do not match");
+        LogicError("Grids do not match");
     if( orientation == TRANSPOSE )
-        throw std::logic_error("Invalid orientation");
+        LogicError("Invalid orientation");
 #endif
     const Grid& g = A.Grid();
 
     // TODO: Add scaling
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     DistMatrix<F,MD,STAR> t( g );
     if( orientation == NORMAL )
     {
         if( m != B.Height() )
-            throw std::logic_error("A and B do not conform");
+            LogicError("A and B do not conform");
 
         if( m >= n )
         {
@@ -202,7 +202,7 @@ LeastSquares
     else // orientation == ADJOINT
     {
         if( n != B.Height() )
-            throw std::logic_error("A and B do not conform");
+            LogicError("A and B do not conform");
 
         if( m >= n )
         {

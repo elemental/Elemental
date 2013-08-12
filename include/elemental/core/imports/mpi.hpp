@@ -29,14 +29,8 @@ namespace mpi {
 #endif
 #endif
 
-template<typename T>
-struct ValueInt
-{
-    T value;
-    int index;
-};
-
 // Datatype definitions
+typedef MPI_Aint Aint;
 typedef MPI_Comm Comm;
 typedef MPI_Datatype Datatype;
 typedef MPI_Errhandler ErrorHandler;
@@ -83,10 +77,6 @@ const Op BINARY_XOR = MPI_BXOR;
 // Added constant(s)
 const int MIN_COLL_MSG = 1; // minimum message size for collectives
 inline int Pad( int count ) { return std::max(count,MIN_COLL_MSG); }
-
-//----------------------------------------------------------------------------//
-// Routines                                                                   //
-//----------------------------------------------------------------------------//
 
 // Environment routines
 void Initialize( int& argc, char**& argv );
@@ -141,71 +131,159 @@ template<typename T>
 int GetCount( Status& status );
 
 // Point-to-point communication
-template<typename R>
-void Send( const R* buf, int count, int to, int tag, Comm comm );
-template<typename R>
-void Send( const Complex<R>* buf, int count, int to, int tag, Comm comm );
+// ============================
 
+// Send
+// ----
 template<typename R>
-void ISend
+void TaggedSend( const R* buf, int count, int to, int tag, Comm comm );
+template<typename R>
+void TaggedSend( const Complex<R>* buf, int count, int to, int tag, Comm comm );
+// If the tag is irrelevant
+template<typename T>
+void Send( const T* buf, int count, int to, Comm comm );
+// If the send-count is one
+template<typename T>
+void TaggedSend( T b, int to, int tag, Comm comm );
+// If the send-count is one and the tag is irrelevant
+template<typename T>
+void Send( T b, int to, Comm comm );
+
+// Non-blocking send
+// -----------------
+template<typename R>
+void TaggedISend
 ( const R* buf, int count, int to, int tag, Comm comm, Request& request );
 template<typename R>
-void ISend
+void TaggedISend
 ( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
   Request& request );
+// If the tag is irrelevant
+template<typename T>
+void ISend( const T* buf, int count, int to, Comm comm, Request& request );
+// If the send count is one
+template<typename T>
+void TaggedISend( T b, int to, int tag, Comm comm, Request& request );
+// If the send count is one and the tag is irrelevant
+template<typename T>
+void ISend( T b, int to, Comm comm, Request& request );
 
+// Non-blocking synchronous Send
+// -----------------------------
 template<typename R>
-void ISSend
+void TaggedISSend
 ( const R* buf, int count, int to, int tag, Comm comm, Request& request );
 template<typename R>
-void ISSend
+void TaggedISSend
 ( const Complex<R>* buf, int count, int to, int tag, Comm comm, 
   Request& request );
+// If the tag is irrelevant
+template<typename T>
+void ISSend( const T* buf, int count, int to, Comm comm, Request& request );
+// If the send count is one
+template<typename T>
+void TaggedISSend( T b, int to, int tag, Comm comm, Request& request );
+// If the send count is one and the tag is irrelevant
+template<typename T>
+void ISSend( T b, int to, Comm comm, Request& request );
 
+// Recv
+// ----
 template<typename R>
-void Recv( R* buf, int count, int from, int tag, Comm comm );
+void TaggedRecv( R* buf, int count, int from, int tag, Comm comm );
 template<typename R>
-void Recv( Complex<R>* buf, int count, int from, int tag, Comm comm );
+void TaggedRecv( Complex<R>* buf, int count, int from, int tag, Comm comm );
+// If the tag is irrelevant
+template<typename T>
+void Recv( T* buf, int count, int from, Comm comm );
+// If the recv count is one
+template<typename T>
+T TaggedRecv( int from, int tag, Comm comm );
+// If the recv count is one and the tag is irrelevant
+template<typename T>
+T Recv( int from, Comm comm );
 
+// Non-blocking recv
+// -----------------
 template<typename R>
-void IRecv
+void TaggedIRecv
 ( R* buf, int count, int from, int tag, Comm comm, Request& request );
 template<typename R>
-void IRecv
+void TaggedIRecv
 ( Complex<R>* buf, int count, int from, int tag, Comm comm, Request& request );
+// If the tag is irrelevant
+template<typename T>
+void IRecv( T* buf, int count, int from, Comm comm, Request& request );
+// If the recv count is one
+template<typename T>
+T TaggedIRecv( int from, int tag, Comm comm, Request& request );
+// If the recv count is one and the tag is irrelevant
+template<typename T>
+T IRecv( int from, Comm comm, Request& request );
 
+// SendRecv
+// --------
 template<typename R>
-void SendRecv
+void TaggedSendRecv
 ( const R* sbuf, int sc, int to,   int stag,
         R* rbuf, int rc, int from, int rtag, Comm comm );
 template<typename R>
-void SendRecv
+void TaggedSendRecv
 ( const Complex<R>* sbuf, int sc, int to,   int stag,
         Complex<R>* rbuf, int rc, int from, int rtag, Comm comm );
-
-template<typename R>
+// If the tags are irrelevant
+template<typename T>
 void SendRecv
+( const T* sbuf, int sc, int to,
+        T* rbuf, int rc, int from, Comm comm );
+// If the send and recv counts are one
+template<typename T>
+T TaggedSendRecv( T sb, int to, int stag, int from, int rtag, Comm comm );
+// If the send and recv counts are one and the tags don't matter
+template<typename T>
+T SendRecv( T sb, int to, int from, Comm comm );
+
+// Single-buffer SendRecv
+// ----------------------
+template<typename R>
+void TaggedSendRecv
 ( R* buf, int count, int to, int stag, int from, int rtag, Comm comm );
 template<typename R>
-void SendRecv
+void TaggedSendRecv
 ( Complex<R>* buf, int count, int to, int stag, int from, int rtag, Comm comm );
+// If the tags don't matter
+template<typename T>
+void SendRecv( T* buf, int count, int to, int from, Comm comm );
 
 // Collective communication
+// ========================
 
+// Broadcast
+// ---------
 template<typename R>
 void Broadcast( R* buf, int count, int root, Comm comm );
 template<typename R>
 void Broadcast( Complex<R>* buf, int count, int root, Comm comm );
+// If the message length is one
+template<typename T>
+void Broadcast( T& b, int root, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
+// Non-blocking broadcast
+// ----------------------
 template<typename R>
 void IBroadcast
 ( R* buf, int count, int root, Comm comm, Request& request );
 template<typename R>
 void IBroadcast
 ( Complex<R>* buf, int count, int root, Comm comm, Request& request );
+// If the message length is one
+template<typename T>
+void IBroadcast( T& b, int root, Comm comm, Request& request );
 #endif
 
+// Gather
+// ------
 template<typename R>
 void Gather
 ( const R* sbuf, int sc,
@@ -216,6 +294,8 @@ void  Gather
         Complex<R>* rbuf, int rc, int root, Comm comm );
 
 #ifdef HAVE_NONBLOCKING_COLLECTIVES
+// Non-blocking gather
+// -------------------
 template<typename R>
 void IGather
 ( const R* sbuf, int sc,
@@ -226,6 +306,8 @@ void IGather
         Complex<R>* rbuf, int rc, int root, Comm comm, Request& request );
 #endif
 
+// Gather with variable recv sizes
+// -------------------------------
 template<typename R>
 void Gather
 ( const R* sbuf, int sc,
@@ -236,6 +318,8 @@ void Gather
         Complex<R>* rbuf, const int* rcs, const int* rds, 
   int root, Comm comm );
 
+// AllGather
+// ---------
 template<typename R>
 void AllGather
 ( const R* sbuf, int sc,
@@ -245,6 +329,8 @@ void AllGather
 ( const Complex<R>* sbuf, int sc,
         Complex<R>* rbuf, int rc, Comm comm );
 
+// AllGather with variable recv sizes
+// ----------------------------------
 template<typename R>
 void AllGather
 ( const R* sbuf, int sc,
@@ -254,6 +340,8 @@ void AllGather
 ( const Complex<R>* sbuf, int sc,
         Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm );
 
+// Scatter
+// -------
 template<typename R>
 void Scatter
 ( const R* sbuf, int sc,
@@ -262,13 +350,14 @@ template<typename R>
 void Scatter
 ( const Complex<R>* sbuf, int sc,
         Complex<R>* rbuf, int rc, int root, Comm comm );
-
 // In-place option
 template<typename R>
 void Scatter( R* buf, int sc, int rc, int root, Comm comm );
 template<typename R>
 void Scatter( Complex<R>* buf, int sc, int rc, int root, Comm comm );
 
+// AllToAll
+// --------
 template<typename R>
 void AllToAll
 ( const R* sbuf, int sc,
@@ -278,6 +367,8 @@ void AllToAll
 ( const Complex<R>* sbuf, int sc,
         Complex<R>* rbuf, int rc, Comm comm );
 
+// AllToAll with non-uniform send/recv sizes
+// -----------------------------------------
 template<typename R>
 void AllToAll
 ( const R* sbuf, const int* scs, const int* sds,
@@ -287,6 +378,8 @@ void AllToAll
 ( const Complex<R>* sbuf, const int* scs, const int* sds,
         Complex<R>* rbuf, const int* rcs, const int* rds, Comm comm );
 
+// Reduce
+// ------
 template<typename T>
 void Reduce
 ( const T* sbuf, T* rbuf, int count, Op op, int root, Comm comm );
@@ -294,44 +387,176 @@ template<typename R>
 void Reduce
 ( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, 
   int root, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm );
+// With a message-size of one
+template<typename T>
+T Reduce( T sb, Op op, int root, Comm comm );
+// With a message-size of one and default to mpi::SUM
+template<typename T>
+T Reduce( T sb, int root, Comm comm );
 
-// In-place option
+// Single-buffer reduce
+// --------------------
 template<typename T>
 void Reduce( T* buf, int count, Op op, int root, Comm comm );
 template<typename R>
 void Reduce( Complex<R>* buf, int count, Op op, int root, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void Reduce( T* buf, int count, int root, Comm comm );
 
+// AllReduce
+// ---------
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm );
 template<typename R>
 void AllReduce
 ( const Complex<R>* sbuf, Complex<R>* rbuf, int count, Op op, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm );
+// If the message-length is one
+template<typename T>
+T AllReduce( T sb, Op op, Comm comm );
+// If the message-length is one (and default to mpi::SUM)
+template<typename T>
+T AllReduce( T sb, Comm comm );
 
-// In-place option
+// Single-buffer AllReduce
+// -----------------------
 template<typename T>
 void AllReduce( T* buf, int count, Op op, Comm comm );
 template<typename R>
 void AllReduce( Complex<R>* buf, int count, Op op, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void AllReduce( T* buf, int count, Comm comm );
 
+// ReduceScatter
+// -------------
 template<typename R>
 void ReduceScatter
 ( R* sbuf, R* rbuf, int rc, Op op, Comm comm );
 template<typename R>
 void ReduceScatter
 ( Complex<R>* sbuf, Complex<R>* rbuf, int rc, Op op, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void ReduceScatter( T* sbuf, T* rbuf, int rc, Comm comm );
 
-// In-place option
+// Single-buffer ReduceScatter
+// ---------------------------
 template<typename R>
 void ReduceScatter( R* buf, int rc, Op op, Comm comm );
 template<typename R>
 void ReduceScatter( Complex<R>* buf, int rc, Op op, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void ReduceScatter( T* buf, int rc, Comm comm );
 
+// Variable-length ReduceScatter
+// -----------------------------
 template<typename R>
 void ReduceScatter
 ( const R* sbuf, R* rbuf, const int* rcs, Op op, Comm comm );
 template<typename R>
 void ReduceScatter
 ( const Complex<R>* sbuf, Complex<R>* rbuf, const int* rcs, Op op, Comm comm );
+// Default to mpi::SUM
+template<typename T>
+void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
+
+template<typename F>
+void PivotFunc
+( void* inData, void* outData, int* length, mpi::Datatype* datatype );
+template<typename R>
+void MaxLocFunc
+( ValueInt<R>* inData, ValueInt<R>* outData, int* length, 
+  mpi::Datatype* datatype );
+
+template<typename R> mpi::Datatype& ValueIntType();
+template<> mpi::Datatype& ValueIntType<Int>();
+template<> mpi::Datatype& ValueIntType<float>();
+template<> mpi::Datatype& ValueIntType<double>();
+
+template<typename R> void CreateValueIntType();
+
+template<typename F> mpi::Op PivotOp();
+template<> mpi::Op PivotOp<float>();
+template<> mpi::Op PivotOp<double>();
+template<> mpi::Op PivotOp<scomplex>();
+template<> mpi::Op PivotOp<dcomplex>();
+
+template<typename R> mpi::Op MaxLocOp();
+template<> mpi::Op MaxLocOp<Int>();
+template<> mpi::Op MaxLocOp<float>();
+template<> mpi::Op MaxLocOp<double>();
+
+template<typename F> void CreatePivotOp();
+template<> void CreatePivotOp<float>();
+template<> void CreatePivotOp<double>();
+template<> void CreatePivotOp<scomplex>();
+template<> void CreatePivotOp<dcomplex>();
+
+template<typename R> void CreateMaxLocOp();
+template<> void CreateMaxLocOp<Int>();
+template<> void CreateMaxLocOp<float>();
+template<> void CreateMaxLocOp<double>();
+
+template<typename T> void DestroyPivotOp();
+template<> void DestroyPivotOp<float>();
+template<> void DestroyPivotOp<double>();
+template<> void DestroyPivotOp<scomplex>();
+template<> void DestroyPivotOp<dcomplex>();
+
+template<typename R> void DestroyMaxLocOp();
+template<> void DestroyMaxLocOp<Int>();
+template<> void DestroyMaxLocOp<float>();
+template<> void DestroyMaxLocOp<double>();
+
+template<typename T> Datatype TypeMap();
+template<> inline Datatype TypeMap<byte>() { return MPI_UNSIGNED_CHAR; }
+template<> inline Datatype TypeMap<int>() { return MPI_INT; }
+template<> inline Datatype TypeMap<unsigned>() { return MPI_UNSIGNED; }
+template<> inline Datatype TypeMap<long int>() { return MPI_LONG_INT; }
+template<> inline Datatype TypeMap<long unsigned>()
+{ return MPI_UNSIGNED_LONG; }
+template<> inline Datatype TypeMap<long long int>()
+{
+#ifdef HAVE_MPI_LONG_LONG
+    return MPI_LONG_LONG_INT;
+#else
+    RuntimeError("MPI_LONG_LONG_INT does not exist");
+    return 0;
+#endif
+}
+template<>
+inline Datatype TypeMap<unsigned long long>()
+{
+#ifdef HAVE_MPI_LONG_LONG
+    return MPI_UNSIGNED_LONG_LONG;
+#else
+    RuntimeError("MPI_UNSIGNED_LONG_LONG does not exist");
+    return 0;
+#endif
+}
+template<> inline Datatype TypeMap<float>() { return MPI_FLOAT; }
+template<> inline Datatype TypeMap<double>() { return MPI_DOUBLE; }
+template<> inline Datatype TypeMap<Complex<float> >()
+{ return MPI_COMPLEX; }
+template<> inline Datatype TypeMap<Complex<double> >()
+{ return MPI_DOUBLE_COMPLEX; }
+
+template<> inline Datatype TypeMap<ValueInt<Int> >()
+{ return ValueIntType<Int>(); }
+template<> inline Datatype TypeMap<ValueInt<float> >()
+{ return ValueIntType<float>(); }
+template<> inline Datatype TypeMap<ValueInt<double> >()
+{ return ValueIntType<double>(); }
+
+// TODO: Extend to handle extra datatypes needed for pivoting in LU
 
 } // mpi
 } // elem

@@ -22,15 +22,15 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 #endif
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
-    const int n = A.Height();
-    const int lda = A.LDim();
-    const int ldl = L.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
+    const Int ldl = L.LDim();
     T* ABuffer = A.Buffer();
     const T* LBuffer = L.LockedBuffer();
     std::vector<T> a10Conj( n ), l10Conj( n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        const int a21Height = n - (j+1);
+        const Int a21Height = n - (j+1);
 
         // Extract and store the diagonal values of A and L
         const T alpha11 = ABuffer[j+j*lda];
@@ -39,24 +39,24 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
         // a10 := a10 + (alpha11/2)l10
         T* a10 = &ABuffer[j];
         const T* l10 = &LBuffer[j];
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             a10[k*lda] += (alpha11/2)*l10[k*ldl];
 
         // A00 := A00 + (a10' l10 + l10' a10)
         T* A00 = ABuffer;
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             a10Conj[k] = Conj(a10[k*lda]);
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             l10Conj[k] = Conj(l10[k*ldl]);
         blas::Her2( 'L', j, T(1), &a10Conj[0], 1, &l10Conj[0], 1, A00, lda );
 
         // a10 := a10 + (alpha11/2)l10
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             a10[k*lda] += (alpha11/2)*l10[k*ldl];
 
         // a10 := conj(lambda11) a10
         if( diag != UNIT )
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
                 a10[k*lda] *= Conj(lambda11);
 
         // alpha11 := alpha11 * |lambda11|^2
@@ -69,7 +69,7 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
 
         // a21 := lambda11 a21
         if( diag != UNIT )
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
                 a21[k] *= lambda11;
     }
 }
@@ -82,14 +82,14 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
     CallStackEntry entry("internal::TwoSidedTrmmUUnb");
 #endif
     // Use the Variant 4 algorithm
-    const int n = A.Height();
-    const int lda = A.LDim();
-    const int ldu = U.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
+    const Int ldu = U.LDim();
     T* ABuffer = A.Buffer();
     const T* UBuffer = U.LockedBuffer();
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        const int a21Height = n - (j+1);
+        const Int a21Height = n - (j+1);
 
         // Extract and store the diagonal values of A and U
         const T alpha11 = ABuffer[j+j*lda];
@@ -98,7 +98,7 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
         // a01 := a01 + (alpha11/2)u01
         T* a01 = &ABuffer[j*lda];
         const T* u01 = &UBuffer[j*ldu];
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             a01[k] += (alpha11/2)*u01[k];
 
         // A00 := A00 + (u01 a01' + a01 u01')
@@ -106,12 +106,12 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
         blas::Her2( 'U', j, T(1), u01, 1, a01, 1, A00, lda );
 
         // a01 := a01 + (alpha11/2)u01
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             a01[k] += (alpha11/2)*u01[k];
 
         // a01 := conj(upsilon11) a01
         if( diag != UNIT )
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
                 a01[k] *= Conj(upsilon11);
 
         // A02 := A02 + u01 a12
@@ -124,7 +124,7 @@ TwoSidedTrmmUUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& U )
 
         // a12 := upsilon11 a12
         if( diag != UNIT )
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
                 a12[k*lda] *= upsilon11;
     }
 }

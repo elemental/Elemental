@@ -30,7 +30,7 @@ RealHermitianFunction
     CallStackEntry entry("RealHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
     typedef BASE(F) R;
 
     // Get the EVD of A
@@ -39,8 +39,8 @@ RealHermitianFunction
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
-    const int n = w.Height();
-    for( int i=0; i<n; ++i )
+    const Int n = w.Height();
+    for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
         w.Set(i,0,f(omega));
@@ -60,7 +60,7 @@ RealHermitianFunction
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
     typedef BASE(F) R;
 
     // Get the EVD of A
@@ -70,8 +70,8 @@ RealHermitianFunction
     HermitianEig( uplo, A, w, Z );
 
     // Replace w with f(w)
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    const Int numLocalEigs = w.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
         w.SetLocal(iLoc,0,f(omega));
@@ -97,7 +97,7 @@ ComplexHermitianFunction
     CallStackEntry entry("ComplexHermitianFunction");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
     typedef Complex<R> C;
 
     // Get the EVD of A
@@ -106,9 +106,9 @@ ComplexHermitianFunction
     HermitianEig( uplo, A, w, Z );
 
     // Form f(w)
-    const int n = w.Height();
+    const Int n = w.Height();
     Matrix<C> fw( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
         fw.Set(i,0,f(omega));
@@ -128,7 +128,7 @@ ComplexHermitianFunction
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
     typedef Complex<R> C;
 
     // Get the EVD of A
@@ -141,8 +141,8 @@ ComplexHermitianFunction
     DistMatrix<C,VR,STAR> fw(g);
     fw.AlignWith( w.DistData() );
     fw.ResizeTo( w.Height(), 1 );
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    const Int numLocalEigs = w.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
         fw.SetLocal(iLoc,0,f(omega));

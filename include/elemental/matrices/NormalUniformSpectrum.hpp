@@ -25,7 +25,7 @@ namespace elem {
 template<typename R>
 inline void
 NormalUniformSpectrum
-( Matrix<Complex<R> >& A, int n, Complex<R> center=0, R radius=1 )
+( Matrix<Complex<R> >& A, Int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("NormalUniformSpectrum");
@@ -37,7 +37,7 @@ NormalUniformSpectrum
 template<typename R,Distribution U,Distribution V>
 inline void
 NormalUniformSpectrum
-( DistMatrix<Complex<R>,U,V>& A, int n, Complex<R> center=0, R radius=1 )
+( DistMatrix<Complex<R>,U,V>& A, Int n, Complex<R> center=0, R radius=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("NormalUniformSpectrum");
@@ -56,7 +56,7 @@ MakeNormalUniformSpectrum
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix normal");
+        LogicError("Cannot make a non-square matrix normal");
 
     // Sample the diagonal matrix D from the ball B_radius(center)
     // and then rotate it with a random Householder similarity transformation:
@@ -66,9 +66,9 @@ MakeNormalUniformSpectrum
     //
 
     // Form d and D
-    const int n = A.Height();
+    const Int n = A.Height();
     std::vector<C> d( n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
         d[j] = center + radius*SampleUnitBall<C>();
     Diagonal( A, d );
 
@@ -80,12 +80,12 @@ MakeNormalUniformSpectrum
 
     // Form v := D u
     Matrix<C> v( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         v.Set( i, 0, d[i]*u.Get(i,0) );
 
     // Form w := conj(D) u
     Matrix<C> w( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         w.Set( i, 0, Conj(d[i])*u.Get(i,0) );
 
     // Update A := A - 2(u w^H + v u^H)
@@ -109,7 +109,7 @@ MakeNormalUniformSpectrum
 #endif
     typedef Complex<R> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix normal");
+        LogicError("Cannot make a non-square matrix normal");
     const Grid& grid = A.Grid();
     const bool standardDist = ( U == MC && V == MR );
 
@@ -121,10 +121,10 @@ MakeNormalUniformSpectrum
     //
 
     // Form d and D
-    const int n = A.Height();
+    const Int n = A.Height();
     std::vector<C> d( n );
     if( grid.Rank() == 0 )
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
             d[j] = center + radius*SampleUnitBall<C>();
     mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<C> ABackup( grid );
@@ -155,12 +155,12 @@ MakeNormalUniformSpectrum
     v.ResizeTo( n, 1 );
     if( v.LocalWidth() == 1 )
     {
-        const int colShift = v.ColShift();
-        const int colStride = v.ColStride();
-        const int localHeight = v.LocalHeight();
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int colShift = v.ColShift();
+        const Int colStride = v.ColStride();
+        const Int localHeight = v.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             v.SetLocal( iLoc, 0, d[i]*u.GetLocal(iLoc,0) );
         }
     }
@@ -174,12 +174,12 @@ MakeNormalUniformSpectrum
     w.ResizeTo( n, 1 );
     if( w.LocalWidth() == 1 )
     {
-        const int colShift = w.ColShift();
-        const int colStride = w.ColStride();
-        const int localHeight = w.LocalHeight();
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int colShift = w.ColShift();
+        const Int colStride = w.ColStride();
+        const Int localHeight = w.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             w.SetLocal( iLoc, 0, Conj(d[i])*u.GetLocal(iLoc,0) );
         }
     }

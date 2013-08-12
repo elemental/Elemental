@@ -17,8 +17,8 @@ namespace elem {
 // The columns of these distributed matrices will be replicated on all 
 // processes (*), and the rows will be distributed like "Matrix Rows" (MR).
 // Thus the rows will be distributed among rows of the process grid.
-template<typename T,typename Int>
-class DistMatrix<T,STAR,MR,Int> : public AbstractDistMatrix<T,Int>
+template<typename T>
+class DistMatrix<T,STAR,MR> : public AbstractDistMatrix<T>
 {
 public:
     // Create a 0 x 0 distributed matrix
@@ -28,12 +28,14 @@ public:
     DistMatrix( Int height, Int width, const elem::Grid& g=DefaultGrid() );
 
     // Create a height x width distributed matrix with specified alignments
-    DistMatrix( Int height, Int width, Int rowAlignment, const elem::Grid& g );
+    DistMatrix
+    ( Int height, Int width, Int rowAlignment, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
-    ( Int height, Int width, Int rowAlignment, Int ldim, const elem::Grid& g );
+    ( Int height, Int width, 
+      Int rowAlignment, Int ldim, const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
@@ -46,53 +48,26 @@ public:
       T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,STAR,MR,Int>& A );
+    DistMatrix( const DistMatrix<T,STAR,MR>& A );
     template<Distribution U,Distribution V>
-    DistMatrix( const DistMatrix<T,U,V,Int>& A );
+    DistMatrix( const DistMatrix<T,U,V>& A );
 
     ~DistMatrix();
 
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,MC,MR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,MC,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,MD,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MD,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,MR,MC,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,MR,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MC,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,VC,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,VC,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,VR,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,VR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,STAR,Int>& A );
-
-    const DistMatrix<T,STAR,MR,Int>& 
-    operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,MC,MR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,MC,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,MR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,MD,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,MD>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,MR,MC>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,MR,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,MC>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,VC,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,VC>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,VR,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,VR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,STAR,STAR>& A );
+    const DistMatrix<T,STAR,MR>& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -106,13 +81,13 @@ public:
     virtual Int RowStride() const;
     virtual Int ColRank() const;
     virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
+    virtual elem::DistData DistData() const;
 
     // Distribution alignments
-    virtual void AlignWith( const elem::DistData<Int>& data );
-    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignRowsWith( const elem::DistData<Int>& data );
-    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignWith( const elem::DistData& data );
+    virtual void AlignWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignRowsWith( const elem::DistData& data );
+    virtual void AlignRowsWith( const AbstractDistMatrix<T>& A );
 
     //
     // Collective routines
@@ -158,13 +133,13 @@ public:
 
     // Auxiliary routines needed to implement algorithms that avoid
     // inefficient unpackings of partial matrix distributions
-    void AdjointFrom( const DistMatrix<T,VR,STAR,Int>& A );
+    void AdjointFrom( const DistMatrix<T,VR,STAR>& A );
     void TransposeFrom
-    ( const DistMatrix<T,VR,STAR,Int>& A, bool conjugate=false );
+    ( const DistMatrix<T,VR,STAR>& A, bool conjugate=false );
 
 private:
 #ifndef SWIG
-    template<typename S,Distribution U,Distribution V,typename N>
+    template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
 };

@@ -197,7 +197,7 @@ TrsmLLNSmall
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLNSmall");
     if( L.ColAlignment() != X.ColAlignment() )
-        throw std::logic_error("L and X are assumed to be aligned");
+        LogicError("L and X are assumed to be aligned");
 #endif
     const Grid& g = L.Grid();
 

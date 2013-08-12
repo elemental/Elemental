@@ -17,7 +17,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Lauchli( Matrix<T>& A, int n, T mu )
+Lauchli( Matrix<T>& A, Int n, T mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lauchli");
@@ -35,7 +35,7 @@ Lauchli( Matrix<T>& A, int n, T mu )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Lauchli( DistMatrix<T,U,V>& A, int n, T mu )
+Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lauchli");

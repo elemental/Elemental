@@ -23,12 +23,12 @@ InfinityNorm( const Matrix<F>& A )
 #endif
     typedef BASE(F) R;
     R maxRowSum = 0;
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int i=0; i<height; ++i )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int i=0; i<height; ++i )
     {
         R rowSum = 0;
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
             rowSum += Abs(A.Get(i,j));
         maxRowSum = std::max( maxRowSum, rowSum );
     }
@@ -64,32 +64,29 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
 #endif
     // Compute the partial row sums defined by our local matrix, A[U,V]
     typedef BASE(F) R;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
     std::vector<R> myPartialRowSums( localHeight );
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
         myPartialRowSums[iLoc] = 0;
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             myPartialRowSums[iLoc] += Abs(A.GetLocal(iLoc,jLoc));
     }
 
     // Sum our partial row sums to get the row sums over A[U,* ]
     std::vector<R> myRowSums( localHeight );
     mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-    mpi::AllReduce
-    ( &myPartialRowSums[0], &myRowSums[0], localHeight, mpi::SUM, rowComm );
+    mpi::AllReduce( &myPartialRowSums[0], &myRowSums[0], localHeight, rowComm );
 
     // Find the maximum out of the row sums
     R myMaxRowSum = 0;
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLoc] );
 
     // Find the global maximum row sum by searching over the U team
-    R maxRowSum = 0;
     mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::AllReduce( &myMaxRowSum, &maxRowSum, 1, mpi::MAX, colComm );
-    return maxRowSum;
+    return mpi::AllReduce( myMaxRowSum, mpi::MAX, colComm );
 }
 
 template<typename F>

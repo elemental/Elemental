@@ -27,10 +27,10 @@ Conjugate( Matrix<Complex<Z> >& A )
 #ifndef RELEASE
     CallStackEntry entry("Conjugate (in-place)");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             A.Set(i,j,Conj(A.Get(i,j)));
 }
 #else // ifndef SWIG
@@ -42,10 +42,10 @@ Conjugate( Matrix<T>& A )
 #ifndef RELEASE
     CallStackEntry entry("Conjugate (in-place)");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             A.Set(i,j,Conj(A.Get(i,j)));
 }
 #endif // ifndef SWIG
@@ -57,11 +57,11 @@ Conjugate( const Matrix<T>& A, Matrix<T>& B )
 #ifndef RELEASE
     CallStackEntry entry("Conjugate");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     B.ResizeTo( m, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             B.Set(i,j,Conj(A.Get(i,j)));
 }
 

@@ -23,9 +23,9 @@ TrdtrmmLVar1( Orientation orientation, Matrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Orientation must be (conjugate-)transpose");
+        LogicError("Orientation must be (conjugate-)transpose");
 #endif
     Matrix<F>
         LTL, LTR,  L00, L01, L02,
@@ -68,9 +68,9 @@ TrdtrmmLVar1( Orientation orientation, DistMatrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLVar1");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Orientation must be (conjugate-)transpose");
+        LogicError("Orientation must be (conjugate-)transpose");
 #endif
     const Grid& g = L.Grid();
 

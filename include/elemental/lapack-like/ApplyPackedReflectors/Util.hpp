@@ -22,7 +22,7 @@ FixDiagonal
 #endif
     if( conjugation == CONJUGATED )
     {
-        for( int j=0; j<SInv.Height(); ++j )
+        for( Int j=0; j<SInv.Height(); ++j )
         {
             const F value = F(1)/Conj(t.Get(j,0));
             SInv.Set(j,j,value);
@@ -30,7 +30,7 @@ FixDiagonal
     }
     else
     {
-        for( int j=0; j<SInv.Height(); ++j )
+        for( Int j=0; j<SInv.Height(); ++j )
         {
             const F value = F(1)/t.Get(j,0);
             SInv.Set(j,j,value);
@@ -50,7 +50,7 @@ FixDiagonal
 #endif
     if( conjugation == CONJUGATED )
     {
-        for( int j=0; j<SInv.Height(); ++j )
+        for( Int j=0; j<SInv.Height(); ++j )
         {
             const F value = F(1)/Conj(t.GetLocal(j,0));
             SInv.SetLocal(j,j,value);
@@ -58,7 +58,7 @@ FixDiagonal
     }
     else
     {
-        for( int j=0; j<SInv.Height(); ++j )
+        for( Int j=0; j<SInv.Height(); ++j )
         {
             const F value = F(1)/t.GetLocal(j,0);
             SInv.SetLocal(j,j,value);

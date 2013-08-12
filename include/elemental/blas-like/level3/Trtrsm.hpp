@@ -46,23 +46,23 @@ Trtrsm
 #ifndef RELEASE
     CallStackEntry entry("Trtrsm");
     if( A.Height() != A.Width() || X.Height() != X.Width() )
-        throw std::logic_error("Triangular matrices must be square");
+        LogicError("Triangular matrices must be square");
     if( A.Height() != X.Height() )
-        throw std::logic_error("Nonconformal Trtrsm");
+        LogicError("Nonconformal Trtrsm");
 #endif
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )
             internal::TrtrsmLLN( diag, alpha, A, X, checkIfSingular );
         else
-            throw std::logic_error("This option not yet implemented");
+            LogicError("This option not yet implemented");
         /*
             internal::TrtrsmLLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
         */
     }
     else
-        throw std::logic_error("This option not yet implemented");
+        LogicError("This option not yet implemented");
     /*
     else if( side == LEFT && uplo == UPPER )
     {
@@ -107,14 +107,14 @@ Trtrsm
         if( orientation == NORMAL )
             internal::TrtrsmLLN( diag, alpha, A, X, checkIfSingular );
         else
-            throw std::logic_error("This option not yet implemented");
+            LogicError("This option not yet implemented");
         /*
             internal::TrtrsmLLT
             ( orientation, diag, alpha, A, X, checkIfSingular );
         */
     }
     else
-        throw std::logic_error("This option not yet implemented");
+        LogicError("This option not yet implemented");
     /*
     else if( side == LEFT && uplo == UPPER )
     {

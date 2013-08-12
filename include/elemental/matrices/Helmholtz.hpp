@@ -17,7 +17,7 @@ namespace elem {
 // 1D Helmholtz
 template<typename F> 
 inline void
-Helmholtz( Matrix<F>& H, int n, F shift )
+Helmholtz( Matrix<F>& H, Int n, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
@@ -28,7 +28,7 @@ Helmholtz( Matrix<F>& H, int n, F shift )
     const R hInv = n+1; 
     const R hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         H.Set( i, i, mainTerm );
         if( i != 0 )
@@ -41,13 +41,13 @@ Helmholtz( Matrix<F>& H, int n, F shift )
 // 2D Helmholtz
 template<typename F> 
 inline void
-Helmholtz( Matrix<F>& H, int nx, int ny, F shift )
+Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
 #endif
     typedef BASE(F) R;
-    const int n = nx*ny;
+    const Int n = nx*ny;
     Zeros( H, n, n );
 
     const R hxInv = nx+1; 
@@ -55,10 +55,10 @@ Helmholtz( Matrix<F>& H, int nx, int ny, F shift )
     const R hxInvSquared = hxInv*hxInv;
     const R hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
-        const int x = i % nx;
-        const int y = i/nx;
+        const Int x = i % nx;
+        const Int y = i/nx;
 
         H.Set( i, i, mainTerm );
         if( x != 0 )
@@ -75,13 +75,13 @@ Helmholtz( Matrix<F>& H, int nx, int ny, F shift )
 // 3D Helmholtz
 template<typename F> 
 inline void
-Helmholtz( Matrix<F>& H, int nx, int ny, int nz, F shift )
+Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
 #endif
     typedef BASE(F) R;
-    const int n = nx*ny*nz;
+    const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
     const R hxInv = nx+1; 
@@ -91,11 +91,11 @@ Helmholtz( Matrix<F>& H, int nx, int ny, int nz, F shift )
     const R hyInvSquared = hyInv*hyInv;
     const R hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
-        const int x = i % nx;
-        const int y = (i/nx) % ny;
-        const int z = i/(nx*ny);
+        const Int x = i % nx;
+        const Int y = (i/nx) % ny;
+        const Int z = i/(nx*ny);
 
         H.Set( i, i, mainTerm );
         if( x != 0 )
@@ -116,7 +116,7 @@ Helmholtz( Matrix<F>& H, int nx, int ny, int nz, F shift )
 // 1D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, int n, F shift )
+Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
@@ -128,12 +128,12 @@ Helmholtz( DistMatrix<F,U,V>& H, int n, F shift )
     const R hInvSquared = hInv*hInv;
     const F mainTerm = 2*hInvSquared - shift;
 
-    const int colShift = H.ColShift();
-    const int colStride = H.ColStride();
-    const int localWidth = H.LocalWidth();
-    for( int iLoc=0; iLoc<localWidth; ++iLoc )
+    const Int colShift = H.ColShift();
+    const Int colStride = H.ColStride();
+    const Int localWidth = H.LocalWidth();
+    for( Int iLoc=0; iLoc<localWidth; ++iLoc )
     {
-        const int i = colShift + iLoc*colStride;
+        const Int i = colShift + iLoc*colStride;
 
         H.Set( i, i, mainTerm );
         if( i != 0 )
@@ -146,13 +146,13 @@ Helmholtz( DistMatrix<F,U,V>& H, int n, F shift )
 // 2D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, F shift )
+Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
 #endif
     typedef BASE(F) R;
-    const int n = nx*ny;
+    const Int n = nx*ny;
     Zeros( H, n, n );
 
     const R hxInv = nx+1; 
@@ -161,14 +161,14 @@ Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, F shift )
     const R hyInvSquared = hyInv*hyInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared) - shift;
 
-    const int colShift = H.ColShift();
-    const int colStride = H.ColStride();
-    const int localWidth = H.LocalWidth();
-    for( int iLoc=0; iLoc<localWidth; ++iLoc )
+    const Int colShift = H.ColShift();
+    const Int colStride = H.ColStride();
+    const Int localWidth = H.LocalWidth();
+    for( Int iLoc=0; iLoc<localWidth; ++iLoc )
     {
-        const int i = colShift + iLoc*colStride;
-        const int x = i % nx;
-        const int y = i/nx;
+        const Int i = colShift + iLoc*colStride;
+        const Int x = i % nx;
+        const Int y = i/nx;
 
         H.Set( i, i, mainTerm );
         if( x != 0 )
@@ -185,13 +185,13 @@ Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, F shift )
 // 3D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
-Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, int nz, F shift )
+Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
 {
 #ifndef RELEASE
     CallStackEntry entry("Helmholtz");
 #endif
     typedef BASE(F) R;
-    const int n = nx*ny*nz;
+    const Int n = nx*ny*nz;
     Zeros( H, n, n );
 
     const R hxInv = nx+1; 
@@ -202,15 +202,15 @@ Helmholtz( DistMatrix<F,U,V>& H, int nx, int ny, int nz, F shift )
     const R hzInvSquared = hzInv*hzInv;
     const F mainTerm = 2*(hxInvSquared+hyInvSquared+hzInvSquared) - shift;
 
-    const int colShift = H.ColShift();
-    const int colStride = H.ColStride();
-    const int localWidth = H.LocalWidth();
-    for( int iLoc=0; iLoc<localWidth; ++iLoc )
+    const Int colShift = H.ColShift();
+    const Int colStride = H.ColStride();
+    const Int localWidth = H.LocalWidth();
+    for( Int iLoc=0; iLoc<localWidth; ++iLoc )
     {
-        const int i = colShift + iLoc*colStride;
-        const int x = i % nx;
-        const int y = (i/nx) % ny;
-        const int z = i/(nx*ny);
+        const Int i = colShift + iLoc*colStride;
+        const Int x = i % nx;
+        const Int y = (i/nx) % ny;
+        const Int z = i/(nx*ny);
 
         H.Set( i, i, mainTerm );
         if( x != 0 )

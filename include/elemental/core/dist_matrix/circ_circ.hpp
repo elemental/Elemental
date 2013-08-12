@@ -15,87 +15,63 @@ namespace elem {
 // Partial specialization to A[o,o].
 //
 // The entire matrix is only stored on a single process.
-template<typename T,typename Int>
-class DistMatrix<T,CIRC,CIRC,Int> : public AbstractDistMatrix<T,Int>
+template<typename T>
+class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T>
 {
 public:
     // TODO: Construct from a Matrix. How to handle from non-root process?
 
     // Create a 0 x 0 matrix stored on a single process
-    DistMatrix( const elem::Grid& g=DefaultGrid(), int root=0 );
+    DistMatrix( const elem::Grid& g=DefaultGrid(), Int root=0 );
 
     // Create a height x width matrix stored on a single process
     DistMatrix
-    ( Int height, Int width, const elem::Grid& g=DefaultGrid(), int root=0 );
+    ( Int height, Int width, 
+      const elem::Grid& g=DefaultGrid(), Int root=0 );
 
     // Create a height x width matrix stored on a single process with the 
     // specified leading dimension
     DistMatrix
-    ( Int height, Int width, Int ldim, const elem::Grid& g, int root=0 );
+    ( Int height, Int width, Int ldim, const elem::Grid& g, Int root=0 );
 
     // View the buffer from the root (pass 0/NULL otherwise)
     DistMatrix
     ( Int height, Int width, const T* buffer, Int ldim, 
-      const elem::Grid& g, int root=0 );
+      const elem::Grid& g, Int root=0 );
 
     // View the mutable buffer from the root (pass 0/NULL otherwise)
     DistMatrix
     ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g, 
-      int root=0 );
+      Int root=0 );
 
     // Create a direct copy
-    DistMatrix( const DistMatrix<T,CIRC,CIRC,Int>& A );
+    DistMatrix( const DistMatrix<T,CIRC,CIRC>& A );
     // Perform the necessary redistributions to place the matrix on a single
     // process
     template<Distribution U,Distribution V>
-    DistMatrix( const DistMatrix<T,U,V,Int>& A );
+    DistMatrix( const DistMatrix<T,U,V>& A );
 
     ~DistMatrix();
 
     void CopyFromRoot( const Matrix<T>& A );
     void CopyFromNonRoot();
 
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,MC,MR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,MC,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,MR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,MD,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,MD,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,MR,MC,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,MR,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,MC,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,VC,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,VC,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,VR,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,VR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,STAR,STAR,Int>& A );
-
-    const DistMatrix<T,CIRC,CIRC,Int>& 
-    operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MC,MR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MC,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MD,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MD>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MR,MC>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MR,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MC>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,VC,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,VC>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,VR,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,VR>& A );
+    const DistMatrix<T,CIRC,CIRC>& 
+    operator=( const DistMatrix<T,STAR,STAR>& A );
+    const DistMatrix<T,CIRC,CIRC>& 
+    operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -109,7 +85,7 @@ public:
     virtual Int RowStride() const;
     virtual Int ColRank() const;
     virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
+    virtual elem::DistData DistData() const;
 
     virtual bool Participating() const;
 
@@ -142,26 +118,26 @@ public:
     // Routines specific to [o ,o ] distribution                              //
     //------------------------------------------------------------------------//
 
-    int Root() const;
+    Int Root() const;
 
     //
     // Collective routines
     //
 
-    void SetRoot( int root );
+    void SetRoot( Int root );
     
     // (Immutable) view of the matrix's buffer (only valid pointer on root)
     void Attach
     ( Int height, Int width,
-      T* buffer, Int ldim, const elem::Grid& grid, int root );
+      T* buffer, Int ldim, const elem::Grid& grid, Int root );
     void LockedAttach
     ( Int height, Int width, 
-      const T* buffer, Int ldim, const elem::Grid& grid, int root );
+      const T* buffer, Int ldim, const elem::Grid& grid, Int root );
 
 private:
-    int root_;
+    Int root_;
 #ifndef SWIG
-    template<typename S,Distribution U,Distribution V,typename N>
+    template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
 };

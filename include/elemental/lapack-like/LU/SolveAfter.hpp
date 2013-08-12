@@ -24,9 +24,9 @@ SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
 #ifndef RELEASE
     CallStackEntry entry("lu::SolveAfter");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     if( B.Width() == 1 )
     {
@@ -64,11 +64,11 @@ SolveAfter
 #ifndef RELEASE
     CallStackEntry entry("lu::SolveAfter");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("{A,B} must be distributed over the same grid");
+        LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     if( B.Width() == 1 )
     {
@@ -102,16 +102,16 @@ template<typename F>
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const Matrix<F>& A, const Matrix<int>& p, Matrix<F>& B )
+  const Matrix<F>& A, const Matrix<Int>& p, Matrix<F>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("lu::SolveAfter");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
     if( p.Height() != A.Height() )
-        throw std::logic_error("A and p must be the same height");
+        LogicError("A and p must be the same height");
 #endif
     if( B.Width() == 1 )
     {
@@ -149,18 +149,18 @@ template<typename F>
 inline void
 SolveAfter
 ( Orientation orientation, 
-  const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B )
+  const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p, DistMatrix<F>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("lu::SolveAfter");
     if( A.Grid() != B.Grid() || A.Grid() != p.Grid() )
-        throw std::logic_error("{A,B} must be distributed over the same grid");
+        LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
     if( A.Height() != p.Height() )
-        throw std::logic_error("A and p must be the same height");
+        LogicError("A and p must be the same height");
 #endif
     if( B.Width() == 1 )
     {

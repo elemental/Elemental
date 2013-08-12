@@ -18,7 +18,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Kahan( Matrix<F>& A, int n, F phi )
+Kahan( Matrix<F>& A, Int n, F phi )
 {
 #ifndef RELEASE
     CallStackEntry entry("Kahan");
@@ -29,7 +29,7 @@ Kahan( Matrix<F>& A, int n, F phi )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Kahan( DistMatrix<F,U,V>& A, int n, F phi )
+Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
 {
 #ifndef RELEASE
     CallStackEntry entry("Kahan");
@@ -47,21 +47,21 @@ MakeKahan( Matrix<F>& A, F phi )
 #endif
     typedef BASE(F) R;
 
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Kahan");
+        LogicError("Cannot make a non-square matrix Kahan");
     if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
-        throw std::logic_error("|phi| must be in (0,1)");
+        LogicError("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(1-phi*Conj(phi));
 
     MakeZeros( A );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const F zetaPow = Pow( zeta, R(i) );
         A.Set( i, i, zetaPow );
-        for( int j=1; j<n; ++j )
+        for( Int j=1; j<n; ++j )
             A.Set( i, j, -phi*zetaPow );
     }
 }
@@ -75,28 +75,28 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
 #endif
     typedef BASE(F) R;
 
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Kahan");
+        LogicError("Cannot make a non-square matrix Kahan");
     if( Abs(phi) >= R(1) || Abs(phi) == R(0) )
-        throw std::logic_error("|phi| must be in (0,1)");
+        LogicError("|phi| must be in (0,1)");
 
     const F zeta = Sqrt(1-phi*Conj(phi));
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
     {
-        const int i = colShift + iLoc*colStride;
+        const Int i = colShift + iLoc*colStride;
         const F zetaPow = Pow( zeta, R(i) );
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*rowStride;
+            const Int j = rowShift + jLoc*rowStride;
             if( i > j )       
                 A.SetLocal( iLoc, jLoc, F(0) ); 
             else if( i == j )

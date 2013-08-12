@@ -26,25 +26,23 @@ LVar3Square( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::LVar3Square");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
     if( A.Grid().Height() != A.Grid().Width() )
-        throw std::logic_error
-        ("CholeskyLVar3Square requires a square process grid");
+        LogicError("CholeskyLVar3Square requires a square process grid");
 #endif
     const Grid& g = A.Grid();
 
     // Find the process holding our transposed data
-    const int r = g.Height();
-    int transposeRank;
+    const Int r = g.Height();
+    Int transposeRank;
     {
-        const int colAlignment = A.ColAlignment();
-        const int rowAlignment = A.RowAlignment();
-        const int colShift = A.ColShift();
-        const int rowShift = A.RowShift();
+        const Int colAlignment = A.ColAlignment();
+        const Int rowAlignment = A.RowAlignment();
+        const Int colShift = A.ColShift();
+        const Int rowShift = A.RowShift();
 
-        const int transposeRow = (colAlignment+rowShift) % r;
-        const int transposeCol = (rowAlignment+colShift) % r;
+        const Int transposeRow = (colAlignment+rowShift) % r;
+        const Int transposeCol = (rowAlignment+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );
@@ -92,20 +90,20 @@ LVar3Square( DistMatrix<F>& A )
         {
             if( onDiagonal )
             { 
-                const int size = A11.Height()*A22.LocalWidth();
+                const Int size = A11.Height()*A22.LocalWidth();
                 MemCopy
                 ( A21Adj_STAR_MR.Buffer(), 
                   A21Trans_STAR_MC.Buffer(), size );
             }
             else
             {
-                const int sendSize = A22.LocalHeight()*A11.Width();
-                const int recvSize = A22.LocalWidth()*A11.Height();
+                const Int sendSize = A22.LocalHeight()*A11.Width();
+                const Int recvSize = A22.LocalWidth()*A11.Height();
                 // We know that the ldim is the height since we have manually 
                 // created both temporary matrices.
                 mpi::SendRecv 
-                ( A21Trans_STAR_MC.Buffer(), sendSize, transposeRank, 0,
-                  A21Adj_STAR_MR.Buffer(),  recvSize, transposeRank, 0,
+                ( A21Trans_STAR_MC.Buffer(), sendSize, transposeRank,
+                  A21Adj_STAR_MR.Buffer(),  recvSize, transposeRank,
                   g.VCComm() );
             }
             Conjugate( A21Adj_STAR_MR );

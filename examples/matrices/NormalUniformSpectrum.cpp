@@ -19,7 +19,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of matrix",10);
+        const Int n = Input("--size","size of matrix",10);
         const double realCenter = Input
             ("--realCenter","real center of uniform eigval distribution",3.);
         const double imagCenter = Input

@@ -34,11 +34,11 @@ LocalSymvColAccumulateU
         x_MC_STAR.Grid() != x_MR_STAR.Grid() ||
         x_MR_STAR.Grid() != z_MC_STAR.Grid() ||
         z_MC_STAR.Grid() != z_MR_STAR.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,x,z} must be distributed over the same grid");
     if( x_MC_STAR.Width() != 1 || x_MR_STAR.Width() != 1 ||
         z_MC_STAR.Width() != 1 || z_MR_STAR.Width() != 1 )
-        throw std::logic_error("Expected x and z to be column vectors");
+        LogicError("Expected x and z to be column vectors");
     if( A.Height() != A.Width() || 
         A.Height() != x_MC_STAR.Height() ||
         A.Height() != x_MR_STAR.Height() ||
@@ -56,13 +56,13 @@ LocalSymvColAccumulateU
                                << z_MC_STAR.Width() << "\n"
             << "  z[MR,* ] ~ " << z_MR_STAR.Height() << " x " 
                                << z_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
     if( x_MC_STAR.ColAlignment() != A.ColAlignment() ||
         x_MR_STAR.ColAlignment() != A.RowAlignment() ||
         z_MC_STAR.ColAlignment() != A.ColAlignment() ||
         z_MR_STAR.ColAlignment() != A.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -82,7 +82,7 @@ LocalSymvColAccumulateU
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
     LockedPartitionDown
@@ -96,9 +96,9 @@ LocalSymvColAccumulateU
                        x1_MR_STAR,
           xB_MR_STAR,  x2_MR_STAR );
 
-        const int n0 = x0_MR_STAR.Height();
-        const int n1 = x1_MR_STAR.Height();
-        const int n2 = x2_MR_STAR.Height();
+        const Int n0 = x0_MR_STAR.Height();
+        const Int n1 = x1_MR_STAR.Height();
+        const Int n2 = x2_MR_STAR.Height();
         LockedView( A11, A, n0, n0,    n1, n1 );
         LockedView( A12, A, n0, n0+n1, n1, n2 );
         LockedView( x1_MC_STAR, x_MC_STAR, n0, 0, n1, 1 );
@@ -145,11 +145,11 @@ LocalSymvRowAccumulateU
         x_STAR_MC.Grid() != x_STAR_MR.Grid() ||
         x_STAR_MR.Grid() != z_STAR_MC.Grid() ||
         z_STAR_MC.Grid() != z_STAR_MR.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,x,z} must be distributed over the same grid");
     if( x_STAR_MC.Height() != 1 || x_STAR_MR.Height() != 1 ||
         z_STAR_MC.Height() != 1 || z_STAR_MR.Height() != 1 )
-        throw std::logic_error("Expected x and z to be row vectors");
+        LogicError("Expected x and z to be row vectors");
     if( A.Height() != A.Width() || 
         A.Height() != x_STAR_MC.Width() ||
         A.Height() != x_STAR_MR.Width() ||
@@ -167,13 +167,13 @@ LocalSymvRowAccumulateU
                                << z_STAR_MC.Width() << "\n"
             << "  z[* ,MR] ~ " << z_STAR_MR.Height() << " x " 
                                << z_STAR_MR.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
     if( x_STAR_MC.RowAlignment() != A.ColAlignment() ||
         x_STAR_MR.RowAlignment() != A.RowAlignment() ||
         z_STAR_MC.RowAlignment() != A.ColAlignment() ||
         z_STAR_MR.RowAlignment() != A.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
@@ -191,7 +191,7 @@ LocalSymvRowAccumulateU
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
     LockedPartitionRight( x_STAR_MR,  xL_STAR_MR, xR_STAR_MR, 0 );
@@ -201,9 +201,9 @@ LocalSymvRowAccumulateU
         ( xL_STAR_MR, /**/ xR_STAR_MR, 
           x0_STAR_MR, /**/ x1_STAR_MR, x2_STAR_MR );
 
-        const int n0 = x0_STAR_MR.Width();
-        const int n1 = x1_STAR_MR.Width();
-        const int n2 = x2_STAR_MR.Width();
+        const Int n0 = x0_STAR_MR.Width();
+        const Int n1 = x1_STAR_MR.Width();
+        const Int n2 = x2_STAR_MR.Width();
         LockedView( A11, A, n0, n0,    n1, n1 );
         LockedView( A12, A, n0, n0+n1, n1, n2 );
         LockedView( x1_STAR_MC, x_STAR_MC, 0, n0, 1, n1 );

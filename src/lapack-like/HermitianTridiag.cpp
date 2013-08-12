@@ -65,20 +65,20 @@ HermitianTridiag
     else if( approach == HERMITIAN_TRIDIAG_SQUARE )
     {
         // Drop down to a square mesh 
-        const int p = g.Size();
-        const int pSqrt = int(sqrt(double(p)));
+        const Int p = g.Size();
+        const Int pSqrt = Int(sqrt(double(p)));
 
-        std::vector<int> squareRanks(pSqrt*pSqrt);
+        std::vector<Int> squareRanks(pSqrt*pSqrt);
         if( order == COLUMN_MAJOR )
         {
-            for( int j=0; j<pSqrt; ++j )
-                for( int i=0; i<pSqrt; ++i )
+            for( Int j=0; j<pSqrt; ++j )
+                for( Int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = i+j*pSqrt;
         }
         else
         {
-            for( int j=0; j<pSqrt; ++j )
-                for( int i=0; i<pSqrt; ++i )
+            for( Int j=0; j<pSqrt; ++j )
+                for( Int i=0; i<pSqrt; ++i )
                     squareRanks[i+j*pSqrt] = j+i*pSqrt;
         }
 

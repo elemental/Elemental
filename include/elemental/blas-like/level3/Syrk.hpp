@@ -29,17 +29,17 @@ Syrk
     if( orientation == NORMAL )
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() )
-            throw std::logic_error("Nonconformal Syrk");
+            LogicError("Nonconformal Syrk");
     }
     else
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() )
-            throw std::logic_error("Nonconformal Syrk");
+            LogicError("Nonconformal Syrk");
     }
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
-    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
+    const Int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     if( conjugate )
     {
         blas::Herk
@@ -66,7 +66,7 @@ Syrk
 #ifndef RELEASE
     CallStackEntry entry("Syrk");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }
@@ -101,7 +101,7 @@ Syrk
 #ifndef RELEASE
     CallStackEntry entry("Syrk");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, conjugate );
 }

@@ -48,6 +48,7 @@
 #cmakedefine AVOID_COMPLEX_MPI
 #cmakedefine HAVE_MPI_REDUCE_SCATTER_BLOCK
 #cmakedefine HAVE_MPI_IN_PLACE
+#cmakedefine HAVE_MPI_LONG_LONG
 #cmakedefine HAVE_MPI_COMM_SET_ERRHANDLER
 #cmakedefine HAVE_MPI_INIT_THREAD
 #cmakedefine HAVE_MPI_QUERY_THREAD

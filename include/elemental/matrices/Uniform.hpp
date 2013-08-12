@@ -20,17 +20,17 @@ MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 #ifndef RELEASE
     CallStackEntry entry("MakeUniform");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             A.Set( i, j, center+radius*SampleUnitBall<T>() );
 }
 
 template<typename T>
 inline void
 Uniform
-( Matrix<T>& A, int m, int n, T center=0, BASE(T) radius=1 )
+( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Uniform");
@@ -54,10 +54,10 @@ struct MakeUniformHelper<T,CIRC,CIRC>
     {
         if( A.Grid().VCRank() == A.Root() )
         {
-            const int height = A.Height(); 
-            const int width = A.Width();
-            for( int j=0; j<width; ++j )
-                for( int i=0; i<height; ++i )
+            const Int height = A.Height(); 
+            const Int width = A.Width();
+            for( Int j=0; j<width; ++j )
+                for( Int i=0; i<height; ++i )
                     A.SetLocal( i, j, center+radius*SampleUnitBall<T>() );
         }
     }
@@ -68,10 +68,10 @@ struct MakeUniformHelper<T,MC,MR>
 {
     static void Func( DistMatrix<T,MC,MR>& A, T center, BASE(T) radius )
     {
-        const int localHeight = A.LocalHeight(); 
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int localHeight = A.LocalHeight(); 
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -84,16 +84,16 @@ struct MakeUniformHelper<T,MC,STAR>
         const Grid& grid = A.Grid();
         if( grid.InGrid() )
         {
-            const int n = A.Width();
-            const int localHeight = A.LocalHeight();
-            const int bufSize = localHeight*n;
+            const Int n = A.Width();
+            const Int localHeight = A.LocalHeight();
+            const Int bufSize = localHeight*n;
             std::vector<T> buffer( bufSize );
 
             // Create random matrix on process column 0, then broadcast
             if( grid.Col() == 0 )
             {
-                for( int j=0; j<n; ++j )
-                    for( int iLoc=0; iLoc<localHeight; ++iLoc )
+                for( Int j=0; j<n; ++j )
+                    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                         buffer[iLoc+j*localHeight] = 
                             center + radius*SampleUnitBall<T>();
             }
@@ -101,11 +101,11 @@ struct MakeUniformHelper<T,MC,STAR>
 
             // Unpack
             T* localBuffer = A.Buffer();
-            const int ldim = A.LDim();
+            const Int ldim = A.LDim();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-            for( int j=0; j<n; ++j )
+            for( Int j=0; j<n; ++j )
             {
                 const T* bufferCol = &buffer[j*localHeight];
                 T* col = &localBuffer[j*ldim];
@@ -120,10 +120,10 @@ struct MakeUniformHelper<T,MD,STAR>
 {
     static void Func( DistMatrix<T,MD,STAR>& A, T center, BASE(T) radius )
     {
-        const int n = A.Width();
-        const int localHeight = A.LocalHeight();
-        for( int j=0; j<n; ++j )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int n = A.Width();
+        const Int localHeight = A.LocalHeight();
+        for( Int j=0; j<n; ++j )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -133,10 +133,10 @@ struct MakeUniformHelper<T,MR,MC>
 {
     static void Func( DistMatrix<T,MR,MC>& A, T center, BASE(T) radius )
     {
-        const int localHeight = A.LocalHeight(); 
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int localHeight = A.LocalHeight(); 
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -147,28 +147,28 @@ struct MakeUniformHelper<T,MR,STAR>
     static void Func( DistMatrix<T,MR,STAR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
-        const int n = A.Width();
-        const int localHeight = A.LocalHeight();
-        const int bufSize = localHeight*n;
+        const Int n = A.Width();
+        const Int localHeight = A.LocalHeight();
+        const Int bufSize = localHeight*n;
         std::vector<T> buffer( bufSize );
 
         // Create random matrix on process row 0, then broadcast
         if( grid.Row() == 0 )
         {
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<localHeight; ++i )
+            for( Int j=0; j<n; ++j )
+                for( Int i=0; i<localHeight; ++i )
                     buffer[i+j*localHeight] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
-        const int ldim = A.LDim();
+        const Int ldim = A.LDim();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int j=0; j<n; ++j )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int j=0; j<n; ++j )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 localBuffer[iLoc+j*ldim] = buffer[iLoc+j*localHeight];
     }
 };
@@ -179,27 +179,27 @@ struct MakeUniformHelper<T,STAR,MC>
     static void Func( DistMatrix<T,STAR,MC>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
-        const int m = A.Height();
-        const int localWidth = A.LocalWidth();
-        const int bufSize = m*localWidth;
+        const Int m = A.Height();
+        const Int localWidth = A.LocalWidth();
+        const Int bufSize = m*localWidth;
         std::vector<T> buffer( bufSize );
 
         // Create a random matrix on process column 0, then broadcast
         if( grid.Col() == 0 )
         {
-            for( int jLoc=0; jLoc<localWidth; ++jLoc )
-                for( int i=0; i<m; ++i )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                for( Int i=0; i<m; ++i )
                     buffer[i+jLoc*m] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
-        const int ldim = A.LDim();
+        const Int ldim = A.LDim();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*m];
             T* col = &localBuffer[jLoc*ldim];
@@ -213,10 +213,10 @@ struct MakeUniformHelper<T,STAR,MD>
 {
     static void Func( DistMatrix<T,STAR,MD>& A, T center, BASE(T) radius )
     {
-        const int m = A.Height();
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( int i=0; i<m; ++i )
+        const Int m = A.Height();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int i=0; i<m; ++i )
                 A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -227,27 +227,27 @@ struct MakeUniformHelper<T,STAR,MR>
     static void Func( DistMatrix<T,STAR,MR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
-        const int m = A.Height();
-        const int localWidth = A.LocalWidth();
-        const int bufSize = m*localWidth;
+        const Int m = A.Height();
+        const Int localWidth = A.LocalWidth();
+        const Int bufSize = m*localWidth;
         std::vector<T> buffer( bufSize );
 
         // Create random matrix on process row 0, then broadcast
         if( grid.Row() == 0 )
         {
-            for( int j=0; j<localWidth; ++j )
-                for( int i=0; i<m; ++i )
+            for( Int j=0; j<localWidth; ++j )
+                for( Int i=0; i<m; ++i )
                     buffer[i+j*m] = center+radius*SampleUnitBall<T>();
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
-        const int ldim = A.LDim();
+        const Int ldim = A.LDim();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*m];
             T* col = &localBuffer[jLoc*ldim];
@@ -262,9 +262,9 @@ struct MakeUniformHelper<T,STAR,STAR>
     static void Func( DistMatrix<T,STAR,STAR>& A, T center, BASE(T) radius )
     {
         const Grid& grid = A.Grid();
-        const int m = A.Height();
-        const int n = A.Width();
-        const int bufSize = m*n;
+        const Int m = A.Height();
+        const Int n = A.Width();
+        const Int bufSize = m*n;
 
         if( grid.InGrid() )
         {
@@ -272,19 +272,19 @@ struct MakeUniformHelper<T,STAR,STAR>
 
             if( grid.Rank() == 0 )
             {
-                for( int j=0; j<n; ++j )
-                    for( int i=0; i<m; ++i )
+                for( Int j=0; j<n; ++j )
+                    for( Int i=0; i<m; ++i )
                         buffer[i+j*m] = center+radius*SampleUnitBall<T>();
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
 
             // Unpack
             T* localBuffer = A.Buffer();
-            const int ldim = A.LDim();
+            const Int ldim = A.LDim();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-            for( int j=0; j<n; ++j )
+            for( Int j=0; j<n; ++j )
             {
                 const T* bufferCol = &buffer[j*m];
                 T* col = &localBuffer[j*ldim];
@@ -299,10 +299,10 @@ struct MakeUniformHelper<T,STAR,VC>
 {
     static void Func( DistMatrix<T,STAR,VC>& A, T center, BASE(T) radius )
     {
-        const int m = A.Height();
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( int i=0; i<m; ++i )
+        const Int m = A.Height();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int i=0; i<m; ++i )
                 A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -312,10 +312,10 @@ struct MakeUniformHelper<T,STAR,VR>
 {
     static void Func( DistMatrix<T,STAR,VR>& A, T center, BASE(T) radius )
     {
-        const int m = A.Height();
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
-            for( int i=0; i<m; ++i )
+        const Int m = A.Height();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int i=0; i<m; ++i )
                 A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -325,10 +325,10 @@ struct MakeUniformHelper<T,VC,STAR>
 {
     static void Func( DistMatrix<T,VC,STAR>& A, T center, BASE(T) radius )
     {
-        const int n = A.Width();
-        const int localHeight = A.LocalHeight();
-        for( int j=0; j<n; ++j )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int n = A.Width();
+        const Int localHeight = A.LocalHeight();
+        for( Int j=0; j<n; ++j )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -338,10 +338,10 @@ struct MakeUniformHelper<T,VR,STAR>
 {
     static void Func( DistMatrix<T,VR,STAR>& A, T center, BASE(T) radius )
     {
-        const int n = A.Width();
-        const int localHeight = A.LocalHeight();
-        for( int j=0; j<n; ++j )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int n = A.Width();
+        const Int localHeight = A.LocalHeight();
+        for( Int j=0; j<n; ++j )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
     }
 };
@@ -360,7 +360,7 @@ MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Uniform( DistMatrix<T,U,V>& A, int m, int n, T center=0, BASE(T) radius=1 )
+Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Uniform");

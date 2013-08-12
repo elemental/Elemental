@@ -34,15 +34,15 @@ namespace schur {
 
 template<typename F>
 inline int
-InverseFreeSign( Matrix<F>& X, int maxIts=100, BASE(F) tau=0 )
+InverseFreeSign( Matrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSign");
 #endif
     typedef BASE(F) Real;
-    const int n = X.Width();
+    const Int n = X.Width();
     if( X.Height() != 2*n )
-        throw std::logic_error("X must be 2n x n");
+        LogicError("X must be 2n x n");
     // Compute the tolerance if it is unset
     if( tau == Real(0) )
         tau = n*lapack::MachineEpsilon<Real>();
@@ -62,7 +62,7 @@ InverseFreeSign( Matrix<F>& X, int maxIts=100, BASE(F) tau=0 )
     PartitionDown( Q, Q12, Q22, n );
 
     // Run the iterative algorithm
-    int numIts=0;
+    Int numIts=0;
     Matrix<F> R, RLast;
     while( numIts < maxIts )
     {
@@ -103,16 +103,16 @@ InverseFreeSign( Matrix<F>& X, int maxIts=100, BASE(F) tau=0 )
 
 template<typename F>
 inline int
-InverseFreeSign( DistMatrix<F>& X, int maxIts=100, BASE(F) tau=0 )
+InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSign");
 #endif
     typedef BASE(F) Real;
     const Grid& g = X.Grid();
-    const int n = X.Width();
+    const Int n = X.Width();
     if( X.Height() != 2*n )
-        throw std::logic_error("X must be 2n x n");
+        LogicError("X must be 2n x n");
     // Compute the tolerance if it is unset
     if( tau == Real(0) )
         tau = n*lapack::MachineEpsilon<Real>();
@@ -132,7 +132,7 @@ InverseFreeSign( DistMatrix<F>& X, int maxIts=100, BASE(F) tau=0 )
     PartitionDown( Q, Q12, Q22, n );
 
     // Run the iterative algorithm
-    int numIts=0;
+    Int numIts=0;
     DistMatrix<F> R(g), RLast(g);
     while( numIts < maxIts )
     {
@@ -178,9 +178,9 @@ InverseFreeSpectralDivide( Matrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("schur::InverseFreeSpectralDivide");
 #endif
-    const int n = X.Width();
+    const Int n = X.Width();
     if( X.Height() != 2*n )
-        throw std::logic_error("Matrix should be 2n x n");
+        LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
     Matrix<F> A, B;
@@ -197,15 +197,15 @@ InverseFreeSpectralDivide( Matrix<F>& X )
     // 4) [R,Q] := RQ(B)
     Axpy( F(1), A, B );
     Matrix<F> t;
-    Matrix<int> p;
+    Matrix<Int> p;
     QR( A, t, p );
     qr::ApplyQ( LEFT, ADJOINT, A, t, B );
     RQ( B, t );
 
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
-    const int roundedTrace = int(round(RealPart(trace)));
-    const int rank = std::max(std::min(roundedTrace,n),0);
+    const Int roundedTrace = Int(round(RealPart(trace)));
+    const Int rank = std::max(std::min(roundedTrace,n),0);
 
     // A := Q^H A Q
     A = ACopy;
@@ -226,9 +226,9 @@ InverseFreeSpectralDivide( DistMatrix<F>& X )
     CallStackEntry cse("schur::InverseFreeSpectralDivide");
 #endif
     const Grid& g = X.Grid();
-    const int n = X.Width();
+    const Int n = X.Width();
     if( X.Height() != 2*n )
-        throw std::logic_error("Matrix should be 2n x n");
+        LogicError("Matrix should be 2n x n");
    
     // Expose A and B, and then copy A
     DistMatrix<F> A(g), B(g);
@@ -245,15 +245,15 @@ InverseFreeSpectralDivide( DistMatrix<F>& X )
     // 4) [R,Q] := RQ(B)
     Axpy( F(1), A, B );
     DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<int,VR,STAR> p(g);
+    DistMatrix<Int,VR,STAR> p(g);
     QR( A, t, p );
     qr::ApplyQ( LEFT, ADJOINT, A, t, B );
     RQ( B, t );
 
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
-    const int roundedTrace = int(round(RealPart(trace)));
-    const int rank = std::max(std::min(roundedTrace,n),0);
+    const Int roundedTrace = Int(round(RealPart(trace)));
+    const Int rank = std::max(std::min(roundedTrace,n),0);
 
     // A := Q^H A Q
     A = ACopy;

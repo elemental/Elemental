@@ -26,7 +26,7 @@ void Trr2kNNNN
         A.Height() != E.Height() || C.Height() != E.Height() ||
         B.Width()  != E.Width()  || D.Width()  != E.Width()  ||
         A.Width()  != B.Height() || C.Width()  != D.Height() )
-        throw std::logic_error("Nonconformal Trr2kNNNN");
+        LogicError("Nonconformal Trr2kNNNN");
 #endif
     const Grid& g = E.Grid();
 

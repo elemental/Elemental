@@ -25,25 +25,16 @@ inline void UUnb
 {
 #ifndef RELEASE
     CallStackEntry entry("bidiag::UUnb");
-#endif
-    const int tPHeight = std::max(A.Width()-1,0);
-    const int tQHeight = A.Width();
-#ifndef RELEASE
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        throw std::logic_error("Process grids do not match");
+        LogicError("Process grids do not match");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
-    if( tP.Viewing() && (tP.Height() != tPHeight || tP.Width() != 1) )
-        throw std::logic_error("tP is the wrong height");
-    if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
-        throw std::logic_error("tQ is the wrong height");
+        LogicError("A must be at least as tall as it is wide");
 #endif
     const Grid& g = A.Grid();
-
-    if( !tP.Viewing() )
-        tP.ResizeTo( tPHeight, 1 );
-    if( !tQ.Viewing() )
-        tQ.ResizeTo( tQHeight, 1 );
+    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tQHeight = A.Width();
+    tP.ResizeTo( tPHeight, 1 );
+    tQ.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
     DistMatrix<F>

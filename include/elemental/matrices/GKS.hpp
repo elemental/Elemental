@@ -19,7 +19,7 @@ namespace elem {
 
 template<typename F>
 inline void
-GKS( Matrix<F>& A, int n )
+GKS( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("GKS");
@@ -30,7 +30,7 @@ GKS( Matrix<F>& A, int n )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-GKS( DistMatrix<F,U,V>& A, int n )
+GKS( DistMatrix<F,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("GKS");
@@ -46,16 +46,16 @@ MakeGKS( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeGKS");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix GKS");
+        LogicError("Cannot make a non-square matrix GKS");
 
     MakeZeros( A );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         const F jDiag = F(1)/Sqrt(F(j));
-        for( int i=0; i<j; ++i )
+        for( Int i=0; i<j; ++i )
             A.Set( i, j, -jDiag );
         A.Set( j, j, jDiag );
     }
@@ -68,24 +68,24 @@ MakeGKS( DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeGKS");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix GKS");
+        LogicError("Cannot make a non-square matrix GKS");
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
+        const Int j = rowShift + jLoc*rowStride;
         const F jDiag = F(1)/Sqrt(F(j));
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i < j )
                 A.SetLocal( iLoc, jLoc, -jDiag );
             else if( i == j )

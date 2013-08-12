@@ -28,43 +28,41 @@ void PanelLSquare
 {
     typedef BASE(F) R;
 
-    const int panelSize = W.Width();
-    const int bottomSize = W.Height()-panelSize;
+    const Int panelSize = W.Width();
+    const Int bottomSize = W.Height()-panelSize;
 
     const Grid& g = A.Grid();
 
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::PanelLSquare");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-        throw std::logic_error
-        ("A, W, and t must be distributed over the same grid");
+        LogicError("A, W, and t must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != W.Height() )
-        throw std::logic_error("A and W must be the same height");
+        LogicError("A and W must be the same height");
     if( W.Height() < panelSize )
-        throw std::logic_error("W must be a column panel");
+        LogicError("W must be a column panel");
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment() )
-        throw std::logic_error("W and A must be aligned");
+        LogicError("W and A must be aligned");
     if( t.Height() != W.Width() || t.Width() != 1 )
-        throw std::logic_error
-        ("t must be a column vector of the same length as W's width");
+        LogicError("t must be a column vector of the same length as W's width");
     if( !t.AlignedWithDiagonal(A,-1) )
-        throw std::logic_error("t is not aligned with A's subdiagonal");
+        LogicError("t is not aligned with A's subdiagonal");
 #endif
 
     // Find the process holding our transposed data
-    const int r = g.Height();
-    int transposeRank;
+    const Int r = g.Height();
+    Int transposeRank;
     {
-        const int colAlignment = A.ColAlignment();
-        const int rowAlignment = A.RowAlignment();
-        const int colShift = A.ColShift();
-        const int rowShift = A.RowShift();
+        const Int colAlignment = A.ColAlignment();
+        const Int rowAlignment = A.RowAlignment();
+        const Int colShift = A.ColShift();
+        const Int rowShift = A.RowShift();
 
-        const int transposeRow = (colAlignment+rowShift) % r;
-        const int transposeCol = (rowAlignment+colShift) % r;
+        const Int transposeRow = (colAlignment+rowShift) % r;
+        const Int transposeCol = (rowAlignment+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );
@@ -197,10 +195,10 @@ void PanelLSquare
             if( !firstIteration )
             {
                 // Finish updating the current column with two axpy's
-                const int AColLocalHeight = ACol.LocalHeight();
+                const Int AColLocalHeight = ACol.LocalHeight();
                 F* AColBuffer = ACol.Buffer();
                 const F* a21Last_MC_STAR_Buffer = a21Last_MC_STAR.Buffer();
-                for( int i=0; i<AColLocalHeight; ++i )
+                for( Int i=0; i<AColLocalHeight; ++i )
                     AColBuffer[i] -=
                         w21LastBuffer[i] + 
                         a21Last_MC_STAR_Buffer[i]*Conj(w21LastFirstEntry);
@@ -221,7 +219,7 @@ void PanelLSquare
         // Otherwise, also add w21 into the broadcast.
         if( firstIteration )
         {
-            const int a21LocalHeight = a21.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
             std::vector<F> rowBroadcastBuffer(a21LocalHeight+1);
             if( thisIsMyCol )
             {
@@ -239,7 +237,7 @@ void PanelLSquare
             MemCopy
             ( a21_MC_STAR.Buffer(), &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
-            const int APan_MC_STAR_Offset = 
+            const Int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
             ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,0), 
@@ -258,15 +256,14 @@ void PanelLSquare
             else
             {
                 // Pairwise exchange
-                const int sendSize = A22.LocalHeight();
-                const int recvSize = A22.LocalWidth();
+                const Int sendSize = A22.LocalHeight();
+                const Int recvSize = A22.LocalWidth();
                 mpi::SendRecv
-                ( a21_MC_STAR.Buffer(), sendSize, transposeRank, 0,
-                  a21_MR_STAR.Buffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
+                ( a21_MC_STAR.Buffer(), sendSize, transposeRank,
+                  a21_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
             }
             // Store a21[MR,* ]
-            const int APan_MR_STAR_Offset = 
+            const Int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
             ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
@@ -275,8 +272,8 @@ void PanelLSquare
         }
         else
         {
-            const int a21LocalHeight = a21.LocalHeight();
-            const int w21LastLocalHeight = ACol.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
+            const Int w21LastLocalHeight = ACol.LocalHeight();
             std::vector<F> 
                 rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
             if( thisIsMyCol ) 
@@ -298,7 +295,7 @@ void PanelLSquare
             MemCopy
             ( a21_MC_STAR.Buffer(), &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
-            const int APan_MC_STAR_Offset = 
+            const Int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
             ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,A00.Width()), 
@@ -312,7 +309,7 @@ void PanelLSquare
               &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
-            const int W_MC_STAR_Offset = 
+            const Int W_MC_STAR_Offset = 
                 W_MC_STAR.LocalHeight()-w21LastLocalHeight;
             MemCopy
             ( W_MC_STAR.Buffer(W_MC_STAR_Offset,A00.Width()-1),
@@ -342,8 +339,8 @@ void PanelLSquare
             }
             else
             {
-                const int sendSize = A22.LocalHeight()+ABR.LocalHeight();
-                const int recvSize = A22.LocalWidth()+ABR.LocalWidth();
+                const Int sendSize = A22.LocalHeight()+ABR.LocalHeight();
+                const Int recvSize = A22.LocalWidth()+ABR.LocalWidth();
                 std::vector<F> sendBuffer(sendSize), recvBuffer(recvSize);
 
                 // Pack the send buffer
@@ -355,9 +352,8 @@ void PanelLSquare
 
                 // Pairwise exchange
                 mpi::SendRecv
-                ( &sendBuffer[0], sendSize, transposeRank, 0,
-                  &recvBuffer[0], recvSize, transposeRank, 0,
-                  g.VCComm() );
+                ( &sendBuffer[0], sendSize, transposeRank,
+                  &recvBuffer[0], recvSize, transposeRank, g.VCComm() );
 
                 // Unpack the recv buffer
                 MemCopy
@@ -368,14 +364,14 @@ void PanelLSquare
             }
 
             // Store w21Last[MR,* ]
-            const int W_MR_STAR_Offset = 
+            const Int W_MR_STAR_Offset = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
             MemCopy
             ( W_MR_STAR.Buffer(W_MR_STAR_Offset,A00.Width()-1),
               w21Last_MR_STAR.Buffer(),
               W_MR_STAR.LocalHeight()-W_MR_STAR_Offset );
             // Store a21[MR,* ]
-            const int APan_MR_STAR_Offset = 
+            const Int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
             ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
@@ -408,11 +404,11 @@ void PanelLSquare
             const F* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.Buffer();
             const F* w21_MR_STAR_Buffer = w21Last_MR_STAR_Bottom.Buffer();
             F* A22Buffer = A22.Buffer();
-            const int localHeight = W22.LocalHeight();
-            const int localWidth = W22.LocalWidth();
-            const int lDim = A22.LDim();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            const Int localHeight = W22.LocalHeight();
+            const Int localWidth = W22.LocalWidth();
+            const Int lDim = A22.LDim();
+            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
                     A22Buffer[iLocal+jLocal*lDim] -=
                         w21_MC_STAR_Buffer[iLocal]*
                         Conj(a21_MR_STAR_Buffer[jLocal]) +
@@ -520,7 +516,7 @@ void PanelLSquare
         // Combine the AllReduce column summations of x01[MR,* ] and 
         // y01[MR,* ]
         {
-            const int x01LocalHeight = x01_MR_STAR.LocalHeight();
+            const Int x01LocalHeight = x01_MR_STAR.LocalHeight();
             std::vector<F> colSumSendBuffer(2*x01LocalHeight),
                            colSumRecvBuffer(2*x01LocalHeight);
             MemCopy
@@ -530,9 +526,8 @@ void PanelLSquare
             ( &colSumSendBuffer[x01LocalHeight],
               y01_MR_STAR.Buffer(), x01LocalHeight );
             mpi::AllReduce
-            ( &colSumSendBuffer[0], 
-              &colSumRecvBuffer[0],
-              2*x01LocalHeight, mpi::SUM, g.ColComm() );
+            ( &colSumSendBuffer[0], &colSumRecvBuffer[0], 
+              2*x01LocalHeight, g.ColComm() );
             MemCopy
             ( x01_MR_STAR.Buffer(), 
               &colSumRecvBuffer[0], x01LocalHeight );
@@ -550,26 +545,25 @@ void PanelLSquare
         // to be summed within process rows.
         if( onDiagonal )
         {
-            const int a21LocalHeight = a21.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
             F* p21_MC_STAR_Buffer = p21_MC_STAR.Buffer();
             const F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-            for( int i=0; i<a21LocalHeight; ++i )
+            for( Int i=0; i<a21LocalHeight; ++i )
                 p21_MC_STAR_Buffer[i] += q21_MR_STAR_Buffer[i];
         }
         else
         {
             // Pairwise exchange with the transpose process
-            const int sendSize = A22.LocalWidth();
-            const int recvSize = A22.LocalHeight();
+            const Int sendSize = A22.LocalWidth();
+            const Int recvSize = A22.LocalHeight();
             std::vector<F> recvBuffer(recvSize);
             mpi::SendRecv
-            ( q21_MR_STAR.Buffer(), sendSize, transposeRank, 0,
-              &recvBuffer[0],       recvSize, transposeRank, 0,
-              g.VCComm() );
+            ( q21_MR_STAR.Buffer(), sendSize, transposeRank, 
+              &recvBuffer[0],       recvSize, transposeRank, g.VCComm() );
 
             // Unpack the recv buffer directly onto p21[MC,* ]
             F* p21_MC_STAR_Buffer = p21_MC_STAR.Buffer();
-            for( int i=0; i<recvSize; ++i )
+            for( Int i=0; i<recvSize; ++i )
                 p21_MC_STAR_Buffer[i] += recvBuffer[i];
         }
 
@@ -577,16 +571,15 @@ void PanelLSquare
         {
             // This is not the last iteration of the panel factorization, 
             // Reduce to one p21[MC,* ] to the next process column.
-            const int a21LocalHeight = a21.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
 
-            const int nextProcessRow = (alpha11.ColAlignment()+1) % r;
-            const int nextProcessCol = (alpha11.RowAlignment()+1) % r;
+            const Int nextProcessRow = (alpha11.ColAlignment()+1) % r;
+            const Int nextProcessCol = (alpha11.RowAlignment()+1) % r;
 
             std::vector<F> reduceToOneRecvBuffer(a21LocalHeight);
             mpi::Reduce
-            ( p21_MC_STAR.Buffer(),
-              &reduceToOneRecvBuffer[0],
-              a21LocalHeight, mpi::SUM, nextProcessCol, g.RowComm() );
+            ( p21_MC_STAR.Buffer(), &reduceToOneRecvBuffer[0],
+              a21LocalHeight, nextProcessCol, g.RowComm() );
             if( g.Col() == nextProcessCol )
             {
                 // Finish computing w21. During its computation, ensure that 
@@ -600,15 +593,14 @@ void PanelLSquare
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ?
                                   reduceToOneRecvBuffer[0] : 0 );
-                mpi::AllReduce
-                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.ColComm() );
+                mpi::AllReduce( sendBuffer, recvBuffer, 2, g.ColComm() );
                 F dotProduct = recvBuffer[0];
 
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastBuffer
                 // - w21LastFirstEntry
                 F scale = dotProduct*Conj(tau) / F(2);
-                for( int i=0; i<a21LocalHeight; ++i )
+                for( Int i=0; i<a21LocalHeight; ++i )
                     w21LastBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a21_MC_STAR_Buffer[i] );
@@ -619,22 +611,19 @@ void PanelLSquare
         {
             // This is the last iteration, so we just need to form w21[MC,* ]
             // and w21[MR,* ]. 
-            const int a21LocalHeight = a21.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
 
             // AllReduce sum p21[MC,* ] over process rows
             std::vector<F> allReduceRecvBuffer(a21LocalHeight);
             mpi::AllReduce
-            ( p21_MC_STAR.Buffer(),
-              &allReduceRecvBuffer[0],
-              a21LocalHeight, mpi::SUM, g.RowComm() );
+            ( p21_MC_STAR.Buffer(), &allReduceRecvBuffer[0],
+              a21LocalHeight, g.RowComm() );
 
             // Finish computing w21.
             F myDotProduct = blas::Dot
                 ( a21LocalHeight, &allReduceRecvBuffer[0], 1,
                                   a21_MC_STAR.Buffer(),    1 );
-            F dotProduct;
-            mpi::AllReduce
-            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.ColComm() );
+            const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<F,MC,STAR> w21_MC_STAR(g);
@@ -650,7 +639,7 @@ void PanelLSquare
             F scale = dotProduct*Conj(tau) / F(2);
             F* w21_MC_STAR_Buffer = w21_MC_STAR.Buffer();
             const F* a21_MC_STAR_Buffer = a21_MC_STAR.Buffer();
-            for( int i=0; i<a21LocalHeight; ++i )
+            for( Int i=0; i<a21LocalHeight; ++i )
                 w21_MC_STAR_Buffer[i] = 
                     tau*( allReduceRecvBuffer[i]-scale*a21_MC_STAR_Buffer[i] );
 
@@ -664,12 +653,11 @@ void PanelLSquare
             else
             {
                 // Pairwise exchange with the transpose process
-                const int sendSize = A22.LocalHeight();
-                const int recvSize = A22.LocalWidth();
+                const Int sendSize = A22.LocalHeight();
+                const Int recvSize = A22.LocalWidth();
                 mpi::SendRecv
-                ( w21_MC_STAR.Buffer(), sendSize, transposeRank, 0,
-                  w21_MR_STAR.Buffer(), recvSize, transposeRank, 0,
-                  g.VCComm() );
+                ( w21_MC_STAR.Buffer(), sendSize, transposeRank, 
+                  w21_MR_STAR.Buffer(), recvSize, transposeRank, g.VCComm() );
             }
         }
         //--------------------------------------------------------------------//

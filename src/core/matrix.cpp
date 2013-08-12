@@ -14,48 +14,47 @@ namespace elem {
 // Assertions
 //
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::AssertValidDimensions( Int height, Int width ) const
+Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::AssertValidDimensions");
 #endif
     if( height < 0 || width < 0 )
-        throw std::logic_error("Height and width must be non-negative");
+        LogicError("Height and width must be non-negative");
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::AssertValidDimensions( Int height, Int width, Int ldim ) const
+Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::AssertValidDimensions");
 #endif
     AssertValidDimensions( height, width );
     if( ldim < height )
-        throw std::logic_error("Leading dimension must be no less than height");
+        LogicError("Leading dimension must be no less than height");
     if( ldim == 0 )
-        throw std::logic_error
-        ("Leading dimension cannot be zero (for BLAS compatibility)");
+        LogicError("Leading dimension cannot be zero (for BLAS compatibility)");
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
+Matrix<T>::AssertValidEntry( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::AssertValidEntry");
 #endif
     if( i < 0 || j < 0 )
-        throw std::logic_error("Indices must be non-negative");
+        LogicError("Indices must be non-negative");
     if( i > this->Height() || j > this->Width() )
     {
         std::ostringstream msg;
         msg << "Out of bounds: "
             << "(" << i << "," << j << ") of " << this->Height()
             << " x " << this->Width() << " Matrix.";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -63,15 +62,15 @@ Matrix<T,Int>::AssertValidEntry( Int i, Int j ) const
 // Constructors
 //
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix( bool fixed )
+template<typename T>
+Matrix<T>::Matrix( bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(0)
 { }
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
+template<typename T>
+Matrix<T>::Matrix( Int height, Int width, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(std::max(height,1))
 {
@@ -84,8 +83,8 @@ Matrix<T,Int>::Matrix( Int height, Int width, bool fixed )
     // TODO: Consider explicitly zeroing
 }
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix
+template<typename T>
+Matrix<T>::Matrix
 ( Int height, Int width, Int ldim, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(height), width_(width), ldim_(ldim)
@@ -98,8 +97,8 @@ Matrix<T,Int>::Matrix
     data_ = memory_.Buffer();
 }
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix
+template<typename T>
+Matrix<T>::Matrix
 ( Int height, Int width, const T* buffer, Int ldim, bool fixed )
 : viewType_( fixed ? LOCKED_VIEW_FIXED: LOCKED_VIEW ),
   height_(height), width_(width), ldim_(ldim), 
@@ -111,8 +110,8 @@ Matrix<T,Int>::Matrix
 #endif
 }
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix
+template<typename T>
+Matrix<T>::Matrix
 ( Int height, Int width, T* buffer, Int ldim, bool fixed )
 : viewType_( fixed ? VIEW_FIXED: VIEW ),
   height_(height), width_(width), ldim_(ldim), 
@@ -124,9 +123,9 @@ Matrix<T,Int>::Matrix
 #endif
 }
 
-template<typename T,typename Int>
-Matrix<T,Int>::Matrix
-( const Matrix<T,Int>& A )
+template<typename T>
+Matrix<T>::Matrix
+( const Matrix<T>& A )
 : viewType_( OWNER ),
   height_(0), width_(0), ldim_(1), 
   data_(0)
@@ -137,110 +136,107 @@ Matrix<T,Int>::Matrix
     if( &A != this )
         *this = A;
     else
-        throw std::logic_error
-        ("You just tried to construct a Matrix with itself!");
+        LogicError("You just tried to construct a Matrix with itself!");
 }
 
 //
 // Destructor
 //
 
-template<typename T,typename Int>
-Matrix<T,Int>::~Matrix()
+template<typename T>
+Matrix<T>::~Matrix()
 { }
 
 //
 // Basic information
 //
 
-template<typename T,typename Int>
+template<typename T>
 Int 
-Matrix<T,Int>::Height() const
+Matrix<T>::Height() const
 { return height_; }
 
-template<typename T,typename Int>
+template<typename T>
 Int
-Matrix<T,Int>::Width() const
+Matrix<T>::Width() const
 { return width_; }
 
-template<typename T,typename Int>
+template<typename T>
 Int
-Matrix<T,Int>::DiagonalLength( Int offset ) const
+Matrix<T>::DiagonalLength( Int offset ) const
 { return elem::DiagonalLength(height_,width_,offset); }
 
-template<typename T,typename Int>
+template<typename T>
 Int
-Matrix<T,Int>::LDim() const
+Matrix<T>::LDim() const
 { return ldim_; }
 
-template<typename T,typename Int>
+template<typename T>
 Int
-Matrix<T,Int>::MemorySize() const
+Matrix<T>::MemorySize() const
 { return memory_.Size(); }
 
-template<typename T,typename Int>
+template<typename T>
 bool
-Matrix<T,Int>::Owner() const
+Matrix<T>::Owner() const
 { return IsOwner( viewType_ ); }
 
-template<typename T,typename Int>
+template<typename T>
 bool
-Matrix<T,Int>::Viewing() const
+Matrix<T>::Viewing() const
 { return !IsOwner( viewType_ ); }
 
-template<typename T,typename Int>
+template<typename T>
 bool
-Matrix<T,Int>::Shrinkable() const
+Matrix<T>::Shrinkable() const
 { return IsShrinkable( viewType_ ); }
 
-template<typename T,typename Int>
+template<typename T>
 bool
-Matrix<T,Int>::FixedSize() const
+Matrix<T>::FixedSize() const
 { return !IsShrinkable( viewType_ ); }
 
-template<typename T,typename Int>
+template<typename T>
 bool
-Matrix<T,Int>::Locked() const
+Matrix<T>::Locked() const
 { return IsLocked( viewType_ ); }
 
-template<typename T,typename Int>
+template<typename T>
 T*
-Matrix<T,Int>::Buffer()
+Matrix<T>::Buffer()
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Buffer");
     if( Locked() )
-        throw std::logic_error
-        ("Cannot return non-const buffer of locked Matrix");
+        LogicError("Cannot return non-const buffer of locked Matrix");
 #endif
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
     return const_cast<T*>(data_);
 }
 
-template<typename T,typename Int>
+template<typename T>
 const T*
-Matrix<T,Int>::LockedBuffer() const
+Matrix<T>::LockedBuffer() const
 { return data_; }
 
-template<typename T,typename Int>
+template<typename T>
 T*
-Matrix<T,Int>::Buffer( Int i, Int j )
+Matrix<T>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Buffer");
     if( Locked() )
-        throw std::logic_error
-        ("Cannot return non-const buffer of locked Matrix");
+        LogicError("Cannot return non-const buffer of locked Matrix");
 #endif
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
     return &const_cast<T*>(data_)[i+j*ldim_];
 }
 
-template<typename T,typename Int>
+template<typename T>
 const T*
-Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
+Matrix<T>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedBuffer");
@@ -252,23 +248,23 @@ Matrix<T,Int>::LockedBuffer( Int i, Int j ) const
 // Entry manipulation
 //
 
-template<typename T,typename Int>
+template<typename T>
 const T&
-Matrix<T,Int>::Get_( Int i, Int j ) const
+Matrix<T>::Get_( Int i, Int j ) const
 { return data_[i+j*ldim_]; }
 
-template<typename T,typename Int>
+template<typename T>
 T&
-Matrix<T,Int>::Set_( Int i, Int j ) 
+Matrix<T>::Set_( Int i, Int j ) 
 {
     // NOTE: This const_cast has been carefully considered and should be safe
     //       since the underlying data should be non-const if this is called.
     return (const_cast<T*>(data_))[i+j*ldim_];
 }
 
-template<typename T,typename Int>
+template<typename T>
 T
-Matrix<T,Int>::Get( Int i, Int j ) const
+Matrix<T>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Get");
@@ -277,47 +273,43 @@ Matrix<T,Int>::Get( Int i, Int j ) const
     return Get_( i, j );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Set( Int i, Int j, T alpha ) 
+Matrix<T>::Set( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Set");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     Set_( i, j ) = alpha;
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Update( Int i, Int j, T alpha ) 
+Matrix<T>::Update( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Update");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     Set_( i, j ) += alpha;
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
+Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::GetDiagonal");
     if( d.Locked() )
-        throw std::logic_error("d must not be a locked view");
-    if( d.Viewing() && 
-        (d.Height() != DiagonalLength(offset) || d.Width() != 1 ))
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d must not be a locked view");
 #endif
     const Int diagLength = DiagonalLength(offset);
-    if( !d.Viewing() )    
-        d.ResizeTo( diagLength, 1 );
+    d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
             d.Set_( j, 0 ) = Get_(j,j+offset);
@@ -326,14 +318,14 @@ Matrix<T,Int>::GetDiagonal( Matrix<T,Int>& d, Int offset ) const
             d.Set_( j, 0 ) = Get_(j-offset,j);
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
+Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::SetDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
@@ -344,14 +336,14 @@ Matrix<T,Int>::SetDiagonal( const Matrix<T,Int>& d, Int offset )
             Set_( j-offset, j ) = d.Get_(j,0);
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
+Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::UpdateDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
@@ -362,17 +354,17 @@ Matrix<T,Int>::UpdateDiagonal( const Matrix<T,Int>& d, Int offset )
             Set_( j-offset, j ) += d.Get(j,0);
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::ComplainIfReal() const
+Matrix<T>::ComplainIfReal() const
 { 
     if( !IsComplex<T>::val )
-        throw std::logic_error("Called complex-only routine with real data");
+        LogicError("Called complex-only routine with real data");
 }
 
-template<typename T,typename Int>
+template<typename T>
 BASE(T)
-Matrix<T,Int>::GetRealPart( Int i, Int j ) const
+Matrix<T>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::GetRealPart");
@@ -381,9 +373,9 @@ Matrix<T,Int>::GetRealPart( Int i, Int j ) const
     return elem::RealPart( Get_( i, j ) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 BASE(T)
-Matrix<T,Int>::GetImagPart( Int i, Int j ) const
+Matrix<T>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::GetImagPart");
@@ -392,75 +384,71 @@ Matrix<T,Int>::GetImagPart( Int i, Int j ) const
     return elem::ImagPart( Get_( i, j ) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void 
-Matrix<T,Int>::SetRealPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::SetRealPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetRealPart");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     elem::SetRealPart( Set_( i, j ), alpha );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void 
-Matrix<T,Int>::SetImagPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::SetImagPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::SetImagPart");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     ComplainIfReal();
     elem::SetImagPart( Set_( i, j ), alpha );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void 
-Matrix<T,Int>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateRealPart");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     elem::UpdateRealPart( Set_( i, j ), alpha );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void 
-Matrix<T,Int>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
+Matrix<T>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
 {
 #ifndef RELEASE
     CallStackEntry cse("Matrix::UpdateImagPart");
     AssertValidEntry( i, j );
     if( Locked() )
-        throw std::logic_error("Cannot modify data of locked matrices");
+        LogicError("Cannot modify data of locked matrices");
 #endif
     ComplainIfReal();
     elem::UpdateImagPart( Set_( i, j ), alpha );
 }
    
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
+Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::GetRealPartOfDiagonal");
     if( d.Locked() )
-        throw std::logic_error("d must not be a locked view");
-    if( d.Viewing() && 
-        (d.Height() != DiagonalLength(offset) || d.Width() != 1))
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d must not be a locked view");
 #endif
     const Int diagLength = DiagonalLength(offset);
-    if( !d.Viewing() )    
-        d.ResizeTo( diagLength, 1 );
+    d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
             d.Set_( j, 0 ) = elem::RealPart( Get_(j,j+offset) );
@@ -469,21 +457,17 @@ Matrix<T,Int>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
             d.Set_( j, 0 ) = elem::RealPart( Get_(j-offset,j) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
+Matrix<T>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::GetImagPartOfDiagonal");
     if( d.Locked() )
-        throw std::logic_error("d must not be a locked view");
-    if( d.Viewing() && 
-        (d.Height() != DiagonalLength(offset) || d.Width() != 1))
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d must not be a locked view");
 #endif
     const Int diagLength = DiagonalLength(offset);
-    if( !d.Viewing() )    
-        d.ResizeTo( diagLength, 1 );
+    d.ResizeTo( diagLength, 1 );
     if( offset >= 0 )
         for( Int j=0; j<diagLength; ++j )
             d.Set_( j, 0 ) = elem::ImagPart( Get_(j,j+offset) );
@@ -492,14 +476,14 @@ Matrix<T,Int>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
             d.Set_( j, 0 ) = elem::ImagPart( Get_(j-offset,j) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::SetRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
@@ -510,14 +494,14 @@ Matrix<T,Int>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
             elem::SetRealPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::SetImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
@@ -529,14 +513,14 @@ Matrix<T,Int>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
             elem::SetImagPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::UpdateRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
     if( offset >= 0 )
@@ -547,14 +531,14 @@ Matrix<T,Int>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
             elem::UpdateRealPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
+Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
     CallStackEntry entry("Matrix::UpdateImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        throw std::logic_error("d is not a column-vector of the right length");
+        LogicError("d is not a column-vector of the right length");
 #endif
     ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
@@ -566,9 +550,9 @@ Matrix<T,Int>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
             elem::UpdateImagPart( Set_(j-offset,j), d.Get_(j,0) );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Control_( Int height, Int width, T* buffer, Int ldim )
+Matrix<T>::Control_( Int height, Int width, T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -578,21 +562,21 @@ Matrix<T,Int>::Control_( Int height, Int width, T* buffer, Int ldim )
     viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Control( Int height, Int width, T* buffer, Int ldim )
+Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Control");
     if( FixedSize() )
-        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
+        LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
     Control_( height, width, buffer, ldim );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Attach_( Int height, Int width, T* buffer, Int ldim )
+Matrix<T>::Attach_( Int height, Int width, T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -602,21 +586,21 @@ Matrix<T,Int>::Attach_( Int height, Int width, T* buffer, Int ldim )
     viewType_ = (ViewType)( ( viewType_ & ~LOCKED_OWNER ) | VIEW );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Attach( Int height, Int width, T* buffer, Int ldim )
+Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Attach");
     if( FixedSize() )
-        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
+        LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
     Attach_( height, width, buffer, ldim );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
+Matrix<T>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
 {
     memory_.Empty();
     height_ = height;
@@ -626,15 +610,15 @@ Matrix<T,Int>::LockedAttach_( Int height, Int width, const T* buffer, Int ldim )
     viewType_ = (ViewType)( viewType_ | VIEW );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::LockedAttach
+Matrix<T>::LockedAttach
 ( Int height, Int width, const T* buffer, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::LockedAttach");
     if( FixedSize() )
-        throw std::logic_error( "Cannot attach a new buffer to a view with fixed size" );
+        LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
     LockedAttach_( height, width, buffer, ldim );
 }
@@ -643,16 +627,16 @@ Matrix<T,Int>::LockedAttach
 // Utilities
 //
 
-template<typename T,typename Int>
-const Matrix<T,Int>&
-Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
+template<typename T>
+const Matrix<T>&
+Matrix<T>::operator=( const Matrix<T>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::operator=");
     if( Locked() )
-        throw std::logic_error("Cannot assign to a locked view");
+        LogicError("Cannot assign to a locked view");
     if( viewType_ != OWNER && (A.Height() != Height() || A.Width() != Width()) )
-        throw std::logic_error
+        LogicError
         ("Cannot assign to a view of different dimensions");
 #endif
     if( viewType_ == OWNER )
@@ -671,9 +655,9 @@ Matrix<T,Int>::operator=( const Matrix<T,Int>& A )
     return *this;
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Empty_()
+Matrix<T>::Empty_()
 {
     memory_.Empty();
     height_ = 0;
@@ -683,21 +667,21 @@ Matrix<T,Int>::Empty_()
     viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::Empty()
+Matrix<T>::Empty()
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Empty()");
     if ( FixedSize() )
-        throw std::logic_error("Cannot empty a fixed-size matrix" );
+        LogicError("Cannot empty a fixed-size matrix" );
 #endif
     Empty_();
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::ResizeTo_( Int height, Int width )
+Matrix<T>::ResizeTo_( Int height, Int width )
 {
     bool reallocate = height > ldim_ || width > width_;
     height_ = height;
@@ -712,24 +696,24 @@ Matrix<T,Int>::ResizeTo_( Int height, Int width )
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::ResizeTo( Int height, Int width )
+Matrix<T>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width)");
     AssertValidDimensions( height, width );
     if ( FixedSize() && ( height != height_ || width != width_ ) )
-        throw std::logic_error("Cannot change the size of this matrix");
+        LogicError("Cannot change the size of this matrix");
     if ( Viewing() && ( height > height_ || width > width_ ) )
-        throw std::logic_error("Cannot increase the size of this matrix");
+        LogicError("Cannot increase the size of this matrix");
 #endif
     ResizeTo_( height, width );
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::ResizeTo_( Int height, Int width, Int ldim )
+Matrix<T>::ResizeTo_( Int height, Int width, Int ldim )
 {
     bool reallocate = height > ldim_ || width > width_ || ldim != ldim_;
     height_ = height;
@@ -742,31 +726,32 @@ Matrix<T,Int>::ResizeTo_( Int height, Int width, Int ldim )
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 void
-Matrix<T,Int>::ResizeTo( Int height, Int width, Int ldim )
+Matrix<T>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
     AssertValidDimensions( height, width, ldim );
-    if ( FixedSize() && ( height != height_ || width != width_ || ldim != ldim_ ) )
-        throw std::logic_error("Cannot change the size of this matrix");
-    if ( Viewing() && ( height > height_ || width > width_ || ldim != ldim_ ) )
-        throw std::logic_error("Cannot increase the size of this matrix");
+    if( FixedSize() && 
+        ( height != height_ || width != width_ || ldim != ldim_ ) )
+        LogicError("Cannot change the size of this matrix");
+    if( Viewing() && ( height > height_ || width > width_ || ldim != ldim_ ) )
+        LogicError("Cannot increase the size of this matrix");
 #endif
     ResizeTo_( height, width, ldim );
 }
 
-template class Matrix<int,int>;
+template class Matrix<Int>;
 #ifndef DISABLE_FLOAT
-template class Matrix<float,int>;
+template class Matrix<float>;
 #endif // ifndef DISABLE_FLOAT
-template class Matrix<double,int>;
+template class Matrix<double>;
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-template class Matrix<Complex<float>,int>;
+template class Matrix<Complex<float> >;
 #endif // ifndef DISABLE_FLOAT
-template class Matrix<Complex<double>,int>;
+template class Matrix<Complex<double> >;
 #endif // ifndef DISABLE_COMPLEX
 
 } // namespace elem

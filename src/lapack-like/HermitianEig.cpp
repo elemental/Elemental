@@ -30,26 +30,25 @@ namespace hermitian_eig {
 template<typename R>
 void InPlaceRedist
 ( DistMatrix<R>& paddedZ,
-  int height,
-  int width,
-  int rowAlign,
+  Int height,
+  Int width,
+  Int rowAlign,
   const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
 
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = r * c;
-    const int row = g.Row();
-    const int col = g.Col();
-    const int rowShift = paddedZ.RowShift();
-    const int colAlignment = paddedZ.ColAlignment();
-    const int localWidth = Length(width,g.VRRank(),rowAlign,p);
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = r * c;
+    const Int row = g.Row();
+    const Int col = g.Col();
+    const Int rowShift = paddedZ.RowShift();
+    const Int colAlignment = paddedZ.ColAlignment();
+    const Int localWidth = Length(width,g.VRRank(),rowAlign,p);
 
-    const int maxHeight = MaxLength(height,r);
-    const int maxWidth = MaxLength(width,p);
-    const int portionSize = 
-        std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
+    const Int maxHeight = MaxLength(height,r);
+    const Int maxWidth = MaxLength(width,p);
+    const Int portionSize = mpi::Pad( maxHeight*maxWidth );
     
     // Allocate our send/recv buffers
     std::vector<R> buffer(2*r*portionSize);
@@ -60,18 +59,18 @@ void InPlaceRedist
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-    for( int k=0; k<r; ++k )
+    for( Int k=0; k<r; ++k )
     {
         R* data = &sendBuffer[k*portionSize];
 
-        const int thisColShift = Shift(k,colAlignment,r);
-        const int thisLocalHeight = Length(height,thisColShift,r);
+        const Int thisColShift = Shift(k,colAlignment,r);
+        const Int thisLocalHeight = Length(height,thisColShift,r);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int j=0; j<localWidth; ++j )
-            for( int i=0; i<thisLocalHeight; ++i )
+        for( Int j=0; j<localWidth; ++j )
+            for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
                     readBuffer[thisColShift+i*r+j*height];
     }
@@ -82,23 +81,23 @@ void InPlaceRedist
       recvBuffer, portionSize, g.ColComm() );
 
     // Unpack
-    const int localHeight = Length(height,row,colAlignment,r);
+    const Int localHeight = Length(height,row,colAlignment,r);
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-    for( int k=0; k<r; ++k )
+    for( Int k=0; k<r; ++k )
     {
         const R* data = &recvBuffer[k*portionSize];
 
-        const int thisRank = col+k*c;
-        const int thisRowShift = Shift(thisRank,rowAlign,p);
-        const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = Length(width,thisRowShift,p);
+        const Int thisRank = col+k*c;
+        const Int thisRowShift = Shift(thisRank,rowAlign,p);
+        const Int thisRowOffset = (thisRowShift-rowShift) / c;
+        const Int thisLocalWidth = Length(width,thisRowShift,p);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-        for( int j=0; j<thisLocalWidth; ++j )
+        for( Int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);
             R* thisCol = paddedZ.Buffer(0,thisRowOffset+j*r);
@@ -110,26 +109,25 @@ void InPlaceRedist
 template<typename R>
 void InPlaceRedist
 ( DistMatrix<Complex<R> >& paddedZ,
-  int height,
-  int width,
-  int rowAlign,
+  Int height,
+  Int width,
+  Int rowAlign,
   const R* readBuffer )
 {
     const Grid& g = paddedZ.Grid();
 
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = r * c;
-    const int row = g.Row();
-    const int col = g.Col();
-    const int rowShift = paddedZ.RowShift();
-    const int colAlignment = paddedZ.ColAlignment();
-    const int localWidth = Length(width,g.VRRank(),rowAlign,p);
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = r * c;
+    const Int row = g.Row();
+    const Int col = g.Col();
+    const Int rowShift = paddedZ.RowShift();
+    const Int colAlignment = paddedZ.ColAlignment();
+    const Int localWidth = Length(width,g.VRRank(),rowAlign,p);
 
-    const int maxHeight = MaxLength(height,r);
-    const int maxWidth = MaxLength(width,p);
-    const int portionSize = 
-        std::max(maxHeight*maxWidth,mpi::MIN_COLL_MSG);
+    const Int maxHeight = MaxLength(height,r);
+    const Int maxWidth = MaxLength(width,p);
+    const Int portionSize = mpi::Pad( maxHeight*maxWidth );
     
     // Allocate our send/recv buffers
     std::vector<R> buffer(2*r*portionSize);
@@ -140,18 +138,18 @@ void InPlaceRedist
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-    for( int k=0; k<r; ++k )
+    for( Int k=0; k<r; ++k )
     {
         R* data = &sendBuffer[k*portionSize];
 
-        const int thisColShift = Shift(k,colAlignment,r);
-        const int thisLocalHeight = Length(height,thisColShift,r);
+        const Int thisColShift = Shift(k,colAlignment,r);
+        const Int thisLocalHeight = Length(height,thisColShift,r);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for COLLAPSE(2)
 #endif
-        for( int j=0; j<localWidth; ++j )
-            for( int i=0; i<thisLocalHeight; ++i )
+        for( Int j=0; j<localWidth; ++j )
+            for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
                     readBuffer[thisColShift+i*r+j*height];
     }
@@ -162,27 +160,27 @@ void InPlaceRedist
       recvBuffer, portionSize, g.ColComm() );
 
     // Unpack
-    const int localHeight = Length(height,row,colAlignment,r);
+    const Int localHeight = Length(height,row,colAlignment,r);
 #if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-    for( int k=0; k<r; ++k )
+    for( Int k=0; k<r; ++k )
     {
         const R* data = &recvBuffer[k*portionSize];
 
-        const int thisRank = col+k*c;
-        const int thisRowShift = Shift(thisRank,rowAlign,p);
-        const int thisRowOffset = (thisRowShift-rowShift) / c;
-        const int thisLocalWidth = Length(width,thisRowShift,p);
+        const Int thisRank = col+k*c;
+        const Int thisRowShift = Shift(thisRank,rowAlign,p);
+        const Int thisRowOffset = (thisRowShift-rowShift) / c;
+        const Int thisLocalWidth = Length(width,thisRowShift,p);
 
 #if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
 #pragma omp parallel for
 #endif
-        for( int j=0; j<thisLocalWidth; ++j )
+        for( Int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);
             R* thisCol = (R*)paddedZ.Buffer(0,thisRowOffset+j*r);
-            for( int i=0; i<localHeight; ++i )
+            for( Int i=0; i<localHeight; ++i )
             {
                 thisCol[2*i] = dataCol[i];
                 thisCol[2*i+1] = 0;
@@ -229,7 +227,7 @@ void HermitianEig
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
     w.ResizeTo( n, 1 );
@@ -244,7 +242,7 @@ void HermitianEig
   DistMatrix<float>& A,
   DistMatrix<float,VR,STAR>& w )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -259,20 +257,20 @@ void HermitianEig
     EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int n = A.Height();
-    const int k = n;
+    const Int n = A.Height();
+    const Int k = n;
     const Grid& g = A.Grid();
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -312,7 +310,7 @@ void HermitianEig
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -327,7 +325,7 @@ void HermitianEig
   DistMatrix<Complex<float> >& A,
   DistMatrix<float,VR,STAR>& w )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -343,20 +341,20 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = n;
+    const Int n = A.Height();
+    const Int k = n;
     const Grid& g = A.Grid();
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -397,7 +395,7 @@ void HermitianEig
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -418,7 +416,7 @@ void HermitianEig
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
     w.ResizeTo( n, 1 );
@@ -435,7 +433,7 @@ void HermitianEig
   DistMatrix<float,VR,STAR>& w,
   DistMatrix<float>& paddedZ )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -452,26 +450,26 @@ void HermitianEig
     typedef double R;
 
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = n; // full set of eigenpairs
+    const Int n = A.Height();
+    const Int k = n; // full set of eigenpairs
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
-    const int K = MaxLength(k,g.Size())*g.Size(); 
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
     else
@@ -483,9 +481,9 @@ void HermitianEig
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -526,9 +524,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -538,15 +536,15 @@ void HermitianEig
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = K/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = K/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<R> 
@@ -555,7 +553,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored 
         // at the end of the paddedZ[MC,MR] buffers.
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -563,8 +561,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,  
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -575,7 +573,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
             
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p;
         }
@@ -598,7 +596,7 @@ void HermitianEig
   DistMatrix<float,VR,STAR>& w,
   DistMatrix<Complex<float> >& paddedZ )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -615,26 +613,26 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = n; // full set of eigenpairs
+    const Int n = A.Height();
+    const Int k = n; // full set of eigenpairs
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
-    const int K = MaxLength(k,g.Size())*g.Size();
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
     else
@@ -646,9 +644,9 @@ void HermitianEig
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -689,9 +687,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -701,15 +699,15 @@ void HermitianEig
           &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
         
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = K/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = K/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<C> 
@@ -718,7 +716,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffers.
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -726,8 +724,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist
@@ -738,7 +736,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
 
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p;
         }
@@ -763,18 +761,18 @@ void HermitianEig
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, int il, int iu )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Int il, Int iu )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
-    const int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const int ilConv = ( n==0 ? 1 : il+1 );
-    const int iuConv = ( n==0 ? 0 : iu+1 );
+    const Int numEigs = ( n==0 ? 0 : iu-il+1 );
+    const Int ilConv = ( n==0 ? 1 : il+1 );
+    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.ResizeTo( numEigs, 1 );
     lapack::HermitianEig
     ( 'N', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
@@ -786,9 +784,9 @@ void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<float >& A,
   DistMatrix<float,VR,STAR>& w,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -796,7 +794,7 @@ void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
-  int lowerBound, int upperBound ) 
+  Int lowerBound, Int upperBound ) 
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
@@ -804,20 +802,20 @@ void HermitianEig
     EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = (upperBound - lowerBound) + 1;
+    const Int n = A.Height();
+    const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -857,7 +855,7 @@ void HermitianEig
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -871,9 +869,9 @@ void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<float> >& A,
   DistMatrix<float,VR,STAR>& w,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -881,7 +879,7 @@ void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<Complex<double> >& A,
   DistMatrix<double,VR,STAR>& w,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
@@ -890,20 +888,20 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = (upperBound - lowerBound) + 1;
+    const Int n = A.Height();
+    const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -944,7 +942,7 @@ void HermitianEig
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -964,18 +962,18 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
-  int il, int iu )
+  Int il, Int iu )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
-    const int numEigs = ( n==0 ? 0 : iu-il+1 );
-    const int ilConv = ( n==0 ? 1 : il+1 );
-    const int iuConv = ( n==0 ? 0 : iu+1 );
+    const Int numEigs = ( n==0 ? 0 : iu-il+1 );
+    const Int ilConv = ( n==0 ? 1 : il+1 );
+    const Int iuConv = ( n==0 ? 0 : iu+1 );
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
     lapack::HermitianEig
@@ -989,9 +987,9 @@ void HermitianEig
   DistMatrix<float >& A,
   DistMatrix<float,VR,STAR>& w,
   DistMatrix<float>& paddedZ,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1000,7 +998,7 @@ void HermitianEig
   DistMatrix<double>& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<double>& paddedZ,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
@@ -1008,26 +1006,26 @@ void HermitianEig
     EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = (upperBound - lowerBound) + 1;
+    const Int n = A.Height();
+    const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
-    const int K = MaxLength(k,g.Size())*g.Size(); 
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size(); 
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
     else
@@ -1039,9 +1037,9 @@ void HermitianEig
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -1082,9 +1080,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end 
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -1095,15 +1093,15 @@ void HermitianEig
           lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = K/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = K/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<R> 
@@ -1112,7 +1110,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the paddedZ[MC,MR] buffer
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -1120,8 +1118,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -1132,7 +1130,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
 
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p; 
         }
@@ -1154,9 +1152,9 @@ void HermitianEig
   DistMatrix<Complex<float> >& A,
   DistMatrix<float,VR,STAR>& w,
   DistMatrix<Complex<float> >& paddedZ,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1165,7 +1163,7 @@ void HermitianEig
   DistMatrix<Complex<double> >& A,
   DistMatrix<double,VR,STAR>& w,
   DistMatrix<Complex<double> >& paddedZ,
-  int lowerBound, int upperBound )
+  Int lowerBound, Int upperBound )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
@@ -1174,26 +1172,26 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
-    const int k = (upperBound - lowerBound) + 1;
+    const Int n = A.Height();
+    const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
-    const int K = MaxLength(k,g.Size())*g.Size();
+    const Int N = MaxLength(n,g.Height())*g.Height();
+    const Int K = MaxLength(k,g.Size())*g.Size();
     if( paddedZ.Viewing() )
     {
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
     else
@@ -1205,9 +1203,9 @@ void HermitianEig
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else
     {
@@ -1248,9 +1246,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -1261,15 +1259,15 @@ void HermitianEig
           lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = K/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = K/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<C> 
@@ -1278,7 +1276,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of the padded Z[MC,MR] buffer
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -1286,8 +1284,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist
@@ -1298,7 +1296,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
 
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p;
         }
@@ -1326,11 +1324,11 @@ void HermitianEig
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
     w.ResizeTo( n, 1 );
-    const int numEigs = lapack::HermitianEig
+    const Int numEigs = lapack::HermitianEig
     ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
       w.Buffer(), 0, 1 );
     w.ResizeTo( numEigs, 1 );
@@ -1343,7 +1341,7 @@ void HermitianEig
   DistMatrix<float,VR,STAR>& w,
   float lowerBound, float upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1359,19 +1357,19 @@ void HermitianEig
     EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else w.Empty();
 
@@ -1407,9 +1405,9 @@ void HermitianEig
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        const int k = info.numGlobalEigenvalues;
+        const Int k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -1425,7 +1423,7 @@ void HermitianEig
   DistMatrix<float,VR,STAR>& w,
   float lowerBound, float upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1442,19 +1440,19 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else w.Empty();
 
@@ -1491,9 +1489,9 @@ void HermitianEig
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
-        const int k = info.numGlobalEigenvalues;
+        const Int k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
     }
 
@@ -1515,12 +1513,12 @@ void HermitianEig
     CallStackEntry entry("HermitianEig");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const char uploChar = UpperOrLowerToChar( uplo );
     const R absTol = 0; // use the default value for now
     w.ResizeTo( n, 1 );
     Z.ResizeTo( n, n );
-    const int numEigs = lapack::HermitianEig
+    const Int numEigs = lapack::HermitianEig
     ( 'V', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
     w.ResizeTo( numEigs, 1 );
@@ -1535,7 +1533,7 @@ void HermitianEig
   DistMatrix<float>& paddedZ,
   float lowerBound, float upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1552,36 +1550,36 @@ void HermitianEig
     EnsurePMRRR();
     typedef double R;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
+    const Int N = MaxLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = MaxLength(n,g.Size())*g.Size();
+        const Int K = MaxLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else w.Empty();
 
@@ -1624,10 +1622,10 @@ void HermitianEig
         std::vector<R>().swap( eVector );
 
         // Ensure that the paddedZ is sufficiently large
-        int k = estimate.numGlobalEigenvalues;
+        Int k = estimate.numGlobalEigenvalues;
         if( !paddedZ.Viewing() )
         {
-            const int K = MaxLength(k,g.Size())*g.Size(); 
+            const Int K = MaxLength(k,g.Size())*g.Size(); 
             paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
@@ -1637,9 +1635,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -1652,15 +1650,15 @@ void HermitianEig
 
         // Copy wVector into the distributed matrix w[VR,* ]
         w.ResizeTo( k, 1 );
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = paddedZ.Width()/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = paddedZ.Width()/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<R> 
@@ -1669,7 +1667,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -1677,8 +1675,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -1689,7 +1687,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
 
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p;
         }
@@ -1713,7 +1711,7 @@ void HermitianEig
   DistMatrix<Complex<float> >& paddedZ,
   float lowerBound, float upperBound )
 {
-    throw std::logic_error("HermitianEig not yet implemented for float");
+    LogicError("HermitianEig not yet implemented for float");
 }
 
 template<>
@@ -1731,36 +1729,36 @@ void HermitianEig
     typedef double R;
     typedef Complex<double> C;
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square");
+        LogicError("Hermitian matrices must be square");
 
-    const int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
 
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     // We will use the same buffer for Z in the vector distribution used by 
     // PMRRR as for the matrix distribution used by Elemental. In order to 
     // do so, we must pad Z's dimensions slightly.
-    const int N = MaxLength(n,g.Height())*g.Height();
+    const Int N = MaxLength(n,g.Height())*g.Height();
     // we don't know k yet, but if a buffer is passed in then it must be able
     // to account for the case where k=n.
     if( paddedZ.Viewing() )
     {
-        const int K = MaxLength(n,g.Size())*g.Size();
+        const Int K = MaxLength(n,g.Size())*g.Size();
         if( paddedZ.Height() != N || paddedZ.Width() != K )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly padded");
         if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
-            throw std::logic_error
+            LogicError
             ("paddedZ was a view but was not properly aligned");
     }
 
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
-            throw std::logic_error("w was a view but was not properly aligned");
+            LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
-            throw std::logic_error("w was a view but was not the proper size");
+            LogicError("w was a view but was not the proper size");
     }
     else w.Empty();
 
@@ -1803,10 +1801,10 @@ void HermitianEig
         std::vector<R>().swap( eVector );
 
         // Ensure that the paddedZ is sufficiently large
-        int k = estimate.numGlobalEigenvalues;
+        Int k = estimate.numGlobalEigenvalues;
         if( !paddedZ.Viewing() )
         {
-            const int K = MaxLength(k,g.Size())*g.Size();
+            const Int K = MaxLength(k,g.Size())*g.Size();
             paddedZ.Empty();
             paddedZ.ResizeTo( N, K );
         }
@@ -1816,9 +1814,9 @@ void HermitianEig
 
         // Grab a slice of size Z_STAR_VR_BufferSize from the very end
         // of paddedZBuffer so that we can later redistribute in place
-        const int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
-        const int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
-        const int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
+        const Int paddedZBufferSize = 2*paddedZ.LDim()*paddedZ.LocalWidth();
+        const Int Z_STAR_VR_LocalWidth = Length(k,g.VRRank(),g.Size());
+        const Int Z_STAR_VR_BufferSize = n*Z_STAR_VR_LocalWidth;
         R* Z_STAR_VR_Buffer = 
             &paddedZBuffer[paddedZBufferSize-Z_STAR_VR_BufferSize];
 
@@ -1831,15 +1829,15 @@ void HermitianEig
         // Copy wVector into the distributed matrix w[VR,* ]
         k = info.numGlobalEigenvalues;
         w.ResizeTo( k, 1 );
-        for( int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
             w.SetLocal(iLocal,0,wVector[iLocal]);
 
         // Redistribute Z piece-by-piece in place. This is to keep the 
         // send/recv buffer memory usage low.
-        const int p = g.Size();
-        const int numEqualPanels = paddedZ.Width()/p;
-        const int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
-        const int redistBlocksize = numPanelsPerComm*p;
+        const Int p = g.Size();
+        const Int numEqualPanels = paddedZ.Width()/p;
+        const Int numPanelsPerComm = (numEqualPanels / TARGET_CHUNKS) + 1;
+        const Int redistBlocksize = numPanelsPerComm*p;
 
         PushBlocksizeStack( redistBlocksize );
         DistMatrix<C> 
@@ -1848,7 +1846,7 @@ void HermitianEig
         PartitionRight( paddedZ, paddedZL, paddedZR, 0 );
         // Manually maintain information about the implicit Z[* ,VR] stored
         // at the end of paddedZ[MC,MR] buffers.
-        int alignment = 0;
+        Int alignment = 0;
         const R* readBuffer = Z_STAR_VR_Buffer;
         while( paddedZL.Width() < k )
         {
@@ -1856,8 +1854,8 @@ void HermitianEig
             ( paddedZL, /**/ paddedZR,
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
-            const int b = paddedZ1.Width();
-            const int width = std::min(b,k-paddedZL.Width());
+            const Int b = paddedZ1.Width();
+            const Int width = std::min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist
@@ -1868,7 +1866,7 @@ void HermitianEig
               paddedZ0, paddedZ1, /**/ paddedZ2 );
 
             // Update the Z1[* ,VR] information
-            const int localWidth = b/p;
+            const Int localWidth = b/p;
             readBuffer = &readBuffer[localWidth*n];
             alignment = (alignment+b) % p;
         }
@@ -1908,31 +1906,31 @@ template void HermitianEig
 
 // Integer range of eigenvalues
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, int il, int iu );
+( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Int il, Int iu );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, int il, int iu );
-template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<float> >& A, Matrix<float>& w, int il, int iu );
+( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<double> >& A, Matrix<double>& w, int il, int iu );
+  Matrix<Complex<float> >& A, Matrix<float>& w, Int il, Int iu );
+template void HermitianEig
+( UpperOrLower uplo, 
+  Matrix<Complex<double> >& A, Matrix<double>& w, Int il, Int iu );
 
 // Integer range of eigenpairs
 template void HermitianEig
 ( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Matrix<float>& Z, 
-  int il, int iu );
+  Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z,
-  int il, int iu );
+  Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
   Matrix<Complex<float> >& A, Matrix<float>& w, Matrix<Complex<float> >& Z,
-  int il, int iu );
+  Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
   Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z,
-  int il, int iu );
+  Int il, Int iu );
 
 // Floating-point range of eigenvalues
 template void HermitianEig

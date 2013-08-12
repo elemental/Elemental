@@ -9,7 +9,7 @@
 #include "elemental.hpp"
 using namespace elem;
 
-const int m=300, n=300;  // run SVD on m x n matrix
+const Int m=300, n=300;  // run SVD on m x n matrix
 typedef double R;        // real datatype is `R'
 typedef Complex<R> C;    // complex datatype `C'
 

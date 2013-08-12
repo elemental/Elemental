@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Forsythe( Matrix<T>& J, int n, T alpha, T lambda )
+Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
 {
 #ifndef RELEASE
     CallStackEntry entry("Forsythe");
@@ -27,7 +27,7 @@ Forsythe( Matrix<T>& J, int n, T alpha, T lambda )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Forsythe( DistMatrix<T,U,V>& J, int n, T alpha, T lambda )
+Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
 {
 #ifndef RELEASE
     CallStackEntry entry("Forsythe");
@@ -44,8 +44,8 @@ MakeForsythe( Matrix<T>& J, T alpha, T lambda )
     CallStackEntry entry("MakeForsythe");
 #endif
     MakeJordan( J, lambda );
-    const int m = J.Height();
-    const int n = J.Width();
+    const Int m = J.Height();
+    const Int n = J.Width();
     if( m > 0 && n > 0 )
         J.Set( m-1, 0, alpha );
 }
@@ -58,8 +58,8 @@ MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
     CallStackEntry entry("MakeForsythe");
 #endif
     MakeJordan( J, lambda );
-    const int m = J.Height();
-    const int n = J.Width();
+    const Int m = J.Height();
+    const Int n = J.Width();
     if( m > 0 && n > 0 )
         J.Set( m-1, 0, alpha );
 }

@@ -40,12 +40,12 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 #endif
     typedef BASE(F) R;
 
-    int numLocalCorrupt = 0;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    Int numLocalCorrupt = 0;
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             if( Abs(SampleUnitBall<R>()) <= probCorrupt )
             {
@@ -56,20 +56,20 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
         }
     }
     
-    int numCorrupt;
+    Int numCorrupt;
     mpi::AllReduce
     ( &numLocalCorrupt, &numCorrupt, 1, mpi::SUM, A.Grid().VCComm() );
     return numCorrupt;
 }
 
 template<typename F,Distribution U,Distribution V>
-void Sign( DistMatrix<F,U,V>& A )
+void NormalizeEntries( DistMatrix<F,U,V>& A )
 {
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLocal=0; jLocal<localWidth; ++jLocal )
     {
-        for( int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
         {
             const F alpha = A.GetLocal( iLocal, jLocal );
             A.SetLocal( iLocal, jLocal, alpha/Abs(alpha) );
@@ -84,14 +84,14 @@ void RPCA_ADMM
   BASE(F) beta, 
   BASE(F) tau, 
   BASE(F) tol, 
-  int numStepsQR,
-  int maxIts,
+  Int numStepsQR,
+  Int maxIts,
   bool print )
 {
     typedef BASE(F) R;
-    const int m = M.Height();
-    const int n = M.Width();
-    const int commRank = mpi::CommRank( M.Grid().Comm() );
+    const Int m = M.Height();
+    const Int n = M.Width();
+    const Int commRank = mpi::CommRank( M.Grid().Comm() );
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
     if( tau == R(0) )
@@ -117,7 +117,7 @@ void RPCA_ADMM
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
 
-    int numIts = 0;
+    Int numIts = 0;
     while( true )
     {
         ++numIts;
@@ -127,13 +127,13 @@ void RPCA_ADMM
         Axpy( F(-1), L, S );
         Axpy( F(1)/beta, Y, S );
         SoftThreshold( S, tau/beta );
-        const int numNonzeros = ZeroNorm( S );
+        const Int numNonzeros = ZeroNorm( S );
 
         // SVT_{1/beta}(M - S + Y/beta)
         L = M;
         Axpy( F(-1), S, L );
         Axpy( F(1)/beta, Y, L );
-        int rank;
+        Int rank;
         if( numStepsQR == -1 )
             rank = SingularValueSoftThreshold( L, R(1)/beta );
         else
@@ -184,13 +184,13 @@ template<typename F>
 void RPCA_ALM
 ( const DistMatrix<F>& M, DistMatrix<F>& L, DistMatrix<F>& S, 
   BASE(F) beta, BASE(F) tau, BASE(F) rho, BASE(F) tol, 
-  int numStepsQR, int maxIts, bool print )
+  Int numStepsQR, Int maxIts, bool print )
 {
     typedef BASE(F) R;
 
-    const int m = M.Height();
-    const int n = M.Width();
-    const int commRank = mpi::CommRank( M.Grid().Comm() );
+    const Int m = M.Height();
+    const Int n = M.Width();
+    const Int commRank = mpi::CommRank( M.Grid().Comm() );
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
     if( tau == R(0) )
@@ -206,7 +206,7 @@ void RPCA_ALM
         std::cout << "Starting RPCA_ALM" << std::endl;
 
     DistMatrix<F> Y( M );
-    Sign( Y );
+    NormalizeEntries( Y );
     const R twoNorm = TwoNorm( Y );
     const R maxNorm = MaxNorm( Y );
     const R infNorm = maxNorm / tau; 
@@ -226,13 +226,13 @@ void RPCA_ALM
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
 
-    int numIts=0, numPrimalIts=0;
+    Int numIts=0, numPrimalIts=0;
     DistMatrix<F> LLast( M.Grid() ), SLast( M.Grid() ), E( M.Grid() );
     while( true )
     {
         ++numIts;
        
-        int rank, numNonzeros;
+        Int rank, numNonzeros;
         while( true )
         {
             ++numPrimalIts;
@@ -333,22 +333,22 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
     typedef Complex<double> C;
 
     try
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int rank = Input("--rank","rank of structured matrix",10);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int rank = Input("--rank","rank of structured matrix",10);
         const double probCorrupt = 
             Input("--probCorrupt","probability of corruption",0.1);
         const double tau = Input("--tau","sparse weighting factor",0.);
         const double beta = Input("--beta","step size",1.);
         const double rho = Input("--rho","stepsize multiple in ALM",6.);
-        const int maxIts = Input("--maxIts","maximum iterations",1000);
+        const Int maxIts = Input("--maxIts","maximum iterations",1000);
         const double tol = Input("--tol","tolerance",1.e-5);
-        const int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
+        const Int numStepsQR = Input("--numStepsQR","number of steps of QR",-1);
         const bool useALM = Input("--useALM","use ALM algorithm?",true);
         const bool display = Input("--display","display matrices",true);
         const bool print = Input("--print","print matrices",false);
@@ -377,7 +377,7 @@ main( int argc, char* argv[] )
 
         DistMatrix<C> STrue;
         Zeros( STrue, m, n );
-        const int numCorrupt = Corrupt( STrue, probCorrupt );
+        const Int numCorrupt = Corrupt( STrue, probCorrupt );
         const double frobSTrue = FrobeniusNorm( STrue );
         const double maxSTrue = MaxNorm( STrue );
         if( commRank == 0 )

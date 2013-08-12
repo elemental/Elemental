@@ -26,16 +26,16 @@ TrsvUT
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsvUT");
     if( U.Grid() != x.Grid() )
-        throw std::logic_error("{U,x} must be distributed over the same grid");
+        LogicError("{U,x} must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsvUT expects a (conjugate-)transpose option");
+        LogicError("TrsvUT expects a (conjugate-)transpose option");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error("x must be a vector");
-    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        LogicError("x must be a vector");
+    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( U.Width() != xLength )
-        throw std::logic_error("Nonconformal TrsvUT");
+        LogicError("Nonconformal TrsvUT");
 #endif
     const Grid& g = U.Grid();
 
@@ -75,9 +75,9 @@ TrsvUT
                    x1,
               xB,  x2 );
 
-            const int n0 = x0.Height();
-            const int n1 = x1.Height();
-            const int n2 = x2.Height();
+            const Int n0 = x0.Height();
+            const Int n1 = x1.Height();
+            const Int n2 = x2.Height();
             LockedView( U11, U, n0, n0,    n1, n1 );
             LockedView( U12, U, n0, n0+n1, n1, n2 );
             View( z1_MR_STAR, z_MR_STAR, n0,    0, n1, 1 );
@@ -141,9 +141,9 @@ TrsvUT
             ( xL, /**/ xR,
               x0, /**/ x1, x2 );
 
-            const int n0 = x0.Width();
-            const int n1 = x1.Width();
-            const int n2 = x2.Width();
+            const Int n0 = x0.Width();
+            const Int n1 = x1.Width();
+            const Int n2 = x2.Width();
             LockedView( U11, U, n0, n0,    n1, n1 );
             LockedView( U12, U, n0, n0+n1, n1, n2 );
             View( z1_STAR_MR, z_STAR_MR, 0, n0,    1, n1 );

@@ -32,7 +32,7 @@ void CheckInputNN( const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
             << "  B ~ " << B.Height() << " x "
                         << B.Width()  << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -41,11 +41,10 @@ template<typename T>
 void CheckInput
 ( const DistMatrix<T,MC,  STAR>& A, 
   const DistMatrix<T,STAR,MR  >& B,
-  const DistMatrix<T,MC,  MR  >& C )
+  const DistMatrix<T>& C )
 {
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
+        LogicError("A, B, and C must be distributed over the same grid");
     if( A.Height() != C.Height() || B.Width()  != C.Width() ||
         A.Width()  != B.Height() || A.Height() != B.Width() )
     {
@@ -56,7 +55,7 @@ void CheckInput
             << "  B[* ,MR] ~ " << B.Height() << " x "
                                << B.Width()  << "\n"
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( A.ColAlignment() != C.ColAlignment() ||
         B.RowAlignment() != C.RowAlignment() )
@@ -67,7 +66,7 @@ void CheckInput
             << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -78,7 +77,7 @@ void CheckInputNT
   const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 {
     if( orientationOfB == NORMAL )
-        throw std::logic_error("B must be (Conjugate)Transpose'd");
+        LogicError("B must be (Conjugate)Transpose'd");
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width()  != B.Width()  || A.Height() != B.Height() )
     {
@@ -89,7 +88,7 @@ void CheckInputNT
             << "  B ~ " << B.Height() << " x "
                         << B.Width()  << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -102,10 +101,9 @@ void CheckInput
   const DistMatrix<T>& C )
 {
     if( orientationOfB == NORMAL )
-        throw std::logic_error("B[MR,* ] must be (Conjugate)Transpose'd");
+        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
+        LogicError("A, B, and C must be distributed over the same grid");
     if( A.Height() != C.Height() || B.Height() != C.Width() ||
         A.Width()  != B.Width()  || A.Height() != B.Height() )
     {
@@ -116,7 +114,7 @@ void CheckInput
             << "  B[MR,* ] ~ " << B.Height() << " x "
                                << B.Width()  << "\n"
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( A.ColAlignment() != C.ColAlignment() ||
         B.ColAlignment() != C.RowAlignment() )
@@ -127,7 +125,7 @@ void CheckInput
             << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -138,7 +136,7 @@ void CheckInputTN
   const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 {
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A must be (Conjugate)Transpose'd");
+        LogicError("A must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
         A.Height() != B.Height() || A.Width() != B.Width() )
     {
@@ -149,7 +147,7 @@ void CheckInputTN
             << "  B ~ " << B.Height() << " x "
                         << B.Width()  << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -159,13 +157,12 @@ void CheckInput
 ( Orientation orientationOfA,
   const DistMatrix<T,STAR,MC>& A,
   const DistMatrix<T,STAR,MR>& B,
-  const DistMatrix<T,MC,  MR>& C )
+  const DistMatrix<T>& C )
 {
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A[* ,MC] must be (Conjugate)Transpose'd");
+        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
+        LogicError("A, B, and C must be distributed over the same grid");
     if( A.Width() != C.Height() || B.Width() != C.Width() ||
         A.Height() != B.Height() || A.Width() != B.Width() )
     {
@@ -176,7 +173,7 @@ void CheckInput
             << "  B[* ,MR] ~ " << B.Height() << " x "
                                << B.Width()  << "\n"
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( A.RowAlignment() != C.ColAlignment() ||
         B.RowAlignment() != C.RowAlignment() )
@@ -187,7 +184,7 @@ void CheckInput
             << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -199,9 +196,9 @@ void CheckInputTT
   const Matrix<T>& A, const Matrix<T>& B, const Matrix<T>& C )
 {
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A must be (Conjugate)Transpose'd");
+        LogicError("A must be (Conjugate)Transpose'd");
     if( orientationOfB == NORMAL )
-        throw std::logic_error("B must be (Conjugate)Transpose'd");
+        LogicError("B must be (Conjugate)Transpose'd");
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
         A.Height() != B.Width() || A.Width() != B.Height() )
     {
@@ -212,7 +209,7 @@ void CheckInputTT
             << "  B ~ " << B.Height() << " x "
                         << B.Width()  << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 
@@ -223,15 +220,14 @@ void CheckInput
   Orientation orientationOfB,
   const DistMatrix<T,STAR,MC  >& A,
   const DistMatrix<T,MR,  STAR>& B,
-  const DistMatrix<T,MC,  MR  >& C )
+  const DistMatrix<T>& C )
 {
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A[* ,MC] must be (Conjugate)Transpose'd");
+        LogicError("A[* ,MC] must be (Conjugate)Transpose'd");
     if( orientationOfB == NORMAL )
-        throw std::logic_error("B[MR,* ] must be (Conjugate)Transpose'd");
+        LogicError("B[MR,* ] must be (Conjugate)Transpose'd");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A, B, and C must be distributed over the same grid");
+        LogicError("A, B, and C must be distributed over the same grid");
     if( A.Width() != C.Height() || B.Height() != C.Width() ||
         A.Height() != B.Width() || A.Width() != B.Height() )
     {
@@ -242,7 +238,7 @@ void CheckInput
             << "  B[MR,* ] ~ " << B.Height() << " x "
                                << B.Width()  << "\n"
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( A.RowAlignment() != C.ColAlignment() ||
         B.ColAlignment() != C.RowAlignment() )
@@ -253,7 +249,7 @@ void CheckInput
             << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
             << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
                                   C.RowAlignment() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 }
 #endif // ifndef RELEASE
@@ -277,7 +273,7 @@ TrrkNNKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
@@ -308,7 +304,7 @@ LocalTrrkKernel
 ( UpperOrLower uplo, 
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalTrrkKernel");
@@ -323,7 +319,7 @@ LocalTrrkKernel
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
@@ -370,7 +366,7 @@ TrrkNTKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
@@ -420,7 +416,7 @@ LocalTrrkKernel
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionDown
     ( A, AT,
@@ -467,7 +463,7 @@ TrrkTNKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -497,7 +493,7 @@ LocalTrrkKernel
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C )
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalTrrkKernel");
@@ -511,7 +507,7 @@ LocalTrrkKernel
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionRight( B, BL, BR, half );
@@ -556,7 +552,7 @@ TrrkTTKernel
               CBL, CBR;
     Matrix<T> DTL, DBR;
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -589,7 +585,7 @@ LocalTrrkKernel
   Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
            const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalTrrkKernel");
@@ -604,7 +600,7 @@ LocalTrrkKernel
                   CBL(g), CBR(g);
     DistMatrix<T> DTL(g), DBR(g);
 
-    const int half = C.Height()/2;
+    const Int half = C.Height()/2;
     ScaleTrapezoid( beta, uplo, C );
     LockedPartitionRight( A, AL, AR, half );
     LockedPartitionDown
@@ -660,7 +656,7 @@ void TrrkNN
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -708,7 +704,7 @@ void TrrkNT
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -756,7 +752,7 @@ void TrrkTN
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
@@ -802,7 +798,7 @@ void TrrkTT
         Matrix<T> CTL, CTR,
                   CBL, CBR;
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT, 
@@ -832,7 +828,7 @@ void LocalTrrk
 ( UpperOrLower uplo,
   T alpha, const DistMatrix<T,MC,  STAR>& A,
            const DistMatrix<T,STAR,MR  >& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
 #ifndef RELEASE
@@ -855,7 +851,7 @@ void LocalTrrk
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -906,7 +902,7 @@ void LocalTrrk
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionDown
         ( A, AT,
              AB, half );
@@ -935,7 +931,7 @@ void LocalTrrk
   Orientation orientationOfA,
   T alpha, const DistMatrix<T,STAR,MC>& A,
            const DistMatrix<T,STAR,MR>& B,
-  T beta,        DistMatrix<T,MC,  MR>& C )
+  T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
 #ifndef RELEASE
@@ -957,7 +953,7 @@ void LocalTrrk
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionRight( B, BL, BR, half );
         PartitionDownDiagonal
@@ -982,7 +978,7 @@ void LocalTrrk
   Orientation orientationOfA, Orientation orientationOfB,
   T alpha, const DistMatrix<T,STAR,MC  >& A,
            const DistMatrix<T,MR,  STAR>& B,
-  T beta,        DistMatrix<T,MC,  MR  >& C )
+  T beta,        DistMatrix<T>& C )
 {
     using namespace trrk;
 #ifndef RELEASE
@@ -1006,7 +1002,7 @@ void LocalTrrk
         DistMatrix<T> CTL(g), CTR(g),
                       CBL(g), CBR(g);
 
-        const int half = C.Height() / 2;
+        const Int half = C.Height() / 2;
         LockedPartitionRight( A, AL, AR, half );
         LockedPartitionDown
         ( B, BT, 

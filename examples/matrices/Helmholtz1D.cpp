@@ -20,7 +20,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--n","size of matrix",1000);
+        const Int n = Input("--n","size of matrix",1000);
         const double realShift = Input("--realShift","real part of shift",0.);
         const double imagShift = Input("--imagShift","imag part of shift",0.);
         const bool display = Input("--display","display matrix?",true);

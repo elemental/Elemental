@@ -23,27 +23,26 @@ LVar3Unb( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::LVar3Unb");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     typedef BASE(F) R;
 
-    const int n = A.Height();
-    const int lda = A.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         R alpha = RealPart(ABuffer[j+j*lda]);
         if( alpha <= R(0) )
-            throw std::logic_error("A was not numerically HPD");
+            LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
         ABuffer[j+j*lda] = alpha;
 
-        for( int k=j+1; k<n; ++k )
+        for( Int k=j+1; k<n; ++k )
             ABuffer[k+j*lda] /= alpha;
 
-        for( int k=j+1; k<n; ++k )
-            for( int i=k; i<n; ++i )
+        for( Int k=j+1; k<n; ++k )
+            for( Int i=k; i<n; ++i )
                 ABuffer[i+k*lda] -= ABuffer[i+j*lda]*Conj(ABuffer[k+j*lda]);
     }
 }
@@ -55,27 +54,26 @@ ReverseLVar3Unb( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::ReverseLVar3Unb");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     typedef BASE(F) R;
 
-    const int n = A.Height();
-    const int lda = A.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
-    for( int j=n-1; j>=0; --j )
+    for( Int j=n-1; j>=0; --j )
     {
         R alpha = RealPart(ABuffer[j+j*lda]);
         if( alpha <= R(0) )
-            throw std::logic_error("A was not numerically HPD");
+            LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
         ABuffer[j+j*lda] = alpha;
 
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             ABuffer[j+k*lda] /= alpha;
 
-        for( int k=0; k<j; ++k )
-            for( int i=k; i<j; ++i )
+        for( Int k=0; k<j; ++k )
+            for( Int i=k; i<j; ++i )
                 ABuffer[i+k*lda] -= ABuffer[j+k*lda]*Conj(ABuffer[j+i*lda]);
     }
 }
@@ -87,8 +85,7 @@ LVar3( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::LVar3");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     // Matrix views
     Matrix<F> 
@@ -129,8 +126,7 @@ ReverseLVar3( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::ReverseLVar3");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     // Matrix views
     Matrix<F> 
@@ -171,8 +167,7 @@ LVar3( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::LVar3");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     const Grid& g = A.Grid();
 
@@ -242,8 +237,7 @@ ReverseLVar3( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("cholesky::ReverseLVar3");
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Can only compute Cholesky factor of square matrices");
+        LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     const Grid& g = A.Grid();
 

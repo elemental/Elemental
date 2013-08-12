@@ -12,32 +12,24 @@
 
 namespace elem {
 
-template<typename Int>
-Int DiagonalLength( Int height, Int width, Int offset=0 );
+template<typename I>
+I DiagonalLength( I height, I width, I offset=0 );
 
-template<typename Int>
-Int GCD( Int a, Int b ); 
-template<typename Int>
-Int GCD_( Int a, Int b ); 
+template<typename I>
+I GCD( I a, I b ); 
+template<typename I>
+I GCD_( I a, I b ); 
 
-template<typename Int>
 Int Length( Int n, Int shift, Int numProcs );
-template<typename Int>
 Int Length_( Int n, Int shift, Int numProcs );
 
-template<typename Int>
 Int Length( Int n, Int rank, Int firstRank, Int numProcs );
-template<typename Int>
 Int Length_( Int n, Int rank, Int firstRank, Int numProcs );
 
-template<typename Int>
 Int MaxLength( Int n, Int numProcs );
-template<typename Int>
 Int MaxLength_( Int n, Int numProcs );
 
-template<typename Int>
 Int Shift( Int rank, Int firstRank, Int numProcs );
-template<typename Int>
 Int Shift_( Int rank, Int firstRank, Int numProcs );
 
 } // namespace elem

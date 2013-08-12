@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename F>
 inline void
-Hilbert( Matrix<F>& A, int n )
+Hilbert( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Hilbert");
@@ -25,7 +25,7 @@ Hilbert( Matrix<F>& A, int n )
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Hilbert( DistMatrix<F,U,V>& A, int n )
+Hilbert( DistMatrix<F,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Hilbert");
@@ -41,14 +41,14 @@ MakeHilbert( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeHilbert");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        LogicError("Cannot make a non-square matrix Hilbert");
 
     const F one = F(1);
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             A.Set( i, j, one/(i+j+1) );
 }
 
@@ -59,24 +59,24 @@ MakeHilbert( DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("MakeHilbert");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square matrix Hilbert");
+        LogicError("Cannot make a non-square matrix Hilbert");
 
     const F one = F(1);
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             A.SetLocal( iLoc, jLoc, one/(i+j+1) );
         }
     }

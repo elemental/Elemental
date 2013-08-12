@@ -29,10 +29,10 @@ Cholesky( Matrix<F>& A, Matrix<F>& R )
 #ifndef RELEASE
     CallStackEntry entry("rq::Cholesky");
 #endif
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     if( height > width )
-        throw std::logic_error("A A^H will be singular");
+        LogicError("A A^H will be singular");
     Herk( UPPER, NORMAL, F(1), A, R );
     elem::ReverseCholesky( UPPER, R );
     Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), R, A );
@@ -45,10 +45,10 @@ Cholesky( DistMatrix<F,STAR,VR>& A, DistMatrix<F,STAR,STAR>& R )
 #ifndef RELEASE
     CallStackEntry entry("rq::Cholesky");
 #endif
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     if( height > width )
-        throw std::logic_error("A A^H will be singular");
+        LogicError("A A^H will be singular");
     Zeros( R, height, height );
     Herk( UPPER, NORMAL, F(1), A.Matrix(), F(0), R.Matrix() );
     R.SumOverGrid();

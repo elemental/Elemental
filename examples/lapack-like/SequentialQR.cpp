@@ -25,8 +25,8 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         ProcessInput();
         PrintInputReport();
 
@@ -44,7 +44,7 @@ main( int argc, char* argv[] )
         const Real frobQR = FrobeniusNorm( E );
 
         // Check the numerical orthogonality of Q, || I - Q^H Q ||_F / || A ||_F
-        const int k = std::min(m,n);
+        const Int k = std::min(m,n);
         Identity( E, k, k );
         Herk( LOWER, ADJOINT, C(-1), Q, C(1), E );
         const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );

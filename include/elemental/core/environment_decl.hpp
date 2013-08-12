@@ -48,10 +48,10 @@ void PrintInputReport();
 
 // For getting and setting the algorithmic blocksize
 int Blocksize();
-void SetBlocksize( int blocksize );
+void SetBlocksize( Int blocksize );
 
 // For manipulating the algorithmic blocksize as a stack
-void PushBlocksizeStack( int blocksize );
+void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
@@ -244,6 +244,12 @@ template<typename R>
 R Log( const R& alpha );
 template<typename R>
 Complex<R> Log( const Complex<R>& alpha );
+
+inline void LogicError( std::string msg="LogicError" )
+{ throw std::logic_error( msg.c_str() ); }
+
+inline void RuntimeError( std::string msg="RuntimeError" )
+{ throw std::runtime_error( msg.c_str() ); }
 
 // An exception which signifies that a matrix was unexpectedly singular.
 class SingularMatrixException : public std::runtime_error 

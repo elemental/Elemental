@@ -11,7 +11,6 @@
 #define ELEM_CORE_DISTMATRIX_HPP
 
 namespace elem {
-template<typename Int=int>
 struct DistData
 {
     Distribution colDist, rowDist;

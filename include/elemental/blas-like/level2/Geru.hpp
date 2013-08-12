@@ -20,16 +20,16 @@ Geru( T alpha, const Matrix<T>& x, const Matrix<T>& y, Matrix<T>& A )
     CallStackEntry entry("Geru");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error("x and y must be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("x and y must be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( xLength != A.Height() || yLength != A.Width() )
-        throw std::logic_error("Nonconformal Geru");
+        LogicError("Nonconformal Geru");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const Int incy = ( y.Width()==1 ? 1 : y.LDim() );
     blas::Geru
     ( m, n, alpha, x.LockedBuffer(), incx, y.LockedBuffer(), incy,
                    A.Buffer(), A.LDim() );
@@ -45,12 +45,12 @@ Geru
 #ifndef RELEASE
     CallStackEntry entry("Geru");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-       throw std::logic_error("{A,x,y} must be distributed over the same grid");
+       LogicError("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
-        throw std::logic_error("x and y are assumed to be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("x and y are assumed to be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Width() != yLength )
     {
         std::ostringstream msg;
@@ -58,7 +58,7 @@ Geru
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

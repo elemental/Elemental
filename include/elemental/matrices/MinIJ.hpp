@@ -14,37 +14,37 @@ namespace elem {
 
 template<typename T> 
 inline void
-MinIJ( Matrix<T>& M, int n )
+MinIJ( Matrix<T>& M, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("MinIJ");
 #endif
     M.ResizeTo( n, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<n; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i )
             M.Set( i, j, std::min(i+1,j+1) );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MinIJ( DistMatrix<T,U,V>& M, int n )
+MinIJ( DistMatrix<T,U,V>& M, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("MinIJ");
 #endif
     M.ResizeTo( n, n );
-    const int localHeight = M.LocalHeight();
-    const int localWidth = M.LocalWidth();
-    const int colShift = M.ColShift();
-    const int rowShift = M.RowShift();
-    const int colStride = M.ColStride();
-    const int rowStride = M.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = M.LocalHeight();
+    const Int localWidth = M.LocalWidth();
+    const Int colShift = M.ColShift();
+    const Int rowShift = M.RowShift();
+    const Int colStride = M.ColStride();
+    const Int rowStride = M.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
         }
     }

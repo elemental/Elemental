@@ -52,10 +52,10 @@ Gemv
         msg << "x and y must be vectors:\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width();
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( orientation == NORMAL )
     {
         if( A.Height() != yLength || A.Width() != xLength )
@@ -65,7 +65,7 @@ Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
                 << "  y ~ " << y.Height() << " x " << y.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
     else
@@ -77,16 +77,16 @@ Gemv
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
                 << "  y ~ " << y.Height() << " x " << y.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
 #endif
     const char transChar = OrientationToChar( orientation );
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = ( transChar == 'N' ? n : m );
-    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = ( transChar == 'N' ? n : m );
+    const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const Int incy = ( y.Width()==1 ? 1 : y.LDim() );
     if( k != 0 )
     {
         blas::Gemv

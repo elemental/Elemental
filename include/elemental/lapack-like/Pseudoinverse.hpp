@@ -31,9 +31,9 @@ Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
 #endif
     typedef BASE(F) R;
 
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::max(m,n);
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = std::max(m,n);
 
     // Get the SVD of A
     Matrix<R> s;
@@ -49,8 +49,8 @@ Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    const int numVals = s.Height();
-    for( int i=0; i<numVals; ++i )
+    const Int numVals = s.Height();
+    for( Int i=0; i<numVals; ++i )
     {
         const R sigma = s.Get(i,0);
         if( sigma < tolerance )
@@ -74,7 +74,7 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
     CallStackEntry entry("HermitianPseudoinverse");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     // Get the EVD of A
     Matrix<R> w;
@@ -89,7 +89,7 @@ HermitianPseudoinverse( UpperOrLower uplo, Matrix<F>& A, BASE(F) tolerance=0 )
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
         if( Abs(omega) < tolerance )
@@ -112,9 +112,9 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
     typedef BASE(F) R;
 
     const Grid& g = A.Grid();
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::max(m,n);
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = std::max(m,n);
 
     // Get the SVD of A
     DistMatrix<R,VR,STAR> s(g);
@@ -130,8 +130,8 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
         tolerance = k*twoNorm*eps;
     }
     // Invert above the tolerance
-    const int numLocalVals = s.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
+    const Int numLocalVals = s.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
         const R sigma = s.GetLocal(iLoc,0);
         if( sigma < tolerance )
@@ -157,7 +157,7 @@ HermitianPseudoinverse
 #endif
     EnsurePMRRR();
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     // Get the EVD of A
     const Grid& g = A.Grid();
@@ -173,8 +173,8 @@ HermitianPseudoinverse
         tolerance = n*twoNorm*eps;
     }
     // Invert above the tolerance
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    const Int numLocalEigs = w.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
         if( Abs(omega) < tolerance )

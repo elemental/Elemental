@@ -41,7 +41,7 @@ SpyWindow::~SpyWindow()
 { delete matrix_; }
 
 void
-SpyWindow::Spy( const Matrix<int>* matrix, QString title )
+SpyWindow::Spy( const Matrix<Int>* matrix, QString title )
 {
 #ifndef RELEASE
     CallStackEntry entry("SpyWindow::Spy");

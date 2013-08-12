@@ -14,7 +14,7 @@
 
 namespace {
 
-int numElemInits = 0;
+elem::Int numElemInits = 0;
 bool elemInitializedMpi = false;
 #ifdef HAVE_QT5
 bool elemInitializedQt = false;
@@ -25,7 +25,7 @@ bool haveMinRealWindowVal=false, haveMaxRealWindowVal=false,
 double minRealWindowVal, maxRealWindowVal,
        minImagWindowVal, maxImagWindowVal;
 #endif
-std::stack<int> blocksizeStack;
+std::stack<elem::Int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
 elem::Args* args = 0;
 
@@ -35,20 +35,20 @@ std::stack<std::string> callStack;
 #endif
 
 // Tuning parameters for basic routines
-int localSymvFloatBlocksize = 64;
-int localSymvDoubleBlocksize = 64;
-int localSymvComplexFloatBlocksize = 64;
-int localSymvComplexDoubleBlocksize = 64;
+elem::Int localSymvFloatBlocksize = 64;
+elem::Int localSymvDoubleBlocksize = 64;
+elem::Int localSymvComplexFloatBlocksize = 64;
+elem::Int localSymvComplexDoubleBlocksize = 64;
 
-int localTrr2kFloatBlocksize = 64;
-int localTrr2kDoubleBlocksize = 64;
-int localTrr2kComplexFloatBlocksize = 64;
-int localTrr2kComplexDoubleBlocksize = 64;
+elem::Int localTrr2kFloatBlocksize = 64;
+elem::Int localTrr2kDoubleBlocksize = 64;
+elem::Int localTrr2kComplexFloatBlocksize = 64;
+elem::Int localTrr2kComplexDoubleBlocksize = 64;
 
-int localTrrkFloatBlocksize = 64;
-int localTrrkDoubleBlocksize = 64;
-int localTrrkComplexFloatBlocksize = 64;
-int localTrrkComplexDoubleBlocksize = 64;
+elem::Int localTrrkFloatBlocksize = 64;
+elem::Int localTrrkDoubleBlocksize = 64;
+elem::Int localTrrkComplexFloatBlocksize = 64;
+elem::Int localTrrkComplexDoubleBlocksize = 64;
 
 // Tuning parameters for advanced routines
 using namespace elem;
@@ -221,14 +221,14 @@ void Initialize( int& argc, char**& argv )
     {
         if( mpi::Finalized() )
         {
-            throw std::logic_error
+            LogicError
             ("Cannot initialize elemental after finalizing MPI");
         }
 #ifdef HAVE_OPENMP
-        const int provided = 
+        const Int provided = 
             mpi::InitializeThread
             ( argc, argv, mpi::THREAD_MULTIPLE );
-        const int commRank = mpi::CommRank( mpi::COMM_WORLD );
+        const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
         if( provided != mpi::THREAD_MULTIPLE && commRank == 0 )
         {
             std::cerr << "WARNING: Could not achieve THREAD_MULTIPLE support."
@@ -242,7 +242,7 @@ void Initialize( int& argc, char**& argv )
     else
     {
 #ifdef HAVE_OPENMP
-        const int provided = mpi::QueryThread();
+        const Int provided = mpi::QueryThread();
         if( provided != mpi::THREAD_MULTIPLE )
         {
             throw std::runtime_error
@@ -269,10 +269,18 @@ void Initialize( int& argc, char**& argv )
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
     // Build the pivot operations needed by the distributed LU
-    CreatePivotOp<float>();
-    CreatePivotOp<double>();
-    CreatePivotOp<Complex<float> >();
-    CreatePivotOp<Complex<double> >();
+    mpi::CreatePivotOp<float>();
+    mpi::CreatePivotOp<double>();
+    mpi::CreatePivotOp<Complex<float> >();
+    mpi::CreatePivotOp<Complex<double> >();
+
+    // Create the types and ops needed for ValueInt
+    mpi::CreateValueIntType<Int>();
+    mpi::CreateValueIntType<float>();
+    mpi::CreateValueIntType<double>();
+    mpi::CreateMaxLocOp<Int>();
+    mpi::CreateMaxLocOp<float>();
+    mpi::CreateMaxLocOp<double>();
 
     // Seed the random number generators using Katzgrabber's approach
     // from "Random Numbers in Scientific Computing: An Introduction"
@@ -293,7 +301,7 @@ void Finalize()
     CallStackEntry entry("Finalize");
 #endif
     if( ::numElemInits <= 0 )
-        throw std::logic_error("Finalized Elemental more than initialized");
+        LogicError("Finalized Elemental more than initialized");
     --::numElemInits;
 
     if( mpi::Finalized() )
@@ -309,10 +317,18 @@ void Finalize()
         if( ::elemInitializedMpi )
         {
             // Destroy the pivot ops needed by the distributed LU
-            DestroyPivotOp<float>();
-            DestroyPivotOp<double>();
-            DestroyPivotOp<Complex<float> >();
-            DestroyPivotOp<Complex<double> >();
+            mpi::DestroyPivotOp<float>();
+            mpi::DestroyPivotOp<double>();
+            mpi::DestroyPivotOp<Complex<float> >();
+            mpi::DestroyPivotOp<Complex<double> >();
+
+            // Destroy the types and ops needed for ValueInt
+            // TODO: DestroyValueIntType<Int>();
+            // TODO: DestroyValueIntType<float>();
+            // TODO: DestroyValueIntType<double>();
+            mpi::DestroyMaxLocOp<Int>();
+            mpi::DestroyMaxLocOp<float>();
+            mpi::DestroyMaxLocOp<double>();
 
             // Delete the default grid
             delete ::defaultGrid;
@@ -346,13 +362,13 @@ Args& GetArgs()
     return *::args; 
 }
 
-int Blocksize()
+Int Blocksize()
 { return ::blocksizeStack.top(); }
 
-void SetBlocksize( int blocksize )
+void SetBlocksize( Int blocksize )
 { ::blocksizeStack.top() = blocksize; }
 
-void PushBlocksizeStack( int blocksize )
+void PushBlocksizeStack( Int blocksize )
 { ::blocksizeStack.push( blocksize ); }
 
 void PopBlocksizeStack()
@@ -363,7 +379,7 @@ const Grid& DefaultGrid()
 #ifndef RELEASE
     CallStackEntry entry("DefaultGrid");
     if( ::defaultGrid == 0 )
-        throw std::logic_error
+        LogicError
         ("Attempted to return a non-existant default grid. Please ensure that "
          "Elemental is initialized before creating a DistMatrix.");
 #endif
@@ -404,99 +420,99 @@ void DumpCallStack( std::ostream& os )
 #endif // RELEASE
 
 template<>
-void SetLocalSymvBlocksize<float>( int blocksize )
+void SetLocalSymvBlocksize<float>( Int blocksize )
 { ::localSymvFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<double>( int blocksize )
+void SetLocalSymvBlocksize<double>( Int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<Complex<float> >( int blocksize )
+void SetLocalSymvBlocksize<Complex<float> >( Int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<Complex<double> >( int blocksize )
+void SetLocalSymvBlocksize<Complex<double> >( Int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 
 template<>
-int LocalSymvBlocksize<float>()
+Int LocalSymvBlocksize<float>()
 { return ::localSymvFloatBlocksize; }
 
 template<>
-int LocalSymvBlocksize<double>()
+Int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
 template<>
-int LocalSymvBlocksize<Complex<float> >()
+Int LocalSymvBlocksize<Complex<float> >()
 { return ::localSymvComplexFloatBlocksize; }
 
 template<>
-int LocalSymvBlocksize<Complex<double> >()
+Int LocalSymvBlocksize<Complex<double> >()
 { return ::localSymvComplexDoubleBlocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<float>( int blocksize )
+void SetLocalTrr2kBlocksize<float>( Int blocksize )
 { ::localTrr2kFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<double>( int blocksize )
+void SetLocalTrr2kBlocksize<double>( Int blocksize )
 { ::localTrr2kDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<Complex<float> >( int blocksize )
+void SetLocalTrr2kBlocksize<Complex<float> >( Int blocksize )
 { ::localTrr2kComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<Complex<double> >( int blocksize )
+void SetLocalTrr2kBlocksize<Complex<double> >( Int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
 
 template<>
-int LocalTrr2kBlocksize<float>()
+Int LocalTrr2kBlocksize<float>()
 { return ::localTrr2kFloatBlocksize; }
 
 template<>
-int LocalTrr2kBlocksize<double>()
+Int LocalTrr2kBlocksize<double>()
 { return ::localTrr2kDoubleBlocksize; }
 
 template<>
-int LocalTrr2kBlocksize<Complex<float> >()
+Int LocalTrr2kBlocksize<Complex<float> >()
 { return ::localTrr2kComplexFloatBlocksize; }
 
 template<>
-int LocalTrr2kBlocksize<Complex<double> >()
+Int LocalTrr2kBlocksize<Complex<double> >()
 { return ::localTrr2kComplexDoubleBlocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<float>( int blocksize )
+void SetLocalTrrkBlocksize<float>( Int blocksize )
 { ::localTrrkFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<double>( int blocksize )
+void SetLocalTrrkBlocksize<double>( Int blocksize )
 { ::localTrrkDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<Complex<float> >( int blocksize )
+void SetLocalTrrkBlocksize<Complex<float> >( Int blocksize )
 { ::localTrrkComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<Complex<double> >( int blocksize )
+void SetLocalTrrkBlocksize<Complex<double> >( Int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
 
 template<>
-int LocalTrrkBlocksize<float>()
+Int LocalTrrkBlocksize<float>()
 { return ::localTrrkFloatBlocksize; }
 
 template<>
-int LocalTrrkBlocksize<double>()
+Int LocalTrrkBlocksize<double>()
 { return ::localTrrkDoubleBlocksize; }
 
 template<>
-int LocalTrrkBlocksize<Complex<float> >()
+Int LocalTrrkBlocksize<Complex<float> >()
 { return ::localTrrkComplexFloatBlocksize; }
 
 template<>
-int LocalTrrkBlocksize<Complex<double> >()
+Int LocalTrrkBlocksize<Complex<double> >()
 { return ::localTrrkComplexDoubleBlocksize; }
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach )

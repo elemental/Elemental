@@ -56,22 +56,21 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
 #ifndef RELEASE
     CallStackEntry entry("reflector::Row");
     if( chi.Grid() != x.Grid() )
-        throw std::logic_error
-        ("chi and x must be distributed over the same grid");
+        LogicError("chi and x must be distributed over the same grid");
     if( chi.Height() != 1 || chi.Width() != 1 )
-        throw std::logic_error("chi must be a scalar");
+        LogicError("chi must be a scalar");
     if( x.Height() != 1 )
-        throw std::logic_error("x must be a row vector");
+        LogicError("x must be a row vector");
     if( chi.Grid().Row() != chi.ColAlignment() )
-        throw std::logic_error("Reflecting with incorrect row of processes");
+        LogicError("Reflecting with incorrect row of processes");
     if( x.Grid().Row() != x.ColAlignment() )
-        throw std::logic_error("Reflecting with incorrect row of processes");
+        LogicError("Reflecting with incorrect row of processes");
 #endif
     const Grid& grid = x.Grid();
     mpi::Comm rowComm = grid.RowComm();
-    const int gridCol = grid.Col();
-    const int gridWidth = grid.Width();
-    const int rowAlignment = chi.RowAlignment();
+    const Int gridCol = grid.Col();
+    const Int gridWidth = grid.Width();
+    const Int rowAlignment = chi.RowAlignment();
 
     std::vector<R> localNorms(gridWidth);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -88,7 +87,7 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
     R alpha;
     if( gridCol == rowAlignment )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( &alpha, 1, rowAlignment, rowComm );
+    mpi::Broadcast( alpha, rowAlignment, rowComm );
 
     R beta;
     if( alpha <= 0 )
@@ -100,7 +99,7 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -124,7 +123,7 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
     R tau = (beta-alpha)/beta;
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridCol == rowAlignment )
         chi.SetLocal(0,0,beta);
@@ -139,23 +138,22 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 #ifndef RELEASE
     CallStackEntry entry("reflector::Row");    
     if( chi.Grid() != x.Grid() )
-        throw std::logic_error
-        ("chi and x must be distributed over the same grid");
+        LogicError("chi and x must be distributed over the same grid");
     if( chi.Height() != 1 || chi.Width() != 1 )
-        throw std::logic_error("chi must be a scalar");
+        LogicError("chi must be a scalar");
     if( x.Height() != 1 )
-        throw std::logic_error("x must be a row vector");
+        LogicError("x must be a row vector");
     if( chi.Grid().Row() != chi.ColAlignment() )
-        throw std::logic_error("Reflecting with incorrect row of processes");
+        LogicError("Reflecting with incorrect row of processes");
     if( x.Grid().Row() != x.ColAlignment() )
-        throw std::logic_error("Reflecting with incorrect row of processes");
+        LogicError("Reflecting with incorrect row of processes");
 #endif
     typedef Complex<R> C;
     const Grid& grid = x.Grid();
     mpi::Comm rowComm = grid.RowComm();
-    const int gridCol = grid.Col();
-    const int gridWidth = grid.Width();
-    const int rowAlignment = chi.RowAlignment();
+    const Int gridCol = grid.Col();
+    const Int gridWidth = grid.Width();
+    const Int rowAlignment = chi.RowAlignment();
 
     std::vector<R> localNorms(gridWidth);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -165,7 +163,7 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     C alpha;
     if( gridCol == rowAlignment )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( &alpha, 1, rowAlignment, rowComm );
+    mpi::Broadcast( alpha, rowAlignment, rowComm );
 
     if( norm == R(0) && alpha.imag == R(0) )
     {
@@ -184,7 +182,7 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -208,7 +206,7 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridCol == rowAlignment )
         chi.SetLocal(0,0,beta);

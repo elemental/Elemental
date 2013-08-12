@@ -50,22 +50,22 @@ inline void HermitianSVD
     HermitianEig( uplo, A, s, V );
 
     // Set the singular values to the absolute value of the eigenvalues
-    for( int i=0; i<s.Height(); ++i )
+    for( Int i=0; i<s.Height(); ++i )
         s.Set(i,0,Abs(s.Get(i,0)));
 
     // Copy V into U (flipping the sign as necessary)
-    const int n = A.Height();
+    const Int n = A.Height();
     U.ResizeTo( n, n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         const R sigma = s.Get( j, 0 );
         F* UCol = U.Buffer( 0, j );
         const F* VCol = V.LockedBuffer( 0, j );
         if( sigma >= 0 )
-            for( int i=0; i<n; ++i )
+            for( Int i=0; i<n; ++i )
                 UCol[i] = VCol[i];
         else
-            for( int i=0; i<n; ++i )
+            for( Int i=0; i<n; ++i )
                 UCol[i] = -VCol[i];
     }
 #else
@@ -109,8 +109,8 @@ inline void HermitianSVD
     s_MR_STAR = s;
 
     // Set the singular values to the absolute value of the eigenvalues
-    const int numLocalVals = s.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
+    const Int numLocalVals = s.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
         const R sigma = s.GetLocal(iLoc,0);
         s.SetLocal(iLoc,0,Abs(sigma));
@@ -119,18 +119,18 @@ inline void HermitianSVD
     // Copy V into U (flipping the sign as necessary)
     U.AlignWith( V );
     U.ResizeTo( V.Height(), V.Width() );
-    const int localHeight = V.LocalHeight();
-    const int localWidth = V.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = V.LocalHeight();
+    const Int localWidth = V.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
         F* UCol = U.Buffer( 0, jLoc );
         const F* VCol = V.LockedBuffer( 0, jLoc );
         if( sigma >= 0 )
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UCol[iLoc] = VCol[iLoc];
         else
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UCol[iLoc] = -VCol[iLoc];
     }
 #else
@@ -151,8 +151,8 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 #ifndef RELEASE
     CallStackEntry entry("SVD");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     s.ResizeTo( std::min(m,n), 1 );
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
 }
@@ -169,7 +169,7 @@ inline void HermitianSVD
     HermitianEig( uplo, A, s );
 
     // Set the singular values to the absolute value of the eigenvalues
-    for( int i=0; i<s.Height(); ++i )
+    for( Int i=0; i<s.Height(); ++i )
         s.Set(i,0,Abs(s.Get(i,0)));
 #else
     MakeHermitian( uplo, A );
@@ -202,8 +202,8 @@ inline void HermitianSVD
     HermitianEig( uplo, A, s );
 
     // Replace the eigenvalues with their absolute values
-    const int numLocalVals = s.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalVals; ++iLoc )
+    const Int numLocalVals = s.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
         const R sigma = s.GetLocal(iLoc,0);
         s.SetLocal(iLoc,0,Abs(sigma));

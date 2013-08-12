@@ -18,12 +18,12 @@ namespace lu {
 
 template<typename F>
 inline void
-Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
+Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("lu::Panel");
     if( A.Width() != p.Height() || p.Width() != 1 )
-        throw std::logic_error("p must be a vector that conforms with A");
+        LogicError("p must be a vector that conforms with A");
 #endif
     // Matrix views
     Matrix<F> 
@@ -31,7 +31,7 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
         ABL, ABR,  a10, alpha11, a12,  
                    A20, a21,     A22;
 
-    const int width = A.Width();
+    const Int width = A.Width();
     std::vector<F> buffer( width );
 
     // Start the algorithm
@@ -47,12 +47,12 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
           ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         //--------------------------------------------------------------------//
-        const int currentRow = A00.Height();
+        const Int currentRow = A00.Height();
         
         // Find the index and value of the pivot candidate
         F pivot = alpha11.Get(0,0);
-        int pivotRow = currentRow;
-        for( int i=0; i<a21.Height(); ++i )
+        Int pivotRow = currentRow;
+        for( Int i=0; i<a21.Height(); ++i )
         {
             const F value = a21.Get(i,0);
             if( FastAbs(value) > FastAbs(pivot) )
@@ -64,7 +64,7 @@ Panel( Matrix<F>& A, Matrix<int>& p, int pivotOffset=0 )
         p.Set( currentRow, 0, pivotRow+pivotOffset );
 
         // Swap the pivot row and current row
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
         {
             buffer[j] = A.Get(currentRow,j);
             A.Set(currentRow,j,A.Get(pivotRow,j)); 
@@ -93,23 +93,22 @@ inline void
 Panel
 ( DistMatrix<F,  STAR,STAR>& A, 
   DistMatrix<F,  MC,  STAR>& B, 
-  DistMatrix<int,STAR,STAR>& p, 
-  int pivotOffset=0 )
+  DistMatrix<Int,STAR,STAR>& p, 
+  Int pivotOffset=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("lu::Panel");
     if( A.Grid() != p.Grid() || p.Grid() != B.Grid() )
-        throw std::logic_error
-        ("Matrices must be distributed over the same grid");
+        LogicError("Matrices must be distributed over the same grid");
     if( A.Width() != B.Width() )
-        throw std::logic_error("A and B must be the same width");
+        LogicError("A and B must be the same width");
     if( A.Height() != p.Height() || p.Width() != 1 )
-        throw std::logic_error("p must be a vector that conforms with A");
+        LogicError("p must be a vector that conforms with A");
 #endif
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int colShift = B.ColShift();
-    const int colAlignment = B.ColAlignment();
+    const Int r = g.Height();
+    const Int colShift = B.ColShift();
+    const Int colAlignment = B.ColAlignment();
 
     // Matrix views
     DistMatrix<F,STAR,STAR> 
@@ -121,16 +120,16 @@ Panel
         BL(g), BR(g),
         B0(g), b1(g), B2(g);
 
-    const int width = A.Width();
-    const int numBytes = (width+1)*sizeof(F)+sizeof(int);
+    const Int width = A.Width();
+    const Int numBytes = (width+1)*sizeof(F)+sizeof(Int);
     std::vector<byte> sendData(numBytes), recvData(numBytes);
 
     // Extract pointers to send and recv data
     // TODO: Think of how to make this safer with respect to alignment issues
     F* sendBufFloat = (F*)&sendData[0];
     F* recvBufFloat = (F*)&recvData[0];
-    int* sendBufInt = (int*)&sendData[(width+1)*sizeof(F)];
-    int* recvBufInt = (int*)&recvData[(width+1)*sizeof(F)];
+    Int* sendBufInt = (Int*)&sendData[(width+1)*sizeof(F)];
+    Int* recvBufInt = (Int*)&recvData[(width+1)*sizeof(F)];
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -150,12 +149,12 @@ Panel
           B0, /**/ b1, B2, 1 );
 
         //--------------------------------------------------------------------//
-        const int currentRow = a01.Height();
+        const Int currentRow = a01.Height();
         
         // Store the index/value of the pivot candidate in A
         F pivot = alpha11.GetLocal(0,0);
-        int pivotRow = currentRow;
-        for( int i=0; i<a21.Height(); ++i )
+        Int pivotRow = currentRow;
+        for( Int i=0; i<a21.Height(); ++i )
         {
             F value = a21.GetLocal(i,0);
             if( FastAbs(value) > FastAbs(pivot) )
@@ -166,7 +165,7 @@ Panel
         }
 
         // Update the pivot candidate to include local data from B
-        for( int i=0; i<B.LocalHeight(); ++i )
+        for( Int i=0; i<B.LocalHeight(); ++i )
         {
             F value = b1.GetLocal(i,0);
             if( FastAbs(value) > FastAbs(pivot) )
@@ -182,26 +181,27 @@ Panel
         {
             sendBufFloat[0] = A.GetLocal(pivotRow,a10.Width());
 
-            const int ALDim = A.LDim();
+            const Int ALDim = A.LDim();
             const F* ABuffer = A.Buffer(pivotRow,0);
-            for( int j=0; j<width; ++j )
+            for( Int j=0; j<width; ++j )
                 sendBufFloat[j+1] = ABuffer[j*ALDim];
         }
         else
         {
-            const int localRow = ((pivotRow-A.Height())-colShift)/r;
+            const Int localRow = ((pivotRow-A.Height())-colShift)/r;
             sendBufFloat[0] = b1.GetLocal(localRow,0);
 
-            const int BLDim = B.LDim();
+            const Int BLDim = B.LDim();
             const F* BBuffer = B.Buffer(localRow,0);
-            for( int j=0; j<width; ++j )
+            for( Int j=0; j<width; ++j )
                 sendBufFloat[j+1] = BBuffer[j*BLDim];
         }
         *sendBufInt = pivotRow;
 
         // Communicate to establish the pivot information
         mpi::AllReduce
-        ( &sendData[0], &recvData[0], numBytes, PivotOp<F>(), g.ColComm() );
+        ( &sendData[0], &recvData[0], numBytes, 
+          mpi::PivotOp<F>(), g.ColComm() );
 
         // Update the pivot vector
         pivotRow = *recvBufInt;
@@ -210,24 +210,24 @@ Panel
         // Copy the current row into the pivot row
         if( pivotRow < A.Height() )
         {
-            const int ALDim = A.LDim();
+            const Int ALDim = A.LDim();
             F* ASetBuffer = A.Buffer(pivotRow,0);
             const F* AGetBuffer = A.Buffer(currentRow,0);
-            for( int j=0; j<width; ++j )
+            for( Int j=0; j<width; ++j )
                 ASetBuffer[j*ALDim] = AGetBuffer[j*ALDim];
         }
         else
         {
-            const int ownerRank = (colAlignment+(pivotRow-A.Height())) % r;
+            const Int ownerRank = (colAlignment+(pivotRow-A.Height())) % r;
             if( g.Row() == ownerRank )
             {
-                const int localRow = ((pivotRow-A.Height())-colShift) / r;
+                const Int localRow = ((pivotRow-A.Height())-colShift) / r;
 
-                const int ALDim = A.LDim();
-                const int BLDim = B.LDim();
+                const Int ALDim = A.LDim();
+                const Int BLDim = B.LDim();
                 F* BBuffer = B.Buffer(localRow,0);
                 const F* ABuffer = A.Buffer(currentRow,0);
-                for( int j=0; j<width; ++j )
+                for( Int j=0; j<width; ++j )
                     BBuffer[j*BLDim] = ABuffer[j*ALDim];
             }
         }
@@ -235,8 +235,8 @@ Panel
         // Copy the pivot row into the current row
         {
             F* ABuffer = A.Buffer(currentRow,0);
-            const int ALDim = A.LDim();
-            for( int j=0; j<width; ++j )
+            const Int ALDim = A.LDim();
+            for( Int j=0; j<width; ++j )
                 ABuffer[j*ALDim] = recvBufFloat[j+1];
         }
 

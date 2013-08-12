@@ -24,14 +24,14 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsvUN");
     if( U.Grid() != x.Grid() )
-        throw std::logic_error("{U,x} must be distributed over the same grid");
+        LogicError("{U,x} must be distributed over the same grid");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error("x must be a vector");
-    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        LogicError("x must be a vector");
+    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( U.Width() != xLength )
-        throw std::logic_error("Nonconformal TrsvUN");
+        LogicError("Nonconformal TrsvUN");
 #endif
     const Grid& g = U.Grid();
 
@@ -70,8 +70,8 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
              /**/ /**/
               xB,  x2 );
 
-            const int n0 = x0.Height();
-            const int n1 = x1.Height();
+            const Int n0 = x0.Height();
+            const Int n1 = x1.Height();
             LockedView( U01, U, 0,  n0, n0, n1 );
             LockedView( U11, U, n0, n0, n1, n1 );
             View( z0_MC_STAR, z_MC_STAR, 0,  0, n0, 1 );
@@ -119,8 +119,7 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
         DistMatrix<F,STAR,MC  > z_STAR_MC(g);
 
         // Views of z[* ,MC]
-        DistMatrix<F,STAR,MC>  z0_STAR_MC(g),
-                               z1_STAR_MC(g);
+        DistMatrix<F,STAR,MC> z0_STAR_MC(g), z1_STAR_MC(g);
 
         z_STAR_MC.AlignWith( U );
         Zeros( z_STAR_MC, 1, x.Width() );
@@ -133,8 +132,8 @@ TrsvUN( UnitOrNonUnit diag, const DistMatrix<F>& U, DistMatrix<F>& x )
             ( xL,     /**/ xR,
               x0, x1, /**/ x2 );
 
-            const int n0 = x0.Width();
-            const int n1 = x1.Width();
+            const Int n0 = x0.Width();
+            const Int n1 = x1.Width();
             LockedView( U01, U, 0,  n0, n0, n1 );
             LockedView( U11, U, n0, n0, n1, n1 );
             View( z0_STAR_MC, z_STAR_MC, 0, 0,  1, n0 );

@@ -21,11 +21,11 @@ ZeroNorm( const Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("ZeroNorm");
 #endif
-    int numNonzeros = 0;
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    Int numNonzeros = 0;
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             if( Abs(A.Get(i,j)) > 0 )
                 ++numNonzeros;
     return numNonzeros;
@@ -38,11 +38,9 @@ ZeroNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("ZeroNorm");
 #endif
-    const int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
+    const Int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    int numNonzeros;
-    mpi::AllReduce( &numLocalNonzeros, &numNonzeros, 1, mpi::SUM, comm );
-    return numNonzeros;
+    return mpi::AllReduce( numLocalNonzeros, comm );
 }
 
 } // namespace elem

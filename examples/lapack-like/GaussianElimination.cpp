@@ -20,15 +20,15 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try 
     {
-        const int n = Input("--size","size of matrix",100);
-        const int numRhs = Input("--numRhs","# of right-hand sides",1); 
-        const int blocksize = Input("--blocksize","algorithmic blocksize",64);
-        int gridHeight = Input("--gridHeight","grid height",0);
+        const Int n = Input("--size","size of matrix",100);
+        const Int numRhs = Input("--numRhs","# of right-hand sides",1); 
+        const Int blocksize = Input("--blocksize","algorithmic blocksize",64);
+        Int gridHeight = Input("--gridHeight","grid height",0);
         const bool details = Input("--details","print norm details?",false);
         ProcessInput();
         PrintInputReport();
@@ -44,7 +44,7 @@ main( int argc, char* argv[] )
 
         // Set up random A and B, then make the copies X := B and ACopy := A
         DistMatrix<double> A(grid), B(grid), ACopy(grid), X(grid);
-        for( int test=0; test<3; ++test )
+        for( Int test=0; test<3; ++test )
         {
             Uniform( A, n, n );
             Uniform( B, n, numRhs );

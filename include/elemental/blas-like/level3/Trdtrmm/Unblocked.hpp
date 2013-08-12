@@ -20,15 +20,15 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmLUnblocked");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Trdtrmm requires (conjugate-)transpose");
+        LogicError("Trdtrmm requires (conjugate-)transpose");
 #endif
-    const int n = L.Height();
+    const Int n = L.Height();
 
     F* LBuffer = L.Buffer();
-    const int ldim = L.LDim();
-    for( int j=0; j<n; ++j )
+    const Int ldim = L.LDim();
+    for( Int j=0; j<n; ++j )
     {
         const F delta11 = LBuffer[j+j*ldim];
         if( delta11 == F(0) )
@@ -38,28 +38,28 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
         if( orientation == ADJOINT )
         {
             // L00 := L00 + l10^H (l10 / delta11)
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
             {
                 const F gamma = l10[k*ldim] / delta11; 
                 F* RESTRICT L00Col = &LBuffer[k*ldim];
-                for( int i=k; i<j; ++i )
+                for( Int i=k; i<j; ++i )
                     L00Col[i] += Conj(l10[i*ldim])*gamma;
             }
         }
         else
         {
             // L00 := L00 + l10^T (l10 / delta11)
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
             {
                 const F gamma = l10[k*ldim] / delta11;
                 F* RESTRICT L00Col = &LBuffer[k*ldim];
-                for( int i=k; i<j; ++i )
+                for( Int i=k; i<j; ++i )
                     L00Col[i] += l10[i*ldim]*gamma;
             }
         }
 
         // l10 := l10 / delta11
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             l10[k*ldim] /= delta11;
 
         // lambda11 := 1 / delta11
@@ -74,15 +74,15 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrdtrmmUUnblocked");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Trdtrmm requires (conjugate-)transpose");
+        LogicError("Trdtrmm requires (conjugate-)transpose");
 #endif
-    const int n = U.Height();
+    const Int n = U.Height();
 
     F* UBuffer = U.Buffer();
-    const int ldim = U.LDim();
-    for( int j=0; j<n; ++j )
+    const Int ldim = U.LDim();
+    for( Int j=0; j<n; ++j )
     {
         const F delta11 = UBuffer[j+j*ldim];
         if( delta11 == F(0) )
@@ -92,28 +92,28 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
         if( orientation == ADJOINT )
         {
             // U00 := U00 + u01 (u01 / conj(delta11))^H
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
             {
                 const F gamma = Conj(u01[k]) / delta11;
                 F* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( int i=0; i<=k; ++i )
+                for( Int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }
         }
         else
         {
             // U00 := U00 + u01 (u01 / delta11)^T
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
             {
                 const F gamma = u01[k] / delta11;
                 F* RESTRICT U00Col = &UBuffer[k*ldim];
-                for( int i=0; i<=k; ++i )
+                for( Int i=0; i<=k; ++i )
                     U00Col[i] += u01[i]*gamma;
             }
         }
 
         // u01 := u01 / delta11
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             u01[k] /= delta11;
 
         // lambda11 := 1 / delta11

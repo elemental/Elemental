@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename R>
 struct IndexValuePair {
-    int index;
+    Int index;
     R value;    
 
     static bool Lesser
@@ -27,7 +27,7 @@ struct IndexValuePair {
 
 template<typename R>
 struct IndexValuePair<Complex<R> > {
-    int index;
+    Int index;
     Complex<R> value;    
 
     static bool Lesser
@@ -48,7 +48,7 @@ Sort( Matrix<R>& w, bool ascending=true )
     CallStackEntry entry("hermitian_eig::Sort");
 #endif
     R* wBuffer = w.Buffer();
-    const int k = w.Height();
+    const Int k = w.Height();
     if( ascending )
         std::sort( &wBuffer[0], &wBuffer[k] );
     else
@@ -62,7 +62,7 @@ Sort( DistMatrix<R,VR,STAR>& w, bool ascending=true )
 #ifndef RELEASE
     CallStackEntry entry("hermitian_eig::Sort");
 #endif
-    const int k = w.Height();
+    const Int k = w.Height();
 
     // Gather a full copy of w on each process and locally sort
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
@@ -84,12 +84,12 @@ Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
     CallStackEntry entry("hermitian_eig::Sort");
 #endif
     typedef BASE(F) R;
-    const int n = Z.Height();
-    const int k = Z.Width();
+    const Int n = Z.Height();
+    const Int k = Z.Width();
 
     // Initialize the pairs of indices and eigenvalues
     std::vector<IndexValuePair<R> > pairs( k );
-    for( int i=0; i<k; ++i )
+    for( Int i=0; i<k; ++i )
     {
         pairs[i].index = i;
         pairs[i].value = w.Get(i,0);
@@ -103,9 +103,9 @@ Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
     Matrix<F> ZPerm( n, k );
-    for( int j=0; j<k; ++j )
+    for( Int j=0; j<k; ++j )
     {
-        const int source = pairs[j].index;
+        const Int source = pairs[j].index;
         MemCopy( ZPerm.Buffer(0,j), Z.LockedBuffer(0,source), n );
         w.Set(j,0,pairs[j].value);
     }
@@ -120,8 +120,8 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
     CallStackEntry entry("hermitian_eig::Sort");
 #endif
     typedef BASE(F) R;
-    const int n = Z.Height();
-    const int k = Z.Width();
+    const Int n = Z.Height();
+    const Int k = Z.Width();
     const Grid& g = Z.Grid();
 
     DistMatrix<F,VC,STAR> Z_VC_STAR( Z );
@@ -129,7 +129,7 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
 
     // Initialize the pairs of indices and eigenvalues
     std::vector<IndexValuePair<R> > pairs( k );
-    for( int i=0; i<k; ++i )
+    for( Int i=0; i<k; ++i )
     {
         pairs[i].index = i;
         pairs[i].value = w_STAR_STAR.GetLocal(i,0);
@@ -142,11 +142,11 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
         std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Greater );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
-    const int nLocal = Z_VC_STAR.LocalHeight();
+    const Int nLocal = Z_VC_STAR.LocalHeight();
     DistMatrix<F,VC,STAR> ZPerm_VC_STAR( n, k, g );
-    for( int j=0; j<k; ++j )
+    for( Int j=0; j<k; ++j )
     {
-        const int source = pairs[j].index;
+        const Int source = pairs[j].index;
         MemCopy
         ( ZPerm_VC_STAR.Buffer(0,j), 
           Z_VC_STAR.LockedBuffer(0,source), nLocal );

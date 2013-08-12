@@ -59,7 +59,7 @@ TrtrmmUVar1( Orientation orientation, DistMatrix<T>& U )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrtrmmUVar1");
     if( U.Height() != U.Width() )
-        throw std::logic_error("U must be square");
+        LogicError("U must be square");
 #endif
     const Grid& g = U.Grid();
     const bool conjugate = ( orientation == ADJOINT );

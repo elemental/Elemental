@@ -25,8 +25,7 @@ LocalTrsm
     CallStackEntry entry("LocalTrsm");
     if( (side == LEFT && XColDist != STAR) ||
         (side == RIGHT && XRowDist != STAR) )
-        throw std::logic_error
-        ("Distribution of RHS must conform with that of triangle");
+        LogicError("Distribution of RHS must conform with that of triangle");
 #endif
     Trsm
     ( side, uplo, orientation, diag,
@@ -57,16 +56,16 @@ Trsm
 #ifndef RELEASE
     CallStackEntry entry("Trsm");
     if( A.Height() != A.Width() )
-        throw std::logic_error("Triangular matrix must be square");
+        LogicError("Triangular matrix must be square");
     if( side == LEFT )
     {
         if( A.Height() != B.Height() )
-            throw std::logic_error("Nonconformal Trsm");
+            LogicError("Nonconformal Trsm");
     }
     else
     {
         if( A.Height() != B.Width() )
-            throw std::logic_error("Nonconformal Trsm");
+            LogicError("Nonconformal Trsm");
     }
 #endif
     const char sideChar = LeftOrRightToChar( side );
@@ -75,8 +74,8 @@ Trsm
     const char diagChar = UnitOrNonUnitToChar( diag );
     if( checkIfSingular && diag != UNIT )
     {
-        const int n = A.Height();
-        for( int j=0; j<n; ++j )
+        const Int n = A.Height();
+        for( Int j=0; j<n; ++j )
             if( A.Get(j,j) == F(0) )
                 throw SingularMatrixException();
     }
@@ -96,21 +95,21 @@ Trsm
 #ifndef RELEASE
     CallStackEntry entry("Trsm");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("A and B must use the same grid");
+        LogicError("A and B must use the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( side == LEFT )
     {
         if( A.Height() != B.Height() )
-            throw std::logic_error("Nonconformal Trsm");
+            LogicError("Nonconformal Trsm");
     }
     else
     {
         if( A.Height() != B.Width() )
-            throw std::logic_error("Nonconformal Trsm");
+            LogicError("Nonconformal Trsm");
     }
 #endif
-    const int p = B.Grid().Size();
+    const Int p = B.Grid().Size();
     if( side == LEFT && uplo == LOWER )
     {
         if( orientation == NORMAL )

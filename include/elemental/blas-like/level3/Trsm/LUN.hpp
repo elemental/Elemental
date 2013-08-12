@@ -193,18 +193,17 @@ TrsmLUNSmall
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLUNSmall");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( U.Height() != U.Width() || U.Width() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrsmLUN: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
     if( U.ColAlignment() != X.ColAlignment() )
-        throw std::logic_error("U and X are assumed to be aligned");
+        LogicError("U and X are assumed to be aligned");
 #endif
     const Grid& g = U.Grid();
 

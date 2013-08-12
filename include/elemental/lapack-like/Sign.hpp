@@ -43,7 +43,7 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
 
     // Calculate mu while forming XNew := inv(X)
     Real mu;
-    Matrix<int> p;
+    Matrix<Int> p;
     XNew = X;
     LU( XNew, p );
     if( scaling == DETERMINANT )
@@ -76,7 +76,7 @@ NewtonStep
 
     // Calculate mu while forming B := inv(X)
     Real mu;
-    DistMatrix<int,VC,STAR> p( X.Grid() );
+    DistMatrix<Int,VC,STAR> p( X.Grid() );
     XNew = X;
     LU( XNew, p );
     if( scaling == DETERMINANT )
@@ -105,7 +105,7 @@ NewtonSchulzStep( const Matrix<F>& X, Matrix<F>& XTmp, Matrix<F>& XNew )
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
     typedef BASE(F) Real;
-    const int n = X.Height();
+    const Int n = X.Height();
  
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
@@ -124,7 +124,7 @@ NewtonSchulzStep
     CallStackEntry entry("sign::NewtonSchulzStep");
 #endif
     typedef BASE(F) Real;
-    const int n = X.Height();
+    const Int n = X.Height();
 
     // XTmp := 3I - X^2
     Identity( XTmp, n, n );
@@ -135,9 +135,9 @@ NewtonSchulzStep
 }
 
 template<typename F>
-inline int
+inline Int
 Newton
-( Matrix<F>& A, Scaling scaling=FROB_NORM, int maxIts=100, BASE(F) tol=0 )
+( Matrix<F>& A, Scaling scaling=FROB_NORM, Int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
@@ -146,7 +146,7 @@ Newton
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
-    int numIts=0;
+    Int numIts=0;
     Matrix<F> B;
     Matrix<F> *X=&A, *XNew=&B;
     while( numIts < maxIts )
@@ -171,10 +171,10 @@ Newton
 }
 
 template<typename F>
-inline int
+inline Int
 Newton
 ( DistMatrix<F>& A, Scaling scaling=FROB_NORM, 
-  int maxIts=100, BASE(F) tol=0 )
+  Int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("sign::Newton");
@@ -183,7 +183,7 @@ Newton
     if( tol == Real(0) )
         tol = A.Height()*lapack::MachineEpsilon<Real>();
 
-    int numIts=0;
+    Int numIts=0;
     DistMatrix<F> B( A.Grid() );
     DistMatrix<F> *X=&A, *XNew=&B;
     while( numIts < maxIts )
@@ -277,8 +277,8 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A )
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
 
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
+    const Int n = A.Height();
+    for( Int i=0; i<n; ++i )
     {
         const Real omega = w.Get(i,0);
         if( omega >= 0 )
@@ -305,9 +305,9 @@ HermitianSign( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& N )
     Matrix<F> Z;
     HermitianEig( uplo, A, w, Z );
 
-    const int n = A.Height();
+    const Int n = A.Height();
     Matrix<Real> wSgn( n, 1 ), wAbs( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const Real omega = w.Get(i,0);
         if( omega >= 0 )
@@ -343,8 +343,8 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A )
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    const Int numLocalEigs = w.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const Real omega = w.GetLocal(iLoc,0);
         if( omega >= 0 )
@@ -373,14 +373,14 @@ HermitianSign( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& N )
     DistMatrix<F> Z(g);
     HermitianEig( uplo, A, w, Z );
 
-    const int n = A.Height();
-    const int numLocalEigs = w.LocalHeight();
+    const Int n = A.Height();
+    const Int numLocalEigs = w.LocalHeight();
     DistMatrix<Real,VR,STAR> wSgn(g), wAbs(g);
     wSgn.AlignWith( w );
     wAbs.AlignWith( w );
     wSgn.ResizeTo( n, 1 );
     wAbs.ResizeTo( n, 1 );
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const Real omega = w.GetLocal(iLoc,0);
         if( omega >= 0 )

@@ -20,17 +20,17 @@ int main( int argc, char *argv[] )
 {
     Initialize( argc, argv );
     const mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try 
     {
-        const int m = Input("--m","height of C",1000);
-        const int n = Input("--n","width of C",1000);     
-        const int k = Input("--k","inner dimension",1000);
-        const int nb = Input("--nb","algorithmic blocksize",128);
+        const Int m = Input("--m","height of C",1000);
+        const Int n = Input("--n","width of C",1000);     
+        const Int k = Input("--k","inner dimension",1000);
+        const Int nb = Input("--nb","algorithmic blocksize",128);
         const bool inst = Input("--inst","instrument Gemm?",true);
-        int r = Input("--r","process grid height",0);
+        Int r = Input("--r","process grid height",0);
         ProcessInput();
 
         SetBlocksize( nb );
@@ -153,8 +153,8 @@ void TimedGemm
         const double timeMC = timerMC.Stop();
         if( g.Rank() == 0 )
         {
-            const int mLocal = A1_MC_STAR.LocalHeight();
-            const int nLocal = A1_MC_STAR.LocalWidth();
+            const Int mLocal = A1_MC_STAR.LocalHeight();
+            const Int nLocal = A1_MC_STAR.LocalWidth();
             const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMC*1.e6);
             std::cout << "[MC,* ] AllGather: " << timeMC
                       << " secs, " << mbps << " MB/s" << " for "
@@ -167,8 +167,8 @@ void TimedGemm
         const double timeMR = timerMR.Stop();
         if( g.Rank() == 0 )
         {
-            const int nLocal = B1Trans_MR_STAR.LocalHeight();
-            const int mLocal = B1Trans_MR_STAR.LocalWidth();
+            const Int nLocal = B1Trans_MR_STAR.LocalHeight();
+            const Int mLocal = B1Trans_MR_STAR.LocalWidth();
             const double mbps = (1.*mLocal*nLocal*sizeof(T))/(timeMR*1.e6);
             std::cout << "[* ,MR] AllGather: " << timeMR
                       << " secs, " << mbps << " MB/s" << " for "
@@ -185,9 +185,9 @@ void TimedGemm
         const double gemmTime = timerGemm.Stop();
         if( g.Rank() == 0 )
         {
-            const int mLocal = C.LocalHeight();
-            const int nLocal = C.LocalWidth();
-            const int kLocal = A1_MC_STAR.LocalWidth();
+            const Int mLocal = C.LocalHeight();
+            const Int nLocal = C.LocalWidth();
+            const Int kLocal = A1_MC_STAR.LocalWidth();
             const double gflops = (2.*mLocal*nLocal*kLocal)/(gemmTime*1.e9);
             std::cout << "Local gemm: " << gemmTime << " secs and "
                       << gflops << " GFlops for " << mLocal << " x " << nLocal

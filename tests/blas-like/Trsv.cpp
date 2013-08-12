@@ -18,7 +18,7 @@ using namespace elem;
 template<typename F> 
 void TestTrsv
 ( bool print, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
-  int n, const Grid& g )
+  Int n, const Grid& g )
 {
     typedef BASE(F) R;
     DistMatrix<F> A(g), x(g), y(g);
@@ -74,19 +74,19 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char uploChar = Input
             ("--uplo","upper or lower triangular: L/U",'L');
         const char transChar = Input
             ("--trans","orientation of triangular matrix: N/T/C",'N');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
-        const int n = Input("--n","size of triangular matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int n = Input("--n","size of triangular matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

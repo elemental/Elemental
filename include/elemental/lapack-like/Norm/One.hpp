@@ -21,12 +21,12 @@ OneNorm( const Matrix<F>& A )
 #endif
     typedef BASE(F) R;
     R maxColSum = 0;
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int j=0; j<width; ++j )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
     {
         R colSum = 0;
-        for( int i=0; i<height; ++i )
+        for( Int i=0; i<height; ++i )
             colSum += Abs(A.Get(i,j));
         maxColSum = std::max( maxColSum, colSum );
     }
@@ -42,29 +42,29 @@ HermitianOneNorm( UpperOrLower uplo, const Matrix<F>& A )
 #endif
     typedef BASE(F) R;
     if( A.Height() != A.Width() )
-        throw std::runtime_error("Hermitian matrices must be square.");
+        RuntimeError("Hermitian matrices must be square.");
     R maxColSum = 0;
-    const int height = A.Height();
+    const Int height = A.Height();
     if( uplo == UPPER )
     {
-        for( int j=0; j<height; ++j )
+        for( Int j=0; j<height; ++j )
         {
             R colSum = 0;
-            for( int i=0; i<=j; ++i )
+            for( Int i=0; i<=j; ++i )
                 colSum += Abs(A.Get(i,j));
-            for( int i=j+1; i<height; ++i )
+            for( Int i=j+1; i<height; ++i )
                 colSum += Abs(A.Get(j,i));
             maxColSum = std::max( maxColSum, colSum );
         }
     }
     else
     {
-        for( int j=0; j<height; ++j )
+        for( Int j=0; j<height; ++j )
         {
             R colSum = 0;
-            for( int i=0; i<j; ++i )
+            for( Int i=0; i<j; ++i )
                 colSum += Abs(A.Get(j,i));
-            for( int i=j; i<height; ++i )
+            for( Int i=j; i<height; ++i )
                 colSum += Abs(A.Get(i,j));
             maxColSum = std::max( maxColSum, colSum );
         }
@@ -91,32 +91,30 @@ OneNorm( const DistMatrix<F,U,V>& A )
 #endif
     // Compute the partial column sums defined by our local matrix, A[U,V]
     typedef BASE(F) R;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
     std::vector<R> myPartialColSums( localWidth );
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         myPartialColSums[jLoc] = 0;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             myPartialColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
     }
 
     // Sum our partial column sums to get the column sums over A[* ,V]
     std::vector<R> myColSums( localWidth );
     mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::AllReduce
-    ( &myPartialColSums[0], &myColSums[0], localWidth, mpi::SUM, colComm );
+    mpi::AllReduce( &myPartialColSums[0], &myColSums[0], localWidth, colComm );
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
 
     // Find the global maximum column sum by searching over the MR team
     R maxColSum = 0;
     mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-    mpi::AllReduce( &myMaxColSum, &maxColSum, 1, mpi::MAX, rowComm );
-    return maxColSum;
+    return mpi::AllReduce( myMaxColSum, rowComm );
 }
 
 template<typename F>
@@ -127,42 +125,41 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     CallStackEntry entry("HermitianOneNorm");
 #endif
     typedef BASE(F) R;
-
     if( A.Height() != A.Width() )
-        throw std::runtime_error("Hermitian matrices must be square.");
-    const int height = A.Height();
+        RuntimeError("Hermitian matrices must be square.");
+    const Int height = A.Height();
 
     // For now, we take the 'easy' approach to exploiting the implicit symmetry
     // by storing all of the column sums of the triangular matrix and the 
     // row sums of the strictly triangular matrix. We can then add them.
 
-    int r = A.Grid().Height();
-    int c = A.Grid().Width();
-    int rowShift = A.RowShift();
-    int colShift = A.ColShift();
+    Int r = A.Grid().Height();
+    Int c = A.Grid().Width();
+    Int rowShift = A.RowShift();
+    Int colShift = A.ColShift();
 
     R maxColSum = 0;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        std::vector<R> myPartialUpperColSums( localWidth );
-        std::vector<R> myPartialStrictlyUpperRowSums( localHeight );
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        std::vector<R> myPartialUpperColSums( localWidth ),
+                       myPartialStrictlyUpperRowSums( localHeight );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numUpperRows = Length(j+1,colShift,r);
+            Int j = rowShift + jLoc*c;
+            Int numUpperRows = Length(j+1,colShift,r);
             myPartialUpperColSums[jLoc] = 0;
-            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
                 myPartialUpperColSums[jLoc] +=
                     Abs(A.GetLocal(iLoc,jLoc));
         }
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLoc*r;
-            int numLowerCols = Length(i+1,rowShift,c);
+            Int i = colShift + iLoc*r;
+            Int numLowerCols = Length(i+1,rowShift,c);
             myPartialStrictlyUpperRowSums[iLoc] = 0;
-            for( int jLoc=numLowerCols; jLoc<localWidth; ++jLoc )
+            for( Int jLoc=numLowerCols; jLoc<localWidth; ++jLoc )
                 myPartialStrictlyUpperRowSums[iLoc] +=
                     Abs(A.GetLocal(iLoc,jLoc));
         }
@@ -171,44 +168,42 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         // AllReduce sum to get the results. This isn't optimal, but it should
         // be good enough.
         std::vector<R> partialColSums( height, 0 );
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
+            Int j = rowShift + jLoc*c;
             partialColSums[j] = myPartialUpperColSums[jLoc];
         }
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLoc*r;
+            Int i = colShift + iLoc*r;
             partialColSums[i] += myPartialStrictlyUpperRowSums[iLoc];
         }
         std::vector<R> colSums( height );
         mpi::AllReduce
-        ( &partialColSums[0], &colSums[0], height, mpi::SUM,
-          A.Grid().VCComm() );
+        ( &partialColSums[0], &colSums[0], height, A.Grid().VCComm() );
 
         // Find the maximum sum
-        for( int j=0; j<height; ++j )
+        for( Int j=0; j<height; ++j )
             maxColSum = std::max( maxColSum, colSums[j] );
     }
     else
     {
-        std::vector<R> myPartialLowerColSums( localWidth );
-        std::vector<R> myPartialStrictlyLowerRowSums( localHeight );
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        std::vector<R> myPartialLowerColSums( localWidth ),
+                       myPartialStrictlyLowerRowSums( localHeight );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numStrictlyUpperRows = Length(j,colShift,r);
+            Int j = rowShift + jLoc*c;
+            Int numStrictlyUpperRows = Length(j,colShift,r);
             myPartialLowerColSums[jLoc] = 0;
-            for( int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
-                myPartialLowerColSums[jLoc] +=
-                    Abs(A.GetLocal(iLoc,jLoc));
+            for( Int iLoc=numStrictlyUpperRows; iLoc<localHeight; ++iLoc )
+                myPartialLowerColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
         }
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLoc*r;
-            int numStrictlyLowerCols = Length(i,rowShift,c);
+            Int i = colShift + iLoc*r;
+            Int numStrictlyLowerCols = Length(i,rowShift,c);
             myPartialStrictlyLowerRowSums[iLoc] = 0;
-            for( int jLoc=0; jLoc<numStrictlyLowerCols; ++jLoc )
+            for( Int jLoc=0; jLoc<numStrictlyLowerCols; ++jLoc )
                 myPartialStrictlyLowerRowSums[iLoc] +=
                     Abs(A.GetLocal(iLoc,jLoc));
         }
@@ -217,23 +212,22 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         // AllReduce sum to get the results. This isn't optimal, but it should
         // be good enough.
         std::vector<R> partialColSums( height, 0 );
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
+            Int j = rowShift + jLoc*c;
             partialColSums[j] = myPartialLowerColSums[jLoc];
         }
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            int i = colShift + iLoc*r;
+            Int i = colShift + iLoc*r;
             partialColSums[i] += myPartialStrictlyLowerRowSums[iLoc];
         }
         std::vector<R> colSums( height );
         mpi::AllReduce
-        ( &partialColSums[0], &colSums[0], height, mpi::SUM,
-          A.Grid().VCComm() );
+        ( &partialColSums[0], &colSums[0], height, A.Grid().VCComm() );
 
         // Find the maximum sum
-        for( int j=0; j<height; ++j )
+        for( Int j=0; j<height; ++j )
             maxColSum = std::max( maxColSum, colSums[j] );
     }
     return maxColSum;

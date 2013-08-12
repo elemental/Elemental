@@ -26,16 +26,16 @@ TrsvLT
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsvLT");
     if( L.Grid() != x.Grid() )
-        throw std::logic_error("{L,x} must be distributed over the same grid");
+        LogicError("{L,x} must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsvLT expects a (conjugate-)transpose option");
+        LogicError("TrsvLT expects a (conjugate-)transpose option");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error("x must be a vector");
-    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        LogicError("x must be a vector");
+    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( L.Width() != xLength )
-        throw std::logic_error("Nonconformal TrsvLT");
+        LogicError("Nonconformal TrsvLT");
 #endif
     const Grid& g = L.Grid();
 
@@ -75,8 +75,8 @@ TrsvLT
              /**/ /**/
               xB,  x2 );
 
-            const int n0 = x0.Height();
-            const int n1 = x1.Height();
+            const Int n0 = x0.Height();
+            const Int n1 = x1.Height();
             LockedView( L10, L, n0, 0,  n1, n0 );
             LockedView( L11, L, n0, n0, n1, n1 );
             View( z0_MR_STAR, z_MR_STAR, 0,  0, n0, 1 );
@@ -140,8 +140,8 @@ TrsvLT
             ( xL,     /**/ xR,
               x0, x1, /**/ x2 );
 
-            const int n0 = x0.Width();
-            const int n1 = x1.Width();
+            const Int n0 = x0.Width();
+            const Int n1 = x1.Width();
             LockedView( L10, L, n0, 0,  n1, n0 );
             LockedView( L11, L, n0, n0, n1, n1 );
             View( z0_STAR_MR, z_STAR_MR, 0, 0,  1, n0 );

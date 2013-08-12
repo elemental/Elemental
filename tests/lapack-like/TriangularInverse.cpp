@@ -27,7 +27,7 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = AOrig.Height();
+    const Int m = AOrig.Height();
 
     DistMatrix<F> X(g), Y(g);
     Uniform( X, m, 100 );
@@ -64,7 +64,7 @@ void TestCorrectness
 template<typename F> 
 void TestTriangularInverse
 ( bool testCorrectness, bool print,
-  UpperOrLower uplo, UnitOrNonUnit diag, int m, const Grid& g )
+  UpperOrLower uplo, UnitOrNonUnit diag, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     HermitianUniformSpectrum( A, m, 1, 10 );
@@ -112,16 +112,16 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
+        Int r = Input("--gridHeight","height of process grid",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",'N');
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);

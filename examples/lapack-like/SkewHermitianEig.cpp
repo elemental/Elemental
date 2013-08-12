@@ -34,7 +34,7 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
-        const int n = Input("--size","size of matrix",100);
+        const Int n = Input("--size","size of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -60,20 +60,20 @@ main( int argc, char* argv[] )
         // the global matrix is skew-Hermitian. However, only one triangle of 
         // the matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const int colShift = S.ColShift(); // first row we own
-        const int rowShift = S.RowShift(); // first col we own
-        const int colStride = S.ColStride();
-        const int rowStride = S.RowStride();
-        const int localHeight = S.LocalHeight();
-        const int localWidth = S.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        const Int colShift = S.ColShift(); // first row we own
+        const Int rowShift = S.RowShift(); // first col we own
+        const Int colStride = S.ColStride();
+        const Int rowStride = S.RowStride();
+        const Int localHeight = S.LocalHeight();
+        const Int localWidth = S.LocalWidth();
+        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
             {
                 // Our process owns the rows colShift:colStride:n,
                 //           and the columns rowShift:rowStride:n
-                const int i = colShift + iLocal*colStride;
-                const int j = rowShift + jLocal*rowStride;
+                const Int i = colShift + iLocal*colStride;
+                const Int j = rowShift + jLocal*rowStride;
                 S.SetLocal( iLocal, jLocal, C(i-j,i+j) );
             }
         }

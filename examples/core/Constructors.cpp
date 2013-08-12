@@ -19,14 +19,14 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of matrices to test",100);
+        const Int n = Input("--size","size of matrices to test",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
         if( mpi::WorldRank() == 0 )
         {
-            const int commSize = mpi::CommSize( comm );
+            const Int commSize = mpi::CommSize( comm );
             std::cout << "Will create matrices distributed over " 
                       << commSize << " process(es) in various ways" 
                       << std::endl;
@@ -44,23 +44,23 @@ main( int argc, char* argv[] )
         // Local buffers
         {
             // Allocate local data
-            const int gridHeight = grid.Height();
-            const int gridWidth = grid.Width();
-            const int gridRow = grid.Row();
-            const int gridCol = grid.Col();
-            const int localHeight = Length( n, gridRow, gridHeight );
-            const int localWidth = Length( n, gridCol, gridWidth );
+            const Int gridHeight = grid.Height();
+            const Int gridWidth = grid.Width();
+            const Int gridRow = grid.Row();
+            const Int gridCol = grid.Col();
+            const Int localHeight = Length( n, gridRow, gridHeight );
+            const Int localWidth = Length( n, gridCol, gridWidth );
             std::vector<double> localData( localHeight*localWidth );
 
             // Fill local data for identity
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
             {
                 // Form global column index from local column index
-                const int j = gridCol + jLocal*gridWidth;
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
+                const Int j = gridCol + jLocal*gridWidth;
+                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
                 {
                     // Form global row index from local row index
-                    const int i = gridRow + iLocal*gridHeight;     
+                    const Int i = gridRow + iLocal*gridHeight;     
 
                     // If diagonal entry, set to one, otherwise zero
                     if( i == j )

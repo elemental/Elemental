@@ -15,7 +15,7 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
 
     try 
     {
@@ -25,8 +25,8 @@ main( int argc, char* argv[] )
 
         double maxLocalError = 0;
         double maxLocalRelError = 0;
-        const int numTests = 1000;
-        for( int j=0; j<numTests; ++j )
+        const Int numTests = 1000;
+        for( Int j=0; j<numTests; ++j )
         {
             w = SampleUnitBall<Complex<double> >();
             Complex<double> sqrtW = Sqrt(w);

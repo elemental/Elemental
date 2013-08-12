@@ -22,11 +22,11 @@ Scale( T alpha, Matrix<T>& X )
     if( alpha != T(1) )
     {
         if( alpha == T(0) )
-            for( int j=0; j<X.Width(); ++j )
-                for( int i=0; i<X.Height(); ++i )
+            for( Int j=0; j<X.Width(); ++j )
+                for( Int i=0; i<X.Height(); ++i )
                     X.Set(i,j,0);
         else
-            for( int j=0; j<X.Width(); ++j )
+            for( Int j=0; j<X.Width(); ++j )
                 blas::Scal( X.Height(), alpha, X.Buffer(0,j), 1 );
     }
 }

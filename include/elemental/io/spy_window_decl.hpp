@@ -25,13 +25,13 @@ public:
     ~SpyWindow();
 
     void Spy
-    ( const Matrix<int>* A, 
+    ( const Matrix<Int>* A, 
       QString title=QString("Default title") );
 
 private:
     QScrollArea *scroll_;
     SpyWidget *spy_;
-    const Matrix<int> *matrix_;
+    const Matrix<Int> *matrix_;
 };
 
 } // namespace elem

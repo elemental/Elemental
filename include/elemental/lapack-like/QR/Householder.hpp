@@ -111,21 +111,19 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::Householder");
     if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,s} must be distributed over the same grid");
+        LogicError("{A,s} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
     if( t.Viewing() )
     {
         if( !t.AlignedWithDiagonal( A ) ) 
-            throw std::logic_error("t was not aligned with A");
-        if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
-            throw std::logic_error("t was not the appropriate shape");
+            LogicError("t was not aligned with A");
     }
     else
     {
         t.AlignWithDiagonal( A );
-        t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
     }
+    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>

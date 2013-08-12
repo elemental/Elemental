@@ -25,7 +25,7 @@ namespace elem {
 template<typename F>
 inline void
 HermitianUniformSpectrum
-( Matrix<F>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
+( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianUniformSpectrum");
@@ -37,7 +37,7 @@ HermitianUniformSpectrum
 template<typename F,Distribution U,Distribution V>
 inline void
 HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, int n, BASE(F) lower=0, BASE(F) upper=1 )
+( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianUniformSpectrum");
@@ -54,7 +54,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     CallStackEntry entry("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix Hermitian");
+        LogicError("Cannot make a non-square matrix Hermitian");
     typedef BASE(F) R;
     const bool isComplex = IsComplex<F>::val;
 
@@ -66,9 +66,9 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     //
 
     // Form d and D
-    const int n = A.Height();
+    const Int n = A.Height();
     std::vector<F> d( n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
         d[j] = lower + (upper-lower)*Uniform();
     Diagonal( A, d );
 
@@ -80,7 +80,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 
     // Form v := D u
     Matrix<F> v( n, 1 );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         v.Set( i, 0, d[i]*u.Get(i,0) );
 
     // Update A := A - 2(u v^H + v u^H)
@@ -95,7 +95,7 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 
     // Force the diagonal to be real
     if( isComplex )
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
             A.SetImagPart( j, j, R(0) );
 }
 
@@ -108,7 +108,7 @@ MakeHermitianUniformSpectrum
     CallStackEntry entry("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix Hermitian");
+        LogicError("Cannot make a non-square matrix Hermitian");
     const Grid& grid = A.Grid();
     typedef BASE(F) R;
     const bool isComplex = IsComplex<F>::val;
@@ -122,10 +122,10 @@ MakeHermitianUniformSpectrum
     //
 
     // Form d and D
-    const int n = A.Height();
+    const Int n = A.Height();
     std::vector<F> d( n );
     if( grid.Rank() == 0 )
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
             d[j] = lower + (upper-lower)*Uniform();
     mpi::Broadcast( &d[0], n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
@@ -156,12 +156,12 @@ MakeHermitianUniformSpectrum
     v.ResizeTo( n, 1 );
     if( v.LocalWidth() == 1 )
     {
-        const int colShift = v.ColShift();
-        const int colStride = v.ColStride();
-        const int localHeight = v.LocalHeight();
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int colShift = v.ColShift();
+        const Int colStride = v.ColStride();
+        const Int localHeight = v.LocalHeight();
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             v.SetLocal( iLoc, 0, d[i]*u.GetLocal(iLoc,0) );
         }
     }
@@ -194,18 +194,18 @@ MakeHermitianUniformSpectrum
     // Force the diagonal to be real-valued
     if( isComplex )
     {
-        const int localHeight = A.LocalHeight();
-        const int localWidth = A.LocalWidth();
-        const int colShift = A.ColShift();
-        const int rowShift = A.RowShift();
-        const int colStride = A.ColStride();
-        const int rowStride = A.RowStride();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        const Int colShift = A.ColShift();
+        const Int rowShift = A.RowShift();
+        const Int colStride = A.ColStride();
+        const Int rowStride = A.RowStride();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const int j = rowShift + jLoc*rowStride;
-            for( int iLoc=0; iLoc<localHeight; ++iLoc )
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                const int i = colShift + iLoc*colStride;
+                const Int i = colShift + iLoc*colStride;
                 if( i == j )
                     A.SetLocalImagPart( iLoc, jLoc, R(0) );
             }

@@ -53,7 +53,7 @@ Cholesky( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("Cholesky");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
 #endif
     if( uplo == LOWER )
         cholesky::LVar3( A );
@@ -68,7 +68,7 @@ ReverseCholesky( UpperOrLower uplo, Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("ReverseCholesky");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
 #endif
     if( uplo == LOWER )
         cholesky::ReverseLVar3( A );

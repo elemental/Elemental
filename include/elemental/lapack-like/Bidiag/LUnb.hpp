@@ -25,25 +25,16 @@ inline void LUnb
 {
 #ifndef RELEASE
     CallStackEntry entry("bidiag::LUnb");
-#endif
-    const int tPHeight = A.Height();
-    const int tQHeight = std::max(A.Height()-1,0);
-#ifndef RELEASE
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        throw std::logic_error("Process grids do not match");
+        LogicError("Process grids do not match");
     if( A.Height() > A.Width() )
-        throw std::logic_error("A must be at least as wide as it is tall");
-    if( tP.Viewing() && (tP.Height() != tPHeight || tP.Width() != 1) )
-        throw std::logic_error("tP is the wrong height");
-    if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
-        throw std::logic_error("tQ is the wrong height");
+        LogicError("A must be at least as wide as it is tall");
 #endif
     const Grid& g = A.Grid();
-
-    if( !tP.Viewing() )
-        tP.ResizeTo( tPHeight, 1 );
-    if( !tQ.Viewing() )
-        tQ.ResizeTo( tQHeight, 1 );
+    const Int tPHeight = A.Height();
+    const Int tQHeight = std::max(A.Height()-1,0);
+    tP.ResizeTo( tPHeight, 1 );
+    tQ.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
     DistMatrix<F>

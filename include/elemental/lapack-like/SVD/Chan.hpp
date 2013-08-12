@@ -30,13 +30,13 @@ ChanUpper
 #ifndef RELEASE
     CallStackEntry entry("svd::ChanUpper");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
+        LogicError("A must be at least as tall as it is wide");
     if( heightRatio <= 1.0 )
-        throw std::logic_error("Nonsensical switchpoint for SVD");
+        LogicError("Nonsensical switchpoint for SVD");
 #endif
     const Grid& g = A.Grid();
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m > heightRatio*n )
     {
         DistMatrix<F> R(g);
@@ -60,26 +60,21 @@ ChanUpper
 template<typename F>
 inline void
 ChanUpper
-( DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& s,
-  double heightRatio=1.2 )
+( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
     CallStackEntry entry("svd::ChanUpper");    
     if( heightRatio <= 1.0 )
-        throw std::logic_error("Nonsensical switchpoint");
+        LogicError("Nonsensical switchpoint");
 #endif
     const Grid& g = A.Grid();
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m >= heightRatio*n )
     {
         QR( A );
-        DistMatrix<F> AT(g),
-                      AB(g);
-        PartitionDown
-        ( A, AT,
-             AB, n );
+        DistMatrix<F> AT(g), AB(g);
+        PartitionDown( A, AT, AB, n );
         MakeTriangular( UPPER, AT );
         GolubReinschUpper( AT, s );
     }
@@ -103,7 +98,7 @@ Chan
 #ifndef RELEASE
     CallStackEntry entry("svd::Chan");
     if( heightRatio <= 1.0 )
-        throw std::logic_error("Nonsensical switchpoint for SVD");
+        LogicError("Nonsensical switchpoint for SVD");
 #endif
     // Check if we need to rescale the matrix, and do so if necessary
     bool needRescaling;

@@ -24,11 +24,11 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         const sign::Scaling scaling = 
             static_cast<sign::Scaling>(Input("--scaling","scaling strategy",0));
-        const int maxIts = Input("--maxIts","max number of iter's",100);
+        const Int maxIts = Input("--maxIts","max number of iter's",100);
         const double tol = Input("--tol","convergence tolerance",1e-6);
         const bool print = Input("--print","print matrix?",false);
         const bool display = Input("--display","display matrix?",false);
@@ -43,7 +43,7 @@ main( int argc, char* argv[] )
             Display( A, "A" );
 
         // Compute sgn(A)
-        const int numIter = sign::Newton( A, scaling, maxIts, tol );
+        const Int numIter = sign::Newton( A, scaling, maxIts, tol );
         if( mpi::WorldRank() == 0 )
             std::cout << "num iterations: " << numIter << std::endl;
         if( print )

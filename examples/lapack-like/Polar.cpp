@@ -20,8 +20,8 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","matrix height",100);
-        const int n = Input("--width","matrix width",100);
+        const Int m = Input("--height","matrix height",100);
+        const Int n = Input("--width","matrix width",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

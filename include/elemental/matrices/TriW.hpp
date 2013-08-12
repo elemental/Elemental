@@ -16,38 +16,36 @@ namespace elem {
 
 template<typename T> 
 inline void
-TriW( Matrix<T>& A, int m, int n, T alpha, int k )
+TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 {
 #ifndef RELEASE
     CallStackEntry entry("TriW");
 #endif
     if( k < 0 )
-        throw std::logic_error
-        ("Number of superdiagonals of ones must be non-negative");
-    const int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
+        LogicError("Number of superdiagonals of ones must be non-negative");
+    const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
     std::vector<T> a( numDiags, 0 );
     if( n > 0 )
         a[n-1] = 1;
-    for( int j=0; j<std::min(n-1,k); ++j )
+    for( Int j=0; j<std::min(n-1,k); ++j )
         a[n-2-j] = alpha;
     Toeplitz( A, m, n, a );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-TriW( DistMatrix<T,U,V>& A, int m, int n, T alpha, int k )
+TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
 {
 #ifndef RELEASE
     CallStackEntry entry("TriW");
 #endif
     if( k < 0 )
-        throw std::logic_error
-        ("Number of superdiagonals of ones must be non-negative");
-    const int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
+        LogicError("Number of superdiagonals of ones must be non-negative");
+    const Int numDiags = ( (n>0)&&(m>0) ? m+n-1 : 0 );
     std::vector<T> a( numDiags, 0 );
     if( n > 0 )
         a[n-1] = 1;
-    for( int j=0; j<std::min(n-1,k); ++j )
+    for( Int j=0; j<std::min(n-1,k); ++j )
         a[n-2-j] = alpha;
     Toeplitz( A, m, n, a );
 }

@@ -13,14 +13,14 @@
 namespace elem {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T,Int>
-#define DM DistMatrix<T,U,V,Int>
+#define M  Matrix<T>
+#define DM DistMatrix<T,U,V>
 
 //
 // RepartitionUp
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionUp
 ( M& AT, M& A0,
@@ -34,7 +34,7 @@ RepartitionUp
     View( A2, AB );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionUp
 ( DM& AT, DM& A0,
@@ -48,7 +48,7 @@ RepartitionUp
     View( A2, AB );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionUp
 ( const M& AT, M& A0,
@@ -62,7 +62,7 @@ LockedRepartitionUp
     LockedView( A2, AB );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionUp
 ( const DM& AT, DM& A0,
@@ -80,7 +80,7 @@ LockedRepartitionUp
 // RepartitionDown
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionDown
 ( M& AT, M& A0,
@@ -94,7 +94,7 @@ RepartitionDown
     PartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionDown
 ( DM& AT, DM& A0,
@@ -108,7 +108,7 @@ RepartitionDown
     PartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionDown
 ( const M& AT, M& A0,
@@ -122,7 +122,7 @@ LockedRepartitionDown
     LockedPartitionDown( AB, A1, A2, A1Height );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionDown
 ( const DM& AT, DM& A0,
@@ -140,7 +140,7 @@ LockedRepartitionDown
 // RepartitionLeft
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionLeft
 ( M& AL, M& AR,
@@ -153,7 +153,7 @@ RepartitionLeft
     View( A2, AR );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionLeft
 ( DM& AL, DM& AR,
@@ -166,7 +166,7 @@ RepartitionLeft
     View( A2, AR );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionLeft
 ( const M& AL, const M& AR,
@@ -179,7 +179,7 @@ LockedRepartitionLeft
     LockedView( A2, AR );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionLeft
 ( const DM& AL, const DM& AR,
@@ -196,7 +196,7 @@ LockedRepartitionLeft
 // RepartitionRight
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionRight
 ( M& AL, M& AR,
@@ -209,7 +209,7 @@ RepartitionRight
     PartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionRight
 ( DM& AL, DM& AR,
@@ -222,7 +222,7 @@ RepartitionRight
     PartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionRight
 ( const M& AL, const M& AR,
@@ -235,7 +235,7 @@ LockedRepartitionRight
     LockedPartitionRight( AR, A1, A2, A1Width );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionRight
 ( const DM& AL, const DM& AR,
@@ -252,7 +252,7 @@ LockedRepartitionRight
 // RepartitionUpDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionUpDiagonal
 ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
@@ -271,7 +271,7 @@ RepartitionUpDiagonal
     View( A22, ABR );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionUpDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -290,7 +290,7 @@ RepartitionUpDiagonal
     View( A22, ABR );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionUpDiagonal
 ( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
@@ -309,7 +309,7 @@ LockedRepartitionUpDiagonal
     LockedView( A22, ABR );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionUpDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -332,7 +332,7 @@ LockedRepartitionUpDiagonal
 // RepartitionDownDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 RepartitionDownDiagonal
 ( M& ATL, M& ATR, M& A00, M& A01, M& A02,
@@ -349,7 +349,7 @@ RepartitionDownDiagonal
     PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 RepartitionDownDiagonal
 ( DM& ATL, DM& ATR, DM& A00, DM& A01, DM& A02,
@@ -366,7 +366,7 @@ RepartitionDownDiagonal
     PartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedRepartitionDownDiagonal
 ( const M& ATL, const M& ATR, M& A00, M& A01, M& A02,
@@ -383,7 +383,7 @@ LockedRepartitionDownDiagonal
     LockedPartitionRight( ATR, A01, A02, A11.Width() );
 }
 
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 inline void
 LockedRepartitionDownDiagonal
 ( const DM& ATL, const DM& ATR, DM& A00, DM& A01, DM& A02,

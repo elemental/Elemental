@@ -47,7 +47,7 @@ ReduceComm( const Grid& grid )
     else if( U == VR && V == STAR )
         comm = grid.VRComm();
     else
-        throw std::logic_error("Invalid distribution");
+        LogicError("Invalid distribution");
     return comm;
 }
 

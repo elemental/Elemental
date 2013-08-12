@@ -26,7 +26,7 @@ Cannon_NN
 #ifndef RELEASE
     CallStackEntry entry("gemm::Cannon_NN");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -36,70 +36,67 @@ Cannon_NN
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
     if( g.Height() != g.Width() )
-        throw std::logic_error("Process grid must be square for Cannon's");
+        LogicError("Process grid must be square for Cannon's");
     if( C.ColAlignment() != A.ColAlignment() || 
         C.RowAlignment() != B.RowAlignment() )
-        throw std::logic_error("C is not properly aligned");
+        LogicError("C is not properly aligned");
 
-    const int row = g.Row();
-    const int col = g.Col();
-    const int pSqrt = g.Height();
+    const Int row = g.Row();
+    const Int col = g.Col();
+    const Int pSqrt = g.Height();
     mpi::Comm rowComm = g.RowComm();
     mpi::Comm colComm = g.ColComm(); 
     if( A.Width() % pSqrt != 0 )
-        throw std::logic_error
-        ("For now, width(A) must be integer multiple of sqrt(p)");
+        LogicError("For now, width(A) must be integer multiple of sqrt(p)");
 
     // Begin by scaling our local portion of C
     Scale( beta, C );
 
     // Load the initial A and B packages (may want to transpose B...)
-    const int localHeightA = A.LocalHeight();
-    const int localHeightB = B.LocalHeight();
-    const int localWidthA = A.LocalWidth();
-    const int localWidthB = B.LocalWidth();
+    const Int localHeightA = A.LocalHeight();
+    const Int localHeightB = B.LocalHeight();
+    const Int localWidthA = A.LocalWidth();
+    const Int localWidthB = B.LocalWidth();
     Matrix<T> pkgA(localHeightA,localWidthA,localHeightA), 
               pkgB(localHeightB,localWidthB,localHeightB);
-    for( int jLoc=0; jLoc<localWidthA; ++jLoc )
+    for( Int jLoc=0; jLoc<localWidthA; ++jLoc )
         MemCopy
         ( pkgA.Buffer(0,jLoc), A.LockedBuffer(0,jLoc), localHeightA );
-    for( int jLoc=0; jLoc<localWidthB; ++jLoc )
+    for( Int jLoc=0; jLoc<localWidthB; ++jLoc )
         MemCopy
         ( pkgB.Buffer(0,jLoc), B.LockedBuffer(0,jLoc), localHeightB );
 
     // Perform the initial circular shifts so that our A and B packages align
-    const int rowShiftA = A.RowShift();
-    const int colShiftB = B.ColShift();
-    const int leftInitA = (col+pSqrt-colShiftB) % pSqrt;
-    const int rightInitA = (col+colShiftB) % pSqrt;
-    const int aboveInitB = (row+pSqrt-rowShiftA) % pSqrt;
-    const int belowInitB = (row+rowShiftA) % pSqrt;
-    const int pkgSizeA = localHeightA*localWidthA;
-    const int pkgSizeB = localHeightB*localWidthB;
-    mpi::SendRecv
-    ( pkgA.Buffer(), pkgSizeA, leftInitA, 0, rightInitA, 0, rowComm );
-    mpi::SendRecv
-    ( pkgB.Buffer(), pkgSizeB, aboveInitB, 0, belowInitB, 0, colComm );
+    const Int rowShiftA = A.RowShift();
+    const Int colShiftB = B.ColShift();
+    const Int leftInitA = (col+pSqrt-colShiftB) % pSqrt;
+    const Int rightInitA = (col+colShiftB) % pSqrt;
+    const Int aboveInitB = (row+pSqrt-rowShiftA) % pSqrt;
+    const Int belowInitB = (row+rowShiftA) % pSqrt;
+    const Int pkgSizeA = localHeightA*localWidthA;
+    const Int pkgSizeB = localHeightB*localWidthB;
+    mpi::SendRecv( pkgA.Buffer(), pkgSizeA, leftInitA, rightInitA, rowComm );
+    mpi::SendRecv( pkgB.Buffer(), pkgSizeB, aboveInitB, belowInitB, colComm );
 
     // Now begin the data flow
-    const int aboveRow = (row+pSqrt-1) % pSqrt;
-    const int belowRow = (row+1) % pSqrt;
-    const int leftCol = (col+pSqrt-1) % pSqrt;
-    const int rightCol = (col+1) % pSqrt;
-    for( int q=0; q<pSqrt; ++q )
+    const Int aboveRow = (row+pSqrt-1) % pSqrt;
+    const Int belowRow = (row+1) % pSqrt;
+    const Int leftCol = (col+pSqrt-1) % pSqrt;
+    const Int rightCol = (col+1) % pSqrt;
+    for( Int q=0; q<pSqrt; ++q )
     {
         Gemm( NORMAL, NORMAL, alpha, pkgA, pkgB, T(1), C.Matrix() );
         if( q != pSqrt-1 )
         {
             mpi::SendRecv
-            ( pkgA.Buffer(), pkgSizeA, leftCol, 0, rightCol, 0, rowComm );
+            ( pkgA.Buffer(), pkgSizeA, leftCol, rightCol, rowComm );
             mpi::SendRecv
-            ( pkgB.Buffer(), pkgSizeB, aboveRow, 0, belowRow, 0, colComm );
+            ( pkgB.Buffer(), pkgSizeB, aboveRow, belowRow, colComm );
         }
     }
 }
@@ -115,7 +112,7 @@ SUMMA_NNA
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_NNA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -125,7 +122,7 @@ SUMMA_NNA
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -191,8 +188,7 @@ SUMMA_NNB
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_NNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -202,7 +198,7 @@ SUMMA_NNB
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -279,8 +275,7 @@ SUMMA_NNC
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_NNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -290,7 +285,7 @@ SUMMA_NNC
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -356,7 +351,7 @@ SUMMA_NNDot
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_NNDot");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( A.Height() != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Width()  != B.Height() )
@@ -366,7 +361,7 @@ SUMMA_NNDot
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -552,9 +547,9 @@ SUMMA_NN
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_NN");
 #endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Width();
+    const Int m = C.Height();
+    const Int n = C.Width();
+    const Int k = A.Width();
     const double weightTowardsC = 2.;
     const double weightAwayFromDot = 10.;
 

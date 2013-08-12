@@ -27,21 +27,13 @@ inline void L
 {
 #ifndef RELEASE
     CallStackEntry entry("bidiag::L");
-#endif
-    const int tPHeight = A.Height();
-    const int tQHeight = std::max(A.Height()-1,0);
-#ifndef RELEASE
     if( A.Height() > A.Width() )
-        throw std::logic_error("A must be at least as wide as it is tall");
-    if( tP.Viewing() && (tP.Height() != tPHeight || tP.Width() != 1) )
-        throw std::logic_error("tP is the wrong height");
-    if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
-        throw std::logic_error("tQ is the wrong height");
+        LogicError("A must be at least as wide as it is tall");
 #endif
-    if( !tP.Viewing() )
-        tP.ResizeTo( tPHeight, 1 );
-    if( !tQ.Viewing() )
-        tQ.ResizeTo( tQHeight, 1 );
+    const Int tPHeight = A.Height();
+    const Int tQHeight = std::max(A.Height()-1,0);
+    tP.ResizeTo( tPHeight, 1 );
+    tQ.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
     Matrix<F>
@@ -144,16 +136,16 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 #ifndef RELEASE
     CallStackEntry entry("bidiag::L");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        throw std::logic_error
-        ("{A,tP,tQ} must be distributed over the same grid");
+        LogicError("{A,tP,tQ} must be distributed over the same grid");
     if( A.Height() > A.Width() )
-        throw std::logic_error("A must be at least as wide as it is tall");
+        LogicError("A must be at least as wide as it is tall");
+    // Are these requirements necessary?!?
     if( tP.Viewing() || tQ.Viewing() )
-        throw std::logic_error("tP and tQ must not be views");
+        LogicError("tP and tQ must not be views");
 #endif
     const Grid& g = A.Grid();
-    const int tPHeight = std::max(A.Height()-1,0);
-    const int tQHeight = A.Height();
+    const Int tPHeight = std::max(A.Height()-1,0);
+    const Int tQHeight = A.Height();
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, -1 );
     tQDiag.AlignWithDiagonal( A, 0 );

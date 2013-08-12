@@ -1,6 +1,6 @@
 Functionality
 =============
-- Test results of new Lyapunov/Sylvester/Ricatti solvers
+- Fast Haar generation/application (and IID normal generation as well)
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
 - 'PartitionTracker' class instead of Repartition/SlidePartition
 - Way for DistMatrix with single process to view Matrix, and operator=
@@ -16,6 +16,7 @@ Functionality
 - Complete Orthogonal Decompositions (especially URV)
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
 - LU with full and rook pivoting
+- Square process grid specialization of LDL (used to exist...)
 - Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
 - Blocked Aasen's
 - Pivoted Cholesky
@@ -35,6 +36,11 @@ Functionality
 
 Maintenance
 ===========
+- Document Int
+- Update SWIG interface to allow for Int != int
+- Convert 'AlignWith' routines to be requirements rather than actions, similar
+  to 'ResizeTo', which simplifies error-handling by allowing it to be 
+  centralized within the method rather than in every usage.
 - Documentation for detailed interfaces which reside in sub-namespaces
 - Update elemvariables to support usage of Qt5
 - Many more references

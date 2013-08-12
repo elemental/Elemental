@@ -25,12 +25,12 @@ int
 main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
-    const int worldRank = mpi::WorldRank();
+    const Int worldRank = mpi::WorldRank();
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         const bool alwaysRecompute = Input("--always","no norm updates?",false);
         const bool blockedUnpiv = 
             Input("--blockUnpiv","blocked unpivoted QR?",false);
@@ -112,7 +112,7 @@ main( int argc, char* argv[] )
         Identity( E, m, n );
         qr::ApplyQ( LEFT, NORMAL, QRPiv, tPiv, E );
         qr::ApplyQ( LEFT, ADJOINT, QRPiv, tPiv, E );
-        const int k = std::min(m,n);
+        const Int k = std::min(m,n);
         DistMatrix<C> EUpper;
         View( EUpper, E, 0, 0, k, k );
         DistMatrix<C> I;

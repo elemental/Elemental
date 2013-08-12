@@ -21,10 +21,10 @@ EntrywiseOneNorm( const Matrix<F>& A )
 #endif
     typedef BASE(F) R;
     R norm = 0;
-    const int width = A.Width();
-    const int height = A.Height();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    const Int width = A.Width();
+    const Int height = A.Height();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             norm += Abs(A.Get(i,j));
     return norm;
 }
@@ -37,17 +37,17 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     CallStackEntry entry("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     typedef BASE(F) R;
     R norm = 0;
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     if( uplo == UPPER )
     {
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
         {
-            for( int i=0; i<j; ++i )
+            for( Int i=0; i<j; ++i )
             {
                 const R alpha = Abs(A.Get(i,j));
                 if( i ==j )
@@ -59,9 +59,9 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
         {
-            for( int i=j+1; i<height; ++i )
+            for( Int i=j+1; i<height; ++i )
             {
                 const R alpha = Abs(A.Get(i,j));
                 if( i ==j )
@@ -93,16 +93,14 @@ EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 #endif
     typedef BASE(F) R;
     R localSum = 0;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             localSum += Abs(A.GetLocal(iLoc,jLoc)); 
 
-    R norm;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    mpi::AllReduce( &localSum, &norm, 1, mpi::SUM, comm );
-    return norm;
+    return mpi::AllReduce( localSum, comm );
 }
 
 template<typename F>
@@ -113,25 +111,25 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     CallStackEntry entry("HermitianEntrywiseOneNorm");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
-    const int r = A.Grid().Height();
-    const int c = A.Grid().Width();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
+    const Int r = A.Grid().Height();
+    const Int c = A.Grid().Width();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
 
     typedef BASE(F) R;
     R localSum = 0;
-    const int localWidth = A.LocalWidth();
+    const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numUpperRows = Length(j+1,colShift,r);
-            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            Int j = rowShift + jLoc*c;
+            Int numUpperRows = Length(j+1,colShift,r);
+            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
             {
-                int i = colShift + iLoc*r;
+                Int i = colShift + iLoc*r;
                 const R alpha = Abs(A.GetLocal(iLoc,jLoc));
                 if( i ==j )
                     localSum += alpha;
@@ -142,14 +140,14 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     }
     else
     {
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numStrictlyUpperRows = Length(j,colShift,r);
-            for( int iLoc=numStrictlyUpperRows;
+            Int j = rowShift + jLoc*c;
+            Int numStrictlyUpperRows = Length(j,colShift,r);
+            for( Int iLoc=numStrictlyUpperRows;
                  iLoc<A.LocalHeight(); ++iLoc )
             {
-                int i = colShift + iLoc*r;
+                Int i = colShift + iLoc*r;
                 const R alpha = Abs(A.GetLocal(iLoc,jLoc));
                 if( i ==j )
                     localSum += alpha;
@@ -159,9 +157,7 @@ HermitianEntrywiseOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         }
     }
 
-    R norm;
-    mpi::AllReduce( &localSum, &norm, 1, mpi::SUM, A.Grid().VCComm() );
-    return norm;
+    return mpi::AllReduce( localSum, A.Grid().VCComm() );
 }
 
 template<typename F,Distribution U,Distribution V>

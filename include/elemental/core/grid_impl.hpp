@@ -70,7 +70,7 @@ Grid::Grid( mpi::Comm comm, int height )
     height_ = height;
     width_ = size_ /  height_;
     if( height_ < 0 )
-        throw std::logic_error("Process grid dimensions must be non-negative");
+        LogicError("Process grid dimensions must be non-negative");
 
     SetUpGrid();
 }
@@ -87,7 +87,7 @@ Grid::SetUpGrid()
         msg << "Number of processes must match grid size:\n"
             << "  size=" << size_ << ", (height,width)=(" 
             << height_ << "," << width_ << ")";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 
     gcd_ = elem::GCD( height_, width_ );
@@ -321,7 +321,7 @@ Grid::Grid( mpi::Comm viewers, mpi::Group owners, int height )
     width_ = size_ / height;
 
     if( height_ < 0 )
-        throw std::logic_error("Process grid dimensions must be non-negative");
+        LogicError("Process grid dimensions must be non-negative");
 
     SetUpGrid();
 }

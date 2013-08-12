@@ -22,8 +22,8 @@ inline double Uniform()
 }
 
 template<>
-inline int
-SampleUnitBall<int>()
+inline Int
+SampleUnitBall<Int>()
 {
     const double u = Uniform();
     if( u <= 1./3. )
@@ -34,10 +34,12 @@ SampleUnitBall<int>()
         return +1;
 }
 
+// What to do after switching back to std::complex, where only the base types
+// float, double, and long double are allowed?
 template<>
-inline Complex<int>
-SampleUnitBall<Complex<int> >()
-{ return Complex<int>( SampleUnitBall<int>(), SampleUnitBall<int>() ); }
+inline Complex<Int>
+SampleUnitBall<Complex<Int> >()
+{ return Complex<Int>( SampleUnitBall<Int>(), SampleUnitBall<Int>() ); }
 
 template<>
 inline float

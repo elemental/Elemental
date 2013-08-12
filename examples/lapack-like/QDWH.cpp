@@ -26,9 +26,9 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int maxIts = Input("--maxits","max # of iter's",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int maxIts = Input("--maxits","max # of iter's",100);
         ProcessInput();
         PrintInputReport();
 
@@ -48,7 +48,7 @@ main( int argc, char* argv[] )
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound, maxIts );
+        const Int numItsQDWH = polar::QDWH( Q, lowerBound, upperBound, maxIts );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 

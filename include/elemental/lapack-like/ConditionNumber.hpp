@@ -22,13 +22,12 @@ ConditionNumber( const Matrix<F>& A )
     CallStackEntry entry("ConditionNumber");
 #endif
     typedef BASE(F) R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     SVD( B, s );
 
     R cond = 1;
-    const int numVals = s.Height();
+    const Int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
     return cond;
@@ -42,13 +41,12 @@ ConditionNumber( const DistMatrix<F,U,V>& A )
     CallStackEntry entry("ConditionNumber");
 #endif
     typedef BASE(F) R;
-
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     SVD( B, s );
 
     R cond = 1;
-    const int numVals = s.Height();
+    const Int numVals = s.Height();
     if( numVals > 0 )
         cond = s.Get(0,0) / s.Get(numVals-1,0);
     return cond;

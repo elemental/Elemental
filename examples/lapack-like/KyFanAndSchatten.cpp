@@ -26,10 +26,10 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
-        const int k = Input("--k","index of KyFan norm",10);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int k = Input("--k","index of KyFan norm",10);
         const double p = Input("--p","power of Schatten norm",2);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();

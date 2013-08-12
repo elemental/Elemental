@@ -28,9 +28,9 @@ SUMMA_TNA
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_TNA");    
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A must be (Conjugate)Transposed");
+        LogicError("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
@@ -40,7 +40,7 @@ SUMMA_TNA
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -110,9 +110,9 @@ SUMMA_TNB
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_TNB");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A must be (Conjugate)Transposed");
+        LogicError("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
@@ -122,7 +122,7 @@ SUMMA_TNB
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -203,9 +203,9 @@ SUMMA_TNC
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_TNC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must have the same grid");
+        LogicError("{A,B,C} must have the same grid");
     if( orientationOfA == NORMAL )
-        throw std::logic_error("A must be (Conjugate)Transposed");
+        LogicError("A must be (Conjugate)Transposed");
     if( A.Width()  != C.Height() ||
         B.Width()  != C.Width()  ||
         A.Height() != B.Height()   )
@@ -215,7 +215,7 @@ SUMMA_TNC
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -293,9 +293,9 @@ SUMMA_TN
 #ifndef RELEASE
     CallStackEntry entry("gemm::SUMMA_TN");
 #endif
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = A.Height();
+    const Int m = C.Height();
+    const Int n = C.Width();
+    const Int k = A.Height();
     const double weightTowardsC = 2.;
 
     if( m <= n && weightTowardsC*m <= k )

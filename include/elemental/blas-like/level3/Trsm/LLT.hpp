@@ -32,7 +32,7 @@ TrsmLLTLarge
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLTLarge");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
     const Grid& g = L.Grid();
 
@@ -119,7 +119,7 @@ TrsmLLTMedium
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLTMedium");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
 #endif
     const Grid& g = L.Grid();
 
@@ -211,15 +211,15 @@ inline void AddInLocalData
 #ifndef RELEASE
     CallStackEntry entry("internal::AddInLocalData");
 #endif
-    const int width = X1.Width();
-    const int localHeight = X1.LocalHeight();
-    const int stride = X1.Grid().Size();
-    const int offset = X1.ColShift();
-    for( int j=0; j<width; ++j )
+    const Int width = X1.Width();
+    const Int localHeight = X1.LocalHeight();
+    const Int stride = X1.Grid().Size();
+    const Int offset = X1.ColShift();
+    for( Int j=0; j<width; ++j )
     {
         F* ZColBuffer = Z.Buffer(0,j);
         const F* X1ColBuffer = X1.LockedBuffer(0,j);
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             ZColBuffer[offset+stride*iLoc] += X1ColBuffer[iLoc];
     }
 }
@@ -235,20 +235,20 @@ TrsmLLTSmall
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
+        LogicError
         ("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrsmLLT: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( L.ColAlignment() != X.ColAlignment() )
-        throw std::logic_error("L and X must be aligned");
+        LogicError("L and X must be aligned");
 #endif
     const Grid& g = L.Grid();
 
@@ -326,20 +326,20 @@ TrsmLLTSmall
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLTSmall");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
+        LogicError
         ("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLLT expects a (Conjugate)Transpose option");
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrsmLLT: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( L.RowAlignment() != X.ColAlignment() )
-        throw std::logic_error("L and X must be aligned");
+        LogicError("L and X must be aligned");
 #endif
     const Grid& g = L.Grid();
 

@@ -41,14 +41,14 @@ namespace apply_packed_reflectors {
 template<typename F> 
 inline void
 LLHF
-( Conjugation conjugation, int offset, 
+( Conjugation conjugation, Int offset, 
   const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("apply_packed_reflectors::LLHF");
     // TODO: Proper dimension checks
     if( t.Height() != H.DiagonalLength(offset) )
-        throw std::logic_error("t must be the same length as H's offset diag");
+        LogicError("t must be the same length as H's offset diag");
 #endif
     Matrix<F>
         HTL, HTR,  H00, H01, H02,  HPan,
@@ -133,18 +133,18 @@ LLHF
 template<typename F> 
 inline void
 LLHF
-( Conjugation conjugation, int offset, 
+( Conjugation conjugation, Int offset, 
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("apply_packed_reflectors::LLHF");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
-        throw std::logic_error("{H,t,A} must be distributed over same grid");
+        LogicError("{H,t,A} must be distributed over same grid");
     // TODO: Proper dimension checks
     if( t.Height() != H.DiagonalLength(offset) )
-        throw std::logic_error("t must be the same length as H's offset diag");
+        LogicError("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiagonal( H, offset ) )
-        throw std::logic_error("t must be aligned with H's 'offset' diagonal");
+        LogicError("t must be aligned with H's 'offset' diagonal");
 #endif
     const Grid& g = H.Grid();
     DistMatrix<F>

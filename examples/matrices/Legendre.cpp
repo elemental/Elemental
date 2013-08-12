@@ -20,7 +20,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of matrix",10);
+        const Int n = Input("--size","size of matrix",10);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();
@@ -57,7 +57,7 @@ main( int argc, char* argv[] )
         DistMatrix<double> firstRow;
         View( firstRow, X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
             const double gamma = weights.Get( 0, j );
             weights.Set( 0, j, 2*gamma*gamma );

@@ -26,9 +26,9 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = A.Height();
-    const int n = A.Width();
-    const int minDim = std::min(m,n);
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = std::min(m,n);
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of Q..." << endl;
@@ -88,7 +88,7 @@ void TestCorrectness
 }
 
 template<typename F>
-void TestRQ( bool testCorrectness, bool print, int m, int n, const Grid& g )
+void TestRQ( bool testCorrectness, bool print, Int m, Int n, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,MD,STAR> t(g);
@@ -142,15 +142,15 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        Int r = Input("--gridHeight","height of process grid",0);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);

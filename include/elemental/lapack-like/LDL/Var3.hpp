@@ -24,23 +24,19 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3Unb");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
-        throw std::logic_error
-        ("d must be a column vector the same height as A");
+        LogicError("A must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Can only perform LDL^T or LDL^H");
+        LogicError("Can only perform LDL^T or LDL^H");
 #endif
-    const int n = A.Height();
-    if( !d.Viewing() )
-        d.ResizeTo( n, 1 );
+    const Int n = A.Height();
+    d.ResizeTo( n, 1 );
 
     F* ABuffer = A.Buffer();
     F* dBuffer = d.Buffer();
-    const int ldim = A.LDim();
-    for( int j=0; j<n; ++j )
+    const Int ldim = A.LDim();
+    for( Int j=0; j<n; ++j )
     {
-        const int a21Height = n - (j+1);
+        const Int a21Height = n - (j+1);
 
         // Extract and store the diagonal of D
         const F alpha11 = ABuffer[j+j*ldim];
@@ -52,28 +48,28 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         if( orientation == ADJOINT )
         {
             // A22 := A22 - a21 (a21 / alpha11)^H
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
             {
                 const F beta = Conj(a21[k]/alpha11);
                 F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
-                for( int i=k; i<a21Height; ++i )
+                for( Int i=k; i<a21Height; ++i )
                     A22Col[i] -= a21[i]*beta;
             }
         }
         else
         {
             // A22 := A22 - a21 (a21 / alpha11)^T
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
             {
                 const F beta = a21[k]/alpha11;
                 F* RESTRICT A22Col = &ABuffer[(j+1)+(j+1+k)*ldim];
-                for( int i=k; i<a21Height; ++i )
+                for( Int i=k; i<a21Height; ++i )
                     A22Col[i] -= a21[i]*beta;
             }
         }
         
         // a21 := a21 / alpha11
-        for( int i=0; i<a21Height; ++i )
+        for( Int i=0; i<a21Height; ++i )
             a21[i] /= alpha11;
     }
 }
@@ -86,16 +82,12 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
-    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
-        throw std::logic_error
-        ("d must be a column vector the same height as A");
+        LogicError("A must be square");
     if( orientation == NORMAL )
-        throw std::logic_error("Can only perform LDL^T or LDL^H");
+        LogicError("Can only perform LDL^T or LDL^H");
 #endif
-    const int n = A.Height();
-    if( !d.Viewing() )
-        d.ResizeTo( n, 1 );
+    const Int n = A.Height();
+    d.ResizeTo( n, 1 );
 
     Matrix<F>
         ATL, ATR,  A00, A01, A02,
@@ -157,23 +149,18 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
     if( orientation == NORMAL )
-        throw std::logic_error("Can only perform LDL^T and LDL^H");
+        LogicError("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Grid() != d.Grid() )
-        throw std::logic_error("A and d must use the same grid");
-    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
-        throw std::logic_error
-        ("d must be a column vector of the same height as A");
+        LogicError("A and d must use the same grid");
     if( d.Viewing() && d.ColAlignment() != A.ColAlignment() )
-        throw std::logic_error("d must be aligned with A");
+        LogicError("d must be aligned with A");
 #endif
     const Grid& g = A.Grid();
     if( !d.Viewing() )
-    {
         d.AlignWith( A );
-        d.ResizeTo( A.Height(), 1 );
-    }
+    d.ResizeTo( A.Height(), 1 );
 
     // Matrix views
     DistMatrix<F>

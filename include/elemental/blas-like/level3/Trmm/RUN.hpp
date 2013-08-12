@@ -36,8 +36,7 @@ LocalTrmmAccumulateRUN
     CallStackEntry entry("internal::LocalTrmmAccumulateRUN");
     if( U.Grid() != X_STAR_MC.Grid() ||
         X_STAR_MC.Grid() != ZTrans_MR_STAR.Grid() )
-        throw std::logic_error
-        ("{U,X,Z} must be distributed over the same grid");
+        LogicError("{U,X,Z} must be distributed over the same grid");
     if( U.Height() != U.Width() ||
         U.Height() != X_STAR_MC.Width() ||
         U.Height() != ZTrans_MR_STAR.Height() )
@@ -49,11 +48,11 @@ LocalTrmmAccumulateRUN
                                << X_STAR_MC.Width() << "\n"
             << "  Z^H/T[MR,* ] ~ " << ZTrans_MR_STAR.Height() << " x "
                                    << ZTrans_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( X_STAR_MC.RowAlignment() != U.ColAlignment() ||
         ZTrans_MR_STAR.ColAlignment() != U.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = U.Grid();
 
@@ -74,7 +73,7 @@ LocalTrmmAccumulateRUN
         ZBTrans_MR_STAR(g),  Z1Trans_MR_STAR(g),
                              Z2Trans_MR_STAR(g);
 
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
@@ -145,7 +144,7 @@ TrmmRUNA
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmRUNA");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error("{U,X} must be distributed over the same grid");
+        LogicError("{U,X} must be distributed over the same grid");
 #endif
     const Grid& g = U.Grid();
 
@@ -204,15 +203,14 @@ TrmmRUNCOld
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmRUNCOld");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( U.Height() != U.Width() || X.Width() != U.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmRUNC: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = U.Grid();
@@ -286,15 +284,14 @@ TrmmRUNC
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmRUNC");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( U.Height() != U.Width() || X.Width() != U.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmRUNC: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = U.Grid();

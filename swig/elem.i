@@ -125,7 +125,7 @@ GATTP(ViewingComm)
 %ignore elem::AbstractDistMatrix::DistData;
 
 %define AbDMT(T,Type,N) 
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),Type,N,N,self_->N())
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T >),Type,N,N,self_->N())
 %enddef
 %define AbDM(T)
 AbDMT(T,int,Height)
@@ -134,9 +134,9 @@ AbDMT(T,int,LocalHeight)
 AbDMT(T,int,LocalWidth)
 AbDMT(T,int,LDim)
 AbDMT(T,size_t,AllocatedMemory)
-%attribute_custom(%arg(elem::AbstractDistMatrix<T,int>),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
-%attribute_readonly(%arg(elem::AbstractDistMatrix<T,int>),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
+%attribute_custom(%arg(elem::AbstractDistMatrix<T >),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
+%attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
 AbDMT(T,bool,ConstrainedColAlignment)
 AbDMT(T,bool,ConstrainedRowAlignment)
 AbDMT(T,int,ColAlignment)
@@ -164,11 +164,11 @@ AbDM(elem::Complex<double>)
 %include "elemental/core/dist_matrix/abstract.hpp"
 
 namespace elem {
-%template(AbstractDistMatrix_i) AbstractDistMatrix<int,int>;
-%template(AbstractDistMatrix_s) AbstractDistMatrix<float,int>;
-%template(AbstractDistMatrix_d) AbstractDistMatrix<double,int>;
-%template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float>,int>;
-%template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double>,int>;
+%template(AbstractDistMatrix_i) AbstractDistMatrix<int>;
+%template(AbstractDistMatrix_s) AbstractDistMatrix<float>;
+%template(AbstractDistMatrix_d) AbstractDistMatrix<double>;
+%template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float> >;
+%template(AbstractDistMatrix_z) AbstractDistMatrix<Complex<double> >;
 };
 
 /*
@@ -185,7 +185,7 @@ namespace elem {
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, const elem::Grid& );
 
 %define DCC(T)
-%attribute_custom(%arg(elem::DistMatrix<T,elem::distribution_wrapper::CIRC,elem::distribution_wrapper::CIRC,int>),int,Root,Root,SetRoot,self_->Root(),self_->SetRoot(val_))
+%attribute_custom(%arg(elem::DistMatrix<T,elem::distribution_wrapper::CIRC,elem::distribution_wrapper::CIRC>),int,Root,Root,SetRoot,self_->Root(),self_->SetRoot(val_))
 %enddef
 DCC(int)
 DCC(float)
@@ -209,18 +209,18 @@ DCC(elem::Complex<double>)
 %include "elemental/core/dist_matrix/vr_star.hpp"
 
 %define DISTMATRIX(F,U,V,sfx)
-%template(DistMatrix_ ## sfx) DistMatrix<F,U,V,int>;
-%extend DistMatrix<F,U,V,int> {
-	const char *__str__() {
-		std::string ans;
-		std::ostringstream msg;
-		elem::Print( *$self, ans, msg );
-		ans = msg.str();
-		std::size_t found = ans.find_last_not_of(" \t\f\v\n\r");
-		if ( found != std::string::npos ) 
-			ans.erase( found + 1 );
-		return ans.c_str();
-	}
+%template(DistMatrix_ ## sfx) DistMatrix<F,U,V>;
+%extend DistMatrix<F,U,V> {
+  const char *__str__() {
+    std::string ans;
+    std::ostringstream msg;
+    elem::Print( *$self, ans, msg );
+    ans = msg.str();
+    std::size_t found = ans.find_last_not_of(" \t\f\v\n\r");
+    if ( found != std::string::npos ) 
+      ans.erase( found + 1 );
+    return ans.c_str();
+  }
 }
 %enddef
 %define DISTMATRIX_all(U,V)

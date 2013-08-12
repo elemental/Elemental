@@ -24,14 +24,14 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsvLN");
     if( L.Grid() != x.Grid() )
-        throw std::logic_error("{L,x} must be distributed over the same grid");
+        LogicError("{L,x} must be distributed over the same grid");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( x.Width() != 1 && x.Height() != 1 )
-        throw std::logic_error("x must be a vector");
-    const int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
+        LogicError("x must be a vector");
+    const Int xLength = ( x.Width() == 1 ? x.Height() : x.Width() );
     if( L.Width() != xLength )
-        throw std::logic_error("Nonconformal TrsvLN");
+        LogicError("Nonconformal TrsvLN");
 #endif
     const Grid& g = L.Grid();
 
@@ -70,9 +70,9 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
                    x1,
               xB,  x2 );
 
-            const int n0 = x0.Height();
-            const int n1 = x1.Height();
-            const int n2 = x2.Height();
+            const Int n0 = x0.Height();
+            const Int n1 = x1.Height();
+            const Int n2 = x2.Height();
             LockedView( L11, L, n0,    n0, n1, n1 );
             LockedView( L21, L, n0+n1, n0, n2, n1 );
             View( z1_MC_STAR, z_MC_STAR, n0,    0, n1, 1 );
@@ -134,9 +134,9 @@ TrsvLN( UnitOrNonUnit diag, const DistMatrix<F>& L, DistMatrix<F>& x )
             ( xL, /**/ xR,
               x0, /**/ x1, x2 );
 
-            const int n0 = x0.Width();
-            const int n1 = x1.Width();
-            const int n2 = x2.Width();
+            const Int n0 = x0.Width();
+            const Int n1 = x1.Width();
+            const Int n2 = x2.Width();
             LockedView( L11, L, n0,    n0, n1, n1 );
             LockedView( L21, L, n0+n1, n0, n2, n1 );
             View( z1_STAR_MC, z_STAR_MC, 0, n0,    1, n1 );

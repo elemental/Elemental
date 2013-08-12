@@ -31,19 +31,19 @@ Symv
 #ifndef RELEASE
     CallStackEntry entry("Symv");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( ( x.Height() != 1 && x.Width() != 1 ) ||
         ( y.Height() != 1 && y.Width() != 1 ) )
-        throw std::logic_error("x and y must be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("x and y must be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
-        throw std::logic_error("A must conform with x and y");
+        LogicError("A must conform with x and y");
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
-    const int m = A.Height();
-    const int incx = ( x.Width()==1 ? 1 : x.LDim() );
-    const int incy = ( y.Width()==1 ? 1 : y.LDim() );
+    const Int m = A.Height();
+    const Int incx = ( x.Width()==1 ? 1 : x.LDim() );
+    const Int incy = ( y.Width()==1 ? 1 : y.LDim() );
     if( conjugate )
     {
         blas::Hemv
@@ -72,15 +72,15 @@ Symv
 #ifndef RELEASE
     CallStackEntry entry("Symv");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,x,y} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 ) )
-        throw std::logic_error("x and y are assumed to be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("x and y are assumed to be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Height() != yLength )
     {
         std::ostringstream msg;
@@ -88,7 +88,7 @@ Symv
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

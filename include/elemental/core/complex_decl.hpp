@@ -176,8 +176,8 @@ template<typename R>
 struct Base<Complex<R> > { typedef R type; };
 #else
 template<typename R> struct Base { };
-%template(Base_i) Base<int>;
-%extend Base<int> { typedef int type; }
+%template(Base_i) Base<Int>;
+%extend Base<Int> { typedef Int type; }
 %template(Base_s) Base<float>;
 %extend Base<float> { typedef float type; }
 %template(Base_d) Base<double>;

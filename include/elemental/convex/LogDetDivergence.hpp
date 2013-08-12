@@ -27,11 +27,11 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
-        throw std::logic_error
+        LogicError
         ("A and B must be square matrices of the same size");
 
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     Matrix<F> ACopy( A ), BCopy( B );
     Cholesky( uplo, ACopy );
@@ -53,7 +53,7 @@ LogDetDivergence( UpperOrLower uplo, const Matrix<F>& A, const Matrix<F>& B )
     Matrix<F> d;
     ACopy.GetDiagonal( d );
     R logDet(0);
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         logDet += 2*Log( RealPart(d.Get(i,0)) );
 
     return frobNorm*frobNorm - logDet - R(n);
@@ -68,14 +68,13 @@ LogDetDivergence
     CallStackEntry entry("LogDetDivergence");
 #endif
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("A and B must use the same grid");
+        LogicError("A and B must use the same grid");
     if( A.Height() != A.Width() || B.Height() != B.Width() ||
         A.Height() != B.Height() )
-        throw std::logic_error
-        ("A and B must be square matrices of the same size");
+        LogicError("A and B must be square matrices of the same size");
 
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     DistMatrix<F> ACopy( A ), BCopy( B );
@@ -95,21 +94,19 @@ LogDetDivergence
     MakeTriangular( uplo, ACopy );
     const R frobNorm = FrobeniusNorm( ACopy );
 
-    R logDet;
     R localLogDet(0);
     DistMatrix<F,MD,STAR> d(g);
     ACopy.GetDiagonal( d );
     if( d.Participating() )
     {
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLocal=0; iLocal<nLocalDiag; ++iLocal )
+        const Int nLocalDiag = d.LocalHeight();
+        for( Int iLocal=0; iLocal<nLocalDiag; ++iLocal )
         {
             const R delta = RealPart(d.GetLocal(iLocal,0));
             localLogDet += 2*Log(delta);
         }
     }
-    mpi::AllReduce( &localLogDet, &logDet, 1, mpi::SUM, g.VCComm() );
-
+    const R logDet = mpi::AllReduce( localLogDet, g.VCComm() );
     return frobNorm*frobNorm - logDet - R(n);
 }
 

@@ -35,7 +35,7 @@ Herk
 #ifndef RELEASE
     CallStackEntry entry("Herk");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, true );
 }
@@ -61,7 +61,7 @@ Herk
 #ifndef RELEASE
     CallStackEntry entry("Herk");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syrk( uplo, orientation, alpha, A, T(0), C, true );
 }

@@ -25,13 +25,13 @@ main( int argc, char* argv[] )
 
     // Extract our MPI rank
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
     try 
     {
-        const int n = Input("--size","size of matrix",100);
+        const Int n = Input("--size","size of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -41,8 +41,8 @@ main( int argc, char* argv[] )
         if( commRank == 0 )
         {
             // Set entry (i,j) to (i+j,i-j)
-            for( int j=0; j<n; ++j )
-                for( int i=0; i<n; ++i )
+            for( Int j=0; j<n; ++j )
+                for( Int i=0; i<n; ++i )
                     HRoot.SetLocal( i, j, C(i+j,i-j) );
         }
         if( print )

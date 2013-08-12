@@ -12,9 +12,9 @@
 
 namespace elem {
 
-template<typename F,typename Int>
+template<typename F>
 inline
-SafeProduct<F,Int>::SafeProduct( Int numEntries )
+SafeProduct<F>::SafeProduct( Int numEntries )
 : rho(1), kappa(0), n(numEntries)
 { }
 
@@ -54,7 +54,7 @@ StringToDist( std::string s )
         distribution = STAR;
     else
     {
-        throw std::logic_error
+        LogicError
         ("StringToDist expects string in "
          "{\"MC\",\"MD\",\"MR\",\"VC\",\"VR\",\"* \",\" *\",\"*\"}");
     }
@@ -86,7 +86,7 @@ CharToLeftOrRight( char c )
         case 'L': side = LEFT;  break;
         case 'R': side = RIGHT; break;
         default:
-            throw std::logic_error("CharToLeftOrRight expects char in {L,R}");
+            LogicError("CharToLeftOrRight expects char in {L,R}");
     }
     return side;
 }
@@ -118,7 +118,7 @@ CharToOrientation( char c )
         case 'T': orientation = TRANSPOSE; break;
         case 'C': orientation = ADJOINT;   break;
         default:
-            throw std::logic_error
+            LogicError
             ("CharToOrientation expects char in {N,T,C}");
     }
     return orientation;
@@ -149,7 +149,7 @@ CharToUnitOrNonUnit( char c )
         case 'N': diag = NON_UNIT; break;
         case 'U': diag = UNIT;     break;
         default:
-            throw std::logic_error("CharToUnitOrNonUnit expects char in {N,U}");
+            LogicError("CharToUnitOrNonUnit expects char in {N,U}");
     }
     return diag;
 }
@@ -179,7 +179,7 @@ CharToUpperOrLower( char c )
         case 'L': uplo = LOWER; break;
         case 'U': uplo = UPPER; break;
         default:
-            throw std::logic_error("CharToUpperOrLower expects char in {L,U}");
+            LogicError("CharToUpperOrLower expects char in {L,U}");
     }
     return uplo;
 }

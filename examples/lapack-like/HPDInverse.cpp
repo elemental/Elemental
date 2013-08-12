@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int n = Input("--size","size of HPD matrix",100);
+        const Int n = Input("--size","size of HPD matrix",100);
         const bool upper = Input("--upper","upper storage?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();

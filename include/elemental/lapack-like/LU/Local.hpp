@@ -23,7 +23,7 @@ inline void
 UnbFLAME( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("UnbFLAME");
+    CallStackEntry entry("lu::UnbFLAME");
 #endif
     // Matrix views 
     Matrix<F>
@@ -63,11 +63,11 @@ inline void
 Unb( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Unb");
+    CallStackEntry entry("lu::Unb");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<std::min(m,n); ++j )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<std::min(m,n); ++j )
     {
         const F alpha = A.Get(j,j);
         if( alpha == F(0) )

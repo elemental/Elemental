@@ -231,7 +231,7 @@ if(HYBRID)
 endif()
 
 set(HAVE_QT5 FALSE)
-if(USE_QT5)
+if(USE_QT5 OR Qt5Widgets_DIR)
   # Search for Qt5
   find_package(Qt5Widgets)
   if(Qt5Widgets_FOUND)
@@ -377,6 +377,10 @@ check_function_exists(MPIX_Iallgather HAVE_MPIX_NONBLOCKING_COLLECTIVES)
 check_function_exists(MPI_Init_thread HAVE_MPI_INIT_THREAD)
 check_function_exists(MPI_Query_thread HAVE_MPI_QUERY_THREAD)
 check_function_exists(MPI_Comm_set_errhandler HAVE_MPI_COMM_SET_ERRHANDLER)
+check_function_exists(MPI_Type_create_struct HAVE_MPI_TYPE_CREATE_STRUCT)
+if(NOT HAVE_MPI_TYPE_CREATE_STRUCT)
+  message(FATAL_ERROR "Could not find MPI_Type_create_struct")
+endif()
 
 # Check for MPI_IN_PLACE (essentially MPI2 support)
 include(CheckCSourceCompiles)
@@ -391,11 +395,22 @@ set(MPI_IN_PLACE_CODE
          MPI_Finalize(); 
          return 0; 
      }")
+set(MPI_LONG_LONG_CODE
+    "#include \"mpi.h\"
+     int main( int argc, char* argv[] )
+     {
+         MPI_Init( &argc, &argv );
+         MPI_Datatype lli = MPI_LONG_LONG_INT;
+         MPI_Datatype llu = MPI_UNSIGNED_LONG_LONG;
+         MPI_Finalize();
+         return 0;
+     }")
 check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
+check_c_source_compiles("${MPI_LONG_LONG_CODE}" HAVE_MPI_LONG_LONG)
 
 # Look for restrict support
 include(CheckCXXSourceCompiles)
-set(RESTRICT_CODE "int main(void) { int* RESTRICT a; return 0; }")
+set(RESTRICT_CODE "int main() { int* RESTRICT a; return 0; }")
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict__")
 check_cxx_source_compiles("${RESTRICT_CODE}" HAVE___restrict__)
 set(CMAKE_REQUIRED_DEFINITIONS "-DRESTRICT=__restrict")

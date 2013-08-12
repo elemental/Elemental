@@ -22,12 +22,12 @@ Dotu( const Matrix<F>& A, const Matrix<F>& B )
     CallStackEntry entry("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
-        throw std::logic_error("Matrices must be the same size");
+        LogicError("Matrices must be the same size");
     F sum(0);
-    const int width = A.Width();
-    const int height = A.Height();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    const Int width = A.Width();
+    const Int height = A.Height();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             sum += A.Get(i,j)*B.Get(i,j);
     return sum;
 }
@@ -40,24 +40,22 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
     CallStackEntry entry("Dotu");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
-        throw std::logic_error("Matrices must be the same size");
+        LogicError("Matrices must be the same size");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("Grids must match");
+        LogicError("Grids must match");
     if( A.ColAlignment() != B.ColAlignment() || 
         A.RowAlignment() != B.RowAlignment() )
-        throw std::logic_error("Matrices must be aligned");
+        LogicError("Matrices must be aligned");
 
     F localSum(0);
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             localSum += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
 
-    F sum;
     mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, comm );
-    return sum;
+    return mpi::AllReduce( localSum, comm );
 }
 
 } // namespace elem

@@ -20,7 +20,7 @@ template<typename F>
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset, Matrix<F>& H, const Matrix<F>& t )
+  Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");
@@ -28,14 +28,14 @@ ExpandPackedReflectors
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
-        throw std::logic_error("This option is not yet supported");
+        LogicError("This option is not yet supported");
 }
 
 template<typename F> 
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
+  Int offset, DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");
@@ -43,14 +43,14 @@ ExpandPackedReflectors
     if( uplo == LOWER && dir == VERTICAL )
         expand_packed_reflectors::LV( conjugation, offset, H, t );
     else
-        throw std::logic_error("This option is not yet supported");
+        LogicError("This option is not yet supported");
 }
 
 template<typename F> 
 inline void
 ExpandPackedReflectors
 ( UpperOrLower uplo, VerticalOrHorizontal dir, Conjugation conjugation,
-  int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
+  Int offset, DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("ExpandPackedReflectors");

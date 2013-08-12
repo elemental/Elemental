@@ -18,25 +18,24 @@ namespace determinant {
 
 template<typename F>
 inline SafeProduct<F> 
-AfterLUPartialPiv( const Matrix<F>& A, const Matrix<int>& p )
+AfterLUPartialPiv( const Matrix<F>& A, const Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("determinant::AfterLUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
+        LogicError("Cannot compute determinant of nonsquare matrix");
     if( A.Height() != p.Height() )
-        throw std::logic_error("Pivot vector is incorrect length");
+        LogicError("Pivot vector is incorrect length");
 
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     Matrix<F> d;
     A.GetDiagonal( d );
     const R scale(n);
     SafeProduct<F> det( n );
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const F delta = d.Get(i,0);
         R alpha = Abs(delta);
@@ -58,12 +57,11 @@ LUPartialPiv( Matrix<F>& A )
     CallStackEntry entry("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
+        LogicError("Cannot compute determinant of nonsquare matrix");
     SafeProduct<F> det( A.Height() );
     try 
     {
-        Matrix<int> p;
+        Matrix<Int> p;
         elem::LU( A, p ); 
         det = determinant::AfterLUPartialPiv( A, p );
     } 
@@ -77,21 +75,20 @@ LUPartialPiv( Matrix<F>& A )
 
 template<typename F> 
 inline SafeProduct<F> 
-AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
+AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry entry("determinant::AfterLUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
+        LogicError("Cannot compute determinant of nonsquare matrix");
     if( A.Grid() != p.Grid() )
-        throw std::logic_error("A and p must have the same grid");
+        LogicError("A and p must have the same grid");
     if( A.Height() != p.Height() )
-        throw std::logic_error("Pivot vector is incorrect length");
+        LogicError("Pivot vector is incorrect length");
 
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     DistMatrix<F,MD,STAR> d(g);
@@ -101,8 +98,8 @@ AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
     if( d.Participating() )
     {
         const R scale(n);
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
+        const Int nLocalDiag = d.LocalHeight();
+        for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
         {
             const F delta = d.GetLocal(iLoc,0);
             R alpha = Abs(delta);
@@ -111,8 +108,8 @@ AfterLUPartialPiv( const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p )
         }
     }
     SafeProduct<F> det( n );
-    mpi::AllReduce( &localRho, &det.rho, 1, mpi::PROD, g.VCComm() );
-    mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
+    det.rho = mpi::AllReduce( localRho, mpi::PROD, g.VCComm() );
+    det.kappa = mpi::AllReduce( localKappa, mpi::SUM, g.VCComm() );
 
     const bool isOdd = PivotParity( p );
     if( isOdd )
@@ -129,12 +126,11 @@ LUPartialPiv( DistMatrix<F>& A )
     CallStackEntry entry("determinant::LUPartialPiv");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error
-        ("Cannot compute determinant of nonsquare matrix");
+        LogicError("Cannot compute determinant of nonsquare matrix");
     SafeProduct<F> det( A.Height() );
     try 
     {
-        DistMatrix<int,VC,STAR> p( A.Grid() );
+        DistMatrix<Int,VC,STAR> p( A.Grid() );
         elem::LU( A, p );
         det = determinant::AfterLUPartialPiv( A, p );
     }

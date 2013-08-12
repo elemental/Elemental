@@ -30,12 +30,12 @@ namespace elem {
 
 template<typename F>
 inline int
-Sylvester( int m, Matrix<F>& W, Matrix<F>& X )
+Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
 #endif
-    const int numIts = sign::Newton( W );
+    const Int numIts = sign::Newton( W );
     Matrix<F> WTL, WTR,
               WBL, WBR;
     PartitionDownDiagonal
@@ -54,7 +54,7 @@ Sylvester( int m, Matrix<F>& W, Matrix<F>& X )
     Identity( I, m, m );
     Axpy( F(-1), I, WTL );
     const Real errorWTL = FrobeniusNorm( WTL );
-    const int n = W.Height() - m;
+    const Int n = W.Height() - m;
     Identity( I, n, n );
     Axpy( F(1), I, WBR );
     const Real errorWBR = FrobeniusNorm( WBR );
@@ -66,13 +66,13 @@ Sylvester( int m, Matrix<F>& W, Matrix<F>& X )
 
 template<typename F>
 inline int
-Sylvester( int m, DistMatrix<F>& W, DistMatrix<F>& X )
+Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
 {
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
 #endif
     const Grid& g = W.Grid();
-    const int numIts = sign::Newton( W );
+    const Int numIts = sign::Newton( W );
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
     PartitionDownDiagonal
@@ -91,7 +91,7 @@ Sylvester( int m, DistMatrix<F>& W, DistMatrix<F>& X )
     Identity( I, m, m );
     Axpy( F(-1), I, WTL );
     const Real errorWTL = FrobeniusNorm( WTL );
-    const int n = W.Height() - m;
+    const Int n = W.Height() - m;
     Identity( I, n, n );
     Axpy( F(1), I, WBR );
     const Real errorWBR = FrobeniusNorm( WBR );
@@ -110,14 +110,14 @@ Sylvester
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( B.Height() != B.Width() )
-        throw std::logic_error("B must be square");
+        LogicError("B must be square");
     if( C.Height() != A.Height() || C.Width() != B.Height() )
-        throw std::logic_error("C must conform with A and B");
+        LogicError("C must conform with A and B");
 #endif
-    const int m = C.Height();
-    const int n = C.Width();
+    const Int m = C.Height();
+    const Int n = C.Width();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
     Zeros( W, m+n, m+n );
@@ -139,16 +139,16 @@ Sylvester
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( B.Height() != B.Width() )
-        throw std::logic_error("B must be square");
+        LogicError("B must be square");
     if( C.Height() != A.Height() || C.Width() != B.Height() )
-        throw std::logic_error("C must conform with A and B");
+        LogicError("C must conform with A and B");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("A, B, and C must have the same grid");
+        LogicError("A, B, and C must have the same grid");
 #endif
-    const int m = C.Height();
-    const int n = C.Width();
+    const Int m = C.Height();
+    const Int n = C.Width();
     const Grid& g = A.Grid();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);

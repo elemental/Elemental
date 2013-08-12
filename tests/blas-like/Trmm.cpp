@@ -17,7 +17,7 @@ template<typename T>
 void TestTrmm
 ( bool print, LeftOrRight side, UpperOrLower uplo, 
   Orientation orientation, UnitOrNonUnit diag,
-  int m, int n, T alpha, const Grid& g )
+  Int m, Int n, T alpha, const Grid& g )
 {
     DistMatrix<T> A(g), X(g);
 
@@ -61,20 +61,20 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","lower or upper storage: L/U",'L');
         const char transChar = Input
             ("--trans","orientation of matrix: N/T/C",'N');
         const char diagChar = Input("--diag","(non-)unit diagonal: N/U",false);
-        const int m = Input("--m","height of result",100);
-        const int n = Input("--n","width of result",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--m","height of result",100);
+        const Int n = Input("--n","width of result",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

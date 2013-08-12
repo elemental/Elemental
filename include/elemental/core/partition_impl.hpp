@@ -13,14 +13,14 @@
 namespace elem {
 
 // To make our life easier. Undef'd at the bottom of the header
-#define M  Matrix<T,Int>
-#define DM DistMatrix<T,U,V,Int>
+#define M  Matrix<T>
+#define DM DistMatrix<T,U,V>
 
 //
 // PartitionUp
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionUp
 ( M& A, M& AT,
@@ -32,7 +32,7 @@ PartitionUp
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionUp
 ( DM& A, DM& AT,
@@ -44,7 +44,7 @@ PartitionUp
     PartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionUp
 ( const M& A, M& AT,
@@ -56,7 +56,7 @@ LockedPartitionUp
     LockedPartitionDown( A, AT, AB, A.Height()-heightAB );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionUp
 ( const DM& A, DM& AT,
@@ -72,7 +72,7 @@ LockedPartitionUp
 // PartitionDown
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionDown
 ( M& A, M& AT,
@@ -87,7 +87,7 @@ PartitionDown
     View( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionDown
 ( DM& A, DM& AT,
@@ -102,7 +102,7 @@ PartitionDown
     View( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionDown
 ( const M& A, M& AT,
@@ -117,7 +117,7 @@ LockedPartitionDown
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionDown
 ( const DM& A, DM& AT,
@@ -136,7 +136,7 @@ LockedPartitionDown
 // PartitionLeft
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
 {
@@ -146,7 +146,7 @@ PartitionLeft( M& A, M& AL, M& AR, Int widthAR )
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
 {
@@ -156,7 +156,7 @@ PartitionLeft( DM& A, DM& AL, DM& AR, Int widthAR )
     PartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
 {
@@ -166,7 +166,7 @@ LockedPartitionLeft( const M& A, M& AL, M& AR, Int widthAR )
     LockedPartitionRight( A, AL, AR, A.Width()-widthAR );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 {
@@ -180,7 +180,7 @@ LockedPartitionLeft( const DM& A, DM& AL, DM& AR, Int widthAR )
 // PartitionRight
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionRight( M& A, M& AL, M& AR, Int widthAL )
 {
@@ -193,7 +193,7 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL )
     View( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 {
@@ -206,7 +206,7 @@ PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
     View( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
 {
@@ -219,7 +219,7 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 {
@@ -236,7 +236,7 @@ LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 // PartitionUpDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionUpDiagonal
 ( M& A, M& ATL, M& ATR,
@@ -248,7 +248,7 @@ PartitionUpDiagonal
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionUpDiagonal
 ( DM& A, DM& ATL, DM& ATR,
@@ -260,7 +260,7 @@ PartitionUpDiagonal
     PartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionUpDiagonal
 ( const M& A, M& ATL, M& ATR,
@@ -272,7 +272,7 @@ LockedPartitionUpDiagonal
     LockedPartitionUpOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionUpDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
@@ -288,7 +288,7 @@ LockedPartitionUpDiagonal
 // PartitionUpOffsetDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionUpOffsetDiagonal
 ( Int offset,
@@ -302,7 +302,7 @@ PartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionUpOffsetDiagonal
 ( Int offset,
@@ -316,7 +316,7 @@ PartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionUpOffsetDiagonal
 ( Int offset,
@@ -330,7 +330,7 @@ LockedPartitionUpOffsetDiagonal
     ( offset, A, ATL, ATR, ABL, ABR, A.DiagonalLength(offset)-diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionUpOffsetDiagonal
 ( Int offset,
@@ -348,7 +348,7 @@ LockedPartitionUpOffsetDiagonal
 // PartitionDownDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionDownDiagonal
 ( M& A, M& ATL, M& ATR,
@@ -360,7 +360,7 @@ PartitionDownDiagonal
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionDownDiagonal
 ( DM& A, DM& ATL, DM& ATR,
@@ -372,7 +372,7 @@ PartitionDownDiagonal
     PartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionDownDiagonal
 ( const M& A, M& ATL, M& ATR,
@@ -384,7 +384,7 @@ LockedPartitionDownDiagonal
     LockedPartitionDownOffsetDiagonal( 0, A, ATL, ATR, ABL, ABR, diagDist );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionDownDiagonal
 ( const DM& A, DM& ATL, DM& ATR,
@@ -400,7 +400,7 @@ LockedPartitionDownDiagonal
 // PartitionDownOffsetDiagonal
 //
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 PartitionDownOffsetDiagonal
 ( Int offset,
@@ -410,20 +410,20 @@ PartitionDownOffsetDiagonal
 #ifndef RELEASE
     CallStackEntry entry("PartitionDownOffsetDiagonal [Matrix]");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
     diagDist = std::max(std::min(diagDist,diagLength),0);
     
-    const int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const int nCut = ( offset<=0 ? diagDist : offset+diagDist );
+    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
+    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
     View( ATL, A, 0,    0,    mCut,   nCut   );
     View( ATR, A, 0,    nCut, mCut,   n-nCut );
     View( ABL, A, mCut, 0,    m-mCut, nCut   );
     View( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 PartitionDownOffsetDiagonal
 ( Int offset,
@@ -433,20 +433,20 @@ PartitionDownOffsetDiagonal
 #ifndef RELEASE
     CallStackEntry entry("PartitionDownOffsetDiagonal [DistMatrix]");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
     diagDist = std::max(std::min(diagDist,diagLength),0);
 
-    const int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const int nCut = ( offset<=0 ? diagDist : offset+diagDist );
+    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
+    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
     View( ATL, A, 0,    0,    mCut,   nCut   );
     View( ATR, A, 0,    nCut, mCut,   n-nCut );
     View( ABL, A, mCut, 0,    m-mCut, nCut   );
     View( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
 LockedPartitionDownOffsetDiagonal
 ( Int offset,
@@ -456,20 +456,20 @@ LockedPartitionDownOffsetDiagonal
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionDownOffsetDiagonal [Matrix]");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
     diagDist = std::max(std::min(diagDist,diagLength),0);
     
-    const int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const int nCut = ( offset<=0 ? diagDist : offset+diagDist );
+    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
+    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
     LockedView( ATL, A, 0,    0,    mCut,   nCut   );
     LockedView( ATR, A, 0,    nCut, mCut,   n-nCut );
     LockedView( ABL, A, mCut, 0,    m-mCut, nCut   );
     LockedView( ABR, A, mCut, nCut, m-mCut, n-nCut );
 }
 
-template<typename T, Distribution U, Distribution V,typename Int>
+template<typename T, Distribution U, Distribution V>
 inline void
 LockedPartitionDownOffsetDiagonal
 ( Int offset,
@@ -479,13 +479,13 @@ LockedPartitionDownOffsetDiagonal
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionDownOffsetDiagonal [DistMatrix]");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
     diagDist = std::max(std::min(diagDist,diagLength),0);
     
-    const int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
-    const int nCut = ( offset<=0 ? diagDist : offset+diagDist );
+    const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
+    const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
     LockedView( ATL, A, 0,    0,    mCut,   nCut   );
     LockedView( ATR, A, 0,    nCut, mCut,   n-nCut );
     LockedView( ABL, A, mCut, 0,    m-mCut, nCut   );

@@ -36,7 +36,7 @@ LocalTrmmAccumulateRLT
     CallStackEntry entry("internal::LocalTrmmAccumulateRLT");
     if( L.Grid() != XTrans_MR_STAR.Grid() ||
         XTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() )
-        throw std::logic_error
+        LogicError
         ("{L,X,Z} must be distributed over the same grid");
     if( L.Height() != L.Width() ||
         L.Height() != XTrans_MR_STAR.Height() ||
@@ -50,11 +50,11 @@ LocalTrmmAccumulateRLT
                                    << XTrans_MR_STAR.Width() << "\n"
             << "  Z^H/T[MC,* ] ~ " << ZTrans_MC_STAR.Height() << " x "
                                    << ZTrans_MC_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( XTrans_MR_STAR.ColAlignment() != L.RowAlignment() ||
         ZTrans_MC_STAR.ColAlignment() != L.ColAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = L.Grid();
 
@@ -76,7 +76,7 @@ LocalTrmmAccumulateRLT
         ZBTrans_MC_STAR(g),  Z1Trans_MC_STAR(g),
                              Z2Trans_MC_STAR(g);
 
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
@@ -151,7 +151,7 @@ TrmmRLTA
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmRLTA");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error("{L,X} must be distributed over the same grid");
+        LogicError("{L,X} must be distributed over the same grid");
 #endif
     const Grid& g = L.Grid();
     const bool conjugate = ( orientation == ADJOINT );
@@ -211,17 +211,17 @@ TrmmRLTC
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmRLTC");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
+        LogicError
         ("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrmmRLTC expects an Adjoint/Transpose option");
+        LogicError("TrmmRLTC expects an Adjoint/Transpose option");
     if( L.Height() != L.Width() || X.Width() != L.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmRLTC: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = L.Grid();

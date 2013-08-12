@@ -27,29 +27,28 @@ void PanelU
   DistMatrix<F,MC,STAR>& W_MC_STAR,
   DistMatrix<F,MR,STAR>& W_MR_STAR )
 {
-    const int panelSize = W.Width();
-    const int topSize = W.Height()-panelSize;
+    const Int panelSize = W.Width();
+    const Int topSize = W.Height()-panelSize;
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-        throw std::logic_error
-        ("A, W, and t must be distributed over the same grid.");
+        LogicError("A, W, and t must be distributed over the same grid.");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square.");
+        LogicError("A must be square.");
     if( A.Height() != W.Height() )
-        throw std::logic_error( "A and W must be the same height.");
+        LogicError( "A and W must be the same height.");
     if( W.Height() < panelSize )
-        throw std::logic_error("W must be a column panel.");
+        LogicError("W must be a column panel.");
     if( t.Height() != W.Width() || t.Width() != 1 )
-        throw std::logic_error
+        LogicError
         ("t must be a column vector of the same length as W's width.");
 #endif
     typedef BASE(F) R;
 
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = g.Size();
 
     // Create a distributed matrix for storing the superdiagonal
     DistMatrix<R,MD,STAR> e(g);
@@ -183,10 +182,10 @@ void PanelU
             if( !firstIteration )
             {
                 // Finish updating the current column with two axpy's
-                const int AColLocalHeight = ACol.LocalHeight();
+                const Int AColLocalHeight = ACol.LocalHeight();
                 F* AColBuffer = ACol.Buffer();
                 const F* a01Last_MC_STAR_Buffer = a01Last_MC_STAR.Buffer();
-                for( int i=0; i<AColLocalHeight; ++i )
+                for( Int i=0; i<AColLocalHeight; ++i )
                     AColBuffer[i] -=
                         w01LastBuffer[i] + 
                         a01Last_MC_STAR_Buffer[i]*Conj(w01LastBottomEntry);
@@ -207,7 +206,7 @@ void PanelU
         // Otherwise, also add w01 into the broadcast.
         if( firstIteration )
         {
-            const int a01LocalHeight = a01.LocalHeight();
+            const Int a01LocalHeight = a01.LocalHeight();
             std::vector<F> rowBroadcastBuffer(a01LocalHeight+1);
             if( thisIsMyCol )
             {
@@ -240,8 +239,8 @@ void PanelU
         }
         else
         {
-            const int a01LocalHeight = a01.LocalHeight();
-            const int w01LastLocalHeight = ACol.LocalHeight();
+            const Int a01LocalHeight = a01.LocalHeight();
+            const Int w01LastLocalHeight = ACol.LocalHeight();
             std::vector<F> 
                 rowBroadcastBuffer(a01LocalHeight+w01LastLocalHeight+1);
             if( thisIsMyCol ) 
@@ -293,22 +292,21 @@ void PanelU
             //   AllGather to [MR,* ]
             // We can combine the two by treating a01 as [a01; 0] 
 
-            const int colAlignSource = A00.ColAlignment();
-            const int colAlignDest = A00.RowAlignment();
-            const int colShiftSource = A00.ColShift();
-            const int colShiftDest = A00.RowShift();
+            const Int colAlignSource = A00.ColAlignment();
+            const Int colAlignDest = A00.RowAlignment();
+            const Int colShiftSource = A00.ColShift();
+            const Int colShiftDest = A00.RowShift();
 
-            const int height = a01.Height()+1;
-            const int portionSize = 
-                std::max(2*MaxLength(height,p),mpi::MIN_COLL_MSG);
+            const Int height = a01.Height()+1;
+            const Int portionSize = mpi::Pad( 2*MaxLength(height,p) );
 
-            const int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
-            const int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
-            const int sendRankRM = 
+            const Int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
+            const Int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
+            const Int sendRankRM = 
                 (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
-            const int recvRankCM = 
+            const Int recvRankCM = 
                 (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
-            const int recvRankRM = 
+            const Int recvRankRM = 
                 (recvRankCM/r)+c*(recvRankCM%r);
 
             std::vector<F> transposeBuffer( (r+1)*portionSize );
@@ -319,24 +317,24 @@ void PanelU
             // ([a01; 0][VC,* ] <- [a01; 0][MC,* ])
             {
                 // Pack the necessary portion of w01Last[MC,* ]
-                const int shift = Shift(g.VCRank(),colAlignSource,p);
-                const int offset = (shift-colShiftSource)/r;
-                const int w01VCLocalHeight = Length(height,shift,p);
+                const Int shift = Shift(g.VCRank(),colAlignSource,p);
+                const Int offset = (shift-colShiftSource)/r;
+                const Int w01VCLocalHeight = Length(height,shift,p);
                 const F* w01Buffer = w01Last_MC_STAR.Buffer(offset,0);
-                for( int i=0; i<w01VCLocalHeight; ++i )
+                for( Int i=0; i<w01VCLocalHeight; ++i )
                     sendBuf[i] = w01Buffer[i*c];
                 
                 // Pack the necessary portion of a01[MC,* ]
-                const int a01VCLocalHeight = Length(height-1,shift,p);
+                const Int a01VCLocalHeight = Length(height-1,shift,p);
                 const F* a01Buffer = a01_MC_STAR.Buffer(offset,0);
-                for( int i=0; i<a01VCLocalHeight; ++i )
+                for( Int i=0; i<a01VCLocalHeight; ++i )
                     sendBuf[w01VCLocalHeight+i] = a01Buffer[i*c];
             }
 
             // [VR,* ] <- [VC,* ]
             mpi::SendRecv
-            ( sendBuf, portionSize, sendRankRM, 0,
-              recvBuf, portionSize, recvRankRM, mpi::ANY_TAG, g.VRComm() );
+            ( sendBuf, portionSize, sendRankRM, 
+              recvBuf, portionSize, recvRankRM, g.VRComm() );
 
             // [MR,* ] <- [VR,* ]
             mpi::AllGather
@@ -346,22 +344,22 @@ void PanelU
             // Unpack
             w01Last_MR_STAR.AlignWith( A00 );
             w01Last_MR_STAR.ResizeTo( a01.Height()+1, 1 );
-            for( int k=0; k<r; ++k )
+            for( Int k=0; k<r; ++k )
             {
                 // Unpack into w01Last[MR,* ]
                 const F* w01Data = &sendBuf[k*portionSize];
-                const int shift = Shift(g.Col()+c*k,colAlignDest,p);
-                const int offset = (shift-colShiftDest) / c;
-                const int w01VCLocalHeight = Length(height,shift,p);
+                const Int shift = Shift(g.Col()+c*k,colAlignDest,p);
+                const Int offset = (shift-colShiftDest) / c;
+                const Int w01VCLocalHeight = Length(height,shift,p);
                 F* w01Buffer = w01Last_MR_STAR.Buffer(offset,0);
-                for( int i=0; i<w01VCLocalHeight; ++i )
+                for( Int i=0; i<w01VCLocalHeight; ++i )
                     w01Buffer[i*r] = w01Data[i];
 
                 // Unpack into a01[MR,* ]
                 const F* a01Data = &sendBuf[k*portionSize+w01VCLocalHeight];
-                const int a01VCLocalHeight = Length(height-1,shift,p);
+                const Int a01VCLocalHeight = Length(height-1,shift,p);
                 F* a01Buffer = a01_MR_STAR.Buffer(offset,0);
-                for( int i=0; i<a01VCLocalHeight; ++i )
+                for( Int i=0; i<a01VCLocalHeight; ++i )
                     a01Buffer[i*r] = a01Data[i];
             }
             // Store w01Last[MR,* ]
@@ -397,11 +395,11 @@ void PanelU
             const F* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.Buffer();
             const F* w01_MR_STAR_Buffer = w01Last_MR_STAR_TopPan.Buffer();
             F* A00PanBuffer = A00Pan.Buffer();
-            const int localHeight = A00Pan.LocalHeight();
-            const int localWidth = A00Pan.LocalWidth();
-            const int lDim = A00Pan.LDim();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            const Int localHeight = A00Pan.LocalHeight();
+            const Int localWidth = A00Pan.LocalWidth();
+            const Int lDim = A00Pan.LDim();
+            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
                     A00PanBuffer[iLocal+jLocal*lDim] -=
                         w01_MC_STAR_Buffer[iLocal]*
                         Conj(a01_MR_STAR_Buffer[jLocal]) +
@@ -425,10 +423,10 @@ void PanelU
         // Combine the AllReduce column summations of x21[MR,* ], y21[MR,* ],
         // and q01[MR,* ]
         {
-            const int x21LocalHeight = x21_MR_STAR.LocalHeight();
-            const int y21LocalHeight = y21_MR_STAR.LocalHeight();
-            const int q01LocalHeight = q01_MR_STAR.LocalHeight();
-            const int reduceSize = x21LocalHeight+y21LocalHeight+q01LocalHeight;
+            const Int x21LocalHeight = x21_MR_STAR.LocalHeight();
+            const Int y21LocalHeight = y21_MR_STAR.LocalHeight();
+            const Int q01LocalHeight = q01_MR_STAR.LocalHeight();
+            const Int reduceSize = x21LocalHeight+y21LocalHeight+q01LocalHeight;
             std::vector<F> colSumSendBuffer(reduceSize),
                            colSumRecvBuffer(reduceSize);
             MemCopy
@@ -440,9 +438,8 @@ void PanelU
             ( &colSumSendBuffer[x21LocalHeight+y21LocalHeight],
               q01_MR_STAR.Buffer(), q01LocalHeight );
             mpi::AllReduce
-            ( &colSumSendBuffer[0], 
-              &colSumRecvBuffer[0],
-              reduceSize, mpi::SUM, g.ColComm() );
+            ( &colSumSendBuffer[0], &colSumRecvBuffer[0],
+              reduceSize, g.ColComm() );
             MemCopy
             ( x21_MR_STAR.Buffer(), &colSumRecvBuffer[0], x21LocalHeight );
             MemCopy
@@ -462,7 +459,7 @@ void PanelU
             // This is not the last iteration of the panel factorization, 
             // combine the Reduce to one of p01[MC,* ] with the redistribution 
             // of q01[MR,* ] -> q01[MC,MR] to the next process column.
-            const int localHeight = p01_MC_STAR.LocalHeight();
+            const Int localHeight = p01_MC_STAR.LocalHeight();
             std::vector<F> reduceToOneSendBuffer(2*localHeight),
                            reduceToOneRecvBuffer(2*localHeight);
 
@@ -493,14 +490,14 @@ void PanelU
                     // of MR, and s is our first local entry of MR that will 
                     // contribute to MC. I cannot think of an O(1) method, so
                     // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    const int sourcePeriod = g.LCM() / c;
-                    const int targetPeriod = g.LCM() / r;
-                    const int a0 = p01_MC_STAR.ColShift();
-                    const int b0 = q01_MR_STAR.ColShift();
+                    const Int sourcePeriod = g.LCM() / c;
+                    const Int targetPeriod = g.LCM() / r;
+                    const Int a0 = p01_MC_STAR.ColShift();
+                    const Int b0 = q01_MR_STAR.ColShift();
 
-                    int sourceStart = 0;
-                    const int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
+                    Int sourceStart = 0;
+                    const Int f = (r+a0-b0) % r;
+                    for( Int s=0; s<sourcePeriod; ++s )
                     {
                         if( (s*c) % r == f )
                         {
@@ -509,13 +506,13 @@ void PanelU
                         }
                     }
 
-                    const int globalShift = b0+sourceStart*c;
-                    const int targetStart = (globalShift-a0)/r;
-                    const int localLength =
+                    const Int globalShift = b0+sourceStart*c;
+                    const Int targetStart = (globalShift-a0)/r;
+                    const Int localLength =
                         Length(localHeight,targetStart,targetPeriod);
                     const F* q01_MR_STAR_Buffer = q01_MR_STAR.Buffer();
-                    const int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )                        
+                    const Int offset = localHeight + targetStart;
+                    for( Int i=0; i<localLength; ++i )                        
                         reduceToOneSendBuffer[offset+i*targetPeriod] = 
                             q01_MR_STAR_Buffer[sourceStart+i*sourcePeriod];
                 }
@@ -523,16 +520,15 @@ void PanelU
             else
                 MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
 
-            const int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
-            const int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
+            const Int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
+            const Int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
             mpi::Reduce
-            ( &reduceToOneSendBuffer[0], 
-              &reduceToOneRecvBuffer[0],
-              2*localHeight, mpi::SUM, nextProcessCol, g.RowComm() );
+            ( &reduceToOneSendBuffer[0], &reduceToOneRecvBuffer[0],
+              2*localHeight, nextProcessCol, g.RowComm() );
             if( g.Col() == nextProcessCol )
             {
                 // Combine the second half into the first half        
-                for( int i=0; i<localHeight; ++i )
+                for( Int i=0; i<localHeight; ++i )
                     reduceToOneRecvBuffer[i] +=
                         reduceToOneRecvBuffer[i+localHeight];
 
@@ -547,15 +543,14 @@ void PanelU
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ? 
                                   reduceToOneRecvBuffer[localHeight-1] : 0 );
-                mpi::AllReduce
-                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.ColComm() );
+                mpi::AllReduce( sendBuffer, recvBuffer, 2, g.ColComm() );
                 F dotProduct = recvBuffer[0];
 
                 // Set up for the next iteration by filling in the values for:
                 // - w01LastBuffer
                 // - w01LastBottomEntry
                 F scale = dotProduct*Conj(tau) / F(2);
-                for( int i=0; i<localHeight; ++i )
+                for( Int i=0; i<localHeight; ++i )
                     w01LastBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a01_MC_STAR_Buffer[i] );
@@ -567,7 +562,7 @@ void PanelU
             // This is the last iteration, our last task is to finish forming
             // w01[MC,* ] and w01[MR,* ] so that we may place them into W[MC,* ]
             // and W[MR,* ]
-            const int localHeight = p01_MC_STAR.LocalHeight();
+            const Int localHeight = p01_MC_STAR.LocalHeight();
             std::vector<F> allReduceSendBuffer(2*localHeight),
                            allReduceRecvBuffer(2*localHeight);
 
@@ -598,14 +593,14 @@ void PanelU
                     // of MR, and s is our first local entry of MR that will 
                     // contribute to MC. I cannot think of an O(1) method, so
                     // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    const int sourcePeriod = g.LCM() / c;
-                    const int targetPeriod = g.LCM() / r;
-                    const int a0 = p01_MC_STAR.ColShift();
-                    const int b0 = q01_MR_STAR.ColShift();
+                    const Int sourcePeriod = g.LCM() / c;
+                    const Int targetPeriod = g.LCM() / r;
+                    const Int a0 = p01_MC_STAR.ColShift();
+                    const Int b0 = q01_MR_STAR.ColShift();
 
-                    int sourceStart = 0;
-                    const int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
+                    Int sourceStart = 0;
+                    const Int f = (r+a0-b0) % r;
+                    for( Int s=0; s<sourcePeriod; ++s )
                     {
                         if( (s*c) % r == f )
                         {
@@ -614,13 +609,13 @@ void PanelU
                         }
                     }
 
-                    const int globalShift = b0+sourceStart*c;
-                    const int targetStart = (globalShift-a0)/r;
-                    const int localLength = 
+                    const Int globalShift = b0+sourceStart*c;
+                    const Int targetStart = (globalShift-a0)/r;
+                    const Int localLength = 
                         Length(localHeight,targetStart,targetPeriod);
                     const F* q01_MR_STAR_Buffer = q01_MR_STAR.Buffer();
-                    const int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )
+                    const Int offset = localHeight + targetStart;
+                    for( Int i=0; i<localLength; ++i )
                         allReduceSendBuffer[offset+i*targetPeriod] = 
                             q01_MR_STAR_Buffer[sourceStart+i*sourcePeriod];
                 }
@@ -629,12 +624,11 @@ void PanelU
                 MemZero( &allReduceSendBuffer[localHeight], localHeight );
 
             mpi::AllReduce
-            ( &allReduceSendBuffer[0], 
-              &allReduceRecvBuffer[0],
-              2*localHeight, mpi::SUM, g.RowComm() );
+            ( &allReduceSendBuffer[0], &allReduceRecvBuffer[0],
+              2*localHeight, g.RowComm() );
 
             // Combine the second half into the first half        
-            for( int i=0; i<localHeight; ++i )
+            for( Int i=0; i<localHeight; ++i )
                 allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
  
             // Finish computing w01. During its computation, ensure that 
@@ -644,9 +638,7 @@ void PanelU
             F myDotProduct = blas::Dot
                 ( localHeight, &allReduceRecvBuffer[0], 1, 
                                a01_MC_STAR_Buffer,      1 );
-            F dotProduct;
-            mpi::AllReduce
-            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.ColComm() );
+            const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<F,MC,STAR> w01_MC_STAR(g);
@@ -657,7 +649,7 @@ void PanelU
             // Store w01[MC,* ]
             F scale = dotProduct*Conj(tau) / F(2);
             F* w01_MC_STAR_Buffer = w01_MC_STAR.Buffer();
-            for( int i=0; i<localHeight; ++i )
+            for( Int i=0; i<localHeight; ++i )
                 w01_MC_STAR_Buffer[i] = 
                     tau*( allReduceRecvBuffer[i]-scale*a01_MC_STAR_Buffer[i] );
 

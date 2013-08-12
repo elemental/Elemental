@@ -17,48 +17,48 @@ namespace elem {
 // nontrivial pivots were performed.
 
 inline bool
-PivotParity( const Matrix<int>& p, int pivotOffset=0 )
+PivotParity( const Matrix<Int>& p, Int pivotOffset=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("PivotParity");
     if( p.Width() != 1 )
-        throw std::logic_error("p must be a column vector");
+        LogicError("p must be a column vector");
     if( pivotOffset < 0 )
-        throw std::logic_error("pivot offset cannot be negative");
+        LogicError("pivot offset cannot be negative");
 #endif
-    const int n = p.Height();
+    const Int n = p.Height();
     bool isOdd = false;
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
         if( p.Get(i,0) != i+pivotOffset )
             isOdd = !isOdd;
     return isOdd;
 }
 
 inline bool
-PivotParity( const DistMatrix<int,VC,STAR>& p, int pivotOffset=0 ) 
+PivotParity( const DistMatrix<Int,VC,STAR>& p, Int pivotOffset=0 ) 
 {
 #ifndef RELEASE
     CallStackEntry entry("PivotParity");
     if( p.Width() != 1 )
-        throw std::logic_error("p must be a column vector");
+        LogicError("p must be a column vector");
     if( pivotOffset < 0 )
-        throw std::logic_error("pivot offset cannot be negative");
+        LogicError("pivot offset cannot be negative");
 #endif
-    const int mLocal = p.LocalHeight();
+    const Int mLocal = p.LocalHeight();
     const Grid& g = p.Grid();
 
     bool isLocallyOdd = false;
-    const int colShift = p.ColShift();
-    const int gridSize = g.Size();
-    for( int iLoc=0; iLoc<mLocal; ++iLoc )
+    const Int colShift = p.ColShift();
+    const Int gridSize = g.Size();
+    for( Int iLoc=0; iLoc<mLocal; ++iLoc )
     {
-        const int i = colShift + iLoc*gridSize;
+        const Int i = colShift + iLoc*gridSize;
         if( p.GetLocal(iLoc,0) != i+pivotOffset )
             isLocallyOdd = !isLocallyOdd;
     }
 
-    int localContribution = isLocallyOdd;
-    int globalContribution;
+    Int localContribution = isLocallyOdd;
+    Int globalContribution;
     mpi::AllReduce
     ( &localContribution, &globalContribution, 1, MPI_SUM, g.VCComm() );
     return globalContribution % 2;

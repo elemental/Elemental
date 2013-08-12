@@ -22,17 +22,17 @@ CauchyLike
 #ifndef RELEASE
     CallStackEntry entry("CauchyLike");
 #endif
-    const int m = r.size();
-    const int n = s.size();
-    if( x.size() != (unsigned)m )
-        throw std::logic_error("x vector was the wrong length");
-    if( y.size() != (unsigned)n )
-        throw std::logic_error("y vector was the wrong length");
+    const Int m = r.size();
+    const Int n = s.size();
+    if( x.size() != (Unsigned)m )
+        LogicError("x vector was the wrong length");
+    if( y.size() != (Unsigned)n )
+        LogicError("y vector was the wrong length");
     A.ResizeTo( m, n );
 
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
 #ifndef RELEASE
             // TODO: Use tolerance instead?
@@ -41,7 +41,7 @@ CauchyLike
                 std::ostringstream msg;
                 msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
                     << ") is not allowed for Cauchy-like matrices";
-                throw std::logic_error( msg.str().c_str() );
+                LogicError( msg.str() );
             }
 #endif
             A.Set( i, j, r[i]*s[j]/(x[i]-y[j]) );
@@ -59,26 +59,26 @@ CauchyLike
 #ifndef RELEASE
     CallStackEntry entry("CauchyLike");
 #endif
-    const int m = r.size();
-    const int n = s.size();
-    if( x.size() != (unsigned)m )
-        throw std::logic_error("x vector was the wrong length");
-    if( y.size() != (unsigned)n )
-        throw std::logic_error("y vector was the wrong length");
+    const Int m = r.size();
+    const Int n = s.size();
+    if( x.size() != (Unsigned)m )
+        LogicError("x vector was the wrong length");
+    if( y.size() != (Unsigned)n )
+        LogicError("y vector was the wrong length");
     A.ResizeTo( m, n );
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
 #ifndef RELEASE
             // TODO: Use tolerance instead?
             if( x[i] == y[j] )
@@ -86,7 +86,7 @@ CauchyLike
                 std::ostringstream msg;
                 msg << "x[" << i << "] = y[" << j << "] (" << x[i] 
                     << ") is not allowed for Cauchy-like matrices";
-                throw std::logic_error( msg.str().c_str() );
+                LogicError( msg.str() );
             }
 #endif
             A.SetLocal( iLoc, jLoc, r[i]*s[j]/(x[i]-y[j]) );

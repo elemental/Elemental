@@ -20,11 +20,11 @@ MakeReal( Matrix<T>& A )
     CallStackEntry entry("MakeReal");
 #endif
     T* ABuffer = A.Buffer();
-    const int height = A.Height();
-    const int width = A.Width();
-    const int ldim = A.LDim();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    const Int ldim = A.LDim();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             ABuffer[i+j*ldim] = RealPart(ABuffer[i+j*ldim]);
 }
 

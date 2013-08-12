@@ -23,13 +23,13 @@ inline void Hadamard( const Matrix<T>& A, const Matrix<T>& B, Matrix<T>& C )
     CallStackEntry entry("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
-        throw std::logic_error("Hadamard product requires equal dimensions");
+        LogicError("Hadamard product requires equal dimensions");
     C.ResizeTo( A.Height(), A.Width() );
 
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             C.Set( i, j, A.Get(i,j)*B.Get(i,j) );
 }
 
@@ -41,22 +41,22 @@ inline void Hadamard
     CallStackEntry entry("Hadamard");
 #endif
     if( A.Height() != B.Height() || A.Width() != B.Width() )
-        throw std::logic_error("Hadamard product requires equal dimensions");
+        LogicError("Hadamard product requires equal dimensions");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("A and B must have the same grids");
+        LogicError("A and B must have the same grids");
     if( A.ColAlignment() != B.ColAlignment() || 
         A.RowAlignment() != B.RowAlignment() )
-        throw std::logic_error("A and B must be aligned");
+        LogicError("A and B must be aligned");
     const Grid& g = A.Grid();
     C.SetGrid( g );
     C.AlignWith( A );
     C.ResizeTo( A.Height(), A.Width() );
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const T alpha = A.GetLocal(iLoc,jLoc); 
             const T beta = B.GetLocal(iLoc,jLoc);

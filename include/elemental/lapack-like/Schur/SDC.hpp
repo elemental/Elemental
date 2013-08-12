@@ -34,7 +34,7 @@ SpectralDivide( Matrix<F>& A )
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     typedef BASE(F) Real;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     // S := sgn(A)
     Matrix<F> S( A );
@@ -47,12 +47,12 @@ SpectralDivide( Matrix<F>& A )
     Scale( F(1)/F(2), B );
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
-    const int roundedTrace = int(round(RealPart(trace)));
-    const int rank = std::max(std::min(roundedTrace,n),0);
+    const Int roundedTrace = Int(round(RealPart(trace)));
+    const Int rank = std::max(std::min(roundedTrace,n),0);
 
     // Compute the pivoted QR decomposition of the spectral projection
     Matrix<F> t;
-    Matrix<int> p;
+    Matrix<Int> p;
     QR( B, t, p );
 
     // A := Q^H A Q
@@ -74,7 +74,7 @@ SpectralDivide( DistMatrix<F>& A )
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     typedef BASE(F) Real;
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     // S := sgn(A)
@@ -88,12 +88,12 @@ SpectralDivide( DistMatrix<F>& A )
     Scale( F(1)/F(2), B );
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
-    const int roundedTrace = int(round(RealPart(trace)));
-    const int rank = std::max(std::min(roundedTrace,n),0);
+    const Int roundedTrace = Int(round(RealPart(trace)));
+    const Int rank = std::max(std::min(roundedTrace,n),0);
 
     // Compute the pivoted QR decomposition of the spectral projection
     DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<int,VR,STAR> p(g);
+    DistMatrix<Int,VR,STAR> p(g);
     QR( B, t, p );
 
     // A := Q^H A Q

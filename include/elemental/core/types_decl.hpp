@@ -13,14 +13,26 @@
 namespace elem {
 
 typedef unsigned char byte;
+
+// If these are changes, you must make sure that they have 
+// existing MPI datatypes. This is only sometimes true for 'long long'
+typedef int Int;
+typedef unsigned Unsigned;
  
 typedef Complex<float>  scomplex; 
 typedef Complex<double> dcomplex;
 
+template<typename T>
+struct ValueInt
+{
+    T value;
+    Int index;
+};
+
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)
 // where rho lies in (usually on) the unit circle and kappa is real-valued.
-template<typename F,typename Int=int>
+template<typename F>
 struct SafeProduct
 {
     F rho;

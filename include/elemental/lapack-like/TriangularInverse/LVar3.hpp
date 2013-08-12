@@ -23,15 +23,15 @@ LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("triangular_inverse::LVar3Unb");
     if( L.Height() != L.Width() )
-        throw std::logic_error("Nonsquare matrices cannot be triangular");
+        LogicError("Nonsquare matrices cannot be triangular");
 #endif
-    const int n = L.Height();
-    const int ldl = L.LDim();
+    const Int n = L.Height();
+    const Int ldl = L.LDim();
     F* LBuffer = L.Buffer();
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         const F lambda = ( diag==NON_UNIT ? LBuffer[j+j*ldl] : F(1) );
-        for( int k=0; k<j; ++k )
+        for( Int k=0; k<j; ++k )
             LBuffer[j+k*ldl] /= -lambda;
         blas::Geru
         ( n-(j+1), j, F(1),
@@ -39,7 +39,7 @@ LVar3Unb( UnitOrNonUnit diag, Matrix<F>& L )
           &LBuffer[j+1], ldl );
         if( diag == NON_UNIT )
         {
-            for( int k=j+1; k<n; ++k )
+            for( Int k=j+1; k<n; ++k )
                 LBuffer[k+j*ldl] /= lambda;
             LBuffer[j+j*ldl] = F(1) / LBuffer[j+j*ldl];
         }
@@ -53,7 +53,7 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("triangular_inverse::LVar3");
     if( L.Height() != L.Width() )
-        throw std::logic_error("Nonsquare matrices cannot be triangular");
+        LogicError("Nonsquare matrices cannot be triangular");
 #endif
     // Matrix views
     Matrix<F> 
@@ -95,7 +95,7 @@ LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
 #ifndef RELEASE
     CallStackEntry entry("triangular_inverse::LVar3");
     if( L.Height() != L.Width() )
-        throw std::logic_error("Nonsquare matrices cannot be triangular");
+        LogicError("Nonsquare matrices cannot be triangular");
 #endif
     const Grid& g = L.Grid();
 

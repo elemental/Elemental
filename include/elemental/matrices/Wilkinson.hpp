@@ -16,16 +16,16 @@ namespace elem {
 
 template<typename T> 
 inline void
-Wilkinson( Matrix<T>& A, int k )
+Wilkinson( Matrix<T>& A, Int k )
 {
 #ifndef RELEASE
     CallStackEntry entry("Wilkinson");
 #endif
-    const int n = 2*k+1;
+    const Int n = 2*k+1;
     A.ResizeTo( n, n );
     MakeZeros( A );
 
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         if( j <= k )
             A.Set( j, j, T(k-j) );
@@ -41,27 +41,27 @@ Wilkinson( Matrix<T>& A, int k )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Wilkinson( DistMatrix<T,U,V>& A, int k )
+Wilkinson( DistMatrix<T,U,V>& A, Int k )
 {
 #ifndef RELEASE
     CallStackEntry entry("Wilkinson");
 #endif
-    const int n = 2*k+1;
+    const Int n = 2*k+1;
     A.ResizeTo( n, n );
     MakeZeros( A );
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i == j )
             {
                 if( j <= k )

@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename R>
 inline void
-Fourier( Matrix<Complex<R> >& A, int n )
+Fourier( Matrix<Complex<R> >& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Fourier");
@@ -25,7 +25,7 @@ Fourier( Matrix<Complex<R> >& A, int n )
 
 template<typename R,Distribution U,Distribution V>
 inline void
-Fourier( DistMatrix<Complex<R>,U,V>& A, int n )
+Fourier( DistMatrix<Complex<R>,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Fourier");
@@ -42,16 +42,16 @@ MakeFourier( Matrix<Complex<R> >& A )
     CallStackEntry entry("MakeFourier");
 #endif
     typedef Complex<R> F;
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square DFT matrix");
+        LogicError("Cannot make a non-square DFT matrix");
 
     const R pi = 4*Atan( R(1) );
     const R nSqrt = Sqrt( R(n) );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const R theta = -2*pi*i*j/n;
             const R realPart = cos(theta)/nSqrt;
@@ -69,25 +69,25 @@ MakeFourier( DistMatrix<Complex<R>,U,V>& A )
     CallStackEntry entry("MakeFourier");
 #endif
     typedef Complex<R> F;
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     if( m != n )
-        throw std::logic_error("Cannot make a non-square DFT matrix");
+        LogicError("Cannot make a non-square DFT matrix");
 
     const R pi = 4*Atan( R(1) );
     const R nSqrt = Sqrt( R(n) );
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             const R theta = -2*pi*i*j/n;
             const R realPart = cos(theta)/nSqrt;
             const R imagPart = sin(theta)/nSqrt;

@@ -30,7 +30,7 @@ TrsmRUT
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmRUT");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmRUT expects a (Conjugate)Transpose option");
+        LogicError("TrsmRUT expects a (Conjugate)Transpose option");
 #endif
     const Grid& g = U.Grid();
 

@@ -16,20 +16,20 @@ namespace elem {
 
 template<typename F>
 inline void
-Lotkin( Matrix<F>& A, int n )
+Lotkin( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lotkin");
 #endif
     Hilbert( A, n );
     // Set first row to all ones
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
         A.Set( 0, j, F(1) );
 }
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Lotkin( DistMatrix<F,U,V>& A, int n )
+Lotkin( DistMatrix<F,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lotkin");
@@ -38,8 +38,8 @@ Lotkin( DistMatrix<F,U,V>& A, int n )
     // Set first row to all ones
     if( A.ColShift() == 0 )
     {
-        const int localWidth = A.LocalWidth();
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             A.SetLocal( 0, jLoc, F(1) );
     } 
 }

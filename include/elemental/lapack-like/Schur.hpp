@@ -22,8 +22,9 @@ Schur( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    throw std::logic_error("This routine not yet written");
+    LogicError("This routine not yet written");
     // TODO: Call LAPACK...
+    return 0;
 }
 
 template<typename F>
@@ -33,8 +34,9 @@ Schur( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    throw std::logic_error("This routine not yet written");
+    LogicError("This routine not yet written");
     // TODO: Spectral D&C
+    return 0;
 }
 
 } // namespace elem

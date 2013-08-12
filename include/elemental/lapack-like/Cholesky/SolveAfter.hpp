@@ -26,9 +26,9 @@ SolveAfter
 #ifndef RELEASE
     CallStackEntry entry("cholesky::SolveAfter");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     if( B.Width() == 1 )
     {
@@ -83,11 +83,11 @@ SolveAfter
 #ifndef RELEASE
     CallStackEntry entry("cholesky::SolveAfter");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("{A,B} must be distributed over the same grid");
+        LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     if( B.Width() == 1 )
     {

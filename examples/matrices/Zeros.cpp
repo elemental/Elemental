@@ -19,8 +19,8 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int m = Input("--height","height of matrix",10);
-        const int n = Input("--width","width of matrix",10);
+        const Int m = Input("--height","height of matrix",10);
+        const Int n = Input("--width","width of matrix",10);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();

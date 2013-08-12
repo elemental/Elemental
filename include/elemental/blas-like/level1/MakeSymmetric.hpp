@@ -26,7 +26,7 @@ MakeSymmetric( UpperOrLower uplo, Matrix<T>& A, bool conjugate=false )
     CallStackEntry entry("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make non-square matrix symmetric");
+        LogicError("Cannot make non-square matrix symmetric");
 
     Matrix<T> d;
     A.GetDiagonal( d );
@@ -53,7 +53,7 @@ MakeSymmetric( UpperOrLower uplo, DistMatrix<T>& A, bool conjugate=false )
     CallStackEntry entry("MakeSymmetric");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make non-square matrix symmetric");
+        LogicError("Cannot make non-square matrix symmetric");
 
     const Grid& g = A.Grid();
     DistMatrix<T,MD,STAR> d(g);

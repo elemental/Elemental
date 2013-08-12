@@ -19,7 +19,7 @@ SoftThreshold( F alpha, BASE(F) tau )
 #ifndef RELEASE
     CallStackEntry entry("SoftThreshold");
     if( tau < 0 )
-        throw std::logic_error("Negative threshold does not make sense");
+        LogicError("Negative threshold does not make sense");
 #endif
     typedef BASE(F) R;
     const R scale = Abs(alpha);
@@ -33,10 +33,10 @@ SoftThreshold( Matrix<F>& A, BASE(F) tau )
 #ifndef RELEASE
     CallStackEntry entry("SoftThreshold");
 #endif
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int j=0; j<width; ++j )
-        for( int i=0; i<height; ++i )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
+        for( Int i=0; i<height; ++i )
             A.Set( i, j, SoftThreshold(A.Get(i,j),tau) );
 }
 

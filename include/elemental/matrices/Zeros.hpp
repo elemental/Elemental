@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Zeros( Matrix<T>& A, int m, int n )
+Zeros( Matrix<T>& A, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Zeros");
@@ -27,7 +27,7 @@ Zeros( Matrix<T>& A, int m, int n )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Zeros( DistMatrix<T,U,V>& A, int m, int n )
+Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Zeros");

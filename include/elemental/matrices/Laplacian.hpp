@@ -17,7 +17,7 @@ namespace elem {
 // 1D Laplacian
 template<typename F> 
 inline void
-Laplacian( Matrix<F>& L, int n )
+Laplacian( Matrix<F>& L, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");
@@ -28,7 +28,7 @@ Laplacian( Matrix<F>& L, int n )
 // 2D Laplacian
 template<typename F> 
 inline void
-Laplacian( Matrix<F>& L, int nx, int ny )
+Laplacian( Matrix<F>& L, Int nx, Int ny )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");
@@ -39,7 +39,7 @@ Laplacian( Matrix<F>& L, int nx, int ny )
 // 3D Laplacian
 template<typename F> 
 inline void
-Laplacian( Matrix<F>& L, int nx, int ny, int nz )
+Laplacian( Matrix<F>& L, Int nx, Int ny, Int nz )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");
@@ -50,7 +50,7 @@ Laplacian( Matrix<F>& L, int nx, int ny, int nz )
 // 1D Laplacian
 template<typename F,Distribution U,Distribution V>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, int n )
+Laplacian( DistMatrix<F,U,V>& L, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");
@@ -61,7 +61,7 @@ Laplacian( DistMatrix<F,U,V>& L, int n )
 // 2D Laplacian
 template<typename F,Distribution U,Distribution V>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, int nx, int ny )
+Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");
@@ -72,7 +72,7 @@ Laplacian( DistMatrix<F,U,V>& L, int nx, int ny )
 // 3D Laplacian
 template<typename F,Distribution U,Distribution V>
 inline void
-Laplacian( DistMatrix<F,U,V>& L, int nx, int ny, int nz )
+Laplacian( DistMatrix<F,U,V>& L, Int nx, Int ny, Int nz )
 {
 #ifndef RELEASE
     CallStackEntry entry("Laplacian");

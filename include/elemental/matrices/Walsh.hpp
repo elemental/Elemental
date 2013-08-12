@@ -14,31 +14,31 @@ namespace elem {
 
 template<typename T> 
 inline void
-MakeWalsh( Matrix<T>& A, int k, bool binary=false )
+MakeWalsh( Matrix<T>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("MakeWalsh");
 #endif
     if( k < 1 )
-        throw std::logic_error("Walsh matrices are only defined for k>=1");
+        LogicError("Walsh matrices are only defined for k>=1");
 
-    const unsigned n = 1u<<k;
-    if( A.Height() != int(n) || A.Width() != int(n) )
-        throw std::logic_error("Invalid input matrix size");
+    const Unsigned n = 1u<<k;
+    if( A.Height() != Int(n) || A.Width() != Int(n) )
+        LogicError("Invalid input matrix size");
 
     // Run a simple O(n^2 log n) algorithm for computing the entries
     // based upon successive sign flips
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
-    for( unsigned j=0; j<n; ++j )
+    for( Unsigned j=0; j<n; ++j )
     {
-        for( unsigned i=0; i<n; ++i )
+        for( Unsigned i=0; i<n; ++i )
         {
             // Recurse on the quadtree, flipping the sign of the entry each
             // time we are in the bottom-right quadrant
-            unsigned r = i;     
-            unsigned s = j;
-            unsigned t = n;
+            Unsigned r = i;     
+            Unsigned s = j;
+            Unsigned t = n;
             bool on = true;
             while( t != 1u )
             {
@@ -59,39 +59,39 @@ MakeWalsh( Matrix<T>& A, int k, bool binary=false )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeWalsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
+MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("MakeWalsh");
 #endif
     if( k < 1 )
-        throw std::logic_error("Walsh matrices are only defined for k>=1");
+        LogicError("Walsh matrices are only defined for k>=1");
 
-    const unsigned n = 1u<<k;
-    if( A.Height() != int(n) || A.Width() != int(n) )
-        throw std::logic_error("Invalid input matrix size");
+    const Unsigned n = 1u<<k;
+    if( A.Height() != Int(n) || A.Width() != Int(n) )
+        LogicError("Invalid input matrix size");
 
     // Run an O(n^2 log n / p) algorithm based upon successive sign flips
     const T onValue = 1;
     const T offValue = ( binary ? 0 : -1 );
-    const unsigned localHeight = A.LocalHeight();
-    const unsigned localWidth = A.LocalWidth();
-    const unsigned colShift = A.ColShift();
-    const unsigned rowShift = A.RowShift();
-    const unsigned colStride = A.ColStride();
-    const unsigned rowStride = A.RowStride();
-    for( unsigned jLoc=0; jLoc<localWidth; ++jLoc )
+    const Unsigned localHeight = A.LocalHeight();
+    const Unsigned localWidth = A.LocalWidth();
+    const Unsigned colShift = A.ColShift();
+    const Unsigned rowShift = A.RowShift();
+    const Unsigned colStride = A.ColStride();
+    const Unsigned rowStride = A.RowStride();
+    for( Unsigned jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const unsigned j = rowShift + jLoc*rowStride;
-        for( unsigned iLoc=0; iLoc<localHeight; ++iLoc )
+        const Unsigned j = rowShift + jLoc*rowStride;
+        for( Unsigned iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const unsigned i = colShift + iLoc*colStride;
+            const Unsigned i = colShift + iLoc*colStride;
 
             // Recurse on the quadtree, flipping the sign of the entry each
             // time we are in the bottom-right quadrant
-            unsigned r = i;     
-            unsigned s = j;
-            unsigned t = n;
+            Unsigned r = i;     
+            Unsigned s = j;
+            Unsigned t = n;
             bool on = true;
             while( t != 1u )
             {
@@ -111,28 +111,28 @@ MakeWalsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
 
 template<typename T> 
 inline void
-Walsh( Matrix<T>& A, int k, bool binary=false )
+Walsh( Matrix<T>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Walsh");
 #endif
     if( k < 1 )
-        throw std::logic_error("Walsh matrices are only defined for k>=1");
-    const unsigned n = 1u<<k;
+        LogicError("Walsh matrices are only defined for k>=1");
+    const Unsigned n = 1u<<k;
     A.ResizeTo( n, n );
     MakeWalsh( A, k, binary );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Walsh( DistMatrix<T,U,V>& A, int k, bool binary=false )
+Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("Walsh");
 #endif
     if( k < 1 )
-        throw std::logic_error("Walsh matrices are only defined for k>=1");
-    const unsigned n = 1u<<k;
+        LogicError("Walsh matrices are only defined for k>=1");
+    const Unsigned n = 1u<<k;
     A.ResizeTo( n, n );
     MakeWalsh( A, k, binary );
 }

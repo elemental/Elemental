@@ -36,7 +36,7 @@ ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
-  int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
+  Int offset, const Matrix<F>& H, const Matrix<F>& t, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ApplyPackedReflectors");
@@ -99,7 +99,7 @@ ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order, 
   Conjugation conjugation,
-  int offset,
+  Int offset,
   const DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -163,7 +163,7 @@ ApplyPackedReflectors
 ( LeftOrRight side, UpperOrLower uplo, 
   VerticalOrHorizontal dir, ForwardOrBackward order,
   Conjugation conjugation,
-  int offset,
+  Int offset,
   const DistMatrix<F>& H, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& A )
 {
 #ifndef RELEASE

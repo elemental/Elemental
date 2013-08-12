@@ -19,32 +19,19 @@ Transpose( const Matrix<T>& A, Matrix<T>& B, bool conjugate=false )
 #ifndef RELEASE
     CallStackEntry entry("Transpose");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    if( B.Viewing() )
-    {
-        if( B.Height() != n || B.Width() != m )
-        {
-            std::ostringstream msg;
-            msg << "If Transpose'ing into a view, it must be the right size:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width();
-            throw std::logic_error( msg.str().c_str() );
-        }
-    }
-    else
-        B.ResizeTo( n, m );
-
+    const Int m = A.Height();
+    const Int n = A.Width();
+    B.ResizeTo( n, m );
     if( conjugate )
     {
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<m; ++i )
                 B.Set(j,i,Conj(A.Get(i,j)));
     }
     else
     {
-        for( int j=0; j<n; ++j )
-            for( int i=0; i<m; ++i )
+        for( Int j=0; j<n; ++j )
+            for( Int i=0; i<m; ++i )
                 B.Set(j,i,A.Get(i,j));
     }
 }
@@ -58,22 +45,11 @@ Transpose
 #ifndef RELEASE
     CallStackEntry entry("Transpose");
 #endif
-    if( B.Viewing() )
-    {
-        if( A.Height() != B.Width() || A.Width() != B.Height() )
-        {
-            std::ostringstream msg;
-            msg << "If Transpose'ing into a view, it must be the right size:\n"
-                << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
-                << "  B ~ " << B.Height() << " x " << B.Width();
-            throw std::logic_error( msg.str().c_str() );
-        }
-    }
-
     if( U == Z && V == W && 
         A.ColAlignment() == B.RowAlignment() &&
         A.RowAlignment() == B.ColAlignment() )
     {
+        B.ResizeTo( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );
     }
     else
@@ -91,8 +67,8 @@ Transpose
                 B.AlignColsWith( C );
             if( !B.ConstrainedRowAlignment() )
                 B.AlignRowsWith( C );
-            B.ResizeTo( A.Width(), A.Height() );
         }
+        B.ResizeTo( A.Width(), A.Height() );
         Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
     }
 }

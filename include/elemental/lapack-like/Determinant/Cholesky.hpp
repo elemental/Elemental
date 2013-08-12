@@ -23,7 +23,7 @@ AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
     CallStackEntry entry("hpd_determinant::AfterCholesky");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
 
     Matrix<F> d;
     A.GetDiagonal( d );
@@ -31,7 +31,7 @@ AfterCholesky( UpperOrLower uplo, const Matrix<F>& A )
     det.rho = F(1);
 
     const R scale = R(n)/R(2);
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const R delta = RealPart(d.Get(i,0));
         det.kappa += Log(delta)/scale;
@@ -69,7 +69,7 @@ AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
     CallStackEntry entry("hpd_determinant::AfterCholesky");
 #endif
     typedef BASE(F) R;
-    const int n = A.Height();
+    const Int n = A.Height();
     const Grid& g = A.Grid();
 
     DistMatrix<F,MD,STAR> d(g);
@@ -78,15 +78,15 @@ AfterCholesky( UpperOrLower uplo, const DistMatrix<F>& A )
     if( d.Participating() )
     {
         const R scale = R(n)/R(2);
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
+        const Int nLocalDiag = d.LocalHeight();
+        for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
         {
             const R delta = RealPart(d.GetLocal(iLoc,0));
             localKappa += Log(delta)/scale;
         }
     }
     SafeProduct<F> det( n );
-    mpi::AllReduce( &localKappa, &det.kappa, 1, mpi::SUM, g.VCComm() );
+    det.kappa = mpi::AllReduce( localKappa, g.VCComm() );
     det.rho = F(1);
 
     return det;

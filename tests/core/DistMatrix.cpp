@@ -22,9 +22,9 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
 #endif
     const Grid& g = A.Grid();
 
-    const int commRank = g.Rank();
-    const int height = B.Height();
-    const int width = B.Width();
+    const Int commRank = g.Rank();
+    const Int height = B.Height();
+    const Int width = B.Width();
     DistMatrix<T,STAR,STAR> A_STAR_STAR(g);
     DistMatrix<T,STAR,STAR> B_STAR_STAR(g);
 
@@ -41,10 +41,10 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
     A_STAR_STAR = A;
     B_STAR_STAR = B;
 
-    int myErrorFlag = 0;
-    for( int j=0; j<width; ++j )
+    Int myErrorFlag = 0;
+    for( Int j=0; j<width; ++j )
     {
-        for( int i=0; i<height; ++i )
+        for( Int i=0; i<height; ++i )
         {
             if( A_STAR_STAR.GetLocal(i,j) != B_STAR_STAR.GetLocal(i,j) )
             {
@@ -56,7 +56,7 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
             break;
     }
 
-    int summedErrorFlag;
+    Int summedErrorFlag;
     mpi::AllReduce( &myErrorFlag, &summedErrorFlag, 1, mpi::SUM, g.Comm() );
 
     if( summedErrorFlag == 0 )
@@ -65,12 +65,12 @@ Check( DistMatrix<T,AColDist,ARowDist>& A,
             std::cout << "PASSED" << std::endl;
     }
     else
-        throw std::logic_error("Redistribution failed");
+        LogicError("Redistribution failed");
 }
 
 template<typename T>
 void
-DistMatrixTest( int m, int n, const Grid& g )
+DistMatrixTest( Int m, Int n, const Grid& g )
 {
 #ifndef RELEASE
     CallStackEntry entry("DistMatrixTest");
@@ -236,14 +236,14 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        Int r = Input("--gridHeight","height of process grid",0);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         ProcessInput();
         PrintInputReport();
 

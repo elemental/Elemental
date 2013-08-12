@@ -36,8 +36,7 @@ LocalTrmmAccumulateLLT
     CallStackEntry entry("internal::LocalTrmmAccumulateLLT");
     if( L.Grid() != X_MC_STAR.Grid() ||
         X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
-        throw std::logic_error
-        ("{L,X,Z} must be distributed over the same grid");
+        LogicError("{L,X,Z} must be distributed over the same grid");
     if( L.Height() != L.Width() ||
         L.Height() != X_MC_STAR.Height() ||
         L.Height() != Z_MR_STAR.Height() )
@@ -49,11 +48,11 @@ LocalTrmmAccumulateLLT
                                << X_MC_STAR.Width() << "\n"
             << "  Z[MR,* ] ` " << Z_MR_STAR.Height() << " x "
                                << Z_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( X_MC_STAR.ColAlignment() != L.ColAlignment() ||
         Z_MR_STAR.ColAlignment() != L.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = L.Grid();
     
@@ -75,7 +74,7 @@ LocalTrmmAccumulateLLT
         ZB_MR_STAR(g),  Z1_MR_STAR(g),
                         Z2_MR_STAR(g);
 
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
@@ -152,18 +151,16 @@ TrmmLLTA
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLLTA");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
+        LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error
-        ("TrmmLLTA expects a (Conjugate)Transpose option");
+        LogicError("TrmmLLTA expects a (Conjugate)Transpose option");
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLLTA: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = L.Grid();
@@ -219,17 +216,16 @@ TrmmLLTCOld
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLLTCOld");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
+        LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrmmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrmmLLT expects a (Conjugate)Transpose option");
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLLTC: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = L.Grid();
@@ -320,17 +316,16 @@ TrmmLLTC
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLLTC");
     if( L.Grid() != X.Grid() )
-        throw std::logic_error
-        ("L and X must be distributed over the same grid");
+        LogicError("L and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrmmLLT expects a (Conjugate)Transpose option");
+        LogicError("TrmmLLT expects a (Conjugate)Transpose option");
     if( L.Height() != L.Width() || L.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLLTC: \n"
             << "  L ~ " << L.Height() << " x " << L.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = L.Grid();

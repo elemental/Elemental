@@ -37,11 +37,11 @@ Display( const Matrix<T>& A, std::string title="Default" )
 #endif
 #ifdef HAVE_QT5
     // Convert A to double-precision since Qt's MOC does not support templates
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     Matrix<double>* ADouble = new Matrix<double>( m, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             ADouble->Set( i, j, double(A.Get(i,j)) );
 
     QString qTitle = QString::fromStdString( title );
@@ -65,12 +65,12 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
 #endif
 #ifdef HAVE_QT5
     // Convert A to double-precision since Qt's MOC does not support templates
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     Matrix<Complex<double> >* ADouble = new Matrix<Complex<double> >( m, n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const Complex<T> alpha = A.Get(i,j);
             const Complex<double> alphaDouble = 

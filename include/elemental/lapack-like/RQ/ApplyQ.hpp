@@ -28,7 +28,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = A.Width()-A.Height();
+    const Int offset = A.Width()-A.Height();
     ApplyPackedReflectors
     ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 }
@@ -46,7 +46,7 @@ ApplyQ
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = A.Width()-A.Height();
+    const Int offset = A.Width()-A.Height();
     ApplyPackedReflectors
     ( side, LOWER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 }
@@ -60,7 +60,7 @@ ApplyQ
 #ifndef RELEASE
     CallStackEntry cse("rq::ApplyQ");
 #endif
-    const int offset = A.Width()-A.Height();
+    const Int offset = A.Width()-A.Height();
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;

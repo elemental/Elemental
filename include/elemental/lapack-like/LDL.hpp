@@ -30,12 +30,8 @@ LocalLDL
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalLDL");
-    if( d.Viewing() && (d.Height() != A.Height() || d.Width() != 1) )
-        throw std::logic_error
-        ("d must be a column vector of the same height as A");
 #endif
-    if( !d.Viewing() )
-        d.ResizeTo( A.Height(), 1 );
+    d.ResizeTo( A.Height(), 1 );
     ldl::Var3( orientation, A.Matrix(), d.Matrix() );
 }
 

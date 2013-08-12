@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
     // safely handle any exceptions that were thrown during execution.
     try 
     {
-        const int n = Input("--size","matrix size",100);
+        const Int n = Input("--size","matrix size",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -54,26 +54,26 @@ main( int argc, char* argv[] )
         // the global matrix is Hermitian. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const int colShift = H.ColShift(); // first row we own
-        const int rowShift = H.RowShift(); // first col we own
-        const int colStride = H.ColStride();
-        const int rowStride = H.RowStride();
-        const int localHeight = H.LocalHeight();
-        const int localWidth = H.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        const Int colShift = H.ColShift(); // first row we own
+        const Int rowShift = H.RowShift(); // first col we own
+        const Int colStride = H.ColStride();
+        const Int rowStride = H.RowStride();
+        const Int localHeight = H.LocalHeight();
+        const Int localWidth = H.LocalWidth();
+        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
             {
                 // Our process owns the rows colShift:colStride:n,
                 //           and the columns rowShift:rowStride:n
-                const int i = colShift + iLocal*colStride;
-                const int j = rowShift + jLocal*rowStride;
+                const Int i = colShift + iLocal*colStride;
+                const Int j = rowShift + jLocal*rowStride;
                 H.SetLocal( iLocal, jLocal, i+j );
             }
         }
         // Alternatively, we could have sequentially filled the matrix with 
-        // for( int j=0; j<A.Width(); ++j )
-        //   for( int i=0; i<A.Height(); ++i )
+        // for( Int j=0; j<A.Width(); ++j )
+        //   for( Int i=0; i<A.Height(); ++i )
         //     A.Set( i, j, i+j );
         //
         // More convenient interfaces are being investigated.

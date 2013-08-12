@@ -21,13 +21,13 @@ using namespace elem;
 template<typename F> 
 void TestCorrectness
 ( LeftOrRight side, UpperOrLower uplo, ForwardOrBackward order,
-  Conjugation conjugation, int offset, bool printMatrices,
+  Conjugation conjugation, Int offset, bool printMatrices,
   const DistMatrix<F>& H,
   const DistMatrix<F,MD,STAR>& t )
 {
     typedef BASE(F) R;
     const Grid& g = H.Grid();
-    const int m = H.Height();
+    const Int m = H.Height();
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of transform..." << endl;
@@ -97,14 +97,14 @@ template<typename F>
 void TestUT
 ( LeftOrRight side, UpperOrLower uplo, 
   ForwardOrBackward order, Conjugation conjugation,
-  int m, int offset, bool testCorrectness, bool printMatrices,
+  Int m, Int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
     DistMatrix<F> H(g), A(g);
     Uniform( H, m, m );
     Uniform( A, m, m );
 
-    const int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
+    const Int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<F,MD,STAR> t(g);
     t.AlignWithDiagonal( H, offset );
     t.ResizeTo( diagLength, 1 );
@@ -112,7 +112,7 @@ void TestUT
     DistMatrix<F> HCol(g);
     if( uplo == LOWER )
     {
-        for( int i=0; i<t.Height(); ++i )
+        for( Int i=0; i<t.Height(); ++i )
         {
             // View below the diagonal containing the implicit 1
             View( HCol, H, i-offset+1, i, m-(i-offset+1), 1 );
@@ -123,7 +123,7 @@ void TestUT
     }
     else
     {
-        for( int i=0; i<t.Height(); ++i ) 
+        for( Int i=0; i<t.Height(); ++i ) 
         {
             // View above the diagonal containing the implicit 1
             View( HCol, H, 0, i+offset, i, 1 );
@@ -173,19 +173,19 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
+        Int r = Input("--gridHeight","height of process grid",0);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","store in triangle: L/U",'L');
         const bool forward = Input("--forward","forward application?",true);
         const bool conjugate = Input("--conjugate","conjugate?",false);
-        const int m = Input("--height","height of matrix",100);
-        const int offset = Input("--offset","diagonal offset for storage",0);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--height","height of matrix",100);
+        const Int offset = Input("--offset","diagonal offset for storage",0);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool testCorrectness  = Input
             ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);
@@ -202,10 +202,10 @@ main( int argc, char* argv[] )
             ( conjugate ? CONJUGATED : UNCONJUGATED );
         SetBlocksize( nb );
         if( uplo == LOWER && offset > 0 )
-            throw logic_error
+            LogicError
             ("Offset cannot be positive if transforms are in lower triangle");
         else if( uplo == UPPER && offset < 0 )
-            throw logic_error
+            LogicError
             ("Offset cannot be negative if transforms are in upper triangle");
 
         ComplainIfDebug();

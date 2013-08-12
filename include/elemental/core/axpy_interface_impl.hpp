@@ -17,14 +17,14 @@
 
 namespace elem {
 
-template<typename T,typename Int>
+template<typename T>
 inline bool
-AxpyInterface<T,Int>::Finished()
+AxpyInterface<T>::Finished()
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::Finished");
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
-        throw std::logic_error("Not attached!");
+        LogicError("Not attached");
 #endif
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 
@@ -43,9 +43,9 @@ AxpyInterface<T,Int>::Finished()
     return finished;
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::HandleEoms()
+AxpyInterface<T>::HandleEoms()
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::HandleEoms");
@@ -93,7 +93,7 @@ AxpyInterface<T,Int>::HandleEoms()
             if( shouldSendEom )
             {
                 mpi::Request& request = eomSendRequests_[i];
-                mpi::ISSend
+                mpi::TaggedISSend
                 ( &sendDummy_, 1, i, EOM_TAG, g.VCComm(), request );
                 sentEomTo_[i] = true;
             }
@@ -104,14 +104,14 @@ AxpyInterface<T,Int>::HandleEoms()
     if( mpi::IProbe( mpi::ANY_SOURCE, EOM_TAG, g.VCComm(), status ) )
     {
         const Int source = status.MPI_SOURCE;
-        mpi::Recv( &recvDummy_, 1, source, EOM_TAG, g.VCComm() );
+        mpi::TaggedRecv( &recvDummy_, 1, source, EOM_TAG, g.VCComm() );
         haveEomFrom_[source] = true;
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::HandleLocalToGlobalData()
+AxpyInterface<T>::HandleLocalToGlobalData()
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::HandleLocalToGlobalData");
@@ -130,12 +130,12 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
         const Int count = mpi::GetCount<byte>( status );
 #ifndef RELEASE
         if( count < 4*sizeof(Int)+sizeof(T) )
-            throw std::logic_error("Count was too small");
+            LogicError("Count was too small");
 #endif
         const Int source = status.MPI_SOURCE;
         recvVector_.resize( count );
         byte* recvBuffer = &recvVector_[0];
-        mpi::Recv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
+        mpi::TaggedRecv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
         byte* head = recvBuffer;
@@ -161,7 +161,7 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
                << "  width= " << width << std::hex << "(" << width << ")\n"
                               << std::dec
                << "  alpha= " << alpha  << std::endl;
-            throw std::runtime_error( os.str().c_str() );
+            RuntimeError( os.str() );
         }
         if( i < 0 || j < 0 )
         {
@@ -174,7 +174,7 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
                << "  width= " << width << std::hex << "(" << width << ")\n"
                               << std::dec
                << "  alpha= " << alpha  << std::endl;
-            throw std::runtime_error( os.str().c_str() );
+            RuntimeError( os.str() );
         }
         if( i+height > Y.Height() || j+width > Y.Width() )
         {
@@ -187,7 +187,7 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
                << "  width= " << width << std::hex << "(" << width << ")\n"
                               << std::dec
                << "  alpha= " << alpha  << std::endl;
-            throw std::runtime_error( os.str().c_str() );
+            RuntimeError( os.str() );
         }
 #endif
 
@@ -216,9 +216,9 @@ AxpyInterface<T,Int>::HandleLocalToGlobalData()
     }
 }
     
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
+AxpyInterface<T>::HandleGlobalToLocalRequest()
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::HandleGlobalToLocalRequest");
@@ -235,10 +235,11 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
     {
         // Request exists, so recv
         const Int source = status.MPI_SOURCE;
-        recvVector_.resize( 4*sizeof(Int) );
+        const Int recvSize = 4*sizeof(Int);
+        recvVector_.resize( recvSize );
         byte* recvBuffer = &recvVector_[0];
-        mpi::Recv
-        ( recvBuffer, 4*sizeof(Int), source, DATA_REQUEST_TAG, g.VCComm() );
+        mpi::TaggedRecv
+        ( recvBuffer, recvSize, source, DATA_REQUEST_TAG, g.VCComm() );
 
         // Extract the header
         const byte* recvHead = recvBuffer;
@@ -284,22 +285,22 @@ AxpyInterface<T,Int>::HandleGlobalToLocalRequest()
         }
 
         // Fire off non-blocking send
-        mpi::ISSend
+        mpi::TaggedISSend
         ( sendBuffer, bufferSize, source, DATA_REPLY_TAG, g.VCComm(), 
           replySendRequests_[source][index] );
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline
-AxpyInterface<T,Int>::AxpyInterface()
+AxpyInterface<T>::AxpyInterface()
 : attachedForLocalToGlobal_(false), attachedForGlobalToLocal_(false), 
   localToGlobalMat_(0), globalToLocalMat_(0)
 { }
 
-template<typename T,typename Int>
+template<typename T>
 inline
-AxpyInterface<T,Int>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::AxpyInterface");
@@ -338,9 +339,9 @@ AxpyInterface<T,Int>::AxpyInterface( AxpyType type, DistMatrix<T,MC,MR>& Z )
     eomSendRequests_.resize( p );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline
-AxpyInterface<T,Int>::AxpyInterface
+AxpyInterface<T>::AxpyInterface
 ( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
@@ -348,7 +349,7 @@ AxpyInterface<T,Int>::AxpyInterface
 #endif
     if( type == LOCAL_TO_GLOBAL )
     {
-        throw std::logic_error("Cannot update a constant matrix");
+        LogicError("Cannot update a constant matrix");
     }
     else
     {
@@ -377,9 +378,9 @@ AxpyInterface<T,Int>::AxpyInterface
     eomSendRequests_.resize( p );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline
-AxpyInterface<T,Int>::~AxpyInterface()
+AxpyInterface<T>::~AxpyInterface()
 { 
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
     {
@@ -408,15 +409,15 @@ AxpyInterface<T,Int>::~AxpyInterface()
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
+AxpyInterface<T>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
-        throw std::logic_error("Must detach before reattaching.");
+        LogicError("Must detach before reattaching.");
 
     if( type == LOCAL_TO_GLOBAL )
     {
@@ -448,19 +449,19 @@ AxpyInterface<T,Int>::Attach( AxpyType type, DistMatrix<T,MC,MR>& Z )
     eomSendRequests_.resize( p );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
+AxpyInterface<T>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::Attach");
 #endif
     if( attachedForLocalToGlobal_ || attachedForGlobalToLocal_ )
-        throw std::logic_error("Must detach before reattaching.");
+        LogicError("Must detach before reattaching.");
 
     if( type == LOCAL_TO_GLOBAL )
     {
-        throw std::logic_error("Cannot update a constant matrix");
+        LogicError("Cannot update a constant matrix");
     }
     else
     {
@@ -487,9 +488,9 @@ AxpyInterface<T,Int>::Attach( AxpyType type, const DistMatrix<T,MC,MR>& X )
     eomSendRequests_.resize( p );
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void 
-AxpyInterface<T,Int>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
+AxpyInterface<T>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::Axpy");
@@ -499,12 +500,12 @@ AxpyInterface<T,Int>::Axpy( T alpha, Matrix<T>& Z, Int i, Int j )
     else if( attachedForGlobalToLocal_ )
         AxpyGlobalToLocal( alpha, Z, i, j );
     else
-        throw std::logic_error("Cannot axpy before attaching.");
+        LogicError("Cannot axpy before attaching.");
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void 
-AxpyInterface<T,Int>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
+AxpyInterface<T>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::Axpy");
@@ -512,15 +513,15 @@ AxpyInterface<T,Int>::Axpy( T alpha, const Matrix<T>& Z, Int i, Int j )
     if( attachedForLocalToGlobal_ )
         AxpyLocalToGlobal( alpha, Z, i, j );
     else if( attachedForGlobalToLocal_ )
-        throw std::logic_error("Cannot update a constant matrix.");
+        LogicError("Cannot update a constant matrix.");
     else
-        throw std::logic_error("Cannot axpy before attaching.");
+        LogicError("Cannot axpy before attaching.");
 }
 
 // Update Y(i:i+height-1,j:j+width-1) += alpha X, where X is height x width
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::AxpyLocalToGlobal
+AxpyInterface<T>::AxpyLocalToGlobal
 ( T alpha, const Matrix<T>& X, Int i, Int j )
 {
 #ifndef RELEASE
@@ -528,9 +529,9 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
 #endif
     DistMatrix<T,MC,MR>& Y = *localToGlobalMat_;
     if( i < 0 || j < 0 )
-        throw std::logic_error("Submatrix offsets must be non-negative");
+        LogicError("Submatrix offsets must be non-negative");
     if( i+X.Height() > Y.Height() || j+X.Width() > Y.Width() )
-        throw std::logic_error("Submatrix out of bounds of global matrix");
+        LogicError("Submatrix out of bounds of global matrix");
 
     const Grid& g = Y.Grid();
     const Int r = g.Height();
@@ -565,7 +566,7 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
                   dataSendRequests_[destination], sendingData_[destination] );
 #ifndef RELEASE
             if( dataVectors_[destination][index].size() != bufferSize )
-                throw std::logic_error("Error in ReadyForSend");
+                LogicError("Error in ReadyForSend");
 #endif
 
             // Pack the header
@@ -590,7 +591,7 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
             }
 
             // Fire off the non-blocking send
-            mpi::ISSend
+            mpi::TaggedISSend
             ( sendBuffer, bufferSize, destination, DATA_TAG, g.VCComm(), 
               dataSendRequests_[destination][index] );
         }
@@ -602,9 +603,9 @@ AxpyInterface<T,Int>::AxpyLocalToGlobal
 }
 
 // Update Y += alpha X(i:i+height-1,j:j+width-1), where X is the dist-matrix
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::AxpyGlobalToLocal
+AxpyInterface<T>::AxpyGlobalToLocal
 ( T alpha, Matrix<T>& Y, Int i, Int j )
 {
 #ifndef RELEASE
@@ -615,7 +616,7 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
     const Int height = Y.Height();
     const Int width = Y.Width();
     if( i+height > X.Height() || j+width > X.Width() )
-        throw std::logic_error("Invalid AxpyGlobalToLocal submatrix");
+        LogicError("Invalid AxpyGlobalToLocal submatrix");
 
     const Grid& g = X.Grid();
     const Int r = g.Height();
@@ -640,7 +641,7 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
         *reinterpret_cast<Int*>(head) = width; head += sizeof(Int);
 
         // Begin the non-blocking send
-        mpi::ISSend
+        mpi::TaggedISSend
         ( sendBuffer, bufferSize, rank, DATA_REQUEST_TAG, g.VCComm(), 
           requestSendRequests_[rank][index] );
     }
@@ -662,7 +663,8 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
             byte* recvBuffer = &recvVector_[0];
 
             // Receive the data
-            mpi::Recv( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
+            mpi::TaggedRecv
+            ( recvBuffer, count, source, DATA_REPLY_TAG, g.VCComm() );
 
             // Unpack the reply header
             const byte* head = recvBuffer;
@@ -694,9 +696,9 @@ AxpyInterface<T,Int>::AxpyGlobalToLocal
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline Int
-AxpyInterface<T,Int>::ReadyForSend
+AxpyInterface<T>::ReadyForSend
 ( Int sendSize,
   std::deque<std::vector<byte> >& sendVectors,
   std::deque<mpi::Request>& requests, 
@@ -708,7 +710,7 @@ AxpyInterface<T,Int>::ReadyForSend
     const Int numCreated = sendVectors.size();
 #ifndef RELEASE
     if( numCreated != requests.size() || numCreated != requestStatuses.size() )
-        throw std::logic_error("size mismatch");
+        LogicError("size mismatch");
 #endif
     for( Int i=0; i<numCreated; ++i )
     {
@@ -735,9 +737,9 @@ AxpyInterface<T,Int>::ReadyForSend
     return numCreated;
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::UpdateRequestStatuses()
+AxpyInterface<T>::UpdateRequestStatuses()
 {
 #ifndef RELEASE
     CallStackEntry entry("AxpyInterface::UpdateRequestStatuses");
@@ -767,15 +769,15 @@ AxpyInterface<T,Int>::UpdateRequestStatuses()
     }
 }
 
-template<typename T,typename Int>
+template<typename T>
 inline void
-AxpyInterface<T,Int>::Detach()
+AxpyInterface<T>::Detach()
 {
 #ifndef RELEASE    
     CallStackEntry entry("AxpyInterface::Detach");
 #endif
     if( !attachedForLocalToGlobal_ && !attachedForGlobalToLocal_ )
-        throw std::logic_error("Must attach before detaching.");
+        LogicError("Must attach before detaching.");
 
     const Grid& g = ( attachedForLocalToGlobal_ ? 
                       localToGlobalMat_->Grid() : 

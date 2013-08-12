@@ -24,8 +24,8 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         const bool adjoint = Input("--adjoint","apply adjoint?",false);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();

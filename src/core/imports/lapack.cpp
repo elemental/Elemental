@@ -343,7 +343,7 @@ void BidiagDQDS( int n, float* d, float* e )
             msg << "Current block of Z not bidiagonalized after 30*k its";
         else if( info == 3 )
             msg << "Termination criterion of outer while loop not met";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     } 
 }
 
@@ -366,7 +366,7 @@ void BidiagDQDS( int n, double* d, double* e )
             msg << "Current block of Z not bidiagonalized after 30*k its";
         else if( info == 3 )
             msg << "Termination criterion of outer while loop not met";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     } 
 }
 
@@ -398,7 +398,7 @@ void BidiagQRAlg
             msg << "Argument " << -info << " had illegal value";
         else
             msg << "sbdsqr had " << info << " elements of e not converge";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 }
 
@@ -426,7 +426,7 @@ void BidiagQRAlg
             msg << "Argument " << -info << " had illegal value";
         else
             msg << "dbdsqr had " << info << " elements of e not converge";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 }
 
@@ -454,7 +454,7 @@ void BidiagQRAlg
             msg << "Argument " << -info << " had illegal value";
         else
             msg << "cbdsqr had " << info << " elements of e not converge";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 }
 
@@ -482,7 +482,7 @@ void BidiagQRAlg
             msg << "Argument " << -info << " had illegal value";
         else
             msg << "zbdsqr had " << info << " elements of e not converge";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
 }
 
@@ -519,7 +519,7 @@ void DivideAndConquerSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -556,7 +556,7 @@ void DivideAndConquerSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -596,7 +596,7 @@ void DivideAndConquerSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -636,7 +636,7 @@ void DivideAndConquerSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -675,7 +675,7 @@ void QRSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -710,7 +710,7 @@ void QRSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -747,7 +747,7 @@ void QRSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -784,7 +784,7 @@ void QRSVD
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -821,7 +821,7 @@ void SVD( int m, int n, float* A, int lda, float* s )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -854,7 +854,7 @@ void SVD( int m, int n, double* A, int lda, double* s )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -889,7 +889,7 @@ void SVD( int m, int n, scomplex* A, int lda, float* s )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -924,7 +924,7 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -962,7 +962,7 @@ void HessenbergEig( int n, float* H, int ldh, scomplex* w )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -999,7 +999,7 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -1035,7 +1035,7 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -1068,7 +1068,7 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
     {
@@ -1107,7 +1107,7 @@ int HermitianEig
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
         throw std::runtime_error("ssyevr's failed");
@@ -1145,7 +1145,7 @@ int HermitianEig
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
         throw std::runtime_error("dsyevr's failed");
@@ -1188,7 +1188,7 @@ int HermitianEig
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
         throw std::runtime_error("cheevr's failed");
@@ -1231,7 +1231,7 @@ int HermitianEig
     {
         std::ostringstream msg;
         msg << "Argument " << -info << " had illegal value";
-        throw std::logic_error( msg.str().c_str() );
+        RuntimeError( msg.str() );
     }
     else if( info > 0 )
         throw std::runtime_error("zheevr's failed");

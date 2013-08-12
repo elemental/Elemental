@@ -21,14 +21,14 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
     CallStackEntry entry("internal::TwoSidedTrsmLUnb");
 #endif
     // Use the Variant 4 algorithm
-    const int n = A.Height();
-    const int lda = A.LDim();
-    const int ldl = L.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
+    const Int ldl = L.LDim();
     F* ABuffer = A.Buffer();
     const F* LBuffer = L.LockedBuffer();
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        const int a21Height = n - (j+1);
+        const Int a21Height = n - (j+1);
 
         // Extract and store the diagonal value of L
         const F lambda11 = ( diag==UNIT ? 1 : LBuffer[j+j*ldl] );
@@ -36,7 +36,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         // a10 := a10 / lambda11
         F* a10 = &ABuffer[j];
         if( diag != UNIT )
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
                 a10[k*lda] /= lambda11;
 
         // A20 := A20 - l21 a10
@@ -51,11 +51,11 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         // a21 := a21 / conj(lambda11)
         F* a21 = &ABuffer[(j+1)+j*lda];
         if( diag != UNIT )
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
                 a21[k] /= Conj(lambda11);
 
         // a21 := a21 - (alpha11/2)l21
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             a21[k] -= (alpha11/2)*l21[k];
 
         // A22 := A22 - (l21 a21' + a21 l21')
@@ -63,7 +63,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
         blas::Her2( 'L', a21Height, F(-1), l21, 1, a21, 1, A22, lda );
 
         // a21 := a21 - (alpha11/2)l21
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             a21[k] -= (alpha11/2)*l21[k];
     }
 }
@@ -77,15 +77,15 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 #endif
     // Use the Variant 4 algorithm
     // (which annoyingly requires conjugations for the Her2)
-    const int n = A.Height();
-    const int lda = A.LDim();
-    const int ldu = U.LDim();
+    const Int n = A.Height();
+    const Int lda = A.LDim();
+    const Int ldu = U.LDim();
     F* ABuffer = A.Buffer();
     const F* UBuffer = U.LockedBuffer();
     std::vector<F> a12Conj( n ), u12Conj( n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        const int a21Height = n - (j+1);
+        const Int a21Height = n - (j+1);
 
         // Extract and store the diagonal value of U
         const F upsilon11 = ( diag==UNIT ? 1 : UBuffer[j+j*ldu] );
@@ -93,7 +93,7 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         // a01 := a01 / upsilon11
         F* a01 = &ABuffer[j*lda];
         if( diag != UNIT )
-            for( int k=0; k<j; ++k )
+            for( Int k=0; k<j; ++k )
                 a01[k] /= upsilon11;
 
         // A02 := A02 - a01 u12
@@ -108,24 +108,24 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         // a12 := a12 / conj(upsilon11)
         F* a12 = &ABuffer[j+(j+1)*lda];
         if( diag != UNIT )
-            for( int k=0; k<a21Height; ++k )
+            for( Int k=0; k<a21Height; ++k )
                 a12[k*lda] /= Conj(upsilon11);
 
         // a12 := a12 - (alpha11/2)u12
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             a12[k*lda] -= (alpha11/2)*u12[k*ldu];
 
         // A22 := A22 - (a12' u12 + u12' a12)
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             a12Conj[k] = Conj(a12[k*lda]);
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             u12Conj[k] = Conj(u12[k*ldu]);
         blas::Her2
         ( 'U', a21Height, F(-1), &u12Conj[0], 1, &a12Conj[0], 1, A22, lda );
 
         // a12 := a12 - (alpha11/2)u12
-        for( int k=0; k<a21Height; ++k )
+        for( Int k=0; k<a21Height; ++k )
             a12[k*lda] -= (alpha11/2)*u12[k*ldu];
     }
 }

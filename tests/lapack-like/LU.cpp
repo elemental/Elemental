@@ -27,7 +27,7 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = AOrig.Height();
+    const Int m = AOrig.Height();
 
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
@@ -72,7 +72,7 @@ void TestCorrectness
 template<typename F> 
 void TestLU
 ( bool pivot, bool testCorrectness, bool print, 
-  int m, const Grid& g )
+  Int m, const Grid& g )
 {
     DistMatrix<F> A(g), ARef(g);
     DistMatrix<int,VC,STAR> p(g);
@@ -128,14 +128,14 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        Int r = Input("--gridHeight","height of process grid",0);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool pivot = Input("--pivot","pivoted LU?",true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);

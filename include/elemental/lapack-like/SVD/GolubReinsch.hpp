@@ -32,10 +32,10 @@ GolubReinschUpper
     CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef BASE(F) Real;
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::min( m, n );
-    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = std::min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
 
@@ -44,8 +44,7 @@ GolubReinschUpper
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
-                             e_MD_STAR( g );
+    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
@@ -79,25 +78,19 @@ GolubReinschUpper
     DistMatrix<F> B( A );
     if( m >= n )
     {
-        DistMatrix<F> AT( g ),
-                      AB( g );
-        DistMatrix<F,VC,STAR> UT_VC_STAR( g ),
-                              UB_VC_STAR( g );
-        PartitionDown( A, AT,
-                          AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR,
-                                  UB_VC_STAR, n );
+        DistMatrix<F> AT(g), AB(g);
+        DistMatrix<F,VC,STAR> UT_VC_STAR(g), UB_VC_STAR(g);
+        PartitionDown( A, AT, AB, n );
+        PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
         Adjoint( VAdj_STAR_VC, V );
     }
     else
     {
-        DistMatrix<F> VT( g ), 
-                      VB( g );
-        DistMatrix<F,STAR,VC> VAdjL_STAR_VC( g ), VAdjR_STAR_VC( g );
-        PartitionDown( V, VT, 
-                          VB, m );
+        DistMatrix<F> VT(g), VB(g);
+        DistMatrix<F,STAR,VC> VAdjL_STAR_VC(g), VAdjR_STAR_VC(g);
+        PartitionDown( V, VT, VB, m );
         PartitionRight( VAdj_STAR_VC, VAdjL_STAR_VC, VAdjR_STAR_VC, m );
         Adjoint( VAdjL_STAR_VC, VT );
         MakeZeros( VB );
@@ -121,19 +114,18 @@ GolubReinschUpper_FLA
     CallStackEntry entry("svd::GolubReinschUpper_FLA");
 #endif
     typedef BASE(F) Real;
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::min( m, n );
-    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = std::min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
-    DistMatrix<F,STAR,STAR> tP( g ), tQ( g );
+    DistMatrix<F,STAR,STAR> tP(g), tQ(g);
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( g ),
-                             e_MD_STAR( g );
+    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 
@@ -143,8 +135,7 @@ GolubReinschUpper_FLA
                                e_STAR_STAR( e_MD_STAR );
 
     // Initialize U and VAdj to the appropriate identity matrices
-    DistMatrix<F,VC,STAR> U_VC_STAR( g );
-    DistMatrix<F,VC,STAR> V_VC_STAR( g );
+    DistMatrix<F,VC,STAR> U_VC_STAR(g), V_VC_STAR(g);
     U_VC_STAR.AlignWith( A );
     V_VC_STAR.AlignWith( V );
     Identity( U_VC_STAR, m, k );
@@ -161,29 +152,20 @@ GolubReinschUpper_FLA
     DistMatrix<F> B( A );
     if( m >= n )
     {
-        DistMatrix<F> AT( g ),
-                      AB( g );
-        DistMatrix<F,VC,STAR> UT_VC_STAR( g ), 
-                              UB_VC_STAR( g );
-        PartitionDown( A, AT,
-                          AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR,
-                                  UB_VC_STAR, n );
+        DistMatrix<F> AT(g), AB(g);
+        DistMatrix<F,VC,STAR> UT_VC_STAR(g), UB_VC_STAR(g);
+        PartitionDown( A, AT, AB, n );
+        PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
         V = V_VC_STAR;
     }
     else
     {
-        DistMatrix<F> VT( g ), 
-                      VB( g );
-        DistMatrix<F,VC,STAR> VT_VC_STAR( g ), 
-                              VB_VC_STAR( g );
-        PartitionDown( V, VT, 
-                          VB, m );
-        PartitionDown
-        ( V_VC_STAR, VT_VC_STAR, 
-                     VB_VC_STAR, m );
+        DistMatrix<F> VT(g), VB(g);
+        DistMatrix<F,VC,STAR> VT_VC_STAR(g), VB_VC_STAR(g);
+        PartitionDown( V, VT, VB, m );
+        PartitionDown( V_VC_STAR, VT_VC_STAR, VB_VC_STAR, m );
         VT = VT_VC_STAR;
         MakeZeros( VB );
     }
@@ -230,10 +212,10 @@ GolubReinschUpper
     CallStackEntry entry("svd::GolubReinschUpper");
 #endif
     typedef BASE(F) Real;
-    const int m = A.Height();
-    const int n = A.Width();
-    const int k = std::min( m, n );
-    const int offdiagonal = ( m>=n ? 1 : -1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int k = std::min( m, n );
+    const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
 
     // Bidiagonalize A
@@ -241,8 +223,7 @@ GolubReinschUpper
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( g ), 
-                             e_MD_STAR( g );
+    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
     A.GetRealPartOfDiagonal( d_MD_STAR );
     A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
 

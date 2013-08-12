@@ -21,10 +21,10 @@ Diagonal( Matrix<T>& D, const std::vector<T>& d )
 #ifndef RELEASE
     CallStackEntry entry("Diagonal");
 #endif
-    const int n = d.size();
+    const Int n = d.size();
     Zeros( D, n, n );
 
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
         D.Set( j, j, d[j] );
 }
 
@@ -35,20 +35,20 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 #ifndef RELEASE
     CallStackEntry entry("Diagonal");
 #endif
-    const int n = d.size();
+    const Int n = d.size();
     Zeros( D, n, n );
 
-    const int localWidth = D.LocalWidth();
-    const int colShift = D.ColShift();
-    const int rowShift = D.RowShift();
-    const int colStride = D.ColStride();
-    const int rowStride = D.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localWidth = D.LocalWidth();
+    const Int colShift = D.ColShift();
+    const Int rowShift = D.RowShift();
+    const Int colStride = D.ColStride();
+    const Int rowStride = D.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
+        const Int j = rowShift + jLoc*rowStride;
         if( (j-colShift+colStride) % colStride == 0 )
         {
-            const int iLoc = (j-colShift) / colStride;
+            const Int iLoc = (j-colShift) / colStride;
             D.SetLocal( iLoc, jLoc, d[j] );
         }
     }

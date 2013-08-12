@@ -43,14 +43,14 @@ namespace expand_packed_reflectors {
 
 template<typename F>
 inline void
-LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
+LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("expand_packed_reflectors::LV");
     if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
+        LogicError("Transforms out of bounds");
     if( t.Height() != H.DiagonalLength( offset ) )
-        throw std::logic_error("t must be the same length as H's offset diag");
+        LogicError("t must be the same length as H's offset diag");
 #endif
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
@@ -58,7 +58,7 @@ LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
-    const int dimDiff = H.Height() - H.Width();
+    const Int dimDiff = H.Height() - H.Width();
 
     Matrix<F>
         HTL, HTR,  H00, H01, H02,  HPan, HPanCopy, HPanT,
@@ -81,7 +81,7 @@ LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    int oldEffectedHeight=dimDiff;
+    Int oldEffectedHeight=dimDiff;
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -90,13 +90,13 @@ LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int effectedHeight = std::max(HPanHeight+offset,0);
-        const int HPanWidth = std::min( H11.Width(), effectedHeight );
+        const Int HPanHeight = H11.Height() + H21.Height();
+        const Int effectedHeight = std::max(HPanHeight+offset,0);
+        const Int HPanWidth = std::min( H11.Width(), effectedHeight );
 
-        const int effectedWidth = effectedHeight - dimDiff;
-        const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-        const int newEffectedWidth = effectedWidth - oldEffectedWidth;
+        const Int effectedWidth = effectedHeight - dimDiff;
+        const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
+        const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
         LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
         LockedPartitionDown
@@ -151,7 +151,7 @@ LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
     }
 
     // Take care of any untouched columns on the left side of H
-    const int oldEffectedWidth = oldEffectedHeight - dimDiff;
+    const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );
@@ -163,19 +163,19 @@ LV( Conjugation conjugation, int offset, Matrix<F>& H, const Matrix<F>& t )
 template<typename F>
 inline void
 LV
-( Conjugation conjugation, int offset, 
+( Conjugation conjugation, Int offset, 
   DistMatrix<F>& H, const DistMatrix<F,MD,STAR>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("expand_packed_reflectors::LV");
     if( H.Grid() != t.Grid() )
-        throw std::logic_error("H and t must be distributed over same grid");
+        LogicError("H and t must be distributed over same grid");
     if( offset > 0 || offset < -H.Height() )
-        throw std::logic_error("Transforms out of bounds");
+        LogicError("Transforms out of bounds");
     if( t.Height() != H.DiagonalLength( offset ) )
-        throw std::logic_error("t must be the same length as H's offset diag");
+        LogicError("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiagonal( H, offset ) )
-        throw std::logic_error("t must be aligned with H's 'offset' diagonal");
+        LogicError("t must be aligned with H's 'offset' diagonal");
 #endif
     // Start by zeroing everything above the offset and setting that diagonal
     // to all ones. We can also ensure that H is not wider than it is tall.
@@ -183,7 +183,7 @@ LV
         H.ResizeTo( H.Height(), H.Height() );
     MakeTrapezoidal( LOWER, H, offset );
     SetDiagonal( H, F(1), offset );
-    const int dimDiff = H.Height() - H.Width();
+    const Int dimDiff = H.Height() - H.Width();
 
     const Grid& g = H.Grid();
     DistMatrix<F>
@@ -216,7 +216,7 @@ LV
     LockedPartitionUp
     ( t, tT,
          tB, 0 );
-    int oldEffectedHeight=dimDiff;
+    Int oldEffectedHeight=dimDiff;
     while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
     {
         LockedRepartitionUpDiagonal
@@ -225,13 +225,13 @@ LV
          /*************/ /******************/
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
-        const int HPanHeight = H11.Height() + H21.Height();
-        const int effectedHeight = std::max(HPanHeight+offset,0);
-        const int HPanWidth = std::min( H11.Width(), effectedHeight );
+        const Int HPanHeight = H11.Height() + H21.Height();
+        const Int effectedHeight = std::max(HPanHeight+offset,0);
+        const Int HPanWidth = std::min( H11.Width(), effectedHeight );
 
-        const int effectedWidth = effectedHeight - dimDiff;
-        const int oldEffectedWidth = oldEffectedHeight - dimDiff;
-        const int newEffectedWidth = effectedWidth - oldEffectedWidth;
+        const Int effectedWidth = effectedHeight - dimDiff;
+        const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
+        const Int newEffectedWidth = effectedWidth - oldEffectedWidth;
 
         LockedView( HPan, H, H00.Height(), H00.Width(), HPanHeight, HPanWidth );
 
@@ -308,7 +308,7 @@ LV
     }
 
     // Take care of any untouched columns on the left side of H
-    const int oldEffectedWidth = oldEffectedHeight - dimDiff;
+    const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
     if( oldEffectedWidth < H.Width() )
     {
         View( HEffectedNew, H, 0, 0, H.Height(), H.Width()-oldEffectedWidth );

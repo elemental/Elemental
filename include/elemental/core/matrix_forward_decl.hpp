@@ -12,7 +12,7 @@
 
 namespace elem {
 
-template<typename T,typename Int=int>
+template<typename T>
 class Matrix;
 
 } // namespace elem

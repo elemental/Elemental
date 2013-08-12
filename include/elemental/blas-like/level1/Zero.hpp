@@ -19,12 +19,12 @@ Zero( Matrix<T>& A )
 #ifndef RELEASE
     CallStackEntry entry("Zero");
 #endif
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-    for( int j=0; j<width; ++j )
+    for( Int j=0; j<width; ++j )
         MemZero( A.Buffer(0,j), height );
 }
 

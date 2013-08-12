@@ -33,7 +33,7 @@ HermitianGenDefiniteEig
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -56,7 +56,7 @@ HermitianGenDefiniteEig
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -80,7 +80,7 @@ HermitianGenDefiniteEig
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -116,7 +116,7 @@ HermitianGenDefiniteEig
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -149,13 +149,13 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
-  int a, int b )
+  Int a, Int b )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -172,14 +172,14 @@ HermitianGenDefiniteEig
   DistMatrix<F>& A,
   DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w,
-  int a, int b )
+  Int a, Int b )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -198,13 +198,13 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  int a, int b )
+  Int a, Int b )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -236,14 +236,14 @@ HermitianGenDefiniteEig
   DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w,
   DistMatrix<F>& X,
-  int a, int b )
+  Int a, Int b )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -282,7 +282,7 @@ HermitianGenDefiniteEig
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -304,7 +304,7 @@ HermitianGenDefiniteEig
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -329,7 +329,7 @@ HermitianGenDefiniteEig
     CallStackEntry entry("HermitianGenDefiniteEig");
 #endif
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )
@@ -366,7 +366,7 @@ HermitianGenDefiniteEig
 #endif
     EnsurePMRRR();
     if( A.Height() != A.Width() || B.Height() != B.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     Cholesky( uplo, B );
     if( type == AXBX )

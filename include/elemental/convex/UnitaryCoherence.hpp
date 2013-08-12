@@ -33,8 +33,8 @@ UnitaryCoherence( Matrix<F>& U )
     CallStackEntry entry("UnitaryCoherence");
 #endif
     typedef BASE(F) R;
-    const int n = U.Height();
-    const int r = U.Width();
+    const Int n = U.Height();
+    const Int r = U.Width();
 
     // Z := U U' in n^2 r work
     Matrix<F> Z;
@@ -45,7 +45,7 @@ UnitaryCoherence( Matrix<F>& U )
 
     // Compute the maximum column two-norm
     R maxColNorm = 0;
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
         const R colNorm = blas::Nrm2( n, Z.LockedBuffer(0,j), 1 );
         maxColNorm = std::max( colNorm, maxColNorm );
@@ -62,8 +62,8 @@ UnitaryCoherence( DistMatrix<F>& U )
 #endif
     typedef BASE(F) R;
     const Grid& grid = U.Grid();
-    const int n = U.Height();
-    const int r = U.Width();
+    const Int n = U.Height();
+    const Int r = U.Width();
 
     // Z := U U' in n^2 r work
     DistMatrix<F> Z( grid );
@@ -73,22 +73,20 @@ UnitaryCoherence( DistMatrix<F>& U )
     MakeHermitian( UPPER, Z );
 
     // Compute the maximum column two-norm squared
-    const int localWidth = Z.LocalWidth();
-    const int localHeight = Z.LocalHeight();
+    const Int localWidth = Z.LocalWidth();
+    const Int localHeight = Z.LocalHeight();
     std::vector<R> normsSquared( localWidth );
-    for( int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( Int jLocal=0; jLocal<localWidth; ++jLocal )
     {
         const R localNorm = 
             blas::Nrm2( localHeight, Z.LockedBuffer(0,jLocal), 1 );
         normsSquared[jLocal] = localNorm*localNorm;
     }
-    mpi::AllReduce( &normsSquared[0], localWidth, mpi::SUM, grid.ColComm() );
+    mpi::AllReduce( &normsSquared[0], localWidth, grid.ColComm() );
     R maxLocalNormSquared = 
         *std::max_element( normsSquared.begin(), normsSquared.end() );
-    R maxNormSquared;
-    mpi::AllReduce
-    ( &maxLocalNormSquared, &maxNormSquared, 1, mpi::MAX, grid.RowComm() );
-
+    const R maxNormSquared = 
+        mpi::AllReduce( maxLocalNormSquared, mpi::MAX, grid.RowComm() );
     return (n*maxNormSquared)/r;
 }
 

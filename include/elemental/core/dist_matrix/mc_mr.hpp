@@ -18,8 +18,8 @@ namespace elem {
 // process grid, and the rows will be distributed among rows of the process
 // grid.
 
-template<typename T,typename Int>
-class DistMatrix<T,MC,MR,Int> : public AbstractDistMatrix<T,Int>
+template<typename T>
+class DistMatrix<T,MC,MR> : public AbstractDistMatrix<T>
 {
 public:
     // Create a 0 x 0 distributed matrix
@@ -51,53 +51,26 @@ public:
       T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,MC,MR,Int>& A );
+    DistMatrix( const DistMatrix<T,MC,MR>& A );
     template<Distribution U,Distribution V>
-    DistMatrix( const DistMatrix<T,U,V,Int>& A );
+    DistMatrix( const DistMatrix<T,U,V>& A );
 
     ~DistMatrix();
 
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,MC,MR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,MC,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,MD,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MD,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,MR,MC,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,MR,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,MC,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,VC,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,VC,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,VR,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,VR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,STAR,STAR,Int>& A );
-
-    const DistMatrix<T,MC,MR,Int>& 
-    operator=( const DistMatrix<T,CIRC,CIRC,Int>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,MR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MD,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MD>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,MC>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MR,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,MC>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VC,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VC>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,VR,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,VR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,STAR>& A );
+    const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -111,7 +84,7 @@ public:
     virtual Int RowStride() const;
     virtual Int ColRank() const;
     virtual Int RowRank() const;
-    virtual elem::DistData<Int> DistData() const;
+    virtual elem::DistData DistData() const;
 
     //
     // Collective routines
@@ -125,12 +98,12 @@ public:
     virtual void ResizeTo( Int height, Int width, Int ldim );
 
     // Distribution alignment
-    virtual void AlignWith( const elem::DistData<Int>& data );
-    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignColsWith( const elem::DistData<Int>& data );
-    virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignRowsWith( const elem::DistData<Int>& data );
-    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignWith( const elem::DistData& data );
+    virtual void AlignWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignColsWith( const elem::DistData& data );
+    virtual void AlignColsWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignRowsWith( const elem::DistData& data );
+    virtual void AlignRowsWith( const AbstractDistMatrix<T>& A );
 
     //
     // Though the following routines are meant for complex data, all but two
@@ -152,14 +125,10 @@ public:
     // Collective routines
     //
    
-    void GetDiagonal
-    ( DistMatrix<T,MD,STAR,Int>& d, Int offset=0 ) const;
-    void GetDiagonal
-    ( DistMatrix<T,STAR,MD,Int>& d, Int offset=0 ) const;
-    void SetDiagonal
-    ( const DistMatrix<T,MD,STAR,Int>& d, Int offset=0 );
-    void SetDiagonal
-    ( const DistMatrix<T,STAR,MD,Int>& d, Int offset=0 );
+    void GetDiagonal( DistMatrix<T,MD,STAR>& d, Int offset=0 ) const;
+    void GetDiagonal( DistMatrix<T,STAR,MD>& d, Int offset=0 ) const;
+    void SetDiagonal( const DistMatrix<T,MD,STAR>& d, Int offset=0 );
+    void SetDiagonal( const DistMatrix<T,STAR,MD>& d, Int offset=0 );
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach
@@ -171,34 +140,34 @@ public:
 
     // Equate/Update with the scattered summation of A[MC,* ] across process
     // rows
-    void SumScatterFrom( const DistMatrix<T,MC,STAR,Int>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR,Int>& A );
+    void SumScatterFrom( const DistMatrix<T,MC,STAR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,MC,STAR>& A );
 
     // Equate/Update with the scattered summation of A[* ,MR] across process
     // cols
-    void SumScatterFrom( const DistMatrix<T,STAR,MR,Int>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR,Int>& A );
+    void SumScatterFrom( const DistMatrix<T,STAR,MR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,MR>& A );
 
     // Equate/Update with the scattered summation of A[* ,* ] across the 
     // entire grid.
-    void SumScatterFrom( const DistMatrix<T,STAR,STAR,Int>& A );
-    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR,Int>& A );
+    void SumScatterFrom( const DistMatrix<T,STAR,STAR>& A );
+    void SumScatterUpdate( T alpha, const DistMatrix<T,STAR,STAR>& A );
 
     // Auxiliary routines needed to implement algorithms that avoid 
     // inefficient unpackings of partial matrix distributions
-    void AdjointFrom( const DistMatrix<T,STAR,MC,Int>& A );
-    void AdjointFrom( const DistMatrix<T,MR,STAR,Int>& A );
-    void AdjointSumScatterFrom( const DistMatrix<T,MR,STAR,Int>& A );
-    void AdjointSumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR,Int>& A );
+    void AdjointFrom( const DistMatrix<T,STAR,MC>& A );
+    void AdjointFrom( const DistMatrix<T,MR,STAR>& A );
+    void AdjointSumScatterFrom( const DistMatrix<T,MR,STAR>& A );
+    void AdjointSumScatterUpdate( T alpha, const DistMatrix<T,MR,STAR>& A );
 
     void TransposeFrom
-    ( const DistMatrix<T,STAR,MC,Int>& A, bool conjugate=false );
+    ( const DistMatrix<T,STAR,MC>& A, bool conjugate=false );
     void TransposeFrom
-    ( const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
+    ( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
     void TransposeSumScatterFrom
-    ( const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
+    ( const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
     void TransposeSumScatterUpdate
-    ( T alpha, const DistMatrix<T,MR,STAR,Int>& A, bool conjugate=false );
+    ( T alpha, const DistMatrix<T,MR,STAR>& A, bool conjugate=false );
 
     //
     // Though the following routines are meant for complex data, all but two
@@ -206,27 +175,27 @@ public:
     //
 
     void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 ) const;
+    ( DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 ) const;
     void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),MD,STAR,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),MD,STAR>& d, Int offset=0 );
     void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
     // Only valid for complex datatypes
     void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MD,Int>& d, Int offset=0 );
+    ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
 private:
 #ifndef SWIG
-    template<typename S,Distribution U,Distribution V,typename N>
+    template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
 };

@@ -66,7 +66,7 @@ LQ( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 #ifndef RELEASE
     CallStackEntry entry("LQ");
     if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,t} must be distributed over the same grid");
+        LogicError("{A,t} must be distributed over the same grid");
 #endif
     lq::Householder( A, t );
 }

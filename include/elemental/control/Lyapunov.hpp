@@ -28,11 +28,11 @@ Lyapunov( const Matrix<F>& A, const Matrix<F>& C, Matrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("Lyapunov");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( C.Height() != A.Height() || C.Width() != A.Height() )
-        throw std::logic_error("C must conform with A");
+        LogicError("C must conform with A");
 #endif
-    const int m = A.Height();
+    const Int m = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
     Zeros( W, 2*m, 2*m );
@@ -52,14 +52,14 @@ Lyapunov( const DistMatrix<F>& A, const DistMatrix<F>& C, DistMatrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( C.Height() != A.Height() || C.Width() != A.Height() )
-        throw std::logic_error("C must conform with A");
+        LogicError("C must conform with A");
     if( A.Grid() != C.Grid() )
-        throw std::logic_error("A and C must have the same grid");
+        LogicError("A and C must have the same grid");
 #endif
     const Grid& g = A.Grid();
-    const int m = A.Height();
+    const Int m = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
     Zeros( W, 2*m, 2*m );

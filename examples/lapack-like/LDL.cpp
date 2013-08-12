@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int n = Input("--size","size of matrix to factor",100);
+        const Int n = Input("--size","size of matrix to factor",100);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();

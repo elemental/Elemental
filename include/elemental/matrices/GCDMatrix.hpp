@@ -19,10 +19,10 @@ MakeGCDMatrix( Matrix<T>& G )
 #ifndef RELEASE
     CallStackEntry entry("MakeGCDMatrix");
 #endif
-    const int m = G.Height();
-    const int n = G.Width();
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = G.Height();
+    const Int n = G.Width();
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             G.Set( i, j, T(GCD(i+1,j+1)) );
 }
 
@@ -33,18 +33,18 @@ MakeGCDMatrix( DistMatrix<T,U,V>& G )
 #ifndef RELEASE
     CallStackEntry entry("MakeGCDMatrix");
 #endif
-    const int localHeight = G.LocalHeight();
-    const int localWidth = G.LocalWidth();
-    const int colShift = G.ColShift();
-    const int rowShift = G.RowShift();
-    const int colStride = G.ColStride();
-    const int rowStride = G.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = G.LocalHeight();
+    const Int localWidth = G.LocalWidth();
+    const Int colShift = G.ColShift();
+    const Int rowShift = G.RowShift();
+    const Int colStride = G.ColStride();
+    const Int rowStride = G.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             G.SetLocal( iLoc, jLoc, T(GCD(i+1,j+1)) );
         }
     }
@@ -52,7 +52,7 @@ MakeGCDMatrix( DistMatrix<T,U,V>& G )
 
 template<typename T>
 inline void
-GCDMatrix( Matrix<T>& G, int m, int n )
+GCDMatrix( Matrix<T>& G, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("GCDMatrix");
@@ -63,7 +63,7 @@ GCDMatrix( Matrix<T>& G, int m, int n )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-GCDMatrix( DistMatrix<T,U,V>& G, int m, int n )
+GCDMatrix( DistMatrix<T,U,V>& G, Int m, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("GCDMatrix");

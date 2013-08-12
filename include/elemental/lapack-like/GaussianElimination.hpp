@@ -23,7 +23,7 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
 #ifndef RELEASE
     CallStackEntry entry("RowEchelon");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     // Matrix views
     Matrix<F>
@@ -35,10 +35,10 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         BB,  B1,
              B2;
 
-    Matrix<int> p1;
+    Matrix<Int> p1;
 
     // Pivot composition
-    std::vector<int> image, preimage;
+    std::vector<Int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -99,9 +99,9 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
 #ifndef RELEASE
     CallStackEntry entry("RowEchelon");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("{A,B} must be distributed over the same grid");
+        LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     const Grid& g = A.Grid();
 
@@ -123,14 +123,14 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,STAR,VR  > B1_STAR_VR(g);
     DistMatrix<F,STAR,MR  > B1_STAR_MR(g);
-    DistMatrix<int,STAR,STAR> p1_STAR_STAR(g);
+    DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
     // In case B's columns are not aligned with A's
     const bool BAligned = ( B.ColShift() == A.ColShift() );
     DistMatrix<F,MC,STAR> A21_MC_STAR_B(g);
 
     // Pivot composition
-    std::vector<int> image, preimage;
+    std::vector<Int> image, preimage;
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -220,9 +220,9 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
 #ifndef RELEASE
     CallStackEntry entry("GaussianElimination");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     RowEchelon( A, B );
     if( B.Width() == 1 )
@@ -238,11 +238,11 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
 #ifndef RELEASE
     CallStackEntry entry("GaussianElimination");
     if( A.Grid() != B.Grid() )
-        throw std::logic_error("{A,B} must be distributed over the same grid");
+        LogicError("{A,B} must be distributed over the same grid");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != B.Height() )
-        throw std::logic_error("A and B must be the same height");
+        LogicError("A and B must be the same height");
 #endif
     RowEchelon( A, B );
     if( B.Width() == 1 )

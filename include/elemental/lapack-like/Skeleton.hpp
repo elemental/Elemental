@@ -28,8 +28,8 @@ template<typename F>
 inline void
 Skeleton
 ( const Matrix<F>& A, 
-  Matrix<int>& pR, Matrix<int>& pC, 
-  Matrix<F>& Z, int maxSteps, BASE(F) tol )
+  Matrix<Int>& pR, Matrix<Int>& pC, 
+  Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("Skeleton");
@@ -38,7 +38,7 @@ Skeleton
     Matrix<F> B;
     Adjoint( A, B );
     qr::BusingerGolub( B, pR, maxSteps, tol );
-    const int numSteps = pR.Height();
+    const Int numSteps = pR.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );
@@ -68,8 +68,8 @@ template<typename F>
 inline void
 Skeleton
 ( const DistMatrix<F>& A, 
-  DistMatrix<int,VR,STAR>& pR, DistMatrix<int,VR,STAR>& pC, 
-  DistMatrix<F>& Z, int maxSteps, BASE(F) tol )
+  DistMatrix<Int,VR,STAR>& pR, DistMatrix<Int,VR,STAR>& pC, 
+  DistMatrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("Skeleton");
@@ -80,7 +80,7 @@ Skeleton
     DistMatrix<F> B(g);
     Adjoint( A, B );
     qr::BusingerGolub( B, pR, maxSteps, tol );
-    const int numSteps = pR.Height();
+    const Int numSteps = pR.Height();
 
     // Form pinv(AR')=pinv(AR)'
     Adjoint( A, B );

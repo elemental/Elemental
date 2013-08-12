@@ -29,13 +29,12 @@ GemvN
 #ifndef RELEASE
     CallStackEntry entry("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        throw std::logic_error
-        ("{A,x,y} must be distributed over the same grid");
+        LogicError("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
-        throw std::logic_error("x and y are assumed to be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("x and y are assumed to be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != yLength || A.Width() != xLength )
     {
         std::ostringstream msg;
@@ -43,7 +42,7 @@ GemvN
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -129,10 +128,9 @@ GemvN
 #ifndef RELEASE
     CallStackEntry entry("internal::GemvN");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        throw std::logic_error
-        ("{A,x,y} must be distributed over the same grid");
+        LogicError("{A,x,y} must be distributed over the same grid");
     if( x.Width() != 1 || y.Width() != 1 )
-        throw std::logic_error("x and y are assumed to be column vectors");
+        LogicError("x and y are assumed to be column vectors");
     if( A.Height() != y.Height() || A.Width() != x.Height() )
     {
         std::ostringstream msg;
@@ -140,7 +138,7 @@ GemvN
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

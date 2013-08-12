@@ -19,13 +19,13 @@ inline F Trace( const Matrix<F>& A )
     CallStackEntry entry("Trace");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
+        LogicError("Cannot compute trace of nonsquare matrix");
 
     Matrix<F> d;
     A.GetDiagonal( d );
     F trace = 0;
-    const int n = A.Height();
-    for( int i=0; i<n; ++i )
+    const Int n = A.Height();
+    for( Int i=0; i<n; ++i )
         trace += d.Get(i,0);
     return trace;
 }
@@ -37,7 +37,7 @@ inline F Trace( const DistMatrix<F>& A )
     CallStackEntry entry("Trace");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot compute trace of nonsquare matrix");
+        LogicError("Cannot compute trace of nonsquare matrix");
     const Grid& g = A.Grid();
 
     DistMatrix<F,MD,STAR> d(g);
@@ -45,13 +45,11 @@ inline F Trace( const DistMatrix<F>& A )
     F localTrace = 0;
     if( d.Participating() )
     {
-        const int nLocalDiag = d.LocalHeight();
-        for( int iLoc=0; iLoc<nLocalDiag; ++iLoc )
+        const Int nLocalDiag = d.LocalHeight();
+        for( Int iLoc=0; iLoc<nLocalDiag; ++iLoc )
             localTrace += d.GetLocal(iLoc,0);
     }
-    F trace;
-    mpi::AllReduce( &localTrace, &trace, 1, mpi::SUM, g.VCComm() );
-    return trace;
+    return mpi::AllReduce( localTrace, g.VCComm() );
 }
 
 } // namespace elem

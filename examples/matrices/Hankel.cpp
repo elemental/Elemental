@@ -19,16 +19,16 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int m = Input("--height","height of matrix",10);
-        const int n = Input("--width","width of matrix",10);
+        const Int m = Input("--height","height of matrix",10);
+        const Int n = Input("--width","width of matrix",10);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
-        const int length = m+n-1;
+        const Int length = m+n-1;
         std::vector<double> a( length );
-        for( int j=0; j<length; ++j )
+        for( Int j=0; j<length; ++j )
             a[j] = j;
 
         DistMatrix<double> H;

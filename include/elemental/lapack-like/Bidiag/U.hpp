@@ -27,20 +27,14 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 #ifndef RELEASE
     CallStackEntry entry("bidiag::U");
 #endif
-    const int tPHeight = std::max(A.Width()-1,0);
-    const int tQHeight = A.Width();
+    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tQHeight = A.Width();
 #ifndef RELEASE
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
-    if( tP.Viewing() && (tP.Height() != tPHeight || tP.Width() != 1) )
-        throw std::logic_error("tP is the wrong height");
-    if( tQ.Viewing() && (tQ.Height() != tQHeight || tQ.Width() != 1) )
-        throw std::logic_error("tQ is the wrong height");
+        LogicError("A must be at least as tall as it is wide");
 #endif
-    if( !tP.Viewing() )
-        tP.ResizeTo( tPHeight, 1 );
-    if( !tQ.Viewing() )
-        tQ.ResizeTo( tQHeight, 1 );
+    tP.ResizeTo( tPHeight, 1 );
+    tQ.ResizeTo( tQHeight, 1 );
 
     // Matrix views 
     Matrix<F>
@@ -144,16 +138,17 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
 #ifndef RELEASE
     CallStackEntry entry("bidiag::U");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,tP,tQ} must be distributed over the same grid");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
+        LogicError("A must be at least as tall as it is wide");
+    // Are these requirements necessary?!?
     if( tP.Viewing() || tQ.Viewing() )
-        throw std::logic_error("tP and tQ must not be views");
+        LogicError("tP and tQ must not be views");
 #endif
     const Grid& g = A.Grid();
-    const int tPHeight = std::max(A.Width()-1,0);
-    const int tQHeight = A.Width();
+    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tQHeight = A.Width();
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, 1 );
     tQDiag.AlignWithDiagonal( A, 0 );

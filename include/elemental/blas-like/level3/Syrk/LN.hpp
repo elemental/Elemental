@@ -24,15 +24,14 @@ SyrkLN
 #ifndef RELEASE
     CallStackEntry entry("internal::SyrkLN");
     if( A.Grid() != C.Grid() )
-        throw std::logic_error
-        ("A and C must be distributed over the same grid");
+        LogicError("A and C must be distributed over the same grid");
     if( A.Height() != C.Height() || A.Height() != C.Width() )
     {
         std::ostringstream msg;
         msg << "Nonconformal SyrkLN:\n"
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

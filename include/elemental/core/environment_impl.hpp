@@ -199,7 +199,7 @@ SetImagPart( R& alpha, const R& beta )
 #ifndef RELEASE
     CallStackEntry cse("SetImagPart");
 #endif
-    throw std::logic_error("Nonsensical assignment"); 
+    LogicError("Nonsensical assignment"); 
 }
 
 template<typename R>
@@ -214,7 +214,7 @@ UpdateImagPart( R& alpha, const R& beta )
 #ifndef RELEASE
     CallStackEntry cse("UpdateImagPart");
 #endif
-    throw std::logic_error("Nonsensical update"); 
+    LogicError("Nonsensical update"); 
 }
 
 template<typename R>

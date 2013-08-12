@@ -29,9 +29,9 @@ SchattenNorm( const Matrix<F>& A, BASE(F) p )
     SVD( B, s );
 
     // TODO: Think of how to make this more stable
-    const int k = s.Height();
+    const Int k = s.Height();
     R sum = 0;
-    for( int j=k-1; j>=0; --j )
+    for( Int j=k-1; j>=0; --j )
         sum += Pow( s.Get(j,0), p ); 
     return Pow( sum, 1/p ); 
 }
@@ -45,15 +45,14 @@ HermitianSchattenNorm
     CallStackEntry entry("HermitianSchattenNorm");
 #endif
     typedef BASE(F) R;
-
     Matrix<F> B( A );
     Matrix<R> s;
     HermitianSVD( uplo, B, s );
 
     // TODO: Think of how to make this more stable
-    const int k = s.Height();
+    const Int k = s.Height();
     R sum = 0;
-    for( int j=k-1; j>=0; --j )
+    for( Int j=k-1; j>=0; --j )
         sum += Pow( s.Get(j,0), p );
     return Pow( sum, 1/p );
 }
@@ -73,9 +72,9 @@ SymmetricSchattenNorm
     SVD( B, s );
 
     // TODO: Think of how to make this more stable
-    const int k = s.Height();
+    const Int k = s.Height();
     R sum = 0;
-    for( int j=0; j<k; ++j )
+    for( Int j=0; j<k; ++j )
         sum += Pow( s.Get(j,0), p );
     return Pow( sum, 1/p );
 }
@@ -93,12 +92,11 @@ SchattenNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
     SVD( B, s );
 
     // TODO: Think of how to make this more stable
-    const int kLocal = s.LocalHeight();
+    const Int kLocal = s.LocalHeight();
     R localSum = 0;
-    for( int j=kLocal-1; j>=0; --j ) 
+    for( Int j=kLocal-1; j>=0; --j ) 
         localSum += Pow( s.GetLocal(j,0), p );
-    R sum;
-    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
+    const R sum = mpi::AllReduce( localSum, A.Grid().VRComm() );
     return Pow( sum, 1/p );
 }
 
@@ -111,18 +109,16 @@ HermitianSchattenNorm
     CallStackEntry entry("HermitianSchattenNorm");
 #endif
     typedef BASE(F) R;
-
     DistMatrix<F> B( A );
     DistMatrix<R,VR,STAR> s( A.Grid() );
     HermitianSVD( uplo, B, s );
 
     // TODO: Think of how to make this more stable
-    const int kLocal = s.LocalHeight();
+    const Int kLocal = s.LocalHeight();
     R localSum = 0;
-    for( int j=kLocal-1; j>=0; --j )
+    for( Int j=kLocal-1; j>=0; --j )
         localSum += Pow( s.GetLocal(j,0), p );
-    R sum;
-    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
+    const R sum = mpi::AllReduce( localSum, A.Grid().VRComm() );
     return Pow( sum, 1/p );
 }
 
@@ -141,12 +137,11 @@ SymmetricSchattenNorm
     SVD( B, s );
 
     // TODO: Think of how to make this more stable
-    const int kLocal = s.LocalHeight();
+    const Int kLocal = s.LocalHeight();
     R localSum = 0;
-    for( int j=0; j<kLocal; ++j )
+    for( Int j=0; j<kLocal; ++j )
         localSum += Pow( s.GetLocal(j,0), p );
-    R sum;
-    mpi::AllReduce( &localSum, &sum, 1, mpi::SUM, A.Grid().VRComm() );
+    const R sum = mpi::AllReduce( localSum, A.Grid().VRComm() );
     return Pow( sum, 1/p );
 }
 

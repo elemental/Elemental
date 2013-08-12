@@ -26,7 +26,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
-        throw std::logic_error
+        LogicError
         ("t must be a vector of height equal to the minimum dimension of A");
 #endif
     Matrix<F>
@@ -109,12 +109,12 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
     if( A.Grid() != t.Grid() )
-        throw std::logic_error("{A,t} must be distributed over the same grid");
+        LogicError("{A,t} must be distributed over the same grid");
     if( t.Height() != std::min(A.Height(),A.Width()) || t.Width() != 1 )
-        throw std::logic_error
+        LogicError
         ("t must be a vector of height equal to the minimum dimension of A");
     if( !t.AlignedWithDiagonal( A, 0 ) )
-        throw std::logic_error("t must be aligned with A's main diagonal");
+        LogicError("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
 

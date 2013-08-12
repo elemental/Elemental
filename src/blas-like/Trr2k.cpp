@@ -46,7 +46,7 @@ void Trr2k
     const bool normalB = orientationOfB == NORMAL;
     const bool normalC = orientationOfC == NORMAL;
     const bool normalD = orientationOfD == NORMAL;
-    int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
+    Int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
     switch( subcase )
     {
     case 0: 
@@ -118,7 +118,7 @@ void Trr2k
           alpha, A, B, C, D, beta, E );
         break;
     default:
-        throw std::logic_error("Impossible subcase");
+        LogicError("Impossible subcase");
     }
 }
 */
@@ -139,7 +139,7 @@ void Trr2k
     const bool normalB = orientationOfB == NORMAL;
     const bool normalC = orientationOfC == NORMAL;
     const bool normalD = orientationOfD == NORMAL;
-    int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
+    Int subcase = 8*normalA + 4*normalB + 2*normalC + normalD;
     switch( subcase )
     {
     case 0: 
@@ -211,7 +211,7 @@ void Trr2k
           alpha, A, B, C, D, beta, E );
         break;
     default:
-        throw std::logic_error("Impossible subcase");
+        LogicError("Impossible subcase");
     }
 }
 

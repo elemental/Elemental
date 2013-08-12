@@ -16,132 +16,132 @@ namespace elem {
 // Viewing a full matrix
 //
 
-template<typename T,typename Int>
+template<typename T>
 void View
-( Matrix<T,Int>& A, Matrix<T,Int>& B );
-template<typename T,Distribution U,Distribution V,typename Int>
+( Matrix<T>& A, Matrix<T>& B );
+template<typename T,Distribution U,Distribution V>
 void View
-( DistMatrix<T,U,V,Int>& A, DistMatrix<T,U,V,Int>& B );
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedView
-( Matrix<T,Int>& A, const Matrix<T,Int>& B );
-template<typename T,Distribution U,Distribution V,typename Int>
+( Matrix<T>& A, const Matrix<T>& B );
+template<typename T,Distribution U,Distribution V>
 void LockedView
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B );
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
 
 //
 // Viewing a submatrix
 //
 
-template<typename T,typename Int>
+template<typename T>
 void View
-( Matrix<T,Int>& A, Matrix<T,Int>& B,
+( Matrix<T>& A, Matrix<T>& B,
   Int i, Int j, Int height, Int width );
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 void View
-( DistMatrix<T,U,V,Int>& A, DistMatrix<T,U,V,Int>& B,
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedView
-( Matrix<T,Int>& A, const Matrix<T,Int>& B,
+( Matrix<T>& A, const Matrix<T>& B,
   Int i, Int j, Int height, Int width );
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 void LockedView
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B,
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
   Int i, Int j, Int height, Int width );
 
 //
 // View two horizontally connected matrices
 //
 
-template<typename T,typename Int>
+template<typename T>
 void View1x2
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BL, Matrix<T,Int>& BR );
-template<typename T,Distribution U,Distribution V,typename Int>
+( Matrix<T>& A,
+  Matrix<T>& BL, Matrix<T>& BR );
+template<typename T,Distribution U,Distribution V>
 void View1x2
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BL, DistMatrix<T,U,V,Int>& BR );
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedView1x2
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BL,
-  const Matrix<T,Int>& BR );
-template<typename T,Distribution U,Distribution V,typename Int>
+(       Matrix<T>& A,
+  const Matrix<T>& BL,
+  const Matrix<T>& BR );
+template<typename T,Distribution U,Distribution V>
 void LockedView1x2
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BL,
-  const DistMatrix<T,U,V,Int>& BR );
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BL,
+  const DistMatrix<T,U,V>& BR );
 
 //
 // View two vertically connected matrices
 //
 
-template<typename T,typename Int>
+template<typename T>
 void View2x1
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BT,
-  Matrix<T,Int>& BB );
-template<typename T,Distribution U,Distribution V,typename Int>
+( Matrix<T>& A,
+  Matrix<T>& BT,
+  Matrix<T>& BB );
+template<typename T,Distribution U,Distribution V>
 void View2x1
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BT,
-  DistMatrix<T,U,V,Int>& BB );
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BT,
+  DistMatrix<T,U,V>& BB );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedView2x1
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BT,
-  const Matrix<T,Int>& BB );
-template<typename T,Distribution U,Distribution V,typename Int>
+(       Matrix<T>& A,
+  const Matrix<T>& BT,
+  const Matrix<T>& BB );
+template<typename T,Distribution U,Distribution V>
 void LockedView2x1
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BT,
-  const DistMatrix<T,U,V,Int>& BB );
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BT,
+  const DistMatrix<T,U,V>& BB );
 
 //
 // View a two-by-two set of connected matrices
 //
 
-template<typename T,typename Int>
+template<typename T>
 void View2x2
-( Matrix<T,Int>& A,
-  Matrix<T,Int>& BTL, Matrix<T,Int>& BTR,
-  Matrix<T,Int>& BBL, Matrix<T,Int>& BBR );
-template<typename T,Distribution U,Distribution V,typename Int>
+( Matrix<T>& A,
+  Matrix<T>& BTL, Matrix<T>& BTR,
+  Matrix<T>& BBL, Matrix<T>& BBR );
+template<typename T,Distribution U,Distribution V>
 void View2x2
-( DistMatrix<T,U,V,Int>& A,
-  DistMatrix<T,U,V,Int>& BTL, DistMatrix<T,U,V,Int>& BTR,
-  DistMatrix<T,U,V,Int>& BBL, DistMatrix<T,U,V,Int>& BBR );
+( DistMatrix<T,U,V>& A,
+  DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
+  DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR );
 
-template<typename T,typename Int>
+template<typename T>
 void LockedView2x2
-(       Matrix<T,Int>& A,
-  const Matrix<T,Int>& BTL,
-  const Matrix<T,Int>& BTR,
-  const Matrix<T,Int>& BBL,
-  const Matrix<T,Int>& BBR );
-template<typename T,Distribution U,Distribution V,typename Int>
+(       Matrix<T>& A,
+  const Matrix<T>& BTL,
+  const Matrix<T>& BTR,
+  const Matrix<T>& BBL,
+  const Matrix<T>& BBR );
+template<typename T,Distribution U,Distribution V>
 void LockedView2x2
-(       DistMatrix<T,U,V,Int>& A,
-  const DistMatrix<T,U,V,Int>& BTL,
-  const DistMatrix<T,U,V,Int>& BTR,
-  const DistMatrix<T,U,V,Int>& BBL,
-  const DistMatrix<T,U,V,Int>& BBR );
+(       DistMatrix<T,U,V>& A,
+  const DistMatrix<T,U,V>& BTL,
+  const DistMatrix<T,U,V>& BTR,
+  const DistMatrix<T,U,V>& BBL,
+  const DistMatrix<T,U,V>& BBR );
 
 // Utilities for handling the extra information needed for [MD,* ] and [* ,MD]
-template<typename T,Distribution U,Distribution V,typename Int>
+template<typename T,Distribution U,Distribution V>
 void HandleDiagPath
-( DistMatrix<T,U,V,Int>& A, const DistMatrix<T,U,V,Int>& B );
-template<typename T,typename Int>
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B );
+template<typename T>
 void HandleDiagPath
-( DistMatrix<T,MD,STAR,Int>& A, const DistMatrix<T,MD,STAR,Int>& B );
-template<typename T,typename Int>
+( DistMatrix<T,MD,STAR>& A, const DistMatrix<T,MD,STAR>& B );
+template<typename T>
 void HandleDiagPath
-( DistMatrix<T,STAR,MD,Int>& A, const DistMatrix<T,STAR,MD,Int>& B );
+( DistMatrix<T,STAR,MD>& A, const DistMatrix<T,STAR,MD>& B );
 
 } // namespace elem
 

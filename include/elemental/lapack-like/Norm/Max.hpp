@@ -21,11 +21,11 @@ MaxNorm( const Matrix<F>& A )
 #endif
     typedef BASE(F) R;
     R maxAbs = 0;
-    const int height = A.Height();
-    const int width = A.Width();
-    for( int j=0; j<width; ++j )
+    const Int height = A.Height();
+    const Int width = A.Width();
+    for( Int j=0; j<width; ++j )
     {
-        for( int i=0; i<height; ++i )
+        for( Int i=0; i<height; ++i )
         {
             const R thisAbs = Abs(A.Get(i,j));
             maxAbs = std::max( maxAbs, thisAbs );
@@ -42,17 +42,17 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     CallStackEntry entry("HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
     typedef BASE(F) R;
     R maxAbs = 0;
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     if( uplo == UPPER )
     {
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
         {
-            for( int i=0; i<=j; ++i )
+            for( Int i=0; i<=j; ++i )
             {
                 const R thisAbs = Abs(A.Get(i,j));
                 maxAbs = std::max( maxAbs, thisAbs );
@@ -61,9 +61,9 @@ HermitianMaxNorm( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( int j=0; j<width; ++j )
+        for( Int j=0; j<width; ++j )
         {
-            for( int i=j; i<height; ++i )
+            for( Int i=j; i<height; ++i )
             {
                 const R thisAbs = Abs(A.Get(i,j));
                 maxAbs = std::max( maxAbs, thisAbs );
@@ -92,21 +92,19 @@ MaxNorm( const DistMatrix<F,U,V>& A )
 #endif
     typedef BASE(F) R;
     R localMaxAbs = 0;
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
             localMaxAbs = std::max( localMaxAbs, thisAbs );
         }
     }
 
-    R maxAbs;
     mpi::Comm reduceComm = ReduceComm<U,V>( A.Grid() );
-    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, reduceComm );
-    return maxAbs;
+    return mpi::AllReduce( localMaxAbs, mpi::MAX, reduceComm );
 }
 
 template<typename F>
@@ -117,23 +115,23 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     CallStackEntry entry("HermitianMaxNorm");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Hermitian matrices must be square.");
+        LogicError("Hermitian matrices must be square.");
 
-    const int r = A.Grid().Height();
-    const int c = A.Grid().Width();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
+    const Int r = A.Grid().Height();
+    const Int c = A.Grid().Width();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
 
     typedef BASE(F) R;
     R localMaxAbs = 0;
-    const int localWidth = A.LocalWidth();
+    const Int localWidth = A.LocalWidth();
     if( uplo == UPPER )
     {
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numUpperRows = Length(j+1,colShift,r);
-            for( int iLoc=0; iLoc<numUpperRows; ++iLoc )
+            Int j = rowShift + jLoc*c;
+            Int numUpperRows = Length(j+1,colShift,r);
+            for( Int iLoc=0; iLoc<numUpperRows; ++iLoc )
             {
                 const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
                 localMaxAbs = std::max( localMaxAbs, thisAbs );
@@ -142,11 +140,11 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
     }
     else
     {
-        for( int jLoc=0; jLoc<localWidth; ++jLoc )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            int j = rowShift + jLoc*c;
-            int numStrictlyUpperRows = Length(j,colShift,r);
-            for( int iLoc=numStrictlyUpperRows;
+            Int j = rowShift + jLoc*c;
+            Int numStrictlyUpperRows = Length(j,colShift,r);
+            for( Int iLoc=numStrictlyUpperRows;
                  iLoc<A.LocalHeight(); ++iLoc )
             {
                 const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
@@ -155,9 +153,7 @@ HermitianMaxNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         }
     }
 
-    R maxAbs;
-    mpi::AllReduce( &localMaxAbs, &maxAbs, 1, mpi::MAX, A.Grid().VCComm() );
-    return maxAbs;
+    return mpi::AllReduce( localMaxAbs, mpi::MAX, A.Grid().VCComm() );
 }
 
 template<typename F>

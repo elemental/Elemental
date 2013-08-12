@@ -28,7 +28,7 @@ Timer::Start()
 #ifndef RELEASE
     CallStackEntry entry("Timer::Start");
     if( running_ )
-        throw std::logic_error("Forgot to stop timer before restarting");
+        LogicError("Forgot to stop timer before restarting");
 #endif
     lastStartTime_ = mpi::Time();
     running_ = true;
@@ -40,7 +40,7 @@ Timer::Stop()
 #ifndef RELEASE
     CallStackEntry entry("Timer::Stop");
     if( !running_ )
-        throw std::logic_error("Tried to stop a timer before starting it");
+        LogicError("Tried to stop a timer before starting it");
 #endif
     const double partial = Partial();  
     time_ += partial;

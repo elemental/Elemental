@@ -53,17 +53,17 @@ DisplayWidget<T>::DisplayReal( const Matrix<T>* A )
     CallStackEntry entry("DisplayWidget::DisplayReal");
 #endif
     typedef BASE(T) R;
-    const int m = A->Height();
-    const int n = A->Width();
+    const Int m = A->Height();
+    const Int n = A->Width();
 
     // Compute the range of the real values in A
     R minVal=0, maxVal=0;
     if( m != 0 && n != 0 )
     {
         minVal = maxVal = A->GetRealPart( 0, 0 );
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
-            for( int i=0; i<m; ++i )
+            for( Int i=0; i<m; ++i )
             {
                 minVal = std::min( minVal, A->GetRealPart(i,j) );
                 maxVal = std::max( maxVal, A->GetRealPart(i,j) );
@@ -82,12 +82,12 @@ DisplayWidget<T>::DisplayReal
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayReal");
 #endif
-    const int m = A->Height();
-    const int n = A->Width();
+    const Int m = A->Height();
+    const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const int mPix = std::max( 500, 2*m );
-    const int nPix = std::max( 500, 2*n );
+    const Int mPix = std::max( 500, 2*m );
+    const Int nPix = std::max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );
@@ -96,12 +96,12 @@ DisplayWidget<T>::DisplayReal
     // Paint the matrix
     QPainter painter( &pixmap_ );
     painter.initFrom( this );
-    for( int jPix=0; jPix<nPix; ++jPix ) 
+    for( Int jPix=0; jPix<nPix; ++jPix ) 
     {
-        const int j = nRatio*jPix;
-        for( int iPix=0; iPix<mPix; ++iPix )
+        const Int j = nRatio*jPix;
+        for( Int iPix=0; iPix<mPix; ++iPix )
         {
-            const int i = mRatio*iPix;
+            const Int i = mRatio*iPix;
             QRgb color = ColorMap( A->GetRealPart(i,j), minVal, maxVal );
             painter.setPen( color );
             painter.drawPoint( jPix, iPix );
@@ -124,17 +124,17 @@ DisplayWidget<T>::DisplayImag( const Matrix<T>* A )
     CallStackEntry entry("DisplayWidget::DisplayImag");
 #endif
     typedef BASE(T) R;
-    const int m = A->Height();
-    const int n = A->Width();
+    const Int m = A->Height();
+    const Int n = A->Width();
 
     // Compute the range of the real values in A
     R minVal=0, maxVal=0;
     if( m != 0 && n != 0 )
     {
         minVal = maxVal = A->GetImagPart( 0, 0 );
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
-            for( int i=0; i<m; ++i )
+            for( Int i=0; i<m; ++i )
             {
                 minVal = std::min( minVal, A->GetImagPart(i,j) );
                 maxVal = std::max( maxVal, A->GetImagPart(i,j) );
@@ -153,12 +153,12 @@ DisplayWidget<T>::DisplayImag
 #ifndef RELEASE
     CallStackEntry entry("DisplayWidget::DisplayImag");
 #endif
-    const int m = A->Height();
-    const int n = A->Width();
+    const Int m = A->Height();
+    const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const int mPix = std::max( 500, 2*m );
-    const int nPix = std::max( 500, 2*n );
+    const Int mPix = std::max( 500, 2*m );
+    const Int nPix = std::max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );
@@ -167,12 +167,12 @@ DisplayWidget<T>::DisplayImag
     // Paint the matrix
     QPainter painter( &pixmap_ );
     painter.initFrom( this );
-    for( int jPix=0; jPix<nPix; ++jPix ) 
+    for( Int jPix=0; jPix<nPix; ++jPix ) 
     {
-        const int j = nRatio*jPix;
-        for( int iPix=0; iPix<mPix; ++iPix )
+        const Int j = nRatio*jPix;
+        for( Int iPix=0; iPix<mPix; ++iPix )
         {
-            const int i = mRatio*iPix;
+            const Int i = mRatio*iPix;
             QRgb color = ColorMap( A->GetImagPart(i,j), minVal, maxVal );
             painter.setPen( color );
             painter.drawPoint( jPix, iPix );

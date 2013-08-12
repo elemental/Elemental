@@ -41,17 +41,17 @@ SpyWidget::paintEvent( QPaintEvent* event )
 }
 
 inline void 
-SpyWidget::Spy( const Matrix<int>* A )
+SpyWidget::Spy( const Matrix<Int>* A )
 {
 #ifndef RELEASE
     CallStackEntry entry("SpyWidget::Spy");
 #endif
-    const int m = A->Height();
-    const int n = A->Width();
+    const Int m = A->Height();
+    const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const int mPix = std::max( 500, m );
-    const int nPix = std::max( 500, n );
+    const Int mPix = std::max( 500, m );
+    const Int nPix = std::max( 500, n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );
@@ -60,13 +60,13 @@ SpyWidget::Spy( const Matrix<int>* A )
     // Paint the matrix
     QPainter painter( &pixmap_ );
     painter.initFrom( this );
-    for( int jPix=0; jPix<nPix; ++jPix ) 
+    for( Int jPix=0; jPix<nPix; ++jPix ) 
     {
-        const int j = nRatio*jPix;
-        for( int iPix=0; iPix<mPix; ++iPix )
+        const Int j = nRatio*jPix;
+        for( Int iPix=0; iPix<mPix; ++iPix )
         {
-            const int i = mRatio*iPix;
-            const int z = A->Get(i,j);
+            const Int i = mRatio*iPix;
+            const Int z = A->Get(i,j);
             if( z == 0 )
                 painter.setPen( qRgba(0,0,0,255) );
             else 

@@ -29,22 +29,22 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
     CallStackEntry entry("id::PseudoTrsm");
 #endif
     typedef BASE(F) Real;
-    const int m = RR.Height();
-    const int n = RR.Width();
+    const Int m = RR.Height();
+    const Int n = RR.Width();
 
     // Compute the spectral radius of the triangular matrix
     Real maxAbsEig = 0;
-    for( int i=0; i<m; ++i )
+    for( Int i=0; i<m; ++i )
         maxAbsEig = std::max( maxAbsEig, Abs(RL.Get(i,i)) );
 
-    for( int i=m-1; i>=0; --i )
+    for( Int i=m-1; i>=0; --i )
     {
         // Apply the pseudo-inverse of the i'th diagonal value of RL 
         const F rho = RL.Get(i,i);
         const Real rhoAbs = Abs(rho);
         if( rhoAbs >= tol*maxAbsEig )
         {
-            for( int j=0; j<n; ++j ) 
+            for( Int j=0; j<n; ++j ) 
             {
                 const F zeta = RR.Get(i,j);
                 RR.Set(i,j,zeta/rho);
@@ -52,7 +52,7 @@ PseudoTrsm( const Matrix<F>& RL, Matrix<F>& RR, BASE(F) tol )
         }
         else
         {
-            for( int j=0; j<n; ++j )
+            for( Int j=0; j<n; ++j )
                 RR.Set(i,j,0);
         }
 
@@ -89,17 +89,17 @@ PseudoTrsm( const DistMatrix<F>& RL, DistMatrix<F,STAR,VR>& RR, BASE(F) tol )
 template<typename F> 
 inline void
 BusingerGolub
-( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int maxSteps, BASE(F) tol )
+( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::BusingerGolub");
 #endif
     typedef BASE(F) Real;
-    const int n = A.Width();
+    const Int n = A.Width();
 
     // Perform the pivoted QR factorization
     qr::BusingerGolub( A, p, maxSteps, tol );
-    const int numSteps = p.Height();
+    const Int numSteps = p.Height();
 
     Real pinvTol;
     if( tol < Real(0) )
@@ -121,19 +121,19 @@ BusingerGolub
 template<typename F> 
 inline void
 BusingerGolub
-( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  int maxSteps, BASE(F) tol )
+( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("id::BusingerGolub");
 #endif
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
-    const int n = A.Width();
+    const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
     qr::BusingerGolub( A, p, maxSteps, tol );
-    const int numSteps = p.Height();
+    const Int numSteps = p.Height();
 
     Real pinvTol;
     if( tol < Real(0) )
@@ -157,8 +157,8 @@ BusingerGolub
 template<typename F> 
 inline void
 ID
-( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, 
-  int maxSteps, BASE(F) tol )
+( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
+  Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -171,8 +171,8 @@ ID
 template<typename F> 
 inline void
 ID
-( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, 
-  int maxSteps, BASE(F) tol, bool canOverwrite=false )
+( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, 
+  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -188,7 +188,7 @@ ID
 
 template<typename F> 
 inline void
-ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
+ID( const Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -200,7 +200,7 @@ ID( const Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps )
 template<typename F> 
 inline void
 ID
-( Matrix<F>& A, Matrix<int>& p, Matrix<F>& Z, int numSteps, 
+( Matrix<F>& A, Matrix<Int>& p, Matrix<F>& Z, Int numSteps, 
   bool canOverwrite=false )
 {
 #ifndef RELEASE
@@ -213,8 +213,8 @@ ID
 template<typename F> 
 inline void
 ID
-( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  int maxSteps, BASE(F) tol )
+( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  Int maxSteps, BASE(F) tol )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -227,8 +227,8 @@ ID
 template<typename F> 
 inline void
 ID
-( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  int maxSteps, BASE(F) tol, bool canOverwrite=false )
+( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  Int maxSteps, BASE(F) tol, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -245,8 +245,8 @@ ID
 template<typename F> 
 inline void
 ID
-( const DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  int numSteps )
+( const DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");
@@ -258,8 +258,8 @@ ID
 template<typename F> 
 inline void
 ID
-( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
-  int numSteps, bool canOverwrite=false )
+( DistMatrix<F>& A, DistMatrix<Int,VR,STAR>& p, DistMatrix<F,STAR,VR>& Z, 
+  Int numSteps, bool canOverwrite=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ID");

@@ -26,7 +26,7 @@ void TrrkNN
         A.Height() != C.Height() || 
         B.Width() != C.Width() ||
         A.Width() != B.Height() )
-        throw std::logic_error("Nonconformal TrrkNN");
+        LogicError("Nonconformal TrrkNN");
 #endif
     const Grid& g = C.Grid();
 

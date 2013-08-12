@@ -27,23 +27,23 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--n","maximum k value",10);
+        const Int n = Input("--n","maximum k value",10);
         const double c = Input("--c","coefficient for PSFW",100.);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();
         PrintInputReport();
 
-        const int nOdd = n/2;
-        const int nEven = n - nOdd;
+        const Int nOdd = n/2;
+        const Int nEven = n - nOdd;
         DistMatrix<double> AEven, AOdd;
         Zeros( AEven, nEven, nEven );
         Zeros( AOdd, nOdd, nOdd );
         
         // Fill AEven and AOdd
-        for( int k=0; k<n; ++k )
+        for( Int k=0; k<n; ++k )
         {
-            const int kHalf = k/2;
+            const Int kHalf = k/2;
             const double kd = k;
             const double diag = 
                 kd*(kd+1) + (2*kd*(kd+1)-1)/((2*kd+3)*(2*kd-1))*c*c;

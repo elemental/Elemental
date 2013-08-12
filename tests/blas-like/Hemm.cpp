@@ -16,7 +16,7 @@ using namespace elem;
 template<typename T> 
 void TestHemm
 ( bool print, LeftOrRight side, UpperOrLower uplo,
-  int m, int n, T alpha, T beta, const Grid& g )
+  Int m, Int n, T alpha, T beta, const Grid& g )
 {
     DistMatrix<T> A(g), B(g), C(g);
 
@@ -70,17 +70,17 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char sideChar = Input("--side","side to apply from: L/R",'L');
         const char uploChar = Input("--uplo","lower/upper storage: L/U",'L');
-        const int m = Input("--m","height of result",100);
-        const int n = Input("--n","width of result",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--m","height of result",100);
+        const Int n = Input("--n","width of result",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

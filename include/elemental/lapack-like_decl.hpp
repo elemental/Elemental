@@ -16,7 +16,7 @@ namespace elem {
 inline void EnsurePMRRR()
 {
 #ifndef HAVE_PMRRR
-    throw std::logic_error("PMRRR is required for this routine");
+    RuntimeError("PMRRR is required for this routine");
 #endif
 }
 
@@ -41,7 +41,7 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
-  int lowerBound, int upperBound );
+  Int lowerBound, Int upperBound );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w,
@@ -49,7 +49,7 @@ void HermitianEig
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, 
-  int lowerBound, int upperBound );
+  Int lowerBound, Int upperBound );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w,
@@ -60,7 +60,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
   Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
-  int lowerBound, int upperBound );
+  Int lowerBound, Int upperBound );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -70,7 +70,7 @@ template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
-  int lowerBound, int upperBound );
+  Int lowerBound, Int upperBound );
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, 
@@ -89,32 +89,6 @@ enum HermitianGenDefiniteEigType
 };
 }
 using namespace hermitian_gen_definite_eig_type_wrapper;
-
-//----------------------------------------------------------------------------//
-// Utilities                                                                  //
-//----------------------------------------------------------------------------//
-
-template<typename F>
-void PivotFunc
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );
-
-template<typename F> mpi::Op PivotOp();
-template<> mpi::Op PivotOp<float>();
-template<> mpi::Op PivotOp<double>();
-template<> mpi::Op PivotOp<scomplex>();
-template<> mpi::Op PivotOp<dcomplex>();
-
-template<typename F> void CreatePivotOp();
-template<> void CreatePivotOp<float>();
-template<> void CreatePivotOp<double>();
-template<> void CreatePivotOp<scomplex>();
-template<> void CreatePivotOp<dcomplex>();
-
-template<typename T> void DestroyPivotOp();
-template<> void DestroyPivotOp<float>();
-template<> void DestroyPivotOp<double>();
-template<> void DestroyPivotOp<scomplex>();
-template<> void DestroyPivotOp<dcomplex>();
 
 } // namespace elem
 

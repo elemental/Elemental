@@ -11,32 +11,32 @@
 using namespace elem;
 
 template<typename T> 
-void TestMatrix( int m, int n, int ldim )
+void TestMatrix( Int m, Int n, Int ldim )
 {
     if( m > ldim || ldim == 0 )
-        throw std::logic_error("Leading dimension must be >= m and nonzero");
+        LogicError("Leading dimension must be >= m and nonzero");
     std::vector<T> buffer(ldim*n);
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             buffer[i+j*ldim] = i+j*m;
 
     Matrix<T> A( m, n, &buffer[0], ldim );
 
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             if( A.Get(i,j) != buffer[i+j*ldim] )
-                throw std::logic_error
+                LogicError
                 ("Matrix class was not properly filled with buffer");
 
     const Matrix<T> B( m, n, (const T*)&buffer[0], ldim );
 
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             if( B.Get(i,j) != buffer[i+j*ldim] )
-                throw std::logic_error
+                LogicError
                 ("Matrix class was not properly filled with const buffer");
 
-    const int commRank = mpi::CommRank( mpi::COMM_WORLD );
+    const Int commRank = mpi::CommRank( mpi::COMM_WORLD );
     if( commRank == 0 )
         std::cout << "passed" << std::endl;
 }
@@ -46,13 +46,13 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
 
     try 
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
-        const int ldim = Input("--ldim","leading dimension",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
+        const Int ldim = Input("--ldim","leading dimension",100);
         ProcessInput();
         PrintInputReport();
 

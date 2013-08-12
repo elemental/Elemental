@@ -14,39 +14,39 @@ namespace elem {
 
 template<typename T> 
 inline void
-Pei( Matrix<T>& P, int n, T alpha )
+Pei( Matrix<T>& P, Int n, T alpha )
 {
 #ifndef RELEASE
     CallStackEntry entry("Pei");
 #endif
     P.ResizeTo( n, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<n; ++i )
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<n; ++i )
             P.Set( i, j, T(1) );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
         P.Update( j, j, alpha );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Pei( DistMatrix<T,U,V>& P, int n, T alpha )
+Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
 {
 #ifndef RELEASE
     CallStackEntry entry("MakeIdentity");
 #endif
     P.ResizeTo( n, n );
-    const int localHeight = P.LocalHeight();
-    const int localWidth = P.LocalWidth();
-    const int colShift = P.ColShift();
-    const int rowShift = P.RowShift();
-    const int colStride = P.ColStride();
-    const int rowStride = P.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = P.LocalHeight();
+    const Int localWidth = P.LocalWidth();
+    const Int colShift = P.ColShift();
+    const Int rowShift = P.RowShift();
+    const Int colStride = P.ColStride();
+    const Int rowStride = P.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             P.SetLocal( iLoc, jLoc, T(1) );
             if( i == j )
                 P.UpdateLocal( iLoc, jLoc, alpha );

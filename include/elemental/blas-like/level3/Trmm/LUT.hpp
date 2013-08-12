@@ -36,8 +36,7 @@ LocalTrmmAccumulateLUT
     CallStackEntry entry("internal::LocalTrmmAccumulateLUT");
     if( U.Grid() != X_MC_STAR.Grid() ||
         X_MC_STAR.Grid() != Z_MR_STAR.Grid() )
-        throw std::logic_error
-        ("{U,X,Z} must be distributed over the same grid");
+        LogicError("{U,X,Z} must be distributed over the same grid");
     if( U.Height() != U.Width() ||
         U.Height() != X_MC_STAR.Height() ||
         U.Height() != Z_MR_STAR.Height() )
@@ -49,11 +48,11 @@ LocalTrmmAccumulateLUT
                                << X_MC_STAR.Width() << "\n"
             << "  Z[MR,* ] ` " << Z_MR_STAR.Height() << " x "
                                << Z_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( X_MC_STAR.ColAlignment() != U.ColAlignment() ||
         Z_MR_STAR.ColAlignment() != U.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = U.Grid();
 
@@ -75,7 +74,7 @@ LocalTrmmAccumulateLUT
         ZB_MR_STAR(g),  Z1_MR_STAR(g),
                         Z2_MR_STAR(g);
 
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
@@ -152,18 +151,16 @@ TrmmLUTA
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLUTA");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error
-        ("TrmmLUTA expects a (Conjugate)Transpose option");
+        LogicError("TrmmLUTA expects a (Conjugate)Transpose option");
     if( U.Height() != U.Width() || U.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLUTA: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = U.Grid();
@@ -219,18 +216,16 @@ TrmmLUTCOld
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLUTCOld");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error
-        ("TrmmLUTC expects a (Conjugate)Transpose option");
+        LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
     if( U.Height() != U.Width() || U.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLUTC: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = U.Grid();
@@ -321,18 +316,16 @@ TrmmLUTC
 #ifndef RELEASE
     CallStackEntry entry("internal::TrmmLUTC");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
-        ("U and X must be distributed over the same grid");
+        LogicError("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error
-        ("TrmmLUTC expects a (Conjugate)Transpose option");
+        LogicError("TrmmLUTC expects a (Conjugate)Transpose option");
     if( U.Height() != U.Width() || U.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrmmLUTC: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = U.Grid();

@@ -30,18 +30,18 @@ Syr2k
     {
         if( A.Height() != C.Height() || A.Height() != C.Width() ||
             B.Height() != C.Height() ||B.Height() != C.Width()    )
-            throw std::logic_error("Nonconformal Syr2k");
+            LogicError("Nonconformal Syr2k");
     }
     else 
     {
         if( A.Width() != C.Height() || A.Width() != C.Width() ||
             B.Width() != C.Height() || B.Width() != C.Width()   )
-            throw std::logic_error("Nonconformal Syr2k");
+            LogicError("Nonconformal Syr2k");
     }
 #endif
     const char uploChar = UpperOrLowerToChar( uplo );
     const char transChar = OrientationToChar( orientation );
-    const int k = ( orientation == NORMAL ? A.Width() : A.Height() );
+    const Int k = ( orientation == NORMAL ? A.Width() : A.Height() );
     if( conjugate )
     {
         blas::Her2k
@@ -70,7 +70,7 @@ Syr2k
 #ifndef RELEASE
     CallStackEntry entry("Syr2k");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
 }
@@ -107,7 +107,7 @@ Syr2k
 #ifndef RELEASE
     CallStackEntry entry("Syr2k");
 #endif 
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, conjugate );
 }

@@ -22,11 +22,11 @@ template<typename F>
 void TestCorrectness
 ( bool pivoted, bool print, 
   const Matrix<F>& A,
-  const Matrix<int>& p,
+  const Matrix<Int>& p,
   const Matrix<F>& AOrig )
 {
     typedef BASE(F) R;
-    const int m = AOrig.Height();
+    const Int m = AOrig.Height();
 
     cout << "Testing error..." << endl;
 
@@ -65,10 +65,10 @@ void TestCorrectness
 }
 
 template<typename F> 
-void TestLU( bool pivot, bool testCorrectness, bool print, int m )
+void TestLU( bool pivot, bool testCorrectness, bool print, Int m )
 {
     Matrix<F> A, ARef;
-    Matrix<int> p;
+    Matrix<Int> p;
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -109,12 +109,12 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
+    const Int commRank = mpi::CommRank( comm );
 
     try
     {
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool pivot = Input("--pivot","pivoted LU?",true);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);

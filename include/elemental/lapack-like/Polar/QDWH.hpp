@@ -40,19 +40,19 @@ namespace elem {
 namespace polar {
 
 template<typename F>
-inline int 
-QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+inline Int 
+QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     typedef BASE(F) R;
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     const R oneThird = R(1)/R(3);
 
     if( height < width )
-        throw std::logic_error("Height cannot be less than width");
+        LogicError("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -67,7 +67,7 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
                       QB, height );
-    int numIts=0;
+    Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;
@@ -131,35 +131,35 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 }
 
 template<typename F>
-inline int 
+inline Int 
 QDWH
 ( Matrix<F>& A, Matrix<F>& P, 
-  BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+  BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     Matrix<F> ACopy( A );
-    const int numIts = QDWH( A, lowerBound, upperBound, maxIts );
+    const Int numIts = QDWH( A, lowerBound, upperBound, maxIts );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
     return numIts;
 }
 
 template<typename F>
-inline int 
-QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+inline Int 
+QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int height = A.Height();
-    const int width = A.Width();
+    const Int height = A.Height();
+    const Int width = A.Width();
     const R oneThird = R(1)/R(3);
 
     if( height < width )
-        throw std::logic_error("Height cannot be less than width");
+        LogicError("Height cannot be less than width");
 
     const R epsilon = lapack::MachineEpsilon<R>();
     const R tol = 5*epsilon;
@@ -174,7 +174,7 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
                       QB, height );
-    int numIts=0;
+    Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;
@@ -238,16 +238,16 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
 }
 
 template<typename F>
-inline int 
+inline Int 
 QDWH
 ( DistMatrix<F>& A, DistMatrix<F>& P, 
-  BASE(F) lowerBound, BASE(F) upperBound, int maxIts=100 )
+  BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     DistMatrix<F> ACopy( A );
-    const int numIts = QDWH( A, lowerBound, upperBound, maxIts );
+    const Int numIts = QDWH( A, lowerBound, upperBound, maxIts );
     Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
     return numIts;
 }
@@ -260,16 +260,16 @@ template<typename F>
 inline int
 QDWH
 ( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, 
-  int maxIts=100 )
+  Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Height must be same as width");
+        LogicError("Height must be same as width");
 
     typedef BASE(F) R;
-    const int height = A.Height();
+    const Int height = A.Height();
     const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
@@ -285,7 +285,7 @@ QDWH
     Matrix<F> QT, QB;
     PartitionDown( Q, QT,
                       QB, height );
-    int it=0;
+    Int it=0;
     while( it < maxIts )
     {
         ALast = A;
@@ -360,17 +360,17 @@ template<typename F>
 inline int
 QDWH
 ( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound,
-  int maxIts=100 )
+  Int maxIts=100 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Height must be same as width");
+        LogicError("Height must be same as width");
 
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int height = A.Height();
+    const Int height = A.Height();
     const R oneThird = R(1)/R(3);
 
     const R epsilon = lapack::MachineEpsilon<R>();
@@ -386,7 +386,7 @@ QDWH
     DistMatrix<F> QT(g), QB(g);
     PartitionDown( Q, QT,
                       QB, height );
-    int numIts=0;
+    Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;

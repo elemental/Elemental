@@ -31,13 +31,13 @@ inline void LocalGemm
         if( AColDist != CColDist ||
             ARowDist != BColDist ||
             BRowDist != CRowDist )
-            throw std::logic_error("C[X,Y] = A[X,Z] B[Z,Y]");
+            LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
         if( A.ColAlignment() != C.ColAlignment() )
-            throw std::logic_error("A's cols must align with C's rows");
+            LogicError("A's cols must align with C's rows");
         if( A.RowAlignment() != B.ColAlignment() )
-            throw std::logic_error("A's rows must align with B's cols");
+            LogicError("A's rows must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
-            throw std::logic_error("B's rows must align with C's rows");
+            LogicError("B's rows must align with C's rows");
         if( A.Height() != C.Height() ||
             A.Width() != B.Height() ||
             B.Width() != C.Width() )
@@ -47,7 +47,7 @@ inline void LocalGemm
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
                 << "  C ~ " << C.Height() << " x " << C.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
     else if( orientationOfA == NORMAL )
@@ -55,13 +55,13 @@ inline void LocalGemm
         if( AColDist != CColDist ||
             ARowDist != BRowDist ||
             BColDist != CRowDist )
-            throw std::logic_error("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
+            LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
         if( A.ColAlignment() != C.ColAlignment() )
-            throw std::logic_error("A's cols must align with C's rows");
+            LogicError("A's cols must align with C's rows");
         if( A.RowAlignment() != B.RowAlignment() )
-            throw std::logic_error("A's rows must align with B's rows");
+            LogicError("A's rows must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
-            throw std::logic_error("B's cols must align with C's rows");
+            LogicError("B's cols must align with C's rows");
         if( A.Height() != C.Height() ||
             A.Width() != B.Width() ||
             B.Height() != C.Width() )
@@ -71,7 +71,7 @@ inline void LocalGemm
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
                 << "  C ~ " << C.Height() << " x " << C.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
     else if( orientationOfB == NORMAL )
@@ -79,13 +79,13 @@ inline void LocalGemm
         if( ARowDist != CColDist ||
             AColDist != BColDist ||
             BRowDist != CRowDist )
-            throw std::logic_error("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
+            LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
         if( A.RowAlignment() != C.ColAlignment() )
-            throw std::logic_error("A's rows must align with C's cols");
+            LogicError("A's rows must align with C's cols");
         if( A.ColAlignment() != B.ColAlignment() )
-            throw std::logic_error("A's cols must align with B's cols");
+            LogicError("A's cols must align with B's cols");
         if( B.RowAlignment() != C.RowAlignment() )
-            throw std::logic_error("B's rows must align with C's rows");
+            LogicError("B's rows must align with C's rows");
         if( A.Width() != C.Height() ||
             A.Height() != B.Height() ||
             B.Width() != C.Width() )
@@ -95,7 +95,7 @@ inline void LocalGemm
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
                 << "  C ~ " << C.Height() << " x " << C.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
     else
@@ -103,13 +103,13 @@ inline void LocalGemm
         if( ARowDist != CColDist ||
             AColDist != BRowDist ||
             BColDist != CRowDist )
-            throw std::logic_error("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
+            LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
         if( A.RowAlignment() != C.ColAlignment() )
-            throw std::logic_error("A's rows must align with C's cols");
+            LogicError("A's rows must align with C's cols");
         if( A.ColAlignment() != B.RowAlignment() )
-            throw std::logic_error("A's cols must align with B's rows");
+            LogicError("A's cols must align with B's rows");
         if( B.ColAlignment() != C.RowAlignment() )
-            throw std::logic_error("B's cols must align with C's rows");
+            LogicError("B's cols must align with C's rows");
         if( A.Width() != C.Height() ||
             A.Height() != B.Width() ||
             B.Height() != C.Width() )
@@ -119,7 +119,7 @@ inline void LocalGemm
                 << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
                 << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
                 << "  C ~ " << C.Height() << " x " << C.Width();
-            throw std::logic_error( msg.str().c_str() );
+            LogicError( msg.str() );
         }
     }
 #endif
@@ -140,8 +140,8 @@ inline void LocalGemm
 #ifndef RELEASE
     CallStackEntry entry("LocalGemm");
 #endif
-    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
-    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
     LocalGemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
 }
@@ -168,35 +168,35 @@ Gemm
         if( A.Height() != C.Height() ||
             B.Width()  != C.Width()  ||
             A.Width()  != B.Height() )
-            throw std::logic_error("Nonconformal GemmNN");
+            LogicError("Nonconformal GemmNN");
     }
     else if( orientationOfA == NORMAL )
     {
         if( A.Height() != C.Height() ||
             B.Height() != C.Width()  ||
             A.Width()  != B.Width() )
-            throw std::logic_error("Nonconformal GemmN(T/C)");
+            LogicError("Nonconformal GemmN(T/C)");
     }
     else if( orientationOfB == NORMAL )
     {
         if( A.Width()  != C.Height() ||
             B.Width()  != C.Width()  ||
             A.Height() != B.Height() )
-            throw std::logic_error("Nonconformal Gemm(T/C)N");
+            LogicError("Nonconformal Gemm(T/C)N");
     }
     else
     {
         if( A.Width()  != C.Height() ||
             B.Height() != C.Width()  ||
             A.Height() != B.Width() )
-            throw std::logic_error("Nonconformal Gemm(T/C)(T/C)");
+            LogicError("Nonconformal Gemm(T/C)(T/C)");
     }
 #endif
     const char transA = OrientationToChar( orientationOfA );
     const char transB = OrientationToChar( orientationOfB );
-    const int m = C.Height();
-    const int n = C.Width();
-    const int k = ( orientationOfA == NORMAL ? A.Width() : A.Height() );
+    const Int m = C.Height();
+    const Int n = C.Width();
+    const Int k = ( orientationOfA == NORMAL ? A.Width() : A.Height() );
     if( k != 0 )
     {
         blas::Gemm
@@ -219,8 +219,8 @@ Gemm
 #ifndef RELEASE
     CallStackEntry entry("Gemm");
 #endif
-    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
-    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
     Gemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
 }
@@ -263,8 +263,8 @@ Gemm
 #ifndef RELEASE
     CallStackEntry entry("Gemm");
 #endif
-    const int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
-    const int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
+    const Int m = ( orientationOfA==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientationOfB==NORMAL ? B.Width() : B.Height() );
     Zeros( C, m, n );
     Gemm( orientationOfA, orientationOfB, alpha, A, B, T(0), C );
 }

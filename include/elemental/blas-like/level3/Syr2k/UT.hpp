@@ -25,8 +25,7 @@ Syr2kUT
 #ifndef RELEASE
     CallStackEntry entry("internal::Syr2kUT");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
-        ("{A,B,C} must be distributed over the same grid");
+        LogicError("{A,B,C} must be distributed over the same grid");
     if( A.Width() != C.Height() || 
         A.Width() != C.Width()  ||
         B.Width() != C.Height() ||
@@ -38,7 +37,7 @@ Syr2kUT
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  B ~ " << B.Height() << " x " << B.Width() << "\n"
             << "  C ~ " << C.Height() << " x " << C.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

@@ -15,21 +15,21 @@ using namespace elem;
 template<typename R>
 class FourierPhase {
 public:
-    FourierPhase( int n ) : n_(n), pi_(4*Atan(R(1))) { }
-    R operator()( int i, int j ) const { return (-2*pi_*i*j)/n_; }
+    FourierPhase( Int n ) : n_(n), pi_(4*Atan(R(1))) { }
+    R operator()( Int i, Int j ) const { return (-2*pi_*i*j)/n_; }
 private:
-    int n_;
+    Int n_;
     R pi_;
 };
 
 template<typename R>
 class Phase {
 public:
-    Phase( int n ) : n_(n), pi_(4*Atan(R(1))) { }
-    R operator()( int i, int j ) const 
+    Phase( Int n ) : n_(n), pi_(4*Atan(R(1))) { }
+    R operator()( Int i, Int j ) const 
     { return (-2*pi_*i*j)/n_ + Sqrt(R(i)*R(i) + R(j)*R(j)); }
 private:
-    int n_;
+    Int n_;
     R pi_;
 };
 
@@ -40,7 +40,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of matrix",10);
+        const Int n = Input("--size","size of matrix",10);
         const bool display = Input("--display","display matrix?",true);
         const bool print = Input("--print","print matrix?",false);
         ProcessInput();

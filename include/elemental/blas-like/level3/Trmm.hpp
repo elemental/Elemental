@@ -24,7 +24,7 @@ LocalTrmm
     CallStackEntry entry("LocalTrmm");
     if( (side == LEFT && BColDist != STAR) ||
         (side == RIGHT && BRowDist != STAR) )
-        throw std::logic_error
+        LogicError
         ("Distribution of RHS must conform with that of triangle");
 #endif
     Trmm
@@ -54,16 +54,16 @@ Trmm
 #ifndef RELEASE
     CallStackEntry entry("Trmm");
     if( A.Height() != A.Width() )
-        throw std::logic_error("Triangular matrix must be square");
+        LogicError("Triangular matrix must be square");
     if( side == LEFT )
     {
         if( A.Height() != B.Height() )
-            throw std::logic_error("Nonconformal Trmm");
+            LogicError("Nonconformal Trmm");
     }
     else
     {
         if( A.Height() != B.Width() )
-            throw std::logic_error("Nonconformal Trmm");
+            LogicError("Nonconformal Trmm");
     }
 #endif
     const char sideChar = LeftOrRightToChar( side );

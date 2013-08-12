@@ -62,7 +62,7 @@ public:
 };
 
 template <typename T>
-static PyObject* create_npmatrix( const elem::Matrix<T,int>& matrix, bool writable )
+static PyObject* create_npmatrix( const elem::Matrix<T>& matrix, bool writable )
 {
     // TO DO: replace PyArray_Type below with the type object for numpy.matrix
     npy_intp dims[2], strides[2];
@@ -298,22 +298,14 @@ void ElemPyMatrix<T>::UpdateArray()
     }
 %enddef
 %define TYPEMAP_MATRIX(T,V)
-%typecheck(V)     const elem::Matrix<T    >& { $1 = check_elematrix( $input, NPY<T >::DType, false ); }
-%typecheck(V)           elem::Matrix<T    >& { $1 = check_elematrix( $input, NPY<T >::DType, true  ); }
-%typecheck(V)     const elem::Matrix<T,int>& { $1 = check_elematrix( $input, NPY<T >::DType, false ); }
-%typecheck(V)           elem::Matrix<T,int>& { $1 = check_elematrix( $input, NPY<T >::DType, true  ); }
-%typemap(in)      const elem::Matrix<T    >& { TYPEMAPIN(T,false) }
-%typemap(in)            elem::Matrix<T    >& { TYPEMAPIN(T,true)  }
-%typemap(in)      const elem::Matrix<T,int>& { TYPEMAPIN(T,false) }
-%typemap(in)            elem::Matrix<T,int>& { TYPEMAPIN(T,true)  }
-%typemap(freearg) const elem::Matrix<T    >& { TYPEMAPFREE(T) }
-%typemap(freearg)       elem::Matrix<T    >& { TYPEMAPFREE(T) }
-%typemap(freearg) const elem::Matrix<T,int>& { TYPEMAPFREE(T) }
-%typemap(freearg)       elem::Matrix<T,int>& { TYPEMAPFREE(T) }
-%typemap(out)     const elem::Matrix<T    >& { $result = create_npmatrix( *$1, false ); }
-%typemap(out)           elem::Matrix<T    >& { $result = create_npmatrix( *$1, true );  }
-%typemap(out)     const elem::Matrix<T,int>& { $result = create_npmatrix( *$1, false ); }
-%typemap(out)           elem::Matrix<T,int>& { $result = create_npmatrix( *$1, true );  }
+%typecheck(V)     const elem::Matrix<T >& { $1 = check_elematrix( $input, NPY<T >::DType, false ); }
+%typecheck(V)           elem::Matrix<T >& { $1 = check_elematrix( $input, NPY<T >::DType, true  ); }
+%typemap(in)      const elem::Matrix<T >& { TYPEMAPIN(T,false) }
+%typemap(in)            elem::Matrix<T >& { TYPEMAPIN(T,true)  }
+%typemap(freearg) const elem::Matrix<T >& { TYPEMAPFREE(T) }
+%typemap(freearg)       elem::Matrix<T >& { TYPEMAPFREE(T) }
+%typemap(out)     const elem::Matrix<T >& { $result = create_npmatrix( *$1, false ); }
+%typemap(out)           elem::Matrix<T >& { $result = create_npmatrix( *$1, true );  }
 %enddef
 TYPEMAP_MATRIX(int,SWIG_TYPECHECK_INT32_ARRAY)
 TYPEMAP_MATRIX(float,SWIG_TYPECHECK_FLOAT_ARRAY)
@@ -392,18 +384,18 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 #define OVERLOAD1_int(X) OVERLOAD1_int_R(X,X)
 // TODO: Extend
 %define OVERLOAD_VIEW_seq(X)
-%template(X) X<int,int>;
-%template(X) X<float,int>;
-%template(X) X<double,int>;
-%template(X) X<Complex<float>,int>;
-%template(X) X<Complex<double>,int>;
+%template(X) X<int>;
+%template(X) X<float>;
+%template(X) X<double>;
+%template(X) X<Complex<float> >;
+%template(X) X<Complex<double> >;
 %enddef
 %define OVERLOAD_VIEW_UV(X,U,V)
-%template(X) X<int,U,V,int>;
-%template(X) X<float,U,V,int>;
-%template(X) X<double,U,V,int>;
-%template(X) X<Complex<float>,U,V,int>;
-%template(X) X<Complex<double>,U,V,int>;
+%template(X) X<int,U,V>;
+%template(X) X<float,U,V>;
+%template(X) X<double,U,V>;
+%template(X) X<Complex<float>,U,V>;
+%template(X) X<Complex<double>,U,V>;
 %enddef
 %define OVERLOAD_VIEW(X)
 OVERLOAD_VIEW_seq(X)

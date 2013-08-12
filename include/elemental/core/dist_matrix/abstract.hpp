@@ -13,22 +13,21 @@
 namespace elem {
 
 #ifndef RELEASE
-template<typename T,typename Int>
+template<typename T>
 void AssertConforming1x2
-( const AbstractDistMatrix<T,Int>& AL, const AbstractDistMatrix<T,Int>& AR );
+( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR );
 
-template<typename T,typename Int>
+template<typename T>
 void AssertConforming2x1
-( const AbstractDistMatrix<T,Int>& AT,
-  const AbstractDistMatrix<T,Int>& AB );
+( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB );
 
-template<typename T,typename Int>
+template<typename T>
 void AssertConforming2x2
-( const AbstractDistMatrix<T,Int>& ATL, const AbstractDistMatrix<T,Int>& ATR,
-  const AbstractDistMatrix<T,Int>& ABL, const AbstractDistMatrix<T,Int>& ABR );
+( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,
+  const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR );
 #endif // ifndef RELEASE
 
-template<typename T,typename Int> 
+template<typename T> 
 class AbstractDistMatrix
 {
 public:
@@ -42,9 +41,10 @@ public:
     void AssertNotLocked() const;
     void AssertNotStoringData() const;
     void AssertValidEntry( Int i, Int j ) const;
-    void AssertValidSubmatrix( Int i, Int j, Int height, Int width ) const;
+    void AssertValidSubmatrix
+    ( Int i, Int j, Int height, Int width ) const;
     void AssertSameGrid( const elem::Grid& grid ) const;
-    void AssertSameSize( int height, int width ) const;
+    void AssertSameSize( Int height, Int width ) const;
 #endif // ifndef RELEASE
 
     //
@@ -61,11 +61,11 @@ public:
 
     const elem::Grid& Grid() const;
 
-          T* Buffer( Int iLocal=0, Int jLocal=0 );
-    const T* LockedBuffer( Int iLocal=0, Int jLocal=0 ) const;
+          T* Buffer( Int iLoc=0, Int jLoc=0 );
+    const T* LockedBuffer( Int iLoc=0, Int jLoc=0 ) const;
 
-          elem::Matrix<T,Int>& Matrix();
-    const elem::Matrix<T,Int>& LockedMatrix() const;
+          elem::Matrix<T>& Matrix();
+    const elem::Matrix<T>& LockedMatrix() const;
 
     //
     // Alignments
@@ -79,17 +79,17 @@ public:
     Int ColShift() const;
     Int RowShift() const;
 
-    void Align( Int colAlignment, Int rowAlignment );
-    void AlignCols( Int colAlignment );
-    void AlignRows( Int rowAlignment );
+    void Align( Int colAlign, Int rowAlign );
+    void AlignCols( Int colAlign );
+    void AlignRows( Int rowAlign );
 
     //
     // Local entry manipulation
     //
 
-    T GetLocal( Int iLocal, Int jLocal ) const;
-    void SetLocal( Int iLocal, Int jLocal, T alpha );
-    void UpdateLocal( Int iLocal, Int jLocal, T alpha );
+    T GetLocal( Int iLoc, Int jLoc ) const;
+    void SetLocal( Int iLoc, Int jLoc, T alpha );
+    void UpdateLocal( Int iLoc, Int jLoc, T alpha );
 
     //
     // Though the following routines are meant for complex data, all but two
@@ -98,13 +98,13 @@ public:
 
     BASE(T) GetRealPart( Int i, Int j ) const;
     BASE(T) GetImagPart( Int i, Int j ) const;
-    BASE(T) GetLocalRealPart( Int iLocal, Int jLocal ) const;
-    BASE(T) GetLocalImagPart( Int iLocal, Int jLocal ) const;
-    void SetLocalRealPart( Int iLocal, Int jLocal, BASE(T) alpha );
-    void UpdateLocalRealPart( Int iLocal, Int jLocal, BASE(T) alpha );
+    BASE(T) GetLocalRealPart( Int iLoc, Int jLoc ) const;
+    BASE(T) GetLocalImagPart( Int iLoc, Int jLoc ) const;
+    void SetLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void UpdateLocalRealPart( Int iLoc, Int jLoc, BASE(T) alpha );
     // Only valid for complex data
-    void SetLocalImagPart( Int iLocal, Int jLocal, BASE(T) alpha );
-    void UpdateLocalImagPart( Int iLocal, Int jLocal, BASE(T) alpha );
+    void SetLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
+    void UpdateLocalImagPart( Int iLoc, Int jLoc, BASE(T) alpha );
 
     //
     // Viewing 
@@ -126,12 +126,12 @@ public:
     //------------------------------------------------------------------------//
 
     virtual bool Participating() const;
-    virtual void AlignWith( const elem::DistData<Int>& data );
-    virtual void AlignWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignColsWith( const elem::DistData<Int>& data );
-    virtual void AlignColsWith( const AbstractDistMatrix<T,Int>& A );
-    virtual void AlignRowsWith( const elem::DistData<Int>& data );
-    virtual void AlignRowsWith( const AbstractDistMatrix<T,Int>& A );
+    virtual void AlignWith( const elem::DistData& data );
+    virtual void AlignWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignColsWith( const elem::DistData& data );
+    virtual void AlignColsWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignRowsWith( const elem::DistData& data );
+    virtual void AlignRowsWith( const AbstractDistMatrix<T>& A );
 
     virtual void MakeConsistent();
 
@@ -143,7 +143,7 @@ public:
     // Basic information
     //
 
-    virtual elem::DistData<Int> DistData() const = 0;
+    virtual elem::DistData DistData() const = 0;
 
     // So that the local row indices are given by
     //   A.ColShift():A.ColStride():A.Height()
@@ -185,7 +185,7 @@ protected:
     ViewType viewType_;
     Int height_, width_;
     Memory<T> auxMemory_;
-    elem::Matrix<T,Int> matrix_;
+    elem::Matrix<T> matrix_;
     
     bool constrainedColAlignment_, constrainedRowAlignment_;
     Int colAlignment_, rowAlignment_;
@@ -202,54 +202,60 @@ protected:
 
     void ComplainIfReal() const;
 
-#ifndef SWIG
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void View
-    ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void LockedView
-    ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void View
-    ( DistMatrix<S,U,V,Ord>& A, DistMatrix<S,U,V,Ord>& B,
-      Ord i, Ord j, Ord height, Ord width );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void LockedView
-    ( DistMatrix<S,U,V,Ord>& A, const DistMatrix<S,U,V,Ord>& B,
-      Ord i, Ord j, Ord height, Ord width );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void View1x2
-    ( DistMatrix<S,U,V,Ord>& A,
-      DistMatrix<S,U,V,Ord>& BL, DistMatrix<S,U,V,Ord>& BR );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void LockedView1x2
-    (       DistMatrix<S,U,V,Ord>& A,
-      const DistMatrix<S,U,V,Ord>& BL,
-      const DistMatrix<S,U,V,Ord>& BR );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void View2x1
-    ( DistMatrix<S,U,V,Ord>& A,
-      DistMatrix<S,U,V,Ord>& BT,
-      DistMatrix<S,U,V,Ord>& BB );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void LockedView2x1
-    (       DistMatrix<S,U,V,Ord>& A,
-      const DistMatrix<S,U,V,Ord>& BT,
-      const DistMatrix<S,U,V,Ord>& BB );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void View2x2
-    ( DistMatrix<S,U,V,Ord>& A,
-      DistMatrix<S,U,V,Ord>& BTL, DistMatrix<S,U,V,Ord>& BTR,
-      DistMatrix<S,U,V,Ord>& BBL, DistMatrix<S,U,V,Ord>& BBR );
-    template<typename S,Distribution U,Distribution V,typename Ord> 
-    friend void LockedView2x2
-    (       DistMatrix<S,U,V,Ord>& A,
-      const DistMatrix<S,U,V,Ord>& BTL,
-      const DistMatrix<S,U,V,Ord>& BTR,
-      const DistMatrix<S,U,V,Ord>& BBL,
-      const DistMatrix<S,U,V,Ord>& BBR );
+    void SetAlignmentsAndResize
+    ( Int colAlign, Int rowAlign, Int height, Int width );
+    void ForceAlignmentsAndResize
+    ( Int colAlign, Int rowAlign, Int height, Int width );
 
-    template<typename S,Distribution U,Distribution V,typename Ord>
+    void SetColAlignmentAndResize
+    ( Int colAlign, Int height, Int width );
+    void ForceColAlignmentAndResize
+    ( Int colAlign, Int height, Int width );
+
+    void SetRowAlignmentAndResize
+    ( Int rowAlign, Int height, Int width );
+    void ForceRowAlignmentAndResize
+    ( Int rowAlign, Int height, Int width );
+
+#ifndef SWIG
+    template<typename S,Distribution U,Distribution V> 
+    friend void View( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& B );
+    template<typename S,Distribution U,Distribution V> 
+    friend void LockedView( DistMatrix<S,U,V>& A, const DistMatrix<S,U,V>& B );
+    template<typename S,Distribution U,Distribution V> 
+    friend void View
+    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& B,
+      Int i, Int j, Int height, Int width );
+    template<typename S,Distribution U,Distribution V> 
+    friend void LockedView
+    ( DistMatrix<S,U,V>& A, const DistMatrix<S,U,V>& B,
+      Int i, Int j, Int height, Int width );
+    template<typename S,Distribution U,Distribution V> 
+    friend void View1x2
+    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& BL, DistMatrix<S,U,V>& BR );
+    template<typename S,Distribution U,Distribution V> 
+    friend void LockedView1x2
+    (       DistMatrix<S,U,V>& A,
+      const DistMatrix<S,U,V>& BL, const DistMatrix<S,U,V>& BR );
+    template<typename S,Distribution U,Distribution V> 
+    friend void View2x1
+    ( DistMatrix<S,U,V>& A, DistMatrix<S,U,V>& BT, DistMatrix<S,U,V>& BB );
+    template<typename S,Distribution U,Distribution V> 
+    friend void LockedView2x1
+    (       DistMatrix<S,U,V>& A,
+      const DistMatrix<S,U,V>& BT, const DistMatrix<S,U,V>& BB );
+    template<typename S,Distribution U,Distribution V> 
+    friend void View2x2
+    ( DistMatrix<S,U,V>& A,
+      DistMatrix<S,U,V>& BTL, DistMatrix<S,U,V>& BTR,
+      DistMatrix<S,U,V>& BBL, DistMatrix<S,U,V>& BBR );
+    template<typename S,Distribution U,Distribution V> 
+    friend void LockedView2x2
+    (       DistMatrix<S,U,V>& A,
+      const DistMatrix<S,U,V>& BTL, const DistMatrix<S,U,V>& BTR,
+      const DistMatrix<S,U,V>& BBL, const DistMatrix<S,U,V>& BBR );
+
+    template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
 };

@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename F> 
 inline void
-Legendre( Matrix<F>& A, int n )
+Legendre( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Legendre");
@@ -27,7 +27,7 @@ Legendre( Matrix<F>& A, int n )
 
 template<typename F,Distribution U,Distribution V> 
 inline void
-Legendre( DistMatrix<F,U,V>& A, int n )
+Legendre( DistMatrix<F,U,V>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Legendre");
@@ -44,11 +44,11 @@ MakeLegendre( Matrix<F>& A )
     CallStackEntry entry("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix Legendre");
+        LogicError("Cannot make a non-square matrix Legendre");
     MakeZeros( A );
 
-    const int n = A.Width();
-    for( int j=0; j<n-1; ++j )
+    const Int n = A.Width();
+    for( Int j=0; j<n-1; ++j )
     {
         const F gamma = F(1) / Pow( F(2)*(j+1), F(2) );
         const F beta = F(1) / (2*Sqrt(F(1)-gamma));
@@ -65,24 +65,24 @@ MakeLegendre( DistMatrix<F,U,V>& A )
     CallStackEntry entry("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
-        throw std::logic_error("Cannot make a non-square matrix Legendre");
+        LogicError("Cannot make a non-square matrix Legendre");
     MakeZeros( A );
 
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( j == i+1 || j == i-1 )
             {
-                const int k = std::max( i, j );
+                const Int k = std::max( i, j );
                 const F gamma = F(1) / Pow( F(2)*k, F(2) );
                 const F beta = F(1) / (2*Sqrt(F(1)-gamma));
                 A.SetLocal( iLoc, jLoc, beta );

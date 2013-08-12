@@ -20,7 +20,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of Hermitian matrix",10);
+        const Int n = Input("--size","size of Hermitian matrix",10);
         const double lower = Input("--lower","lower bound on spectrum",1.);
         const double upper = Input("--upper","upper bound on spectrum",10.);
         const bool display = Input("--display","display matrix?",true);

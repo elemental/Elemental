@@ -17,21 +17,21 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commSize = mpi::CommSize( comm );
+    const Int commSize = mpi::CommSize( comm );
     
     try
     {
-        const int m = Input("--height","height of matrix",100);
-        const int n = Input("--width","width of matrix",100);
+        const Int m = Input("--height","height of matrix",100);
+        const Int n = Input("--width","width of matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
         // Drop down to a square grid, change the matrix, and redistribute back
-        const int commSqrt = int(sqrt(double(commSize)));
+        const Int commSqrt = Int(sqrt(double(commSize)));
 
-        std::vector<int> sqrtRanks(commSqrt*commSqrt);
-        for( int i=0; i<commSqrt*commSqrt; ++i )
+        std::vector<Int> sqrtRanks(commSqrt*commSqrt);
+        for( Int i=0; i<commSqrt*commSqrt; ++i )
             sqrtRanks[i] = i;
 
         mpi::Group group, sqrtGroup;

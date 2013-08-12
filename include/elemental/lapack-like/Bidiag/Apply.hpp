@@ -28,7 +28,7 @@ ApplyU
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( A.Height()>=A.Width() ? 0 : -1 );
+    const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
     ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
 }
@@ -46,7 +46,7 @@ ApplyV
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( A.Height()>=A.Width() ? 1 : 0 );
+    const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
     ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 }
@@ -64,7 +64,7 @@ ApplyU
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( A.Height()>=A.Width() ? 0 : -1 );
+    const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     ApplyPackedReflectors
     ( side, LOWER, VERTICAL, direction, conjugation, offset, A, t, B );
 }
@@ -78,7 +78,7 @@ ApplyU
 #ifndef RELEASE
     CallStackEntry cse("bidiag::ApplyU");
 #endif
-    const int offset = ( A.Height()>=A.Width() ? 0 : -1 );
+    const Int offset = ( A.Height()>=A.Width() ? 0 : -1 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;
@@ -98,7 +98,7 @@ ApplyV
     const bool onLeft = (side==LEFT);
     const ForwardOrBackward direction = ( normal==onLeft ? BACKWARD : FORWARD );
     const Conjugation conjugation = ( normal ? UNCONJUGATED : CONJUGATED );
-    const int offset = ( A.Height()>=A.Width() ? 1 : 0 );
+    const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     ApplyPackedReflectors
     ( side, UPPER, HORIZONTAL, direction, conjugation, offset, A, t, B );
 }
@@ -112,7 +112,7 @@ ApplyV
 #ifndef RELEASE
     CallStackEntry cse("bidiag::ApplyV");
 #endif
-    const int offset = ( A.Height()>=A.Width() ? 1 : 0 );
+    const Int offset = ( A.Height()>=A.Width() ? 1 : 0 );
     DistMatrix<F,MD,STAR> tDiag(A.Grid());
     tDiag.AlignWithDiagonal( A, offset );
     tDiag = t;

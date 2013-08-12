@@ -37,7 +37,7 @@ LocalSymmetricAccumulateRU
         B_STAR_MC.Grid() != BTrans_MR_STAR.Grid() ||
         BTrans_MR_STAR.Grid() != ZTrans_MC_STAR.Grid() ||
         ZTrans_MC_STAR.Grid() != ZTrans_MR_STAR.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,B,C} must be distributed over the same grid");
     if( A.Height() != A.Width() ||
         A.Height() != B_STAR_MC.Width() ||
@@ -59,13 +59,13 @@ LocalSymmetricAccumulateRU
                                    << ZTrans_MC_STAR.Width() << "\n"
             << "  Z^H/T[MR,* ] ~ " << ZTrans_MR_STAR.Height() << " x "
                                    << ZTrans_MR_STAR.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( B_STAR_MC.RowAlignment() != A.ColAlignment() ||
         BTrans_MR_STAR.ColAlignment() != A.RowAlignment() ||
         ZTrans_MC_STAR.ColAlignment() != A.ColAlignment() ||
         ZTrans_MR_STAR.ColAlignment() != A.RowAlignment() )
-        throw std::logic_error("Partial matrix distributions are misaligned");
+        LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
 
@@ -96,7 +96,7 @@ LocalSymmetricAccumulateRU
         ZTTrans_MR_STAR(g),  Z1Trans_MR_STAR(g),
                              Z2Trans_MR_STAR(g);
 
-    const int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = std::max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal
@@ -203,7 +203,7 @@ SymmRUA
 #ifndef RELEASE
     CallStackEntry entry("internal::SymmRUA");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,B,C} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
@@ -297,7 +297,7 @@ SymmRUC
 #ifndef RELEASE
     CallStackEntry entry("internal::SymmRUC");
     if( A.Grid() != B.Grid() || B.Grid() != C.Grid() )
-        throw std::logic_error("{A,B,C} must be distributed on the same grid");
+        LogicError("{A,B,C} must be distributed on the same grid");
 #endif
     const Grid& g = A.Grid();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );

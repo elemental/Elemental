@@ -27,34 +27,32 @@ void PanelL
   DistMatrix<F,MC,STAR>& W_MC_STAR,
   DistMatrix<F,MR,STAR>& W_MR_STAR )
 {
-    const int panelSize = W.Width();
-    const int bottomSize = W.Height()-panelSize;
+    const Int panelSize = W.Width();
+    const Int bottomSize = W.Height()-panelSize;
 #ifndef RELEASE
     PushCallStack("hermitian_tridiag::PanelL");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
-        throw std::logic_error
-        ("A, W, and t must be distributed over the same grid.");
+        LogicError("A, W, and t must be distributed over the same grid.");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( A.Height() != W.Height() )
-        throw std::logic_error("A and W must be the same height");
+        LogicError("A and W must be the same height");
     if( W.Height() < panelSize )
-        throw std::logic_error("W must be a column panel");
+        LogicError("W must be a column panel");
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment() )
-        throw std::logic_error("W and A must be aligned");
+        LogicError("W and A must be aligned");
     if( t.Height() != W.Width() || t.Width() != 1 )
-        throw std::logic_error
-        ("t must be a column vector of the same length as W's width");
+        LogicError("t must be a column vector of the same length as W's width");
     if( !t.AlignedWithDiagonal(A,-1) )
-        throw std::logic_error("t is not aligned with A's subdiagonal.");
+        LogicError("t is not aligned with A's subdiagonal.");
 #endif
     typedef BASE(F) R;
 
     const Grid& g = A.Grid();
-    const int r = g.Height();
-    const int c = g.Width();
-    const int p = g.Size();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int p = g.Size();
 
     // Create a distributed matrix for storing the subdiagonal
     DistMatrix<R,MD,STAR> e(g);
@@ -183,10 +181,10 @@ void PanelL
             if( !firstIteration )
             {
                 // Finish updating the current column with two axpy's
-                const int AColLocalHeight = ACol.LocalHeight();
+                const Int AColLocalHeight = ACol.LocalHeight();
                 F* AColBuffer = ACol.Buffer();
                 const F* a21Last_MC_STAR_Buffer = a21Last_MC_STAR.Buffer();
-                for( int i=0; i<AColLocalHeight; ++i )
+                for( Int i=0; i<AColLocalHeight; ++i )
                     AColBuffer[i] -=
                         w21LastBuffer[i] + 
                         a21Last_MC_STAR_Buffer[i]*Conj(w21LastFirstEntry);
@@ -207,7 +205,7 @@ void PanelL
         // Otherwise, also add w21 into the broadcast.
         if( firstIteration )
         {
-            const int a21LocalHeight = a21.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
             std::vector<F> rowBroadcastBuffer(a21LocalHeight+1);
             if( thisIsMyCol )
             {
@@ -224,7 +222,7 @@ void PanelL
             MemCopy
             ( a21_MC_STAR.Buffer(), &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
-            const int APan_MC_STAR_Offset = 
+            const Int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
             ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,0), 
@@ -235,7 +233,7 @@ void PanelL
             
             a21_MR_STAR = a21_MC_STAR;
             // Store a21[MR,* ]
-            const int APan_MR_STAR_Offset = 
+            const Int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
             ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
@@ -244,8 +242,8 @@ void PanelL
         }
         else
         {
-            const int a21LocalHeight = a21.LocalHeight();
-            const int w21LastLocalHeight = ACol.LocalHeight();
+            const Int a21LocalHeight = a21.LocalHeight();
+            const Int w21LastLocalHeight = ACol.LocalHeight();
             std::vector<F> 
                 rowBroadcastBuffer(a21LocalHeight+w21LastLocalHeight+1);
             if( thisIsMyCol ) 
@@ -267,7 +265,7 @@ void PanelL
             ( a21_MC_STAR.Buffer(), 
               &rowBroadcastBuffer[0], a21LocalHeight );
             // Store a21[MC,* ] into APan[MC,* ]
-            const int APan_MC_STAR_Offset = 
+            const Int APan_MC_STAR_Offset = 
                 APan_MC_STAR.LocalHeight()-a21LocalHeight;
             MemCopy
             ( APan_MC_STAR.Buffer(APan_MC_STAR_Offset,A00.Width()), 
@@ -281,7 +279,7 @@ void PanelL
               &rowBroadcastBuffer[a21LocalHeight], w21LastLocalHeight );
             // Store the bottom part of w21Last[MC,* ] into WB[MC,* ] and, 
             // if necessary, w21.
-            const int W_MC_STAR_Offset = 
+            const Int W_MC_STAR_Offset = 
                 W_MC_STAR.LocalHeight()-w21LastLocalHeight;
             MemCopy
             ( W_MC_STAR.Buffer(W_MC_STAR_Offset,A00.Width()-1),
@@ -307,22 +305,21 @@ void PanelL
 
             // alpha11 is the top-left entry of the A22 from the last iteration,
             // so its alignments are identical
-            const int colAlignSource = alpha11.ColAlignment();
-            const int colAlignDest = alpha11.RowAlignment();
-            const int colShiftSource = alpha11.ColShift();
-            const int colShiftDest = alpha11.RowShift();
+            const Int colAlignSource = alpha11.ColAlignment();
+            const Int colAlignDest = alpha11.RowAlignment();
+            const Int colShiftSource = alpha11.ColShift();
+            const Int colShiftDest = alpha11.RowShift();
 
-            const int height = a21.Height()+1;
-            const int portionSize = 
-                std::max(2*MaxLength(height,p),mpi::MIN_COLL_MSG);
+            const Int height = a21.Height()+1;
+            const Int portionSize = mpi::Pad( 2*MaxLength(height,p) );
 
-            const int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
-            const int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
-            const int sendRankRM = 
+            const Int colShiftVRDest = Shift(g.VRRank(),colAlignDest,p);
+            const Int colShiftVCSource = Shift(g.VCRank(),colAlignSource,p);
+            const Int sendRankRM = 
                 (g.VRRank()+(p+colShiftVCSource-colShiftVRDest))%p;
-            const int recvRankCM = 
+            const Int recvRankCM = 
                 (g.VCRank()+(p+colShiftVRDest-colShiftVCSource))%p;
-            const int recvRankRM = 
+            const Int recvRankRM = 
                 (recvRankCM/r)+c*(recvRankCM%r);
 
             std::vector<F> transposeBuffer( (r+1)*portionSize );
@@ -333,26 +330,26 @@ void PanelL
             // ([0; a21][VC,* ] <- [0; a21][MC,* ])
             {
                 // Pack the necessary portion of w21Last[MC,* ]
-                const int w21Shift = Shift(g.VCRank(),colAlignSource,p);
-                const int w21Offset = (w21Shift-colShiftSource)/r;
-                const int w21VCLocalHeight = Length(height,w21Shift,p);
+                const Int w21Shift = Shift(g.VCRank(),colAlignSource,p);
+                const Int w21Offset = (w21Shift-colShiftSource)/r;
+                const Int w21VCLocalHeight = Length(height,w21Shift,p);
                 const F* w21Buffer = w21Last_MC_STAR.Buffer(w21Offset,0);
-                for( int i=0; i<w21VCLocalHeight; ++i )
+                for( Int i=0; i<w21VCLocalHeight; ++i )
                     sendBuf[i] = w21Buffer[i*c];
                 
                 // Pack the necessary portion of a21[MC,* ]
-                const int a21Shift = (w21Shift+p-1) % p;
-                const int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
-                const int a21VCLocalHeight = Length(height-1,a21Shift,p);
+                const Int a21Shift = (w21Shift+p-1) % p;
+                const Int a21Offset = (a21Shift-((colShiftSource+r-1)%r))/r;
+                const Int a21VCLocalHeight = Length(height-1,a21Shift,p);
                 const F* a21Buffer = a21_MC_STAR.Buffer(a21Offset,0);
-                for( int i=0; i<a21VCLocalHeight; ++i )
+                for( Int i=0; i<a21VCLocalHeight; ++i )
                     sendBuf[w21VCLocalHeight+i] = a21Buffer[i*c];
             }
 
             // [VR,* ] <- [VC,* ]
             mpi::SendRecv
-            ( sendBuf, portionSize, sendRankRM, 0,
-              recvBuf, portionSize, recvRankRM, mpi::ANY_TAG, g.VRComm() );
+            ( sendBuf, portionSize, sendRankRM, 
+              recvBuf, portionSize, recvRankRM, g.VRComm() );
 
             // [MR,* ] <- [VR,* ]
             mpi::AllGather
@@ -362,35 +359,35 @@ void PanelL
             // Unpack
             w21Last_MR_STAR.AlignWith( alpha11 );
             w21Last_MR_STAR.ResizeTo( a21.Height()+1, 1 );
-            for( int k=0; k<r; ++k )
+            for( Int k=0; k<r; ++k )
             {
                 // Unpack into w21Last[MR,* ]
                 const F* w21Data = &sendBuf[k*portionSize];
-                const int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
-                const int w21Offset = (w21Shift-colShiftDest) / c;
-                const int w21VCLocalHeight = Length(height,w21Shift,p);
+                const Int w21Shift = Shift(g.Col()+c*k,colAlignDest,p);
+                const Int w21Offset = (w21Shift-colShiftDest) / c;
+                const Int w21VCLocalHeight = Length(height,w21Shift,p);
                 F* w21Buffer = w21Last_MR_STAR.Buffer(w21Offset,0);
-                for( int i=0; i<w21VCLocalHeight; ++i )
+                for( Int i=0; i<w21VCLocalHeight; ++i )
                     w21Buffer[i*r] = w21Data[i];
 
                 // Unpack into a21[MR,* ]
                 const F* a21Data = &sendBuf[k*portionSize+w21VCLocalHeight];
-                const int a21Shift = (w21Shift+p-1) % p;
-                const int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
-                const int a21VCLocalHeight = Length(height-1,a21Shift,p);
+                const Int a21Shift = (w21Shift+p-1) % p;
+                const Int a21Offset = (a21Shift-((colShiftDest+c-1)%c))/c;
+                const Int a21VCLocalHeight = Length(height-1,a21Shift,p);
                 F* a21Buffer = a21_MR_STAR.Buffer(a21Offset,0);
-                for( int i=0; i<a21VCLocalHeight; ++i )
+                for( Int i=0; i<a21VCLocalHeight; ++i )
                     a21Buffer[i*r] = a21Data[i];
             }
             // Store w21Last[MR,* ]
-            const int W_MR_STAR_Offset = 
+            const Int W_MR_STAR_Offset = 
                 W_MR_STAR.LocalHeight()-w21Last_MR_STAR.LocalHeight();
             MemCopy
             ( W_MR_STAR.Buffer(W_MR_STAR_Offset,A00.Width()-1),
               w21Last_MR_STAR.Buffer(),
               W_MR_STAR.LocalHeight()-W_MR_STAR_Offset );
             // Store a21[MR,* ]
-            const int APan_MR_STAR_Offset = 
+            const Int APan_MR_STAR_Offset = 
                 APan_MR_STAR.LocalHeight()-a21_MR_STAR.LocalHeight();
             MemCopy
             ( APan_MR_STAR.Buffer(APan_MR_STAR_Offset,A00.Width()),
@@ -423,11 +420,11 @@ void PanelL
             const F* a21_MR_STAR_Buffer = a21Last_MR_STAR_Bottom.Buffer();
             const F* w21_MR_STAR_Buffer = w21Last_MR_STAR_Bottom.Buffer();
             F* A22Buffer = A22.Buffer();
-            const int localHeight = W22.LocalHeight();
-            const int localWidth = W22.LocalWidth();
-            const int lDim = A22.LDim();
-            for( int jLocal=0; jLocal<localWidth; ++jLocal )
-                for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            const Int localHeight = W22.LocalHeight();
+            const Int localWidth = W22.LocalWidth();
+            const Int lDim = A22.LDim();
+            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
                     A22Buffer[iLocal+jLocal*lDim] -=
                         w21_MC_STAR_Buffer[iLocal]*
                         Conj(a21_MR_STAR_Buffer[jLocal]) +
@@ -451,8 +448,8 @@ void PanelL
         // Combine the AllReduce column summations of x01[MR,* ], y01[MR,* ],
         // and q21[MR,* ]
         {
-            const int x01LocalHeight = x01_MR_STAR.LocalHeight();
-            const int q21LocalHeight = q21_MR_STAR.LocalHeight();
+            const Int x01LocalHeight = x01_MR_STAR.LocalHeight();
+            const Int q21LocalHeight = q21_MR_STAR.LocalHeight();
             std::vector<F> colSumSendBuffer(2*x01LocalHeight+q21LocalHeight),
                            colSumRecvBuffer(2*x01LocalHeight+q21LocalHeight);
             MemCopy
@@ -464,9 +461,8 @@ void PanelL
             ( &colSumSendBuffer[2*x01LocalHeight],
               q21_MR_STAR.Buffer(), q21LocalHeight );
             mpi::AllReduce
-            ( &colSumSendBuffer[0], 
-              &colSumRecvBuffer[0],
-              2*x01LocalHeight+q21LocalHeight, mpi::SUM, g.ColComm() );
+            ( &colSumSendBuffer[0], &colSumRecvBuffer[0],
+              2*x01LocalHeight+q21LocalHeight, g.ColComm() );
             MemCopy
             ( x01_MR_STAR.Buffer(), 
               &colSumRecvBuffer[0], x01LocalHeight );
@@ -486,7 +482,7 @@ void PanelL
             // This is not the last iteration of the panel factorization, 
             // combine the Reduce to one of p21[MC,* ] with the redistribution 
             // of q21[MR,* ] -> q21[MC,MR] to the next process column.
-            const int localHeight = p21_MC_STAR.LocalHeight();
+            const Int localHeight = p21_MC_STAR.LocalHeight();
             std::vector<F> reduceToOneSendBuffer(2*localHeight),
                            reduceToOneRecvBuffer(2*localHeight);
 
@@ -517,14 +513,14 @@ void PanelL
                     // of MR, and s is our first local entry of MR that will 
                     // contribute to MC. I cannot think of an O(1) method, so
                     // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    const int sourcePeriod = g.LCM() / c;
-                    const int targetPeriod = g.LCM() / r;
-                    const int a0 = p21_MC_STAR.ColShift();
-                    const int b0 = q21_MR_STAR.ColShift();
+                    const Int sourcePeriod = g.LCM() / c;
+                    const Int targetPeriod = g.LCM() / r;
+                    const Int a0 = p21_MC_STAR.ColShift();
+                    const Int b0 = q21_MR_STAR.ColShift();
 
-                    int sourceStart = 0;
-                    const int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
+                    Int sourceStart = 0;
+                    const Int f = (r+a0-b0) % r;
+                    for( Int s=0; s<sourcePeriod; ++s )
                     {
                         if( (s*c) % r == f )
                         {
@@ -533,13 +529,13 @@ void PanelL
                         }
                     }
 
-                    const int globalShift = b0+sourceStart*c;
-                    const int targetStart = (globalShift-a0)/r;
-                    const int localLength =
+                    const Int globalShift = b0+sourceStart*c;
+                    const Int targetStart = (globalShift-a0)/r;
+                    const Int localLength =
                         Length(localHeight,targetStart,targetPeriod);
                     const F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-                    const int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )                        
+                    const Int offset = localHeight + targetStart;
+                    for( Int i=0; i<localLength; ++i )                        
                         reduceToOneSendBuffer[offset+i*targetPeriod] = 
                             q21_MR_STAR_Buffer[sourceStart+i*sourcePeriod];
                 }
@@ -547,16 +543,15 @@ void PanelL
             else
                 MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
 
-            const int nextProcessRow = (alpha11.ColAlignment()+1) % r;
-            const int nextProcessCol = (alpha11.RowAlignment()+1) % c;
+            const Int nextProcessRow = (alpha11.ColAlignment()+1) % r;
+            const Int nextProcessCol = (alpha11.RowAlignment()+1) % c;
             mpi::Reduce
-            ( &reduceToOneSendBuffer[0], 
-              &reduceToOneRecvBuffer[0],
-              2*localHeight, mpi::SUM, nextProcessCol, g.RowComm() );
+            ( &reduceToOneSendBuffer[0], &reduceToOneRecvBuffer[0],
+              2*localHeight, nextProcessCol, g.RowComm() );
             if( g.Col() == nextProcessCol )
             {
                 // Combine the second half into the first half        
-                for( int i=0; i<localHeight; ++i )
+                for( Int i=0; i<localHeight; ++i )
                     reduceToOneRecvBuffer[i] +=
                         reduceToOneRecvBuffer[i+localHeight];
 
@@ -571,15 +566,14 @@ void PanelL
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ? 
                                   reduceToOneRecvBuffer[0] : 0 );
-                mpi::AllReduce
-                ( sendBuffer, recvBuffer, 2, mpi::SUM, g.ColComm() );
+                mpi::AllReduce( sendBuffer, recvBuffer, 2, g.ColComm() );
                 F dotProduct = recvBuffer[0];
 
                 // Set up for the next iteration by filling in the values for:
                 // - w21LastBuffer
                 // - w21LastFirstEntry
                 F scale = dotProduct*Conj(tau) / F(2);
-                for( int i=0; i<localHeight; ++i )
+                for( Int i=0; i<localHeight; ++i )
                     w21LastBuffer[i] = tau*
                         ( reduceToOneRecvBuffer[i]-
                           scale*a21_MC_STAR_Buffer[i] );
@@ -591,7 +585,7 @@ void PanelL
             // This is the last iteration, our last task is to finish forming
             // w21[MC,* ] and w21[MR,* ] so that we may place them into W[MC,* ]
             // and W[MR,* ]
-            const int localHeight = p21_MC_STAR.LocalHeight();
+            const Int localHeight = p21_MC_STAR.LocalHeight();
             std::vector<F> allReduceSendBuffer(2*localHeight),
                            allReduceRecvBuffer(2*localHeight);
 
@@ -622,14 +616,14 @@ void PanelL
                     // of MR, and s is our first local entry of MR that will 
                     // contribute to MC. I cannot think of an O(1) method, so
                     // I will instead use the worst-case O(lcm(c,r)/c) method.
-                    const int sourcePeriod = g.LCM() / c;
-                    const int targetPeriod = g.LCM() / r;
-                    const int a0 = p21_MC_STAR.ColShift();
-                    const int b0 = q21_MR_STAR.ColShift();
+                    const Int sourcePeriod = g.LCM() / c;
+                    const Int targetPeriod = g.LCM() / r;
+                    const Int a0 = p21_MC_STAR.ColShift();
+                    const Int b0 = q21_MR_STAR.ColShift();
 
-                    int sourceStart = 0;
-                    const int f = (r+a0-b0) % r;
-                    for( int s=0; s<sourcePeriod; ++s )
+                    Int sourceStart = 0;
+                    const Int f = (r+a0-b0) % r;
+                    for( Int s=0; s<sourcePeriod; ++s )
                     {
                         if( (s*c) % r == f )
                         {
@@ -638,13 +632,13 @@ void PanelL
                         }
                     }
 
-                    const int globalShift = b0+sourceStart*c;
-                    const int targetStart = (globalShift-a0)/r;
-                    const int localLength = 
+                    const Int globalShift = b0+sourceStart*c;
+                    const Int targetStart = (globalShift-a0)/r;
+                    const Int localLength = 
                         Length(localHeight,targetStart,targetPeriod);
                     const F* q21_MR_STAR_Buffer = q21_MR_STAR.Buffer();
-                    const int offset = localHeight + targetStart;
-                    for( int i=0; i<localLength; ++i )
+                    const Int offset = localHeight + targetStart;
+                    for( Int i=0; i<localLength; ++i )
                         allReduceSendBuffer[offset+i*targetPeriod] = 
                             q21_MR_STAR_Buffer[sourceStart+i*sourcePeriod];
                 }
@@ -653,12 +647,11 @@ void PanelL
                 MemZero( &allReduceSendBuffer[localHeight], localHeight );
 
             mpi::AllReduce
-            ( &allReduceSendBuffer[0], 
-              &allReduceRecvBuffer[0],
-              2*localHeight, mpi::SUM, g.RowComm() );
+            ( &allReduceSendBuffer[0], &allReduceRecvBuffer[0],
+              2*localHeight, g.RowComm() );
 
             // Combine the second half into the first half        
-            for( int i=0; i<localHeight; ++i )
+            for( Int i=0; i<localHeight; ++i )
                 allReduceRecvBuffer[i] += allReduceRecvBuffer[i+localHeight];
  
             // Finish computing w21.
@@ -666,9 +659,7 @@ void PanelL
             F myDotProduct = blas::Dot
                 ( localHeight, &allReduceRecvBuffer[0], 1, 
                                a21_MC_STAR_Buffer, 1 );
-            F dotProduct;
-            mpi::AllReduce
-            ( &myDotProduct, &dotProduct, 1, mpi::SUM, g.ColComm() );
+            const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
             DistMatrix<F,MC,STAR> w21_MC_STAR(g);
@@ -683,7 +674,7 @@ void PanelL
             // Store w21[MC,* ]
             F scale = dotProduct*Conj(tau) / F(2);
             F* w21_MC_STAR_Buffer = w21_MC_STAR.Buffer();
-            for( int i=0; i<localHeight; ++i )
+            for( Int i=0; i<localHeight; ++i )
                 w21_MC_STAR_Buffer[i] = 
                     tau*( allReduceRecvBuffer[i]-scale*a21_MC_STAR_Buffer[i] );
 

@@ -14,7 +14,7 @@ namespace elem {
 
 template<typename R,class RealFunctor>
 inline void
-Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, int n )
+Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Egorov");
@@ -25,7 +25,7 @@ Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, int n )
 
 template<typename R,Distribution U,Distribution V,class RealFunctor>
 inline void
-Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, int n )
+Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Egorov");
@@ -41,11 +41,11 @@ MakeEgorov( Matrix<Complex<R> >& A, const RealFunctor& phase )
 #ifndef RELEASE
     CallStackEntry entry("MakeEgorov");
 #endif
-    const int m = A.Height();
-    const int n = A.Width();
-    for( int j=0; j<n; ++j )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const R theta = phase(i,j);
             const R realPart = cos(theta);
@@ -62,18 +62,18 @@ MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
 #ifndef RELEASE
     CallStackEntry entry("MakeEgorov");
 #endif
-    const int localHeight = A.LocalHeight();
-    const int localWidth = A.LocalWidth();
-    const int colShift = A.ColShift();
-    const int rowShift = A.RowShift();
-    const int colStride = A.ColStride();
-    const int rowStride = A.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = A.LocalHeight();
+    const Int localWidth = A.LocalWidth();
+    const Int colShift = A.ColShift();
+    const Int rowShift = A.RowShift();
+    const Int colStride = A.ColStride();
+    const Int rowStride = A.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             const R theta = phase(i,j);
             const R realPart = cos(theta);
             const R imagPart = sin(theta);

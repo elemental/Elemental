@@ -22,7 +22,7 @@ main( int argc, char* argv[] )
 
     try
     {
-        const int n = Input("--size","size of matrix",10);
+        const Int n = Input("--size","size of matrix",10);
         const bool display = Input("--display","display matrices?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
         // Create a circulant matrix
         DistMatrix<Complex<double> > A;
         std::vector<Complex<double> > a( n );
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
             a[j] = j;
         Circulant( A, a );
         if( display )
@@ -62,11 +62,11 @@ main( int argc, char* argv[] )
             Print( A, "A := F^H A F" );
 
         // Form the thresholded result
-        const int localHeight = A.LocalHeight();
-        const int localWidth = A.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
             {
                 const double absValue = Abs(A.GetLocal(iLocal,jLocal));
                 if( absValue < 1e-13 )

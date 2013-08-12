@@ -27,7 +27,7 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 #ifndef RELEASE
         const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
         if( XLength != YLength )
-            throw std::logic_error("Nonconformal Axpy");
+            LogicError("Nonconformal Axpy");
 #endif
         if( X.Width()==1 && Y.Width()==1 )
         {
@@ -55,11 +55,11 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
     {
 #ifndef RELEASE
         if( X.Height() != Y.Height() || X.Width() != Y.Width() )
-            throw std::logic_error("Nonconformal Axpy");
+            LogicError("Nonconformal Axpy");
 #endif
         if( X.Width() <= X.Height() )
         {
-            for( int j=0; j<X.Width(); ++j )
+            for( Int j=0; j<X.Width(); ++j )
             {
                 blas::Axpy
                 ( X.Height(), alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
@@ -67,7 +67,7 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
         }
         else
         {
-            for( int i=0; i<X.Height(); ++i )
+            for( Int i=0; i<X.Height(); ++i )
             {
                 blas::Axpy
                 ( X.Width(), alpha, X.LockedBuffer(i,0), X.LDim(),
@@ -91,7 +91,7 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
 #ifndef RELEASE
     CallStackEntry entry("Axpy");
     if( X.Grid() != Y.Grid() )
-        throw std::logic_error
+        LogicError
         ("X and Y must be distributed over the same grid");
 #endif
     if( X.ColAlignment() == Y.ColAlignment() &&

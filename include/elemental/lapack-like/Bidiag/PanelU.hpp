@@ -30,34 +30,34 @@ PanelU
   DistMatrix<F,MC,STAR>& AColPan_MC_STAR,
   DistMatrix<F,STAR,MR>& ARowPan_STAR_MR )
 {
-    const int panelSize = X.Width();
+    const Int panelSize = X.Width();
 #ifndef RELEASE
     CallStackEntry entry("bidiag::PanelU");
     if( A.Grid() != tP.Grid() || tP.Grid() != tQ.Grid() || 
         tQ.Grid() != X.Grid() || X.Grid() != Y.Grid() ||
         Y.Grid() != AColPan_MC_STAR.Grid() || 
         Y.Grid() != ARowPan_STAR_MR.Grid() )
-        throw std::logic_error("Grids must match");
+        LogicError("Grids must match");
     if( tP.Height() != panelSize || tP.Width() != 1 )
-        throw std::logic_error("tP was not the right size");
+        LogicError("tP was not the right size");
     if( tQ.Height() != panelSize || tQ.Width() != 1 )
-        throw std::logic_error("tQ was not the right size");
+        LogicError("tQ was not the right size");
     if( A.Height() < A.Width() )
-        throw std::logic_error("A must be at least as tall as it is wide");
+        LogicError("A must be at least as tall as it is wide");
     if( A.Height() != X.Height() )
-        throw std::logic_error("A and X must be the same height");
+        LogicError("A and X must be the same height");
     if( A.Width() != Y.Height() )
-        throw std::logic_error("Y must be the same height as A's width");
+        LogicError("Y must be the same height as A's width");
     if( X.Height() < panelSize )
-        throw std::logic_error("X must be a column panel");
+        LogicError("X must be a column panel");
     if( Y.Width() != panelSize )
-        throw std::logic_error("Y is the wrong width");
+        LogicError("Y is the wrong width");
     if( A.ColAlignment() != X.ColAlignment() || 
         A.RowAlignment() != X.RowAlignment() )
-        throw std::logic_error("A and X must be aligned");
+        LogicError("A and X must be aligned");
     if( A.ColAlignment() != Y.ColAlignment() ||
         A.RowAlignment() != Y.RowAlignment() )
-        throw std::logic_error("A and Y must be aligned");
+        LogicError("A and Y must be aligned");
 #endif
     typedef BASE(F) R;
     const Grid& g = A.Grid();
@@ -322,11 +322,11 @@ PanelU
         Conjugate( a12 );
         if( thisIsMyRow )
         {
-            const int localWidth = a12.LocalWidth();
+            const Int localWidth = a12.LocalWidth();
             F* a12Buffer = a12.Buffer();
             const F* q21Buffer = q21_MR_MC.LockedBuffer();
-            const int a12LDim = a12.LDim();
-            for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            const Int a12LDim = a12.LDim();
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
                 a12Buffer[jLoc*a12LDim] -= q21Buffer[jLoc];
         }
 

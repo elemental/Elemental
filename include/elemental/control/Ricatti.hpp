@@ -36,8 +36,8 @@ Ricatti( Matrix<F>& W, Matrix<F>& X )
 #ifndef RELEASE
     CallStackEntry cse("Ricatti");
 #endif
-    const int numIts = sign::Newton( W );
-    const int n = W.Height()/2;
+    const Int numIts = sign::Newton( W );
+    const Int n = W.Height()/2;
     Matrix<F> WTL, WTR,
               WBL, WBR;
     PartitionDownDiagonal
@@ -67,8 +67,8 @@ Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
     CallStackEntry cse("Ricatti");
 #endif
     const Grid& g = W.Grid();
-    const int numIts = sign::Newton( W );
-    const int n = W.Height()/2;
+    const Int numIts = sign::Newton( W );
+    const Int n = W.Height()/2;
     DistMatrix<F> WTL(g), WTR(g),
                   WBL(g), WBR(g);
     PartitionDownDiagonal
@@ -99,15 +99,15 @@ Ricatti
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( K.Height() != K.Width() )
-        throw std::logic_error("K must be square");
+        LogicError("K must be square");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( A.Height() != K.Height() || A.Height() != L.Height() )
-        throw std::logic_error("A, K, and L must be the same size");
+        LogicError("A, K, and L must be the same size");
 #endif
-    const int n = A.Height();
+    const Int n = A.Height();
     Matrix<F> W, WTL, WTR,
                  WBL, WBR;
     Zeros( W, 2*n, 2*n );
@@ -133,18 +133,18 @@ Ricatti
 #ifndef RELEASE
     CallStackEntry cse("Sylvester");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( K.Height() != K.Width() )
-        throw std::logic_error("K must be square");
+        LogicError("K must be square");
     if( L.Height() != L.Width() )
-        throw std::logic_error("L must be square");
+        LogicError("L must be square");
     if( A.Height() != K.Height() || A.Height() != L.Height() )
-        throw std::logic_error("A, K, and L must be the same size");
+        LogicError("A, K, and L must be the same size");
     if( A.Grid() != K.Grid() || K.Grid() != L.Grid() )
-        throw std::logic_error("A, K, and L must have the same grid");
+        LogicError("A, K, and L must have the same grid");
 #endif
     const Grid& g = A.Grid();
-    const int n = A.Height();
+    const Int n = A.Height();
     DistMatrix<F> W(g), WTL(g), WTR(g),
                         WBL(g), WBR(g);
     Zeros( W, 2*n, 2*n );

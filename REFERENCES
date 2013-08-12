@@ -38,7 +38,7 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
 
     NOTE: This paper introduced the idea of using a QR decomposition as a first
           step in the SVD of a non-square matrix in order to accelerate the 
-          computation.
+          computation (well, an earlier Golub paper mentioned it as well).
 
 [ ] Jiawei Chiu and Laurent Demanet, "Sublinear randomized algorithms for 
     skeleton decompositions", Technical Report, MIT, 2011.
@@ -46,6 +46,17 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
 
     NOTE: Contains a thorough analysis of many randomized algorithms for 
           (pseudoskeleton) decompositions using RRQR factorizations.
+
+[ ] James Demmel, Ioana Dumitriu, and Olga Holtz, 
+    "Fast Linear Algebra is Stable", Numer. Math., Vol. 108, no. 1, pp. 59--91,
+    2007.
+
+    NOTE: Modern reference for divide and conquer schemes for the nonsymmetric
+          eigenvalue problem. For instance, this paper suggests multiplication
+          of the rank-deficient projector against a Haar matrix as a means of
+          computing the rank-revealing factorization. This was discussed along
+          the way of the main goal of the paper: showing that fast matrix-matrix
+          multiplication can be extended to the major linear algebra operations.
 
 [ ] Zlatko Drmac and Zvonimir Bujanovic, "On the failure of rank revealing QR
     factorization software -- a case study", LAPACK Working Note 176, 2006.
@@ -127,3 +138,11 @@ NOTE: This list is new will hopefully grow rapidly. I would like to move towards
 
     NOTE: Contains the algorithm used for Elemental's square-grid 
           tridiagonalization.
+
+[ ] G. W. Stewart, "The efficient generation of random orthogonal matrices with
+    an application to condition estimators, SIAM J. Numer. Anal., Vol. 17,
+    pp. 403--409, 1980.
+
+    NOTE: Useful for randomized rank-revealing factorizations of rank-deficient
+          matrices, e.g., within the spectral divide-and-conquer scheme 
+          described in "Fast Linear Algebra is Stable".

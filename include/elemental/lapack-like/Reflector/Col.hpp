@@ -47,22 +47,21 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
 #ifndef RELEASE
     CallStackEntry entry("reflector::Col");
     if( chi.Grid() != x.Grid() )
-        throw std::logic_error
-        ("chi and x must be distributed over the same grid");
+        LogicError("chi and x must be distributed over the same grid");
     if( chi.Height() != 1 || chi.Width() != 1 )
-        throw std::logic_error("chi must be a scalar");
+        LogicError("chi must be a scalar");
     if( x.Width() != 1 )
-        throw std::logic_error("x must be a column vector");
+        LogicError("x must be a column vector");
     if( chi.Grid().Col() != chi.RowAlignment() )
-        throw std::logic_error("Reflecting with incorrect column of processes");
+        LogicError("Reflecting with incorrect column of processes");
     if( x.Grid().Col() != x.RowAlignment() )
-        throw std::logic_error("Reflecting with incorrect column of processes");
+        LogicError("Reflecting with incorrect column of processes");
 #endif
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.ColComm();
-    const int gridHeight = grid.Height();
-    const int gridRow = grid.Row();
-    const int colAlignment = chi.ColAlignment();
+    const Int gridHeight = grid.Height();
+    const Int gridRow = grid.Row();
+    const Int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -79,7 +78,7 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
     R alpha;
     if( gridRow == colAlignment )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( &alpha, 1, colAlignment, colComm );
+    mpi::Broadcast( alpha, colAlignment, colComm );
 
     R beta;
     if( alpha <= 0 )
@@ -91,7 +90,7 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -115,7 +114,7 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
     R tau = (beta-alpha)/beta;
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridRow == colAlignment )
         chi.SetLocal(0,0,beta);
@@ -130,23 +129,22 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 #ifndef RELEASE
     CallStackEntry entry("reflector::Col");
     if( chi.Grid() != x.Grid() )
-        throw std::logic_error
-        ("chi and x must be distributed over the same grid");
+        LogicError("chi and x must be distributed over the same grid");
     if( chi.Height() != 1 || chi.Width() != 1 )
-        throw std::logic_error("chi must be a scalar");
+        LogicError("chi must be a scalar");
     if( x.Width() != 1 )
-        throw std::logic_error("x must be a column vector");
+        LogicError("x must be a column vector");
     if( chi.Grid().Col() != chi.RowAlignment() )
-        throw std::logic_error("Reflecting with incorrect column of processes");
+        LogicError("Reflecting with incorrect column of processes");
     if( x.Grid().Col() != x.RowAlignment() )
-        throw std::logic_error("Reflecting with incorrect column of processes");
+        LogicError("Reflecting with incorrect column of processes");
 #endif
     typedef Complex<R> C;
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.ColComm();
-    const int gridHeight = grid.Height();
-    const int gridRow = grid.Row();
-    const int colAlignment = chi.ColAlignment();
+    const Int gridHeight = grid.Height();
+    const Int gridRow = grid.Row();
+    const Int colAlignment = chi.ColAlignment();
 
     std::vector<R> localNorms(gridHeight);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -156,7 +154,7 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     C alpha;
     if( gridRow == colAlignment )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( &alpha, 1, colAlignment, colComm );
+    mpi::Broadcast( alpha, colAlignment, colComm );
 
     if( norm == R(0) && alpha.imag == R(0) )
     {
@@ -175,7 +173,7 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -199,7 +197,7 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     if( gridRow == colAlignment )
         chi.SetLocal(0,0,beta);

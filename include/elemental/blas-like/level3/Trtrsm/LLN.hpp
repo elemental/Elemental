@@ -26,29 +26,29 @@ TrtrsmLLNUnb( UnitOrNonUnit diag, F alpha, const Matrix<F>& L, Matrix<F>& X )
     CallStackEntry entry("internal::TrtrsmLLNUnb");
 #endif
     const bool isUnit = ( diag==UNIT );
-    const int n = L.Height();
-    const int LLDim = L.LDim();
-    const int XLDim = X.LDim();
+    const Int n = L.Height();
+    const Int LLDim = L.LDim();
+    const Int XLDim = X.LDim();
     const F* LBuffer = L.LockedBuffer();
     F* XBuffer = X.Buffer();
 
     // X := alpha X
     if( alpha != F(1) )
-        for( int j=0; j<n; ++j ) 
-            for( int i=j; i<n; ++i )
+        for( Int j=0; j<n; ++j ) 
+            for( Int i=j; i<n; ++i )
                 XBuffer[i+j*XLDim] *= alpha;
 
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         if( !isUnit )
         {
             const F lambda11 = LBuffer[i+i*LLDim];
-            for( int j=0; j<i; ++j )
+            for( Int j=0; j<i; ++j )
                 XBuffer[i+j*XLDim] /= lambda11;
             XBuffer[i+i*XLDim] /= lambda11;
         }
 
-        const int l21Height = n - (i+1);
+        const Int l21Height = n - (i+1);
         const F* l21 = &LBuffer[(i+1)+i*LLDim];
         const F* x1L = &XBuffer[i];
         F* X2L = &XBuffer[i+1];

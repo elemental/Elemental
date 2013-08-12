@@ -14,41 +14,41 @@ namespace elem {
 
 template<typename F> 
 inline void
-Lehmer( Matrix<F>& L, int n )
+Lehmer( Matrix<F>& L, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lehmer");
 #endif
     L.ResizeTo( n, n );
-    for( int j=0; j<n; ++j )
+    for( Int j=0; j<n; ++j )
     {
-        for( int i=0; i<j; ++i )
+        for( Int i=0; i<j; ++i )
             L.Set( i, j, F(i+1)/F(j+1) );
-        for( int i=j; i<n; ++i )
+        for( Int i=j; i<n; ++i )
             L.Set( i, j, F(j+1)/F(i+1) );
     }
 }
 
 template<typename F,Distribution U,Distribution V>
 inline void
-Lehmer( DistMatrix<F,U,V>& L, int n )
+Lehmer( DistMatrix<F,U,V>& L, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Lehmer");
 #endif
     L.ResizeTo( n, n );
-    const int localHeight = L.LocalHeight();
-    const int localWidth = L.LocalWidth();
-    const int colShift = L.ColShift();
-    const int rowShift = L.RowShift();
-    const int colStride = L.ColStride();
-    const int rowStride = L.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = L.LocalHeight();
+    const Int localWidth = L.LocalWidth();
+    const Int colShift = L.ColShift();
+    const Int rowShift = L.RowShift();
+    const Int colStride = L.ColStride();
+    const Int rowStride = L.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i < j )
                 L.SetLocal( iLoc, jLoc, F(i+1)/F(j+1) );
             else

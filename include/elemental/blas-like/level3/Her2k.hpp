@@ -35,7 +35,7 @@ Her2k
 #ifndef RELEASE
     CallStackEntry entry("Her2k");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
 }
@@ -63,7 +63,7 @@ Her2k
 #ifndef RELEASE
     CallStackEntry entry("Her2k");
 #endif
-    const int n = ( orientation==NORMAL ? A.Height() : A.Width() );
+    const Int n = ( orientation==NORMAL ? A.Height() : A.Width() );
     Zeros( C, n, n );
     Syr2k( uplo, orientation, alpha, A, B, T(0), C, true );
 }

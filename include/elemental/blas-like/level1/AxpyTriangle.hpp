@@ -20,17 +20,17 @@ AxpyTriangle( UpperOrLower uplo, T alpha, const Matrix<T>& X, Matrix<T>& Y )
     CallStackEntry entry("AxpyTriangle");
     if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
         X.Height() != Y.Height() )
-        throw std::logic_error("Nonconformal AxpyTriangle");
+        LogicError("Nonconformal AxpyTriangle");
 #endif
     if( uplo == UPPER )
     {
-        for( int j=0; j<X.Width(); ++j )
+        for( Int j=0; j<X.Width(); ++j )
             blas::Axpy( j+1, alpha, X.LockedBuffer(0,j), 1, Y.Buffer(0,j), 1 );
     }
     else
     {
-        const int n = X.Height();
-        for( int j=0; j<X.Width(); ++j )
+        const Int n = X.Height();
+        for( Int j=0; j<X.Width(); ++j )
             blas::Axpy( n-j, alpha, X.LockedBuffer(j,j), 1, Y.Buffer(j,j), 1 );
     }
 }
@@ -52,31 +52,31 @@ AxpyTriangle
 #ifndef RELEASE
     CallStackEntry entry("AxpyTriangle");
     if( X.Grid() != Y.Grid() )
-        throw std::logic_error
+        LogicError
         ("X and Y must be distributed over the same grid");
     if( X.Height() != X.Width() || Y.Height() != Y.Width() || 
         X.Height() != Y.Height() )
-        throw std::logic_error("Nonconformal AxpyTriangle");
+        LogicError("Nonconformal AxpyTriangle");
 #endif
     if( X.ColAlignment() == Y.ColAlignment() &&
         X.RowAlignment() == Y.RowAlignment() )
     {
-        const int localHeight = X.LocalHeight();
-        const int localWidth = X.LocalWidth();
-        const int colShift = X.ColShift();
-        const int rowShift = X.RowShift();
-        const int colStride = X.ColStride();
-        const int rowStride = X.RowStride();
+        const Int localHeight = X.LocalHeight();
+        const Int localWidth = X.LocalWidth();
+        const Int colShift = X.ColShift();
+        const Int rowShift = X.RowShift();
+        const Int colStride = X.ColStride();
+        const Int rowStride = X.RowStride();
         const T* XBuffer = X.LockedBuffer();
         T* YBuffer = Y.Buffer();
-        const int XLDim = X.LDim();
-        const int YLDim = Y.LDim();
+        const Int XLDim = X.LDim();
+        const Int YLDim = Y.LDim();
         if( uplo == UPPER )
         {
-            for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLoc*rowStride;        
-                const int localHeightAbove = Length( j+1, colShift, colStride );
+                const Int j = rowShift + jLoc*rowStride;        
+                const Int localHeightAbove = Length( j+1, colShift, colStride );
                 blas::Axpy
                 ( localHeightAbove, alpha, 
                   &XBuffer[jLoc*XLDim], 1, &YBuffer[jLoc*YLDim], 1 );
@@ -84,11 +84,11 @@ AxpyTriangle
         }
         else
         {
-            for( int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
-                const int j = rowShift + jLoc*rowStride;
-                const int localHeightAbove = Length( j, colShift, colStride );
-                const int localHeightBelow = localHeight - localHeightAbove;
+                const Int j = rowShift + jLoc*rowStride;
+                const Int localHeightAbove = Length( j, colShift, colStride );
+                const Int localHeightBelow = localHeight - localHeightAbove;
                 blas::Axpy
                 ( localHeightBelow, alpha, 
                   &XBuffer[localHeightAbove+jLoc*XLDim], 1,

@@ -30,13 +30,13 @@ GemvT
 #ifndef RELEASE
     CallStackEntry entry("internal::GemvT");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,x,y} must be distributed over the same grid");
     if( ( x.Width() != 1 && x.Height() != 1 ) ||
         ( y.Width() != 1 && y.Height() != 1 )   )
-        throw std::logic_error("GemvT expects x and y to be vectors");
-    const int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
-    const int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
+        LogicError("GemvT expects x and y to be vectors");
+    const Int xLength = ( x.Width()==1 ? x.Height() : x.Width() );
+    const Int yLength = ( y.Width()==1 ? y.Height() : y.Width() );
     if( A.Height() != xLength || A.Width() != yLength )
     {
         std::ostringstream msg;
@@ -44,7 +44,7 @@ GemvT
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();
@@ -145,10 +145,10 @@ GemvT
 #ifndef RELEASE
     CallStackEntry entry("internal::GemvT");
     if( A.Grid() != x.Grid() || x.Grid() != y.Grid() )
-        throw std::logic_error
+        LogicError
         ("{A,x,y} must be distributed over the same grid");
     if( x.Width() != 1 || y.Width() != 1 )
-        throw std::logic_error("GemvT expects x and y to be column vectors");
+        LogicError("GemvT expects x and y to be column vectors");
     if( A.Height() != x.Height() || A.Width() != y.Height() )
     {
         std::ostringstream msg;
@@ -156,7 +156,7 @@ GemvT
             << "  A ~ " << A.Height() << " x " << A.Width() << "\n"
             << "  x ~ " << x.Height() << " x " << x.Width() << "\n"
             << "  y ~ " << y.Height() << " x " << y.Width() << "\n";
-        throw std::logic_error( msg.str() );
+        LogicError( msg.str() );
     }
 #endif
     const Grid& g = A.Grid();

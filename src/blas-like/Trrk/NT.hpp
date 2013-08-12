@@ -27,9 +27,9 @@ void TrrkNT
         A.Height() != C.Height() || 
         B.Height() != C.Width() ||
         A.Width() != B.Width() )
-        throw std::logic_error("Nonconformal TrrkNT");
+        LogicError("Nonconformal TrrkNT");
     if( orientationOfB == NORMAL )
-        throw std::logic_error("Orientation must be ADJOINT or TRANSPOSE");
+        LogicError("Orientation must be ADJOINT or TRANSPOSE");
 #endif
     const Grid& g = C.Grid();
 

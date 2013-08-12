@@ -30,7 +30,7 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int n = Input("--size","size of Hermitian matrix",100);
+        const Int n = Input("--size","size of Hermitian matrix",100);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -44,20 +44,20 @@ main( int argc, char* argv[] )
         // the global matrix is Hermitian. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
         //
-        const int colShift = H.ColShift(); // first row we own
-        const int rowShift = H.RowShift(); // first col we own
-        const int colStride = H.ColStride();
-        const int rowStride = H.RowStride();
-        const int localHeight = H.LocalHeight();
-        const int localWidth = H.LocalWidth();
-        for( int jLocal=0; jLocal<localWidth; ++jLocal )
+        const Int colShift = H.ColShift(); // first row we own
+        const Int rowShift = H.RowShift(); // first col we own
+        const Int colStride = H.ColStride();
+        const Int rowStride = H.RowStride();
+        const Int localHeight = H.LocalHeight();
+        const Int localWidth = H.LocalWidth();
+        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
         {
-            for( int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
             {
                 // Our process owns the rows colShift:colStride:n,
                 //           and the columns rowShift:rowStride:n
-                const int i = colShift + iLocal*colStride;
-                const int j = rowShift + jLocal*rowStride;
+                const Int i = colShift + iLocal*colStride;
+                const Int j = rowShift + jLocal*rowStride;
                 H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
             }
         }

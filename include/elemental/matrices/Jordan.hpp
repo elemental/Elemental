@@ -16,7 +16,7 @@ namespace elem {
 
 template<typename T>
 inline void
-Jordan( Matrix<T>& J, int n, T lambda )
+Jordan( Matrix<T>& J, Int n, T lambda )
 {
 #ifndef RELEASE
     CallStackEntry entry("Jordan");
@@ -27,7 +27,7 @@ Jordan( Matrix<T>& J, int n, T lambda )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Jordan( DistMatrix<T,U,V>& J, int n, T lambda )
+Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
 {
 #ifndef RELEASE
     CallStackEntry entry("Jordan");
@@ -44,9 +44,9 @@ MakeJordan( Matrix<T>& J, T lambda )
     CallStackEntry entry("MakeJordan");
 #endif
     Zero( J );
-    const int m = J.Height();
-    const int n = J.Width();
-    for( int j=0; j<std::min(m,n); ++j )
+    const Int m = J.Height();
+    const Int n = J.Width();
+    for( Int j=0; j<std::min(m,n); ++j )
     {
         J.Set( j, j, lambda );
         if( j != 0 )
@@ -63,18 +63,18 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
 #endif
     Zero( J.Matrix() );
 
-    const int localHeight = J.LocalHeight();
-    const int localWidth = J.LocalWidth();
-    const int colShift = J.ColShift();
-    const int rowShift = J.RowShift();
-    const int colStride = J.ColStride();
-    const int rowStride = J.RowStride();
-    for( int jLoc=0; jLoc<localWidth; ++jLoc )
+    const Int localHeight = J.LocalHeight();
+    const Int localWidth = J.LocalWidth();
+    const Int colShift = J.ColShift();
+    const Int rowShift = J.RowShift();
+    const Int colStride = J.ColStride();
+    const Int rowStride = J.RowStride();
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const int j = rowShift + jLoc*rowStride;
-        for( int iLoc=0; iLoc<localHeight; ++iLoc )
+        const Int j = rowShift + jLoc*rowStride;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const int i = colShift + iLoc*colStride;
+            const Int i = colShift + iLoc*colStride;
             if( i == j )
                 J.SetLocal( iLoc, jLoc, lambda );
             else if( i == j-1 )

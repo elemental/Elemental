@@ -36,7 +36,7 @@ NewtonStep
 #endif
     // XNew := inv(X) A
     XTmp = X;
-    Matrix<int> p;
+    Matrix<Int> p;
     LU( XTmp, p );
     XNew = A;
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
@@ -57,7 +57,7 @@ NewtonStep
 #endif
     // XNew := inv(X) A
     XTmp = X;
-    Matrix<int> p;
+    Matrix<Int> p;
     LU( XTmp, p );
     XNew = A;
     lu::SolveAfter( NORMAL, XTmp, p, XNew );
@@ -69,7 +69,7 @@ NewtonStep
 
 template<typename F>
 inline int
-Newton( Matrix<F>& A, int maxIts=100, BASE(F) tol=0 )
+Newton( Matrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("square_root::Newton");
@@ -81,7 +81,7 @@ Newton( Matrix<F>& A, int maxIts=100, BASE(F) tol=0 )
     if( tol == R(0) )
         tol = A.Height()*lapack::MachineEpsilon<R>();
 
-    int numIts=0;
+    Int numIts=0;
     while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
@@ -104,7 +104,7 @@ Newton( Matrix<F>& A, int maxIts=100, BASE(F) tol=0 )
 
 template<typename F>
 inline int
-Newton( DistMatrix<F>& A, int maxIts=100, BASE(F) tol=0 )
+Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("square_root::Newton");
@@ -116,7 +116,7 @@ Newton( DistMatrix<F>& A, int maxIts=100, BASE(F) tol=0 )
     if( tol == R(0) )
         tol = A.Height()*lapack::MachineEpsilon<R>();
 
-    int numIts=0;
+    Int numIts=0;
     while( numIts < maxIts )
     {
         // Overwrite XNew with the new iterate
@@ -182,8 +182,8 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
 
     // Compute the smallest eigenvalue of A
     R minEig = twoNorm;
-    const int n = w.Height();
-    for( int i=0; i<n; ++i )
+    const Int n = w.Height();
+    for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
         minEig = std::min(minEig,omega);
@@ -198,7 +198,7 @@ HPSDSquareRoot( UpperOrLower uplo, Matrix<F>& A )
         throw NonHPSDMatrixException();
 
     // Overwrite the eigenvalues with f(w)
-    for( int i=0; i<n; ++i )
+    for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
         if( omega > R(0) )
@@ -232,8 +232,8 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
 
     // Compute the smallest eigenvalue of A
     R minLocalEig = twoNorm;
-    const int numLocalEigs = w.LocalHeight();
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    const Int numLocalEigs = w.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
         minLocalEig = std::min(minLocalEig,omega);
@@ -242,7 +242,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
     mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
 
     // Set the tolerance equal to n ||A||_2 eps
-    const int n = A.Height();
+    const Int n = A.Height();
     const R eps = lapack::MachineEpsilon<R>();
     const R tolerance = n*twoNorm*eps;
 
@@ -251,7 +251,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
         throw NonHPSDMatrixException();
 
     // Overwrite the eigenvalues with f(w)
-    for( int iLoc=0; iLoc<numLocalEigs; ++iLoc )
+    for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
         if( omega > R(0) )

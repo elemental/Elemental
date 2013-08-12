@@ -28,11 +28,11 @@ Spy( const Matrix<T>& A, std::string title="Default", BASE(T) tol=0 )
     CallStackEntry entry("Spy");
 #endif
     // Convert A to double-precision since Qt's MOC does not support templates
-    const int m = A.Height();
-    const int n = A.Width();
-    Matrix<int>* ASpy = new Matrix<int>( m, n );
-    for( int j=0; j<n; ++j )
-        for( int i=0; i<m; ++i )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    Matrix<Int>* ASpy = new Matrix<Int>( m, n );
+    for( Int j=0; j<n; ++j )
+        for( Int i=0; i<m; ++i )
             ASpy->Set( i, j, ( Abs(A.Get(i,j))>tol ? 1 : 0 ) );
 
     QString qTitle = QString::fromStdString( title );
@@ -59,7 +59,8 @@ Spy( const DistMatrix<T,U,V>& A, std::string title="Default", BASE(T) tol=0 )
 // If already in [* ,* ] or [o ,o ] distributions, no copy is needed
 template<typename T>
 inline void
-Spy( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
+Spy
+( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");
@@ -69,7 +70,8 @@ Spy( const DistMatrix<T,STAR,STAR>& A, std::string title="Default", BASE(T) tol=
 }
 template<typename T>
 inline void
-Spy( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
+Spy
+( const DistMatrix<T,CIRC,CIRC>& A, std::string title="Default", BASE(T) tol=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("Spy");

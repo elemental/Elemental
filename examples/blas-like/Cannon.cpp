@@ -20,9 +20,9 @@ main( int argc, char* argv[] )
 
     try 
     {
-        const int m = Input("--m","height of C",1000);
-        const int n = Input("--n","width of C",1000);
-        const int k = Input("--k","inner dimension",1000);
+        const Int m = Input("--m","height of C",1000);
+        const Int n = Input("--n","width of C",1000);
+        const Int k = Input("--k","inner dimension",1000);
         const double alpha = Input("--alpha","scale of A B",2.);
         const double beta = Input("--beta","scale of C",3.);
         const bool print = Input("--print","print matrices?",false);

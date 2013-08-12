@@ -19,7 +19,7 @@
 namespace elem {
 
 template<typename F>
-inline int
+inline Int
 SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
@@ -40,19 +40,19 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
 
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
-inline int
-SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau, int numSteps )
+inline Int
+SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("SingularValueSoftThreshold");
     if( numSteps > std::min(A.Height(),A.Width()) )
-        throw std::logic_error("number of steps is too large");
+        LogicError("number of steps is too large");
 #endif
     typedef BASE(F) Real;
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     Matrix<F> ACopy( A ), t;
-    Matrix<int> p;
+    Matrix<Int> p;
     qr::BusingerGolub( ACopy, t, p, numSteps );
     Matrix<F> ACopyUpper;
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );
@@ -75,7 +75,7 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau, int numSteps )
 }
 
 template<typename F>
-inline int
+inline Int
 SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
@@ -96,21 +96,21 @@ SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
 
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
-inline int
-SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau, int numSteps )
+inline Int
+SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
     CallStackEntry entry("SingularValueSoftThreshold");
     if( numSteps > std::min(A.Height(),A.Width()) )
-        throw std::logic_error("number of steps is too large");
+        LogicError("number of steps is too large");
 #endif
     typedef BASE(F) Real;
-    const int m = A.Height();
-    const int n = A.Width();
+    const Int m = A.Height();
+    const Int n = A.Width();
     const Grid& g = A.Grid();
     DistMatrix<F> ACopy( A );
     DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<int,VR,STAR> p(g);
+    DistMatrix<Int,VR,STAR> p(g);
     qr::BusingerGolub( ACopy, t, p, numSteps );
     DistMatrix<F> ACopyUpper(g);
     LockedView( ACopyUpper, ACopy, 0, 0, numSteps, n );

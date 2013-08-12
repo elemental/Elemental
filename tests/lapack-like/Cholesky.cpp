@@ -26,7 +26,7 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int m = AOrig.Height();
+    const Int m = AOrig.Height();
 
     DistMatrix<F> X(g), Y(g);
     Uniform( X, m, 100 );
@@ -91,7 +91,7 @@ void TestCorrectness
 template<typename F> 
 void TestCholesky
 ( bool testCorrectness, bool printMatrices, 
-  UpperOrLower uplo, int m, const Grid& g )
+  UpperOrLower uplo, Int m, const Grid& g )
 {
     DistMatrix<F> A(g), AOrig(g);
 
@@ -139,16 +139,16 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","process grid height",0);
+        Int r = Input("--gridHeight","process grid height",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
-        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool printMatrices = Input("--print","print matrices?",false);

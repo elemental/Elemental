@@ -16,31 +16,31 @@ namespace elem {
 
 template<typename T>
 inline void
-Hanowa( Matrix<T>& A, int n, T mu )
+Hanowa( Matrix<T>& A, Int n, T mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("Hanowa");
 #endif
     if( n % 2 != 0 )
-        throw std::logic_error("n must be an even integer");
+        LogicError("n must be an even integer");
     A.ResizeTo( n, n );
-    const int m = n/2;
+    const Int m = n/2;
     std::vector<T> d(m);
     Matrix<T> ABlock;
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = mu;
     View( ABlock, A, 0, 0, m, m );
     Diagonal( ABlock, d );
     View( ABlock, A, m, m, m, m );
     Diagonal( ABlock, d );
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = -(j+1);
     View( ABlock, A, 0, m, m, m );
     Diagonal( ABlock, d );
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = j+1;
     View( ABlock, A, m, 0, m, m );
     Diagonal( ABlock, d );
@@ -48,31 +48,31 @@ Hanowa( Matrix<T>& A, int n, T mu )
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Hanowa( DistMatrix<T,U,V>& A, int n, T mu )
+Hanowa( DistMatrix<T,U,V>& A, Int n, T mu )
 {
 #ifndef RELEASE
     CallStackEntry entry("Hanowa");
 #endif
     if( n % 2 != 0 )
-        throw std::logic_error("n must be an even integer");
+        LogicError("n must be an even integer");
     A.ResizeTo( n, n );
-    const int m = n/2;
+    const Int m = n/2;
     std::vector<T> d(m);
     DistMatrix<T,U,V> ABlock( A.Grid() );
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = mu;
     View( ABlock, A, 0, 0, m, m );
     Diagonal( ABlock, d );
     View( ABlock, A, m, m, m, m );
     Diagonal( ABlock, d );
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = -(j+1);
     View( ABlock, A, 0, m, m, m );
     Diagonal( ABlock, d );
 
-    for( int j=0; j<m; ++j )
+    for( Int j=0; j<m; ++j )
         d[j] = j+1;
     View( ABlock, A, m, 0, m, m );
     Diagonal( ABlock, d );

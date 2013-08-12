@@ -67,7 +67,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -89,7 +89,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     R tau = (beta-alpha) / beta;
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     chi.Set(0,0,beta);
     return tau;
@@ -97,7 +97,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
 
 template<typename R>
 inline R
-Reflector( R& chi, int m, R* x, int incx )
+Reflector( R& chi, Int m, R* x, Int incx )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
@@ -121,7 +121,7 @@ Reflector( R& chi, int m, R* x, int incx )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count=0;
+    Int count=0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -143,7 +143,7 @@ Reflector( R& chi, int m, R* x, int incx )
     R tau = (beta-alpha) / beta;
     blas::Scal( m, one/(alpha-beta), x, incx );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     chi = beta;
     return tau;
@@ -195,7 +195,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -217,7 +217,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     Scale( one/(alpha-beta), x );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     chi.Set(0,0,beta);
     return tau;
@@ -225,7 +225,7 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
 
 template<typename R>
 inline Complex<R>
-Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
+Reflector( Complex<R>& chi, Int m, Complex<R>* x, Int incx )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
@@ -251,7 +251,7 @@ Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
     const R safeMin = lapack::MachineSafeMin<R>();
     const R epsilon = lapack::MachineEpsilon<R>();
     const R safeInv = safeMin/epsilon;
-    int count = 0;
+    Int count = 0;
     if( Abs(beta) < safeInv )
     {
         R invOfSafeInv = one/safeInv;
@@ -273,7 +273,7 @@ Reflector( Complex<R>& chi, int m, Complex<R>* x, int incx )
     C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
     blas::Scal( m, one/(alpha-beta), x, incx );
 
-    for( int j=0; j<count; ++j )
+    for( Int j=0; j<count; ++j )
         beta *= safeInv;
     chi = beta;
 
@@ -287,12 +287,11 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
     if( chi.Grid() != x.Grid() )
-        throw std::logic_error
-        ("chi and x must be distributed over the same grid");
+        LogicError("chi and x must be distributed over the same grid");
     if( chi.Height() != 1 || chi.Width() != 1 )
-        throw std::logic_error("chi must be a scalar");
+        LogicError("chi must be a scalar");
     if( x.Height() != 1 && x.Width() != 1 )
-        throw std::logic_error("x must be a vector");
+        LogicError("x must be a vector");
 #endif
     const Grid& g = x.Grid();
     F tau;
@@ -300,13 +299,13 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
     {
         if( g.Col() == x.RowAlignment() )
             tau = reflector::Col( chi, x );
-        mpi::Broadcast( &tau, 1, x.RowAlignment(), g.RowComm() );
+        mpi::Broadcast( tau, x.RowAlignment(), g.RowComm() );
     }
     else
     {
         if( g.Row() == x.ColAlignment() )
             tau = reflector::Row( chi, x );
-        mpi::Broadcast( &tau, 1, x.ColAlignment(), g.ColComm() );
+        mpi::Broadcast( tau, x.ColAlignment(), g.ColComm() );
     }
     return tau;
 }

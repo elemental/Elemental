@@ -32,8 +32,8 @@ void TestCorrectness
 {
     typedef BASE(F) R;
     const Grid& g = A.Grid();
-    const int n = Z.Height();
-    const int k = Z.Width();
+    const Int n = Z.Height();
+    const Int k = Z.Width();
 
     if( g.Rank() == 0 )
     {
@@ -65,10 +65,10 @@ void TestCorrectness
     Zeros( X, n, k );
     Hemm( LEFT, uplo, F(1), AOrig, Z, F(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
-    for( int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
+    for( Int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
     {
         const R omega = w_MR_STAR.GetLocal(jLocal,0);
-        for( int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
+        for( Int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
         {
             const F chi = X.GetLocal(iLocal,jLocal);
             const F zeta = Z.GetLocal(iLocal,jLocal);
@@ -100,8 +100,8 @@ void TestCorrectness
 template<typename F>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
-  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, int m, 
-  BASE(F) vl, BASE(F) vu, int il, int iu, const Grid& g )
+  bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
+  BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
 {
     typedef BASE(F) R;
     DistMatrix<F> A(g), AOrig(g), Z(g);
@@ -172,28 +172,28 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--gridHeight","height of process grid",0);
+        Int r = Input("--gridHeight","height of process grid",0);
         const bool onlyEigvals = Input
             ("--onlyEigvals","only compute eigenvalues?",false);
         const char range = Input
             ("--range",
              "range of eigenpairs: 'A' for all, 'I' for index range, "
              "'V' for value range",'A');
-        const int il = Input("--il","lower bound of index range",0);
-        const int iu = Input("--iu","upper bound of index range",100);
+        const Int il = Input("--il","lower bound of index range",0);
+        const Int iu = Input("--iu","upper bound of index range",100);
         const double vl = Input("--vl","lower bound of value range",0.);
         const double vu = Input("--vu","upper bound of value range",100.);
         const bool clustered = Input
             ("--cluster","force clustered eigenvalues?",false);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
-        const int m = Input("--height","height of matrix",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
-        const int nbLocal = Input("--nbLocal","local blocksize",32);
+        const Int m = Input("--height","height of matrix",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int nbLocal = Input("--nbLocal","local blocksize",32);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
@@ -208,7 +208,7 @@ main( int argc, char* argv[] )
         SetLocalSymvBlocksize<double>( nbLocal );
         SetLocalSymvBlocksize<Complex<double> >( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
-            throw logic_error("'range' must be 'A', 'I', or 'V'");
+            LogicError("'range' must be 'A', 'I', or 'V'");
         if( onlyEigvals && testCorrectness && commRank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
         ComplainIfDebug();

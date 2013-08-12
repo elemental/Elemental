@@ -16,7 +16,7 @@ using namespace elem;
 template<typename T> 
 void TestGemm
 ( bool print, Orientation orientA, Orientation orientB,
-  int m, int n, int k, T alpha, T beta, const Grid& g )
+  Int m, Int n, Int k, T alpha, T beta, const Grid& g )
 {
     double startTime, runTime, realGFlops, gFlops;
     DistMatrix<T> A(g), B(g), C(g);
@@ -209,18 +209,18 @@ main( int argc, char* argv[] )
 {
     Initialize( argc, argv );
     mpi::Comm comm = mpi::COMM_WORLD;
-    const int commRank = mpi::CommRank( comm );
-    const int commSize = mpi::CommSize( comm );
+    const Int commRank = mpi::CommRank( comm );
+    const Int commSize = mpi::CommSize( comm );
 
     try
     {
-        int r = Input("--r","height of process grid",0);
+        Int r = Input("--r","height of process grid",0);
         const char transA = Input("--transA","orientation of A: N/T/C",'N');
         const char transB = Input("--transB","orientation of B: N/T/C",'N');
-        const int m = Input("--m","height of result",100);
-        const int n = Input("--n","width of result",100);
-        const int k = Input("--k","inner dimension",100);
-        const int nb = Input("--nb","algorithmic blocksize",96);
+        const Int m = Input("--m","height of result",100);
+        const Int n = Input("--n","width of result",100);
+        const Int k = Input("--k","inner dimension",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();

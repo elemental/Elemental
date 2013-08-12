@@ -32,7 +32,7 @@ TrsmLUTLarge
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLUTLarge");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
     const Grid& g = U.Grid();
 
@@ -120,7 +120,7 @@ TrsmLUTMedium
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLUTMedium");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
 #endif
     const Grid& g = U.Grid();
 
@@ -217,20 +217,20 @@ TrsmLUTSmall
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLUTSmall");
     if( U.Grid() != X.Grid() )
-        throw std::logic_error
+        LogicError
         ("U and X must be distributed over the same grid");
     if( orientation == NORMAL )
-        throw std::logic_error("TrsmLUT expects a (Conjugate)Transpose option");
+        LogicError("TrsmLUT expects a (Conjugate)Transpose option");
     if( U.Height() != U.Width() || U.Height() != X.Height() )
     {
         std::ostringstream msg;
         msg << "Nonconformal TrsmLUT: \n"
             << "  U ~ " << U.Height() << " x " << U.Width() << "\n"
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
-        throw std::logic_error( msg.str().c_str() );
+        LogicError( msg.str() );
     }
     if( U.RowAlignment() != X.ColAlignment() )
-        throw std::logic_error("U and X are assumed to be aligned");
+        LogicError("U and X are assumed to be aligned");
 #endif
     const Grid& g = U.Grid();
 

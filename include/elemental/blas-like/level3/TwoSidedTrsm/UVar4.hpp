@@ -27,11 +27,11 @@ TwoSidedTrsmUVar4( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 #ifndef RELEASE
     CallStackEntry entry("internal::TwoSidedTrsmUVar4");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( U.Height() != U.Width() )
-        throw std::logic_error("Triangular matrices must be square");
+        LogicError("Triangular matrices must be square");
     if( A.Height() != U.Height() )
-        throw std::logic_error("A and U must be the same size");
+        LogicError("A and U must be the same size");
 #endif
     // Matrix views
     Matrix<F>
@@ -115,11 +115,11 @@ TwoSidedTrsmUVar4
 #ifndef RELEASE
     CallStackEntry entry("internal::TwoSidedTrsmUVar4");
     if( A.Height() != A.Width() )
-        throw std::logic_error("A must be square");
+        LogicError("A must be square");
     if( U.Height() != U.Width() )
-        throw std::logic_error("Triangular matrices must be square");
+        LogicError("Triangular matrices must be square");
     if( A.Height() != U.Height() )
-        throw std::logic_error("A and U must be the same size");
+        LogicError("A and U must be the same size");
 #endif
     const Grid& g = A.Grid();
 

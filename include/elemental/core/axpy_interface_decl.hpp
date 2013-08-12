@@ -22,7 +22,7 @@ enum AxpyType { LOCAL_TO_GLOBAL, GLOBAL_TO_LOCAL };
 }
 using namespace axpy_type_wrapper;
 
-template<typename T,typename Int=int>
+template<typename T>
 class AxpyInterface
 {   
 public:

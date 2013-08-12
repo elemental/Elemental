@@ -21,34 +21,34 @@ DiagonalScale
 #ifndef RELEASE
     CallStackEntry entry("DiagonalScale");
 #endif
-    const int m = X.Height();
-    const int n = X.Width();
-    const int ldim = X.LDim();
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int ldim = X.LDim();
     if( side == LEFT )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const T delta = d.Get(i,0);
             T* XBuffer = X.Buffer(i,0);
             if( orientation == ADJOINT )
-                for( int j=0; j<n; ++j )
+                for( Int j=0; j<n; ++j )
                     XBuffer[j*ldim] *= Conj(delta);
             else
-                for( int j=0; j<n; ++j )
+                for( Int j=0; j<n; ++j )
                     XBuffer[j*ldim] *= delta;
         }
     }
     else
     {
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
             const T delta = d.Get(j,0);
             T* XBuffer = X.Buffer(0,j);
             if( orientation == ADJOINT )
-                for( int i=0; i<m; ++i )
+                for( Int i=0; i<m; ++i )
                     XBuffer[i] *= Conj(delta);
             else
-                for( int i=0; i<m; ++i )
+                for( Int i=0; i<m; ++i )
                     XBuffer[i] *= delta;
         }
     }
@@ -65,26 +65,26 @@ DiagonalScale
 #endif
     typedef BASE(T) R;
 
-    const int m = X.Height();
-    const int n = X.Width();
-    const int ldim = X.LDim();
+    const Int m = X.Height();
+    const Int n = X.Width();
+    const Int ldim = X.LDim();
     if( side == LEFT )
     {
-        for( int i=0; i<m; ++i )
+        for( Int i=0; i<m; ++i )
         {
             const R delta = d.Get(i,0);
             T* XBuffer = X.Buffer(i,0);
-            for( int j=0; j<n; ++j )
+            for( Int j=0; j<n; ++j )
                 XBuffer[j*ldim] *= delta;
         }
     }
     else
     {
-        for( int j=0; j<n; ++j )
+        for( Int j=0; j<n; ++j )
         {
             const R delta = d.Get(j,0);
             T* XBuffer = X.Buffer(0,j);
-            for( int i=0; i<m; ++i )
+            for( Int i=0; i<m; ++i )
                 XBuffer[i] *= delta;
         }
     }

@@ -23,24 +23,24 @@ ColorMap( double value, double minVal, double maxVal )
 
     // Grey-scale
     /*
-    const int red = 255*percent;
-    const int green = 255*percent;
-    const int blue = 255*percent;
-    const int alpha = 255;
+    const Int red = 255*percent;
+    const Int green = 255*percent;
+    const Int blue = 255*percent;
+    const Int alpha = 255;
     */
 
     // 0: Red, 0.5: Black, 1: Green
-    const int red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
-    const int green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
-    const int blue = 0;
-    const int alpha = 255;
+    const Int red = ( percent<=0.5 ? 255*(1.-2*percent) : 0 );
+    const Int green = ( percent>=0.5 ? 255*(2*(percent-0.5)) : 0 );
+    const Int blue = 0;
+    const Int alpha = 255;
 
     // Red and blue mixture
     /*
-    const int red = 255*percent;
-    const int green = 0;
-    const int blue = 255*(R(1)-percent/2);
-    const int alpha = 255;
+    const Int red = 255*percent;
+    const Int green = 0;
+    const Int blue = 255*(R(1)-percent/2);
+    const Int alpha = 255;
     */
 
     return qRgba( red, green, blue, alpha );
