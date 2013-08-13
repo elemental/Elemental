@@ -47,12 +47,7 @@ template<typename T>
 void CreateValueIntType()
 {
 #ifndef RELEASE
-    CallStackEntry cse("CreateValueIntType<Int>");
-#endif
-    Datatype& type = ValueIntType<T>();
-#ifndef RELEASE
-    if( type != 0 )
-        LogicError("type was already created");
+    CallStackEntry cse("CreateValueIntType");
 #endif
     Datatype typeList[2];
     typeList[0] = TypeMap<T>();
@@ -72,6 +67,7 @@ void CreateValueIntType()
     displs[0] = valueAddr - startAddr;
     displs[1] = indexAddr - startAddr;
 
+    Datatype& type = ValueIntType<T>();
     MPI_Type_create_struct( 2, blockLengths, displs, typeList, &type );
     MPI_Type_commit( &type );
 }
