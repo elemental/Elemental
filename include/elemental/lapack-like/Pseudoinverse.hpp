@@ -33,7 +33,7 @@ Pseudoinverse( Matrix<F>& A, BASE(F) tolerance=0 )
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::max(m,n);
+    const Int k = Max( m, n );
 
     // Get the SVD of A
     Matrix<R> s;
@@ -114,7 +114,7 @@ Pseudoinverse( DistMatrix<F>& A, BASE(F) tolerance=0 )
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::max(m,n);
+    const Int k = Max( m, n );
 
     // Get the SVD of A
     DistMatrix<R,VR,STAR> s(g);

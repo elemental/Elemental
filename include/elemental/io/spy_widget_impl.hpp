@@ -50,8 +50,8 @@ SpyWidget::Spy( const Matrix<Int>* A )
     const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const Int mPix = std::max( 500, m );
-    const Int nPix = std::max( 500, n );
+    const Int mPix = Max( 500, m );
+    const Int nPix = Max( 500, n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );

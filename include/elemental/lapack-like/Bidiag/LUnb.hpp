@@ -32,7 +32,7 @@ inline void LUnb
 #endif
     const Grid& g = A.Grid();
     const Int tPHeight = A.Height();
-    const Int tQHeight = std::max(A.Height()-1,0);
+    const Int tQHeight = Max(A.Height()-1,0);
     tP.ResizeTo( tPHeight, 1 );
     tQ.ResizeTo( tQHeight, 1 );
 

@@ -30,7 +30,7 @@ main( int argc, char* argv[] )
         // Drop down to a square grid, change the matrix, and redistribute back
         const Int commSqrt = Int(sqrt(double(commSize)));
 
-        std::vector<Int> sqrtRanks(commSqrt*commSqrt);
+        std::vector<int> sqrtRanks(commSqrt*commSqrt);
         for( Int i=0; i<commSqrt*commSqrt; ++i )
             sqrtRanks[i] = i;
 

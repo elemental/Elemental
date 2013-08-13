@@ -148,7 +148,7 @@ LU( Matrix<F>& A, Matrix<Int>& p )
 #ifndef RELEASE
     CallStackEntry entry("LU");
 #endif
-    p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     Matrix<F>
@@ -222,7 +222,7 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         LogicError("{A,p} must be distributed over the same grid");
 #endif
     const Grid& g = A.Grid();
-    p.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>

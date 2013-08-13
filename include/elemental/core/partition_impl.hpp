@@ -81,7 +81,7 @@ PartitionDown
 #ifndef RELEASE
     CallStackEntry entry("PartitionDown [Matrix]");
 #endif
-    heightAT = std::max(std::min(heightAT,A.Height()),0);
+    heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
@@ -96,7 +96,7 @@ PartitionDown
 #ifndef RELEASE
     CallStackEntry entry("PartitionDown [DistMatrix]");
 #endif
-    heightAT = std::max(std::min(heightAT,A.Height()),0);
+    heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     View( AT, A, 0,        0, heightAT, A.Width() );
     View( AB, A, heightAT, 0, heightAB, A.Width() );
@@ -111,7 +111,7 @@ LockedPartitionDown
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionDown [Matrix]");
 #endif
-    heightAT = std::max(std::min(heightAT,A.Height()),0);
+    heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
@@ -126,7 +126,7 @@ LockedPartitionDown
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionDown [DistMatrix]");
 #endif
-    heightAT = std::max(std::min(heightAT,A.Height()),0);
+    heightAT = Max(Min(heightAT,A.Height()),0);
     const Int heightAB = A.Height()-heightAT;
     LockedView( AT, A, 0,        0, heightAT, A.Width() );
     LockedView( AB, A, heightAT, 0, heightAB, A.Width() );
@@ -187,7 +187,7 @@ PartitionRight( M& A, M& AL, M& AR, Int widthAL )
 #ifndef RELEASE
     CallStackEntry entry("PartitionRight [Matrix]");
 #endif
-    widthAL = std::max(std::min(widthAL,A.Width()),0);
+    widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
@@ -200,7 +200,7 @@ PartitionRight( DM& A, DM& AL, DM& AR, Int widthAL )
 #ifndef RELEASE
     CallStackEntry entry("PartitionRight [DistMatrix]");
 #endif
-    widthAL = std::max(std::min(widthAL,A.Width()),0);
+    widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     View( AL, A, 0, 0,       A.Height(), widthAL );
     View( AR, A, 0, widthAL, A.Height(), widthAR );
@@ -213,7 +213,7 @@ LockedPartitionRight( const M& A, M& AL, M& AR, Int widthAL )
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionRight [Matrix]");
 #endif
-    widthAL = std::max(std::min(widthAL,A.Width()),0);
+    widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
@@ -226,7 +226,7 @@ LockedPartitionRight( const DM& A, DM& AL, DM& AR, Int widthAL )
 #ifndef RELEASE
     CallStackEntry entry("LockedPartitionRight [DistMatrix]");
 #endif
-    widthAL = std::max(std::min(widthAL,A.Width()),0);
+    widthAL = Max(Min(widthAL,A.Width()),0);
     const Int widthAR = A.Width()-widthAL;
     LockedView( AL, A, 0, 0,       A.Height(), widthAL );
     LockedView( AR, A, 0, widthAL, A.Height(), widthAR );
@@ -413,7 +413,7 @@ PartitionDownOffsetDiagonal
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
-    diagDist = std::max(std::min(diagDist,diagLength),0);
+    diagDist = Max(Min(diagDist,diagLength),0);
     
     const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
     const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
@@ -436,7 +436,7 @@ PartitionDownOffsetDiagonal
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
-    diagDist = std::max(std::min(diagDist,diagLength),0);
+    diagDist = Max(Min(diagDist,diagLength),0);
 
     const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
     const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
@@ -459,7 +459,7 @@ LockedPartitionDownOffsetDiagonal
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
-    diagDist = std::max(std::min(diagDist,diagLength),0);
+    diagDist = Max(Min(diagDist,diagLength),0);
     
     const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
     const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );
@@ -482,7 +482,7 @@ LockedPartitionDownOffsetDiagonal
     const Int m = A.Height();
     const Int n = A.Width();
     const Int diagLength = A.DiagonalLength(offset);
-    diagDist = std::max(std::min(diagDist,diagLength),0);
+    diagDist = Max(Min(diagDist,diagLength),0);
     
     const Int mCut = ( offset<=0 ? -offset+diagDist : diagDist );
     const Int nCut = ( offset<=0 ? diagDist : offset+diagDist );

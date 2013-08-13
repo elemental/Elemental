@@ -55,7 +55,7 @@ Explicit( Matrix<F>& A, Matrix<F>& R )
               AB;
     PartitionDown
     ( A, AT,
-         AB, std::min(A.Height(),A.Width()) );
+         AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
@@ -75,7 +75,7 @@ Explicit( DistMatrix<F>& A, DistMatrix<F>& R )
                   AB(g);
     PartitionDown
     ( A, AT,
-         AB, std::min(A.Height(),A.Width()) );
+         AB, Min(A.Height(),A.Width()) );
     R = AT;
     MakeTriangular( UPPER, R );
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );

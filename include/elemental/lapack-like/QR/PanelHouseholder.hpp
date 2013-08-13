@@ -25,7 +25,7 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::PanelHouseholder");
 #endif
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     Matrix<F>
         ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
@@ -95,7 +95,7 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         LogicError("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>

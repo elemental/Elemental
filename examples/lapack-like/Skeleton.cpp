@@ -43,7 +43,7 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         const Grid& g = A.Grid();
-        DistMatrix<int,VR,STAR> pR(g), pC(g);
+        DistMatrix<Int,VR,STAR> pR(g), pC(g);
         DistMatrix<C> Z(g);
         Skeleton( A, pR, pC, Z, maxSteps, tol );
         const Int numSteps = pR.Height();

@@ -21,13 +21,15 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     CallStackEntry entry("hermitian_tridiag::USquare");
     if( A.Grid() != t.Grid() )
         LogicError("{A,t} must be distributed over the same grid");
-#endif
-    const Grid& g = A.Grid();
-#ifndef RELEASE
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( t.Viewing() )
         LogicError("t must not be a view");
+#endif
+    const Grid& g = A.Grid();
+#ifndef RELEASE
+    if( g.Height() != g.Width() )
+        LogicError("g must be square");
 #endif
     DistMatrix<F,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, 1 );

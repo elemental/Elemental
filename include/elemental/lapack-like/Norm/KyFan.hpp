@@ -23,7 +23,7 @@ KyFanNorm( const Matrix<F>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("KyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;
@@ -44,7 +44,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("HermitianKyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;
@@ -65,7 +65,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const Matrix<F>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("SymmetricKyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;
@@ -87,7 +87,7 @@ KyFanNorm( const DistMatrix<F,U,V>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("KyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;
@@ -111,7 +111,7 @@ HermitianKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("HermitianKyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;
@@ -135,7 +135,7 @@ SymmetricKyFanNorm( UpperOrLower uplo, const DistMatrix<F,U,V>& A, Int k )
 #ifndef RELEASE
     CallStackEntry entry("SymmetricKyFanNorm");
 #endif
-    if( k < 1 || k > std::min(A.Height(),A.Width()) )
+    if( k < 1 || k > Min(A.Height(),A.Width()) )
         LogicError("Invalid index of KyFan norm");
 
     typedef BASE(F) R;

@@ -47,12 +47,18 @@ void ProcessInput();
 void PrintInputReport();
 
 // For getting and setting the algorithmic blocksize
-int Blocksize();
+Int Blocksize();
 void SetBlocksize( Int blocksize );
 
 // For manipulating the algorithmic blocksize as a stack
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
+
+inline Int Max( Int m, Int n )
+{ return std::max(m,n); }
+
+inline Int Min( Int m, Int n )
+{ return std::min(m,n); }
 
 // Replacement for std::memcpy, which is known to often be suboptimal.
 // Notice the sizeof(T) is no longer required.

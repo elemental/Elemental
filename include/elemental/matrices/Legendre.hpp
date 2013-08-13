@@ -82,7 +82,7 @@ MakeLegendre( DistMatrix<F,U,V>& A )
             const Int i = colShift + iLoc*colStride;
             if( j == i+1 || j == i-1 )
             {
-                const Int k = std::max( i, j );
+                const Int k = Max( i, j );
                 const F gamma = F(1) / Pow( F(2)*k, F(2) );
                 const F beta = F(1) / (2*Sqrt(F(1)-gamma));
                 A.SetLocal( iLoc, jLoc, beta );

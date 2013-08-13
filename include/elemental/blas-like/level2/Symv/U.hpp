@@ -82,7 +82,7 @@ LocalSymvColAccumulateU
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = Max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
     LockedPartitionDown
@@ -191,7 +191,7 @@ LocalSymvRowAccumulateU
 
     // We want our local gemvs to be of width blocksize, so we will 
     // temporarily change to max(r,c) times the current blocksize
-    const Int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = Max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*LocalSymvBlocksize<T>() );
                  
     LockedPartitionRight( x_STAR_MR,  xL_STAR_MR, xR_STAR_MR, 0 );

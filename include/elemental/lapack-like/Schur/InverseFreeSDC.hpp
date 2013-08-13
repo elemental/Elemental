@@ -205,7 +205,7 @@ InverseFreeSpectralDivide( Matrix<F>& X )
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
     const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = std::max(std::min(roundedTrace,n),0);
+    const Int rank = Max( Min( roundedTrace, n ), 0 );
 
     // A := Q^H A Q
     A = ACopy;
@@ -253,7 +253,7 @@ InverseFreeSpectralDivide( DistMatrix<F>& X )
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
     const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = std::max(std::min(roundedTrace,n),0);
+    const Int rank = Max( Min( roundedTrace, n ), 0 );
 
     // A := Q^H A Q
     A = ACopy;

@@ -22,7 +22,7 @@ template<typename F>
 void TestCorrectness
 ( bool pivoted, bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<int,VC,STAR>& p,
+  const DistMatrix<Int,VC,STAR>& p,
   const DistMatrix<F>& AOrig )
 {
     typedef BASE(F) R;
@@ -75,7 +75,7 @@ void TestLU
   Int m, const Grid& g )
 {
     DistMatrix<F> A(g), ARef(g);
-    DistMatrix<int,VC,STAR> p(g);
+    DistMatrix<Int,VC,STAR> p(g);
 
     Uniform( A, m, m );
     if( testCorrectness )

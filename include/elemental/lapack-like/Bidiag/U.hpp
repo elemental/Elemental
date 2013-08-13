@@ -27,7 +27,7 @@ inline void U( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 #ifndef RELEASE
     CallStackEntry entry("bidiag::U");
 #endif
-    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tPHeight = Max(A.Width()-1,0);
     const Int tQHeight = A.Width();
 #ifndef RELEASE
     if( A.Height() < A.Width() )
@@ -147,7 +147,7 @@ U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         LogicError("tP and tQ must not be views");
 #endif
     const Grid& g = A.Grid();
-    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tPHeight = Max(A.Width()-1,0);
     const Int tQHeight = A.Width();
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, 1 );

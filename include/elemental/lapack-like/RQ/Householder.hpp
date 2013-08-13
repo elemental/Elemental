@@ -23,7 +23,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("rq::Householder");
 #endif
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     Matrix<F>
@@ -107,7 +107,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     {
         t.AlignWithDiagonal( A, offset );
     }
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     const Grid& g = A.Grid();

@@ -34,7 +34,7 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::Householder");
 #endif
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     Matrix<F>
@@ -123,7 +123,7 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     {
         t.AlignWithDiagonal( A );
     }
-    t.ResizeTo( std::min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
     // Matrix views
     DistMatrix<F>

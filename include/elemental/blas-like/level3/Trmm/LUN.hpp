@@ -75,7 +75,7 @@ LocalTrmmAccumulateLUN
         ZB_MC_STAR(g),  Z1_MC_STAR(g),
                         Z2_MC_STAR(g);
 
-    const Int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = Max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal

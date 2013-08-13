@@ -31,7 +31,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 #endif
         for( Int j=1; j<width; ++j )
         {
-            const Int numZeroRows = std::min( j, height );
+            const Int numZeroRows = Min( j, height );
             MemZero( &buffer[j*ldim], numZeroRows );
         }
     }
@@ -40,7 +40,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-        for( Int j=0; j<std::min(width,height); ++j )
+        for( Int j=0; j<Min(width,height); ++j )
         {
             const Int firstZeroRow = j+1;
             MemZero( &buffer[firstZeroRow+j*ldim], height-firstZeroRow );
@@ -78,7 +78,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
             const Int lastZeroRow = j-1;
             if( lastZeroRow >= 0 )
             {
-                const Int boundary = std::min( lastZeroRow+1, height );
+                const Int boundary = Min( lastZeroRow+1, height );
                 const Int numZeroRows =
                     Length_( boundary, colShift, colStride );
                 MemZero( &buffer[jLoc*ldim], numZeroRows );

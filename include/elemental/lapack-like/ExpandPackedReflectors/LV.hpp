@@ -91,8 +91,8 @@ LV( Conjugation conjugation, Int offset, Matrix<F>& H, const Matrix<F>& t )
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         const Int HPanHeight = H11.Height() + H21.Height();
-        const Int effectedHeight = std::max(HPanHeight+offset,0);
-        const Int HPanWidth = std::min( H11.Width(), effectedHeight );
+        const Int effectedHeight = Max( HPanHeight+offset, 0 );
+        const Int HPanWidth = Min( H11.Width(), effectedHeight );
 
         const Int effectedWidth = effectedHeight - dimDiff;
         const Int oldEffectedWidth = oldEffectedHeight - dimDiff;
@@ -226,8 +226,8 @@ LV
           HBL, /**/ HBR,  H20, H21, /**/ H22 );
 
         const Int HPanHeight = H11.Height() + H21.Height();
-        const Int effectedHeight = std::max(HPanHeight+offset,0);
-        const Int HPanWidth = std::min( H11.Width(), effectedHeight );
+        const Int effectedHeight = Max( HPanHeight+offset, 0 );
+        const Int HPanWidth = Min( H11.Width(), effectedHeight );
 
         const Int effectedWidth = effectedHeight - dimDiff;
         const Int oldEffectedWidth = oldEffectedHeight - dimDiff;

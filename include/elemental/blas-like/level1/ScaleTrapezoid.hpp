@@ -33,7 +33,7 @@ ScaleTrapezoid
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-            for( Int j=std::max(0,offset-1); j<width; ++j )
+            for( Int j=Max(0,offset-1); j<width; ++j )
             {
                 const Int numRows = j-offset+1;
                 for( Int i=0; i<numRows; ++i )
@@ -45,7 +45,7 @@ ScaleTrapezoid
 #ifdef HAVE_OPENMP
 #pragma omp parallel for
 #endif
-            for( Int j=std::max(0,offset-height+width-1); j<width; ++j )
+            for( Int j=Max(0,offset-height+width-1); j<width; ++j )
             {
                 const Int numRows = j-offset+height-width+1;
                 for( Int i=0; i<numRows; ++i )
@@ -62,7 +62,7 @@ ScaleTrapezoid
 #endif
             for( Int j=0; j<width; ++j )
             {
-                const Int numZeroRows = std::max(j-offset,0);
+                const Int numZeroRows = Max(j-offset,0);
                 for( Int i=numZeroRows; i<height; ++i )
                     buffer[i+j*ldim] *= alpha;
             }
@@ -74,7 +74,7 @@ ScaleTrapezoid
 #endif
             for( Int j=0; j<width; ++j )
             {
-                const Int numZeroRows = std::max(j-offset+height-width,0);
+                const Int numZeroRows = Max(j-offset+height-width,0);
                 for( Int i=numZeroRows; i<height; ++i )
                     buffer[i+j*ldim] *= alpha;
             }
@@ -111,7 +111,7 @@ ScaleTrapezoid
         {
             Int j = rowShift + jLoc*rowStride;
             Int lastRow = ( side==LEFT ? j-offset : j-offset+height-width );
-            Int boundary = std::min( lastRow+1, height );
+            Int boundary = Min( lastRow+1, height );
             Int numRows = Length_( boundary, colShift, colStride );
             T* col = &buffer[jLoc*ldim];
             for( Int iLoc=0; iLoc<numRows; ++iLoc )
@@ -129,8 +129,8 @@ ScaleTrapezoid
         {
             Int j = rowShift + jLoc*rowStride;
             Int firstRow =
-                ( side==LEFT ? std::max(j-offset,0)
-                             : std::max(j-offset+height-width,0) );
+                ( side==LEFT ? Max(j-offset,0)
+                             : Max(j-offset+height-width,0) );
             Int numZeroRows = Length_( firstRow, colShift, colStride );
             T* col = &buffer[numZeroRows+jLoc*ldim];
             for( Int iLoc=0; iLoc<(localHeight-numZeroRows); ++iLoc )

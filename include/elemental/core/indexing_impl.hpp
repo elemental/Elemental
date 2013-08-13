@@ -12,24 +12,22 @@
 
 namespace elem {
 
-template<typename I>
-inline I 
-DiagonalLength( I height, I width, I offset )
+inline Int
+DiagonalLength( Int height, Int width, Int offset )
 {
     if( offset > 0 )
     {
-        I remainingWidth = std::max(width-offset,0);
-        return std::min(height,remainingWidth);
+        Int remainingWidth = Max(width-offset,0);
+        return Min(height,remainingWidth);
     }
     else
     {
-        I remainingHeight = std::max(height+offset,0);
-        return std::min(remainingHeight,width);
+        Int remainingHeight = Max(height+offset,0);
+        return Min(remainingHeight,width);
     }
 }
 
-template<typename I>
-inline I GCD( I a, I b )
+inline Int GCD( Int a, Int b )
 {
 #ifndef RELEASE
     if( a < 0 || b < 0 )
@@ -38,8 +36,7 @@ inline I GCD( I a, I b )
     return GCD_( a, b );
 }
 
-template<typename I>
-inline I GCD_( I a, I b )
+inline Int GCD_( Int a, Int b )
 {
     if( b == 0 )
         return a;

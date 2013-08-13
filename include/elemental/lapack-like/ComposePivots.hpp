@@ -113,7 +113,7 @@ ComposePivots
     for( Int i=0; i<b; ++i )
     {
         Int k = i;
-        for( Int j=0; j<std::min(k+1,b); ++j )
+        for( Int j=0; j<Min(k+1,b); ++j )
         {
             if( pBuffer[j]-pivotOffset == k )
                 k = j;

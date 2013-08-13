@@ -86,8 +86,8 @@ DisplayWidget<T>::DisplayReal
     const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const Int mPix = std::max( 500, 2*m );
-    const Int nPix = std::max( 500, 2*n );
+    const Int mPix = Max( 500, 2*m );
+    const Int nPix = Max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );
@@ -157,8 +157,8 @@ DisplayWidget<T>::DisplayImag
     const Int n = A->Width();
 
     // TODO: Parameterize these instead
-    const Int mPix = std::max( 500, 2*m );
-    const Int nPix = std::max( 500, 2*n );
+    const Int mPix = Max( 500, 2*m );
+    const Int nPix = Max( 500, 2*n );
     const double mRatio = double(m) / double(mPix);
     const double nRatio = double(n) / double(nPix);
     pixmap_ = QPixmap( nPix, mPix );

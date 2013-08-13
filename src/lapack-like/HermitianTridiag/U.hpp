@@ -27,17 +27,12 @@ void U( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::U");
-#endif
-    const Int tHeight = std::max(A.Height()-1,0);
-#ifndef RELEASE
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( t.Viewing() && (t.Height() != tHeight || t.Width() != 1) )
-        LogicError("t is of the wrong size");
 #endif
     typedef BASE(F) R;
-    if( !t.Viewing() )
-        t.ResizeTo( tHeight, 1 );
+    const Int tHeight = Max(A.Height()-1,0);
+    t.ResizeTo( tHeight, 1 );
 
     // Matrix views 
     Matrix<F>

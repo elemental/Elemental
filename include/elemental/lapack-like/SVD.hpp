@@ -153,7 +153,7 @@ SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    s.ResizeTo( std::min(m,n), 1 );
+    s.ResizeTo( Min(m,n), 1 );
     lapack::SVD( m, n, A.Buffer(), A.LDim(), s.Buffer() );
 }
 

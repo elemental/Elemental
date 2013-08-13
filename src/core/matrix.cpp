@@ -72,7 +72,7 @@ Matrix<T>::Matrix( bool fixed )
 template<typename T>
 Matrix<T>::Matrix( Int height, Int width, bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
-  height_(height), width_(width), ldim_(std::max(height,1))
+  height_(height), width_(width), ldim_(Max(height,1))
 {
 #ifndef RELEASE
     CallStackEntry entry("Matrix::Matrix");
@@ -690,7 +690,7 @@ Matrix<T>::ResizeTo_( Int height, Int width )
     // possible.
     if( reallocate )
     {
-        ldim_ = std::max( height, 1 );
+        ldim_ = Max( height, 1 );
         memory_.Require( ldim_ * width );
         data_ = memory_.Buffer();
     }

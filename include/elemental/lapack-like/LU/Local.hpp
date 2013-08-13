@@ -67,7 +67,7 @@ Unb( Matrix<F>& A )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    for( Int j=0; j<std::min(m,n); ++j )
+    for( Int j=0; j<Min(m,n); ++j )
     {
         const F alpha = A.Get(j,j);
         if( alpha == F(0) )

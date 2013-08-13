@@ -31,7 +31,7 @@ inline void UUnb
         LogicError("A must be at least as tall as it is wide");
 #endif
     const Grid& g = A.Grid();
-    const Int tPHeight = std::max(A.Width()-1,0);
+    const Int tPHeight = Max(A.Width()-1,0);
     const Int tQHeight = A.Width();
     tP.ResizeTo( tPHeight, 1 );
     tQ.ResizeTo( tQHeight, 1 );

@@ -63,7 +63,7 @@ BusingerGolub
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( maxSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > Min(A.Height(),A.Width()) )
         LogicError("Too many steps requested");
 #endif
     typedef BASE(F) Real;
@@ -209,7 +209,7 @@ BusingerGolub
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
 #endif
-    const Int numSteps = std::min(A.Height(),A.Width());
+    const Int numSteps = Min(A.Height(),A.Width());
     BusingerGolub( A, t, p, numSteps, alwaysRecompute );
 }
 
@@ -398,7 +398,7 @@ BusingerGolub
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( maxSteps > std::min(A.Height(),A.Width()) )
+    if( maxSteps > Min(A.Height(),A.Width()) )
         LogicError("Too many steps requested");
     if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
         LogicError("A, t, and p must have the same grid");
@@ -618,7 +618,7 @@ BusingerGolub
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
 #endif
-    const Int numSteps = std::min(A.Height(),A.Width());
+    const Int numSteps = Min(A.Height(),A.Width());
     BusingerGolub( A, t, p, numSteps, alwaysRecompute );
 }
 

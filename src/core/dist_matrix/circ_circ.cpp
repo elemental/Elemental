@@ -128,7 +128,7 @@ DistMatrix<T,CIRC,CIRC>::SetRoot( Int root )
 }
 
 template<typename T>
-int
+Int
 DistMatrix<T,CIRC,CIRC>::Root() const
 { return this->root_; }
 

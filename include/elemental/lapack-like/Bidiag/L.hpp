@@ -31,7 +31,7 @@ inline void L
         LogicError("A must be at least as wide as it is tall");
 #endif
     const Int tPHeight = A.Height();
-    const Int tQHeight = std::max(A.Height()-1,0);
+    const Int tQHeight = Max(A.Height()-1,0);
     tP.ResizeTo( tPHeight, 1 );
     tQ.ResizeTo( tQHeight, 1 );
 
@@ -144,7 +144,7 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         LogicError("tP and tQ must not be views");
 #endif
     const Grid& g = A.Grid();
-    const Int tPHeight = std::max(A.Height()-1,0);
+    const Int tPHeight = Max(A.Height()-1,0);
     const Int tQHeight = A.Height();
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, -1 );

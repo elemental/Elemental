@@ -306,7 +306,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -391,7 +391,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -532,8 +532,8 @@ void HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -562,7 +562,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -695,8 +695,8 @@ void HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm() );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm() );
         
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -725,7 +725,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist
@@ -851,8 +851,8 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], g.VRComm(), lowerBound, upperBound );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], g.VRComm(), int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -938,8 +938,8 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], g.VRComm(), lowerBound, upperBound );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], g.VRComm(), int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -1088,9 +1088,9 @@ void HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
-          lowerBound, upperBound );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
+          int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -1119,7 +1119,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -1254,9 +1254,9 @@ void HermitianEig
 
         std::vector<R> wVector(n);
         pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
-          lowerBound, upperBound );
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
+          int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -1285,7 +1285,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist
@@ -1401,7 +1401,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1485,7 +1485,7 @@ void HermitianEig
     {
         std::vector<R> wVector(n);
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
           &wVector[0], g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1616,7 +1616,7 @@ void HermitianEig
         elem::MemCopy( &dVector[0], d_STAR_STAR.Buffer(), n );
         elem::MemCopy( &eVector[0], e_STAR_STAR.Buffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
+        ( int(n), &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
           lowerBound, upperBound );
         std::vector<R>().swap( dVector );
         std::vector<R>().swap( eVector );
@@ -1643,8 +1643,8 @@ void HermitianEig
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
           lowerBound, upperBound );
         k = info.numGlobalEigenvalues;
 
@@ -1676,7 +1676,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Redistribute Z1[MC,MR] <- Z1[* ,VR] in place.
             hermitian_eig::InPlaceRedist
@@ -1795,7 +1795,7 @@ void HermitianEig
         elem::MemCopy( &dVector[0], d_STAR_STAR.Buffer(), n );
         elem::MemCopy( &eVector[0], e_STAR_STAR.Buffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( n, &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
+        ( int(n), &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
           lowerBound, upperBound );
         std::vector<R>().swap( dVector );
         std::vector<R>().swap( eVector );
@@ -1822,8 +1822,8 @@ void HermitianEig
 
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
-        ( n, d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, n, g.VRComm(), 
+        ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
+          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
           lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -1855,7 +1855,7 @@ void HermitianEig
               paddedZ0, /**/ paddedZ1, paddedZ2 );
 
             const Int b = paddedZ1.Width();
-            const Int width = std::min(b,k-paddedZL.Width());
+            const Int width = Min(b,k-paddedZL.Width());
 
             // Z1[MC,MR] <- Z1[* ,VR]
             hermitian_eig::InPlaceRedist

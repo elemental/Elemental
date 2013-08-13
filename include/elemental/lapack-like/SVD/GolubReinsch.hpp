@@ -34,7 +34,7 @@ GolubReinschUpper
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::min( m, n );
+    const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const char uplo = ( m>=n ? 'U' : 'L' );
     const Grid& g = A.Grid();
@@ -116,7 +116,7 @@ GolubReinschUpper_FLA
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::min( m, n );
+    const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
 
@@ -214,7 +214,7 @@ GolubReinschUpper
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::min( m, n );
+    const Int k = Min( m, n );
     const Int offdiagonal = ( m>=n ? 1 : -1 );
     const Grid& g = A.Grid();
 

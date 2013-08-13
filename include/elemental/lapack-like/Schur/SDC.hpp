@@ -48,7 +48,7 @@ SpectralDivide( Matrix<F>& A )
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
     const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = std::max(std::min(roundedTrace,n),0);
+    const Int rank = Max( Min( roundedTrace, n ), 0 );
 
     // Compute the pivoted QR decomposition of the spectral projection
     Matrix<F> t;
@@ -89,7 +89,7 @@ SpectralDivide( DistMatrix<F>& A )
     // TODO: Compute rank more carefully
     const F trace = Trace(B);
     const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = std::max(std::min(roundedTrace,n),0);
+    const Int rank = Max( Min( roundedTrace, n ), 0 );
 
     // Compute the pivoted QR decomposition of the spectral projection
     DistMatrix<F,MD,STAR> t(g);

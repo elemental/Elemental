@@ -12,13 +12,10 @@
 
 namespace elem {
 
-template<typename I>
-I DiagonalLength( I height, I width, I offset=0 );
+Int DiagonalLength( Int height, Int width, Int offset=0 );
 
-template<typename I>
-I GCD( I a, I b ); 
-template<typename I>
-I GCD_( I a, I b ); 
+Int GCD( Int a, Int b ); 
+Int GCD_( Int a, Int b ); 
 
 Int Length( Int n, Int shift, Int numProcs );
 Int Length_( Int n, Int shift, Int numProcs );

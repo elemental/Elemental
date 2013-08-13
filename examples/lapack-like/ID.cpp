@@ -42,7 +42,7 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         const Grid& g = A.Grid();
-        DistMatrix<int,VR,STAR> p(g);
+        DistMatrix<Int,VR,STAR> p(g);
         DistMatrix<C,STAR,VR> Z(g);
         ID( A, p, Z, maxSteps, tol );
         const Int numSteps = p.Height();

@@ -2327,7 +2327,7 @@ template void AllReduce( const float* sbuf, float* rbuf, int count, Op op, Comm 
 template void AllReduce( const double* sbuf, double* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const Complex<float>* sbuf, Complex<float>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int count, Op op, Comm comm );
-template void AllReduce( const ValueInt<int>* sbuf, ValueInt<int>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, Comm comm );
 

@@ -30,7 +30,7 @@ CheckScale( DistMatrix<F>& A, bool& needRescaling, BASE(F)& scale )
     const R smallNumber = safeMin/precision;
     const R bigNumber = 1/smallNumber;
     const R rhoMin = Sqrt(smallNumber);
-    const R rhoMax = std::min( Sqrt(bigNumber), 1/Sqrt(Sqrt(safeMin)) );
+    const R rhoMax = Min( Sqrt(bigNumber), 1/Sqrt(Sqrt(safeMin)) );
 
     if( oneNormOfA > 0 && oneNormOfA < rhoMin )
     {
@@ -53,7 +53,7 @@ DivideAndConquerSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::min(m,n);
+    const Int k = Min(m,n);
     s.ResizeTo( k, 1 );
     Matrix<F> U( m, k );
     Matrix<F> VAdj( k, n );
@@ -74,7 +74,7 @@ QRSVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int k = std::min(m,n);
+    const Int k = Min(m,n);
     s.ResizeTo( k, 1 );
     Matrix<F> U( m, k );
     Matrix<F> VAdj( k, n );

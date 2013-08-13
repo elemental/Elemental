@@ -96,7 +96,7 @@ LocalSymmetricAccumulateRL
         ZBTrans_MR_STAR(g),  Z1Trans_MR_STAR(g),
                              Z2Trans_MR_STAR(g);
 
-    const Int ratio = std::max( g.Height(), g.Width() );
+    const Int ratio = Max( g.Height(), g.Width() );
     PushBlocksizeStack( ratio*Blocksize() );
 
     LockedPartitionDownDiagonal

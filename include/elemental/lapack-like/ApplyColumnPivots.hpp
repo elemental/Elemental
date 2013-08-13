@@ -261,7 +261,7 @@ ApplyColumnPivots
 #endif
 
     // Fill vectors with the send data
-    std::vector<F> sendData(std::max(1,totalSend));
+    std::vector<F> sendData( mpi::Pad(totalSend) );
     std::vector<int> offsets(c,0);
     const Int localWidth = Length( b, rowShift, c );
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -290,7 +290,7 @@ ApplyColumnPivots
     }
 
     // Communicate all pivot rows
-    std::vector<F> recvData(std::max(1,totalRecv));
+    std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
     ( &sendData[0], &sendCounts[0], &sendDispls[0],
       &recvData[0], &recvCounts[0], &recvDispls[0], g.RowComm() );
