@@ -25,6 +25,7 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
     if( A.Width() != p.Height() || p.Width() != 1 )
         LogicError("p must be a vector that conforms with A");
 #endif
+    typedef BASE(F) Real;
     // Matrix views
     Matrix<F> 
         ATL, ATR,  A00, a01,     A02,  
@@ -47,28 +48,28 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
           ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
 
         //--------------------------------------------------------------------//
-        const Int currentRow = A00.Height();
-        
         // Find the index and value of the pivot candidate
-        F pivot = alpha11.Get(0,0);
-        Int pivotRow = currentRow;
+        const Int currentRow = A00.Height();
+        ValueInt<Real> pivot;
+        pivot.value = FastAbs(alpha11.Get(0,0));
+        pivot.index = currentRow;
         for( Int i=0; i<a21.Height(); ++i )
         {
-            const F value = a21.Get(i,0);
-            if( FastAbs(value) > FastAbs(pivot) )
+            const Real value = FastAbs(a21.Get(i,0));
+            if( value > pivot.value )
             {
-                pivot = value;
-                pivotRow = currentRow + i + 1;
+                pivot.value = value;
+                pivot.index = currentRow + i + 1;
             }
         }
-        p.Set( currentRow, 0, pivotRow+pivotOffset );
+        p.Set( currentRow, 0, pivot.index+pivotOffset );
 
         // Swap the pivot row and current row
         for( Int j=0; j<width; ++j )
         {
             buffer[j] = A.Get(currentRow,j);
-            A.Set(currentRow,j,A.Get(pivotRow,j)); 
-            A.Set(pivotRow,j,buffer[j]);
+            A.Set(currentRow,j,A.Get(pivot.index,j)); 
+            A.Set(pivot.index,j,buffer[j]);
         }
 
         // Now we can perform the update of the current panel
@@ -105,6 +106,7 @@ Panel
     if( A.Height() != p.Height() || p.Width() != 1 )
         LogicError("p must be a vector that conforms with A");
 #endif
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int colShift = B.ColShift();
@@ -120,16 +122,9 @@ Panel
         BL(g), BR(g),
         B0(g), b1(g), B2(g);
 
+    // For packing rows of data for pivoting
     const Int width = A.Width();
-    const Int numBytes = (width+1)*sizeof(F)+sizeof(Int);
-    std::vector<byte> sendData(numBytes), recvData(numBytes);
-
-    // Extract pointers to send and recv data
-    // TODO: Think of how to make this safer with respect to alignment issues
-    F* sendBufFloat = (F*)&sendData[0];
-    F* recvBufFloat = (F*)&recvData[0];
-    Int* sendBufInt = (Int*)&sendData[(width+1)*sizeof(F)];
-    Int* recvBufInt = (Int*)&recvData[(width+1)*sizeof(F)];
+    std::vector<F> rowBuffer( width );
 
     // Start the algorithm
     PartitionDownDiagonal
@@ -149,96 +144,65 @@ Panel
           B0, /**/ b1, B2, 1 );
 
         //--------------------------------------------------------------------//
+        // Store the index/value of the local pivot candidate
         const Int currentRow = a01.Height();
-        
-        // Store the index/value of the pivot candidate in A
-        F pivot = alpha11.GetLocal(0,0);
-        Int pivotRow = currentRow;
+        ValueInt<Real> localPivot;
+        localPivot.value = FastAbs(alpha11.GetLocal(0,0));
+        localPivot.index = currentRow;
         for( Int i=0; i<a21.Height(); ++i )
         {
-            F value = a21.GetLocal(i,0);
-            if( FastAbs(value) > FastAbs(pivot) )
+            const Real value = FastAbs(a21.GetLocal(i,0));
+            if( value > localPivot.value )
             {
-                pivot = value;
-                pivotRow = currentRow + i + 1;
+                localPivot.value = value;
+                localPivot.index = currentRow + i + 1;
             }
         }
-
-        // Update the pivot candidate to include local data from B
         for( Int i=0; i<B.LocalHeight(); ++i )
         {
-            F value = b1.GetLocal(i,0);
-            if( FastAbs(value) > FastAbs(pivot) )
+            const Real value = FastAbs(b1.GetLocal(i,0));
+            if( value > localPivot.value )
             {
-                pivot = value;
-                pivotRow = A.Height() + colShift + i*r;
+                localPivot.value = value;
+                localPivot.index = A.Height() + colShift + i*r;
             }
         }
 
-        // Fill the send buffer with:
-        // [ pivotValue | pivot row data | pivotRow ]
-        if( pivotRow < A.Height() )
-        {
-            sendBufFloat[0] = A.GetLocal(pivotRow,a10.Width());
+        // Compute and store the location of the new pivot
+        const ValueInt<Real> pivot = 
+            mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), g.ColComm() );
+        p.SetLocal(currentRow,0,pivot.index+pivotOffset);
 
-            const Int ALDim = A.LDim();
-            const F* ABuffer = A.Buffer(pivotRow,0);
+        // Perform the pivot within this panel
+        if( pivot.index < A.Height() )
+        {
+            // Pack pivot into temporary
             for( Int j=0; j<width; ++j )
-                sendBufFloat[j+1] = ABuffer[j*ALDim];
+                rowBuffer[j] = A.GetLocal( pivot.index, j );
+            // Replace pivot with current
+            for( Int j=0; j<width; ++j )
+                A.SetLocal( pivot.index, j, A.GetLocal(currentRow,j) );
         }
         else
         {
-            const Int localRow = ((pivotRow-A.Height())-colShift)/r;
-            sendBufFloat[0] = b1.GetLocal(localRow,0);
-
-            const Int BLDim = B.LDim();
-            const F* BBuffer = B.Buffer(localRow,0);
-            for( Int j=0; j<width; ++j )
-                sendBufFloat[j+1] = BBuffer[j*BLDim];
-        }
-        *sendBufInt = pivotRow;
-
-        // Communicate to establish the pivot information
-        mpi::AllReduce
-        ( &sendData[0], &recvData[0], numBytes, 
-          mpi::PivotOp<F>(), g.ColComm() );
-
-        // Update the pivot vector
-        pivotRow = *recvBufInt;
-        p.SetLocal(currentRow,0,pivotRow+pivotOffset);
-
-        // Copy the current row into the pivot row
-        if( pivotRow < A.Height() )
-        {
-            const Int ALDim = A.LDim();
-            F* ASetBuffer = A.Buffer(pivotRow,0);
-            const F* AGetBuffer = A.Buffer(currentRow,0);
-            for( Int j=0; j<width; ++j )
-                ASetBuffer[j*ALDim] = AGetBuffer[j*ALDim];
-        }
-        else
-        {
-            const Int ownerRank = (colAlignment+(pivotRow-A.Height())) % r;
-            if( g.Row() == ownerRank )
+            // The owning row of the pivot row packs it into the row buffer
+            // and then overwrites with the current row
+            const Int relIndex = pivot.index - A.Height();
+            const Int ownerRow = (colAlignment+relIndex) % r;
+            if( g.Row() == ownerRow )
             {
-                const Int localRow = ((pivotRow-A.Height())-colShift) / r;
-
-                const Int ALDim = A.LDim();
-                const Int BLDim = B.LDim();
-                F* BBuffer = B.Buffer(localRow,0);
-                const F* ABuffer = A.Buffer(currentRow,0);
+                const int iLoc = (relIndex-colShift) / r;
                 for( Int j=0; j<width; ++j )
-                    BBuffer[j*BLDim] = ABuffer[j*ALDim];
+                    rowBuffer[j] = B.GetLocal( iLoc, j );
+                for( Int j=0; j<width; ++j )
+                    B.SetLocal( iLoc, j, A.GetLocal(currentRow,j) );
             }
+            // The owning row broadcasts within process columns
+            mpi::Broadcast( &rowBuffer[0], width, ownerRow, g.ColComm() );
         }
-
-        // Copy the pivot row into the current row
-        {
-            F* ABuffer = A.Buffer(currentRow,0);
-            const Int ALDim = A.LDim();
-            for( Int j=0; j<width; ++j )
-                ABuffer[j*ALDim] = recvBufFloat[j+1];
-        }
+        // Overwrite the current row with the pivot row
+        for( Int j=0; j<width; ++j )
+            A.SetLocal( currentRow, j, rowBuffer[j] );
 
         // Now we can perform the update of the current panel
         const F alpha = alpha11.GetLocal(0,0);

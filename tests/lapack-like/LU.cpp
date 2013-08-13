@@ -57,15 +57,15 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
     {
-        cout << "||A||_1                  = " << oneNormOfA << "\n"
-             << "||A||_oo                 = " << infNormOfA << "\n"
-             << "||A||_F                  = " << frobNormOfA << "\n"
-             << "||X||_1                  = " << oneNormOfX << "\n"
-             << "||X||_oo                 = " << infNormOfX << "\n"
-             << "||X||_F                  = " << frobNormOfX << "\n"
-             << "||A U^-1 L^-1 X - X||_1  = " << oneNormOfError << "\n"
-             << "||A U^-1 L^-1 X - X||_oo = " << infNormOfError << "\n"
-             << "||A U^-1 L^-1 X - X||_F  = " << frobNormOfError << endl;
+        cout << "||A||_1                    = " << oneNormOfA << "\n"
+             << "||A||_oo                   = " << infNormOfA << "\n"
+             << "||A||_F                    = " << frobNormOfA << "\n"
+             << "||X||_1                    = " << oneNormOfX << "\n"
+             << "||X||_oo                   = " << infNormOfX << "\n"
+             << "||X||_F                    = " << frobNormOfX << "\n"
+             << "||A U^-1 L^-1 P X - X||_1  = " << oneNormOfError << "\n"
+             << "||A U^-1 L^-1 P X - X||_oo = " << infNormOfError << "\n"
+             << "||A U^-1 L^-1 P X - X||_F  = " << frobNormOfError << endl;
     }
 }
 

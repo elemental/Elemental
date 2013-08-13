@@ -483,33 +483,15 @@ template<> mpi::Datatype& ValueIntType<double>();
 
 template<typename R> void CreateValueIntType();
 
-template<typename F> mpi::Op PivotOp();
-template<> mpi::Op PivotOp<float>();
-template<> mpi::Op PivotOp<double>();
-template<> mpi::Op PivotOp<scomplex>();
-template<> mpi::Op PivotOp<dcomplex>();
-
 template<typename R> mpi::Op MaxLocOp();
 template<> mpi::Op MaxLocOp<Int>();
 template<> mpi::Op MaxLocOp<float>();
 template<> mpi::Op MaxLocOp<double>();
 
-template<typename F> void CreatePivotOp();
-template<> void CreatePivotOp<float>();
-template<> void CreatePivotOp<double>();
-template<> void CreatePivotOp<scomplex>();
-template<> void CreatePivotOp<dcomplex>();
-
 template<typename R> void CreateMaxLocOp();
 template<> void CreateMaxLocOp<Int>();
 template<> void CreateMaxLocOp<float>();
 template<> void CreateMaxLocOp<double>();
-
-template<typename T> void DestroyPivotOp();
-template<> void DestroyPivotOp<float>();
-template<> void DestroyPivotOp<double>();
-template<> void DestroyPivotOp<scomplex>();
-template<> void DestroyPivotOp<dcomplex>();
 
 template<typename R> void DestroyMaxLocOp();
 template<> void DestroyMaxLocOp<Int>();

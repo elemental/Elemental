@@ -268,12 +268,6 @@ void Initialize( int& argc, char**& argv )
     // Build the default grid
     defaultGrid = new Grid( mpi::COMM_WORLD );
 
-    // Build the pivot operations needed by the distributed LU
-    mpi::CreatePivotOp<float>();
-    mpi::CreatePivotOp<double>();
-    mpi::CreatePivotOp<Complex<float> >();
-    mpi::CreatePivotOp<Complex<double> >();
-
     // Create the types and ops needed for ValueInt
     mpi::CreateValueIntType<Int>();
     mpi::CreateValueIntType<float>();
@@ -316,12 +310,6 @@ void Finalize()
 
         if( ::elemInitializedMpi )
         {
-            // Destroy the pivot ops needed by the distributed LU
-            mpi::DestroyPivotOp<float>();
-            mpi::DestroyPivotOp<double>();
-            mpi::DestroyPivotOp<Complex<float> >();
-            mpi::DestroyPivotOp<Complex<double> >();
-
             // Destroy the types and ops needed for ValueInt
             // TODO: DestroyValueIntType<Int>();
             // TODO: DestroyValueIntType<float>();

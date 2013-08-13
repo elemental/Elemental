@@ -9,11 +9,6 @@
 #include "elemental.hpp"
 
 namespace {
-elem::mpi::Op pivotFloatOp;
-elem::mpi::Op pivotDoubleOp;
-elem::mpi::Op pivotScomplexOp;
-elem::mpi::Op pivotDcomplexOp;
-
 elem::mpi::Datatype typeIntInt;
 elem::mpi::Datatype typeFloatInt;
 elem::mpi::Datatype typeDoubleInt;
@@ -25,36 +20,6 @@ elem::mpi::Op maxLocDoubleOp;
 
 namespace elem {
 namespace mpi {
-
-// TODO: Decide how to avoid problems with AllReduce being implemented as 
-//       ReduceScatter + AllGather, which would potentially artificially 
-//       split the datatypes up and confuse this algorithm.
-template<typename T>
-void
-PivotFunc( void* inData, void* outData, int* length, Datatype* datatype )
-{           
-    if( *length == 0 )
-        return;
-        
-    const Int rowSize = (*length - sizeof(Int))/sizeof(T);
-
-    const T a = ((T*)inData)[0];
-    const T b = ((T*)outData)[0];
-
-    const Int inIdx = *((Int*)(((T*)inData)+rowSize));
-    const Int outIdx = *((Int*)(((T*)outData)+rowSize));
-
-    if( FastAbs(a) > FastAbs(b) ||
-        ( FastAbs(a) == FastAbs(b) && inIdx < outIdx ) )
-    {
-        // Copy the row of T's
-        for( Int j=0; j<rowSize; ++j )
-            ((T*)outData)[j] = ((T*)inData)[j];
-
-        // Copy the integer
-        *((Int*)(((T*)outData)+rowSize)) = inIdx;
-    }
-}
 
 template<typename T>
 void
@@ -115,44 +80,6 @@ template void CreateValueIntType<float>();
 template void CreateValueIntType<double>();
 
 template<>
-void CreatePivotOp<float>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("CreatePivotOp<float>");
-#endif
-    OpCreate( (UserFunction*)PivotFunc<float>, true, ::pivotFloatOp );
-}
-
-template<>
-void CreatePivotOp<double>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("CreatePivotOp<double>");
-#endif  
-    OpCreate( (UserFunction*)PivotFunc<double>, true, ::pivotDoubleOp );
-}
-
-template<>
-void CreatePivotOp<Complex<float> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("CreatePivotOp");
-#endif
-    OpCreate
-    ( (UserFunction*)PivotFunc<Complex<float> >, true, ::pivotScomplexOp );
-}
-
-template<>
-void CreatePivotOp<Complex<double> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("CreatePivotOp");
-#endif
-    OpCreate
-    ( (UserFunction*)PivotFunc<Complex<double> >, true, ::pivotDcomplexOp );
-}
-
-template<>
 void CreateMaxLocOp<Int>()
 {
 #ifndef RELEASE
@@ -177,42 +104,6 @@ void CreateMaxLocOp<double>()
     CallStackEntry cse("CreateMaxLocOp<double>");
 #endif
     OpCreate( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
-}
-
-template<>
-void DestroyPivotOp<float>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("DestroyPivotOp<float>");
-#endif
-    OpFree( ::pivotFloatOp );
-}
-
-template<>
-void DestroyPivotOp<double>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("DestroyPivotOp<double>");
-#endif
-    OpFree( ::pivotDoubleOp );
-}
-
-template<>
-void DestroyPivotOp<Complex<float> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("DestroyPivotOp");
-#endif
-    OpFree( ::pivotScomplexOp );
-}
-
-template<>
-void DestroyPivotOp<Complex<double> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("DestroyPivotOp");
-#endif
-    OpFree( ::pivotDcomplexOp );
 }
 
 template<>
@@ -243,42 +134,6 @@ void DestroyMaxLocOp<double>()
 }
 
 template<>
-Op PivotOp<float>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("PivotOp<float>");
-#endif
-    return ::pivotFloatOp;
-}
-
-template<>
-Op PivotOp<double>()
-{
-#ifndef RELEASE
-    CallStackEntry cse("PivotOp<double>");
-#endif
-    return ::pivotDoubleOp;
-}
-
-template<>
-Op PivotOp<Complex<float> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("PivotOp");
-#endif
-    return ::pivotScomplexOp;
-}
-
-template<>
-Op PivotOp<Complex<double> >()
-{
-#ifndef RELEASE
-    CallStackEntry cse("PivotOp");
-#endif
-    return ::pivotDcomplexOp;
-}
-
-template<>
 Op MaxLocOp<Int>()
 {
 #ifndef RELEASE
@@ -304,19 +159,6 @@ Op MaxLocOp<double>()
 #endif
     return ::maxLocDoubleOp;
 }
-
-template void
-PivotFunc<float>
-( void* inData, void* outData, int* length, Datatype* datatype );
-template void
-PivotFunc<double>
-( void* inData, void* outData, int* length, Datatype* datatype );
-template void
-PivotFunc<Complex<float> >
-( void* inData, void* outData, int* length, Datatype* datatype );
-template void
-PivotFunc<Complex<double> >
-( void* inData, void* outData, int* length, Datatype* datatype );
 
 template void
 MaxLocFunc<Int>
