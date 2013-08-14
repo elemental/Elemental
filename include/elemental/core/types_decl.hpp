@@ -29,6 +29,13 @@ struct ValueInt
     Int index;
 };
 
+template<typename T>
+struct ValueIntPair
+{
+    T value;
+    Int indices[2];
+};
+
 // For the safe computation of products. The result is given by 
 //   product = rho * exp(kappa*n)
 // where rho lies in (usually on) the unit circle and kappa is real-valued.

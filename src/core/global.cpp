@@ -276,6 +276,14 @@ void Initialize( int& argc, char**& argv )
     mpi::CreateMaxLocOp<float>();
     mpi::CreateMaxLocOp<double>();
 
+    // Do the same for ValueIntPair
+    mpi::CreateValueIntPairType<Int>();
+    mpi::CreateValueIntPairType<float>();
+    mpi::CreateValueIntPairType<double>();
+    mpi::CreateMaxLocPairOp<Int>();
+    mpi::CreateMaxLocPairOp<float>();
+    mpi::CreateMaxLocPairOp<double>();
+
     // Seed the random number generators using Katzgrabber's approach
     // from "Random Numbers in Scientific Computing: An Introduction"
     // NOTE: srand no longer needed after C++11
@@ -317,6 +325,11 @@ void Finalize()
             mpi::DestroyMaxLocOp<Int>();
             mpi::DestroyMaxLocOp<float>();
             mpi::DestroyMaxLocOp<double>();
+
+            // Do the same for ValueIntPair
+            mpi::DestroyMaxLocPairOp<Int>();
+            mpi::DestroyMaxLocPairOp<float>();
+            mpi::DestroyMaxLocPairOp<double>();
 
             // Delete the default grid
             delete ::defaultGrid;

@@ -475,28 +475,53 @@ template<typename R>
 void MaxLocFunc
 ( ValueInt<R>* inData, ValueInt<R>* outData, int* length, 
   mpi::Datatype* datatype );
+template<typename R>
+void MaxLocPairFunc
+( ValueIntPair<R>* inData, ValueIntPair<R>* outData, int* length, 
+  mpi::Datatype* datatype );
 
 template<typename R> mpi::Datatype& ValueIntType();
 template<> mpi::Datatype& ValueIntType<Int>();
 template<> mpi::Datatype& ValueIntType<float>();
 template<> mpi::Datatype& ValueIntType<double>();
 
+template<typename R> mpi::Datatype& ValueIntPairType();
+template<> mpi::Datatype& ValueIntPairType<Int>();
+template<> mpi::Datatype& ValueIntPairType<float>();
+template<> mpi::Datatype& ValueIntPairType<double>();
+
 template<typename R> void CreateValueIntType();
+template<typename R> void CreateValueIntPairType();
 
 template<typename R> mpi::Op MaxLocOp();
 template<> mpi::Op MaxLocOp<Int>();
 template<> mpi::Op MaxLocOp<float>();
 template<> mpi::Op MaxLocOp<double>();
 
+template<typename R> mpi::Op MaxLocPairOp();
+template<> mpi::Op MaxLocPairOp<Int>();
+template<> mpi::Op MaxLocPairOp<float>();
+template<> mpi::Op MaxLocPairOp<double>();
+
 template<typename R> void CreateMaxLocOp();
 template<> void CreateMaxLocOp<Int>();
 template<> void CreateMaxLocOp<float>();
 template<> void CreateMaxLocOp<double>();
 
+template<typename R> void CreateMaxLocPairOp();
+template<> void CreateMaxLocPairOp<Int>();
+template<> void CreateMaxLocPairOp<float>();
+template<> void CreateMaxLocPairOp<double>();
+
 template<typename R> void DestroyMaxLocOp();
 template<> void DestroyMaxLocOp<Int>();
 template<> void DestroyMaxLocOp<float>();
 template<> void DestroyMaxLocOp<double>();
+
+template<typename R> void DestroyMaxLocPairOp();
+template<> void DestroyMaxLocPairOp<Int>();
+template<> void DestroyMaxLocPairOp<float>();
+template<> void DestroyMaxLocPairOp<double>();
 
 template<typename T> Datatype TypeMap();
 template<> inline Datatype TypeMap<byte>() { return MPI_UNSIGNED_CHAR; }
@@ -538,7 +563,12 @@ template<> inline Datatype TypeMap<ValueInt<float> >()
 template<> inline Datatype TypeMap<ValueInt<double> >()
 { return ValueIntType<double>(); }
 
-// TODO: Extend to handle extra datatypes needed for pivoting in LU
+template<> inline Datatype TypeMap<ValueIntPair<Int> >()
+{ return ValueIntPairType<Int>(); }
+template<> inline Datatype TypeMap<ValueIntPair<float> >()
+{ return ValueIntPairType<float>(); }
+template<> inline Datatype TypeMap<ValueIntPair<double> >()
+{ return ValueIntPairType<double>(); }
 
 } // mpi
 } // elem

@@ -20,9 +20,10 @@ using namespace elem;
 
 template<typename F> 
 void TestCorrectness
-( bool pivoted, bool print, 
+( Int pivoting, bool print, 
   const DistMatrix<F>& A,
   const DistMatrix<Int,VC,STAR>& p,
+  const DistMatrix<Int,VC,STAR>& q,
   const DistMatrix<F>& AOrig )
 {
     typedef BASE(F) R;
@@ -36,12 +37,12 @@ void TestCorrectness
     DistMatrix<F> X(g), Y(g);
     Uniform( X, m, 100 );
     Y = X;
-    if( pivoted )
-        ApplyRowPivots( Y, p );
-
-    // Solve against the (pivoted) right-hand sides
-    Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
-    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
+    if( pivoting == 0 )
+        lu::SolveAfter( NORMAL, A, Y );
+    else if( pivoting == 1 )
+        lu::SolveAfter( NORMAL, A, p, Y );
+    else
+        lu::SolveAfter( NORMAL, A, p, q, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
     const R oneNormOfX = OneNorm( X );
@@ -57,25 +58,25 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
     {
-        cout << "||A||_1                    = " << oneNormOfA << "\n"
-             << "||A||_oo                   = " << infNormOfA << "\n"
-             << "||A||_F                    = " << frobNormOfA << "\n"
-             << "||X||_1                    = " << oneNormOfX << "\n"
-             << "||X||_oo                   = " << infNormOfX << "\n"
-             << "||X||_F                    = " << frobNormOfX << "\n"
-             << "||A U^-1 L^-1 P X - X||_1  = " << oneNormOfError << "\n"
-             << "||A U^-1 L^-1 P X - X||_oo = " << infNormOfError << "\n"
-             << "||A U^-1 L^-1 P X - X||_F  = " << frobNormOfError << endl;
+        cout << "||A||_1             = " << oneNormOfA << "\n"
+             << "||A||_oo            = " << infNormOfA << "\n"
+             << "||A||_F             = " << frobNormOfA << "\n"
+             << "||X||_1             = " << oneNormOfX << "\n"
+             << "||X||_oo            = " << infNormOfX << "\n"
+             << "||X||_F             = " << frobNormOfX << "\n"
+             << "||A A^-1 X - X||_1  = " << oneNormOfError << "\n"
+             << "||A A^-1 X - X||_oo = " << infNormOfError << "\n"
+             << "||A A^-1 X - X||_F  = " << frobNormOfError << endl;
     }
 }
 
 template<typename F> 
 void TestLU
-( bool pivot, bool testCorrectness, bool print, 
+( Int pivoting, bool testCorrectness, bool print, 
   Int m, const Grid& g )
 {
     DistMatrix<F> A(g), ARef(g);
-    DistMatrix<Int,VC,STAR> p(g);
+    DistMatrix<Int,VC,STAR> p(g), q(g);
 
     Uniform( A, m, m );
     if( testCorrectness )
@@ -99,10 +100,13 @@ void TestLU
     }
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
-    if( pivot )
-        LU( A, p );
-    else
+    if( pivoting == 0 )
         LU( A );
+    else if( pivoting == 1 )
+        LU( A, p );
+    else if( pivoting == 2 )
+        LU( A, p, q );
+
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 2./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -116,11 +120,13 @@ void TestLU
     if( print )
     {
         Print( A, "A after factorization" );
-        if( pivot )
+        if( pivoting >= 1 )
             Print( p, "p after factorization");
+        if( pivoting == 2 )
+            Print( q, "q after factorization");
     }
     if( testCorrectness )
-        TestCorrectness( pivot, print, A, p, ARef );
+        TestCorrectness( pivoting, print, A, p, q, ARef );
 }
 
 int 
@@ -136,12 +142,14 @@ main( int argc, char* argv[] )
         Int r = Input("--gridHeight","height of process grid",0);
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
-        const bool pivot = Input("--pivot","pivoted LU?",true);
+        const Int pivot = Input("--pivot","0: none, 1: partial, 2: full",1);
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
+        if( pivot < 0 || pivot > 2 )
+            LogicError("Invalid pivot value");
 
         if( r == 0 )
             r = Grid::FindFactor( commSize );
@@ -149,8 +157,15 @@ main( int argc, char* argv[] )
         SetBlocksize( nb );
         ComplainIfDebug();
         if( commRank == 0 )
-            cout << "Will test LU" 
-                 << ( pivot ? " with partial pivoting" : " " ) << endl;
+        {
+            cout << "Will test LU with ";
+            if( pivot == 0 )
+                cout << "no pivoting" << std::endl;
+            else if( pivot == 1 )
+                cout << "partial pivoting" << std::endl;
+            else if( pivot == 2 )
+                cout << "full pivoting" << std::endl;
+        }
 
         if( commRank == 0 )
         {

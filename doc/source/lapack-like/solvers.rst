@@ -80,3 +80,12 @@ to solve against one or more right-hand sides.
    :math:`B := A^{-H} B`, where :math:`A` has been overwritten with 
    its LU factors with partial pivoting, which satisfy :math:`P A = L U`, where
    the permutation matrix :math:`P` is represented by the pivot vector ``p``.
+
+.. cpp:function:: void lu::SolveAfter( Orientation orientation, const Matrix<F>& A, const Matrix<int>& p, const Matrix<int>& q, Matrix<F>& B )
+.. cpp:function:: void lu::SolveAfter( Orientation orientation, const DistMatrix<F>& A, const DistMatrix<int,VC,STAR>& p, const DistMatrix<int,VC,STAR>& q, DistMatrix<F>& B )
+
+   Update :math:`B := A^{-1} B`, :math:`B := A^{-T} B`, or 
+   :math:`B := A^{-H} B`, where :math:`A` has been overwritten with 
+   its LU factors with full pivoting, which satisfy :math:`P A Q = L U`, where
+   the permutation matrices :math:`P` and :math:`Q` are represented by the 
+   pivot vector ``p`` and ``q``, respectively.

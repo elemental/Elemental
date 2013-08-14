@@ -16,7 +16,15 @@ elem::mpi::Datatype typeDoubleInt;
 elem::mpi::Op maxLocIntOp;
 elem::mpi::Op maxLocFloatOp;
 elem::mpi::Op maxLocDoubleOp;
-}   
+
+elem::mpi::Datatype typeIntIntPair;
+elem::mpi::Datatype typeFloatIntPair;
+elem::mpi::Datatype typeDoubleIntPair;
+
+elem::mpi::Op maxLocPairIntOp;
+elem::mpi::Op maxLocPairFloatOp;
+elem::mpi::Op maxLocPairDoubleOp;
+} // anonymouse namespace   
 
 namespace elem {
 namespace mpi {
@@ -27,8 +35,35 @@ MaxLocFunc
 ( ValueInt<T>* inData, ValueInt<T>* outData, int* length, Datatype* datatype )
 {           
     for( int j=0; j<*length; ++j )
-        if( inData[j].value > outData[j].value )
+    {
+        const T inVal = inData[j].value;
+        const T outVal = outData[j].value;
+        const Int inInd = inData[j].index;
+        const Int outInd = outData[j].index; 
+        if( inVal > outVal || (inVal == outVal && inInd < outInd) )
             outData[j] = inData[j];
+    }
+}
+
+template<typename T>
+void
+MaxLocPairFunc
+( ValueIntPair<T>* inData, ValueIntPair<T>* outData, int* length, 
+  Datatype* datatype )
+{           
+    for( int j=0; j<*length; ++j )
+    {
+        const T inVal = inData[j].value;
+        const T outVal = outData[j].value;
+        const Int inInd0 = inData[j].indices[0];
+        const Int inInd1 = inData[j].indices[1];
+        const Int outInd0 = outData[j].indices[0];
+        const Int outInd1 = outData[j].indices[1];
+        const bool inIndLess = 
+            ( inInd0 < outInd0 || (inInd0 == outInd0 && inInd1 < outInd1) );
+        if( inVal > outVal || (inVal == outVal && inIndLess) )
+            outData[j] = inData[j];
+    }
 }
 
 template<>
@@ -42,6 +77,18 @@ Datatype& ValueIntType<float>()
 template<>
 Datatype& ValueIntType<double>()
 { return ::typeDoubleInt; }
+
+template<>
+Datatype& ValueIntPairType<Int>()
+{ return ::typeIntIntPair; }
+
+template<>
+Datatype& ValueIntPairType<float>()
+{ return ::typeFloatIntPair; }
+
+template<>
+Datatype& ValueIntPairType<double>()
+{ return ::typeDoubleIntPair; }
 
 template<typename T>
 void CreateValueIntType()
@@ -75,6 +122,38 @@ template void CreateValueIntType<Int>();
 template void CreateValueIntType<float>();
 template void CreateValueIntType<double>();
 
+template<typename T>
+void CreateValueIntPairType()
+{
+#ifndef RELEASE
+    CallStackEntry cse("CreateValueIntPairType");
+#endif
+    Datatype typeList[2];
+    typeList[0] = TypeMap<T>();
+    typeList[1] = TypeMap<Int>();
+    
+    int blockLengths[2];
+    blockLengths[0] = 1;
+    blockLengths[1] = 2; 
+
+    ValueIntPair<T> v;
+    MPI_Aint startAddr, valueAddr, indexAddr;
+    MPI_Address( &v,        &startAddr );
+    MPI_Address( &v.value,  &valueAddr );
+    MPI_Address( v.indices, &indexAddr );
+
+    MPI_Aint displs[2];
+    displs[0] = valueAddr - startAddr;
+    displs[1] = indexAddr - startAddr;
+
+    Datatype& type = ValueIntPairType<T>();
+    MPI_Type_create_struct( 2, blockLengths, displs, typeList, &type );
+    MPI_Type_commit( &type );
+}
+template void CreateValueIntPairType<Int>();
+template void CreateValueIntPairType<float>();
+template void CreateValueIntPairType<double>();
+
 template<>
 void CreateMaxLocOp<Int>()
 {
@@ -100,6 +179,34 @@ void CreateMaxLocOp<double>()
     CallStackEntry cse("CreateMaxLocOp<double>");
 #endif
     OpCreate( (UserFunction*)MaxLocFunc<double>, true, ::maxLocDoubleOp );
+}
+
+template<>
+void CreateMaxLocPairOp<Int>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("CreateMaxLocPairOp<Int>");
+#endif
+    OpCreate( (UserFunction*)MaxLocPairFunc<Int>, true, ::maxLocPairIntOp );
+}
+
+template<>
+void CreateMaxLocPairOp<float>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("CreateMaxLocPairOp<float>");
+#endif
+    OpCreate( (UserFunction*)MaxLocPairFunc<float>, true, ::maxLocPairFloatOp );
+}
+
+template<>
+void CreateMaxLocPairOp<double>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("CreateMaxLocPairOp<double>");
+#endif
+    OpCreate
+    ( (UserFunction*)MaxLocPairFunc<double>, true, ::maxLocPairDoubleOp );
 }
 
 template<>
@@ -130,6 +237,33 @@ void DestroyMaxLocOp<double>()
 }
 
 template<>
+void DestroyMaxLocPairOp<Int>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("DestroyMaxLocPairOp<Int>");
+#endif
+    OpFree( ::maxLocPairIntOp );
+}
+
+template<>
+void DestroyMaxLocPairOp<float>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("DestroyMaxLocPairOp<float>");
+#endif
+    OpFree( ::maxLocPairFloatOp );
+}
+
+template<>
+void DestroyMaxLocPairOp<double>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("DestroyMaxLocPairOp<double>");
+#endif
+    OpFree( ::maxLocPairDoubleOp );
+}
+
+template<>
 Op MaxLocOp<Int>()
 {
 #ifndef RELEASE
@@ -156,6 +290,33 @@ Op MaxLocOp<double>()
     return ::maxLocDoubleOp;
 }
 
+template<>
+Op MaxLocPairOp<Int>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("MaxLocPairOp<Int>");
+#endif
+    return ::maxLocPairIntOp;
+}
+
+template<>
+Op MaxLocPairOp<float>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("MaxLocPairOp<float>");
+#endif
+    return ::maxLocPairFloatOp;
+}
+
+template<>
+Op MaxLocPairOp<double>()
+{
+#ifndef RELEASE
+    CallStackEntry cse("MaxLocPairOp<double>");
+#endif
+    return ::maxLocPairDoubleOp;
+}
+
 template void
 MaxLocFunc<Int>
 ( ValueInt<Int>* inData, ValueInt<Int>* outData, int* length, 
@@ -167,6 +328,19 @@ MaxLocFunc<float>
 template void
 MaxLocFunc<double>
 ( ValueInt<double>* inData, ValueInt<double>* outData, int* length, 
+  Datatype* datatype );
+
+template void
+MaxLocPairFunc<Int>
+( ValueIntPair<Int>* inData, ValueIntPair<Int>* outData, int* length, 
+  Datatype* datatype );
+template void
+MaxLocPairFunc<float>
+( ValueIntPair<float>* inData, ValueIntPair<float>* outData, int* length, 
+  Datatype* datatype );
+template void
+MaxLocPairFunc<double>
+( ValueIntPair<double>* inData, ValueIntPair<double>* outData, int* length, 
   Datatype* datatype );
 
 } // namespace mpi

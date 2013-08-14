@@ -16,6 +16,7 @@
 
 #include "elemental/lapack-like/LU/Local.hpp"
 #include "elemental/lapack-like/LU/Panel.hpp"
+#include "elemental/lapack-like/LU/Full.hpp"
 
 #include "elemental/lapack-like/LU/SolveAfter.hpp"
 
@@ -214,6 +215,18 @@ LU( Matrix<F>& A, Matrix<Int>& p )
 
 template<typename F> 
 inline void
+LU( Matrix<F>& A, Matrix<Int>& p, Matrix<Int>& q )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LU");
+#endif
+    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    q.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    lu::Full( A, p, q );
+}
+
+template<typename F> 
+inline void
 LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
@@ -308,6 +321,18 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
          /**/ /**/
           pB,  p2 );
     }
+}
+
+template<typename F> 
+inline void
+LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, DistMatrix<Int,VC,STAR>& q )
+{
+#ifndef RELEASE
+    CallStackEntry entry("LU");
+#endif
+    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    q.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    lu::Full( A, p, q );
 }
 
 } // namespace elem

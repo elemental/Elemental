@@ -120,6 +120,13 @@ and :math:`U` are as described above and :math:`P` is a permutation matrix.
    Overwrites the matrix :math:`A` with the LU decomposition of 
    :math:`PA`, where :math:`P` is represented by the pivot vector `p`.
 
+.. cpp:function:: void LU( Matrix<F>& A, Matrix<int>& p, Matrix<int>& q )
+.. cpp:function:: void LU( DistMatrix<F>& A, DistMatrix<F,VC,STAR>& p, DistMatrix<F,VC,STAR>& q )
+
+   Overwrites the matrix :math:`A` with the LU decomposition of 
+   :math:`PAQ`, where :math:`P` is represented by the pivot vector `p`, 
+   and likewise for :math:`Q`.
+
 :math:`LQ` factorization
 ------------------------
 Given :math:`A \in \mathbb{F}^{m \times n}`, an LQ factorization typically 

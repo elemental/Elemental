@@ -2046,6 +2046,9 @@ template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int co
 template void Reduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, int root, Comm comm );
 template void Reduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Op op, int root, Comm comm );
+template void Reduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Op op, int root, Comm comm );
 
 template<typename T>
 void Reduce( const T* sbuf, T* rbuf, int count, int root, Comm comm )
@@ -2067,6 +2070,9 @@ template void Reduce( const Complex<double>* sbuf, Complex<double>* rbuf, int co
 template void Reduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, int root, Comm comm );
 template void Reduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, int root, Comm comm );
 template void Reduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, int root, Comm comm );
+template void Reduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, int root, Comm comm );
+template void Reduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, int root, Comm comm );
+template void Reduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, int root, Comm comm );
 
 template<typename T>
 T Reduce( T sb, Op op, int root, Comm comm )
@@ -2092,6 +2098,9 @@ template Complex<double> Reduce( Complex<double> sb, Op op, int root, Comm comm 
 template ValueInt<Int> Reduce( ValueInt<Int> sb, Op op, int root, Comm comm );
 template ValueInt<float> Reduce( ValueInt<float> sb, Op op, int root, Comm comm );
 template ValueInt<double> Reduce( ValueInt<double> sb, Op op, int root, Comm comm );
+template ValueIntPair<Int> Reduce( ValueIntPair<Int> sb, Op op, int root, Comm comm );
+template ValueIntPair<float> Reduce( ValueIntPair<float> sb, Op op, int root, Comm comm );
+template ValueIntPair<double> Reduce( ValueIntPair<double> sb, Op op, int root, Comm comm );
 
 template<typename T>
 T Reduce( T sb, int root, Comm comm )
@@ -2117,6 +2126,9 @@ template Complex<double> Reduce( Complex<double> sb, int root, Comm comm );
 template ValueInt<Int> Reduce( ValueInt<Int> sb, int root, Comm comm );
 template ValueInt<float> Reduce( ValueInt<float> sb, int root, Comm comm );
 template ValueInt<double> Reduce( ValueInt<double> sb, int root, Comm comm );
+template ValueIntPair<Int> Reduce( ValueIntPair<Int> sb, int root, Comm comm );
+template ValueIntPair<float> Reduce( ValueIntPair<float> sb, int root, Comm comm );
+template ValueIntPair<double> Reduce( ValueIntPair<double> sb, int root, Comm comm );
 
 template<typename T>
 void Reduce( T* buf, int count, Op op, int root, Comm comm )
@@ -2245,6 +2257,9 @@ template void Reduce( Complex<double>* buf, int count, Op op, int root, Comm com
 template void Reduce( ValueInt<Int>* buf, int count, Op op, int root, Comm comm );
 template void Reduce( ValueInt<float>* buf, int count, Op op, int root, Comm comm );
 template void Reduce( ValueInt<double>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueIntPair<Int>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueIntPair<float>* buf, int count, Op op, int root, Comm comm );
+template void Reduce( ValueIntPair<double>* buf, int count, Op op, int root, Comm comm );
 
 template<typename T>
 void Reduce( T* buf, int count, int root, Comm comm )
@@ -2266,6 +2281,9 @@ template void Reduce( Complex<double>* buf, int count, int root, Comm comm );
 template void Reduce( ValueInt<Int>* buf, int count, int root, Comm comm );
 template void Reduce( ValueInt<float>* buf, int count, int root, Comm comm );
 template void Reduce( ValueInt<double>* buf, int count, int root, Comm comm );
+template void Reduce( ValueIntPair<Int>* buf, int count, int root, Comm comm );
+template void Reduce( ValueIntPair<float>* buf, int count, int root, Comm comm );
+template void Reduce( ValueIntPair<double>* buf, int count, int root, Comm comm );
 
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Op op, Comm comm )
@@ -2330,6 +2348,9 @@ template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int
 template void AllReduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Op op, Comm comm );
 template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Op op, Comm comm );
+template void AllReduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Op op, Comm comm );
 
 template<typename T>
 void AllReduce( const T* sbuf, T* rbuf, int count, Comm comm )
@@ -2351,6 +2372,9 @@ template void AllReduce( const Complex<double>* sbuf, Complex<double>* rbuf, int
 template void AllReduce( const ValueInt<Int>* sbuf, ValueInt<Int>* rbuf, int count, Comm comm );
 template void AllReduce( const ValueInt<float>* sbuf, ValueInt<float>* rbuf, int count, Comm comm );
 template void AllReduce( const ValueInt<double>* sbuf, ValueInt<double>* rbuf, int count, Comm comm );
+template void AllReduce( const ValueIntPair<Int>* sbuf, ValueIntPair<Int>* rbuf, int count, Comm comm );
+template void AllReduce( const ValueIntPair<float>* sbuf, ValueIntPair<float>* rbuf, int count, Comm comm );
+template void AllReduce( const ValueIntPair<double>* sbuf, ValueIntPair<double>* rbuf, int count, Comm comm );
 
 template<typename T>
 T AllReduce( T sb, Op op, Comm comm )
@@ -2372,6 +2396,9 @@ template Complex<double> AllReduce( Complex<double> sb, Op op, Comm comm );
 template ValueInt<Int> AllReduce( ValueInt<Int> sb, Op op, Comm comm );
 template ValueInt<float> AllReduce( ValueInt<float> sb, Op op, Comm comm );
 template ValueInt<double> AllReduce( ValueInt<double> sb, Op op, Comm comm );
+template ValueIntPair<Int> AllReduce( ValueIntPair<Int> sb, Op op, Comm comm );
+template ValueIntPair<float> AllReduce( ValueIntPair<float> sb, Op op, Comm comm );
+template ValueIntPair<double> AllReduce( ValueIntPair<double> sb, Op op, Comm comm );
 
 template<typename T>
 T AllReduce( T sb, Comm comm )
@@ -2393,6 +2420,9 @@ template Complex<double> AllReduce( Complex<double> sb, Comm comm );
 template ValueInt<Int> AllReduce( ValueInt<Int> sb, Comm comm );
 template ValueInt<float> AllReduce( ValueInt<float> sb, Comm comm );
 template ValueInt<double> AllReduce( ValueInt<double> sb, Comm comm );
+template ValueIntPair<Int> AllReduce( ValueIntPair<Int> sb, Comm comm );
+template ValueIntPair<float> AllReduce( ValueIntPair<float> sb, Comm comm );
+template ValueIntPair<double> AllReduce( ValueIntPair<double> sb, Comm comm );
 
 template<typename T>
 void AllReduce( T* buf, int count, Op op, Comm comm )
@@ -2486,6 +2516,9 @@ template void AllReduce( Complex<double>* buf, int count, Op op, Comm comm );
 template void AllReduce( ValueInt<Int>* buf, int count, Op op, Comm comm );
 template void AllReduce( ValueInt<float>* buf, int count, Op op, Comm comm );
 template void AllReduce( ValueInt<double>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueIntPair<Int>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueIntPair<float>* buf, int count, Op op, Comm comm );
+template void AllReduce( ValueIntPair<double>* buf, int count, Op op, Comm comm );
 
 template<typename T>
 void AllReduce( T* buf, int count, Comm comm )
@@ -2507,6 +2540,9 @@ template void AllReduce( Complex<double>* buf, int count, Comm comm );
 template void AllReduce( ValueInt<Int>* buf, int count, Comm comm );
 template void AllReduce( ValueInt<float>* buf, int count, Comm comm );
 template void AllReduce( ValueInt<double>* buf, int count, Comm comm );
+template void AllReduce( ValueIntPair<Int>* buf, int count, Comm comm );
+template void AllReduce( ValueIntPair<float>* buf, int count, Comm comm );
+template void AllReduce( ValueIntPair<double>* buf, int count, Comm comm );
 
 template<typename R>
 void ReduceScatter( R* sbuf, R* rbuf, int rc, Op op, Comm comm )
