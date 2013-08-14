@@ -22,16 +22,21 @@
 
 %{
 #include "elemental.hpp"
+#include "elemental/core/types_decl.hpp"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 #include "numpy/ndarraytypes.h"
+typedef elem::Int Int;
 
 template <typename T> struct NPY { static const int DType = NPY_VOID; };
-template <> struct NPY<int> { static const int DType = sizeof(int) == NPY_SIZEOF_INT ? NPY_INT : NPY_LONG; };
-template <> struct NPY<float> { static const int DType = NPY_FLOAT; };
-template <> struct NPY<double> { static const int DType = NPY_DOUBLE; };
-template <> struct NPY<elem::Complex<float> > { static const int DType = NPY_CFLOAT; };
-template <> struct NPY<elem::Complex<double> > { static const int DType = NPY_CDOUBLE; };
+#define NPY_INST(TT,NT) template <> struct NPY<TT > { static const int DType = NT; }
+NPY_INST(int,(sizeof(int)==4?NPY_INT32:NPY_INT64));
+NPY_INST(long,(sizeof(long)==4?NPY_INT32:NPY_INT64));
+NPY_INST(long long,NPY_INT64);
+NPY_INST(float,NPY_FLOAT);
+NPY_INST(double,NPY_DOUBLE);
+NPY_INST(elem::Complex<float>,NPY_CFLOAT);
+NPY_INST(elem::Complex<double>,NPY_CDOUBLE);
 
 static void SwigErrorString( const std::exception& exc )
 {
@@ -55,7 +60,7 @@ template <typename T>
 class ElemPyMatrix : public elem::Matrix<T>
 {
     PyArrayObject *input, *darray;
-    int HA, WA, LDimA;
+    Int HA, WA, LDimA;
 public:
     ElemPyMatrix( PyObject*, bool );
     void UpdateArray();
@@ -88,7 +93,7 @@ static bool check_elematrix( PyObject* obj, int DType, bool writable )
     return true;
 }
 
-static bool get_HWL( PyArrayObject* obj, size_t DSize, int& HA, int& WA, int& LDimA )
+static bool get_HWL( PyArrayObject* obj, size_t DSize, Int& HA, Int& WA, Int& LDimA )
 {
     npy_intp ndim  = PyArray_NDIM( obj ), *dims, *strs;
     if ( ndim != 0 ) {
@@ -114,7 +119,7 @@ static bool get_HWL( PyArrayObject* obj, size_t DSize, int& HA, int& WA, int& LD
         break;
     default:
         HA = 1;
-        for ( int k = 0 ; k < ndim - 1 ; ++k ) {
+        for ( Int k = 0 ; k < ndim - 1 ; ++k ) {
             recast = recast || strs[k] != HA * DSize;
             HA *= dims[k];
         }
@@ -173,7 +178,7 @@ template <class T>
 void ElemPyMatrix<T>::UpdateArray()
 {
     if ( !this->Viewing() ) {
-        int HM = this->Height(), WM = this->Width(), LDimM = this->LDim();
+        Int HM = this->Height(), WM = this->Width(), LDimM = this->LDim();
         if ( HA != HM || WA != WM || LDimA != LDimM ) {
             T* ndata = reinterpret_cast<T*>( PyArray_DATA( input ) );
             T* odata = this->Buffer();
@@ -246,7 +251,7 @@ void ElemPyMatrix<T>::UpdateArray()
  * elem::SafeProduct<T>
  */
 
-%typemap(in) elem::SafeProduct<int> {
+%typemap(in) elem::SafeProduct<elem::Int> {
 	$result = PyTuple_Pack( 3,
 		PyFloat_FromDouble( $1.rho ), 
 		PyFloat_FromDouble( $1.kappa ), 
@@ -307,7 +312,7 @@ void ElemPyMatrix<T>::UpdateArray()
 %typemap(out)     const elem::Matrix<T >& { $result = create_npmatrix( *$1, false ); }
 %typemap(out)           elem::Matrix<T >& { $result = create_npmatrix( *$1, true );  }
 %enddef
-TYPEMAP_MATRIX(int,SWIG_TYPECHECK_INT32_ARRAY)
+TYPEMAP_MATRIX(elem::Int,SWIG_TYPECHECK_INT64_ARRAY)
 TYPEMAP_MATRIX(float,SWIG_TYPECHECK_FLOAT_ARRAY)
 TYPEMAP_MATRIX(double,SWIG_TYPECHECK_DOUBLE_ARRAY)
 TYPEMAP_MATRIX(elem::Complex<float>,SWIG_TYPECHECK_CHAR_ARRAY)
@@ -355,7 +360,7 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 %template(Y) X<double>;
 %enddef
 %define OVERLOAD0_int_R(X,Y)
-%template(Y) X<int>;
+%template(Y) X<Int>;
 %template(Y) X<float>;
 %template(Y) X<double>;
 %template(Y) X<Complex<float> >;
@@ -373,7 +378,7 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 %enddef
 // TODO: Extend this to other cases, needed for Display (and Norm)
 %define OVERLOAD1_int_R_UV(X,Y,U,V)
-%template(Y) X<int,U,V>;
+%template(Y) X<Int,U,V>;
 %template(Y) X<float,U,V>;
 %template(Y) X<double,U,V>;
 %template(Y) X<Complex<float>,U,V>;
@@ -384,14 +389,14 @@ TYPEMAP_MATRIX(elem::Complex<double>,SWIG_TYPECHECK_STRING_ARRAY)
 #define OVERLOAD1_int(X) OVERLOAD1_int_R(X,X)
 // TODO: Extend
 %define OVERLOAD_VIEW_seq(X)
-%template(X) X<int>;
+%template(X) X<Int>;
 %template(X) X<float>;
 %template(X) X<double>;
 %template(X) X<Complex<float> >;
 %template(X) X<Complex<double> >;
 %enddef
 %define OVERLOAD_VIEW_UV(X,U,V)
-%template(X) X<int,U,V>;
+%template(X) X<Int,U,V>;
 %template(X) X<float,U,V>;
 %template(X) X<double,U,V>;
 %template(X) X<Complex<float>,U,V>;
@@ -402,7 +407,7 @@ OVERLOAD_VIEW_seq(X)
 OVERLOAD_VIEW_UV(X,MC,MR) 
 %enddef
 %define OVERLOAD_COPY(X,U1,V1,U2,V2)
-%template(X) X<int,U1,V1,U2,V2>;
+%template(X) X<Int,U1,V1,U2,V2>;
 %template(X) X<float,U1,V1,U2,V2>;
 %template(X) X<double,U1,V1,U2,V2>;
 %template(X) X<Complex<float>,U1,V1,U2,V2>;
@@ -420,7 +425,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 %template(Y) X<double,MC,MR,MC,MR>;
 %enddef
 %define OVERLOAD2_int_R(X,Y)
-%template(Y) X<int,MC,MR,MC,MR>;
+%template(Y) X<Int,MC,MR,MC,MR>;
 %template(Y) X<float,MC,MR,MC,MR>;
 %template(Y) X<double,MC,MR,MC,MR>;
 %template(Y) X<Complex<float>,MC,MR,MC,MR>;
@@ -457,7 +462,7 @@ OVERLOAD_VIEW_UV(X,MC,MR)
 #define OVERLOAD012_int(X) OVERLOAD012_int_R(X,X)
 
 %define NO_OVERLOAD(X,...)
-%rename(name ## _i) name<int>(__VA_ARGS__);
+%rename(name ## _i) name<Int>(__VA_ARGS__);
 %rename(name ## _s) name<float>(__VA_ARGS__);
 %rename(name ## _d) name<double>(__VA_ARGS__);
 %rename(name ## _c) name<Complex<float> >(__VA_ARGS__);

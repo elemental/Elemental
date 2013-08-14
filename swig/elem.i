@@ -128,30 +128,30 @@ GATTP(ViewingComm)
 %attribute_readonly(%arg(elem::AbstractDistMatrix<T >),Type,N,N,self_->N())
 %enddef
 %define AbDM(T)
-AbDMT(T,int,Height)
-AbDMT(T,int,Width)
-AbDMT(T,int,LocalHeight)
-AbDMT(T,int,LocalWidth)
-AbDMT(T,int,LDim)
+AbDMT(T,Int,Height)
+AbDMT(T,Int,Width)
+AbDMT(T,Int,LocalHeight)
+AbDMT(T,Int,LocalWidth)
+AbDMT(T,Int,LDim)
 AbDMT(T,size_t,AllocatedMemory)
 %attribute_custom(%arg(elem::AbstractDistMatrix<T >),elem::Grid,Grid,Grid,SetGrid,&self_->Grid(),self_->SetGrid(*val_))
 %attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,Matrix,Matrix,create_npmatrix(self_->Matrix(),true))
 %attribute_readonly(%arg(elem::AbstractDistMatrix<T >),PyObject*,LockedMatrix,LockedMatrix,create_npmatrix(self_->LockedMatrix(),false))
 AbDMT(T,bool,ConstrainedColAlignment)
 AbDMT(T,bool,ConstrainedRowAlignment)
-AbDMT(T,int,ColAlignment)
-AbDMT(T,int,RowAlignment)
-AbDMT(T,int,ColShift)
-AbDMT(T,int,RowShift)
-AbDMT(T,int,ColStride)
-AbDMT(T,int,RowStride)
-AbDMT(T,int,ColRank)
-AbDMT(T,int,RowRank)
+AbDMT(T,Int,ColAlignment)
+AbDMT(T,Int,RowAlignment)
+AbDMT(T,Int,ColShift)
+AbDMT(T,Int,RowShift)
+AbDMT(T,Int,ColStride)
+AbDMT(T,Int,RowStride)
+AbDMT(T,Int,ColRank)
+AbDMT(T,Int,RowRank)
 AbDMT(T,bool,Locked)
 AbDMT(T,bool,Viewing)
 AbDMT(T,bool,Participating)
 %enddef
-AbDM(int)
+AbDM(Int)
 AbDM(float)
 AbDM(double)
 AbDM(elem::Complex<float>)
@@ -164,7 +164,7 @@ AbDM(elem::Complex<double>)
 %include "elemental/core/dist_matrix/abstract.hpp"
 
 namespace elem {
-%template(AbstractDistMatrix_i) AbstractDistMatrix<int>;
+%template(AbstractDistMatrix_i) AbstractDistMatrix<Int>;
 %template(AbstractDistMatrix_s) AbstractDistMatrix<float>;
 %template(AbstractDistMatrix_d) AbstractDistMatrix<double>;
 %template(AbstractDistMatrix_c) AbstractDistMatrix<Complex<float> >;
@@ -176,18 +176,18 @@ namespace elem {
  */
 
 %ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid& );
-%ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid&, int );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, const T*, Int, const elem::Grid&, Int );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, const T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, const T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid& ); 
-%ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid&, int );
+%ignore elem::DistMatrix::DistMatrix( Int, Int, T*, Int, const elem::Grid&, Int );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, T*, Int, const elem::Grid& );
 %ignore elem::DistMatrix::DistMatrix( Int, Int, Int, Int, T*, Int, const elem::Grid& );
 
 %define DCC(T)
-%attribute_custom(%arg(elem::DistMatrix<T,elem::distribution_wrapper::CIRC,elem::distribution_wrapper::CIRC>),int,Root,Root,SetRoot,self_->Root(),self_->SetRoot(val_))
+%attribute_custom(%arg(elem::DistMatrix<T,elem::distribution_wrapper::CIRC,elem::distribution_wrapper::CIRC>),Int,Root,Root,SetRoot,self_->Root(),self_->SetRoot(val_))
 %enddef
-DCC(int)
+DCC(Int)
 DCC(float)
 DCC(double)
 DCC(elem::Complex<float>)
@@ -224,7 +224,7 @@ DCC(elem::Complex<double>)
 }
 %enddef
 %define DISTMATRIX_all(U,V)
-DISTMATRIX(int,U,V,i_ ## U ## _ ## V)
+DISTMATRIX(Int,U,V,i_ ## U ## _ ## V)
 DISTMATRIX(float,U,V,s_ ## U ## _ ## V)
 DISTMATRIX(double,U,V,d_ ## U ## _ ## V)
 DISTMATRIX(Complex<float>,U,V,c_ ## U ## _ ## V)
@@ -232,7 +232,7 @@ DISTMATRIX(Complex<double>,U,V,z_ ## U ## _ ## V)
 %enddef
 
 namespace elem {
-DISTMATRIX(int,MC,MR,i)
+DISTMATRIX(Int,MC,MR,i)
 DISTMATRIX(float,MC,MR,s)
 DISTMATRIX(double,MC,MR,d)
 DISTMATRIX(Complex<float>,MC,MR,c)

@@ -24,11 +24,10 @@ Schur( Matrix<F>& A )
 #endif
     LogicError("This routine not yet written");
     // TODO: Call LAPACK...
-    return 0;
 }
 
 template<typename F>
-inline int
+inline void
 Schur( DistMatrix<F>& A )
 {
 #ifndef RELEASE
@@ -36,7 +35,6 @@ Schur( DistMatrix<F>& A )
 #endif
     LogicError("This routine not yet written");
     // TODO: Spectral D&C
-    return 0;
 }
 
 } // namespace elem
