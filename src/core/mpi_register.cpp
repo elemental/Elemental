@@ -31,9 +31,10 @@ namespace mpi {
 
 template<typename T>
 void
-MaxLocFunc
-( ValueInt<T>* inData, ValueInt<T>* outData, int* length, Datatype* datatype )
+MaxLocFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
+    const ValueInt<T>* inData = static_cast<ValueInt<T>*>(inVoid);
+    ValueInt<T>* outData = static_cast<ValueInt<T>*>(outVoid);
     for( int j=0; j<*length; ++j )
     {
         const T inVal = inData[j].value;
@@ -47,10 +48,10 @@ MaxLocFunc
 
 template<typename T>
 void
-MaxLocPairFunc
-( ValueIntPair<T>* inData, ValueIntPair<T>* outData, int* length, 
-  Datatype* datatype )
+MaxLocPairFunc( void* inVoid, void* outVoid, int* length, Datatype* datatype )
 {           
+    const ValueIntPair<T>* inData = static_cast<ValueIntPair<T>*>(inVoid);
+    ValueIntPair<T>* outData = static_cast<ValueIntPair<T>*>(outVoid);
     for( int j=0; j<*length; ++j )
     {
         const T inVal = inData[j].value;
@@ -318,30 +319,18 @@ Op MaxLocPairOp<double>()
 }
 
 template void
-MaxLocFunc<Int>
-( ValueInt<Int>* inData, ValueInt<Int>* outData, int* length, 
-  Datatype* datatype );
+MaxLocFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
 template void
-MaxLocFunc<float>
-( ValueInt<float>* inData, ValueInt<float>* outData, int* length, 
-  Datatype* datatype );
+MaxLocFunc<float>( void* in, void* out, int* length, Datatype* datatype );
 template void
-MaxLocFunc<double>
-( ValueInt<double>* inData, ValueInt<double>* outData, int* length, 
-  Datatype* datatype );
+MaxLocFunc<double>( void* in, void* out, int* length, Datatype* datatype );
 
 template void
-MaxLocPairFunc<Int>
-( ValueIntPair<Int>* inData, ValueIntPair<Int>* outData, int* length, 
-  Datatype* datatype );
+MaxLocPairFunc<Int>( void* in, void* out, int* length, Datatype* datatype );
 template void
-MaxLocPairFunc<float>
-( ValueIntPair<float>* inData, ValueIntPair<float>* outData, int* length, 
-  Datatype* datatype );
+MaxLocPairFunc<float>( void* in, void* out, int* length, Datatype* datatype );
 template void
-MaxLocPairFunc<double>
-( ValueIntPair<double>* inData, ValueIntPair<double>* outData, int* length, 
-  Datatype* datatype );
+MaxLocPairFunc<double>( void* in, void* out, int* length, Datatype* datatype );
 
 } // namespace mpi
 } // namespace elem

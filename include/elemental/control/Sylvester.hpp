@@ -12,9 +12,9 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Sign.hpp"
-#include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
@@ -47,16 +47,12 @@ Sylvester( Int m, Matrix<F>& W, Matrix<F>& X )
     Scale( -F(1)/F(2), X );
 
     // TODO: Think of how to probe for checks on other quadrants.
-    //       Add UpdateDiagonal routine to avoid explicit identity Axpy?
     /*
     typedef BASE(F) Real; 
-    Matrix<F> I;
-    Identity( I, m, m );
-    Axpy( F(-1), I, WTL );
+    UpdateDiagonal( WTL, F(-1) );
     const Real errorWTL = FrobeniusNorm( WTL );
     const Int n = W.Height() - m;
-    Identity( I, n, n );
-    Axpy( F(1), I, WBR );
+    UpdateDiagonal( WBR, F(1) );
     const Real errorWBR = FrobeniusNorm( WBR );
     const Real errorWBL = FrobeniusNorm( WBL );
     */
@@ -87,13 +83,10 @@ Sylvester( Int m, DistMatrix<F>& W, DistMatrix<F>& X )
     //       Add UpdateDiagonal routine to avoid explicit identity Axpy?
     /*
     typedef BASE(F) Real; 
-    DistMatrix<F> I(g);
-    Identity( I, m, m );
-    Axpy( F(-1), I, WTL );
+    UpdateDiagonal( WTL, F(-1) );
     const Real errorWTL = FrobeniusNorm( WTL );
     const Int n = W.Height() - m;
-    Identity( I, n, n );
-    Axpy( F(1), I, WBR );
+    UpdateDiagonal( WBR, F(1) );
     const Real errorWBR = FrobeniusNorm( WBR );
     const Real errorWBL = FrobeniusNorm( WBL );
     */

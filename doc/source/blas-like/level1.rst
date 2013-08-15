@@ -175,3 +175,17 @@ Sets all of the diagonal entries of a matrix to a given value.
 
 .. cpp:function:: void SetDiagonal( Matrix<T>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
 .. cpp:function:: void SetDiagonal( DistMatrix<T,U,V>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
+
+UpdateDiagonal
+--------------
+.. note::
+   
+   This is not a standard BLAS routine.
+
+Adds a given value to the diagonal of a matrix.
+
+.. cpp:function:: void UpdateDiagonal( Matrix<T>& A, T alpha )
+.. cpp:function:: void UpdateDiagonal( DistMatrix<T,U,V>& A, T alpha )
+
+.. cpp:function:: void UpdateDiagonal( Matrix<T>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
+.. cpp:function:: void UpdateDiagonal( DistMatrix<T,U,V>& A, T alpha, int offset=0, LeftOrRight side=LEFT )

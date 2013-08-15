@@ -13,9 +13,9 @@
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
 #include "elemental/lapack-like/LeastSquares.hpp"
 #include "elemental/lapack-like/Sign.hpp"
-#include "elemental/matrices/Identity.hpp"
 #include "elemental/matrices/Zeros.hpp"
 
 namespace elem {
@@ -45,10 +45,7 @@ Ricatti( Matrix<F>& W, Matrix<F>& X )
          WBL, WBR, n );
 
     // (ML, MR) = sgn(W) - I
-    // TODO: Implement and replace with 'UpdateDiagonal'
-    Matrix<F> I;
-    Identity( I, 2*n, 2*n );
-    Axpy( F(-1), I, W );
+    UpdateDiagonal( W, F(-1) );
 
     // Solve for X in ML X = -MR
     Matrix<F> ML, MR;
@@ -76,10 +73,7 @@ Ricatti( DistMatrix<F>& W, DistMatrix<F>& X )
          WBL, WBR, n );
 
     // (ML, MR) = sgn(W) - I
-    // TODO: Implement and replace with 'UpdateDiagonal'
-    DistMatrix<F> I(g);
-    Identity( I, 2*n, 2*n );
-    Axpy( F(-1), I, W );
+    UpdateDiagonal( W, F(-1) );
 
     // Solve for X in ML X = -MR
     DistMatrix<F> ML(g), MR(g);

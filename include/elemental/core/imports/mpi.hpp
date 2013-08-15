@@ -468,17 +468,12 @@ void ReduceScatter
 template<typename T>
 void ReduceScatter( const T* sbuf, T* rbuf, const int* rcs, Comm comm );
 
-template<typename F>
-void PivotFunc
-( void* inData, void* outData, int* length, mpi::Datatype* datatype );
 template<typename R>
 void MaxLocFunc
-( ValueInt<R>* inData, ValueInt<R>* outData, int* length, 
-  mpi::Datatype* datatype );
+( void* in, void* out, int* length, mpi::Datatype* datatype );
 template<typename R>
 void MaxLocPairFunc
-( ValueIntPair<R>* inData, ValueIntPair<R>* outData, int* length, 
-  mpi::Datatype* datatype );
+( void* in, void* out, int* length, mpi::Datatype* datatype );
 
 template<typename R> mpi::Datatype& ValueIntType();
 template<> mpi::Datatype& ValueIntType<Int>();

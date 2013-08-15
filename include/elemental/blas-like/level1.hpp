@@ -29,6 +29,7 @@
 #include "./level1/ScaleTrapezoid.hpp"
 #include "./level1/SetDiagonal.hpp"
 #include "./level1/Transpose.hpp"
+#include "./level1/UpdateDiagonal.hpp"
 #include "./level1/Zero.hpp"
 
 #endif // ifndef ELEM_BLAS_LEVEL1_HPP

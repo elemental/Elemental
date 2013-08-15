@@ -15,7 +15,7 @@ Functionality
 - CUR decompositions (already have (pseudo-)skeleton)
 - Complete Orthogonal Decompositions (especially URV)
 - Clean up pivoted LU and pivot applications (especially in sequential cases)
-- LU with full and rook pivoting
+- LU with rook pivoting
 - Square process grid specialization of LDL (used to exist...)
 - Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
 - Blocked Aasen's
@@ -33,6 +33,9 @@ Functionality
 - Compressed pseudoinverse solves which avoid unnecessary backtransformations
 - Means of easily tracking/plotting heap memory usage over time
 - Provide way to zoom in/out and add colorbar to DisplayWidget
+- Better organization of test matrices into relevant classes, e.g., Hermitian,
+  normal, triangular, Hessenberg, etc., so that each test driver can easily
+  test each member from that class.
 
 Maintenance
 ===========
