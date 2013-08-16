@@ -24,10 +24,12 @@ set(MPI_C_LIBRARIES "${MPI_BASE_LIBS}")
 set(MPI_CXX_LIBRARIES "-lpmpich++ ${MPI_BASE_LIBS}")
 set(MPI_Fortran_LIBRARIES "-lmpichf90nc -lmpichfarg ${MPI_BASE_LIBS}")
 
-set(CXX_PUREDEBUG_FLAGS "-g")
-set(CXX_PURERELEASE_FLAGS "-O3")
-set(CXX_HYBRIDDEBUG_FLAGS "-g")
-set(CXX_HYBRIDRELEASE_FLAGS "-O3")
+if(CMAKE_BUILD_TYPE MATCHES PureDebug OR
+   CMAKE_BUILD_TYPE MATCHES HybridDebug)
+  set(CXX_FLAGS "-g -std=c++11")
+else()
+  set(CXX_FLAGS "-O3 -std=c++11")
+endif()
 
 set(OpenMP_CXX_FLAGS "-openmp")
 

@@ -156,8 +156,7 @@ if(NOT MPI_C_FOUND)
 endif()
 include_directories(${MPI_C_INCLUDE_PATH})
     
-set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} 
-  "${C_BASE_FLAGS} ${C_FLAGS_${UPPER_BUILD_TYPE}}")
+set(CMAKE_C_FLAGS_${UPPER_BUILD_TYPE} "${C_BASE_FLAGS} ${C_FLAGS}")
 
 # Look for a PTHREADS library unless one was already specified
 if(NOT CMAKE_THREAD_LIBS_INIT)

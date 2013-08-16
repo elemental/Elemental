@@ -114,8 +114,7 @@ mark_as_advanced(CACHE_WARNINGS UNALIGNED_WARNINGS VECTOR_WARNINGS)
 #     4. "HybridRelease": MPI+OpenMP build meant for production runs
 #   If "CMAKE_BUILD_TYPE" is not defined, the default is "PureRelease".
 
-# "CXX_FLAGS_PUREDEBUG"/"CXX_FLAGS_PURERELEASE"/
-# "CXX_FLAGS_HYBRIDDEBUG"/"CXX_FLAGS_HYBRIDRELEASE"
+# "CXX_FLAGS"
 #   Override the default optimization (and debugging/symbol) flags
 
 # "OpenMP_CXX_FLAGS"
@@ -268,8 +267,7 @@ if(USE_SWIG)
 endif()
 
 # Now append the extra flags
-set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} 
-  "${CXX_FLAGS_${UPPER_BUILD_TYPE}} ${EXTRA_FLAGS}")
+set(CMAKE_CXX_FLAGS_${UPPER_BUILD_TYPE} "${CXX_FLAGS} ${EXTRA_FLAGS}")
 
 # Set the library type from the 'SHARED_LIBRARIES' option
 if(SHARED_LIBRARIES OR HAVE_SWIG)
@@ -382,6 +380,23 @@ if(NOT HAVE_MPI_TYPE_CREATE_STRUCT)
   message(FATAL_ERROR "Could not find MPI_Type_create_struct")
 endif()
 
+# Check for C++11 support
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_FLAGS ${CXX_FLAGS})
+set(RANDOM_CODE
+    "#include <random>
+     int main()
+     {
+         std::random_device rd;
+         std::mt19937 mt(rd());
+         std::normal_distribution<double> dist(0,1);
+         const double x = dist(mt);
+     }")
+check_cxx_source_compiles("${RANDOM_CODE}" HAVE_NORMAL_DIST)
+if(NOT HAVE_NORMAL_DIST)
+  message(FATAL_ERROR "C++11 random number generation not found. You may want to add -std=c++11 to your build flags, e.g., via -D CXX_FLAGS=\"-std=c++11\"")
+endif()
+
 # Check for MPI_IN_PLACE (essentially MPI2 support)
 include(CheckCSourceCompiles)
 set(MPI_IN_PLACE_CODE
@@ -439,7 +454,6 @@ if(USE_PMRRR)
 endif()
 
 # Create the Elemental configuration header
-set(CXX_FLAGS ${CXX_FLAGS_${UPPER_BUILD_TYPE}})
 configure_file(${PROJECT_SOURCE_DIR}/cmake/config.h.cmake
                ${PROJECT_BINARY_DIR}/include/elemental/config.h)
 install(FILES ${PROJECT_BINARY_DIR}/include/elemental/config.h 

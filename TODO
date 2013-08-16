@@ -14,7 +14,6 @@ Functionality
 - Strong RRQR and RRLQ 
 - CUR decompositions (already have (pseudo-)skeleton)
 - Complete Orthogonal Decompositions (especially URV)
-- Clean up pivoted LU and pivot applications (especially in sequential cases)
 - LU with rook pivoting
 - Square process grid specialization of LDL (used to exist...)
 - Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
@@ -53,6 +52,5 @@ Maintenance
 - Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
 - Consistent handling of unblocked routines
-- Switch to C++11 for better 64-bit integer and std::complex support, as well as
-  std::thread, extern templates, _Pragma, auto, and syntactic sugar
-- Further improvements for the speed of the build process
+- Use C++11's std::complex, extern templates, _Pragma, auto, and perhaps 
+  std::thread
