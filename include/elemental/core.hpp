@@ -25,6 +25,7 @@
 #include <stack>
 #include <stdexcept>
 #include <string>
+#include <random>
 #include <vector>
 
 // If defined, the _OPENMP macro contains the date of the specification

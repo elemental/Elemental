@@ -28,7 +28,7 @@ main( int argc, char* argv[] )
         const Int numTests = 1000;
         for( Int j=0; j<numTests; ++j )
         {
-            w = SampleUnitBall<Complex<double> >();
+            w = SampleBall<Complex<double>>();
             Complex<double> sqrtW = Sqrt(w);
             const double error = Abs(sqrtW*sqrtW-w);
             const double relError = error/Abs(w);

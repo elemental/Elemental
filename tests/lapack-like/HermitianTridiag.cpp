@@ -159,7 +159,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalSymvBlocksize<Complex<double> >( nbLocal );
+        SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test HermitianTridiag" << uploChar << endl;
@@ -202,7 +202,7 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<Complex<double> >
+        TestHermitianTridiag<Complex<double>>
         ( testCorrectness, print, uplo, m, g );
 
         if( commRank == 0 )
@@ -215,7 +215,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<Complex<double> >
+        TestHermitianTridiag<Complex<double>>
         ( testCorrectness, print, uplo, m, g );
 
         if( commRank == 0 )
@@ -228,7 +228,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<Complex<double> >
+        TestHermitianTridiag<Complex<double>>
         ( testCorrectness, print, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }

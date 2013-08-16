@@ -29,6 +29,9 @@ std::stack<elem::Int> blocksizeStack;
 elem::Grid* defaultGrid = 0;
 elem::Args* args = 0;
 
+// A common Mersenne twister configuration
+std::mt19937 generator;
+
 // Debugging
 #ifndef RELEASE
 std::stack<std::string> callStack;
@@ -290,11 +293,7 @@ void Initialize( int& argc, char**& argv )
     const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
     const long secs = time(NULL);
     const long seed = abs(((secs*181)*((rank-83)*359))%104729);
-#ifdef WIN32
-    srand( seed );
-#else
-    srand48( seed );
-#endif
+    ::generator.seed( seed );
 }
 
 void Finalize()
@@ -387,6 +386,9 @@ const Grid& DefaultGrid()
     return *::defaultGrid;
 }
 
+std::mt19937& Generator()
+{ return ::generator; }
+
 // If we are not in RELEASE mode, then implement wrappers for a CallStack
 #ifndef RELEASE
 void PushCallStack( std::string s )
@@ -429,11 +431,11 @@ void SetLocalSymvBlocksize<double>( Int blocksize )
 { ::localSymvDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<Complex<float> >( Int blocksize )
+void SetLocalSymvBlocksize<Complex<float>>( Int blocksize )
 { ::localSymvComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalSymvBlocksize<Complex<double> >( Int blocksize )
+void SetLocalSymvBlocksize<Complex<double>>( Int blocksize )
 { ::localSymvComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -445,11 +447,11 @@ Int LocalSymvBlocksize<double>()
 { return ::localSymvDoubleBlocksize; }
 
 template<>
-Int LocalSymvBlocksize<Complex<float> >()
+Int LocalSymvBlocksize<Complex<float>>()
 { return ::localSymvComplexFloatBlocksize; }
 
 template<>
-Int LocalSymvBlocksize<Complex<double> >()
+Int LocalSymvBlocksize<Complex<double>>()
 { return ::localSymvComplexDoubleBlocksize; }
 
 template<>
@@ -461,11 +463,11 @@ void SetLocalTrr2kBlocksize<double>( Int blocksize )
 { ::localTrr2kDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<Complex<float> >( Int blocksize )
+void SetLocalTrr2kBlocksize<Complex<float>>( Int blocksize )
 { ::localTrr2kComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrr2kBlocksize<Complex<double> >( Int blocksize )
+void SetLocalTrr2kBlocksize<Complex<double>>( Int blocksize )
 { ::localTrr2kComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -477,11 +479,11 @@ Int LocalTrr2kBlocksize<double>()
 { return ::localTrr2kDoubleBlocksize; }
 
 template<>
-Int LocalTrr2kBlocksize<Complex<float> >()
+Int LocalTrr2kBlocksize<Complex<float>>()
 { return ::localTrr2kComplexFloatBlocksize; }
 
 template<>
-Int LocalTrr2kBlocksize<Complex<double> >()
+Int LocalTrr2kBlocksize<Complex<double>>()
 { return ::localTrr2kComplexDoubleBlocksize; }
 
 template<>
@@ -493,11 +495,11 @@ void SetLocalTrrkBlocksize<double>( Int blocksize )
 { ::localTrrkDoubleBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<Complex<float> >( Int blocksize )
+void SetLocalTrrkBlocksize<Complex<float>>( Int blocksize )
 { ::localTrrkComplexFloatBlocksize = blocksize; }
 
 template<>
-void SetLocalTrrkBlocksize<Complex<double> >( Int blocksize )
+void SetLocalTrrkBlocksize<Complex<double>>( Int blocksize )
 { ::localTrrkComplexDoubleBlocksize = blocksize; }
 
 template<>
@@ -509,11 +511,11 @@ Int LocalTrrkBlocksize<double>()
 { return ::localTrrkDoubleBlocksize; }
 
 template<>
-Int LocalTrrkBlocksize<Complex<float> >()
+Int LocalTrrkBlocksize<Complex<float>>()
 { return ::localTrrkComplexFloatBlocksize; }
 
 template<>
-Int LocalTrrkBlocksize<Complex<double> >()
+Int LocalTrrkBlocksize<Complex<double>>()
 { return ::localTrrkComplexDoubleBlocksize; }
 
 void SetHermitianTridiagApproach( HermitianTridiagApproach approach )

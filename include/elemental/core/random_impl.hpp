@@ -12,61 +12,55 @@
 
 namespace elem {
 
-inline double Uniform()
+template<typename Real=double>
+inline Real Uniform( Real a=0, Real b=1 )
 {
-#ifdef WIN32    
-    return rand()/RAND_MAX;
-#else
-    return drand48();
-#endif
+    std::uniform_real_distribution<Real> uniform(a,b);
+    return uniform( Generator() );
 }
 
-template<>
-inline Int
-SampleUnitBall<Int>()
+template<typename Real=double>
+inline Real Normal( Real mean=0, Real stddev=1 )
 {
-    const double u = Uniform();
-    if( u <= 1./3. )
-        return -1;
-    else if( u <= 2./3. )
-        return 0;
-    else
-        return +1;
+    std::normal_distribution<Real> normal(mean,stddev);
+    return normal( Generator() );
 }
-
-// What to do after switching back to std::complex, where only the base types
-// float, double, and long double are allowed?
-template<>
-inline Complex<Int>
-SampleUnitBall<Complex<Int> >()
-{ return Complex<Int>( SampleUnitBall<Int>(), SampleUnitBall<Int>() ); }
 
 template<>
 inline float
-SampleUnitBall<float>()
-{ return 2*float(Uniform())-1.0f; }
+SampleBall<float>( float center, float radius )
+{ return Uniform<float>(center-radius/2,center+radius/2); }
 
 template<>
 inline double
-SampleUnitBall<double>()
-{ return 2*Uniform()-1.0; }
+SampleBall<double>( double center, double radius )
+{ return Uniform<double>(center-radius/2,center+radius/2); }
 
 template<>
 inline Complex<float>
-SampleUnitBall<Complex<float> >()
+SampleBall<Complex<float>>( Complex<float> center, float radius )
 {
-    const float r = Uniform();
-    const float angle = 2*Pi*Uniform();
-    return Complex<float>(r*cos(angle),r*sin(angle));
+    const float r = Uniform<float>(0,radius);
+    const float angle = Uniform<float>(0.f,float(2*Pi));
+    return center + Complex<float>(r*cos(angle),r*sin(angle));
 }
 
 template<>
 inline Complex<double>
-SampleUnitBall<Complex<double> >()
+SampleBall<Complex<double>>( Complex<double> center, double radius )
 {
-    const double r = Uniform();
-    const double angle = 2*Pi*Uniform();
-    return Complex<double>(r*cos(angle),r*sin(angle));
+    const double r = Uniform<double>(0,radius);
+    const double angle = Uniform<double>(0.,2*Pi);
+    return center + Complex<double>(r*cos(angle),r*sin(angle));
+}
+
+// I'm not certain if there is any good way to define this
+template<>
+inline Int
+SampleBall<Int>( Int center, Int radius )
+{
+    const double u = SampleBall<double>( center, radius );
+    return round(u);
 }
 
 } // namespace elem

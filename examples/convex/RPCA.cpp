@@ -47,10 +47,10 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
     {
         for( Int iLocal=0; iLocal<localHeight; ++iLocal )
         {
-            if( Abs(SampleUnitBall<R>()) <= probCorrupt )
+            if( Uniform<R>() <= probCorrupt )
             {
                 ++numLocalCorrupt;
-                const F perturb = SampleUnitBall<F>();
+                const F perturb = SampleBall<F>();
                 A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)+perturb );
             }
         }

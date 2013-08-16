@@ -108,7 +108,7 @@ void InPlaceRedist
 
 template<typename R>
 void InPlaceRedist
-( DistMatrix<Complex<R> >& paddedZ,
+( DistMatrix<Complex<R>>& paddedZ,
   Int height,
   Int width,
   Int rowAlign,
@@ -322,7 +322,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w )
 {
     LogicError("HermitianEig not yet implemented for float");
@@ -331,7 +331,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<        double, VR,STAR>& w )
 {
 #ifndef RELEASE
@@ -592,9 +592,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float> >& paddedZ )
+  DistMatrix<Complex<float>>& paddedZ )
 {
     LogicError("HermitianEig not yet implemented for float");
 }
@@ -602,9 +602,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double> >& paddedZ )
+  DistMatrix<Complex<double>>& paddedZ )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEig");
@@ -867,7 +867,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w,
   Int lowerBound, Int upperBound )
 {
@@ -877,7 +877,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<double,VR,STAR>& w,
   Int lowerBound, Int upperBound )
 {
@@ -1149,9 +1149,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float> >& paddedZ,
+  DistMatrix<Complex<float>>& paddedZ,
   Int lowerBound, Int upperBound )
 {
     LogicError("HermitianEig not yet implemented for float");
@@ -1160,9 +1160,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double> >& paddedZ,
+  DistMatrix<Complex<double>>& paddedZ,
   Int lowerBound, Int upperBound )
 {
 #ifndef RELEASE
@@ -1419,7 +1419,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w,
   float lowerBound, float upperBound )
 {
@@ -1429,7 +1429,7 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<double,VR,STAR>& w,
   double lowerBound, double upperBound )
 {
@@ -1706,9 +1706,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<float> >& A,
+  DistMatrix<Complex<float>>& A,
   DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float> >& paddedZ,
+  DistMatrix<Complex<float>>& paddedZ,
   float lowerBound, float upperBound )
 {
     LogicError("HermitianEig not yet implemented for float");
@@ -1717,9 +1717,9 @@ void HermitianEig
 template<>
 void HermitianEig
 ( UpperOrLower uplo, 
-  DistMatrix<Complex<double> >& A,
+  DistMatrix<Complex<double>>& A,
   DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double> >& paddedZ,
+  DistMatrix<Complex<double>>& paddedZ,
   double lowerBound, double upperBound )
 {
 #ifndef RELEASE
@@ -1888,9 +1888,9 @@ template void HermitianEig
 template void HermitianEig
 ( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<float> >& A, Matrix<float>& w );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, Matrix<float>& w );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, Matrix<double>& w );
 
 // Full set of eigenpairs
 template void HermitianEig
@@ -1899,10 +1899,10 @@ template void HermitianEig
 ( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<float> >& A, Matrix<float>& w, Matrix<Complex<float> >& Z );
+  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z );
+  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z );
 
 // Integer range of eigenvalues
 template void HermitianEig
@@ -1911,10 +1911,10 @@ template void HermitianEig
 ( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<float> >& A, Matrix<float>& w, Int il, Int iu );
+  Matrix<Complex<float>>& A, Matrix<float>& w, Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<double> >& A, Matrix<double>& w, Int il, Int iu );
+  Matrix<Complex<double>>& A, Matrix<double>& w, Int il, Int iu );
 
 // Integer range of eigenpairs
 template void HermitianEig
@@ -1925,11 +1925,11 @@ template void HermitianEig
   Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<float> >& A, Matrix<float>& w, Matrix<Complex<float> >& Z,
+  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z,
   Int il, Int iu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z,
+  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z,
   Int il, Int iu );
 
 // Floating-point range of eigenvalues
@@ -1940,10 +1940,10 @@ template void HermitianEig
 ( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, 
   double vl, double vu );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<float> >& A, Matrix<float>& w, 
+( UpperOrLower uplo, Matrix<Complex<float>>& A, Matrix<float>& w, 
   float vl, float vu );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, 
+( UpperOrLower uplo, Matrix<Complex<double>>& A, Matrix<double>& w, 
   double vl, double vu );
 
 // Floating-point range of eigenpairs
@@ -1955,11 +1955,11 @@ template void HermitianEig
   double vl, double vu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<float> >& A, Matrix<float>& w, Matrix<Complex<float> >& Z,
+  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z,
   float vl, float vu );
 template void HermitianEig
 ( UpperOrLower uplo, 
-  Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z,
+  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z,
   double vl, double vu );
 
 } // namespace elem

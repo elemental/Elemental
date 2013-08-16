@@ -22,7 +22,7 @@ Conjugate( Matrix<Z>& A )
 // Specialization is to complex datatypes
 template<typename Z>
 inline void
-Conjugate( Matrix<Complex<Z> >& A )
+Conjugate( Matrix<Complex<Z>>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("Conjugate (in-place)");

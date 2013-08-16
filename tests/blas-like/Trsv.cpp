@@ -118,7 +118,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTrsv<Complex<double> >( print, uplo, orientation, diag, n, g );
+        TestTrsv<Complex<double>>( print, uplo, orientation, diag, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 

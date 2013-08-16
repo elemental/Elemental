@@ -173,7 +173,7 @@ struct Complex
 template<typename R>
 struct Base { typedef R type; };
 template<typename R>
-struct Base<Complex<R> > { typedef R type; };
+struct Base<Complex<R>> { typedef R type; };
 #else
 template<typename R> struct Base { };
 %template(Base_i) Base<Int>;

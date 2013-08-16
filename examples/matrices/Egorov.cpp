@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
         FourierPhase<double> fourier( n );
         Phase<double> phase( n );
 
-        DistMatrix<Complex<double> > F, G;
+        DistMatrix<Complex<double>> F, G;
         Egorov( F, fourier, n );
         Egorov( G, phase, n ); 
 

@@ -32,7 +32,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Complex<double> center( realCenter, imagCenter );
-        DistMatrix<Complex<double> > X;
+        DistMatrix<Complex<double>> X;
         NormalUniformSpectrum( X, n, center, radius );
         if( display )
             Display( X, "Normal uniform spectrum" );

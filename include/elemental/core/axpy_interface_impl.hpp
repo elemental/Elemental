@@ -700,7 +700,7 @@ template<typename T>
 inline Int
 AxpyInterface<T>::ReadyForSend
 ( Int sendSize,
-  std::deque<std::vector<byte> >& sendVectors,
+  std::deque<std::vector<byte>>& sendVectors,
   std::deque<mpi::Request>& requests, 
   std::deque<bool>& requestStatuses )
 {

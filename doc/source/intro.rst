@@ -54,8 +54,8 @@ why ScaLAPACK or PLAPACK might be more appropriate:
 
 Dependencies
 ============
-* Functioning C++03 and ANSI C compilers.
-* A working MPI implementation.
+* Functioning C++11 and ANSI C compilers.
+* A working MPI2 implementation.
 * BLAS and LAPACK (ideally version 3.3 or greater) implementations. If 
   a sufficiently up-to-date LAPACK implementation is not provided, then 
   a working F90 compiler is required in order to build Elemental's eigensolvers

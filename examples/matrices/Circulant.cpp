@@ -29,8 +29,8 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create a circulant matrix
-        DistMatrix<Complex<double> > A;
-        std::vector<Complex<double> > a( n );
+        DistMatrix<Complex<double>> A;
+        std::vector<Complex<double>> a( n );
         for( Int j=0; j<n; ++j )
             a[j] = j;
         Circulant( A, a );
@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
 
         // Create a Fourier matrix, which can be used to diagonalize circulant
         // matrices
-        DistMatrix<Complex<double> > F;
+        DistMatrix<Complex<double>> F;
         Fourier( F, n );
         if( display )
             Display( F, "DFT matrix" );
@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
             Print( F, "DFT matrix:" );
         
         // Form B := A F
-        DistMatrix<Complex<double> > B;
+        DistMatrix<Complex<double>> B;
         Zeros( B, n, n );
         Gemm( NORMAL, NORMAL, Complex<double>(1), A, F, Complex<double>(0), B );
 

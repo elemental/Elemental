@@ -146,7 +146,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;
@@ -165,7 +165,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLDL<Complex<double> >( conjugated, testCorrectness, print, m, g );
+        TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

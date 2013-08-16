@@ -12,32 +12,6 @@
 
 namespace elem {
 
-template<typename R>
-struct IndexValuePair {
-    Int index;
-    R value;    
-
-    static bool Lesser
-    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
-    { return a.value < b.value; }
-    static bool Greater
-    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
-    { return a.value > b.value; }
-};
-
-template<typename R>
-struct IndexValuePair<Complex<R> > {
-    Int index;
-    Complex<R> value;    
-
-    static bool Lesser
-    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
-    { return Abs(a.value) < Abs(b.value); }
-    static bool Greater
-    ( const IndexValuePair<R>& a, const IndexValuePair<R>& b )
-    { return Abs(a.value) > Abs(b.value); }
-};
-
 namespace hermitian_eig {
 
 template<typename R>
@@ -88,18 +62,18 @@ Sort( Matrix<BASE(F)>& w, Matrix<F>& Z, bool ascending=true )
     const Int k = Z.Width();
 
     // Initialize the pairs of indices and eigenvalues
-    std::vector<IndexValuePair<R> > pairs( k );
+    std::vector<ValueInt<R> > pairs( k );
     for( Int i=0; i<k; ++i )
     {
-        pairs[i].index = i;
         pairs[i].value = w.Get(i,0);
+        pairs[i].index = i;
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
     if( ascending )
-        std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Lesser );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<R>::Lesser );
     else
-        std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Greater );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<R>::Greater );
 
     // Reorder the eigenvectors and eigenvalues using the new ordering
     Matrix<F> ZPerm( n, k );
@@ -128,18 +102,18 @@ Sort( DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& Z, bool ascending=true )
     DistMatrix<R,STAR,STAR> w_STAR_STAR( w );
 
     // Initialize the pairs of indices and eigenvalues
-    std::vector<IndexValuePair<R> > pairs( k );
+    std::vector<ValueInt<R> > pairs( k );
     for( Int i=0; i<k; ++i )
     {
-        pairs[i].index = i;
         pairs[i].value = w_STAR_STAR.GetLocal(i,0);
+        pairs[i].index = i;
     }
 
     // Sort the eigenvalues and simultaneously form the permutation
     if( ascending )
-        std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Lesser );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<R>::Lesser );
     else
-        std::sort( pairs.begin(), pairs.end(), IndexValuePair<R>::Greater );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<R>::Greater );
 
     // Locally reorder the eigenvectors and eigenvalues using the new ordering
     const Int nLocal = Z_VC_STAR.LocalHeight();

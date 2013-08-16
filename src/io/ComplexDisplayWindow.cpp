@@ -27,12 +27,12 @@ ComplexDisplayWindow::ComplexDisplayWindow( QWidget* parent )
 
     QHBoxLayout* matrixLayout = new QHBoxLayout();
     // Real data
-    realDisplay_ = new DisplayWidget<Complex<double> >();
+    realDisplay_ = new DisplayWidget<Complex<double>>();
     realScroll_ = new QScrollArea();
     realScroll_->setWidget( realDisplay_ );
     matrixLayout->addWidget( realScroll_ );
     // Imaginary data
-    imagDisplay_ = new DisplayWidget<Complex<double> >();
+    imagDisplay_ = new DisplayWidget<Complex<double>>();
     imagScroll_ = new QScrollArea();
     imagScroll_->setWidget( imagDisplay_ );
     matrixLayout->addWidget( imagScroll_ );
@@ -66,7 +66,7 @@ ComplexDisplayWindow::~ComplexDisplayWindow()
 
 void 
 ComplexDisplayWindow::Display
-( const Matrix<Complex<double> >* matrix, QString title )
+( const Matrix<Complex<double>>* matrix, QString title )
 {
 #ifndef RELEASE
     CallStackEntry entry("ComplexDisplayWindow::Display");
@@ -82,7 +82,7 @@ ComplexDisplayWindow::Display
 
 void 
 ComplexDisplayWindow::Display
-( const Matrix<Complex<double> >* matrix, 
+( const Matrix<Complex<double>>* matrix, 
   double minRealVal, double maxRealVal, 
   double minImagVal, double maxImagVal,
   QString title )

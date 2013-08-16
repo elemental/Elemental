@@ -749,9 +749,9 @@ template class Matrix<float>;
 template class Matrix<double>;
 #ifndef DISABLE_COMPLEX
 #ifndef DISABLE_FLOAT
-template class Matrix<Complex<float> >;
+template class Matrix<Complex<float>>;
 #endif // ifndef DISABLE_FLOAT
-template class Matrix<Complex<double> >;
+template class Matrix<Complex<double>>;
 #endif // ifndef DISABLE_COMPLEX
 
 } // namespace elem

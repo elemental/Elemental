@@ -54,6 +54,8 @@ void SetBlocksize( Int blocksize );
 void PushBlocksizeStack( Int blocksize );
 void PopBlocksizeStack();
 
+std::mt19937& Generator();
+
 inline Int Max( Int m, Int n )
 { return std::max(m,n); }
 

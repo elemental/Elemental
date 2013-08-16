@@ -181,7 +181,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLU<Complex<double> >( pivot, testCorrectness, print, m, g );
+        TestLU<Complex<double>>( pivot, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

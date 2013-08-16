@@ -22,18 +22,54 @@ typedef unsigned Unsigned;
 typedef Complex<float>  scomplex; 
 typedef Complex<double> dcomplex;
 
-template<typename T>
+template<typename Real>
 struct ValueInt
 {
-    T value;
+    Real value;
     Int index;
+
+    static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return a.value < b.value; }
+    static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return a.value > b.value; }
 };
 
-template<typename T>
+template<typename Real>
+struct ValueInt<Complex<Real> >
+{
+    Complex<Real> value;
+    Int index;
+
+    static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return Abs(a.value) < Abs(b.value); }
+    static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return Abs(a.value) > Abs(b.value); }
+};
+
+template<typename Real>
 struct ValueIntPair
 {
-    T value;
+    Real value;
     Int indices[2];
+    
+    static bool Lesser( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return a.value < b.value; }
+    static bool Greater( const ValueInt<Real>& a, const ValueInt<Real>& b )
+    { return a.value > b.value; }
+};
+
+template<typename Real>
+struct ValueIntPair<Complex<Real> >
+{
+    Complex<Real> value;
+    Int indices[2];
+    
+    static bool Lesser
+    ( const ValueIntPair<Real>& a, const ValueIntPair<Real>& b )
+    { return Abs(a.value) < Abs(b.value); }
+    static bool Greater
+    ( const ValueIntPair<Real>& a, const ValueIntPair<Real>& b )
+    { return Abs(a.value) > Abs(b.value); }
 };
 
 // For the safe computation of products. The result is given by 

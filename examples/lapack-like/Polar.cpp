@@ -27,7 +27,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         Grid g( mpi::COMM_WORLD );
-        DistMatrix<Complex<double> > A( g ), Q( g ), P( g );
+        DistMatrix<Complex<double>> A( g ), Q( g ), P( g );
         Uniform( A, m, n );
 
         // Compute the polar decomp of A (but do not overwrite A)

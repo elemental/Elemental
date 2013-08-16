@@ -206,7 +206,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalSymvBlocksize<Complex<double> >( nbLocal );
+        SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
             LogicError("'range' must be 'A', 'I', or 'V'");
         if( onlyEigvals && testCorrectness && commRank==0 )
@@ -260,7 +260,7 @@ main( int argc, char* argv[] )
                  << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianEig<Complex<double> >
+        TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -274,7 +274,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianEig<Complex<double> >
+        TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
 
@@ -288,7 +288,7 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianEig<Complex<double> >
+        TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
           onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
     }

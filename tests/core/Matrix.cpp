@@ -68,7 +68,7 @@ main( int argc, char* argv[] )
             std::cout << "Testing with double-precision complex...";
             std::cout.flush();
         }
-        TestMatrix<Complex<double> >( m, n, ldim );
+        TestMatrix<Complex<double>>( m, n, ldim );
     }
     catch( std::exception& e ) { ReportException(e); }
 

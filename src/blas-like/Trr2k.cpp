@@ -372,11 +372,11 @@ template void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
-  Complex<float> alpha, const DistMatrix<Complex<float> >& A, 
-                        const DistMatrix<Complex<float> >& B,
-                        const DistMatrix<Complex<float> >& C, 
-                        const DistMatrix<Complex<float> >& D,
-  Complex<float> beta,        DistMatrix<Complex<float> >& E );
+  Complex<float> alpha, const DistMatrix<Complex<float>>& A, 
+                        const DistMatrix<Complex<float>>& B,
+                        const DistMatrix<Complex<float>>& C, 
+                        const DistMatrix<Complex<float>>& D,
+  Complex<float> beta,        DistMatrix<Complex<float>>& E );
 template void LocalTrr2k
 ( UpperOrLower uplo,
   Complex<float> alpha, const DistMatrix<Complex<float>,MC,  STAR>& A, 
@@ -680,11 +680,11 @@ template void Trr2k
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
   Orientation orientationOfC, Orientation orientationOfD,
-  Complex<double> alpha, const DistMatrix<Complex<double> >& A, 
-                         const DistMatrix<Complex<double> >& B,
-                         const DistMatrix<Complex<double> >& C, 
-                         const DistMatrix<Complex<double> >& D,
-  Complex<double> beta,        DistMatrix<Complex<double> >& E );
+  Complex<double> alpha, const DistMatrix<Complex<double>>& A, 
+                         const DistMatrix<Complex<double>>& B,
+                         const DistMatrix<Complex<double>>& C, 
+                         const DistMatrix<Complex<double>>& D,
+  Complex<double> beta,        DistMatrix<Complex<double>>& E );
 template void LocalTrr2k
 ( UpperOrLower uplo,
   Complex<double> alpha, const DistMatrix<Complex<double>,MC,  STAR>& A, 

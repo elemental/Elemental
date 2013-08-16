@@ -397,8 +397,8 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,MC,STAR>& A )
 #ifndef RELEASE
     CallStackEntry entry("[* ,VC] = [MC,* ]");
 #endif
-    std::auto_ptr<DistMatrix<T,MC,MR> > A_MC_MR( new DistMatrix<T,MC,MR>(A) );
-    std::auto_ptr<DistMatrix<T,STAR,VR> > A_STAR_VR
+    std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
+    std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(*A_MC_MR) );
     delete A_MC_MR.release(); // lowers memory highwater
     *this = *A_STAR_VR;
@@ -750,8 +750,8 @@ DistMatrix<T,STAR,VC>::operator=( const DistMatrix<T,VC,STAR>& A )
 #ifndef RELEASE
     CallStackEntry entry("[* ,VC] = [VC,* ]");
 #endif
-    std::auto_ptr<DistMatrix<T,MC,MR> > A_MC_MR( new DistMatrix<T,MC,MR>(A) );
-    std::auto_ptr<DistMatrix<T,STAR,VR> > A_STAR_VR
+    std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
+    std::unique_ptr<DistMatrix<T,STAR,VR>> A_STAR_VR
     ( new DistMatrix<T,STAR,VR>(*A_MC_MR) );
     delete A_MC_MR.release(); // lowers memory highwater
     *this = *A_STAR_VR;

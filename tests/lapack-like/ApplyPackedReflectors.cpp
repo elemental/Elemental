@@ -228,7 +228,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestUT<Complex<double> >
+        TestUT<Complex<double>>
         ( side, uplo, order, conjugation, m, offset, 
           testCorrectness, printMatrices, g );
     }

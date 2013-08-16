@@ -549,11 +549,11 @@ DistMatrix<T,MR,STAR>::operator=( const DistMatrix<T,MC,MR>& A )
     CallStackEntry entry("[MR,* ] = [MC,MR]");
 #endif
     const elem::Grid& g = this->Grid();
-    std::auto_ptr<DistMatrix<T,VC,STAR> > A_VC_STAR
+    std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(g) );
     *A_VC_STAR = A;
 
-    std::auto_ptr<DistMatrix<T,VR,STAR> > A_VR_STAR
+    std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(true,this->ColAlignment(),g) );
     *A_VR_STAR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
@@ -648,11 +648,11 @@ DistMatrix<T,MR,STAR>::operator=( const DistMatrix<T,MC,STAR>& A )
     }
     else
     {
-        std::auto_ptr<DistMatrix<T,VC,STAR> > A_VC_STAR
+        std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
         ( new DistMatrix<T,VC,STAR>(g) );
         *A_VC_STAR = A;
 
-        std::auto_ptr<DistMatrix<T,VR,STAR> > A_VR_STAR
+        std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
         ( new DistMatrix<T,VR,STAR>(true,this->ColAlignment(),g) );
         *A_VR_STAR = *A_VC_STAR;
         delete A_VC_STAR.release(); // lowers memory highwater
@@ -670,14 +670,14 @@ DistMatrix<T,MR,STAR>::operator=( const DistMatrix<T,STAR,MR>& A )
     CallStackEntry entry("[MR,* ] = [* ,MR]");
 #endif
     const elem::Grid& g = this->Grid();
-    std::auto_ptr<DistMatrix<T,MC,MR> > A_MC_MR( new DistMatrix<T,MC,MR>(A) );
+    std::unique_ptr<DistMatrix<T,MC,MR>> A_MC_MR( new DistMatrix<T,MC,MR>(A) );
 
-    std::auto_ptr<DistMatrix<T,VC,STAR> > A_VC_STAR
+    std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
     ( new DistMatrix<T,VC,STAR>(g) );
     *A_VC_STAR = *A_MC_MR;
     delete A_MC_MR.release(); // lowers memory highwater
 
-    std::auto_ptr<DistMatrix<T,VR,STAR> > A_VR_STAR
+    std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
     ( new DistMatrix<T,VR,STAR>(true,this->ColAlignment(),g) );
     *A_VR_STAR = *A_VC_STAR;
     delete A_VC_STAR.release(); // lowers memory highwater
@@ -1151,10 +1151,10 @@ DistMatrix<T,MR,STAR>::operator=( const DistMatrix<T,STAR,VR>& A )
     CallStackEntry entry("[MR,* ] = [* ,VR]");
 #endif
     const elem::Grid& g = this->Grid();
-    std::auto_ptr<DistMatrix<T,STAR,VC> > A_STAR_VC
+    std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
     ( new DistMatrix<T,STAR,VC>(A) );
 
-    std::auto_ptr<DistMatrix<T,MR,MC> > A_MR_MC
+    std::unique_ptr<DistMatrix<T,MR,MC>> A_MR_MC
     ( new DistMatrix<T,MR,MC>(true,false,this->ColAlignment(),0,g) );
     *A_MR_MC = *A_STAR_VC;
     delete A_STAR_VC.release(); // lowers memory highwater

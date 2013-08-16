@@ -204,7 +204,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTwoSidedTrsm<Complex<double> >
+        TestTwoSidedTrsm<Complex<double>>
         ( testCorrectness, print, uplo, diag, m, g );
     }
     catch( exception& e ) { ReportException(e); }

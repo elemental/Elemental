@@ -26,7 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Complex<double> > A;
+        DistMatrix<Complex<double>> A;
         Fourier( A, n );
         if( display )
             Display( A, "Fourier Matrix" );
@@ -36,7 +36,7 @@ main( int argc, char* argv[] )
         if( n >= 50 )
         {
             const Int nSqrt = Sqrt( double(n) );
-            DistMatrix<Complex<double> > AMid, AMidCopy;
+            DistMatrix<Complex<double>> AMid, AMidCopy;
             if( mpi::WorldRank() == 0 )
                 std::cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
                           << "starting at (" 

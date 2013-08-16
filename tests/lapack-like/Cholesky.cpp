@@ -161,7 +161,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test Cholesky" << uploChar << endl;
@@ -181,7 +181,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestCholesky<Complex<double> >
+        TestCholesky<Complex<double>>
         ( testCorrectness, printMatrices, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }
