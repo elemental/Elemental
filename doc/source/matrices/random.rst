@@ -1,9 +1,50 @@
 Random
 ======
 
+Gaussian
+--------
+An :math:`m \times n` matrix is Gaussian if each entry is independently drawn
+from a normal distribution.
+
+.. cpp:function:: void Gaussian( int m, int n, Matrix<T>& A, T mean=0, typename Base<T>::type stddev=1 )
+.. cpp:function:: void Gaussian( int m, int n, DistMatrix<T,U,V>& A, T mean=0, typename Base<T>::type stddev=1 )
+
+   Sets the matrix ``A`` to an :math:`m \times n` Gaussian matrix with the
+   specified mean and standard deviation.
+
+.. cpp:function:: void MakeGaussian( Matrix<T>& A, T mean=0, typename Base<T>::type stddev=1 )
+.. cpp:function:: void MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, typename Base<T>::type stddev=1 )
+
+   Changes each entry to an independent sample from the specified normal
+   distribution.
+
+Wigner
+------
+A Hermitian matrix whose entries in one triangle are all independent samples
+from a normal distribution. The spectra of these matrices are well-studied.
+
+.. cpp:function:: void Wigner( int n, Matrix<T>& A, T mean=0, typename Base<T>::type stddev=1 )
+.. cpp:function:: void Wigner( int n, DistMatrix<T,U,V>& A, T mean=0, typename Base<T>::type stddev=1 )
+
+   Sets the matrix ``A`` to an :math:`n \times n` Wigner matrix with the
+   specified mean and standard deviation.
+
+Haar
+----
+The Haar distribution is the uniform distribution over the space of real or 
+complex unitary matrices. 
+
+.. cpp:function:: void Haar( int n, Matrix<T>& A )
+.. cpp:function:: void Haar( int n, DistMatrix<T>& A )
+
+   Draws ``A`` from the Haar distribution. The current scheme performs a QR
+   factorization of a Gaussian matrix, but Stewart introduced a well-known 
+   scheme which only requires quadratic work for the implicit representation 
+   as a product of random Householder reflectors.
+
 Uniform
 -------
-We call an :math:`m \times n` matrix uniformly random if each entry is drawn 
+We call an :math:`m \times n` matrix is uniformly random if each entry is drawn 
 from a uniform distribution over some ball :math:`B_r(x)`, which is centered 
 around some point :math:`x` and of radius :math:`r`.
 

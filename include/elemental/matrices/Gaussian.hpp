@@ -7,49 +7,49 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_MATRICES_UNIFORM_HPP
-#define ELEM_MATRICES_UNIFORM_HPP
+#ifndef ELEM_MATRICES_GAUSSIAN_HPP
+#define ELEM_MATRICES_GAUSSIAN_HPP
 
 namespace elem {
 
-// Draw each entry from a uniform PDF over a closed ball.
+// Draw each entry from a normal PDF
 template<typename T>
 inline void
-MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
+MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeUniform");
+    CallStackEntry entry("MakeGaussian");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, SampleBall( center, radius ) );
+            A.Set( i, j, Normal( mean, stddev ) );
 }
 
 template<typename T>
 inline void
-Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry entry("Gaussian");
 #endif
     A.ResizeTo( m, n );
-    MakeUniform( A, center, radius );
+    MakeGaussian( A, mean, stddev );
 }
 
 namespace internal {
 
 template<typename T,Distribution U,Distribution V>
-struct MakeUniformHelper
+struct MakeGaussianHelper
 {
-    static void Func( DistMatrix<T,U,V>& A, T center, BASE(T) radius );  
+    static void Func( DistMatrix<T,U,V>& A, T mean, BASE(T) stddev );  
 };
 
 template<typename T>
-struct MakeUniformHelper<T,CIRC,CIRC>
+struct MakeGaussianHelper<T,CIRC,CIRC>
 {
-    static void Func( DistMatrix<T,CIRC,CIRC>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,CIRC,CIRC>& A, T mean, BASE(T) stddev )
     {
         if( A.Grid().VCRank() == A.Root() )
         {
@@ -57,28 +57,28 @@ struct MakeUniformHelper<T,CIRC,CIRC>
             const Int width = A.Width();
             for( Int j=0; j<width; ++j )
                 for( Int i=0; i<height; ++i )
-                    A.SetLocal( i, j, SampleBall( center, radius ) );
+                    A.SetLocal( i, j, Normal( mean, stddev ) );
         }
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,MC,MR>
+struct MakeGaussianHelper<T,MC,MR>
 {
-    static void Func( DistMatrix<T,MC,MR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,MC,MR>& A, T mean, BASE(T) stddev )
     {
         const Int localHeight = A.LocalHeight(); 
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, SampleBall( center, radius ) );
+                A.SetLocal( iLoc, jLoc, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,MC,STAR>
+struct MakeGaussianHelper<T,MC,STAR>
 {
-    static void Func( DistMatrix<T,MC,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,MC,STAR>& A, T mean, BASE(T) stddev )
     {
         const Grid& grid = A.Grid();
         if( grid.InGrid() )
@@ -93,8 +93,7 @@ struct MakeUniformHelper<T,MC,STAR>
             {
                 for( Int j=0; j<n; ++j )
                     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                        buffer[iLoc+j*localHeight] = 
-                            SampleBall( center, radius );
+                        buffer[iLoc+j*localHeight] = Normal( mean, stddev );
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
@@ -113,35 +112,35 @@ struct MakeUniformHelper<T,MC,STAR>
 };
 
 template<typename T>
-struct MakeUniformHelper<T,MD,STAR>
+struct MakeGaussianHelper<T,MD,STAR>
 {
-    static void Func( DistMatrix<T,MD,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,MD,STAR>& A, T mean, BASE(T) stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
+                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,MR,MC>
+struct MakeGaussianHelper<T,MR,MC>
 {
-    static void Func( DistMatrix<T,MR,MC>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,MR,MC>& A, T mean, BASE(T) stddev )
     {
         const Int localHeight = A.LocalHeight(); 
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, SampleBall( center, radius ) );
+                A.SetLocal( iLoc, jLoc, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,MR,STAR>
+struct MakeGaussianHelper<T,MR,STAR>
 {
-    static void Func( DistMatrix<T,MR,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,MR,STAR>& A, T mean, BASE(T) stddev )
     {
         const Grid& grid = A.Grid();
         const Int n = A.Width();
@@ -154,7 +153,7 @@ struct MakeUniformHelper<T,MR,STAR>
         {
             for( Int j=0; j<n; ++j )
                 for( Int i=0; i<localHeight; ++i )
-                    buffer[i+j*localHeight] = SampleBall( center, radius );
+                    buffer[i+j*localHeight] = Normal( mean, stddev );
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
@@ -169,9 +168,9 @@ struct MakeUniformHelper<T,MR,STAR>
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,MC>
+struct MakeGaussianHelper<T,STAR,MC>
 {
-    static void Func( DistMatrix<T,STAR,MC>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,MC>& A, T mean, BASE(T) stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -184,7 +183,7 @@ struct MakeUniformHelper<T,STAR,MC>
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+jLoc*m] = SampleBall( center, radius );
+                    buffer[i+jLoc*m] = Normal( mean, stddev );
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
 
@@ -202,22 +201,22 @@ struct MakeUniformHelper<T,STAR,MC>
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,MD>
+struct MakeGaussianHelper<T,STAR,MD>
 {
-    static void Func( DistMatrix<T,STAR,MD>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,MD>& A, T mean, BASE(T) stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
+                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,MR>
+struct MakeGaussianHelper<T,STAR,MR>
 {
-    static void Func( DistMatrix<T,STAR,MR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,MR>& A, T mean, BASE(T) stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -230,7 +229,7 @@ struct MakeUniformHelper<T,STAR,MR>
         {
             for( Int j=0; j<localWidth; ++j )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+j*m] = SampleBall( center, radius );
+                    buffer[i+j*m] = Normal( mean, stddev );
         }
         mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
 
@@ -248,9 +247,9 @@ struct MakeUniformHelper<T,STAR,MR>
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,STAR>
+struct MakeGaussianHelper<T,STAR,STAR>
 {
-    static void Func( DistMatrix<T,STAR,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,STAR>& A, T mean, BASE(T) stddev )
     {
         const Grid& grid = A.Grid();
         const Int m = A.Height();
@@ -265,7 +264,7 @@ struct MakeUniformHelper<T,STAR,STAR>
             {
                 for( Int j=0; j<n; ++j )
                     for( Int i=0; i<m; ++i )
-                        buffer[i+j*m] = SampleBall( center, radius );
+                        buffer[i+j*m] = Normal( mean, stddev );
             }
             mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
 
@@ -284,54 +283,54 @@ struct MakeUniformHelper<T,STAR,STAR>
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,VC>
+struct MakeGaussianHelper<T,STAR,VC>
 {
-    static void Func( DistMatrix<T,STAR,VC>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,VC>& A, T mean, BASE(T) stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
+                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,STAR,VR>
+struct MakeGaussianHelper<T,STAR,VR>
 {
-    static void Func( DistMatrix<T,STAR,VR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,STAR,VR>& A, T mean, BASE(T) stddev )
     {
         const Int m = A.Height();
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
+                A.SetLocal( i, jLoc, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,VC,STAR>
+struct MakeGaussianHelper<T,VC,STAR>
 {
-    static void Func( DistMatrix<T,VC,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,VC,STAR>& A, T mean, BASE(T) stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
+                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
     }
 };
 
 template<typename T>
-struct MakeUniformHelper<T,VR,STAR>
+struct MakeGaussianHelper<T,VR,STAR>
 {
-    static void Func( DistMatrix<T,VR,STAR>& A, T center, BASE(T) radius )
+    static void Func( DistMatrix<T,VR,STAR>& A, T mean, BASE(T) stddev )
     {
         const Int n = A.Width();
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
+                A.SetLocal( iLoc, j, Normal( mean, stddev ) );
     }
 };
 
@@ -339,25 +338,25 @@ struct MakeUniformHelper<T,VR,STAR>
 
 template<typename T,Distribution U,Distribution V>
 inline void
-MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
+MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry entry("Gaussian");
 #endif
-    internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
+    internal::MakeGaussianHelper<T,U,V>::Func( A, mean, stddev );
 }
 
 template<typename T,Distribution U,Distribution V>
 inline void
-Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry entry("Gaussian");
 #endif
     A.ResizeTo( m, n );
-    MakeUniform( A, center, radius );
+    MakeGaussian( A, mean, stddev );
 }
 
 } // namespace elem
 
-#endif // ifndef ELEM_MATRICES_UNIFORM_HPP
+#endif // ifndef ELEM_MATRICES_GAUSSIAN_HPP

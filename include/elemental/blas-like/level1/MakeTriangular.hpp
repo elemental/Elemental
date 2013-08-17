@@ -26,9 +26,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
 
     if( uplo == LOWER )
     {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int j=1; j<width; ++j )
         {
             const Int numZeroRows = Min( j, height );
@@ -37,9 +35,7 @@ MakeTriangular( UpperOrLower uplo, Matrix<T>& A )
     }
     else
     {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int j=0; j<Min(width,height); ++j )
         {
             const Int firstZeroRow = j+1;
@@ -68,10 +64,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
 
     if( uplo == LOWER )
     {
-
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;
@@ -87,9 +80,7 @@ MakeTriangular( UpperOrLower uplo, DistMatrix<T,U,V>& A )
     }
     else
     {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;

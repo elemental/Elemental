@@ -36,6 +36,23 @@
 # else
 #  define COLLAPSE(N) 
 # endif
+# define PARALLEL_FOR _Pragma("omp parallel for")
+#else
+# define PARALLEL_FOR 
+# define COLLAPSE(N) 
+#endif
+
+#ifdef AVOID_OMP_FMA
+# define FMA_PARALLEL_FOR 
+#else
+# define FMA_PARALLEL_FOR PARALLEL_FOR
+#endif
+#ifdef PARALLELIZE_INNER_LOOPS
+# define INNER_PARALLEL_FOR PARALLEL_FOR
+# define OUTER_PARALLEL_FOR 
+#else
+# define INNER_PARALLEL_FOR
+# define OUTER_PARALLEL_FOR PARALLEL_FOR
 #endif
 
 #if defined(BLAS_POST)

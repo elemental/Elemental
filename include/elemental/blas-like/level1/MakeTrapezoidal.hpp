@@ -29,9 +29,7 @@ MakeTrapezoidal
     {
         if( side == LEFT )
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=Max(0,offset+1); j<width; ++j )
             {
                 const Int lastZeroRow = j-offset-1;
@@ -41,9 +39,7 @@ MakeTrapezoidal
         }
         else
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=Max(0,offset-height+width+1); j<width; ++j )
             {
                 const Int lastZeroRow = j-offset+height-width-1;
@@ -56,9 +52,7 @@ MakeTrapezoidal
     {
         if( side == LEFT )
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<width; ++j )
             {
                 const Int firstZeroRow = Max(j-offset+1,0);
@@ -69,9 +63,7 @@ MakeTrapezoidal
         }
         else
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<width; ++j )
             {
                 const Int firstZeroRow = Max(j-offset+height-width+1,0);
@@ -105,10 +97,7 @@ MakeTrapezoidal
 
     if( uplo == LOWER )
     {
-
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;
@@ -126,9 +115,7 @@ MakeTrapezoidal
     }
     else
     {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const Int j = rowShift + jLoc*rowStride;

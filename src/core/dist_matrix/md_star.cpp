@@ -709,9 +709,7 @@ DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
     const Int ALDim = A.LDim();
     T* thisBuffer = this->Buffer();
     const Int thisLDim = this->LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for 
-#endif
+    PARALLEL_FOR
     for( Int j=0; j<width; ++j )
     {
         T* destCol = &thisBuffer[j*thisLDim];

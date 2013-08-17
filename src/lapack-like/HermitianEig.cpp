@@ -56,9 +56,7 @@ void InPlaceRedist
     R* recvBuffer = &buffer[r*portionSize];
 
     // Pack
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+    OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         R* data = &sendBuffer[k*portionSize];
@@ -66,9 +64,7 @@ void InPlaceRedist
         const Int thisColShift = Shift(k,colAlignment,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for COLLAPSE(2)
-#endif
+        INNER_PARALLEL_FOR COLLAPSE(2)
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
@@ -82,9 +78,7 @@ void InPlaceRedist
 
     // Unpack
     const Int localHeight = Length(height,row,colAlignment,r);
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+    OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         const R* data = &recvBuffer[k*portionSize];
@@ -94,9 +88,7 @@ void InPlaceRedist
         const Int thisRowOffset = (thisRowShift-rowShift) / c;
         const Int thisLocalWidth = Length(width,thisRowShift,p);
 
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+        INNER_PARALLEL_FOR
         for( Int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);
@@ -135,9 +127,7 @@ void InPlaceRedist
     R* recvBuffer = &buffer[r*portionSize];
 
     // Pack
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+    OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         R* data = &sendBuffer[k*portionSize];
@@ -145,9 +135,7 @@ void InPlaceRedist
         const Int thisColShift = Shift(k,colAlignment,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for COLLAPSE(2)
-#endif
+        INNER_PARALLEL_FOR COLLAPSE(2)
         for( Int j=0; j<localWidth; ++j )
             for( Int i=0; i<thisLocalHeight; ++i )
                 data[i+j*thisLocalHeight] = 
@@ -161,9 +149,7 @@ void InPlaceRedist
 
     // Unpack
     const Int localHeight = Length(height,row,colAlignment,r);
-#if defined(HAVE_OPENMP) && !defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+    OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
         const R* data = &recvBuffer[k*portionSize];
@@ -173,9 +159,7 @@ void InPlaceRedist
         const Int thisRowOffset = (thisRowShift-rowShift) / c;
         const Int thisLocalWidth = Length(width,thisRowShift,p);
 
-#if defined(HAVE_OPENMP) && defined(PARALLELIZE_INNER_LOOPS)
-#pragma omp parallel for
-#endif
+        INNER_PARALLEL_FOR
         for( Int j=0; j<thisLocalWidth; ++j )
         {
             const R* dataCol = &(data[j*localHeight]);

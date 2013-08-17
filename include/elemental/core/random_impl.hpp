@@ -12,18 +12,58 @@
 
 namespace elem {
 
-template<typename Real=double>
-inline Real Uniform( Real a=0, Real b=1 )
+inline bool BooleanCoinFlip()
+{ return Uniform<double>(0,1) >= 0.5; }
+
+inline Int CoinFlip()
+{ return ( BooleanCoinFlip() ? 1 : -1 ); }
+
+template<typename T>
+inline T UnitCell()
 {
-    std::uniform_real_distribution<Real> uniform(a,b);
-    return uniform( Generator() );
+    typedef BASE(T) Real;
+    T cell;
+    SetRealPart( cell, Real(1) );
+    if( IsComplex<T>::val )
+        SetImagPart( cell, Real(1) );
+    return cell;
 }
 
-template<typename Real=double>
-inline Real Normal( Real mean=0, Real stddev=1 )
+template<typename T>
+inline T Uniform( T a, T b )
 {
-    std::normal_distribution<Real> normal(mean,stddev);
-    return normal( Generator() );
+    typedef BASE(T) Real;
+    std::mt19937& gen = Generator();
+    T sample;
+
+    std::uniform_real_distribution<Real> realUni(RealPart(a),RealPart(b));
+    SetRealPart( sample, realUni(gen) ); 
+
+    if( IsComplex<T>::val )
+    {
+        std::uniform_real_distribution<Real> imagUni(ImagPart(a),ImagPart(b));
+        SetImagPart( sample, imagUni(gen) );
+    }
+
+    return sample;
+}
+
+template<typename T>
+inline T Normal( T mean, BASE(T) stddev )
+{
+    typedef BASE(T) Real;
+    std::mt19937& gen = Generator();
+    T sample;
+
+    std::normal_distribution<Real> realNormal( RealPart(mean), stddev );
+    SetRealPart( sample, realNormal(gen) );
+    if( IsComplex<T>::val )
+    {
+        std::normal_distribution<Real> imagNormal( ImagPart(mean), stddev );
+        SetImagPart( sample, imagNormal(gen) );
+    }
+
+    return sample;
 }
 
 template<>

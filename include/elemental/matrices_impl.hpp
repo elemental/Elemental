@@ -60,10 +60,14 @@
 // Random
 //
 
-#include "./matrices/Uniform.hpp"
+// Uniform
 #include "./matrices/HermitianUniformSpectrum.hpp"
 #include "./matrices/NormalUniformSpectrum.hpp"
+#include "./matrices/Uniform.hpp"
 
-// TODO: Gaussian
+// Gaussian
+#include "./matrices/Gaussian.hpp"
+#include "./matrices/Wigner.hpp"
+#include "./matrices/Haar.hpp"
 
 #endif // ifndef ELEM_MATRICES_IMPL_HPP

@@ -647,9 +647,7 @@ Matrix<T>::operator=( const Matrix<T>& A )
     const Int ldimOfA = A.LDim();
     const T* src = A.LockedBuffer();
     T* dst = this->Buffer();
-#ifdef HAVE_OPENMP
-    #pragma omp parallel for
-#endif
+    PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemCopy( &dst[j*ldim], &src[j*ldimOfA], height );
     return *this;

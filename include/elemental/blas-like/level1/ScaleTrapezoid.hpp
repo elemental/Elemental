@@ -30,9 +30,7 @@ ScaleTrapezoid
     {
         if( side == LEFT )
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=Max(0,offset-1); j<width; ++j )
             {
                 const Int numRows = j-offset+1;
@@ -42,9 +40,7 @@ ScaleTrapezoid
         }
         else
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=Max(0,offset-height+width-1); j<width; ++j )
             {
                 const Int numRows = j-offset+height-width+1;
@@ -57,9 +53,7 @@ ScaleTrapezoid
     {
         if( side == LEFT )
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<width; ++j )
             {
                 const Int numZeroRows = Max(j-offset,0);
@@ -69,9 +63,7 @@ ScaleTrapezoid
         }
         else
         {
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<width; ++j )
             {
                 const Int numZeroRows = Max(j-offset+height-width,0);
@@ -104,9 +96,7 @@ ScaleTrapezoid
     {
         T* buffer = A.Buffer();
         const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             Int j = rowShift + jLoc*rowStride;
@@ -122,9 +112,7 @@ ScaleTrapezoid
     {
         T* buffer = A.Buffer();
         const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             Int j = rowShift + jLoc*rowStride;
