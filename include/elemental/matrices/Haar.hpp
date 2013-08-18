@@ -15,9 +15,9 @@
 
 namespace elem {
 
-template<typename T>
+template<typename F>
 inline void
-Haar( Matrix<T>& A, Int n )
+Haar( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Haar");
@@ -28,9 +28,22 @@ Haar( Matrix<T>& A, Int n )
     qr::Explicit( A );
 }
 
-template<typename T>
+template<typename F>
 inline void
-Haar( DistMatrix<T>& A, Int n )
+ImplicitHaar( Matrix<F>& A, Matrix<F>& t, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry entry("ImplicitHaar");
+#endif
+    // TODO: Replace this with a quadratic scheme similar to Stewart's, which
+    //       essentially generates random Householder reflectors
+    Gaussian( A, n, n );
+    QR( A, t );
+}
+
+template<typename F>
+inline void
+Haar( DistMatrix<F>& A, Int n )
 {
 #ifndef RELEASE
     CallStackEntry entry("Haar");
@@ -39,6 +52,19 @@ Haar( DistMatrix<T>& A, Int n )
     //       essentially generates random Householder reflectors
     Gaussian( A, n, n );
     qr::Explicit( A );
+}
+
+template<typename F>
+inline void
+ImplicitHaar( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry entry("Haar");
+#endif
+    // TODO: Replace this with a quadratic scheme similar to Stewart's, which
+    //       essentially generates random Householder reflectors
+    Gaussian( A, n, n );
+    QR( A, t );
 }
 
 } // namespace elem

@@ -238,8 +238,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
         const R omega = w.GetLocal(iLoc,0);
         minLocalEig = std::min(minLocalEig,omega);
     }
-    R minEig;
-    mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
+    const R minEig = mpi::AllReduce( minLocalEig, mpi::MIN, g.VCComm() );
 
     // Set the tolerance equal to n ||A||_2 eps
     const Int n = A.Height();
