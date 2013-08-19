@@ -550,7 +550,8 @@ SDC( Matrix<F>& A, Int cutoff=256 )
     const Int n = A.Height();
     if( n <= cutoff )
     {
-        schur::QR( A );
+        Matrix<Complex<Real> > w;
+        schur::QR( A, w );
         return;
     }
 
@@ -578,7 +579,8 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
     const Int n = A.Height();
     if( n <= cutoff )
     {
-        schur::QR( A, Q );
+        Matrix<Complex<Real> > w;
+        schur::QR( A, Q, w );
         return;
     }
 
@@ -610,6 +612,39 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
 template<typename F>
 inline void
+SDC( DistMatrix<F>& A, Int cutoff=256 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SDC");
+#endif
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int n = A.Height();
+    if( n <= cutoff )
+    {
+        DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
+        Matrix<Complex<Real> > w;
+        if( g.VCRank() == A_CIRC_CIRC.Root() )
+            schur::QR( A_CIRC_CIRC.Matrix(), w );
+        A = A_CIRC_CIRC;
+        return;
+    }
+
+    // Perform this level's split
+    const ValueInt<Real> part = SpectralDivide( A );
+    DistMatrix<F> ATL(g), ATR(g),
+                  ABL(g), ABR(g);
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, part.index );
+
+    // Recurse on the two subproblems
+    SDC( ATL );
+    SDC( ABR );
+}
+
+template<typename F>
+inline void
 SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
 {
 #ifndef RELEASE
@@ -620,12 +655,16 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
     const Int n = A.Height();
     if( n <= cutoff )
     {
-        schur::QR( A, Q );
+        DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
+        Matrix<Complex<Real> > w;
+        if( g.VCRank() == A_CIRC_CIRC.Root() )
+            schur::QR( A_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(), w );
+        A = A_CIRC_CIRC;
+        Q = Q_CIRC_CIRC;
         return;
     }
 
     // Perform this level's split
-    // TODO: Generalize SignDivide to choose different splitting strategies
     const ValueInt<Real> part = SpectralDivide( A, Q );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
