@@ -93,6 +93,27 @@ void ComputeGivens
   double* cs, dcomplex* sn, dcomplex* rho );
 
 //
+// Compute the eigenpairs of a Hermitian matrix
+//
+
+int HermitianEig
+( char job, char range, char uplo, int n, float* A, int lda,
+  float vl, float vu, int il, int iu, float abstol,
+  float* w, float* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, double* A, int lda,
+  double vl, double vu, int il, int iu, double abstol,
+  double* w, double* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, scomplex* A, int lda,
+  float vl, float vu, int il, int iu, float abstol,
+  float* w, scomplex* Z, int ldz );
+int HermitianEig
+( char job, char range, char uplo, int n, dcomplex* A, int lda,
+  double vl, double vu, int il, int iu, double abstol,
+  double* w, dcomplex* Z, int ldz );
+
+//
 // Compute the SVD of a general matrix using a divide and conquer algorithm
 //
 
@@ -160,7 +181,7 @@ void BidiagQRAlg
   double* d, double* e, dcomplex* VAdj, int ldva, dcomplex* U, int ldu );
 
 // 
-// Compute the eigenvalues of an upper Hessenberg matrix
+// Compute the Schur decomposition of an upper Hessenberg matrix
 //
 
 void HessenbergEig( int n, float* H, int ldh, scomplex* w );
@@ -168,26 +189,28 @@ void HessenbergEig( int n, double* H, int ldh, dcomplex* w );
 void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w );
 void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w );
 
+// TODO: HessenbergEig which computes eigenvectors?
+
+void HessenbergSchur( int n, float* H, int ldh, scomplex* w );
+void HessenbergSchur( int n, double* H, int ldh, dcomplex* w );
+void HessenbergSchur( int n, scomplex* H, int ldh, scomplex* w );
+void HessenbergSchur( int n, dcomplex* H, int ldh, dcomplex* w );
+
 //
-// Compute the eigenpairs of a Hermitian matrix
+// Compute the Schur decomposition of a square matrix
 //
 
-int HermitianEig
-( char job, char range, char uplo, int n, float* A, int lda,
-  float vl, float vu, int il, int iu, float abstol,
-  float* w, float* Z, int ldz );
-int HermitianEig
-( char job, char range, char uplo, int n, double* A, int lda,
-  double vl, double vu, int il, int iu, double abstol,
-  double* w, double* Z, int ldz );
-int HermitianEig
-( char job, char range, char uplo, int n, scomplex* A, int lda,
-  float vl, float vu, int il, int iu, float abstol,
-  float* w, scomplex* Z, int ldz );
-int HermitianEig
-( char job, char range, char uplo, int n, dcomplex* A, int lda,
-  double vl, double vu, int il, int iu, double abstol,
-  double* w, dcomplex* Z, int ldz );
+void Eig( int n, float* A, int lda, scomplex* w );
+void Eig( int n, double* A, int lda, dcomplex* w );
+void Eig( int n, scomplex* A, int lda, scomplex* w );
+void Eig( int n, dcomplex* A, int lda, dcomplex* w );
+
+// TODO: Eig which computes eigenvectors?
+
+void Schur( int n, float* A, int lda, float* Q, int ldq, scomplex* w );
+void Schur( int n, double* A, int lda, double* Q, int ldq, dcomplex* w );
+void Schur( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w );
+void Schur( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w );
 
 } // namespace lapack
 } // namespace elem

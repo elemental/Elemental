@@ -75,50 +75,60 @@ Given :math:`\phi, \gamma \in \mathbb{C}^{n \times n}`, carefully compute
 where :math:`c^2 + |s|^2 = 1` and the mapping from :math:`(\phi,\gamma) \rightarrow (c,s,\rho)` is "as continuous as possible", in the manner described by 
 Kahan and Demmel's "On computing Givens rotations reliably and efficiently".
 
-.. cpp:function:: void lapack::ComputeGivens( R phi, R gamma, R* c, R* s, R* rho )
+.. cpp:function:: void lapack::ComputeGivens( F phi, F gamma, typename Base<F>::type* c, F* s, F* rho )
 
-   Computes a Givens rotation for real :math:`\phi` and :math:`\gamma`.
+   Computes a Givens rotation.
 
-.. cpp:function:: void lapack::ComputeGivens( C phi, C gamma, R* c, C* s, C* rho )
+MRRR-based Hermitian EVP 
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-   Computes a Givens rotation for complex :math:`\phi` and :math:`\gamma`.
+.. cpp:function:: void lapack::HermitianEig( char job, char range, char uplo, int n, F* A, int lda, BASE(F) vl, BASE(F) vu, int il, int iu, BASE(F) abstol, BASE(F)* w, F* Z, int ldz )
 
-QR-based SVD
-^^^^^^^^^^^^
+   Computes the eigenvalue decomposition of a Hermitian matrix using MRRR.
 
-.. cpp:function:: void lapack::QRSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
-.. cpp:function:: void lapack::QRSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
+QR- and DQDS-based SVD
+^^^^^^^^^^^^^^^^^^^^^^
 
-Computes the singular value decomposition of a general matrix by running the 
-QR algorithm on the condensed bidiagonal matrix.
+.. cpp:function:: void lapack::QRSVD( int m, int n, F* A, int lda, typename Base<F>::type* s, F* U, int ldu, F* VAdj, int ldva )
 
-.. cpp:function:: void lapack::SVD( int m, int n, R* A, int lda, R* s )
-.. cpp:function:: void lapack::SVD( int m, int n, Complex<R>* A, int lda, R* s )
+   Computes the singular value decomposition of a general matrix by running the 
+   QR algorithm on the condensed bidiagonal matrix.
 
-Computes the singular values of a general matrix by running the QR algorithm
-on the condensed bidiagonal matrix.
+.. cpp:function:: void lapack::SVD( int m, int n, F* A, int lda, typename Base<F>::type* s )
+
+   Computes the singular values of a general matrix by running DQDS on the 
+   condensed bidiagonal matrix.
 
 Divide-and-conquer SVD
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, R* A, int lda, R* s, R* U, int ldu, R* VTrans, int ldvt )
-.. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, Complex<R>* A, int lda, R* s, Complex<R>* U, int ldu, Complex<R>* VAdj, int ldva )
+.. cpp:function:: void lapack::DivideAndConquerSVD( int m, int n, F* A, int lda, typename Base<F>::type* s, F* U, int ldu, F* VAdj, int ldva )
 
-Computes the SVD of a general matrix using a divide-and-conquer algorithm on
-the condensed bidiagonal matrix.
+   Computes the SVD of a general matrix using a divide-and-conquer algorithm on
+   the condensed bidiagonal matrix.
 
 Bidiagonal QR
 ^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVTrans, int numRowsU, R* d, R* e, R* VTrans, int ldvt, R* U, int ldu )
-.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVAdj, int numRowsU, R* d, R* e, Complex<R>* VAdj, int ldva, Complex<R>* U, int ldu )
+.. cpp:function:: void lapack::BidiagQRAlg( char uplo, int n, int numColsVTrans, int numRowsU, typename Base<F>::type* d, typename Base<F>::type* e, F* VAdj, int ldva, F* U, int ldu )
 
-Computes the SVD of a bidiagonal matrix using the QR algorithm.
+   Computes the SVD of a bidiagonal matrix using the QR algorithm.
 
 Hessenberg QR
 ^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::HessenbergEig( int n, R* H, int ldh, Complex<R>* w )
-.. cpp:function:: void lapack::HessenbergEig( int n, Complex<R>* H, int ldh, Complex<R>* w )
+.. cpp:function:: void lapack::HessenbergEig( int n, F* H, int ldh, Complex<typename Base<F>::type>* w )
 
-Computes the eigenvalues of an upper Hessenberg matrix using the QR algorithm.
+   Computes the eigenvalues of an upper Hessenberg matrix using the QR 
+   algorithm.
+
+Schur decomposition
+^^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void lapack::Eig( int n, F* A, int lda, Complex<typename Base<F>::type>* w )
+
+   Returns the eigenvalues of a square matrix using the QR algorithm.
+
+.. cpp:function:: void lapack::Schur( int n, F* A, int lda, F* Q, int ldq, Complex<typename Base<F>::type>* w )
+
+   Returns the Schur decomposition of a square matrix using the QR algorithm.

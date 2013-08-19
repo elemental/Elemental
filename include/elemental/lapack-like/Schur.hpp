@@ -10,8 +10,9 @@
 #ifndef ELEM_LAPACK_SCHUR_HPP
 #define ELEM_LAPACK_SCHUR_HPP
 
-#include "elemental/lapack-like/Schur/InverseFreeSDC.hpp"
+#include "elemental/lapack-like/Schur/QR.hpp"
 #include "elemental/lapack-like/Schur/SDC.hpp"
+#include "elemental/lapack-like/Schur/InverseFreeSDC.hpp"
 
 namespace elem {
 
@@ -22,8 +23,17 @@ Schur( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    LogicError("This routine not yet written");
-    // TODO: Call LAPACK...
+    schur::QR( A );
+}
+
+template<typename F>
+inline void
+Schur( Matrix<F>& A, Matrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Schur");
+#endif
+    schur::QR( A, Q );
 }
 
 template<typename F>
@@ -33,8 +43,17 @@ Schur( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    LogicError("This routine not yet written");
-    // TODO: Spectral D&C
+    schur::SDC( A );
+}
+
+template<typename F>
+inline void
+Schur( DistMatrix<F>& A, DistMatrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Schur");
+#endif
+    schur::SDC( A, Q );
 }
 
 } // namespace elem

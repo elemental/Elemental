@@ -146,38 +146,373 @@ ComputePartition( DistMatrix<F>& A )
 
 template<typename F>
 inline ValueInt<BASE(F)>
-SpectralDivide( Matrix<F>& A )
+SignDivide( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
+    CallStackEntry cse("schur::SignDivide");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
 
-    // S := sgn(A)
-    Matrix<F> S( A );
-    Sign( S );
+    // Q := sgn(A)
+    // Q := 1/2 ( Q + I )
+    Matrix<F> Q( A );
+    Sign( Q );
+    UpdateDiagonal( Q, F(1) );
+    Scale( F(1)/F(2), Q );
 
-    // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    Matrix<F> B; 
-    Identity( B, n, n );
-    Axpy( F(1), S, B );
-    Scale( F(1)/F(2), B );
-
-    // Compute the pivoted QR decomposition of the spectral projection
+    // Compute the pivoted QR decomposition of the spectral projection and then
+    // from the explicit Q matrix
     Matrix<F> t;
     Matrix<Int> p;
-    QR( B, t, p );
+    elem::QR( Q, t, p );
 
     // A := Q^H A Q
+    // NOTE: Top-right quadrant does not need to be updated, though we do not
+    //       know what it is a priori
     const Real oneA = OneNorm( A );
-    qr::ApplyQ( LEFT, ADJOINT, B, t, A );
-    qr::ApplyQ( RIGHT, NORMAL, B, t, A );
+    qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
+    qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
     ValueInt<Real> part = ComputePartition( A );
     part.value /= oneA;
     return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+SignDivide( Matrix<F>& A, Matrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+
+    // Q := sgn(A)
+    // Q := 1/2 ( Q + I )
+    Q = A;
+    Sign( Q );
+    UpdateDiagonal( Q, F(1) );
+    Scale( F(1)/F(2), Q );
+
+    // Compute the pivoted QR decomposition of the spectral projection and then
+    // from the explicit Q matrix
+    Matrix<F> t;
+    Matrix<Int> p;
+    elem::QR( Q, t, p );
+    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+
+    // A := Q^H A Q [use B for a temporary product]
+    const Real oneA = OneNorm( A );
+    Matrix<F> B;
+    Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
+    Gemm( NORMAL, NORMAL, F(1), B, Q, A );
+
+    // Return || E21 ||1 / || A ||1 and the chosen rank
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= oneA;
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+SignDivide( DistMatrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int n = A.Height();
+
+    // Q := sgn(A)
+    // Q := 1/2 ( Q + I )
+    DistMatrix<F> Q( A );
+    Sign( Q );
+    UpdateDiagonal( Q, F(1) );
+    Scale( F(1)/F(2), Q );
+
+    // Compute the pivoted QR decomposition of the spectral projection and then
+    // from the explicit Q matrix
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Int,VR,STAR> p(g);
+    elem::QR( Q, t, p );
+
+    // A := Q^H A Q
+    // NOTE: Top-right quadrant does not need to be updated, though we do not
+    //       know what it is a priori
+    const Real oneA = OneNorm( A );
+    qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
+    qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
+
+    // Return || E21 ||1 / || A ||1 and the chosen rank
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= oneA;
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+SignDivide( DistMatrix<F>& A, DistMatrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    const Grid& g = A.Grid();
+
+    // Q := sgn(A)
+    // Q := 1/2 ( Q + I )
+    Q = A;
+    Sign( Q );
+    UpdateDiagonal( Q, F(1) );
+    Scale( F(1)/F(2), Q );
+
+    // Compute the pivoted QR decomposition of the spectral projection and
+    // then form the explicit Q matrix
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Int,VR,STAR> p(g);
+    elem::QR( Q, t, p );
+    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+
+    // A := Q^H A Q
+    const Real oneA = OneNorm( A );
+    DistMatrix<F> B(g);
+    Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
+    Gemm( NORMAL, NORMAL, F(1), B, Q, A );
+
+    // Return || E21 ||1 / || A ||1 and the chosen rank
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= oneA;
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+RandomizedSignDivide( Matrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::RandomizedSignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    const Real oneA = OneNorm( A );
+    if( relTol == Real(0) )
+        relTol = n*lapack::MachineEpsilon<Real>();
+
+    // S := sgn(A)
+    // S := 1/2 ( S + I )
+    Matrix<F> S( A );
+    Sign( S );
+    UpdateDiagonal( S, F(1) );
+    Scale( F(1)/F(2), S );
+
+    ValueInt<Real> part;
+    Matrix<F> V, Q, t;
+    for( Int it=0; it<maxIts; ++it )
+    {
+        Q = S;
+
+        // Compute the RURV of the spectral projector
+        ImplicitHaar( V, t, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
+        elem::QR( Q, t );
+
+        // A := Q^H A Q [and reuse space for V for keeping original A]
+        V = A;
+        qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
+        qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
+
+        // || E21 ||1 / || A ||1 and the chosen rank
+        part = ComputePartition( A );
+        part.value /= oneA;
+
+        if( part.value <= relTol )
+            break;
+        else
+            A = V;
+    }
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+RandomizedSignDivide
+( Matrix<F>& A, Matrix<F>& Q, Int maxIts=10, BASE(F) relTol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::RandomizedSignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    const Real oneA = OneNorm( A );
+    if( relTol == Real(0) )
+        relTol = n*lapack::MachineEpsilon<Real>();
+
+    // S := sgn(A)
+    // S := 1/2 ( S + I )
+    Matrix<F> S( A );
+    Sign( S );
+    UpdateDiagonal( S, F(1) );
+    Scale( F(1)/F(2), S );
+
+    ValueInt<Real> part;
+    Matrix<F> V, B, t;
+    for( Int it=0; it<maxIts; ++it )
+    {
+        Q = S;
+
+        // Compute the RURV of the spectral projector
+        ImplicitHaar( V, t, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
+        elem::QR( Q, t );
+        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+
+        // A := Q^H A Q [and reuse space for V for keeping original A]
+        V = A;
+        Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
+        Gemm( NORMAL, NORMAL, F(1), B, Q, A );
+
+        // || E21 ||1 / || A ||1 and the chosen rank
+        part = ComputePartition( A );
+        part.value /= oneA;
+
+        if( part.value <= relTol )
+            break;
+        else
+            A = V;
+    }
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+RandomizedSignDivide( DistMatrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::RandomizedSignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int n = A.Height();
+    const Real oneA = OneNorm( A );
+    if( relTol == Real(0) )
+        relTol = n*lapack::MachineEpsilon<Real>();
+
+    // S := sgn(A)
+    // S := 1/2 ( S + I )
+    DistMatrix<F> S( A );
+    Sign( S );
+    UpdateDiagonal( S, F(1) );
+    Scale( F(1)/F(2), S );
+
+    ValueInt<Real> part;
+    DistMatrix<F> V(g), Q(g);
+    DistMatrix<F,MD,STAR> t(g);
+    for( Int it=0; it<maxIts; ++it )
+    {
+        Q = S;
+
+        // Compute the RURV of the spectral projector
+        ImplicitHaar( V, t, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
+        elem::QR( Q, t );
+
+        // A := Q^H A Q [and reuse space for V for keeping original A]
+        V = A;
+        qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
+        qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
+
+        // || E21 ||1 / || A ||1 and the chosen rank
+        part = ComputePartition( A );
+        part.value /= oneA;
+
+        if( part.value <= relTol )
+            break;
+        else
+            A = V;
+    }
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+RandomizedSignDivide
+( DistMatrix<F>& A, DistMatrix<F>& Q, Int maxIts=10, BASE(F) relTol=0 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::RandomizedSignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int n = A.Height();
+    const Real oneA = OneNorm( A );
+    if( relTol == Real(0) )
+        relTol = n*lapack::MachineEpsilon<Real>();
+
+    // S := sgn(A)
+    // S := 1/2 ( S + I )
+    DistMatrix<F> S( A );
+    Sign( S );
+    UpdateDiagonal( S, F(1) );
+    Scale( F(1)/F(2), S );
+
+    ValueInt<Real> part;
+    DistMatrix<F> V(g), B(g);
+    DistMatrix<F,MD,STAR> t(g);
+    for( Int it=0; it<maxIts; ++it )
+    {
+        Q = S;
+
+        // Compute the RURV of the spectral projector
+        ImplicitHaar( V, t, n );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
+        elem::QR( Q, t );
+        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+
+        // A := Q^H A Q [and reuse space for V for keeping original A]
+        V = A;
+        Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
+        Gemm( NORMAL, NORMAL, F(1), B, Q, A );
+
+        // || E21 ||1 / || A ||1 and the chosen rank
+        part = ComputePartition( A );
+        part.value /= oneA;
+
+        if( part.value <= relTol )
+            break;
+        else
+            A = V;
+    }
+    return part;
+}
+
+// TODO: Begin adding strategies, with the most obvious being Gershigorin-based
+template<typename F>
+inline ValueInt<BASE(F)>
+SpectralDivide( Matrix<F>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    LogicError("This routine not yet written");
+    //SignDivide( A );
+    RandomizedSignDivide( A );
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+SpectralDivide( Matrix<F>& A, Matrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    LogicError("This routine not yet written");
+    //SignDivide( A, Q );
+    RandomizedSignDivide( A, Q );
 }
 
 template<typename F>
@@ -187,136 +522,137 @@ SpectralDivide( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
-    const Int n = A.Height();
-    const Grid& g = A.Grid();
-
-    // S := sgn(A)
-    DistMatrix<F> S( A );
-    Sign( S );
-
-    // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    DistMatrix<F> B(g);
-    Identity( B, n, n );
-    Axpy( F(1), S, B );
-    Scale( F(1)/F(2), B );
-
-    // Compute the pivoted QR decomposition of the spectral projection
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    QR( B, t, p );
-
-    // A := Q^H A Q
-    const Real oneA = OneNorm( A );
-    qr::ApplyQ( LEFT, ADJOINT, B, t, A );
-    qr::ApplyQ( RIGHT, NORMAL, B, t, A );
-
-    // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
-    part.value /= oneA;
-    return part;
+    LogicError("This routine not yet written");
+    //SignDivide( A );
+    RandomizedSignDivide( A );
 }
 
 template<typename F>
 inline ValueInt<BASE(F)>
-RandomizedSpectralDivide( Matrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
+SpectralDivide( DistMatrix<F>& A, DistMatrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    typedef BASE(F) Real;
-    const Int n = A.Height();
-    const Real oneA = OneNorm( A );
-    if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
-
-    // S := sgn(A)
-    Matrix<F> S( A );
-    Sign( S );
-
-    // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    Matrix<F> B; 
-    Identity( B, n, n );
-    Axpy( F(1), S, B );
-    Scale( F(1)/F(2), B );
-
-    ValueInt<Real> part;
-    Matrix<F> V, t;
-    for( Int it=0; it<maxIts; ++it )
-    {
-        // Compute the RURV of the spectral projector [and reuse S]
-        ImplicitHaar( V, t, n );
-        S = B;
-        qr::ApplyQ( RIGHT, NORMAL, V, t, S );
-        QR( S, t );
-
-        // A := Q^H A Q [and reuse space for V for keeping original A]
-        V = A;
-        qr::ApplyQ( LEFT, ADJOINT, S, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, S, t, A );
-
-        // || E21 ||1 / || A ||1 and the chosen rank
-        part = ComputePartition( A );
-        part.value /= oneA;
-
-        if( part.value <= relTol )
-            break;
-        else
-            A = V;
-    }
-    return part;
+    LogicError("This routine not yet written");
+    //SignDivide( A, Q );
+    RandomizedSignDivide( A, Q );
 }
 
 template<typename F>
-inline ValueInt<BASE(F)>
-RandomizedSpectralDivide( DistMatrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
+inline void
+SDC( Matrix<F>& A, Int cutoff=256 )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::SpectralDivide");
+    CallStackEntry cse("schur::SDC");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    if( n <= cutoff )
+    {
+        schur::QR( A );
+        return;
+    }
+
+    // Perform this level's split
+    const ValueInt<Real> part = SpectralDivide( A );
+    Matrix<F> ATL, ATR,
+              ABL, ABR;
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, part.index );
+
+    // Recurse on the two subproblems
+    SDC( ATL );
+    SDC( ABR );
+}
+
+template<typename F>
+inline void
+SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SDC");
+#endif
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    if( n <= cutoff )
+    {
+        schur::QR( A, Q );
+        return;
+    }
+
+    // Perform this level's split
+    const ValueInt<Real> part = SpectralDivide( A, Q );
+    Matrix<F> ATL, ATR,
+              ABL, ABR;
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, part.index );
+    Matrix<F> QT, QB;
+    PartitionDown( Q, QT, QB, part.index );
+
+    // Recurse on the top-left quadrant and update Schur vectors and ATR
+    Matrix<F> Z, G;
+    SDC( ATL, Z );
+    G = QT;
+    Gemm( NORMAL,  NORMAL, F(1), G, Z,   QT );
+    if( formATR )
+        Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G  );
+
+    // Recurse on the bottom-right quadrant and update Schur vectors and ATR
+    SDC( ABR, Z );
+    if( formATR )
+        Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
+    G = QB;
+    Gemm( NORMAL, NORMAL, F(1), G, Z, QB  );
+}
+
+template<typename F>
+inline void
+SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SDC");
 #endif
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
-    const Real oneA = OneNorm( A );
-    if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
-
-    // S := sgn(A)
-    DistMatrix<F> S( A );
-    Sign( S );
-
-    // Compute the spectral projector, B := 1/2 ( S + I ), and its trace
-    DistMatrix<F> B(g); 
-    Identity( B, n, n );
-    Axpy( F(1), S, B );
-    Scale( F(1)/F(2), B );
-
-    ValueInt<Real> part;
-    DistMatrix<F> V(g);
-    DistMatrix<F,MD,STAR> t(g);
-    for( Int it=0; it<maxIts; ++it )
+    if( n <= cutoff )
     {
-        // Compute the RURV of the spectral projector [and reuse S]
-        ImplicitHaar( V, t, n );
-        S = B;
-        qr::ApplyQ( RIGHT, NORMAL, V, t, S );
-        QR( S, t );
-
-        // A := Q^H A Q [and reuse space for V for keeping original A]
-        V = A;
-        qr::ApplyQ( LEFT, ADJOINT, S, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, S, t, A );
-
-        // || E21 ||1 / || A ||1 and the chosen rank
-        part = ComputePartition( A );
-        part.value /= oneA;
-
-        if( part.value <= relTol )
-            break;
-        else
-            A = V;
+        schur::QR( A, Q );
+        return;
     }
-    return part;
+
+    // Perform this level's split
+    // TODO: Generalize SignDivide to choose different splitting strategies
+    const ValueInt<Real> part = SpectralDivide( A, Q );
+    DistMatrix<F> ATL(g), ATR(g),
+                  ABL(g), ABR(g);
+    PartitionDownDiagonal
+    ( A, ATL, ATR,
+         ABL, ABR, part.index );
+    DistMatrix<F> QT(g), QB(g);
+    PartitionDown( Q, QT, QB, part.index );
+
+    // Recurse on the two subproblems
+    DistMatrix<F> ZT(g), ZB(g);
+    SDC( ATL, ZT );
+    SDC( ABR, ZB );
+
+    // Update the Schur vectors
+    DistMatrix<F> G(g);
+    G = QT;
+    Gemm( NORMAL, NORMAL, F(1), G, ZT, QT );
+    G = QB;
+    Gemm( NORMAL, NORMAL, F(1), G, ZB, QB );
+
+    if( formATR )
+    {
+        // Update the top-right quadrant
+        Gemm( ADJOINT, NORMAL, F(1), ZT, ATR, G );
+        Gemm( NORMAL, NORMAL, F(1), G, ZB, ATR ); 
+    }
 }
 
 } // namespace schur

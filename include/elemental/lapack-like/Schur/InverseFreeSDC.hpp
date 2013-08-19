@@ -173,10 +173,10 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 
 template<typename F>
 inline BASE(F)
-InverseFreeSpectralDivide( Matrix<F>& X )
+InverseFreeSignDivide( Matrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSpectralDivide");
+    CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
     typedef BASE(F) Real;
     const Int n = X.Width();
@@ -216,10 +216,10 @@ InverseFreeSpectralDivide( Matrix<F>& X )
 
 template<typename F>
 inline ValueInt<BASE(F)>
-InverseFreeSpectralDivide( DistMatrix<F>& X )
+InverseFreeSignDivide( DistMatrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSpectralDivide");
+    CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
     typedef BASE(F) Real;
     const Grid& g = X.Grid();
@@ -259,7 +259,7 @@ InverseFreeSpectralDivide( DistMatrix<F>& X )
     return part;
 }
 
-// TODO: RandomizedInverseFreeSpectralDivide which uses high-level algorithm
+// TODO: RandomizedInverseFreeSignDivide which uses high-level algorithm
 //       of http://parlab.eecs.berkeley.edu/sites/all/parlab/files/Communication%20Avoiding%20Nonsymmetric.pdf
 
 } // namespace schur
