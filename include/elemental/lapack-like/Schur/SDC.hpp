@@ -35,7 +35,7 @@ inline ValueInt<BASE(F)>
 ComputePartition( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("schur::ComputePartition");
+    CallStackEntry cse("schur::ComputePartition");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -84,7 +84,7 @@ inline ValueInt<BASE(F)>
 ComputePartition( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("schur::ComputePartition");
+    CallStackEntry cse("schur::ComputePartition");
 #endif
     typedef BASE(F) Real;
     const Grid& g = A.Grid();

@@ -216,7 +216,7 @@ inline void
 Sign( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     sign::Newton( A );
 }
@@ -226,7 +226,7 @@ inline void
 Sign( Matrix<F>& A, Matrix<F>& N )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     Matrix<F> ACopy( A );
     sign::Newton( A );
@@ -238,7 +238,7 @@ inline void
 Sign( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     sign::Newton( A );
 }
@@ -248,7 +248,7 @@ inline void
 Sign( DistMatrix<F>& A, DistMatrix<F>& N )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     DistMatrix<F> ACopy( A );
     sign::Newton( A );

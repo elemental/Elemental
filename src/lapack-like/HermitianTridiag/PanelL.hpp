@@ -30,7 +30,7 @@ void PanelL
     const Int panelSize = W.Width();
     const Int bottomSize = W.Height()-panelSize;
 #ifndef RELEASE
-    PushCallStack("hermitian_tridiag::PanelL");
+    CallStackEntry cse("hermitian_tridiag::PanelL");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         LogicError("A, W, and t must be distributed over the same grid.");
     if( A.Height() != A.Width() )

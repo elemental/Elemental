@@ -144,7 +144,7 @@ inline void
 SquareRoot( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    CallStackEntry cse("SquareRoot");
 #endif
     square_root::Newton( A );
 }
@@ -154,7 +154,7 @@ inline void
 SquareRoot( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    CallStackEntry cse("SquareRoot");
 #endif
     square_root::Newton( A );
 }
