@@ -200,17 +200,25 @@ void HessenbergSchur( int n, dcomplex* H, int ldh, dcomplex* w );
 // Compute the Schur decomposition of a square matrix
 //
 
-void Eig( int n, float* A, int lda, scomplex* w );
-void Eig( int n, double* A, int lda, dcomplex* w );
-void Eig( int n, scomplex* A, int lda, scomplex* w );
-void Eig( int n, dcomplex* A, int lda, dcomplex* w );
+void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle=false );
+void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle=false );
+void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle=false );
+void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle=false );
 
 // TODO: Eig which computes eigenvectors?
 
-void Schur( int n, float* A, int lda, float* Q, int ldq, scomplex* w );
-void Schur( int n, double* A, int lda, double* Q, int ldq, dcomplex* w );
-void Schur( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w );
-void Schur( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w );
+void Schur
+( int n, float* A, int lda, float* Q, int ldq, scomplex* w, 
+  bool fullTriangle=true );
+void Schur
+( int n, double* A, int lda, double* Q, int ldq, dcomplex* w, 
+  bool fullTriangle=true );
+void Schur
+( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w, 
+  bool fullTriangle=true );
+void Schur
+( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w, 
+  bool fullTriangle=true );
 
 } // namespace lapack
 } // namespace elem

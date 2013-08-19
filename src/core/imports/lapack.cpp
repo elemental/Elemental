@@ -1436,7 +1436,7 @@ void HessenbergSchur
 // Compute the Schur decomposition of a square matrix
 //
 
-void Eig( int n, float* A, int lda, scomplex* w )
+void Eig( int n, float* A, int lda, scomplex* w, bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Eig");
@@ -1453,7 +1453,7 @@ void Eig( int n, float* A, int lda, scomplex* w )
     lwork = dummyWork;
 
     // Query the QR algorithm workspace size
-    const char job='E', compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
     int fakeLDim=1, negOne=-1;
     std::vector<float> wr( n ), wi( n );
     LAPACK(shseqr)
@@ -1491,7 +1491,7 @@ void Eig( int n, float* A, int lda, scomplex* w )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
-void Eig( int n, double* A, int lda, dcomplex* w )
+void Eig( int n, double* A, int lda, dcomplex* w, bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Eig");
@@ -1508,7 +1508,7 @@ void Eig( int n, double* A, int lda, dcomplex* w )
     lwork = dummyWork;
 
     // Query the QR algorithm workspace size
-    const char job='E', compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
     int fakeLDim=1, negOne=-1;
     std::vector<double> wr( n ), wi( n );
     LAPACK(dhseqr)
@@ -1546,7 +1546,7 @@ void Eig( int n, double* A, int lda, dcomplex* w )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
-void Eig( int n, scomplex* A, int lda, scomplex* w )
+void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Eig");
@@ -1563,7 +1563,7 @@ void Eig( int n, scomplex* A, int lda, scomplex* w )
     lwork = dummyWork.real;
 
     // Query the QR algorithm workspace size
-    const char job='E', compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
     int fakeLDim=1, negOne=-1;
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
@@ -1596,7 +1596,7 @@ void Eig( int n, scomplex* A, int lda, scomplex* w )
     }
 }
 
-void Eig( int n, dcomplex* A, int lda, dcomplex* w )
+void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Eig");
@@ -1613,7 +1613,7 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w )
     lwork = dummyWork.real;
 
     // Query the QR algorithm workspace size
-    const char job='E', compz='N';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
     int fakeLDim=1, negOne=-1;
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
@@ -1646,7 +1646,8 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w )
     }
 }
 
-void Schur( int n, float* A, int lda, float* Q, int ldq, scomplex* w )
+void Schur
+( int n, float* A, int lda, float* Q, int ldq, scomplex* w, bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Schur");
@@ -1669,7 +1670,7 @@ void Schur( int n, float* A, int lda, float* Q, int ldq, scomplex* w )
     lwork = std::max( int(dummyWork), lwork );
 
     // Query the QR algorithm workspace size
-    const char job='S', compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     std::vector<float> wr( n ), wi( n );
     LAPACK(shseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, &wr[0], &wi[0], Q, &ldq, 
@@ -1719,7 +1720,9 @@ void Schur( int n, float* A, int lda, float* Q, int ldq, scomplex* w )
         w[i] = elem::Complex<float>(wr[i],wi[i]);
 }
 
-void Schur( int n, double* A, int lda, double* Q, int ldq, dcomplex* w )
+void Schur
+( int n, double* A, int lda, double* Q, int ldq, dcomplex* w, 
+  bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Schur");
@@ -1742,7 +1745,7 @@ void Schur( int n, double* A, int lda, double* Q, int ldq, dcomplex* w )
     lwork = std::max( int(dummyWork), lwork );
 
     // Query the QR algorithm workspace size
-    const char job='S', compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     std::vector<double> wr( n ), wi( n );
     LAPACK(dhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, &wr[0], &wi[0], Q, &ldq, 
@@ -1792,7 +1795,9 @@ void Schur( int n, double* A, int lda, double* Q, int ldq, dcomplex* w )
         w[i] = elem::Complex<double>(wr[i],wi[i]);
 }
 
-void Schur( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w )
+void Schur
+( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w, 
+  bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Schur");
@@ -1815,7 +1820,7 @@ void Schur( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w )
     lwork = std::max( int(dummyWork.real), lwork );
 
     // Query the QR algorithm workspace size
-    const char job='S', compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
       &dummyWork, &negOne, &info );
@@ -1860,7 +1865,9 @@ void Schur( int n, scomplex* A, int lda, scomplex* Q, int ldq, scomplex* w )
     }
 }
 
-void Schur( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w )
+void Schur
+( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w, 
+  bool fullTriangle )
 {
 #ifndef RELEASE
     CallStackEntry entry("lapack::Schur");
@@ -1883,7 +1890,7 @@ void Schur( int n, dcomplex* A, int lda, dcomplex* Q, int ldq, dcomplex* w )
     lwork = std::max( int(dummyWork.real), lwork );
 
     // Query the QR algorithm workspace size
-    const char job='S', compz='V';
+    const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
       &dummyWork, &negOne, &info );

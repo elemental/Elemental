@@ -564,8 +564,8 @@ SDC( Matrix<F>& A, Int cutoff=256 )
          ABL, ABR, part.index );
 
     // Recurse on the two subproblems
-    SDC( ATL );
-    SDC( ABR );
+    SDC( ATL, cutoff );
+    SDC( ABR, cutoff );
 }
 
 template<typename F>
@@ -580,7 +580,7 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
     if( n <= cutoff )
     {
         Matrix<Complex<Real> > w;
-        schur::QR( A, Q, w );
+        schur::QR( A, Q, w, formATR );
         return;
     }
 
@@ -596,14 +596,14 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
     Matrix<F> Z, G;
-    SDC( ATL, Z );
+    SDC( ATL, Z, formATR, cutoff );
     G = QT;
     Gemm( NORMAL,  NORMAL, F(1), G, Z,   QT );
     if( formATR )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G  );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
-    SDC( ABR, Z );
+    SDC( ABR, Z, formATR, cutoff );
     if( formATR )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
     G = QB;
@@ -639,8 +639,8 @@ SDC( DistMatrix<F>& A, Int cutoff=256 )
          ABL, ABR, part.index );
 
     // Recurse on the two subproblems
-    SDC( ATL );
-    SDC( ABR );
+    SDC( ATL, cutoff );
+    SDC( ABR, cutoff );
 }
 
 template<typename F>
@@ -658,7 +658,7 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
         Matrix<Complex<Real> > w;
         if( g.VCRank() == A_CIRC_CIRC.Root() )
-            schur::QR( A_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(), w );
+            schur::QR( A_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(), w, formATR );
         A = A_CIRC_CIRC;
         Q = Q_CIRC_CIRC;
         return;
@@ -676,8 +676,8 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
     // Recurse on the two subproblems
     DistMatrix<F> ZT(g), ZB(g);
-    SDC( ATL, ZT );
-    SDC( ABR, ZB );
+    SDC( ATL, ZT, formATR, cutoff );
+    SDC( ABR, ZB, formATR, cutoff );
 
     // Update the Schur vectors
     DistMatrix<F> G(g);

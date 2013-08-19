@@ -82,7 +82,7 @@ Kahan and Demmel's "On computing Givens rotations reliably and efficiently".
 MRRR-based Hermitian EVP 
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::HermitianEig( char job, char range, char uplo, int n, F* A, int lda, BASE(F) vl, BASE(F) vu, int il, int iu, BASE(F) abstol, BASE(F)* w, F* Z, int ldz )
+.. cpp:function:: void lapack::HermitianEig( char job, char range, char uplo, int n, F* A, int lda, typename Base<F>::type vl, typename Base<F>::type vu, int il, int iu, typename Base<F>::type abstol, typename Base<F>::type* w, F* Z, int ldz )
 
    Computes the eigenvalue decomposition of a Hermitian matrix using MRRR.
 
@@ -125,10 +125,10 @@ Hessenberg QR
 Schur decomposition
 ^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void lapack::Eig( int n, F* A, int lda, Complex<typename Base<F>::type>* w )
+.. cpp:function:: void lapack::Eig( int n, F* A, int lda, Complex<typename Base<F>::type>* w, bool fullTriangle=false )
 
    Returns the eigenvalues of a square matrix using the QR algorithm.
 
-.. cpp:function:: void lapack::Schur( int n, F* A, int lda, F* Q, int ldq, Complex<typename Base<F>::type>* w )
+.. cpp:function:: void lapack::Schur( int n, F* A, int lda, F* Q, int ldq, Complex<typename Base<F>::type>* w, bool fullTriangle=true )
 
    Returns the Schur decomposition of a square matrix using the QR algorithm.
