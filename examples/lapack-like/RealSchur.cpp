@@ -27,6 +27,9 @@ main( int argc, char* argv[] )
     {
         const Int n = Input("--size","height of matrix",100);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
+        const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
+        const Int maxOuterIts = Input("--maxOuterIts","maximum it's/split",10);
+        const Real relTol = Input("--relTol","rel. tol.",Real(0));
         const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
@@ -37,7 +40,7 @@ main( int argc, char* argv[] )
 
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<Real> T( A ), Q;
-        schur::SDC( T, Q, true, cutoff );
+        schur::SDC( T, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
 
         if( display )
         {

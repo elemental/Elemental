@@ -238,7 +238,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( Matrix<F>& A, Matrix<F>& G, 
-  bool returnQ=false, Int maxIts=10, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
@@ -247,7 +247,7 @@ RandomizedSignDivide
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
-        relTol = 50*n*lapack::MachineEpsilon<Real>();
+        relTol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -258,7 +258,8 @@ RandomizedSignDivide
 
     ValueInt<Real> part;
     Matrix<F> V, B, t;
-    for( Int it=0; it<maxIts; ++it )
+    Int it=0;
+    while( it < maxIts )
     {
         G = S;
 
@@ -285,7 +286,8 @@ RandomizedSignDivide
         part = ComputePartition( A );
         part.value /= oneA;
 
-        if( part.value <= relTol || it == maxIts-1 )
+        ++it;
+        if( part.value <= relTol || it == maxIts )
             break;
         else
             A = V;
@@ -297,7 +299,7 @@ template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
 ( DistMatrix<F>& A, DistMatrix<F>& G, 
-  bool returnQ=false, Int maxIts=10, BASE(F) relTol=0 )
+  bool returnQ=false, Int maxIts=1, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
@@ -307,7 +309,7 @@ RandomizedSignDivide
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
-        relTol = 50*n*lapack::MachineEpsilon<Real>();
+        relTol = 500*n*lapack::MachineEpsilon<Real>();
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
@@ -319,7 +321,8 @@ RandomizedSignDivide
     ValueInt<Real> part;
     DistMatrix<F> V(g), B(g);
     DistMatrix<F,MD,STAR> t(g);
-    for( Int it=0; it<maxIts; ++it )
+    Int it=0;
+    while( it < maxIts )
     {
         G = S;
 
@@ -346,7 +349,8 @@ RandomizedSignDivide
         part = ComputePartition( A );
         part.value /= oneA;
 
-        if( part.value <= relTol || it == maxIts-1 )
+        ++it;
+        if( part.value <= relTol || it == maxIts )
             break;
         else
             A = V;
@@ -356,36 +360,57 @@ RandomizedSignDivide
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Real>& A )
+SpectralDivide
+( Matrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
     const Real gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    Matrix<Real> d;
-    A.GetDiagonal( d );
-    SetDiagonal( A, Real(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    Matrix<Real> G, ACopy;
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        const Real shift = SampleBall<Real>(-gershCenter,spread);
 
-    const Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+        G = A;
+        UpdateDiagonal( G, shift );
 
-    Matrix<Real> G( A );
-    UpdateDiagonal( G, shift );
+        //part = SignDivide( A, G );
+        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, G );
-    ValueInt<Real> part = RandomizedSignDivide( A, G );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Complex<Real> >& A )
+SpectralDivide
+( Matrix<Complex<Real> >& A, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
@@ -393,62 +418,102 @@ SpectralDivide( Matrix<Complex<Real> >& A )
     typedef Complex<Real> F;
     const Int n = A.Height();
     const F gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    Matrix<F> d;
-    A.GetDiagonal( d );
-    SetDiagonal( A, F(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    Matrix<F> G, ACopy;
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        const F shift = SampleBall<F>(-gershCenter,spread);
 
-    const F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+        const Real angle = Uniform<Real>(0,2*Pi);
+        const F gamma = F(Cos(angle),Sin(angle));
 
-    const Real angle = Uniform<Real>(0,2*Pi);
-    const F gamma = F(Cos(angle),Sin(angle));
+        G = A;
+        UpdateDiagonal( G, shift );
+        Scale( gamma, G );
 
-    Matrix<F> G( A );
-    UpdateDiagonal( G, shift );
-    Scale( gamma, G );
+        //part = SignDivide( A, G );
+        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, G );
-    ValueInt<Real> part = RandomizedSignDivide( A, G );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Real>& A, Matrix<Real>& Q )
+SpectralDivide
+( Matrix<Real>& A, Matrix<Real>& Q, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
     const Real gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    Matrix<Real> d;
-    A.GetDiagonal( d );
-    SetDiagonal( A, Real(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    Matrix<Real> ACopy;
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        const Real shift = SampleBall<Real>(-gershCenter,spread);
 
-    const Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+        Q = A;
+        UpdateDiagonal( Q, shift );
 
-    Q = A;
-    UpdateDiagonal( Q, shift );
+        //part = SignDivide( A, Q, true );
+        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, Q, true );
-    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
-    // TODO: Retry or throw exception if part.value not small enough
-    
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q )
+SpectralDivide
+( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
@@ -456,63 +521,102 @@ SpectralDivide( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q )
     typedef Complex<Real> F;
     const Int n = A.Height();
     const F gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    Matrix<F> d;
-    A.GetDiagonal( d );
-    SetDiagonal( A, F(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    Matrix<F> ACopy;
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        const F shift = SampleBall<F>(-gershCenter,spread);
 
-    const F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+        const Real angle = Uniform<Real>(0,2*Pi);
+        const F gamma = F(Cos(angle),Sin(angle));
 
-    const Real angle = Uniform<Real>(0,2*Pi);
-    const F gamma = F(Cos(angle),Sin(angle));
+        Q = A;
+        UpdateDiagonal( Q, shift );
+        Scale( gamma, Q );
 
-    Q = A;
-    UpdateDiagonal( Q, shift );
-    Scale( gamma, Q );
+        //part = SignDivide( A, Q, true );
+        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, Q, true );
-    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Real>& A )
+SpectralDivide
+( DistMatrix<Real>& A, Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
     const Real gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    DistMatrix<Real,MD,STAR> d(A.Grid());
-    A.GetDiagonal( d );
-    SetDiagonal( A, Real(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    DistMatrix<Real> ACopy(A.Grid()), G(A.Grid());
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        Real shift = SampleBall<Real>(-gershCenter,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
-    Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
-    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        G = A;
+        UpdateDiagonal( G, shift );
 
-    DistMatrix<Real> G( A );
-    UpdateDiagonal( G, shift );
+        //part = SignDivide( A, G );
+        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, G );
-    ValueInt<Real> part = RandomizedSignDivide( A, G );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Complex<Real> >& A )
+SpectralDivide
+( DistMatrix<Complex<Real> >& A, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
@@ -520,65 +624,105 @@ SpectralDivide( DistMatrix<Complex<Real> >& A )
     typedef Complex<Real> F;
     const Int n = A.Height();
     const F gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    DistMatrix<F,MD,STAR> d(A.Grid());
-    A.GetDiagonal( d );
-    SetDiagonal( A, F(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    DistMatrix<F> ACopy(A.Grid()), G(A.Grid());
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        F shift = SampleBall<F>(-gershCenter,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
-    F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
-    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        const Real angle = Uniform<Real>(0,2*Pi);
+        F gamma = F(Cos(angle),Sin(angle));
+        mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
 
-    const Real angle = Uniform<Real>(0,2*Pi);
-    F gamma = F(Cos(angle),Sin(angle));
-    mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
+        G = A;
+        UpdateDiagonal( G, shift );
+        Scale( gamma, G );
 
-    DistMatrix<F> G( A );
-    UpdateDiagonal( G, shift );
-    Scale( gamma, G );
+        //part = SignDivide( A, G );
+        part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, G );
-    ValueInt<Real> part = RandomizedSignDivide( A, G );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Real>& A, DistMatrix<Real>& Q )
+SpectralDivide
+( DistMatrix<Real>& A, DistMatrix<Real>& Q, 
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
     const Real gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    DistMatrix<Real,MD,STAR> d(A.Grid());
-    A.GetDiagonal( d );
-    SetDiagonal( A, Real(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    DistMatrix<Real> ACopy(A.Grid());
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        Real shift = SampleBall<Real>(-gershCenter,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
-    Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
-    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        Q = A;
+        UpdateDiagonal( Q, shift );
 
-    Q = A;
-    UpdateDiagonal( Q, shift );
+        //part = SignDivide( A, Q, true );
+        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, Q, true );
-    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename Real>
 inline ValueInt<Real>
-SpectralDivide( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q )
+SpectralDivide
+( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q,
+  Int maxInnerIts=1, Int maxOuterIts=10, Real relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
@@ -586,35 +730,55 @@ SpectralDivide( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q )
     typedef Complex<Real> F;
     const Int n = A.Height();
     const F gershCenter = Trace(A) / n;
+    const Real infNorm = InfinityNorm(A);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    if( relTol == Real(0) )
+        relTol = 500*n*eps;
+    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
 
-    DistMatrix<F,MD,STAR> d(A.Grid());
-    A.GetDiagonal( d );
-    SetDiagonal( A, F(0) );
-    const Real offDiagInf = InfinityNorm(A);
-    A.SetDiagonal( d );
+    Int it=0;
+    ValueInt<Real> part;
+    DistMatrix<F> ACopy(A.Grid());
+    if( maxOuterIts > 1 )
+        ACopy = A;
+    while( it < maxOuterIts )
+    {
+        F shift = SampleBall<F>(-gershCenter,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
-    F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
-    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        const Real angle = Uniform<Real>(0,2*Pi);
+        F gamma = F(Cos(angle),Sin(angle));
+        mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
 
-    const Real angle = Uniform<Real>(0,2*Pi);
-    F gamma = F(Cos(angle),Sin(angle));
-    mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
+        Q = A;
+        UpdateDiagonal( Q, shift );
+        Scale( gamma, Q );
 
-    Q = A;
-    UpdateDiagonal( Q, shift );
-    Scale( gamma, Q );
+        //part = SignDivide( A, Q, true );
+        part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
 
-    //ValueInt<Real> part = SignDivide( A, Q, true );
-    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
-
-    // TODO: Retry or throw exception if part.value not small enough
+        ++it;
+        if( part.value <= relTol )
+            break;
+        else if( it != maxOuterIts )
+            A = ACopy;
+    }
+    if( part.value > relTol )
+    {
+        std::ostringstream os;
+        os << "Unable to split spectrum to specified accuracy: part.value="
+           << part.value << ", relTol=" << relTol << std::endl;
+        RuntimeError( os.str() );
+    }
 
     return part;
 }
 
 template<typename F>
 inline void
-SDC( Matrix<F>& A, Int cutoff=256 )
+SDC
+( Matrix<F>& A, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -629,7 +793,8 @@ SDC( Matrix<F>& A, Int cutoff=256 )
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = SpectralDivide( A );
+    const ValueInt<Real> part = 
+        SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -637,13 +802,15 @@ SDC( Matrix<F>& A, Int cutoff=256 )
          ABL, ABR, part.index );
 
     // Recurse on the two subproblems
-    SDC( ATL, cutoff );
-    SDC( ABR, cutoff );
+    SDC( ATL, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( ABR, cutoff, maxInnerIts, maxOuterIts, relTol );
 }
 
 template<typename F>
 inline void
-SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
+SDC
+( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -658,7 +825,8 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = SpectralDivide( A, Q );
+    const ValueInt<Real> part = 
+        SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -669,14 +837,14 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
     Matrix<F> Z, G;
-    SDC( ATL, Z, formATR, cutoff );
+    SDC( ATL, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
     G = QL;
     Gemm( NORMAL,  NORMAL, F(1), G, Z, QL );
     if( formATR )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
-    SDC( ABR, Z, formATR, cutoff );
+    SDC( ABR, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
     if( formATR )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
     G = QR;
@@ -685,7 +853,9 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
 template<typename F>
 inline void
-SDC( DistMatrix<F>& A, Int cutoff=256 )
+SDC
+( DistMatrix<F>& A, Int cutoff=256, 
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -704,7 +874,8 @@ SDC( DistMatrix<F>& A, Int cutoff=256 )
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = SpectralDivide( A );
+    const ValueInt<Real> part = 
+        SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -712,13 +883,15 @@ SDC( DistMatrix<F>& A, Int cutoff=256 )
          ABL, ABR, part.index );
 
     // Recurse on the two subproblems
-    SDC( ATL, cutoff );
-    SDC( ABR, cutoff );
+    SDC( ATL, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( ABR, cutoff, maxInnerIts, maxOuterIts, relTol );
 }
 
 template<typename F>
 inline void
-SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
+SDC
+( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256,
+  Int maxInnerIts=1, Int maxOuterIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
@@ -738,7 +911,8 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = SpectralDivide( A, Q );
+    const ValueInt<Real> part = 
+        SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -749,8 +923,8 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
     // Recurse on the two subproblems
     DistMatrix<F> ZT(g), ZB(g);
-    SDC( ATL, ZT, formATR, cutoff );
-    SDC( ABR, ZB, formATR, cutoff );
+    SDC( ATL, ZT, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    SDC( ABR, ZB, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
 
     // Update the Schur vectors
     DistMatrix<F> G(g);
