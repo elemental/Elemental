@@ -15,19 +15,20 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<BASE(F)> >& w )
+QR( Matrix<F>& A, Matrix<Complex<BASE(F)> >& w, bool formATR=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::qr");
 #endif
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
-    lapack::Eig( &n, A.Buffer(), A.LDim(), w.Buffer() );
+    lapack::Eig( n, A.Buffer(), A.LDim(), w.Buffer(), formATR );
 }
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<F>& Q, Matrix<Complex<BASE(F)> >& w )
+QR
+( Matrix<F>& A, Matrix<F>& Q, Matrix<Complex<BASE(F)> >& w, bool formATR=true )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::qr");
@@ -35,7 +36,8 @@ QR( Matrix<F>& A, Matrix<F>& Q, Matrix<Complex<BASE(F)> >& w )
     const Int n = A.Height();
     Q.ResizeTo( n, n );
     w.ResizeTo( n, 1 );
-    lapack::Schur( &n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer() );
+    lapack::Schur
+    ( n, A.Buffer(), A.LDim(), Q.Buffer(), Q.LDim(), w.Buffer(), formATR );
 }
 
 } // namespace schur

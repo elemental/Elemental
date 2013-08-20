@@ -130,7 +130,7 @@ Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( oneDiff/oneNew < tol )
+        if( oneDiff/oneNew <= tol )
             break;
     }
     A = *X;

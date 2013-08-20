@@ -166,7 +166,7 @@ Newton
             break;
     }
     if( X != &A )
-        A = *XNew;
+        A = *X;
     return numIts;
 }
 
@@ -203,7 +203,7 @@ Newton
             break;
     }
     if( X != &A )
-        A = *XNew;
+        A = *X;
     return numIts;
 }
 

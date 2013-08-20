@@ -12,9 +12,12 @@
 
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
+#include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Sign.hpp"
+#include "elemental/lapack-like/Trace.hpp"
 #include "elemental/matrices/Haar.hpp"
 #include "elemental/matrices/Identity.hpp"
 
@@ -61,14 +64,14 @@ ComputePartition( Matrix<F>& A )
     std::vector<Real> norms(n-1);
     norms[0] = colSums[0];
     part.value = norms[0];
-    part.index = 0;
+    part.index = 1;
     for( Int j=1; j<n-1; ++j )
     {
         norms[j] = norms[j-1] + colSums[j] - rowSums[j-1];
         if( norms[j] < part.value )
         {
             part.value = norms[j];
-            part.index = j;
+            part.index = j+1;
         }
     }
 
@@ -94,7 +97,7 @@ ComputePartition( DistMatrix<F>& A )
         ValueInt<Real> part;
         part.value = -1;
         part.index = -1;
-        return;
+        return part;
     }
 
     // Compute the sets of row and column sums
@@ -130,23 +133,25 @@ ComputePartition( DistMatrix<F>& A )
     std::vector<Real> norms(n-1);
     norms[0] = colSums[0];
     part.value = norms[0];
-    part.index = 0;
+    part.index = 1;
     for( Int j=1; j<n-1; ++j )
     {
         norms[j] = norms[j-1] + colSums[j] - rowSums[j-1];
         if( norms[j] < part.value )
         {
             part.value = norms[j];
-            part.index = j;
+            part.index = j+1;
         }
     }
 
     return part;
 }
 
+// G should be a rational function of A. If returnQ=true, G will be set to
+// the computed unitary matrix upon exit.
 template<typename F>
 inline ValueInt<BASE(F)>
-SignDivide( Matrix<F>& A )
+SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SignDivide");
@@ -154,194 +159,86 @@ SignDivide( Matrix<F>& A )
     typedef BASE(F) Real;
     const Int n = A.Height();
 
-    // Q := sgn(A)
-    // Q := 1/2 ( Q + I )
-    Matrix<F> Q( A );
-    Sign( Q );
-    UpdateDiagonal( Q, F(1) );
-    Scale( F(1)/F(2), Q );
+    // G := sgn(G)
+    // G := 1/2 ( G + I )
+    Sign( G );
+    UpdateDiagonal( G, F(1) );
+    Scale( F(1)/F(2), G );
 
-    // Compute the pivoted QR decomposition of the spectral projection and then
-    // from the explicit Q matrix
+    // Compute the pivoted QR decomposition of the spectral projection 
     Matrix<F> t;
     Matrix<Int> p;
-    elem::QR( Q, t, p );
-
-    // A := Q^H A Q
-    // NOTE: Top-right quadrant does not need to be updated, though we do not
-    //       know what it is a priori
-    const Real oneA = OneNorm( A );
-    qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
-    qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
-
-    // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
-    part.value /= oneA;
-    return part;
-}
-
-template<typename F>
-inline ValueInt<BASE(F)>
-SignDivide( Matrix<F>& A, Matrix<F>& Q )
-{
-#ifndef RELEASE
-    CallStackEntry cse("schur::SignDivide");
-#endif
-    typedef BASE(F) Real;
-    const Int n = A.Height();
-
-    // Q := sgn(A)
-    // Q := 1/2 ( Q + I )
-    Q = A;
-    Sign( Q );
-    UpdateDiagonal( Q, F(1) );
-    Scale( F(1)/F(2), Q );
-
-    // Compute the pivoted QR decomposition of the spectral projection and then
-    // from the explicit Q matrix
-    Matrix<F> t;
-    Matrix<Int> p;
-    elem::QR( Q, t, p );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
-
-    // A := Q^H A Q [use B for a temporary product]
-    const Real oneA = OneNorm( A );
-    Matrix<F> B;
-    Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
-    Gemm( NORMAL, NORMAL, F(1), B, Q, A );
-
-    // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
-    part.value /= oneA;
-    return part;
-}
-
-template<typename F>
-inline ValueInt<BASE(F)>
-SignDivide( DistMatrix<F>& A )
-{
-#ifndef RELEASE
-    CallStackEntry cse("schur::SignDivide");
-#endif
-    typedef BASE(F) Real;
-    const Grid& g = A.Grid();
-    const Int n = A.Height();
-
-    // Q := sgn(A)
-    // Q := 1/2 ( Q + I )
-    DistMatrix<F> Q( A );
-    Sign( Q );
-    UpdateDiagonal( Q, F(1) );
-    Scale( F(1)/F(2), Q );
-
-    // Compute the pivoted QR decomposition of the spectral projection and then
-    // from the explicit Q matrix
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    elem::QR( Q, t, p );
-
-    // A := Q^H A Q
-    // NOTE: Top-right quadrant does not need to be updated, though we do not
-    //       know what it is a priori
-    const Real oneA = OneNorm( A );
-    qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
-    qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
-
-    // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
-    part.value /= oneA;
-    return part;
-}
-
-template<typename F>
-inline ValueInt<BASE(F)>
-SignDivide( DistMatrix<F>& A, DistMatrix<F>& Q )
-{
-#ifndef RELEASE
-    CallStackEntry cse("schur::SignDivide");
-#endif
-    typedef BASE(F) Real;
-    const Int n = A.Height();
-    const Grid& g = A.Grid();
-
-    // Q := sgn(A)
-    // Q := 1/2 ( Q + I )
-    Q = A;
-    Sign( Q );
-    UpdateDiagonal( Q, F(1) );
-    Scale( F(1)/F(2), Q );
-
-    // Compute the pivoted QR decomposition of the spectral projection and
-    // then form the explicit Q matrix
-    DistMatrix<F,MD,STAR> t(g);
-    DistMatrix<Int,VR,STAR> p(g);
-    elem::QR( Q, t, p );
-    ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+    elem::QR( G, t, p );
 
     // A := Q^H A Q
     const Real oneA = OneNorm( A );
-    DistMatrix<F> B(g);
-    Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
-    Gemm( NORMAL, NORMAL, F(1), B, Q, A );
-
-    // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
-    part.value /= oneA;
-    return part;
-}
-
-template<typename F>
-inline ValueInt<BASE(F)>
-RandomizedSignDivide( Matrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
-{
-#ifndef RELEASE
-    CallStackEntry cse("schur::RandomizedSignDivide");
-#endif
-    typedef BASE(F) Real;
-    const Int n = A.Height();
-    const Real oneA = OneNorm( A );
-    if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
-
-    // S := sgn(A)
-    // S := 1/2 ( S + I )
-    Matrix<F> S( A );
-    Sign( S );
-    UpdateDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
-
-    ValueInt<Real> part;
-    Matrix<F> V, Q, t;
-    for( Int it=0; it<maxIts; ++it )
+    if( returnQ )
     {
-        Q = S;
-
-        // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
-        elem::QR( Q, t );
-
-        // A := Q^H A Q [and reuse space for V for keeping original A]
-        V = A;
-        qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
-
-        // || E21 ||1 / || A ||1 and the chosen rank
-        part = ComputePartition( A );
-        part.value /= oneA;
-
-        if( part.value <= relTol )
-            break;
-        else
-            A = V;
+        Matrix<F> B;
+        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
+        Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
+    else
+    {
+        qr::ApplyQ( LEFT, ADJOINT, G, t, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+    }
+
+    // Return || E21 ||1 / || A ||1 and the chosen rank
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= oneA;
+    return part;
+}
+
+template<typename F>
+inline ValueInt<BASE(F)>
+SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SignDivide");
+#endif
+    typedef BASE(F) Real;
+    const Grid& g = A.Grid();
+    const Int n = A.Height();
+
+    // G := sgn(G)
+    // G := 1/2 ( G + I )
+    Sign( G );
+    UpdateDiagonal( G, F(1) );
+    Scale( F(1)/F(2), G );
+
+    // Compute the pivoted QR decomposition of the spectral projection 
+    DistMatrix<F,MD,STAR> t(g);
+    DistMatrix<Int,VR,STAR> p(g);
+    elem::QR( G, t, p );
+
+    // A := Q^H A Q
+    const Real oneA = OneNorm( A );
+    if( returnQ )
+    {
+        DistMatrix<F> B(g);
+        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        Gemm( ADJOINT, NORMAL, F(1), G, A, B );
+        Gemm( NORMAL, NORMAL, F(1), B, G, A );
+    }
+    else
+    {
+        qr::ApplyQ( LEFT, ADJOINT, G, t, A );
+        qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+    }
+
+    // Return || E21 ||1 / || A ||1 and the chosen rank
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= oneA;
     return part;
 }
 
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( Matrix<F>& A, Matrix<F>& Q, Int maxIts=10, BASE(F) relTol=0 )
+( Matrix<F>& A, Matrix<F>& G, 
+  bool returnQ=false, Int maxIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
@@ -350,11 +247,11 @@ RandomizedSignDivide
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
+        relTol = 50*n*lapack::MachineEpsilon<Real>();
 
-    // S := sgn(A)
+    // S := sgn(G)
     // S := 1/2 ( S + I )
-    Matrix<F> S( A );
+    Matrix<F> S( G );
     Sign( S );
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
@@ -363,74 +260,32 @@ RandomizedSignDivide
     Matrix<F> V, B, t;
     for( Int it=0; it<maxIts; ++it )
     {
-        Q = S;
+        G = S;
 
         // Compute the RURV of the spectral projector
         ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
-        elem::QR( Q, t );
-        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, G );
+        elem::QR( G, t );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
-        Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, Q, A );
-
-        // || E21 ||1 / || A ||1 and the chosen rank
-        part = ComputePartition( A );
-        part.value /= oneA;
-
-        if( part.value <= relTol )
-            break;
+        if( returnQ )
+        {
+            ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
+            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        }
         else
-            A = V;
-    }
-    return part;
-}
-
-template<typename F>
-inline ValueInt<BASE(F)>
-RandomizedSignDivide( DistMatrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
-{
-#ifndef RELEASE
-    CallStackEntry cse("schur::RandomizedSignDivide");
-#endif
-    typedef BASE(F) Real;
-    const Grid& g = A.Grid();
-    const Int n = A.Height();
-    const Real oneA = OneNorm( A );
-    if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
-
-    // S := sgn(A)
-    // S := 1/2 ( S + I )
-    DistMatrix<F> S( A );
-    Sign( S );
-    UpdateDiagonal( S, F(1) );
-    Scale( F(1)/F(2), S );
-
-    ValueInt<Real> part;
-    DistMatrix<F> V(g), Q(g);
-    DistMatrix<F,MD,STAR> t(g);
-    for( Int it=0; it<maxIts; ++it )
-    {
-        Q = S;
-
-        // Compute the RURV of the spectral projector
-        ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
-        elem::QR( Q, t );
-
-        // A := Q^H A Q [and reuse space for V for keeping original A]
-        V = A;
-        qr::ApplyQ( LEFT, ADJOINT, Q, t, A );
-        qr::ApplyQ( RIGHT, NORMAL, Q, t, A );
+        {
+            qr::ApplyQ( LEFT, ADJOINT, G, t, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+        }
 
         // || E21 ||1 / || A ||1 and the chosen rank
         part = ComputePartition( A );
         part.value /= oneA;
 
-        if( part.value <= relTol )
+        if( part.value <= relTol || it == maxIts-1 )
             break;
         else
             A = V;
@@ -441,7 +296,8 @@ RandomizedSignDivide( DistMatrix<F>& A, Int maxIts=10, BASE(F) relTol=0 )
 template<typename F>
 inline ValueInt<BASE(F)>
 RandomizedSignDivide
-( DistMatrix<F>& A, DistMatrix<F>& Q, Int maxIts=10, BASE(F) relTol=0 )
+( DistMatrix<F>& A, DistMatrix<F>& G, 
+  bool returnQ=false, Int maxIts=10, BASE(F) relTol=0 )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::RandomizedSignDivide");
@@ -451,11 +307,11 @@ RandomizedSignDivide
     const Int n = A.Height();
     const Real oneA = OneNorm( A );
     if( relTol == Real(0) )
-        relTol = n*lapack::MachineEpsilon<Real>();
+        relTol = 50*n*lapack::MachineEpsilon<Real>();
 
-    // S := sgn(A)
+    // S := sgn(G)
     // S := 1/2 ( S + I )
-    DistMatrix<F> S( A );
+    DistMatrix<F> S( G );
     Sign( S );
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
@@ -465,24 +321,32 @@ RandomizedSignDivide
     DistMatrix<F,MD,STAR> t(g);
     for( Int it=0; it<maxIts; ++it )
     {
-        Q = S;
+        G = S;
 
         // Compute the RURV of the spectral projector
         ImplicitHaar( V, t, n );
-        qr::ApplyQ( RIGHT, NORMAL, V, t, Q );
-        elem::QR( Q, t );
-        ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, Q, t );
+        qr::ApplyQ( RIGHT, NORMAL, V, t, G );
+        elem::QR( G, t );
 
         // A := Q^H A Q [and reuse space for V for keeping original A]
         V = A;
-        Gemm( ADJOINT, NORMAL, F(1), Q, A, B );
-        Gemm( NORMAL, NORMAL, F(1), B, Q, A );
+        if( returnQ )
+        {
+            ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+            Gemm( ADJOINT, NORMAL, F(1), G, A, B );
+            Gemm( NORMAL, NORMAL, F(1), B, G, A );
+        }
+        else
+        {
+            qr::ApplyQ( LEFT, ADJOINT, G, t, A );
+            qr::ApplyQ( RIGHT, NORMAL, G, t, A );
+        }
 
         // || E21 ||1 / || A ||1 and the chosen rank
         part = ComputePartition( A );
         part.value /= oneA;
 
-        if( part.value <= relTol )
+        if( part.value <= relTol || it == maxIts-1 )
             break;
         else
             A = V;
@@ -490,53 +354,262 @@ RandomizedSignDivide
     return part;
 }
 
-// TODO: Begin adding strategies, with the most obvious being Gershigorin-based
-template<typename F>
-inline ValueInt<BASE(F)>
-SpectralDivide( Matrix<F>& A )
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( Matrix<Real>& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    LogicError("This routine not yet written");
-    //SignDivide( A );
-    RandomizedSignDivide( A );
+    const Int n = A.Height();
+    const Real gershCenter = Trace(A) / n;
+
+    Matrix<Real> d;
+    A.GetDiagonal( d );
+    SetDiagonal( A, Real(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    const Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+
+    Matrix<Real> G( A );
+    UpdateDiagonal( G, shift );
+
+    //ValueInt<Real> part = SignDivide( A, G );
+    ValueInt<Real> part = RandomizedSignDivide( A, G );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
 }
 
-template<typename F>
-inline ValueInt<BASE(F)>
-SpectralDivide( Matrix<F>& A, Matrix<F>& Q )
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( Matrix<Complex<Real> >& A )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    LogicError("This routine not yet written");
-    //SignDivide( A, Q );
-    RandomizedSignDivide( A, Q );
+    typedef Complex<Real> F;
+    const Int n = A.Height();
+    const F gershCenter = Trace(A) / n;
+
+    Matrix<F> d;
+    A.GetDiagonal( d );
+    SetDiagonal( A, F(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    const F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+
+    const Real angle = Uniform<Real>(0,2*Pi);
+    const F gamma = F(Cos(angle),Sin(angle));
+
+    Matrix<F> G( A );
+    UpdateDiagonal( G, shift );
+    Scale( gamma, G );
+
+    //ValueInt<Real> part = SignDivide( A, G );
+    ValueInt<Real> part = RandomizedSignDivide( A, G );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
 }
 
-template<typename F>
-inline ValueInt<BASE(F)>
-SpectralDivide( DistMatrix<F>& A )
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( Matrix<Real>& A, Matrix<Real>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    LogicError("This routine not yet written");
-    //SignDivide( A );
-    RandomizedSignDivide( A );
+    const Int n = A.Height();
+    const Real gershCenter = Trace(A) / n;
+
+    Matrix<Real> d;
+    A.GetDiagonal( d );
+    SetDiagonal( A, Real(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    const Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+
+    Q = A;
+    UpdateDiagonal( Q, shift );
+
+    //ValueInt<Real> part = SignDivide( A, Q, true );
+    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
+
+    // TODO: Retry or throw exception if part.value not small enough
+    
+    return part;
 }
 
-template<typename F>
-inline ValueInt<BASE(F)>
-SpectralDivide( DistMatrix<F>& A, DistMatrix<F>& Q )
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( Matrix<Complex<Real> >& A, Matrix<Complex<Real> >& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::SpectralDivide");
 #endif
-    LogicError("This routine not yet written");
-    //SignDivide( A, Q );
-    RandomizedSignDivide( A, Q );
+    typedef Complex<Real> F;
+    const Int n = A.Height();
+    const F gershCenter = Trace(A) / n;
+
+    Matrix<F> d;
+    A.GetDiagonal( d );
+    SetDiagonal( A, F(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    const F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+
+    const Real angle = Uniform<Real>(0,2*Pi);
+    const F gamma = F(Cos(angle),Sin(angle));
+
+    Q = A;
+    UpdateDiagonal( Q, shift );
+    Scale( gamma, Q );
+
+    //ValueInt<Real> part = SignDivide( A, Q, true );
+    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
+}
+
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( DistMatrix<Real>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    const Int n = A.Height();
+    const Real gershCenter = Trace(A) / n;
+
+    DistMatrix<Real,MD,STAR> d(A.Grid());
+    A.GetDiagonal( d );
+    SetDiagonal( A, Real(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+
+    DistMatrix<Real> G( A );
+    UpdateDiagonal( G, shift );
+
+    //ValueInt<Real> part = SignDivide( A, G );
+    ValueInt<Real> part = RandomizedSignDivide( A, G );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
+}
+
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( DistMatrix<Complex<Real> >& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    typedef Complex<Real> F;
+    const Int n = A.Height();
+    const F gershCenter = Trace(A) / n;
+
+    DistMatrix<F,MD,STAR> d(A.Grid());
+    A.GetDiagonal( d );
+    SetDiagonal( A, F(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+
+    const Real angle = Uniform<Real>(0,2*Pi);
+    F gamma = F(Cos(angle),Sin(angle));
+    mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
+
+    DistMatrix<F> G( A );
+    UpdateDiagonal( G, shift );
+    Scale( gamma, G );
+
+    //ValueInt<Real> part = SignDivide( A, G );
+    ValueInt<Real> part = RandomizedSignDivide( A, G );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
+}
+
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( DistMatrix<Real>& A, DistMatrix<Real>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    const Int n = A.Height();
+    const Real gershCenter = Trace(A) / n;
+
+    DistMatrix<Real,MD,STAR> d(A.Grid());
+    A.GetDiagonal( d );
+    SetDiagonal( A, Real(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    Real shift = SampleBall<Real>(-gershCenter,Real(0.001)*offDiagInf);
+    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+
+    Q = A;
+    UpdateDiagonal( Q, shift );
+
+    //ValueInt<Real> part = SignDivide( A, Q, true );
+    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
+}
+
+template<typename Real>
+inline ValueInt<Real>
+SpectralDivide( DistMatrix<Complex<Real> >& A, DistMatrix<Complex<Real> >& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("schur::SpectralDivide");
+#endif
+    typedef Complex<Real> F;
+    const Int n = A.Height();
+    const F gershCenter = Trace(A) / n;
+
+    DistMatrix<F,MD,STAR> d(A.Grid());
+    A.GetDiagonal( d );
+    SetDiagonal( A, F(0) );
+    const Real offDiagInf = InfinityNorm(A);
+    A.SetDiagonal( d );
+
+    F shift = SampleBall<F>(-gershCenter,Real(0.001)*offDiagInf);
+    mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+
+    const Real angle = Uniform<Real>(0,2*Pi);
+    F gamma = F(Cos(angle),Sin(angle));
+    mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
+
+    Q = A;
+    UpdateDiagonal( Q, shift );
+    Scale( gamma, Q );
+
+    //ValueInt<Real> part = SignDivide( A, Q, true );
+    ValueInt<Real> part = RandomizedSignDivide( A, Q, true );
+
+    // TODO: Retry or throw exception if part.value not small enough
+
+    return part;
 }
 
 template<typename F>
@@ -591,23 +664,23 @@ SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256 )
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    Matrix<F> QT, QB;
-    PartitionDown( Q, QT, QB, part.index );
+    Matrix<F> QL, QR;
+    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
     Matrix<F> Z, G;
     SDC( ATL, Z, formATR, cutoff );
-    G = QT;
-    Gemm( NORMAL,  NORMAL, F(1), G, Z,   QT );
+    G = QL;
+    Gemm( NORMAL,  NORMAL, F(1), G, Z, QL );
     if( formATR )
-        Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G  );
+        Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
 
     // Recurse on the bottom-right quadrant and update Schur vectors and ATR
     SDC( ABR, Z, formATR, cutoff );
     if( formATR )
         Gemm( NORMAL, NORMAL, F(1), G, Z, ATR ); 
-    G = QB;
-    Gemm( NORMAL, NORMAL, F(1), G, Z, QB  );
+    G = QR;
+    Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
 }
 
 template<typename F>
@@ -671,8 +744,8 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
     PartitionDownDiagonal
     ( A, ATL, ATR,
          ABL, ABR, part.index );
-    DistMatrix<F> QT(g), QB(g);
-    PartitionDown( Q, QT, QB, part.index );
+    DistMatrix<F> QL(g), QR(g);
+    PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
     DistMatrix<F> ZT(g), ZB(g);
@@ -681,10 +754,10 @@ SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256 )
 
     // Update the Schur vectors
     DistMatrix<F> G(g);
-    G = QT;
-    Gemm( NORMAL, NORMAL, F(1), G, ZT, QT );
-    G = QB;
-    Gemm( NORMAL, NORMAL, F(1), G, ZB, QB );
+    G = QL;
+    Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
+    G = QR;
+    Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );
 
     if( formATR )
     {
