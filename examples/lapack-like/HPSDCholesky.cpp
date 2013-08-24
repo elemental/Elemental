@@ -13,9 +13,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -29,8 +29,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> L(g), A(g);
+        DistMatrix<C> L, A;
         Uniform( L, n, n );
         MakeTrapezoidal( LOWER, L, -1 );
         Zeros( A, n, n );

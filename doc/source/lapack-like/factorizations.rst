@@ -194,6 +194,17 @@ trapezoid.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
+.. cpp:function:: void qr::Explicit( Matrix<F>& A, bool colPiv=false )
+.. cpp:function:: void qr::Explicit( DistMatrix<F>& A, bool colPiv=false )
+
+   Overwrite :math:`A` with the orthogonal matrix from its QR factorization
+   (with or without column pivoting).
+
+.. cpp:function:: void qr::Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
+.. cpp:function:: void qr::Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
+
+   Additionally explicitly return the :math:`R` from the QR factorization.
+
 .. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 .. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )
 .. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,STAR,STAR>& t, DistMatrix<F>& B )

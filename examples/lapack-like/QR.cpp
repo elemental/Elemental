@@ -30,13 +30,12 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        const Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A(g);
+        DistMatrix<C> A;
         Uniform( A, m, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the QR decomposition of A, but do not overwrite A
-        DistMatrix<C> Q( A ), R(g);
+        DistMatrix<C> Q( A ), R;
         qr::Explicit( Q, R );
 
         // Check the error in the QR factorization, || A - Q R ||_F / || A ||_F

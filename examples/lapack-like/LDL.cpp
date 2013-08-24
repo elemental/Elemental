@@ -21,9 +21,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -38,8 +38,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        DistMatrix<C> A;
         if( conjugate )
         {
             HermitianUniformSpectrum( A, n, -30, -20 );
@@ -47,7 +46,7 @@ main( int argc, char* argv[] )
         else
         {
             Uniform( A, n, n );
-            DistMatrix<C> ATrans( g );
+            DistMatrix<C> ATrans;
             Transpose( A, ATrans );
             Axpy( C(1), ATrans, A );
         }
@@ -55,7 +54,7 @@ main( int argc, char* argv[] )
         // Make a copy of A and then overwrite it with its LDL factorization
         // WARNING: There is no pivoting here!
         DistMatrix<C> factA( A );
-        DistMatrix<C,MC,STAR> d( g );
+        DistMatrix<C,MC,STAR> d;
         if( conjugate )
             LDLH( factA, d );
         else
@@ -68,7 +67,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
-        const R frobNormOfError = FrobeniusNorm( A );
+        const Real frobNormOfError = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
                       << std::endl;

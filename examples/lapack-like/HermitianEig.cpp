@@ -17,9 +17,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -84,7 +84,7 @@ main( int argc, char* argv[] )
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        DistMatrix<R,VR,STAR> w( g );
+        DistMatrix<Real,VR,STAR> w( g );
         DistMatrix<C> X( g );
         HermitianEig( LOWER, H, w, X ); // only use lower half of H
 
@@ -99,16 +99,16 @@ main( int argc, char* argv[] )
         }
 
         // Check the residual, || H X - Omega X ||_F
-        const R frobH = HermitianFrobeniusNorm( LOWER, HCopy );
+        const Real frobH = HermitianFrobeniusNorm( LOWER, HCopy );
         DistMatrix<C> E( X );
         DiagonalScale( RIGHT, NORMAL, w, E );
         Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
-        const R frobResid = FrobeniusNorm( E );
+        const Real frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X
         Identity( E, n, n );
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
-        const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::WorldRank() == 0 )
         {

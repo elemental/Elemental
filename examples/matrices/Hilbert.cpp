@@ -8,7 +8,7 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/ConditionNumber.hpp"
+#include "elemental/lapack-like/Condition.hpp"
 #include "elemental/lapack-like/Determinant.hpp"
 #include "elemental/lapack-like/HilbertSchmidt.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
@@ -41,7 +41,7 @@ main( int argc, char* argv[] )
         // This is grossly inefficient due to recomputing the singular values
         // and Cholesky decomposition for several different operations, 
         // but it serves as an example of each function's usage
-        const double cond = ConditionNumber( H );
+        const double cond = TwoCondition( H );
         const double det = HPDDeterminant( LOWER, H );
         const double hilbertSchmidt = HilbertSchmidt( H, H );
         const double twoNorm = HermitianTwoNorm( LOWER, H );

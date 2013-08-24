@@ -34,7 +34,7 @@ void TestCorrectness
   const DistMatrix<F>& AOrig,
   const DistMatrix<F>& BOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = X.Height();
     const Int k = X.Width();
@@ -44,7 +44,7 @@ void TestCorrectness
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<R,MR,STAR> w_MR_STAR(true,X.RowAlignment(),g); 
+    DistMatrix<Real,MR,STAR> w_MR_STAR(true,X.RowAlignment(),g); 
     w_MR_STAR = w;
     if( g.Rank() == 0 )
         cout << "DONE" << endl;
@@ -62,16 +62,16 @@ void TestCorrectness
         // Y := Y - AX = BXW - AX
         Hemm( LEFT, uplo, F(-1), AOrig, X, F(1), Y );
         // Find the infinity norms of A, B, X, and AX-BXW
-        R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        R infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        R frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        R oneNormOfX = OneNorm( X );
-        R infNormOfX = InfinityNorm( X );
-        R frobNormOfX = FrobeniusNorm( X );
-        R oneNormOfError = OneNorm( Y );
-        R infNormOfError = InfinityNorm( Y );
-        R frobNormOfError = FrobeniusNorm( Y );
+        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real oneNormOfX = OneNorm( X );
+        Real infNormOfX = InfinityNorm( X );
+        Real frobNormOfX = FrobeniusNorm( X );
+        Real oneNormOfError = OneNorm( Y );
+        Real infNormOfError = InfinityNorm( Y );
+        Real frobNormOfError = FrobeniusNorm( Y );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -116,27 +116,27 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), AOrig, Y, F(0), Z );
         // Set Z := Z - XW = ABX - XW
-        for( Int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
+        for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
         {
-            const R omega = w_MR_STAR.GetLocal(jLocal,0); 
-            for( Int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
+            const Real omega = w_MR_STAR.GetLocal(jLoc,0); 
+            for( Int iLoc=0; iLoc<Z.LocalHeight(); ++iLoc )
             {
-                const F chi = X.GetLocal(iLocal,jLocal);
-                const F zeta = Z.GetLocal(iLocal,jLocal);
-                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
+                const F chi = X.GetLocal(iLoc,jLoc);
+                const F zeta = Z.GetLocal(iLoc,jLoc);
+                Z.SetLocal(iLoc,jLoc,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and ABX-XW
-        R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        R infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        R frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        R oneNormOfX = OneNorm( X );
-        R infNormOfX = InfinityNorm( X );
-        R frobNormOfX = FrobeniusNorm( X );
-        R oneNormOfError = OneNorm( Z );
-        R infNormOfError = InfinityNorm( Z );
-        R frobNormOfError = FrobeniusNorm( Z );
+        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real oneNormOfX = OneNorm( X );
+        Real infNormOfX = InfinityNorm( X );
+        Real frobNormOfX = FrobeniusNorm( X );
+        Real oneNormOfError = OneNorm( Z );
+        Real infNormOfError = InfinityNorm( Z );
+        Real frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -180,27 +180,27 @@ void TestCorrectness
         DistMatrix<F> Z( n, k, g );
         Hemm( LEFT, uplo, F(1), BOrig, Y, F(0), Z );
         // Set Z := Z - XW = BAX-XW
-        for( Int jLocal=0; jLocal<Z.LocalWidth(); ++jLocal )
+        for( Int jLoc=0; jLoc<Z.LocalWidth(); ++jLoc )
         {
-            const R omega = w_MR_STAR.GetLocal(jLocal,0); 
-            for( Int iLocal=0; iLocal<Z.LocalHeight(); ++iLocal )
+            const Real omega = w_MR_STAR.GetLocal(jLoc,0); 
+            for( Int iLoc=0; iLoc<Z.LocalHeight(); ++iLoc )
             {
-                const F chi = X.GetLocal(iLocal,jLocal);
-                const F zeta = Z.GetLocal(iLocal,jLocal);
-                Z.SetLocal(iLocal,jLocal,zeta-omega*chi);
+                const F chi = X.GetLocal(iLoc,jLoc);
+                const F zeta = Z.GetLocal(iLoc,jLoc);
+                Z.SetLocal(iLoc,jLoc,zeta-omega*chi);
             }
         }
         // Find the infinity norms of A, B, X, and BAX-XW
-        R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        R infNormOfB = HermitianInfinityNorm( uplo, BOrig );
-        R frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
-        R oneNormOfX = OneNorm( X );
-        R infNormOfX = InfinityNorm( X );
-        R frobNormOfX = FrobeniusNorm( X );
-        R oneNormOfError = OneNorm( Z );
-        R infNormOfError = InfinityNorm( Z );
-        R frobNormOfError = FrobeniusNorm( Z );
+        Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        Real infNormOfB = HermitianInfinityNorm( uplo, BOrig );
+        Real frobNormOfB = HermitianFrobeniusNorm( uplo, BOrig );
+        Real oneNormOfX = OneNorm( X );
+        Real infNormOfX = InfinityNorm( X );
+        Real frobNormOfX = FrobeniusNorm( X );
+        Real oneNormOfError = OneNorm( Z );
+        Real infNormOfError = InfinityNorm( Z );
+        Real frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "    ||A||_1 = ||A||_oo = " << infNormOfA << "\n"
@@ -240,10 +240,10 @@ void TestHermitianGenDefiniteEig
   bool onlyEigvals, UpperOrLower uplo, 
   Int m, char range, BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F> B(g), BOrig(g);
-    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<Real,VR,STAR> w(g);
     DistMatrix<F> X(g);
 
     HermitianUniformSpectrum( A, m, 1, 10 );

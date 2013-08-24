@@ -14,12 +14,12 @@ using namespace std;
 using namespace elem;
 
 // Create a typedef for convenience
-typedef double R;
+typedef double Real;
 
 // A functor for returning the exponential of a real number
 class ExpFunctor {
 public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
+    Real operator()( Real alpha ) const { return std::exp(alpha); }
 };
 
 int
@@ -34,15 +34,11 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<R> H( n, n, g );
+        DistMatrix<Real> H( n, n );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
         // We will fill entry (i,j) with the value i+j so that
         // the global matrix is symmetric. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
-        //
         const Int colShift = H.ColShift(); // first row we own
         const Int rowShift = H.RowShift(); // first col we own
         const Int colStride = H.ColStride();
@@ -57,10 +53,9 @@ main( int argc, char* argv[] )
                 //           and the columns rowShift:rowStride:n
                 const Int i = colShift + iLocal*colStride;
                 const Int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, R(i+j) );
+                H.SetLocal( iLocal, jLocal, Real(i+j) );
             }
         }
-
         if( print )
             Print( H, "H" );
 

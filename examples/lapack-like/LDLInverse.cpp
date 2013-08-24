@@ -20,9 +20,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -37,8 +37,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        DistMatrix<C> A;
 
         if( conjugate )
         {
@@ -47,7 +46,7 @@ main( int argc, char* argv[] )
         else
         {
             Uniform( A, n, n );
-            DistMatrix<C> ATrans( g );
+            DistMatrix<C> ATrans;
             Transpose( A, ATrans );
             Axpy( C(1), ATrans, A );
         }
@@ -63,18 +62,18 @@ main( int argc, char* argv[] )
         Trdtrmm( orientation, LOWER, invA );
 
         // Form I - invA*A and print the relevant norms
-        DistMatrix<C> E( g );
+        DistMatrix<C> E;
         Identity( E, n, n );
         if( conjugate )
             Hemm( LEFT, LOWER, C(-1), invA, A, C(1), E );
         else
             Symm( LEFT, LOWER, C(-1), invA, A, C(1), E );
 
-        const R frobNormA = FrobeniusNorm( A );
-        const R frobNormInvA = 
+        const Real frobNormA = FrobeniusNorm( A );
+        const Real frobNormInvA = 
             ( conjugate ? HermitianFrobeniusNorm( LOWER, invA )
                         : SymmetricFrobeniusNorm( LOWER, invA ) );
-        const R frobNormError = FrobeniusNorm( E );
+        const Real frobNormError = FrobeniusNorm( E );
         if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| A          ||_F = " << frobNormA << "\n"

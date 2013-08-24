@@ -17,8 +17,11 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/Cholesky.hpp"
+#include "elemental/lapack-like/Inverse.hpp"
 #include "elemental/lapack-like/QR.hpp"
+#include "elemental/lapack-like/TriangularInverse.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
+#include "elemental/lapack-like/Norm/TwoEstimate.hpp"
 #include "elemental/matrices/Identity.hpp"
 
 namespace elem {
@@ -30,8 +33,7 @@ namespace elem {
 // available here:
 //     http://www.mathworks.com/matlabcentral/fileexchange/36830
 //
-// No support for column-pivoting or row-sorting yet 
-// (though qr::BusingerGolub exists).
+// No support for row-sorting yet.
 //
 // The careful calculation of the coefficients is due to a suggestion from
 // Gregorio Quintana Orti.
@@ -41,40 +43,37 @@ namespace polar {
 
 template<typename F>
 inline Int 
-QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
+QDWHInner
+( Matrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
+    CallStackEntry entry("polar::QDWHInner");
 #endif
-    typedef BASE(F) R;
-    const Int height = A.Height();
-    const Int width = A.Width();
-    const R oneThird = R(1)/R(3);
-
-    if( height < width )
+    typedef BASE(F) Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real oneThird = Real(1)/Real(3);
+    if( m < n )
         LogicError("Height cannot be less than width");
 
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R tol = 5*epsilon;
-    const R cubeRootTol = Pow(tol,oneThird);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real tol = 5*eps;
+    const Real cubeRootTol = Pow(tol,oneThird);
+    Real L = sMinUpper / Sqrt(Real(n));
 
-    // Form the first iterate
-    Scale( 1/upperBound, A );
-
-    R frobNormADiff;
+    Real frobNormADiff;
     Matrix<F> ALast, ATemp, C;
-    Matrix<F> Q( height+width, width );
+    Matrix<F> Q( m+n, n );
     Matrix<F> QT, QB;
-    PartitionDown( Q, QT,
-                      QB, height );
+    PartitionDown( Q, QT, QB, m );
     Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;
 
-        R L2;
-        Complex<R> dd, sqd;
-        if( Abs(1-lowerBound) < tol )
+        Real L2;
+        Complex<Real> dd, sqd;
+        if( Abs(1-L) < tol )
         {
             L2 = 1;
             dd = 0;
@@ -82,18 +81,18 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
         }
         else
         {
-            L2 = lowerBound*lowerBound;
+            L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
             sqd = Sqrt( 1+dd );
         }
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-        const Complex<R> alpha = a-b/c;
-        const Complex<R> beta = b/c;
+        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Real b = (a-1)*(a-1)/4;
+        const Real c = a+b-1;
+        const Complex<Real> alpha = a-b/c;
+        const Complex<Real> beta = b/c;
 
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
+        L = L*(a+b*L2)/(1+c*L2);
 
         if( c > 100 )
         {
@@ -103,7 +102,7 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q );
+            qr::Explicit( Q, colPiv );
             Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -111,7 +110,7 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( C, width, width );
+            Identity( C, n, n );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -124,7 +123,7 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
         ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = FrobeniusNorm( ALast );
-        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+        if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
     return numIts;
@@ -132,56 +131,93 @@ QDWH( Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 
 template<typename F>
 inline Int 
-QDWH
-( Matrix<F>& A, Matrix<F>& P, 
-  BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
+QDWH( Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::QDWH");
+#endif
+    typedef BASE(F) Real;
+    const Real twoEst = TwoNormEstimate( A );
+    Scale( F(1)/twoEst, A );
+
+    // The one-norm of the inverse can be replaced with an estimate which is
+    // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
+    // from "A Block Algorithm for Matrix 1-Norm Estimation, with an Application
+    // to 1-Norm Pseudospectra".
+    Real sMinUpper;
+    Matrix<F> Y( A );
+    if( A.Height() > A.Width() )
+    {
+        QR( Y );
+        Y.ResizeTo( A.Width(), A.Width() );
+        MakeTriangular( UPPER, Y );
+        try 
+        {
+            TriangularInverse( UPPER, NON_UNIT, Y );
+            sMinUpper = Real(1) / OneNorm( Y );
+        } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+    }
+    else
+    {
+        try 
+        {
+            Inverse( Y );
+            sMinUpper = Real(1) / OneNorm( Y );
+        } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+    } 
+
+    return QDWHInner( A, sMinUpper, colPiv, maxIts );
+}
+
+template<typename F>
+inline Int 
+QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     Matrix<F> ACopy( A );
-    const Int numIts = QDWH( A, lowerBound, upperBound, maxIts );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
+    const Int numIts = QDWH( A, colPiv, maxIts );
+    Zeros( P, A.Height(), A.Height() );
+    Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
+    MakeHermitian( LOWER, P );
     return numIts;
 }
 
 template<typename F>
 inline Int 
-QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
+QDWHInner
+( DistMatrix<F>& A, BASE(F) sMinUpper, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("polar::QDWH");
+    CallStackEntry entry("polar::QDWHInner");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
-    const Int height = A.Height();
-    const Int width = A.Width();
-    const R oneThird = R(1)/R(3);
-
-    if( height < width )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Real oneThird = Real(1)/Real(3);
+    if( m < n )
         LogicError("Height cannot be less than width");
 
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R tol = 5*epsilon;
-    const R cubeRootTol = Pow(tol,oneThird);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real tol = 5*eps;
+    const Real cubeRootTol = Pow(tol,oneThird);
+    Real L = sMinUpper / Sqrt(Real(n));
 
-    // Form the first iterate
-    Scale( 1/upperBound, A );
-
-    R frobNormADiff;
+    Real frobNormADiff;
     DistMatrix<F> ALast(g), ATemp(g), C(g);
-    DistMatrix<F> Q( height+width, width, g );
+    DistMatrix<F> Q( m+n, n, g );
     DistMatrix<F> QT(g), QB(g);
-    PartitionDown( Q, QT,
-                      QB, height );
+    PartitionDown( Q, QT, QB, m );
     Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;
 
-        R L2;
-        Complex<R> dd, sqd;
-        if( Abs(1-lowerBound) < tol )
+        Real L2;
+        Complex<Real> dd, sqd;
+        if( Abs(1-L) < tol )
         {
             L2 = 1;
             dd = 0;
@@ -189,18 +225,18 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
         }
         else
         {
-            L2 = lowerBound*lowerBound;
+            L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
             sqd = Sqrt( 1+dd );
         }
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-        const Complex<R> alpha = a-b/c;
-        const Complex<R> beta = b/c;
+        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Real b = (a-1)*(a-1)/4;
+        const Real c = a+b-1;
+        const Complex<Real> alpha = a-b/c;
+        const Complex<Real> beta = b/c;
 
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
+        L = L*(a+b*L2)/(1+c*L2);
 
         if( c > 100 )
         {
@@ -210,7 +246,7 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q );
+            qr::Explicit( Q, colPiv );
             Gemm( NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -218,7 +254,7 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
             //
             // Use faster Cholesky-based algorithm since A is well-conditioned
             //
-            Identity( C, width, width );
+            Identity( C, n, n );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -231,7 +267,7 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
         ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = FrobeniusNorm( ALast );
-        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+        if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
     return numIts;
@@ -239,16 +275,57 @@ QDWH( DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
 
 template<typename F>
 inline Int 
+QDWH( DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("polar::QDWH");
+#endif
+    typedef BASE(F) Real;
+    const Real twoEst = TwoNormEstimate( A );
+    Scale( F(1)/twoEst, A );
+
+    // The one-norm of the inverse can be replaced with an estimate which is
+    // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
+    // from "A Block Algorithm for Matrix 1-Norm Estimation, with an Application
+    // to 1-Norm Pseudospectra".
+    Real sMinUpper;
+    DistMatrix<F> Y( A );
+    if( A.Height() > A.Width() )
+    {
+        QR( Y );
+        Y.ResizeTo( A.Width(), A.Width() );
+        MakeTriangular( UPPER, Y );
+        try
+        {
+            TriangularInverse( UPPER, NON_UNIT, Y );
+            sMinUpper = Real(1) / OneNorm( Y );
+        } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+    }
+    else
+    {
+        try
+        {
+            Inverse( Y );
+            sMinUpper = Real(1) / OneNorm( Y );
+        } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+    }
+
+    return QDWHInner( A, sMinUpper, colPiv, maxIts );
+}
+
+template<typename F>
+inline Int 
 QDWH
-( DistMatrix<F>& A, DistMatrix<F>& P, 
-  BASE(F) lowerBound, BASE(F) upperBound, Int maxIts=100 )
+( DistMatrix<F>& A, DistMatrix<F>& P, bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("polar::QDWH");
 #endif
     DistMatrix<F> ACopy( A );
-    const Int numIts = QDWH( A, lowerBound, upperBound, maxIts );
-    Gemm( NORMAL, NORMAL, F(1), A, ACopy, P );
+    const Int numIts = QDWH( A, colPiv, maxIts );
+    Zeros( P, A.Height(), A.Height() );
+    Trrk( LOWER, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
+    MakeHermitian( LOWER, P );
     return numIts;
 }
 
@@ -258,9 +335,9 @@ namespace hermitian_polar {
 
 template<typename F>
 inline int
-QDWH
-( UpperOrLower uplo, Matrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound, 
-  Int maxIts=100 )
+QDWHInner
+( UpperOrLower uplo, Matrix<F>& A, BASE(F) sMinUpper, 
+  bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
@@ -268,31 +345,28 @@ QDWH
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef BASE(F) R;
-    const Int height = A.Height();
-    const R oneThird = R(1)/R(3);
+    typedef BASE(F) Real;
+    const Int n = A.Height();
+    const Real oneThird = Real(1)/Real(3);
 
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R tol = 5*epsilon;
-    const R cubeRootTol = Pow(tol,oneThird);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real tol = 5*eps;
+    const Real cubeRootTol = Pow(tol,oneThird);
+    Real L = sMinUpper / Sqrt(Real(n));
 
-    // Form the first iterate
-    Scale( 1/upperBound, A );
-
-    R frobNormADiff;
+    Real frobNormADiff;
     Matrix<F> ALast, ATemp, C;
-    Matrix<F> Q( 2*height, height );
+    Matrix<F> Q( 2*n, n );
     Matrix<F> QT, QB;
-    PartitionDown( Q, QT,
-                      QB, height );
-    Int it=0;
-    while( it < maxIts )
+    PartitionDown( Q, QT, QB, n );
+    Int numIts=0;
+    while( numIts < maxIts )
     {
         ALast = A;
 
-        R L2;
-        Complex<R> dd, sqd;
-        if( Abs(1-lowerBound) < tol )
+        Real L2;
+        Complex<Real> dd, sqd;
+        if( Abs(1-L) < tol )
         {
             L2 = 1;
             dd = 0;
@@ -300,18 +374,18 @@ QDWH
         }
         else
         {
-            L2 = lowerBound*lowerBound;
+            L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
             sqd = Sqrt( 1+dd );
         }
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-        const Complex<R> alpha = a-b/c;
-        const Complex<R> beta = b/c;
+        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Real b = (a-1)*(a-1)/4;
+        const Real c = a+b-1;
+        const Complex<Real> alpha = a-b/c;
+        const Complex<Real> beta = b/c;
 
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
+        L = L*(a+b*L2)/(1+c*L2);
 
         if( c > 100 )
         {
@@ -322,7 +396,7 @@ QDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q );
+            qr::Explicit( Q, colPiv );
             Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -334,7 +408,7 @@ QDWH
             //       e.g., by halving the work in the first Herk through 
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
-            Identity( C, height, height );
+            Identity( C, n, n );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -347,20 +421,65 @@ QDWH
         Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
 
-        ++it;
-        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+        ++numIts;
+        if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
 
     MakeHermitian( uplo, A );
-    return it;
+    return numIts;
+}
+
+template<typename F>
+inline Int 
+QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hermitian_polar::QDWH");
+#endif
+    typedef BASE(F) Real;
+    MakeHermitian( uplo, A );
+    const Real twoEst = TwoNormEstimate( A );
+    Scale( F(1)/twoEst, A );
+
+    // The one-norm of the inverse can be replaced with an estimate which is
+    // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
+    // from "A Block Algorithm for Matrix 1-Norm Estimation, with an Application
+    // to 1-Norm Pseudospectra".
+    Real sMinUpper;
+    Matrix<F> Y( A );
+    try
+    {
+        Inverse( Y );
+        sMinUpper = Real(1) / OneNorm( Y );
+    } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+
+    return QDWHInner( uplo, A, sMinUpper, colPiv, maxIts );
+}
+
+template<typename F>
+inline Int
+QDWH
+( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P,
+  bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hermitian_polar::QDWH");
+#endif
+    Matrix<F> ACopy( A );
+    // NOTE: This might be avoidable
+    MakeHermitian( uplo, ACopy );
+    const Int numIts = QDWH( uplo, A, colPiv, maxIts );
+    Zeros( P, A.Height(), A.Height() );
+    Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
+    return numIts;
 }
 
 template<typename F>
 inline int
-QDWH
-( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) lowerBound, BASE(F) upperBound,
-  Int maxIts=100 )
+QDWHInner
+( UpperOrLower uplo, DistMatrix<F>& A, BASE(F) sMinUpper, 
+  bool colPiv=false, Int maxIts=20 )
 {
 #ifndef RELEASE
     CallStackEntry entry("hermitian_polar::QDWH");
@@ -368,32 +487,29 @@ QDWH
     if( A.Height() != A.Width() )
         LogicError("Height must be same as width");
 
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
-    const Int height = A.Height();
-    const R oneThird = R(1)/R(3);
+    const Int n = A.Height();
+    const Real oneThird = Real(1)/Real(3);
 
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R tol = 5*epsilon;
-    const R cubeRootTol = Pow(tol,oneThird);
+    const Real eps = lapack::MachineEpsilon<Real>();
+    const Real tol = 5*eps;
+    const Real cubeRootTol = Pow(tol,oneThird);
+    Real L = sMinUpper / Sqrt(Real(n));
 
-    // Form the first iterate
-    Scale( 1/upperBound, A );
-
-    R frobNormADiff;
+    Real frobNormADiff;
     DistMatrix<F> ALast(g), ATemp(g), C(g);
-    DistMatrix<F> Q( 2*height, height, g );
+    DistMatrix<F> Q( 2*n, n, g );
     DistMatrix<F> QT(g), QB(g);
-    PartitionDown( Q, QT,
-                      QB, height );
+    PartitionDown( Q, QT, QB, n );
     Int numIts=0;
     while( numIts < maxIts )
     {
         ALast = A;
 
-        R L2;
-        Complex<R> dd, sqd;
-        if( Abs(1-lowerBound) < tol )
+        Real L2;
+        Complex<Real> dd, sqd;
+        if( Abs(1-L) < tol )
         {
             L2 = 1;
             dd = 0;
@@ -401,18 +517,18 @@ QDWH
         }
         else
         {
-            L2 = lowerBound*lowerBound;
+            L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
             sqd = Sqrt( 1+dd );
         }
-        const Complex<R> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const R a = (sqd + Sqrt( arg )/2).real;
-        const R b = (a-1)*(a-1)/4;
-        const R c = a+b-1;
-        const Complex<R> alpha = a-b/c;
-        const Complex<R> beta = b/c;
+        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Real b = (a-1)*(a-1)/4;
+        const Real c = a+b-1;
+        const Complex<Real> alpha = a-b/c;
+        const Complex<Real> beta = b/c;
 
-        lowerBound = lowerBound*(a+b*L2)/(1+c*L2);
+        L = L*(a+b*L2)/(1+c*L2);
 
         if( c > 100 )
         {
@@ -423,7 +539,7 @@ QDWH
             QT = A;
             Scale( Sqrt(c), QT );
             MakeIdentity( QB );
-            qr::Explicit( Q );
+            qr::Explicit( Q, colPiv );
             Trrk( uplo, NORMAL, ADJOINT, alpha/Sqrt(c), QT, QB, beta, A );
         }
         else
@@ -435,7 +551,7 @@ QDWH
             //       e.g., by halving the work in the first Herk through 
             //       a custom routine for forming L^2, where L is strictly lower
             MakeHermitian( uplo, A );
-            Identity( C, height, height );
+            Identity( C, n, n );
             Herk( LOWER, ADJOINT, F(c), A, F(1), C );
             Cholesky( LOWER, C );
             ATemp = A;
@@ -448,10 +564,55 @@ QDWH
         ++numIts;
         Axpy( F(-1), A, ALast );
         frobNormADiff = HermitianFrobeniusNorm( uplo, ALast );
-        if( frobNormADiff <= cubeRootTol && Abs(1-lowerBound) <= tol )
+        if( frobNormADiff <= cubeRootTol && Abs(1-L) <= tol )
             break;
     }
     MakeHermitian( uplo, A );
+    return numIts;
+}
+
+template<typename F>
+inline Int 
+QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hermitian_polar::QDWH");
+#endif
+    typedef BASE(F) Real;
+    MakeHermitian( uplo, A );
+    const Real twoEst = TwoNormEstimate( A );
+    Scale( F(1)/twoEst, A );
+
+    // The one-norm of the inverse can be replaced with an estimate which is
+    // a few times cheaper, e.g., via Higham and Tisseur's block algorithm
+    // from "A Block Algorithm for Matrix 1-Norm Estimation, with an Application
+    // to 1-Norm Pseudospectra".
+    Real sMinUpper;
+    DistMatrix<F> Y( A );
+    try 
+    {   
+        Inverse( Y );
+        sMinUpper = Real(1) / OneNorm( Y );
+    } catch( SingularMatrixException& e ) { sMinUpper = 0; }
+
+    return QDWHInner( uplo, A, sMinUpper, colPiv, maxIts );
+}
+
+template<typename F>
+inline Int
+QDWH
+( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, 
+  bool colPiv=false, Int maxIts=20 )
+{
+#ifndef RELEASE
+    CallStackEntry entry("hermitian_polar::QDWH");
+#endif
+    DistMatrix<F> ACopy( A );
+    // NOTE: This might be avoidable
+    MakeHermitian( uplo, ACopy );
+    const Int numIts = QDWH( uplo, A, colPiv, maxIts );
+    Zeros( P, A.Height(), A.Height() );
+    Trrk( uplo, NORMAL, NORMAL, F(1), A, ACopy, F(0), P );
     return numIts;
 }
 

@@ -24,7 +24,7 @@ void TestCorrectness
   const DistMatrix<F>& A,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -39,14 +39,14 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = OneNorm( Y );
-        const R infNormOfError = InfinityNorm( Y );
-        const R frobNormOfError = FrobeniusNorm( Y );
-        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const R oneNormOfX = OneNorm( X );
-        const R infNormOfX = InfinityNorm( X );
-        const R frobNormOfX = FrobeniusNorm( X );
+        const Real oneNormOfError = OneNorm( Y );
+        const Real infNormOfError = InfinityNorm( Y );
+        const Real frobNormOfError = FrobeniusNorm( Y );
+        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real oneNormOfX = OneNorm( X );
+        const Real infNormOfX = InfinityNorm( X );
+        const Real frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -66,14 +66,14 @@ void TestCorrectness
         Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = OneNorm( Y );
-        const R infNormOfError = InfinityNorm( Y );
-        const R frobNormOfError = FrobeniusNorm( Y );
-        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const R oneNormOfX = OneNorm( X );
-        const R infNormOfX = InfinityNorm( X );
-        const R frobNormOfX = FrobeniusNorm( X );
+        const Real oneNormOfError = OneNorm( Y );
+        const Real infNormOfError = InfinityNorm( Y );
+        const Real frobNormOfError = FrobeniusNorm( Y );
+        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real oneNormOfX = OneNorm( X );
+        const Real infNormOfX = InfinityNorm( X );
+        const Real frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"

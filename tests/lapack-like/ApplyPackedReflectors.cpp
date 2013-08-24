@@ -25,7 +25,7 @@ void TestCorrectness
   const DistMatrix<F>& H,
   const DistMatrix<F,MD,STAR>& t )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = H.Grid();
     const Int m = H.Height();
 
@@ -73,9 +73,9 @@ void TestCorrectness
     }
 
     // Compute the maximum deviance
-    const R oneNormOfError = OneNorm( X );
-    const R infNormOfError = InfinityNorm( X );
-    const R frobNormOfError = FrobeniusNorm( X );
+    const Real oneNormOfError = OneNorm( X );
+    const Real infNormOfError = InfinityNorm( X );
+    const Real frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )

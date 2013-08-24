@@ -19,8 +19,7 @@
 #include "elemental/lapack-like/Norm/Nuclear.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 
-#include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
-#include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
+#include "elemental/lapack-like/Norm/TwoEstimate.hpp"
 
 namespace elem {
 

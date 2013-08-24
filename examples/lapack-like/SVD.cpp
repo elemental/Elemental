@@ -18,9 +18,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -44,21 +44,19 @@ main( int argc, char* argv[] )
                       << g.Height() << " x " << g.Width() << std::endl;
         DistMatrix<C> A( g );
         Uniform( A, m, n );
-
         if( print )
             Print( A, "A" );
 
         // Compute just the singular values 
-        DistMatrix<R,VR,STAR> sOnly( g );
+        DistMatrix<Real,VR,STAR> sOnly( g );
         DistMatrix<C> U( A );
         SVD( U, sOnly );
 
         // Compute the SVD of A 
         DistMatrix<C> V( g );
-        DistMatrix<R,VR,STAR> s( g );
+        DistMatrix<Real,VR,STAR> s( g );
         U = A;
         SVD( U, s, V );
-
         if( print )
         {
             Print( U, "U" );
@@ -67,22 +65,22 @@ main( int argc, char* argv[] )
         }
 
         // Compare the singular values from both methods
-        Axpy( R(-1), s, sOnly );
-        const R singValDiff = FrobeniusNorm( sOnly );
-        const R twoNormOfA = MaxNorm( s );
-        const R maxNormOfA = MaxNorm( A );
-        const R oneNormOfA = OneNorm( A );
-        const R infNormOfA = InfinityNorm( A );
-        const R frobNormOfA = FrobeniusNorm( A );
+        Axpy( Real(-1), s, sOnly );
+        const Real singValDiff = FrobeniusNorm( sOnly );
+        const Real twoNormOfA = MaxNorm( s );
+        const Real maxNormOfA = MaxNorm( A );
+        const Real oneNormOfA = OneNorm( A );
+        const Real infNormOfA = InfinityNorm( A );
+        const Real frobNormOfA = FrobeniusNorm( A );
 
         DiagonalScale( RIGHT, NORMAL, s, U );
         Gemm( NORMAL, ADJOINT, C(-1), U, V, C(1), A );
-        const R maxNormOfE = MaxNorm( A );
-        const R oneNormOfE = OneNorm( A );
-        const R infNormOfE = InfinityNorm( A );
-        const R frobNormOfE = FrobeniusNorm( A );
-        const R epsilon = lapack::MachineEpsilon<R>();
-        const R scaledResidual = frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
+        const Real maxNormOfE = MaxNorm( A );
+        const Real oneNormOfE = OneNorm( A );
+        const Real infNormOfE = InfinityNorm( A );
+        const Real frobNormOfE = FrobeniusNorm( A );
+        const Real epsilon = lapack::MachineEpsilon<Real>();
+        const Real scaledResidual = frobNormOfE / (max(m,n)*epsilon*twoNormOfA);
 
         if( mpi::WorldRank() == 0 )
         {

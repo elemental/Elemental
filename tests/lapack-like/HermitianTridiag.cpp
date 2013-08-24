@@ -24,7 +24,7 @@ void TestCorrectness
   const DistMatrix<F,STAR,STAR>& t,
         DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -34,14 +34,14 @@ void TestCorrectness
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
-    DistMatrix<R,MD,STAR> d(g);
-    DistMatrix<R,MD,STAR> e(g);
+    DistMatrix<Real,MD,STAR> d(g);
+    DistMatrix<Real,MD,STAR> e(g);
     A.GetRealPartOfDiagonal( d );
     A.GetRealPartOfDiagonal( e, subdiagonal );
      
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
-    DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
-    DistMatrix<R,MD,STAR> eOpposite(g);
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR(g);
+    DistMatrix<Real,MD,STAR> eOpposite(g);
     e_STAR_STAR = e;
     eOpposite.AlignWithDiagonal( A.DistData(), -subdiagonal );
     eOpposite = e_STAR_STAR;
@@ -69,10 +69,10 @@ void TestCorrectness
     if( print )
         Print( B, "Error in rotated tridiagonal" );
 
-    const R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
-    const R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-    const R infNormOfError = HermitianInfinityNorm( uplo, B );
-    const R frobNormOfError = HermitianFrobeniusNorm( uplo, B );
+    const Real infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+    const Real frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+    const Real infNormOfError = HermitianInfinityNorm( uplo, B );
+    const Real frobNormOfError = HermitianFrobeniusNorm( uplo, B );
     if( g.Rank() == 0 )
     {
         cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"

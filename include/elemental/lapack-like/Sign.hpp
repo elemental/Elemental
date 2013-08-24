@@ -56,6 +56,8 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
     else if( scaling == NONE )
         mu = 1;
+    else
+        LogicError("Scaling case not handled");
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
@@ -89,6 +91,8 @@ NewtonStep
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
     else if( scaling == NONE )
         mu = 1;
+    else
+        LogicError("Scaling case not handled");
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);

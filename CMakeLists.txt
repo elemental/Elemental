@@ -655,7 +655,7 @@ if(ELEM_EXAMPLES)
     list(APPEND lapack-like_EXAMPLES
       HermitianEig HermitianEigFromSequential HermitianSVD SkewHermitianEig
       ComplexHermitianFunction RealHermitianFunction HermitianPseudoinverse
-      HPSDCholesky HPSDSquareRoot SymmetricEig RealSymmetricFunction)
+      HPSDCholesky HPSDSquareRoot RealSymmetricFunction)
   endif()
 
   foreach(TYPE ${EXAMPLE_TYPES})

@@ -15,7 +15,7 @@
 #include "elemental/lapack-like/Norm/Max.hpp"
 #include "elemental/lapack-like/Norm/Two.hpp"
 #include "elemental/lapack-like/Norm/Zero.hpp"
-#include "elemental/convex/SingularValueSoftThreshold.hpp"
+#include "elemental/convex/SVT.hpp"
 #include "elemental/matrices/Uniform.hpp"
 #include "elemental/io.hpp"
 using namespace elem;
@@ -38,7 +38,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
 #ifndef RELEASE
     CallStackEntry entry("Corrupt");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     Int numLocalCorrupt = 0;
     const Int localHeight = A.LocalHeight();
@@ -47,7 +47,7 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
     {
         for( Int iLocal=0; iLocal<localHeight; ++iLocal )
         {
-            if( Uniform<R>() <= probCorrupt )
+            if( Uniform<Real>() <= probCorrupt )
             {
                 ++numLocalCorrupt;
                 const F perturb = SampleBall<F>();
@@ -88,21 +88,21 @@ void RPCA_ADMM
   Int maxIts,
   bool print )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Int m = M.Height();
     const Int n = M.Width();
     const Int commRank = mpi::CommRank( M.Grid().Comm() );
 
     // If tau is not specified, then set it to 1/sqrt(max(m,n))
-    if( tau == R(0) )
-        tau = R(1)/sqrt(R(std::max(m,n)));
+    if( tau == Real(0) )
+        tau = Real(1)/sqrt(Real(std::max(m,n)));
 
-    if( beta <= R(0) )
-        throw std::logic_error("beta cannot be non-positive");
-    if( tau <=  R(0) )
-        throw std::logic_error("tau cannot be non-positive");
-    if( tol <= R(0) )
-        throw std::logic_error("tol cannot be non-positive");
+    if( beta <= Real(0) )
+        LogicError("beta cannot be non-positive");
+    if( tau <=  Real(0) )
+        LogicError("tau cannot be non-positive");
+    if( tol <= Real(0) )
+        LogicError("tol cannot be non-positive");
 
     const double startTime = mpi::Time();
     if( commRank == 0 )
@@ -111,8 +111,8 @@ void RPCA_ADMM
     DistMatrix<F> E( M.Grid() ), Y( M.Grid() );
     Zeros( Y, m, n );
 
-    const R frobM = FrobeniusNorm( M );
-    const R maxM = MaxNorm( M );
+    const Real frobM = FrobeniusNorm( M );
+    const Real maxM = MaxNorm( M );
     if( commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
@@ -135,15 +135,15 @@ void RPCA_ADMM
         Axpy( F(1)/beta, Y, L );
         Int rank;
         if( numStepsQR == -1 )
-            rank = SingularValueSoftThreshold( L, R(1)/beta );
+            rank = SVT( L, Real(1)/beta );
         else
-            rank = SingularValueSoftThreshold( L, R(1)/beta, numStepsQR );
+            rank = SVT( L, Real(1)/beta, numStepsQR );
       
         // E := M - (L + S)
         E = M;    
         Axpy( F(-1), L, E );
         Axpy( F(-1), S, E );
-        const R frobE = FrobeniusNorm( E );
+        const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
         {
@@ -186,20 +186,20 @@ void RPCA_ALM
   BASE(F) beta, BASE(F) tau, BASE(F) rho, BASE(F) tol, 
   Int numStepsQR, Int maxIts, bool print )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
 
     const Int m = M.Height();
     const Int n = M.Width();
     const Int commRank = mpi::CommRank( M.Grid().Comm() );
 
     // If tau is unspecified, set it to 1/sqrt(max(m,n))
-    if( tau == R(0) )
-        tau = R(1) / sqrt(R(std::max(m,n)));
+    if( tau == Real(0) )
+        tau = Real(1) / sqrt(Real(std::max(m,n)));
 
-    if( tol <= R(0) )
-        throw std::logic_error("tol cannot be non-positive");
-    if( tau <= R(0) )
-        throw std::logic_error("tau cannot be non-positive");
+    if( tol <= Real(0) )
+        LogicError("tol cannot be non-positive");
+    if( tau <= Real(0) )
+        LogicError("tau cannot be non-positive");
 
     const double startTime = mpi::Time();
     if( commRank == 0 )
@@ -207,21 +207,21 @@ void RPCA_ALM
 
     DistMatrix<F> Y( M );
     NormalizeEntries( Y );
-    const R twoNorm = TwoNorm( Y );
-    const R maxNorm = MaxNorm( Y );
-    const R infNorm = maxNorm / tau; 
-    const R dualNorm = std::max( twoNorm, infNorm );
+    const Real twoNorm = TwoNorm( Y );
+    const Real maxNorm = MaxNorm( Y );
+    const Real infNorm = maxNorm / tau; 
+    const Real dualNorm = std::max( twoNorm, infNorm );
     Scale( F(1)/dualNorm, Y );
 
     // If beta is unspecified, set it to 1 / 2 || sign(M) ||_2
-    if( beta == R(0) )
-        beta = R(1) / (2*twoNorm);
+    if( beta == Real(0) )
+        beta = Real(1) / (2*twoNorm);
 
-    if( beta <= R(0) )
-        throw std::logic_error("beta cannot be non-positive");
+    if( beta <= Real(0) )
+        LogicError("beta cannot be non-positive");
 
-    const R frobM = FrobeniusNorm( M );
-    const R maxM = MaxNorm( M );
+    const Real frobM = FrobeniusNorm( M );
+    const Real maxM = MaxNorm( M );
     if( commRank == 0 )
         std::cout << "|| M ||_F = " << frobM << "\n"
                   << "|| M ||_max = " << maxM << std::endl;
@@ -254,14 +254,14 @@ void RPCA_ALM
             if( commRank == 0 )
                 std::cout << "beta=" << beta << std::endl;
             if( numStepsQR == -1 )
-                rank = SingularValueSoftThreshold( L, R(1)/beta );
+                rank = SVT( L, Real(1)/beta );
             else
-                rank = SingularValueSoftThreshold( L, R(1)/beta, numStepsQR );
+                rank = SVT( L, Real(1)/beta, numStepsQR );
 
             Axpy( F(-1), L, LLast );
             Axpy( F(-1), S, SLast );
-            const R frobLDiff = FrobeniusNorm( LLast );
-            const R frobSDiff = FrobeniusNorm( SLast );
+            const Real frobLDiff = FrobeniusNorm( LLast );
+            const Real frobSDiff = FrobeniusNorm( SLast );
 
             if( frobLDiff/frobM < tol && frobSDiff/frobM < tol )
             {
@@ -291,7 +291,7 @@ void RPCA_ALM
         E = M;    
         Axpy( -1., L, E );
         Axpy( -1., S, E );
-        const R frobE = FrobeniusNorm( E );
+        const Real frobE = FrobeniusNorm( E );
 
         if( frobE/frobM <= tol )            
         {

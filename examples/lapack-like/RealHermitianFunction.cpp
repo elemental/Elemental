@@ -13,14 +13,14 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 // A functor for returning the exponential of a real number
 class ExpFunctor {
 public:
-    R operator()( R alpha ) const { return Exp(alpha); }
+    Real operator()( Real alpha ) const { return Exp(alpha); }
 };
 
 int
@@ -35,15 +35,11 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> H( n, n, g );
+        DistMatrix<C> H( n, n );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
         // We will fill entry (i,j) with the complex value (i+j,i-j) so that 
         // the global matrix is Hermitian. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
-        //
         const Int colShift = H.ColShift(); // first row we own
         const Int rowShift = H.RowShift(); // first col we own
         const Int colStride = H.ColStride();
@@ -61,7 +57,6 @@ main( int argc, char* argv[] )
                 H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
             }
         }
-
         if( print )
             Print( H, "H" );
 

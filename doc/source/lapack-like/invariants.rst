@@ -3,14 +3,44 @@ Invariants, inner products, norms, etc.
 
 Condition number
 ----------------
-The two-norm condition number
+The condition number of a matrix with respect to a particular norm is
 
 .. math::
 
-   \kappa_2(A) = \|A\|_2 \|A^{-1}\|_2.
+   \kappa(A) = \|A\| \|A^{-1}\|,
 
-.. cpp:function:: typename Base<F>::type ConditionNumber( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type ConditionNumber( const DistMatrix<F,U,V>& A )
+with the most common choice being the matrix two-norm.
+
+.. cpp:function:: typename Base<F>::type Condition( const Matrix<F>& A, NormType type=TWO_NORM )
+.. cpp:function:: typename Base<F>::type Condition( const DistMatrix<F,U,V>& A, NormType type=TWO_NORM )
+
+   Returns the condition number with respect to the specified norm 
+   (one, two, or Frobenius).
+
+.. cpp:function:: typename Base<F>::type FrobeniusCondition( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type FrobeniusCondition( const DistMatrix<F,U,V>& A )
+
+   Returns the condition number with respect to the Frobenius norm.
+
+.. cpp:function:: typename Base<F>::type InfinityCondition( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type InfinityCondition( const DistMatrix<F,U,V>& A )
+
+   Returns the condition number with respect to the infinity norm.
+
+.. cpp:function:: typename Base<F>::type MaxCondition( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type MaxCondition( const DistMatrix<F,U,V>& A )
+
+   Returns the condition number with respect to the entrywise maximum norm.
+
+.. cpp:function:: typename Base<F>::type OneCondition( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type OneCondition( const DistMatrix<F,U,V>& A )
+
+   Returns the condition number with respect to the one norm.
+
+.. cpp:function:: typename Base<F>::type TwoCondition( const Matrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoCondition( const DistMatrix<F,U,V>& A )
+
+   Returns the condition number with respect to the two norm.
 
 Determinant
 -----------
@@ -233,52 +263,16 @@ directly).
 
 Two-norm estimates
 ------------------
-Since the two-norm is extremely useful, but expensive to compute, it is useful
-to be able to compute rough lower and upper bounds for it. The following
-routines provide cheap, rough estimates. The ability to compute sharper
-estimates will likely be added later.
 
-.. cpp:function:: typename Base<F>::type TwoNormLowerBound( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type TwoNormLowerBound( const DistMatrix<F>& A )
+.. cpp:function:: typename Base<F>::type TwoNormEstimate( Matrix<F>& A, typename Base<F>::type tol=1e-6 )
+.. cpp:function:: typename Base<F>::type TwoNormEstimate( DistMatrix<F>& A, typename Base<F>::type tol=1e-6 )
+.. cpp:function:: typename Base<F>::type HermitianTwoNormEstimate( Matrix<F>& A, typename Base<F>::type tol=1e-6 )
+.. cpp:function:: typename Base<F>::type HermitianTwoNormEstimate( DistMatrix<F>& A, typename Base<F>::type tol=1e-6 )
+.. cpp:function:: typename Base<F>::type SymmetricTwoNormEstimate( Matrix<F>& A, typename Base<F>::type tol=1e-6 )
+.. cpp:function:: typename Base<F>::type SymmetricTwoNormEstimate( DistMatrix<F>& A, typename Base<F>::type tol=1e-6 )
 
-   Return the tightest lower bound on :math:`\|A\|_2` implied by the following inequalities:
-
-   .. math::
-
-      \|A\|_2 \ge \|A\|_{\mathrm{max}},
-
-   .. math::
-
-      \|A\|_2 \ge \frac{1}{\sqrt{n}} \|A\|_{\infty},
-
-   .. math::
-
-      \|A\|_2 \ge \frac{1}{\sqrt{m}} \|A\|_1,\;\;\mathrm{and}
-
-   .. math::
-
-      \|A\|_2 \ge \frac{1}{\mathrm{min}(m,n)} \|A\|_F.
-
-.. cpp:function:: typename Base<F>::type TwoNormUpperBound( const Matrix<F>& A )
-.. cpp:function:: typename Base<F>::type TwoNormUpperBound( const DistMatrix<F>& A )
-
-   Return the tightest upper bound on :math:`\|A\|_2` implied by the following inequalities:
-
-   .. math::
-
-      \|A\|_2 \le \sqrt{m n} \|A\|_{\mathrm{max}},
-
-   .. math::
-
-      \|A\|_2 \le \sqrt{m} \|A\|_{\infty},
-
-   .. math::
-
-      \|A\|_2 \le \sqrt{n} \|A\|_1,\;\;\mathrm{and}
-
-   .. math::
-
-      \|A\|_2 \le \sqrt{ \|A\|_1 \|A\|_{\infty} }.
+   Return an estimate for the two-norm which should be accurate within a 
+   factor of :math:`n` times the specified tolerance.
 
 Trace
 -----

@@ -13,9 +13,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -33,13 +33,12 @@ main( int argc, char* argv[] )
 
         const Orientation orientation = ( adjoint ? ADJOINT : NORMAL );
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        DistMatrix<C> A;
         Uniform( A, m, n );
 
         // Draw the entries of the original x and y from uniform distributions 
         // over the complex unit ball
-        DistMatrix<C,VC,STAR> x( g ), y( g );
+        DistMatrix<C,VC,STAR> x, y;
         if( orientation == NORMAL )
         {
             Uniform( x, n, 1 );

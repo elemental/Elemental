@@ -10,14 +10,13 @@
 #include "elemental-lite.hpp"
 #include "elemental/lapack-like/Polar.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -27,37 +26,28 @@ main( int argc, char* argv[] )
     try 
     {
         const Int n = Input("--size","size of Hermitian matrix",100);
+        const bool colPiv = Input("--colPiv","QR with col pivoting?",false);
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g ), Q( g ), P( g );
+        DistMatrix<C> A, Q, P;
         HermitianUniformSpectrum( A, n, 1, 2 );
-        const R lowerBound = 1.0;
-        const R frobA = FrobeniusNorm( A );
-        const R upperBound = TwoNormUpperBound( A );
-        if( mpi::WorldRank() == 0 )
-        {
-            std::cout << "ASSUMING 1 / ||inv(A)||_2 >= " << lowerBound << "\n"
-                      << "||A||_F =  " << frobA << "\n"
-                      << "||A||_2 <= " << upperBound << "\n" << std::endl;
-        }
+        const Real frobA = FrobeniusNorm( A );
 
         // Compute the polar decomp of A using a QR-based Dynamically Weighted
         // Halley (QDWH) iteration
         Q = A;
-        const Int numItsQDWH = 
-            hermitian_polar::QDWH( LOWER, Q, lowerBound, upperBound );
+        const Int numItsQDWH = hermitian_polar::QDWH( LOWER, Q, colPiv );
         Zeros( P, n, n );
         Gemm( ADJOINT, NORMAL, C(1), Q, A, C(0), P );
 
         // Check and report overall and orthogonality error
         DistMatrix<C> B( A );
         Gemm( NORMAL, NORMAL, C(-1), Q, P, C(1), B );
-        const R frobQDWH = FrobeniusNorm( B );
+        const Real frobQDWH = FrobeniusNorm( B );
         Identity( B, n, n );
         Herk( LOWER, NORMAL, C(1), Q, C(-1), B );
-        const R frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
+        const Real frobQDWHOrthog = HermitianFrobeniusNorm( LOWER, B );
         if( mpi::WorldRank() == 0 )
         {
             std::cout << numItsQDWH << " iterations of QDWH\n"

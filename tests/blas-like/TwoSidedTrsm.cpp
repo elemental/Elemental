@@ -23,7 +23,7 @@ void TestCorrectness
 ( bool print, UpperOrLower uplo, UnitOrNonUnit diag,
   const DistMatrix<F>& A, const DistMatrix<F>& B, const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -42,13 +42,13 @@ void TestCorrectness
         Hemm( LEFT, LOWER, F(1), AOrig, Y, F(0), Z );
         Trsm( LEFT, LOWER, NORMAL, diag, F(1), B, Z );
         Hemm( LEFT, LOWER, F(-1), A, X, F(1), Z );
-        R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
-        R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-        R infNormOfA = HermitianInfinityNorm( uplo, A );
-        R frobNormOfA = HermitianFrobeniusNorm( uplo, A );
-        R oneNormOfError = OneNorm( Z );
-        R infNormOfError = InfinityNorm( Z );
-        R frobNormOfError = FrobeniusNorm( Z );
+        Real infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+        Real frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        Real infNormOfA = HermitianInfinityNorm( uplo, A );
+        Real frobNormOfA = HermitianFrobeniusNorm( uplo, A );
+        Real oneNormOfError = OneNorm( Z );
+        Real infNormOfError = InfinityNorm( Z );
+        Real frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "||AOrig||_1 = ||AOrig||_oo     = "
@@ -76,13 +76,13 @@ void TestCorrectness
         Hemm( LEFT, UPPER, F(1), AOrig, Y, F(0), Z );
         Trsm( LEFT, UPPER, ADJOINT, diag, F(1), B, Z );
         Hemm( LEFT, UPPER, F(-1), A, X, F(1), Z );
-        R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
-        R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-        R infNormOfA = HermitianInfinityNorm( uplo, A );
-        R frobNormOfA = HermitianFrobeniusNorm( uplo, A );
-        R oneNormOfError = OneNorm( Z );
-        R infNormOfError = InfinityNorm( Z );
-        R frobNormOfError = FrobeniusNorm( Z );
+        Real infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
+        Real frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
+        Real infNormOfA = HermitianInfinityNorm( uplo, A );
+        Real frobNormOfA = HermitianFrobeniusNorm( uplo, A );
+        Real oneNormOfError = OneNorm( Z );
+        Real infNormOfError = InfinityNorm( Z );
+        Real frobNormOfError = FrobeniusNorm( Z );
         if( g.Rank() == 0 )
         {
             cout << "||AOrig||_1 = ||AOrig||_oo     = "

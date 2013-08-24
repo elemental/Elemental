@@ -17,9 +17,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -34,9 +34,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
-        HermitianUniformSpectrum( A, n, R(1), R(20) );
+        DistMatrix<C> A;
+        HermitianUniformSpectrum( A, n, Real(1), Real(20) );
 
         if( print )
             Print( A, "A" );
@@ -53,13 +52,13 @@ main( int argc, char* argv[] )
         }
 
         // Form I - invA*A and print the relevant norms
-        DistMatrix<C> E( g );
+        DistMatrix<C> E;
         Identity( E, n, n );
         Hemm( LEFT, uplo, C(-1), invA, A, C(1), E );
 
-        const R frobNormA = HermitianFrobeniusNorm( uplo, A );
-        const R frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
-        const R frobNormError = FrobeniusNorm( E );
+        const Real frobNormA = HermitianFrobeniusNorm( uplo, A );
+        const Real frobNormInvA = HermitianFrobeniusNorm( uplo, invA );
+        const Real frobNormError = FrobeniusNorm( E );
         if( mpi::WorldRank() == 0 )
         {
             std::cout << "|| A          ||_F = " << frobNormA << "\n"

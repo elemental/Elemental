@@ -16,7 +16,7 @@
 #include "./lapack-like/Bidiag.hpp"
 #include "./lapack-like/Cholesky.hpp"
 #include "./lapack-like/ComposePivots.hpp"
-#include "./lapack-like/ConditionNumber.hpp"
+#include "./lapack-like/Condition.hpp"
 #include "./lapack-like/Determinant.hpp"
 #include "./lapack-like/ExpandPackedReflectors.hpp"
 #include "./lapack-like/GaussianElimination.hpp"

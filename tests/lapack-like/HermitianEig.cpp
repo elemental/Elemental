@@ -30,7 +30,7 @@ void TestCorrectness
   const DistMatrix<F>& Z,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = Z.Height();
     const Int k = Z.Width();
@@ -40,7 +40,7 @@ void TestCorrectness
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<R,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
+    DistMatrix<Real,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
     w_MR_STAR = w;
     if( g.Rank() == 0 )
         cout << "DONE" << endl;
@@ -50,9 +50,9 @@ void TestCorrectness
     DistMatrix<F> X( g );
     Identity( X, k, k );
     Herk( uplo, ADJOINT, F(-1), Z, F(1), X );
-    R oneNormOfError = OneNorm( X );
-    R infNormOfError = InfinityNorm( X );
-    R frobNormOfError = FrobeniusNorm( X );
+    Real oneNormOfError = OneNorm( X );
+    Real infNormOfError = InfinityNorm( X );
+    Real frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Z^H Z - I||_1  = " << oneNormOfError << "\n"
@@ -65,22 +65,22 @@ void TestCorrectness
     Zeros( X, n, k );
     Hemm( LEFT, uplo, F(1), AOrig, Z, F(0), X );
     // Find the residual ||X-ZW||_oo = ||AZ-ZW||_oo
-    for( Int jLocal=0; jLocal<X.LocalWidth(); ++jLocal )
+    for( Int jLoc=0; jLoc<X.LocalWidth(); ++jLoc )
     {
-        const R omega = w_MR_STAR.GetLocal(jLocal,0);
-        for( Int iLocal=0; iLocal<X.LocalHeight(); ++iLocal )
+        const Real omega = w_MR_STAR.GetLocal(jLoc,0);
+        for( Int iLoc=0; iLoc<X.LocalHeight(); ++iLoc )
         {
-            const F chi = X.GetLocal(iLocal,jLocal);
-            const F zeta = Z.GetLocal(iLocal,jLocal);
-            X.SetLocal(iLocal,jLocal,chi-omega*zeta);
+            const F chi = X.GetLocal(iLoc,jLoc);
+            const F zeta = Z.GetLocal(iLoc,jLoc);
+            X.SetLocal(iLoc,jLoc,chi-omega*zeta);
         }
     }
     // Find the infinity norms of A, Z, and AZ-ZW
-    R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-    R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-    R oneNormOfZ = OneNorm( Z );
-    R infNormOfZ = InfinityNorm( Z );
-    R frobNormOfZ = FrobeniusNorm( Z );
+    Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+    Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+    Real oneNormOfZ = OneNorm( Z );
+    Real infNormOfZ = InfinityNorm( Z );
+    Real frobNormOfZ = FrobeniusNorm( Z );
     oneNormOfError = OneNorm( X );
     infNormOfError = InfinityNorm( X );
     frobNormOfError = FrobeniusNorm( X );
@@ -103,9 +103,9 @@ void TestHermitianEig
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
   BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     DistMatrix<F> A(g), AOrig(g), Z(g);
-    DistMatrix<R,VR,STAR> w(g);
+    DistMatrix<Real,VR,STAR> w(g);
 
     if( clustered )
         Wilkinson( A, m/2 );

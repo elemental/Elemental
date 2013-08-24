@@ -25,7 +25,7 @@ void TestCorrectness
   const DistMatrix<F>& A,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -38,15 +38,15 @@ void TestCorrectness
     Trmm( LEFT, uplo, NORMAL, diag, F(1), AOrig, Y );
     Axpy( F(-1), X, Y );
 
-    const R oneNormOrig = OneNorm( AOrig );
-    const R infNormOrig = InfinityNorm( AOrig );
-    const R frobNormOrig = FrobeniusNorm( AOrig );
-    const R oneNormFinal = OneNorm( A );
-    const R infNormFinal = InfinityNorm( A );
-    const R frobNormFinal = FrobeniusNorm( A );
-    const R oneNormOfError = OneNorm( Y );
-    const R infNormOfError = InfinityNorm( Y );
-    const R frobNormOfError = FrobeniusNorm( Y );
+    const Real oneNormOrig = OneNorm( AOrig );
+    const Real infNormOrig = InfinityNorm( AOrig );
+    const Real frobNormOrig = FrobeniusNorm( AOrig );
+    const Real oneNormFinal = OneNorm( A );
+    const Real infNormFinal = InfinityNorm( A );
+    const Real frobNormFinal = FrobeniusNorm( A );
+    const Real oneNormOfError = OneNorm( Y );
+    const Real infNormOfError = InfinityNorm( Y );
+    const Real frobNormOfError = FrobeniusNorm( Y );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1           = " << oneNormOrig << "\n"

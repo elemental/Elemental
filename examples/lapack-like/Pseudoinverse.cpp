@@ -14,9 +14,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -31,22 +31,20 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        DistMatrix<C> A;
         Uniform( A, m, n );
 
         // Compute the pseudoinverseof A (but do not overwrite A)
         DistMatrix<C> pinvA( A );
         Pseudoinverse( pinvA );
-
         if( print )
         {
             Print( A, "A" );
             Print( pinvA, "pinv(A)" );
         }
 
-        const R frobOfA = FrobeniusNorm( A );
-        const R frobOfPinvA = FrobeniusNorm( pinvA );
+        const Real frobOfA = FrobeniusNorm( A );
+        const Real frobOfPinvA = FrobeniusNorm( pinvA );
 
         if( mpi::WorldRank() == 0 )
         {

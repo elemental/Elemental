@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
-#define ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
+#ifndef ELEM_CONVEX_SVT_HPP
+#define ELEM_CONVEX_SVT_HPP
 
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
@@ -20,14 +20,14 @@ namespace elem {
 
 template<typename F>
 inline Int
-SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
+SVT( Matrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SingularValueSoftThreshold");
+    CallStackEntry entry("SVT");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     Matrix<F> U( A );
-    Matrix<R> s;
+    Matrix<Real> s;
     Matrix<F> V;
 
     svd::Thresholded( U, s, V, tau );
@@ -41,10 +41,10 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau )
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
 inline Int
-SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau, Int numSteps )
+SVT( Matrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SingularValueSoftThreshold");
+    CallStackEntry entry("SVT");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
@@ -76,14 +76,14 @@ SingularValueSoftThreshold( Matrix<F>& A, BASE(F) tau, Int numSteps )
 
 template<typename F>
 inline Int
-SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
+SVT( DistMatrix<F>& A, BASE(F) tau )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SingularValueSoftThreshold");
+    CallStackEntry entry("SVT");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     DistMatrix<F> U( A );
-    DistMatrix<R,VR,STAR> s( A.Grid() );
+    DistMatrix<Real,VR,STAR> s( A.Grid() );
     DistMatrix<F> V( A.Grid() );
 
     svd::Thresholded( U, s, V, tau );
@@ -97,10 +97,10 @@ SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau )
 // Preprocess with numSteps iterations of pivoted QR factorization
 template<typename F>
 inline Int
-SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
+SVT( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SingularValueSoftThreshold");
+    CallStackEntry entry("SVT");
     if( numSteps > std::min(A.Height(),A.Width()) )
         LogicError("number of steps is too large");
 #endif
@@ -134,4 +134,4 @@ SingularValueSoftThreshold( DistMatrix<F>& A, BASE(F) tau, Int numSteps )
 
 } // namespace elem
 
-#endif // ifndef ELEM_CONVEX_SINGULARVALUESOFTTHRESHOLD_HPP
+#endif // ifndef ELEM_CONVEX_SVT_HPP

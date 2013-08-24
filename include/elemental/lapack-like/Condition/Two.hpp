@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_CONDITIONNUMBER_HPP
-#define ELEM_LAPACK_CONDITIONNUMBER_HPP
+#ifndef ELEM_LAPACK_CONDITION_TWO_HPP
+#define ELEM_LAPACK_CONDITION_TWO_HPP
 
 #include "elemental/lapack-like/SVD.hpp"
 
@@ -16,10 +16,10 @@ namespace elem {
 
 template<typename F> 
 inline BASE(F)
-ConditionNumber( const Matrix<F>& A )
+TwoCondition( const Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ConditionNumber");
+    CallStackEntry entry("TwoCondition");
 #endif
     typedef BASE(F) R;
     Matrix<F> B( A );
@@ -35,10 +35,10 @@ ConditionNumber( const Matrix<F>& A )
 
 template<typename F,Distribution U,Distribution V> 
 inline BASE(F)
-ConditionNumber( const DistMatrix<F,U,V>& A )
+TwoCondition( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ConditionNumber");
+    CallStackEntry entry("TwoCondition");
 #endif
     typedef BASE(F) R;
     DistMatrix<F> B( A );
@@ -54,4 +54,4 @@ ConditionNumber( const DistMatrix<F,U,V>& A )
 
 } // namespace elem
 
-#endif // ifndef ELEM_LAPACK_CONDITIONNUMBER_HPP
+#endif // ifndef ELEM_LAPACK_CONDITION_TWO_HPP

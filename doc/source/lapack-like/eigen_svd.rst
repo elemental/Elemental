@@ -286,18 +286,67 @@ Range-based subset computation
 Unitary eigensolver
 -------------------
 Not yet written, will likely be based on Ming Gu's unitary Divide and Conquer 
-algorithm for unitary Hessenberg matrices.
+algorithm for unitary Hessenberg matrices. The spectral divide and conquer 
+technique described below should suffice in the meantime.
 
 Normal eigensolver
 ------------------
 Not yet written, will likely be based on Angelika Bunse-Gerstner et al.'s 
 Jacobi-like method for simultaneous diagonalization of the commuting Hermitian 
 and skew-Hermitian portions of the matrix.
+The spectral divide and conquer scheme described below should suffice in the 
+meantime.
 
 Schur decomposition
 -------------------
-Not yet written, will likely eventually include Greg Henry et al.'s and 
-Robert Granat et al.'s approaches.
+Only a prototype spectral divide and conquer implementation is currently 
+available, though Elemental will eventually also include an implementation of
+Granat et al.'s parallel QR algorithm.
+
+.. cpp:function:: void Schur( Matrix<F>& A )
+.. cpp:function:: void Schur( Matrix<F>& A, Matrix<F>& Q )
+
+   Currently defaults to the sequential Hessenberg QR algorithm.
+
+.. cpp:function:: void Schur( DistMatrix<F>& A )
+.. cpp:function:: void Schur( DistMatrix<F>& A, DistMatrix<F>& Q )
+
+   Currently defaults to the prototype spectral divide and conquer approach.
+
+Hessenberg QR algorithm
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void schur::QR( Matrix<F>& A )
+.. cpp:function:: void schur::QR( Matrix<F>& A, Matrix<F>& Q )
+
+   Use a sequential QR algorithm to compute the Schur decomposition.
+
+Spectral divide and conquer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The primary reference for this approach is Demmel et al.'s *Fast linear algebra
+is stable*. While the current implementation needs a large number of algorithmic
+improvements, especially with respect to choosing the Mobius transformations,
+it tends to succeed on random matrices.
+
+.. cpp:function:: void schur::SDC( Matrix<F>& A, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( DistMatrix<F>& A, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+
+   Compute the eigenvalues of the matrix :math:`A` via a spectral divide and
+   conquer process. On exit, the eigenvalues of :math:`A` will be stored on its
+   diagonal, and, if ``formATR`` was set to true, the upper triangle of 
+   :math:`A` will be its corresponding upper-triangular Schur factor.
+
+   The cutoff controls when the problem is sufficiently small to switch to 
+   a sequential Hessenberg QR algorithm, the number of inner iterations is 
+   how many attempts to make with the same randomized URV decomposition, and 
+   the number of outer iterations is how many random Mobius transformations to
+   try for each spectral split before giving up.
+
+.. cpp:function:: void schur::SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+
+   Attempt to also compute the Schur vectors.
 
 Hermitian SVD
 -------------
@@ -360,13 +409,22 @@ computed through (a dynamically-weighted) Halley iteration.
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: int polar::QDWH( Matrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxits=100 )
-.. cpp:function:: int polar::QDWH( DistMatrix<F>& A, typename Base<F>::type lowerBound, typename Base<F>::type upperBound, int maxIts=100 )
+.. cpp:function:: int polar::QDWH( Matrix<F>& A, bool colPiv=false, int maxits=20 )
+.. cpp:function:: int polar::QDWH( DistMatrix<F>& A, bool colPiv=false, int maxIts=20 )
+.. cpp:function:: int hermitian_polar::QDWH( UpperOrLower uplo, Matrix<F>& A, bool colPiv=false, int maxits=20 )
+.. cpp:function:: int hermitian_polar::QDWH( UpperOrLower uplo, DistMatrix<F>& A, bool colPiv=false, int maxIts=20 )
 
    Overwrites :math:`A` with the :math:`Q` from the polar decomposition using 
    a QR-based dynamically weighted Halley iteration. The number of iterations
    used is returned upon completion.
    **TODO: reference to Yuji's paper**
+
+.. cpp:function:: int polar::QDWH( Matrix<F>& A, Matrix<F>& P, bool colPiv=false, int maxits=20 )
+.. cpp:function:: int polar::QDWH( DistMatrix<F>& A, DistMatrix<F>& P, bool colPiv=false, int maxIts=20 )
+.. cpp:function:: int hermitian_polar::QDWH( UpperOrLower uplo, Matrix<F>& A, Matrix<F>& P, bool colPiv=false, int maxits=20 )
+.. cpp:function:: int hermitian_polar::QDWH( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& P, bool colPiv=false, int maxIts=20 )
+
+   Return the full polar decomposition, where :math:`P` is HPD.
 
 SVD
 ---

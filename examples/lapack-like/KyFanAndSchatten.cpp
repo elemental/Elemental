@@ -15,10 +15,6 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
-
 int
 main( int argc, char* argv[] )
 {
@@ -37,10 +33,8 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        DistMatrix<Complex<double>> A;
         Uniform( A, m, n );
-
         if( print )
             Print( A, "A" );
 

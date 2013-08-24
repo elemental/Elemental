@@ -839,7 +839,7 @@ SDC
     Matrix<F> Z, G;
     SDC( ATL, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
     G = QL;
-    Gemm( NORMAL,  NORMAL, F(1), G, Z, QL );
+    Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
     if( formATR )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
 

@@ -24,7 +24,7 @@ void TestCorrectness
   const DistMatrix<F,MD,STAR>& t,
         DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -49,9 +49,9 @@ void TestCorrectness
     // Form X := I - Q Q^H
     Axpy( F(-1), ZUpper, X );
 
-    R oneNormOfError = OneNorm( X );
-    R infNormOfError = InfinityNorm( X );
-    R frobNormOfError = FrobeniusNorm( X );
+    Real oneNormOfError = OneNorm( X );
+    Real infNormOfError = InfinityNorm( X );
+    Real frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -70,9 +70,9 @@ void TestCorrectness
     // Form R Q - A
     Axpy( F(-1), AOrig, U );
     
-    const R oneNormOfA = OneNorm( AOrig );
-    const R infNormOfA = InfinityNorm( AOrig );
-    const R frobNormOfA = FrobeniusNorm( AOrig );
+    const Real oneNormOfA = OneNorm( AOrig );
+    const Real infNormOfA = InfinityNorm( AOrig );
+    const Real frobNormOfA = FrobeniusNorm( AOrig );
     oneNormOfError = OneNorm( U );
     infNormOfError = InfinityNorm( U );
     frobNormOfError = FrobeniusNorm( U );

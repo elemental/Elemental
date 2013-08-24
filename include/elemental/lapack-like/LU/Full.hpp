@@ -119,10 +119,8 @@ Full
     CallStackEntry entry("lu::Panel");
     if( A.Grid() != p.Grid() || p.Grid() != q.Grid() )
         LogicError("Matrices must be distributed over the same grid");
-#endif
     const Int m = A.Height();
     const Int n = A.Width();
-#ifndef RELEASE
     if( p.Height() != Min(m,n) || p.Width() != 1 )
         LogicError("p must be a vector that conforms with A");
     if( q.Height() != Min(m,n) || q.Width() != 1 )

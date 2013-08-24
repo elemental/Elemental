@@ -26,7 +26,7 @@ void TestCorrectness
   const DistMatrix<Int,VC,STAR>& q,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -45,16 +45,16 @@ void TestCorrectness
         lu::SolveAfter( NORMAL, A, p, q, Y );
 
     // Now investigate the residual, ||AOrig Y - X||_oo
-    const R oneNormOfX = OneNorm( X );
-    const R infNormOfX = InfinityNorm( X );
-    const R frobNormOfX = FrobeniusNorm( X );
+    const Real oneNormOfX = OneNorm( X );
+    const Real infNormOfX = InfinityNorm( X );
+    const Real frobNormOfX = FrobeniusNorm( X );
     Gemm( NORMAL, NORMAL, F(-1), AOrig, Y, F(1), X );
-    const R oneNormOfError = OneNorm( X );
-    const R infNormOfError = InfinityNorm( X );
-    const R frobNormOfError = FrobeniusNorm( X );
-    const R oneNormOfA = OneNorm( AOrig );
-    const R infNormOfA = InfinityNorm( AOrig );
-    const R frobNormOfA = FrobeniusNorm( AOrig );
+    const Real oneNormOfError = OneNorm( X );
+    const Real infNormOfError = InfinityNorm( X );
+    const Real frobNormOfError = FrobeniusNorm( X );
+    const Real oneNormOfA = OneNorm( AOrig );
+    const Real infNormOfA = InfinityNorm( AOrig );
+    const Real frobNormOfA = FrobeniusNorm( AOrig );
 
     if( g.Rank() == 0 )
     {
