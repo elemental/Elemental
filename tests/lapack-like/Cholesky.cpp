@@ -28,9 +28,8 @@ void TestCorrectness
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
-    DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Y = X;
+    auto X = Uniform<F>( g, m, 100 );
+    auto Y( X );
 
     if( uplo == LOWER )
     {

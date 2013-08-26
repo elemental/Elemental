@@ -26,7 +26,7 @@ HermitianFromEVD
   const Matrix<F>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianFromEVD");
+    CallStackEntry cse("HermitianFromEVD");
 #endif
     typedef BASE(F) R;
 
@@ -76,6 +76,18 @@ HermitianFromEVD
 }
 
 template<typename F>
+inline Matrix<F>
+HermitianFromEVD
+( UpperOrLower uplo,
+  const Matrix<BASE(F)>& w,
+  const Matrix<F>& Z )
+{
+    Matrix<F> A;
+    HermitianFromEVD( uplo, A, w, Z );
+    return A;
+}
+
+template<typename F>
 inline void
 HermitianFromEVD
 ( UpperOrLower uplo,
@@ -84,7 +96,7 @@ HermitianFromEVD
   const DistMatrix<F>& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianFromEVD");
+    CallStackEntry cse("HermitianFromEVD");
 #endif
     const Grid& g = A.Grid();
     typedef BASE(F) R;
@@ -143,6 +155,18 @@ HermitianFromEVD
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
+}
+
+template<typename F>
+inline DistMatrix<F>
+HermitianFromEVD
+( UpperOrLower uplo,
+  const DistMatrix<BASE(F),VR,STAR>& w,
+  const DistMatrix<F>& Z )
+{
+    DistMatrix<F> A(w.Grid());
+    HermitianFromEVD( uplo, A, w, Z );
+    return A;
 }
 
 } // namespace elem

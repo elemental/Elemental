@@ -25,6 +25,7 @@ public:
     void AssertValidDimensions( Int height, Int width, Int ldim ) const;
     void AssertValidEntry( Int i, Int j ) const;
     
+    //
     // Constructors
     // 
 
@@ -35,6 +36,15 @@ public:
     ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
     Matrix( const Matrix<T>& A );
+
+    // Move constructor
+    Matrix( Matrix<T>&& A );
+
+    // Move assignment
+    Matrix<T>& operator=( Matrix<T>&& A );
+
+    // Swap
+    void Swap( Matrix<T>& A );
 
     //
     // Destructor

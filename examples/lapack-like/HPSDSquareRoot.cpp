@@ -31,18 +31,16 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> L, A;
-        Uniform( L, n, n );
+        const Grid& g = DefaultGrid();
+        auto L = Uniform<C>( g, n, n );
         MakeTrapezoidal( LOWER, L, -1 );
-        Zeros( A, n, n );
+        auto A = Zeros<C>( g, n, n );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
-
         if( print )
             Print( A, "A" );
 
         // Replace A with its matrix square root
         HPSDSquareRoot( LOWER, A );
-
         if( print )
         {
             MakeHermitian( LOWER, A );

@@ -14,34 +14,12 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Forsythe( Matrix<T>& J, Int n, T alpha, T lambda )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Forsythe");
-#endif
-    J.ResizeTo( n, n );
-    MakeForsythe( J, alpha, lambda );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Forsythe");
-#endif
-    J.ResizeTo( n, n );
-    MakeForsythe( J, alpha, lambda );
-}
-
 template<typename T> 
 inline void
 MakeForsythe( Matrix<T>& J, T alpha, T lambda )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeForsythe");
+    CallStackEntry cse("MakeForsythe");
 #endif
     MakeJordan( J, lambda );
     const Int m = J.Height();
@@ -55,13 +33,42 @@ inline void
 MakeForsythe( DistMatrix<T,U,V>& J, T alpha, T lambda )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeForsythe");
+    CallStackEntry cse("MakeForsythe");
 #endif
     MakeJordan( J, lambda );
     const Int m = J.Height();
     const Int n = J.Width();
     if( m > 0 && n > 0 )
         J.Set( m-1, 0, alpha );
+}
+
+template<typename T>
+inline Matrix<T>
+Forsythe( Int n, T alpha, T lambda )
+{
+    Matrix<T> J( n, n );
+    MakeForsythe( J, alpha, lambda );
+    return J;
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Forsythe( DistMatrix<T,U,V>& J, Int n, T alpha, T lambda )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Forsythe");
+#endif
+    J.ResizeTo( n, n );
+    MakeForsythe( J, alpha, lambda );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Forsythe( const Grid& g, Int n, T alpha, T lambda )
+{
+    DistMatrix<T,U,V> J( n, n, g );
+    MakeForsythe( J, alpha, lambda );
+    return J;
 }
 
 } // namespace elem

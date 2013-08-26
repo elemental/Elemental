@@ -35,12 +35,12 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> A;
-        Uniform( A, n, n );
+        const Grid& g = DefaultGrid();
+        auto A = Uniform<C>( g, n, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the Schur decomposition of A, but do not overwrite A
-        DistMatrix<C> T( A ), Q;
+        DistMatrix<C> T( A ), Q(g);
         schur::SDC( T, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
 
         if( display )
@@ -50,7 +50,7 @@ main( int argc, char* argv[] )
             Display( Q, "Q" );
         }
 
-        DistMatrix<C> G;
+        DistMatrix<C> G(g);
         Gemm( NORMAL, NORMAL, C(1), Q, T, G );
         Gemm( NORMAL, ADJOINT, C(-1), G, Q, C(1), A );
         MakeTrapezoidal( LOWER, T, -1 );

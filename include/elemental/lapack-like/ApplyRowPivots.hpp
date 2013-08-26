@@ -149,9 +149,8 @@ ApplyRowPivots
     // TODO: Optimize this routine
 
     // Make a copy of the first b rows
-    Matrix<F> ARowPanView;
-    LockedView( ARowPanView, A, 0, 0, b, n );
-    Matrix<F> ARowPanCopy( ARowPanView );
+    auto ARowPanView = LockedView( A, 0, 0, b, n );
+    auto ARowPanCopy( ARowPanView );
 
     // Make a copy of the preimage rows
     Matrix<F> APreimageCopy( b, n );

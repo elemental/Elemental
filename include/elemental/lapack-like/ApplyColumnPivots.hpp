@@ -147,9 +147,8 @@ ApplyColumnPivots
     // TODO: Optimize this routine
 
     // Make a copy of the first b columns
-    Matrix<F> AColPanView;
-    LockedView( AColPanView, A, 0, 0, m, b );
-    Matrix<F> AColPanCopy( AColPanView );
+    auto AColPanView = LockedView( A, 0, 0, m, b );
+    auto AColPanCopy( AColPanView );
 
     // Make a copy of the preimage columns
     Matrix<F> APreimageCopy( m, b );

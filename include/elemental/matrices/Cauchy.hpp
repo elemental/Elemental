@@ -17,7 +17,7 @@ inline void
 Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cauchy");
+    CallStackEntry cse("Cauchy");
 #endif
     const Int m = x.size();
     const Int n = y.size();
@@ -43,12 +43,21 @@ Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
     }
 }
 
+template<typename F> 
+inline Matrix<F>
+Cauchy( const std::vector<F>& x, const std::vector<F>& y )
+{
+    Matrix<F> A;
+    Cauchy( A, x, y );
+    return A;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Cauchy");
+    CallStackEntry cse("Cauchy");
 #endif
     const Int m = x.size();
     const Int n = y.size();
@@ -80,6 +89,15 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
             A.SetLocal( iLoc, jLoc, one/(x[i]-y[j]) );
         }
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Cauchy( const Grid& g, const std::vector<F>& x, const std::vector<F>& y )
+{
+    DistMatrix<F,U,V> A(g);
+    Cauchy( A, x, y );
+    return A;
 }
 
 } // namespace elem

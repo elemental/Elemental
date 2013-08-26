@@ -8,7 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
+#include "elemental/blas-like/level1/MakeHermitian.hpp"
 #include "elemental/blas-like/level1/Nrm2.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
@@ -33,14 +35,12 @@ void TestCorrectness
         cout << "  Testing orthogonality of transform..." << endl;
 
     // Form Z := Q^H Q or Q Q^H as an approximation to identity
-    DistMatrix<F> Y(m,m,g);
-    MakeIdentity( Y );
+    auto Y = Identity<F>( g, m, m );
     ApplyPackedReflectors
     ( side, uplo, VERTICAL, order, conjugation, offset, H, t, Y );
     if( printMatrices )
     {
-        DistMatrix<F> W(m,m,g);
-        MakeIdentity( W );
+        auto W = Identity<F>( g, m, m );
         if( order == FORWARD )
         {
             ApplyPackedReflectors
@@ -56,26 +56,24 @@ void TestCorrectness
             Print( W, "Q" );
         }
     }
-    DistMatrix<F> Z(m,m,g);
-    MakeZeros( Z );
+    auto Z = Zeros<F>( g, m, m );
     Herk( uplo, NORMAL, F(1), Y, F(0), Z );
+    MakeHermitian( uplo, Z );
     
-    // Form X := I - Q^H Q or Q Q^H
-    DistMatrix<F> X(m,m,g);
-    MakeIdentity( X );
-    Axpy( F(-1), Z, X );
+    // Form X := -I + Q^H Q or Q Q^H
+    UpdateDiagonal( Z, F(-1) );
     if( printMatrices )
     {
         if( order == FORWARD )
-            Print( X, "I - Q Q^H" );
+            Print( Z, "Q Q^H - I" );
         else
-            Print( X, "I - Q^H Q" );
+            Print( Z, "Q^H Q - I" );
     }
 
     // Compute the maximum deviance
-    const Real oneNormOfError = OneNorm( X );
-    const Real infNormOfError = InfinityNorm( X );
-    const Real frobNormOfError = FrobeniusNorm( X );
+    const Real oneNormOfError = OneNorm( Z );
+    const Real infNormOfError = InfinityNorm( Z );
+    const Real frobNormOfError = FrobeniusNorm( Z );
     if( g.Rank() == 0 )
     {
         if( order == FORWARD )
@@ -100,9 +98,8 @@ void TestUT
   Int m, Int offset, bool testCorrectness, bool printMatrices,
   const Grid& g )
 {
-    DistMatrix<F> H(g), A(g);
-    Uniform( H, m, m );
-    Uniform( A, m, m );
+    auto H = Uniform<F>( g, m, m );
+    auto A = Uniform<F>( g, m, m );
 
     const Int diagLength = DiagonalLength(H.Height(),H.Width(),offset);
     DistMatrix<F,MD,STAR> t(g);
@@ -115,7 +112,7 @@ void TestUT
         for( Int i=0; i<t.Height(); ++i )
         {
             // View below the diagonal containing the implicit 1
-            View( HCol, H, i-offset+1, i, m-(i-offset+1), 1 );
+            HCol = View( H, i-offset+1, i, m-(i-offset+1), 1 );
             F norm = Nrm2( HCol );
             F alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );
@@ -126,7 +123,7 @@ void TestUT
         for( Int i=0; i<t.Height(); ++i ) 
         {
             // View above the diagonal containing the implicit 1
-            View( HCol, H, 0, i+offset, i, 1 );
+            HCol = View( H, 0, i+offset, i, 1 );
             F norm = Nrm2( HCol );
             F alpha = 2./(norm*norm+1.);
             t.Set( i, 0, alpha );

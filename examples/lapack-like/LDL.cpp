@@ -10,14 +10,14 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/blas-like/level1/Transpose.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include "elemental/matrices/Wigner.hpp"
 using namespace std;
 using namespace elem;
 
@@ -33,22 +33,24 @@ main( int argc, char* argv[] )
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
+        const double realMean = Input("--realMean","real mean",0.); 
+        const double imagMean = Input("--imagMean","imag mean",0.);
+        const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();
 
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
+        C mean( realMean, imagMean );
         DistMatrix<C> A;
         if( conjugate )
         {
-            HermitianUniformSpectrum( A, n, -30, -20 );
+            Wigner( A, n, mean, stddev );
         }
         else
         {
-            Uniform( A, n, n );
-            DistMatrix<C> ATrans;
-            Transpose( A, ATrans );
-            Axpy( C(1), ATrans, A );
+            Gaussian( A, n, n, mean, stddev );
+            MakeSymmetric( LOWER, A );
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization

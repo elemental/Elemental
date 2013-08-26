@@ -12,34 +12,12 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Ones( Matrix<T>& A, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Ones");
-#endif
-    A.ResizeTo( m, n );
-    MakeOnes( A );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Ones( DistMatrix<T,U,V>& A, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Ones");
-#endif
-    A.ResizeTo( m, n );
-    MakeOnes( A );
-}
-
 template<typename T> 
 inline void
 MakeOnes( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeOnes");
+    CallStackEntry cse("MakeOnes");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -53,13 +31,53 @@ inline void
 MakeOnes( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeOnes");
+    CallStackEntry cse("MakeOnes");
 #endif
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             A.SetLocal( iLoc, jLoc, T(1) );
+}
+
+template<typename T>
+inline void
+Ones( Matrix<T>& A, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Ones");
+#endif
+    A.ResizeTo( m, n );
+    MakeOnes( A );
+}
+
+template<typename T>
+inline Matrix<T>
+Ones( Int m, Int n )
+{
+    Matrix<T> A( m, n );
+    MakeOnes( A );
+    return A;
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Ones( DistMatrix<T,U,V>& A, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Ones");
+#endif
+    A.ResizeTo( m, n );
+    MakeOnes( A );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Ones( const Grid& g, Int m, Int n )
+{
+    DistMatrix<T,U,V> A( m, n, g );
+    MakeOnes( A );
+    return A;
 }
 
 } // namespace elem

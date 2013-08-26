@@ -31,8 +31,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> H;
-        Hilbert( H, n );
+        auto H = Hilbert<double>( DefaultGrid(), n );
         if( display )
             Display( H, "Hilbert" );
         if( print )

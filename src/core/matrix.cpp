@@ -19,7 +19,7 @@ void
 Matrix<T>::AssertValidDimensions( Int height, Int width ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::AssertValidDimensions");
+    CallStackEntry cse("Matrix::AssertValidDimensions");
 #endif
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
@@ -30,7 +30,7 @@ void
 Matrix<T>::AssertValidDimensions( Int height, Int width, Int ldim ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::AssertValidDimensions");
+    CallStackEntry cse("Matrix::AssertValidDimensions");
 #endif
     AssertValidDimensions( height, width );
     if( ldim < height )
@@ -44,7 +44,7 @@ void
 Matrix<T>::AssertValidEntry( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::AssertValidEntry");
+    CallStackEntry cse("Matrix::AssertValidEntry");
 #endif
     if( i < 0 || j < 0 )
         LogicError("Indices must be non-negative");
@@ -66,7 +66,7 @@ template<typename T>
 Matrix<T>::Matrix( bool fixed )
 : viewType_( fixed ? OWNER_FIXED : OWNER ),
   height_(0), width_(0), ldim_(1), 
-  data_(0)
+  data_(nullptr)
 { }
 
 template<typename T>
@@ -75,7 +75,7 @@ Matrix<T>::Matrix( Int height, Int width, bool fixed )
   height_(height), width_(width), ldim_(Max(height,1))
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Matrix");
+    CallStackEntry cse("Matrix::Matrix");
     AssertValidDimensions( height, width );
 #endif
     memory_.Require( ldim_ * width );
@@ -90,7 +90,7 @@ Matrix<T>::Matrix
   height_(height), width_(width), ldim_(ldim)
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Matrix");
+    CallStackEntry cse("Matrix::Matrix");
     AssertValidDimensions( height, width, ldim );
 #endif
     memory_.Require( ldim*width );
@@ -105,7 +105,7 @@ Matrix<T>::Matrix
   data_(buffer)
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Matrix");
+    CallStackEntry cse("Matrix::Matrix");
     AssertValidDimensions( height, width, ldim );
 #endif
 }
@@ -118,25 +118,62 @@ Matrix<T>::Matrix
   data_(buffer)
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Matrix");
+    CallStackEntry cse("Matrix::Matrix");
     AssertValidDimensions( height, width, ldim );
 #endif
 }
 
 template<typename T>
-Matrix<T>::Matrix
-( const Matrix<T>& A )
+Matrix<T>::Matrix( const Matrix<T>& A )
 : viewType_( OWNER ),
   height_(0), width_(0), ldim_(1), 
-  data_(0)
+  data_(nullptr)
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Matrix( const Matrix& )");
+    CallStackEntry cse("Matrix::Matrix( const Matrix& )");
 #endif
     if( &A != this )
         *this = A;
     else
         LogicError("You just tried to construct a Matrix with itself!");
+}
+
+template<typename T>
+Matrix<T>::Matrix( Matrix<T>&& A )
+: viewType_(A.viewType_),
+  height_(A.height_), width_(A.width_), ldim_(A.ldim_),
+  data_(nullptr), memory_(std::move(A.memory_))
+{ std::swap( data_, A.data_ ); }
+
+template<typename T>
+Matrix<T>&
+Matrix<T>::operator=( Matrix<T>&& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::operator=( Matrix&& )");
+#endif
+    if( this == &A )
+        LogicError("Tried to move to self");
+    memory_.Swap( A.memory_ );
+    std::swap( data_, A.data_ );
+    viewType_ = A.viewType_;
+    height_ = A.height_;
+    width_ = A.width_;
+    ldim_ = A.ldim_;
+
+    return *this;
+}
+
+template<typename T>
+void
+Matrix<T>::Swap( Matrix<T>& A )
+{
+    memory_.Swap( A.memory_ );
+    std::swap( data_, A.data_ );
+    std::swap( viewType_, A.viewType_ );
+    std::swap( height_, A.height_ );
+    std::swap( width_, A.width_ );
+    std::swap( ldim_, A.ldim_ );
 }
 
 //
@@ -206,7 +243,7 @@ T*
 Matrix<T>::Buffer()
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Buffer");
+    CallStackEntry cse("Matrix::Buffer");
     if( Locked() )
         LogicError("Cannot return non-const buffer of locked Matrix");
 #endif
@@ -225,7 +262,7 @@ T*
 Matrix<T>::Buffer( Int i, Int j )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Buffer");
+    CallStackEntry cse("Matrix::Buffer");
     if( Locked() )
         LogicError("Cannot return non-const buffer of locked Matrix");
 #endif
@@ -239,7 +276,7 @@ const T*
 Matrix<T>::LockedBuffer( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::LockedBuffer");
+    CallStackEntry cse("Matrix::LockedBuffer");
 #endif
     return &data_[i+j*ldim_];
 }
@@ -267,7 +304,7 @@ T
 Matrix<T>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Get");
+    CallStackEntry cse("Matrix::Get");
     AssertValidEntry( i, j );
 #endif
     return Get_( i, j );
@@ -278,7 +315,7 @@ void
 Matrix<T>::Set( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Set");
+    CallStackEntry cse("Matrix::Set");
     AssertValidEntry( i, j );
     if( Locked() )
         LogicError("Cannot modify data of locked matrices");
@@ -291,7 +328,7 @@ void
 Matrix<T>::Update( Int i, Int j, T alpha ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Update");
+    CallStackEntry cse("Matrix::Update");
     AssertValidEntry( i, j );
     if( Locked() )
         LogicError("Cannot modify data of locked matrices");
@@ -304,7 +341,7 @@ void
 Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::GetDiagonal");
+    CallStackEntry cse("Matrix::GetDiagonal");
     if( d.Locked() )
         LogicError("d must not be a locked view");
 #endif
@@ -323,7 +360,7 @@ void
 Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::SetDiagonal");
+    CallStackEntry cse("Matrix::SetDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -341,7 +378,7 @@ void
 Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateDiagonal");
+    CallStackEntry cse("Matrix::UpdateDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -367,7 +404,7 @@ BASE(T)
 Matrix<T>::GetRealPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::GetRealPart");
+    CallStackEntry cse("Matrix::GetRealPart");
     AssertValidEntry( i, j );
 #endif
     return elem::RealPart( Get_( i, j ) );
@@ -378,7 +415,7 @@ BASE(T)
 Matrix<T>::GetImagPart( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::GetImagPart");
+    CallStackEntry cse("Matrix::GetImagPart");
     AssertValidEntry( i, j );
 #endif
     return elem::ImagPart( Get_( i, j ) );
@@ -443,7 +480,7 @@ void
 Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::GetRealPartOfDiagonal");
+    CallStackEntry cse("Matrix::GetRealPartOfDiagonal");
     if( d.Locked() )
         LogicError("d must not be a locked view");
 #endif
@@ -462,7 +499,7 @@ void
 Matrix<T>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::GetImagPartOfDiagonal");
+    CallStackEntry cse("Matrix::GetImagPartOfDiagonal");
     if( d.Locked() )
         LogicError("d must not be a locked view");
 #endif
@@ -481,7 +518,7 @@ void
 Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::SetRealPartOfDiagonal");
+    CallStackEntry cse("Matrix::SetRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -499,7 +536,7 @@ void
 Matrix<T>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::SetImagPartOfDiagonal");
+    CallStackEntry cse("Matrix::SetImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -518,7 +555,7 @@ void
 Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateRealPartOfDiagonal");
+    CallStackEntry cse("Matrix::UpdateRealPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -536,7 +573,7 @@ void
 Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::UpdateImagPartOfDiagonal");
+    CallStackEntry cse("Matrix::UpdateImagPartOfDiagonal");
     if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
         LogicError("d is not a column-vector of the right length");
 #endif
@@ -567,7 +604,7 @@ void
 Matrix<T>::Control( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Control");
+    CallStackEntry cse("Matrix::Control");
     if( FixedSize() )
         LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
@@ -591,7 +628,7 @@ void
 Matrix<T>::Attach( Int height, Int width, T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Attach");
+    CallStackEntry cse("Matrix::Attach");
     if( FixedSize() )
         LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
@@ -616,7 +653,7 @@ Matrix<T>::LockedAttach
 ( Int height, Int width, const T* buffer, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::LockedAttach");
+    CallStackEntry cse("Matrix::LockedAttach");
     if( FixedSize() )
         LogicError( "Cannot attach a new buffer to a view with fixed size" );
 #endif
@@ -632,7 +669,7 @@ const Matrix<T>&
 Matrix<T>::operator=( const Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::operator=");
+    CallStackEntry cse("Matrix::operator=");
     if( Locked() )
         LogicError("Cannot assign to a locked view");
     if( viewType_ != OWNER && (A.Height() != Height() || A.Width() != Width()) )
@@ -661,7 +698,7 @@ Matrix<T>::Empty_()
     height_ = 0;
     width_ = 0;
     ldim_ = 1;
-    data_ = 0;
+    data_ = nullptr;
     viewType_ = (ViewType)( viewType_ & ~LOCKED_VIEW );
 }
 
@@ -670,7 +707,7 @@ void
 Matrix<T>::Empty()
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::Empty()");
+    CallStackEntry cse("Matrix::Empty()");
     if ( FixedSize() )
         LogicError("Cannot empty a fixed-size matrix" );
 #endif
@@ -699,7 +736,7 @@ void
 Matrix<T>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::ResizeTo(height,width)");
+    CallStackEntry cse("Matrix::ResizeTo(height,width)");
     AssertValidDimensions( height, width );
     if ( FixedSize() && ( height != height_ || width != width_ ) )
         LogicError("Cannot change the size of this matrix");
@@ -729,7 +766,7 @@ void
 Matrix<T>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Matrix::ResizeTo(height,width,ldim)");
+    CallStackEntry cse("Matrix::ResizeTo(height,width,ldim)");
     AssertValidDimensions( height, width, ldim );
     if( FixedSize() && 
         ( height != height_ || width != width_ || ldim != ldim_ ) )

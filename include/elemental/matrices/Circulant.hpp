@@ -17,7 +17,7 @@ inline void
 Circulant( Matrix<T>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Circulant");
+    CallStackEntry cse("Circulant");
 #endif
     const Int n = a.size();
     A.ResizeTo( n, n );
@@ -26,12 +26,21 @@ Circulant( Matrix<T>& A, const std::vector<T>& a )
             A.Set( i, j, a[(i-j+n)%n] );
 }
 
+template<typename T> 
+inline Matrix<T>
+Circulant( const std::vector<T>& a )
+{
+    Matrix<T> A;
+    Circulant( A, a );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Circulant");
+    CallStackEntry cse("Circulant");
 #endif
     const Int n = a.size();
     A.ResizeTo( n, n );
@@ -51,6 +60,15 @@ Circulant( DistMatrix<T,U,V>& A, const std::vector<T>& a )
             A.SetLocal( iLoc, jLoc, a[(i-j+n)%n] );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Circulant( const Grid& g, const std::vector<T>& a )
+{
+    DistMatrix<T,U,V> A(g);
+    Circulant( A, a );
+    return A;
 }
 
 } // namespace elem

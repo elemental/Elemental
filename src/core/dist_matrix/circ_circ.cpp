@@ -110,8 +110,30 @@ DistMatrix<T,CIRC,CIRC>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
+DistMatrix<T,CIRC,CIRC>::DistMatrix( DistMatrix<T,CIRC,CIRC>&& A )
+: AbstractDistMatrix<T>(std::move(A)), root_(A.root_)
+{ }
+
+template<typename T>
+DistMatrix<T,CIRC,CIRC>& 
+DistMatrix<T,CIRC,CIRC>::operator=( DistMatrix<T,CIRC,CIRC>&& A )
+{
+    AbstractDistMatrix<T>::operator=( std::move(A) );
+    root_ = A.root_;
+    return *this;
+}
+
+template<typename T>
 DistMatrix<T,CIRC,CIRC>::~DistMatrix()
 { }
+
+template<typename T>
+void
+DistMatrix<T,CIRC,CIRC>::Swap( DistMatrix<T,CIRC,CIRC>& A )
+{
+    AbstractDistMatrix<T>::Swap( A );        
+    std::swap( root_, A.root_ );
+}
 
 template<typename T>
 void
@@ -479,7 +501,7 @@ DistMatrix<T,CIRC,CIRC>::operator=( const DistMatrix<T,MC,STAR>& A )
     const Int mLocalMax = MaxLength(m,colStride);
 
     const Int pkgSize = mpi::Pad( mLocalMax*n );
-    T *sendBuf, *recvBuf;
+    T *sendBuf, *recvBuf=0; // some compilers (falsely) warn otherwise
     if( g.Row() == owningRow )
     {
         T* buffer = this->auxMemory_.Require( (colStride+1)*pkgSize );

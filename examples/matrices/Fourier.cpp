@@ -26,8 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<Complex<double>> A;
-        Fourier( A, n );
+        auto A = Fourier<double>( DefaultGrid(), n );
         if( display )
             Display( A, "Fourier Matrix" );
         if( print )
@@ -36,18 +35,17 @@ main( int argc, char* argv[] )
         if( n >= 50 )
         {
             const Int nSqrt = Sqrt( double(n) );
-            DistMatrix<Complex<double>> AMid, AMidCopy;
             if( mpi::WorldRank() == 0 )
                 std::cout << "Viewing " << nSqrt << " x " << nSqrt << " block "
                           << "starting at (" 
                           << (n-nSqrt)/2 << "," << (n-nSqrt)/2 << ")"
                           << std::endl;
-            View( AMid, A, (n-nSqrt)/2, (n-nSqrt)/2, nSqrt, nSqrt );
+            auto AMid = View( A, (n-nSqrt)/2, (n-nSqrt)/2, nSqrt, nSqrt );
             if( display )
                 Display( AMid, "Middle block" );
             if( print )
                 Print( AMid, "Middle block" );
-            AMidCopy = AMid;
+            auto AMidCopy = AMid;
              
             DistMatrix<double,VR,STAR> s;
             SVD( AMidCopy, s );

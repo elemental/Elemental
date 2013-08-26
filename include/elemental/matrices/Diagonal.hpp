@@ -19,7 +19,7 @@ inline void
 Diagonal( Matrix<T>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Diagonal");
+    CallStackEntry cse("Diagonal");
 #endif
     const Int n = d.size();
     Zeros( D, n, n );
@@ -28,12 +28,21 @@ Diagonal( Matrix<T>& D, const std::vector<T>& d )
         D.Set( j, j, d[j] );
 }
 
+template<typename T> 
+inline Matrix<T>
+Diagonal( const std::vector<T>& d )
+{
+    Matrix<T> D;
+    Diagonal( D, d );
+    return D;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Diagonal");
+    CallStackEntry cse("Diagonal");
 #endif
     const Int n = d.size();
     Zeros( D, n, n );
@@ -52,6 +61,15 @@ Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
             D.SetLocal( iLoc, jLoc, d[j] );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Diagonal( const Grid& g, const std::vector<T>& d )
+{
+    DistMatrix<T,U,V> D(g);
+    Diagonal( D, d );
+    return D;
 }
 
 } // namespace elem

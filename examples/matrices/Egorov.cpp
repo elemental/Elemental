@@ -12,25 +12,25 @@
 #include "elemental/io.hpp"
 using namespace elem;
 
-template<typename R>
+template<typename Real>
 class FourierPhase {
 public:
-    FourierPhase( Int n ) : n_(n), pi_(4*Atan(R(1))) { }
-    R operator()( Int i, Int j ) const { return (-2*pi_*i*j)/n_; }
+    FourierPhase( Int n ) : n_(n), pi_(4*Atan(Real(1))) { }
+    Real operator()( Int i, Int j ) const { return (-2*pi_*i*j)/n_; }
 private:
     Int n_;
-    R pi_;
+    Real pi_;
 };
 
-template<typename R>
+template<typename Real>
 class Phase {
 public:
-    Phase( Int n ) : n_(n), pi_(4*Atan(R(1))) { }
-    R operator()( Int i, Int j ) const 
-    { return (-2*pi_*i*j)/n_ + Sqrt(R(i)*R(i) + R(j)*R(j)); }
+    Phase( Int n ) : n_(n), pi_(4*Atan(Real(1))) { }
+    Real operator()( Int i, Int j ) const 
+    { return (-2*pi_*i*j)/n_ + Sqrt(Real(i)*Real(i) + Real(j)*Real(j)); }
 private:
     Int n_;
-    R pi_;
+    Real pi_;
 };
 
 int 
@@ -46,12 +46,11 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
+        const Grid& g = DefaultGrid();
         FourierPhase<double> fourier( n );
         Phase<double> phase( n );
-
-        DistMatrix<Complex<double>> F, G;
-        Egorov( F, fourier, n );
-        Egorov( G, phase, n ); 
+        auto F = Egorov<double>( g, fourier, n );
+        auto G = Egorov<double>( g, phase,   n );
 
         if( display )
         {

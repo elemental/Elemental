@@ -19,7 +19,7 @@ inline void
 TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TriW");
+    CallStackEntry cse("TriW");
 #endif
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
@@ -32,12 +32,21 @@ TriW( Matrix<T>& A, Int m, Int n, T alpha, Int k )
     Toeplitz( A, m, n, a );
 }
 
+template<typename T> 
+inline Matrix<T>
+TriW( Int m, Int n, T alpha, Int k )
+{
+    Matrix<T> A;
+    TriW( A, m, n, alpha, k );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("TriW");
+    CallStackEntry cse("TriW");
 #endif
     if( k < 0 )
         LogicError("Number of superdiagonals of ones must be non-negative");
@@ -48,6 +57,15 @@ TriW( DistMatrix<T,U,V>& A, Int m, Int n, T alpha, Int k )
     for( Int j=0; j<std::min(n-1,k); ++j )
         a[n-2-j] = alpha;
     Toeplitz( A, m, n, a );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+TriW( const Grid& g, Int m, Int n, T alpha, Int k )
+{
+    DistMatrix<T,U,V> A(g);
+    TriW( A, m, n, alpha, k );
+    return A;
 }
 
 // TODO: MakeTriW?

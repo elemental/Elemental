@@ -17,7 +17,7 @@ inline void
 Redheffer( Matrix<T>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Redheffer");
+    CallStackEntry cse("Redheffer");
 #endif
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -32,12 +32,21 @@ Redheffer( Matrix<T>& R, Int n )
     }
 }
 
+template<typename T> 
+inline Matrix<T>
+Redheffer( Int n )
+{
+    Matrix<T> R;
+    Redheffer( R, n );
+    return R;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Redheffer( DistMatrix<T,U,V>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Redheffer");
+    CallStackEntry cse("Redheffer");
 #endif
     R.ResizeTo( n, n );
     const Int localHeight = R.LocalHeight();
@@ -58,6 +67,15 @@ Redheffer( DistMatrix<T,U,V>& R, Int n )
                 R.SetLocal( iLoc, jLoc, T(0) );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Redheffer( const Grid& g, Int n )
+{
+    DistMatrix<T,U,V> R(g);
+    Redheffer( R, n );
+    return R;
 }
 
 } // namespace elem

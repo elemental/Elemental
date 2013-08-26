@@ -15,14 +15,33 @@ namespace elem {
 template<typename G>
 inline 
 Memory<G>::Memory()
-: size_(0), buffer_(NULL)
+: size_(0), buffer_(nullptr)
 { }
 
 template<typename G>
 inline 
 Memory<G>::Memory( std::size_t size )
-: size_(0), buffer_(NULL)
+: size_(0), buffer_(nullptr)
 { Require( size ); }
+
+template<typename G>
+inline
+Memory<G>::Memory( Memory<G>&& mem )
+: size_(mem.size_), buffer_(nullptr)
+{ Swap(mem); }
+
+template<typename G>
+inline Memory<G>&
+Memory<G>::operator=( Memory<G>&& mem )
+{ Swap( mem ); return *this; }
+
+template<typename G>
+inline void
+Memory<G>::Swap( Memory<G>& mem )
+{
+    std::swap(size_,mem.size_);
+    std::swap(buffer_,mem.buffer_);
+}
 
 template<typename G>
 inline 
@@ -81,7 +100,7 @@ Memory<G>::Empty()
 {
     delete[] buffer_;
     size_ = 0;
-    buffer_ = 0;
+    buffer_ = nullptr;
 }
 
 } // namespace elem

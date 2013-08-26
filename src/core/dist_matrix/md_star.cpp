@@ -84,8 +84,30 @@ DistMatrix<T,MD,STAR>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
+DistMatrix<T,MD,STAR>::DistMatrix( DistMatrix<T,MD,STAR>&& A )
+: AbstractDistMatrix<T>(std::move(A)), diagPath_(A.diagPath_)
+{ }
+
+template<typename T>
+DistMatrix<T,MD,STAR>&
+DistMatrix<T,MD,STAR>::operator=( DistMatrix<T,MD,STAR>&& A )
+{
+    AbstractDistMatrix<T>::operator=( std::move(A) );
+    diagPath_ = A.diagPath_;
+    return *this;
+}
+
+template<typename T>
 DistMatrix<T,MD,STAR>::~DistMatrix()
 { }
+
+template<typename T>
+void
+DistMatrix<T,MD,STAR>::Swap( DistMatrix<T,MD,STAR>& A )
+{
+    AbstractDistMatrix<T>::Swap( A );
+    std::swap( diagPath_, A.diagPath_ );
+}
 
 template<typename T>
 elem::DistData

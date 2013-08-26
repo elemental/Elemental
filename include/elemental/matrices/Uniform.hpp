@@ -18,7 +18,7 @@ inline void
 MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeUniform");
+    CallStackEntry cse("MakeUniform");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -32,10 +32,19 @@ inline void
 Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
+}
+
+template<typename T>
+inline Matrix<T>
+Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
+{
+    Matrix<T> A( m, n );
+    MakeUniform( A, center, radius );
+    return A;
 }
 
 namespace internal {
@@ -342,7 +351,7 @@ inline void
 MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
 }
@@ -352,10 +361,19 @@ inline void
 Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
+{
+    DistMatrix<T,U,V> A( m, n, g );
+    MakeUniform( A, center, radius );
+    return A;
 }
 
 } // namespace elem

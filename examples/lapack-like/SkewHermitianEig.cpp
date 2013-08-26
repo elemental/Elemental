@@ -64,7 +64,7 @@ main( int argc, char* argv[] )
         }
 
         // Make a backup of S before we overwrite it within the eigensolver
-        DistMatrix<C> SCopy( S );
+        auto SCopy( S );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
@@ -87,7 +87,7 @@ main( int argc, char* argv[] )
 
         // Check the residual, || S X - Omega X ||_F
         const Real frobS = HermitianFrobeniusNorm( LOWER, SCopy );
-        DistMatrix<C> E( X );
+        auto E( X );
         Scale( C(0,1), E );
         DiagonalScale( RIGHT, NORMAL, wImag, E );
         Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );

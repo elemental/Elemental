@@ -37,6 +37,12 @@ public:
     // Routines that do NOT need to be implemented in derived classes        //
     //-----------------------------------------------------------------------//
 
+    // Move constructor
+    AbstractDistMatrix( AbstractDistMatrix<T>&& A );
+
+    // Move operator=
+    AbstractDistMatrix<T>& operator=( AbstractDistMatrix<T>&& A );
+
 #ifndef RELEASE
     void AssertNotLocked() const;
     void AssertNotStoringData() const;
@@ -125,6 +131,8 @@ public:
     // Routines that can be overridden in derived classes                     //
     //------------------------------------------------------------------------//
 
+    virtual void Swap( AbstractDistMatrix<T>& A );
+
     virtual bool Participating() const;
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignWith( const AbstractDistMatrix<T>& A );
@@ -194,7 +202,7 @@ protected:
 
     // Build around a particular grid
     AbstractDistMatrix( const elem::Grid& g );
-    
+
     void SetShifts();
     void SetColShift();
     void SetRowShift();

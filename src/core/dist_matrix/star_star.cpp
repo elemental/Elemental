@@ -68,6 +68,19 @@ DistMatrix<T,STAR,STAR>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
+DistMatrix<T,STAR,STAR>::DistMatrix( DistMatrix<T,STAR,STAR>&& A )
+: AbstractDistMatrix<T>(std::move(A))
+{ }
+
+template<typename T>
+DistMatrix<T,STAR,STAR>&
+DistMatrix<T,STAR,STAR>::operator=( DistMatrix<T,STAR,STAR>&& A )
+{
+    AbstractDistMatrix<T>::operator=( std::move(A) );
+    return *this;
+}
+
+template<typename T>
 DistMatrix<T,STAR,STAR>::~DistMatrix()
 { }
 

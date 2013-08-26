@@ -19,7 +19,7 @@ inline void
 Wilkinson( Matrix<T>& A, Int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Wilkinson");
+    CallStackEntry cse("Wilkinson");
 #endif
     const Int n = 2*k+1;
     A.ResizeTo( n, n );
@@ -39,12 +39,21 @@ Wilkinson( Matrix<T>& A, Int k )
     }
 }
 
+template<typename T> 
+inline Matrix<T>
+Wilkinson( Int k )
+{
+    Matrix<T> A;
+    Wilkinson( A, k );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Wilkinson( DistMatrix<T,U,V>& A, Int k )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Wilkinson");
+    CallStackEntry cse("Wilkinson");
 #endif
     const Int n = 2*k+1;
     A.ResizeTo( n, n );
@@ -73,6 +82,15 @@ Wilkinson( DistMatrix<T,U,V>& A, Int k )
                 A.SetLocal( iLoc, jLoc, T(1) );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Wilkinson( const Grid& g, Int k )
+{
+    DistMatrix<T,U,V> A( g );
+    Wilkinson( A, k );
+    return A;
 }
 
 } // namespace elem

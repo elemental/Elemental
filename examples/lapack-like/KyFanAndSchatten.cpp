@@ -15,6 +15,9 @@
 using namespace std;
 using namespace elem;
 
+typedef double Real;
+typedef Complex<Real> C;
+
 int
 main( int argc, char* argv[] )
 {
@@ -33,8 +36,8 @@ main( int argc, char* argv[] )
 
         SetBlocksize( nb );
 
-        DistMatrix<Complex<double>> A;
-        Uniform( A, m, n );
+        const Grid& g = DefaultGrid();
+        auto A = Uniform<C>( g, m, n );
         if( print )
             Print( A, "A" );
 

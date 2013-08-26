@@ -14,34 +14,12 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Identity( Matrix<T>& I, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Identity");
-#endif
-    I.ResizeTo( m, n );
-    MakeIdentity( I );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Identity( DistMatrix<T,U,V>& I, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Identity");
-#endif
-    I.ResizeTo( m, n );
-    MakeIdentity( I );
-}
-
 template<typename T> 
 inline void
 MakeIdentity( Matrix<T>& I )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeIdentity");
+    CallStackEntry cse("MakeIdentity");
 #endif
     Zero( I );
     const Int m = I.Height();
@@ -55,7 +33,7 @@ inline void
 MakeIdentity( DistMatrix<T,U,V>& I )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeIdentity");
+    CallStackEntry cse("MakeIdentity");
 #endif
     Zero( I.Matrix() );
 
@@ -75,6 +53,46 @@ MakeIdentity( DistMatrix<T,U,V>& I )
                 I.SetLocal( iLoc, jLoc, T(1) );
         }
     }
+}
+
+template<typename T>
+inline void
+Identity( Matrix<T>& I, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Identity");
+#endif
+    I.ResizeTo( m, n );
+    MakeIdentity( I );
+}
+
+template<typename T>
+inline Matrix<T>
+Identity( Int m, Int n )
+{
+    Matrix<T> I( m, n );
+    MakeIdentity( I );
+    return I;
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Identity( DistMatrix<T,U,V>& I, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Identity");
+#endif
+    I.ResizeTo( m, n );
+    MakeIdentity( I );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Identity( const Grid& g, Int m, Int n )
+{
+    DistMatrix<T,U,V> I( m, n, g );
+    MakeIdentity( I );
+    return I;
 }
 
 } // namespace elem

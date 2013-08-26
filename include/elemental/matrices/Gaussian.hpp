@@ -18,7 +18,7 @@ inline void
 MakeGaussian( Matrix<T>& A, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeGaussian");
+    CallStackEntry cse("MakeGaussian");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -32,10 +32,19 @@ inline void
 Gaussian( Matrix<T>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gaussian");
+    CallStackEntry cse("Gaussian");
 #endif
     A.ResizeTo( m, n );
     MakeGaussian( A, mean, stddev );
+}
+
+template<typename T>
+inline Matrix<T>
+Gaussian( Int m, Int n, T mean=0, BASE(T) stddev=1 )
+{
+    Matrix<T> A( m, n );
+    MakeGaussian( A, mean, stddev );
+    return A;
 }
 
 namespace internal {
@@ -341,7 +350,7 @@ inline void
 MakeGaussian( DistMatrix<T,U,V>& A, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gaussian");
+    CallStackEntry cse("Gaussian");
 #endif
     internal::MakeGaussianHelper<T,U,V>::Func( A, mean, stddev );
 }
@@ -351,10 +360,19 @@ inline void
 Gaussian( DistMatrix<T,U,V>& A, Int m, Int n, T mean=0, BASE(T) stddev=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gaussian");
+    CallStackEntry cse("Gaussian");
 #endif
     A.ResizeTo( m, n );
     MakeGaussian( A, mean, stddev );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Gaussian( const Grid& g, Int m, Int n, T mean=0, BASE(T) stddev=1 )
+{
+    DistMatrix<T,U,V> A( m, n, g );
+    MakeGaussian( A, mean, stddev );
+    return A;
 }
 
 } // namespace elem

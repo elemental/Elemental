@@ -16,32 +16,10 @@ namespace elem {
 
 template<typename T> 
 inline void
-OneTwoOne( Matrix<T>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("OneTwoOne");
-#endif
-    A.ResizeTo( n, n );
-    MakeOneTwoOne( A );
-}
-
-template<typename T,Distribution U,Distribution V> 
-inline void
-OneTwoOne( DistMatrix<T,U,V>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("OneTwoOne");
-#endif
-    A.ResizeTo( n, n );
-    MakeOneTwoOne( A );
-}
-
-template<typename T> 
-inline void
 MakeOneTwoOne( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeOneTwoOne");
+    CallStackEntry cse("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
@@ -64,7 +42,7 @@ inline void
 MakeOneTwoOne( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeOneTwoOne");
+    CallStackEntry cse("MakeOneTwoOne");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix 1-2-1");
@@ -88,6 +66,46 @@ MakeOneTwoOne( DistMatrix<T,U,V>& A )
                 A.SetLocal( iLoc, jLoc, T(1) );
         }
     }
+}
+
+template<typename T> 
+inline void
+OneTwoOne( Matrix<T>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("OneTwoOne");
+#endif
+    A.ResizeTo( n, n );
+    MakeOneTwoOne( A );
+}
+
+template<typename T> 
+inline Matrix<T>
+OneTwoOne( Int n )
+{
+    Matrix<T> A( n, n );
+    MakeOneTwoOne( A );
+    return A;
+}
+
+template<typename T,Distribution U,Distribution V> 
+inline void
+OneTwoOne( DistMatrix<T,U,V>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("OneTwoOne");
+#endif
+    A.ResizeTo( n, n );
+    MakeOneTwoOne( A );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR> 
+inline DistMatrix<T,U,V>
+OneTwoOne( const Grid& g, Int n )
+{
+    DistMatrix<T,U,V> A( n, n, g );
+    MakeOneTwoOne( A );
+    return A;
 }
 
 } // namespace elem

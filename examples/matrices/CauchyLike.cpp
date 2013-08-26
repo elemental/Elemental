@@ -36,8 +36,7 @@ main( int argc, char* argv[] )
         for( Int j=0; j<n; ++j )
             y[j] = j+m;
 
-        DistMatrix<double> A;
-        CauchyLike( A, r, s, x, y );
+        auto A = CauchyLike( DefaultGrid(), r, s, x, y );
         if( display )
             Display( A, "Cauchy-like" );
         if( print )

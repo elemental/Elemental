@@ -29,8 +29,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         Complex<double> shift( realShift, imagShift );
-        DistMatrix<Complex<double>> H;
-        Helmholtz( H, n, shift );
+        auto H = Helmholtz( DefaultGrid(), n, shift );
         if( display )
             Display( H, "Helmholtz matrix" );
         if( print )

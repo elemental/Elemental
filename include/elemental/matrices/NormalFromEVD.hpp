@@ -26,7 +26,7 @@ NormalFromEVD
   const Matrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("NormalFromEVD");
+    CallStackEntry cse("NormalFromEVD");
 #endif
     typedef Complex<R> C;
 
@@ -72,6 +72,17 @@ NormalFromEVD
 }
 
 template<typename R>
+inline Matrix<Complex<R> >
+NormalFromEVD
+( const Matrix<Complex<R> >& w,
+  const Matrix<Complex<R> >& Z )
+{
+    Matrix<Complex<R> > A;
+    NormalFromEVD( A, w, Z );
+    return A;
+}
+
+template<typename R>
 inline void
 NormalFromEVD
 (       DistMatrix<Complex<R> >& A,
@@ -79,7 +90,7 @@ NormalFromEVD
   const DistMatrix<Complex<R> >& Z )
 {
 #ifndef RELEASE
-    CallStackEntry entry("NormalFromEVD");
+    CallStackEntry cse("NormalFromEVD");
 #endif
     const Grid& g = A.Grid();
     typedef Complex<R> C;
@@ -134,6 +145,17 @@ NormalFromEVD
         ( ZL,     /**/ ZR,
           Z0, Z1, /**/ Z2 );
     }
+}
+
+template<typename R>
+inline DistMatrix<Complex<R> >
+NormalFromEVD
+( const DistMatrix<Complex<R>,VR,STAR>& w,
+  const DistMatrix<Complex<R> >& Z )
+{
+    DistMatrix<Complex<R> > A( w.Grid() );
+    NormalFromEVD( A, w, Z );
+    return A;
 }
 
 } // namespace elem

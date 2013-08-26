@@ -14,34 +14,12 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Zeros( Matrix<T>& A, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Zeros");
-#endif
-    A.ResizeTo( m, n );
-    MakeZeros( A );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Zeros");
-#endif
-    A.ResizeTo( m, n );
-    MakeZeros( A );
-}
-
 template<typename T> 
 inline void
 MakeZeros( Matrix<T>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeZeros");
+    CallStackEntry cse("MakeZeros");
 #endif
     Zero( A );
 }
@@ -51,9 +29,49 @@ inline void
 MakeZeros( DistMatrix<T,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeZeros");
+    CallStackEntry cse("MakeZeros");
 #endif
     Zero( A.Matrix() );
+}
+
+template<typename T>
+inline void
+Zeros( Matrix<T>& A, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Zeros");
+#endif
+    A.ResizeTo( m, n );
+    MakeZeros( A );
+}
+
+template<typename T>
+inline Matrix<T>
+Zeros( Int m, Int n )
+{
+    Matrix<T> A( m, n );
+    MakeZeros( A ); 
+    return A;
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Zeros( DistMatrix<T,U,V>& A, Int m, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Zeros");
+#endif
+    A.ResizeTo( m, n );
+    MakeZeros( A );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Zeros( const Grid& g, Int m, Int n )
+{
+    DistMatrix<T,U,V> A( m, n, g );
+    MakeZeros( A );
+    return A;
 }
 
 } // namespace elem

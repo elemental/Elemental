@@ -42,8 +42,7 @@ main( int argc, char* argv[] )
         if( mpi::WorldRank() == 0 )
             std::cout << "Grid is " 
                       << g.Height() << " x " << g.Width() << std::endl;
-        DistMatrix<C> A( g );
-        Uniform( A, m, n );
+        auto A = Uniform<C>( g, m, n );
         if( print )
             Print( A, "A" );
 

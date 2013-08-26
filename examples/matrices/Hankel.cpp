@@ -31,8 +31,7 @@ main( int argc, char* argv[] )
         for( Int j=0; j<length; ++j )
             a[j] = j;
 
-        DistMatrix<double> H;
-        Hankel( H, m, n, a );
+        auto H = Hankel( DefaultGrid(), m, n, a );
         if( display )
             Display( H, "Hankel" );
         if( print )

@@ -17,7 +17,7 @@ inline void
 Pei( Matrix<T>& P, Int n, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Pei");
+    CallStackEntry cse("Pei");
 #endif
     P.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -27,12 +27,21 @@ Pei( Matrix<T>& P, Int n, T alpha )
         P.Update( j, j, alpha );
 }
 
+template<typename T> 
+inline Matrix<T>
+Pei( Int n, T alpha )
+{
+    Matrix<T> P;
+    Pei( P, n, alpha );
+    return P;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeIdentity");
+    CallStackEntry cse("Pei");
 #endif
     P.ResizeTo( n, n );
     const Int localHeight = P.LocalHeight();
@@ -52,6 +61,15 @@ Pei( DistMatrix<T,U,V>& P, Int n, T alpha )
                 P.UpdateLocal( iLoc, jLoc, alpha );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Pei( const Grid& g, Int n, T alpha )
+{
+    DistMatrix<T,U,V> P(g);
+    Pei( P, n, alpha );
+    return P;
 }
 
 } // namespace elem

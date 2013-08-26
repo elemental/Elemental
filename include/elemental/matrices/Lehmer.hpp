@@ -17,7 +17,7 @@ inline void
 Lehmer( Matrix<F>& L, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lehmer");
+    CallStackEntry cse("Lehmer");
 #endif
     L.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -29,12 +29,21 @@ Lehmer( Matrix<F>& L, Int n )
     }
 }
 
+template<typename F> 
+inline Matrix<F>
+Lehmer( Int n )
+{
+    Matrix<F> L;
+    Lehmer( L, n );
+    return L;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Lehmer( DistMatrix<F,U,V>& L, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lehmer");
+    CallStackEntry cse("Lehmer");
 #endif
     L.ResizeTo( n, n );
     const Int localHeight = L.LocalHeight();
@@ -55,6 +64,15 @@ Lehmer( DistMatrix<F,U,V>& L, Int n )
                 L.SetLocal( iLoc, jLoc, F(j+1)/F(i+1) );
         }
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Lehmer( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> L(g);
+    Lehmer( L, n );
+    return L;
 }
 
 } // namespace elem

@@ -16,32 +16,10 @@ namespace elem {
 
 template<typename F> 
 inline void
-Legendre( Matrix<F>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Legendre");
-#endif
-    A.ResizeTo( n, n );
-    MakeLegendre( A );
-}
-
-template<typename F,Distribution U,Distribution V> 
-inline void
-Legendre( DistMatrix<F,U,V>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Legendre");
-#endif
-    A.ResizeTo( n, n );
-    MakeLegendre( A );
-}
-
-template<typename F> 
-inline void
 MakeLegendre( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeLegendre");
+    CallStackEntry cse("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
@@ -62,7 +40,7 @@ inline void
 MakeLegendre( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeLegendre");
+    CallStackEntry cse("MakeLegendre");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Legendre");
@@ -89,6 +67,46 @@ MakeLegendre( DistMatrix<F,U,V>& A )
             }
         }
     }
+}
+
+template<typename F> 
+inline void
+Legendre( Matrix<F>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Legendre");
+#endif
+    A.ResizeTo( n, n );
+    MakeLegendre( A );
+}
+
+template<typename F> 
+inline Matrix<F>
+Legendre( Int n )
+{
+    Matrix<F> A;
+    Legendre( A, n );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V> 
+inline void
+Legendre( DistMatrix<F,U,V>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Legendre");
+#endif
+    A.ResizeTo( n, n );
+    MakeLegendre( A );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR> 
+inline DistMatrix<F,U,V>
+Legendre( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> A(g);
+    Legendre( A, n );
+    return A;
 }
 
 } // namespace elem

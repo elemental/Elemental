@@ -10,60 +10,26 @@
 #ifndef ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 #define ELEM_MATRICES_HERMITIANUNIFORMSPECTRUM_HPP
 
-#include "elemental/blas-like/level1/Dot.hpp"
-#include "elemental/blas-like/level1/Nrm2.hpp"
-#include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level2/Ger.hpp"
 #include "elemental/matrices/Diagonal.hpp"
+#include "elemental/matrices/Haar.hpp"
 #include "elemental/matrices/Uniform.hpp"
 
 namespace elem {
 
 // Draw the spectrum from the specified half-open interval on the real line,
-// then rotate it with a random Householder similarity transformation
-
-template<typename F>
-inline void
-HermitianUniformSpectrum
-( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
-{
-#ifndef RELEASE
-    CallStackEntry entry("HermitianUniformSpectrum");
-#endif
-    A.ResizeTo( n, n );
-    MakeHermitianUniformSpectrum( A, lower, upper );
-}
-
-template<typename F,Distribution U,Distribution V>
-inline void
-HermitianUniformSpectrum
-( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
-{
-#ifndef RELEASE
-    CallStackEntry entry("HermitianUniformSpectrum");
-#endif
-    A.ResizeTo( n, n );
-    MakeHermitianUniformSpectrum( A, lower, upper );
-}
+// then rotate with a Haar matrix
 
 template<typename F>
 inline void
 MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHermitianUniformSpectrum");
+    CallStackEntry cse("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
     typedef BASE(F) R;
     const bool isComplex = IsComplex<F>::val;
-
-    // Sample the diagonal matrix D from the half-open interval (lower,upper]
-    // and then rotate it with a random Householder similarity transformation:
-    //
-    //  (I-2uu^H) D (I-2uu^H)^H = D - 2(u (D u)^H + (D u) u^H) + 
-    //                                (4 u^H D u) u u^H
-    //
 
     // Form d and D
     const Int n = A.Height();
@@ -72,31 +38,11 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
         d[j] = Uniform<R>( lower, upper );
     Diagonal( A, d );
 
-    // Form u 
-    Matrix<F> u( n, 1 );
-    MakeUniform( u );
-    const R origNorm = Nrm2( u );
-    Scale( 1/origNorm, u );
-
-    // Form v := D u
-    Matrix<F> v( n, 1 );
-    for( Int i=0; i<n; ++i )
-        v.Set( i, 0, d[i]*u.Get(i,0) );
-
-    // Update A := A - 2(u v^H + v u^H)
-    Ger( F(-2), u, v, A );
-    Ger( F(-2), v, u, A );
-
-    // Form gamma := 4 u^H (D u) = 4 (u,Du)
-    const F gamma = F(4)*Dot(u,v);
-
-    // Update A := A + gamma u u^H
-    Ger( gamma, u, u, A );
-
-    // Force the diagonal to be real
-    if( isComplex )
-        for( Int j=0; j<n; ++j )
-            A.SetImagPart( j, j, R(0) );
+    // Apply a Haar matrix from both sides
+    Matrix<F> Q, t;
+    ImplicitHaar( Q, t, n );
+    qr::ApplyQ( LEFT, NORMAL, Q, t, A );
+    qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -105,7 +51,7 @@ MakeHermitianUniformSpectrum
 ( DistMatrix<F,U,V>& A, BASE(F) lower=0, BASE(F) upper=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHermitianUniformSpectrum");
+    CallStackEntry cse("MakeHermitianUniformSpectrum");
 #endif
     if( A.Height() != A.Width() )
         LogicError("Cannot make a non-square matrix Hermitian");
@@ -137,59 +83,23 @@ MakeHermitianUniformSpectrum
         Diagonal( ABackup, d );
     }
 
-    // Form u 
-    DistMatrix<F> u( grid );
-    if( standardDist )
-        u.AlignWith( A );
-    else
-        u.AlignWith( ABackup );
-    Uniform( u, n, 1 );
-    const R origNorm = Nrm2( u );
-    Scale( 1/origNorm, u );
-
-    // Form v := D u
-    DistMatrix<F> v( grid );
-    if( standardDist )
-        v.AlignWith( A );
-    else
-        v.AlignWith( ABackup );
-    v.ResizeTo( n, 1 );
-    if( v.LocalWidth() == 1 )
-    {
-        const Int colShift = v.ColShift();
-        const Int colStride = v.ColStride();
-        const Int localHeight = v.LocalHeight();
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        {
-            const Int i = colShift + iLoc*colStride;
-            v.SetLocal( iLoc, 0, d[i]*u.GetLocal(iLoc,0) );
-        }
-    }
-
-    // Update A := A - 2(u v^H + v u^H)
-    if( standardDist )
-    {
-        Ger( F(-2), u, v, A );
-        Ger( F(-2), v, u, A );
-    }
-    else
-    {
-        Ger( F(-2), u, v, ABackup );
-        Ger( F(-2), v, u, ABackup );
-    }
-
-    // Form gamma := 4 u^H (D u) = 4 (u,Du)
-    const F gamma = F(4)*Dot(u,v);
-
-    // Update A := A + gamma u u^H
-    if( standardDist )
-        Ger( gamma, u, u, A );
-    else
-        Ger( gamma, u, u, ABackup );
+    // Apply a Haar matrix from both sides
+    DistMatrix<F> Q(grid);
+    DistMatrix<F,MD,STAR> t(grid);
+    ImplicitHaar( Q, t, n );
 
     // Copy the result into the correct distribution
-    if( !standardDist )
+    if( standardDist )
+    {
+        qr::ApplyQ( LEFT, NORMAL, Q, t, A );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+    }
+    else
+    {
+        qr::ApplyQ( LEFT, NORMAL, Q, t, ABackup );
+        qr::ApplyQ( RIGHT, ADJOINT, Q, t, ABackup );
         A = ABackup;
+    }
 
     // Force the diagonal to be real-valued
     if( isComplex )
@@ -211,6 +121,49 @@ MakeHermitianUniformSpectrum
             }
         }
     }
+}
+
+template<typename F>
+inline void
+HermitianUniformSpectrum
+( Matrix<F>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianUniformSpectrum");
+#endif
+    A.ResizeTo( n, n );
+    MakeHermitianUniformSpectrum( A, lower, upper );
+}
+
+template<typename F>
+inline Matrix<F>
+HermitianUniformSpectrum( Int n, BASE(F) lower=0, BASE(F) upper=1 )
+{
+    Matrix<F> A( n, n );
+    MakeHermitianUniformSpectrum( A, lower, upper );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void
+HermitianUniformSpectrum
+( DistMatrix<F,U,V>& A, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+{
+#ifndef RELEASE
+    CallStackEntry cse("HermitianUniformSpectrum");
+#endif
+    A.ResizeTo( n, n );
+    MakeHermitianUniformSpectrum( A, lower, upper );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+HermitianUniformSpectrum
+( const Grid& g, Int n, BASE(F) lower=0, BASE(F) upper=1 )
+{
+    DistMatrix<F,U,V> A( n, n, g );
+    MakeHermitianUniformSpectrum( A, lower, upper );
+    return A;
 }
 
 } // namespace elem

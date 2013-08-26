@@ -17,7 +17,7 @@ inline void
 Toeplitz( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Toeplitz");
+    CallStackEntry cse("Toeplitz");
 #endif
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
@@ -29,12 +29,21 @@ Toeplitz( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i-j+(n-1)] );
 }
 
+template<typename T> 
+inline Matrix<T>
+Toeplitz( Int m, Int n, const std::vector<T>& a )
+{
+    Matrix<T> A;
+    Toeplitz( A, m, n, a );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Toeplitz( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Toeplitz");
+    CallStackEntry cse("Toeplitz");
 #endif
     const Int length = m+n-1;
     if( a.size() != Unsigned(length) )
@@ -56,6 +65,15 @@ Toeplitz( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
             A.SetLocal( iLoc, jLoc, a[i-j+(n-1)] );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Toeplitz( const Grid& g, Int m, Int n, const std::vector<T>& a )
+{
+    DistMatrix<T,U,V> A(g);
+    Toeplitz( A, m, n, a );
+    return A;
 }
 
 } // namespace elem

@@ -17,7 +17,7 @@ inline void
 MakeWalsh( Matrix<T>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeWalsh");
+    CallStackEntry cse("MakeWalsh");
 #endif
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
@@ -62,7 +62,7 @@ inline void
 MakeWalsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeWalsh");
+    CallStackEntry cse("MakeWalsh");
 #endif
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
@@ -114,7 +114,7 @@ inline void
 Walsh( Matrix<T>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Walsh");
+    CallStackEntry cse("Walsh");
 #endif
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
@@ -123,18 +123,36 @@ Walsh( Matrix<T>& A, Int k, bool binary=false )
     MakeWalsh( A, k, binary );
 }
 
+template<typename T> 
+inline Matrix<T>
+Walsh( Int k, bool binary=false )
+{
+    Matrix<T> A;
+    Walsh( A, k, binary );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Walsh( DistMatrix<T,U,V>& A, Int k, bool binary=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Walsh");
+    CallStackEntry cse("Walsh");
 #endif
     if( k < 1 )
         LogicError("Walsh matrices are only defined for k>=1");
     const Unsigned n = 1u<<k;
     A.ResizeTo( n, n );
     MakeWalsh( A, k, binary );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Walsh( const Grid& g, Int k, bool binary=false )
+{
+    DistMatrix<T,U,V> A(g);
+    Walsh( A, k, binary ); 
+    return A;
 }
 
 } // namespace elem

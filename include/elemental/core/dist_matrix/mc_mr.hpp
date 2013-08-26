@@ -55,6 +55,9 @@ public:
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V>& A );
 
+    // Move constructor
+    DistMatrix( DistMatrix<T,MC,MR>&& A );
+
     ~DistMatrix();
 
     const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,MC,MR>& A );
@@ -72,6 +75,8 @@ public:
     const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,STAR,STAR>& A );
     const DistMatrix<T,MC,MR>& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
+    DistMatrix<T,MC,MR>& operator=( DistMatrix<T,MC,MR>&& A );
+    
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
     //------------------------------------------------------------------------//

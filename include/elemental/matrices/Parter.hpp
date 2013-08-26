@@ -17,7 +17,7 @@ inline void
 Parter( Matrix<F>& P, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Parter");
+    CallStackEntry cse("Parter");
 #endif
     const F oneHalf = F(1)/F(2);
     P.ResizeTo( n, n );
@@ -26,12 +26,21 @@ Parter( Matrix<F>& P, Int n )
             P.Set( i, j, F(1)/(i-j+oneHalf) );
 }
 
+template<typename F> 
+inline Matrix<F>
+Parter( Int n )
+{
+    Matrix<F> P;
+    Parter( P, n );
+    return P;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Parter( DistMatrix<F,U,V>& P, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Parter");
+    CallStackEntry cse("Parter");
 #endif
     const F oneHalf = F(1)/F(2);
     P.ResizeTo( n, n );
@@ -50,6 +59,15 @@ Parter( DistMatrix<F,U,V>& P, Int n )
             P.SetLocal( iLoc, jLoc, F(1)/(i-j+oneHalf) );
         }
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Parter( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> P(g);
+    Parter( P, n );
+    return P;
 }
 
 } // namespace elem

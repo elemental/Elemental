@@ -20,7 +20,11 @@ class Memory
 public:
     Memory();
     Memory( std::size_t size );
+    Memory( Memory<G>&& mem );
     ~Memory();
+
+    Memory<G>& operator=( Memory<G>&& mem );
+    void Swap( Memory<G>& mem );
 
     G* Buffer() const;
     std::size_t Size()   const;

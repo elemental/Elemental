@@ -20,17 +20,25 @@ inline void
 Lauchli( Matrix<T>& A, Int n, T mu )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lauchli");
+    CallStackEntry cse("Lauchli");
 #endif
     A.ResizeTo( n+1, n );
-    Matrix<T> ABlock;
 
-    View( ABlock, A, 0, 0, 1, n );
+    auto ABlock = View( A, 0, 0, 1, n );
     MakeOnes( ABlock );
 
     std::vector<T> d(n,mu);
-    View( ABlock, A, 1, 0, n, n );
+    ABlock = View( A, 1, 0, n, n );
     Diagonal( ABlock, d );
+}
+
+template<typename T>
+inline Matrix<T>
+Lauchli( Int n, T mu )
+{
+    Matrix<T> A;
+    Lauchli( A, n, mu );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -38,17 +46,25 @@ inline void
 Lauchli( DistMatrix<T,U,V>& A, Int n, T mu )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lauchli");
+    CallStackEntry cse("Lauchli");
 #endif
     A.ResizeTo( n+1, n );
-    DistMatrix<T,U,V> ABlock( A.Grid() );
 
-    View( ABlock, A, 0, 0, 1, n );
+    auto ABlock = View( A, 0, 0, 1, n );
     MakeOnes( ABlock );
 
     std::vector<T> d(n,mu);
-    View( ABlock, A, 1, 0, n, n );
+    ABlock = View( A, 1, 0, n, n );
     Diagonal( ABlock, d );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Lauchli( const Grid& g, Int n, T mu )
+{
+    DistMatrix<T,U,V> A(g);
+    Lauchli( A, n, mu );
+    return A;
 }
 
 // TODO: MakeLauchli?

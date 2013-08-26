@@ -26,8 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> J;
-        Legendre( J, n );
+        auto J = Legendre<double>( DefaultGrid(), n );
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );
@@ -54,8 +53,7 @@ main( int argc, char* argv[] )
             Display( points, "Quadrature points" );
         if( print )
             Print( points, "points" );
-        DistMatrix<double> firstRow;
-        View( firstRow, X, 0, 0, 1, n );
+        auto firstRow = View( X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
         for( Int j=0; j<n; ++j )
         {

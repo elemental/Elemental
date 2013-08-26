@@ -30,8 +30,7 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Generate a Walsh matrix of order k (a 2^k x 2^k matrix)
-        DistMatrix<double> W;
-        Walsh( W, k, binary );
+        auto W = Walsh<double>( DefaultGrid(), k, binary );
         if( display )
             Display( W, "Walsh matrix" );
         if( print )

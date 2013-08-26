@@ -20,7 +20,7 @@ inline void
 Helmholtz( Matrix<F>& H, Int n, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     Zeros( H, n, n );
@@ -36,6 +36,15 @@ Helmholtz( Matrix<F>& H, Int n, F shift )
         if( i != n-1 )
             H.Set( i, i+1, -hInvSquared );
     }
+}
+
+template<typename F> 
+inline Matrix<F>
+Helmholtz( Int n, F shift )
+{
+    Matrix<F> H;
+    Helmholtz( H, n, shift );
+    return H;
 }
 
 // 2D Helmholtz
@@ -44,7 +53,7 @@ inline void
 Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     const Int n = nx*ny;
@@ -72,13 +81,22 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, F shift )
     }
 }
 
+template<typename F> 
+inline Matrix<F>
+Helmholtz( Int nx, Int ny, F shift )
+{
+    Matrix<F> H;
+    Helmholtz( H, nx, ny, shift );
+    return H;
+}
+
 // 3D Helmholtz
 template<typename F> 
 inline void
 Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     const Int n = nx*ny*nz;
@@ -113,13 +131,22 @@ Helmholtz( Matrix<F>& H, Int nx, Int ny, Int nz, F shift )
     }
 }
 
+template<typename F> 
+inline Matrix<F>
+Helmholtz( Int nx, Int ny, Int nz, F shift )
+{
+    Matrix<F> H;
+    Helmholtz( H, nx, ny, nz, shift );
+    return H;
+}
+
 // 1D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     Zeros( H, n, n );
@@ -143,13 +170,22 @@ Helmholtz( DistMatrix<F,U,V>& H, Int n, F shift )
     }
 }
 
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Helmholtz( const Grid& g, Int n, F shift )
+{
+    DistMatrix<F,U,V> H(g);
+    Helmholtz( H, n, shift );
+    return H;
+}
+
 // 2D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     const Int n = nx*ny;
@@ -182,13 +218,22 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, F shift )
     }
 }
 
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Helmholtz( const Grid& g, Int nx, Int ny, F shift )
+{
+    DistMatrix<F,U,V> H(g);
+    Helmholtz( H, nx, ny, shift );
+    return H;
+}
+
 // 3D Helmholtz
 template<typename F,Distribution U,Distribution V>
 inline void
 Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Helmholtz");
+    CallStackEntry cse("Helmholtz");
 #endif
     typedef BASE(F) R;
     const Int n = nx*ny*nz;
@@ -226,6 +271,15 @@ Helmholtz( DistMatrix<F,U,V>& H, Int nx, Int ny, Int nz, F shift )
         if( z != nz-1 )
             H.Set( i, i+nx*ny, -hzInvSquared );
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Helmholtz( const Grid& g, Int nx, Int ny, Int nz, F shift )
+{
+    DistMatrix<F,U,V> H(g);
+    Helmholtz( H, nx, ny, nz, shift );
+    return H;
 }
 
 } // namespace elem

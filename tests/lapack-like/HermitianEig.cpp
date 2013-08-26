@@ -47,8 +47,7 @@ void TestCorrectness
 
     if( g.Rank() == 0 )
         cout << "  Testing orthogonality of eigenvectors..." << endl;
-    DistMatrix<F> X( g );
-    Identity( X, k, k );
+    auto X = Identity<F>( g, k, k );
     Herk( uplo, ADJOINT, F(-1), Z, F(1), X );
     Real oneNormOfError = OneNorm( X );
     Real infNormOfError = InfinityNorm( X );

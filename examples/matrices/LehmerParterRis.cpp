@@ -27,10 +27,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> A, B, C;
-        Lehmer( A, n );
-        Parter( B, n );
-        Ris( C, n );
+        const Grid& g = DefaultGrid();
+        auto A = Lehmer<double>( g, n );
+        auto B = Parter<double>( g, n );
+        auto C = Ris<double>( g, n );
         if( display )
         {
             Display( A, "Lehmer" );

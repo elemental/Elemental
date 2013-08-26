@@ -94,6 +94,19 @@ DistMatrix<T,MC,MR>::DistMatrix( const DistMatrix<T,U,V>& A )
 }
 
 template<typename T>
+DistMatrix<T,MC,MR>::DistMatrix( DistMatrix<T,MC,MR>&& A )
+: AbstractDistMatrix<T>(std::move(A))
+{ }
+
+template<typename T>
+DistMatrix<T,MC,MR>&
+DistMatrix<T,MC,MR>::operator=( DistMatrix<T,MC,MR>&& A )
+{
+    AbstractDistMatrix<T>::operator=( std::move(A) );
+    return *this;
+}
+
+template<typename T>
 DistMatrix<T,MC,MR>::~DistMatrix()
 { }
 
@@ -1970,7 +1983,7 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
     const Int pkgSize = mpi::Pad(MaxLength(m,colStride)*MaxLength(n,rowStride));
     const Int recvSize = pkgSize;
     const Int sendSize = p*pkgSize;
-    T* recvBuf;
+    T* recvBuf=0; // some compilers (falsely) warn otherwise
     if( A.Participating() )
     {
         T* buffer = this->auxMemory_.Require( sendSize + recvSize );
