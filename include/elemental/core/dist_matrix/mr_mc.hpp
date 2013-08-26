@@ -56,10 +56,14 @@ public:
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V>& A );
 
+    ~DistMatrix();
+
+#ifndef SWIG
     // Move constructor
     DistMatrix( DistMatrix<T,MR,MC>&& A );
-
-    ~DistMatrix();
+    // Move assignment
+    DistMatrix<T,MR,MC>& operator=( DistMatrix<T,MR,MC>&& A );
+#endif
 
     const DistMatrix<T,MR,MC>& operator=( const DistMatrix<T,MC,MR>& A );
     const DistMatrix<T,MR,MC>& operator=( const DistMatrix<T,MC,STAR>& A );
@@ -75,8 +79,6 @@ public:
     const DistMatrix<T,MR,MC>& operator=( const DistMatrix<T,STAR,VR>& A );
     const DistMatrix<T,MR,MC>& operator=( const DistMatrix<T,STAR,STAR>& A );
     const DistMatrix<T,MR,MC>& operator=( const DistMatrix<T,CIRC,CIRC>& A );
-
-    DistMatrix<T,MR,MC>& operator=( DistMatrix<T,MR,MC>&& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //

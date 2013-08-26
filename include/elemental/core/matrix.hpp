@@ -37,11 +37,13 @@ public:
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
     Matrix( const Matrix<T>& A );
 
+#ifndef SWIG
     // Move constructor
     Matrix( Matrix<T>&& A );
 
     // Move assignment
     Matrix<T>& operator=( Matrix<T>&& A );
+#endif
 
     // Swap
     void Swap( Matrix<T>& A );

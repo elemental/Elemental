@@ -111,7 +111,7 @@ inline Matrix<Complex<R> >
 NormalUniformSpectrum( Int n, Complex<R> center=0, R radius=1 )
 {
     Matrix<Complex<R> > A( n, n );
-    MakeNormalUniformSpectrum( A, n, center, radius );
+    MakeNormalUniformSpectrum( A, center, radius );
     return A;
 }
 

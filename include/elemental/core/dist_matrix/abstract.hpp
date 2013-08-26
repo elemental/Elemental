@@ -37,11 +37,12 @@ public:
     // Routines that do NOT need to be implemented in derived classes        //
     //-----------------------------------------------------------------------//
 
+#ifndef SWIG
     // Move constructor
     AbstractDistMatrix( AbstractDistMatrix<T>&& A );
-
-    // Move operator=
+    // Move assignment
     AbstractDistMatrix<T>& operator=( AbstractDistMatrix<T>&& A );
+#endif
 
 #ifndef RELEASE
     void AssertNotLocked() const;

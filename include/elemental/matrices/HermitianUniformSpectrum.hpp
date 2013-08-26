@@ -43,6 +43,13 @@ MakeHermitianUniformSpectrum( Matrix<F>& A, BASE(F) lower=0, BASE(F) upper=1 )
     ImplicitHaar( Q, t, n );
     qr::ApplyQ( LEFT, NORMAL, Q, t, A );
     qr::ApplyQ( RIGHT, ADJOINT, Q, t, A );
+
+    if( isComplex )
+    {
+        const Int height = A.Height();
+        for( Int j=0; j<height; ++j )
+            A.SetImagPart( j, j, R(0) );
+    }
 }
 
 template<typename F,Distribution U,Distribution V>

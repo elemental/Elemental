@@ -20,10 +20,12 @@ class Memory
 public:
     Memory();
     Memory( std::size_t size );
-    Memory( Memory<G>&& mem );
     ~Memory();
 
+#ifndef SWIG
+    Memory( Memory<G>&& mem );
     Memory<G>& operator=( Memory<G>&& mem );
+#endif
     void Swap( Memory<G>& mem );
 
     G* Buffer() const;
