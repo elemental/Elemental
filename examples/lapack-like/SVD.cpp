@@ -48,7 +48,7 @@ main( int argc, char* argv[] )
 
         // Compute just the singular values 
         DistMatrix<Real,VR,STAR> sOnly( g );
-        DistMatrix<C> U( A );
+        auto U( A );
         SVD( U, sOnly );
 
         // Compute the SVD of A 

@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
 #include "elemental/io.hpp"
 using namespace elem;
@@ -47,8 +46,7 @@ main( int argc, char* argv[] )
         //
         DistMatrix<double,VR,STAR> points;
         DistMatrix<double> X;
-        HermitianEig( LOWER, J, points, X );
-        hermitian_eig::Sort( points, X );
+        HermitianEig( LOWER, J, points, X, ASCENDING );
         if( display )
             Display( points, "Quadrature points" );
         if( print )

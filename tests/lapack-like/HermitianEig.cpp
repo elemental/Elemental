@@ -100,7 +100,7 @@ template<typename F>
 void TestHermitianEig
 ( bool testCorrectness, bool print,
   bool onlyEigvals, char range, bool clustered, UpperOrLower uplo, Int m, 
-  BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
+  BASE(F) vl, BASE(F) vu, Int il, Int iu, SortType sort, const Grid& g )
 {
     typedef BASE(F) Real;
     DistMatrix<F> A(g), AOrig(g), Z(g);
@@ -134,20 +134,20 @@ void TestHermitianEig
     if( onlyEigvals )
     {
         if( range == 'A' )
-            HermitianEig( uplo, A, w );
+            HermitianEig( uplo, A, w, sort );
         else if( range == 'I' )
-            HermitianEig( uplo, A, w, il, iu );
+            HermitianEig( uplo, A, w, il, iu, sort );
         else
-            HermitianEig( uplo, A, w, vl, vu );
+            HermitianEig( uplo, A, w, vl, vu, sort );
     }
     else
     {
         if( range == 'A' )
-            HermitianEig( uplo, A, w, Z );
+            HermitianEig( uplo, A, w, Z, sort );
         else if( range == 'I' )
-            HermitianEig( uplo, A, w, Z, il, iu );
+            HermitianEig( uplo, A, w, Z, il, iu, sort );
         else
-            HermitianEig( uplo, A, w, Z, vl, vu );
+            HermitianEig( uplo, A, w, Z, vl, vu, sort );
     }
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -187,6 +187,7 @@ main( int argc, char* argv[] )
         const Int iu = Input("--iu","upper bound of index range",100);
         const double vl = Input("--vl","lower bound of value range",0.);
         const double vu = Input("--vu","upper bound of value range",100.);
+        const Int sortInt = Input("--sort","sort type",0);
         const bool clustered = Input
             ("--cluster","force clustered eigenvalues?",false);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
@@ -208,6 +209,7 @@ main( int argc, char* argv[] )
         SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
             LogicError("'range' must be 'A', 'I', or 'V'");
+        const SortType sort = static_cast<SortType>(sortInt);
         if( onlyEigvals && testCorrectness && commRank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
         ComplainIfDebug();
@@ -223,7 +225,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEig<double>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -236,7 +238,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEig<double>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
  
         if( commRank == 0 )
         {
@@ -249,7 +251,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEig<double>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -261,7 +263,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -275,7 +277,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -289,7 +291,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianEig<Complex<double>>
         ( testCorrectness, print, 
-          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, g );
+          onlyEigvals, range, clustered, uplo, m, vl, vu, il, iu, sort, g );
     }
     catch( exception& e ) { ReportException(e); }
 

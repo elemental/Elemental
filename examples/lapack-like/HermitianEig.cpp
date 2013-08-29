@@ -12,7 +12,6 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Identity.hpp"
 using namespace std;
 using namespace elem;
@@ -77,7 +76,7 @@ main( int argc, char* argv[] )
         }
 
         // Make a backup of H before we overwrite it within the eigensolver
-        DistMatrix<C> HCopy( H );
+        auto HCopy( H );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
@@ -86,10 +85,7 @@ main( int argc, char* argv[] )
         //           'Tuning' section of the README for details.
         DistMatrix<Real,VR,STAR> w( g );
         DistMatrix<C> X( g );
-        HermitianEig( LOWER, H, w, X ); // only use lower half of H
-
-        // Optional: sort the eigenpairs
-        hermitian_eig::Sort( w, X );
+        HermitianEig( LOWER, H, w, X, ASCENDING ); 
 
         if( print )
         {
@@ -100,7 +96,7 @@ main( int argc, char* argv[] )
 
         // Check the residual, || H X - Omega X ||_F
         const Real frobH = HermitianFrobeniusNorm( LOWER, HCopy );
-        DistMatrix<C> E( X );
+        auto E( X );
         DiagonalScale( RIGHT, NORMAL, w, E );
         Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
         const Real frobResid = FrobeniusNorm( E );

@@ -49,7 +49,7 @@ main( int argc, char* argv[] )
             Print( A, "A" );
 
         // Compute the pivoted QR decomposition of A, but do not overwrite A
-        DistMatrix<C> QRPiv( A );
+        auto QRPiv( A );
         DistMatrix<C,MD,STAR> tPiv(g);
         DistMatrix<Int,VR,STAR> p(g);
         qr::BusingerGolub( QRPiv, tPiv, p, alwaysRecompute );

@@ -27,7 +27,7 @@ inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, bool useQR=false )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SVD");
+    CallStackEntry cse("SVD");
 #endif
     if( useQR )
         svd::QRSVD( A, s, V );
@@ -41,33 +41,34 @@ inline void HermitianSVD
   Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& U, Matrix<F>& V )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianSVD");
+    CallStackEntry cse("HermitianSVD");
 #endif
 #if 1
-    typedef BASE(F) R;
-
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
-
-    // Set the singular values to the absolute value of the eigenvalues
-    for( Int i=0; i<s.Height(); ++i )
-        s.Set(i,0,Abs(s.Get(i,0)));
 
     // Copy V into U (flipping the sign as necessary)
     const Int n = A.Height();
     U.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
     {
-        const R sigma = s.Get( j, 0 );
+        const BASE(F) sigma = s.Get( j, 0 );
         F* UCol = U.Buffer( 0, j );
         const F* VCol = V.LockedBuffer( 0, j );
         if( sigma >= 0 )
+        {
             for( Int i=0; i<n; ++i )
                 UCol[i] = VCol[i];
+        }
         else
+        {
             for( Int i=0; i<n; ++i )
                 UCol[i] = -VCol[i];
+            s.Set( j, 0, -sigma );
+        }
     }
+
+    // TODO: Descending sort of triplets
 #else
     U = A;
     MakeHermitian( uplo, U );
@@ -82,7 +83,7 @@ SVD
   double heightRatio=1.5 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SVD");
+    CallStackEntry cse("SVD");
 #endif
     // TODO: Add more options
     svd::Chan( A, s, V, heightRatio );
@@ -94,27 +95,18 @@ inline void HermitianSVD
   DistMatrix<BASE(F),VR,STAR>& s, DistMatrix<F>& U, DistMatrix<F>& V )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianSVD");
+    CallStackEntry cse("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
-    typedef BASE(F) R;
-
     // Grab an eigenvalue decomposition of A
     HermitianEig( uplo, A, s, V );
 
     // Redistribute the singular values into an [MR,* ] distribution
+    typedef BASE(F) Real;
     const Grid& grid = A.Grid();
-    DistMatrix<R,MR,STAR> s_MR_STAR( grid );
+    DistMatrix<Real,MR,STAR> s_MR_STAR( grid );
     s_MR_STAR.AlignWith( V.DistData() );
     s_MR_STAR = s;
-
-    // Set the singular values to the absolute value of the eigenvalues
-    const Int numLocalVals = s.LocalHeight();
-    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
-    {
-        const R sigma = s.GetLocal(iLoc,0);
-        s.SetLocal(iLoc,0,Abs(sigma));
-    }
 
     // Copy V into U (flipping the sign as necessary)
     U.AlignWith( V );
@@ -123,7 +115,7 @@ inline void HermitianSVD
     const Int localWidth = V.LocalWidth();
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+        const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
         F* UCol = U.Buffer( 0, jLoc );
         const F* VCol = V.LockedBuffer( 0, jLoc );
         if( sigma >= 0 )
@@ -133,6 +125,16 @@ inline void HermitianSVD
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 UCol[iLoc] = -VCol[iLoc];
     }
+
+    // Set the singular values to the absolute value of the eigenvalues
+    const Int numLocalVals = s.LocalHeight();
+    for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
+    {
+        const Real sigma = s.GetLocal(iLoc,0);
+        s.SetLocal(iLoc,0,Abs(sigma));
+    }
+
+    // TODO: Descending sort of triplets
 #else
     U = A;
     MakeHermitian( uplo, U );
@@ -141,7 +143,7 @@ inline void HermitianSVD
 }
 
 //----------------------------------------------------------------------------//
-// Grab the singular values of the general matrix A using the QR algorithm.   //
+// Grab the singular values                                                   //
 //----------------------------------------------------------------------------//
 
 template<typename F>
@@ -149,7 +151,7 @@ inline void
 SVD( Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SVD");
+    CallStackEntry cse("SVD");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -162,7 +164,7 @@ inline void HermitianSVD
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& s )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianSVD");
+    CallStackEntry cse("HermitianSVD");
 #endif
 #if 1
     // Grab the eigenvalues of A
@@ -171,6 +173,8 @@ inline void HermitianSVD
     // Set the singular values to the absolute value of the eigenvalues
     for( Int i=0; i<s.Height(); ++i )
         s.Set(i,0,Abs(s.Get(i,0)));
+
+    Sort( s, DESCENDING );
 #else
     MakeHermitian( uplo, A );
     SVD( A, s );
@@ -182,7 +186,7 @@ inline void
 SVD( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SVD");
+    CallStackEntry cse("SVD");
 #endif
     // TODO: Add more options
     svd::Chan( A, s, heightRatio );
@@ -193,11 +197,9 @@ inline void HermitianSVD
 ( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianSVD");
+    CallStackEntry cse("HermitianSVD");
 #endif
 #ifdef HAVE_PMRRR
-    typedef BASE(F) R;
-
     // Grab the eigenvalues of A
     HermitianEig( uplo, A, s );
 
@@ -205,9 +207,11 @@ inline void HermitianSVD
     const Int numLocalVals = s.LocalHeight();
     for( Int iLoc=0; iLoc<numLocalVals; ++iLoc )
     {
-        const R sigma = s.GetLocal(iLoc,0);
+        const BASE(F) sigma = s.GetLocal(iLoc,0);
         s.SetLocal(iLoc,0,Abs(sigma));
     }
+
+    Sort( s, DESCENDING );
 #else
     MakeHermitian( uplo, A );
     SVD( A, s );

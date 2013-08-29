@@ -14,7 +14,6 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/SkewHermitianEig.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Identity.hpp"
 using namespace std;
 using namespace elem;
@@ -73,10 +72,7 @@ main( int argc, char* argv[] )
         //           'Tuning' section of the README for details.
         DistMatrix<Real,VR,STAR> wImag;
         DistMatrix<C> X;
-        SkewHermitianEig( LOWER, S, wImag, X ); // only use lower half of S
-
-        // Optional: sort the eigenpairs
-        hermitian_eig::Sort( wImag, X );
+        SkewHermitianEig( LOWER, S, wImag, X, ASCENDING );
 
         if( print )
         {

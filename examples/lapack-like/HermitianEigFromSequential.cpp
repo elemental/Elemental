@@ -8,10 +8,9 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
-using namespace std;
 using namespace elem;
-
+using namespace std;
+ 
 // Typedef our real and complex types to 'Real' and 'C' for convenience
 typedef double Real;
 typedef Complex<Real> C;
@@ -55,10 +54,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> X;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        HermitianEig( LOWER, H, w_VR_STAR, X );
-
-        // Sort the eigensolution
-        hermitian_eig::Sort( w_VR_STAR, X );
+        HermitianEig( LOWER, H, w_VR_STAR, X, ASCENDING );
         if( print )
         {
             Print( w_VR_STAR, "Eigenvalues of H" );
@@ -79,4 +75,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

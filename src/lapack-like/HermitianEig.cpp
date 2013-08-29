@@ -11,6 +11,7 @@
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/ScaleTrapezoid.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors.hpp"
+#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/Norm/Max.hpp"
 
@@ -137,10 +138,10 @@ void CheckScale
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w )
+( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -150,16 +151,16 @@ void HermitianEig
     lapack::HermitianEig
     ( 'N', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), 0, 1 );
+    Sort( w, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w )
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -224,20 +225,20 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
+
+    Sort( w, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w )
+( UpperOrLower uplo, DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -246,10 +247,11 @@ void HermitianEig<Complex<float>>
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z )
+( UpperOrLower uplo, Matrix<F>& A, 
+  Matrix<BASE(F)>& w, Matrix<F>& Z, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -260,17 +262,16 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'A', uploChar, n, A.Buffer(), A.LDim(), 0, 0, 0, 0, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
+    hermitian_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  DistMatrix<F>& paddedZ )
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -414,22 +415,21 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
+
+    hermitian_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<float>& paddedZ )
+( UpperOrLower uplo, DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float>>& paddedZ )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
+  SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -441,10 +441,11 @@ void HermitianEig<Complex<float>>
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Int il, Int iu )
+( UpperOrLower uplo, Matrix<F>& A, 
+  Matrix<BASE(F)>& w, Int il, Int iu, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -457,17 +458,17 @@ void HermitianEig
     lapack::HermitianEig
     ( 'N', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), 0, 1 );
+    Sort( w, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  Int lowerBound, Int upperBound ) 
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, Int lowerBound, Int upperBound, 
+  SortType sort ) 
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -532,22 +533,20 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
+
+    Sort( w, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float >& A,
-  DistMatrix<float,VR,STAR>& w,
-  Int lowerBound, Int upperBound )
+( UpperOrLower uplo, DistMatrix<float >& A,
+  DistMatrix<float,VR,STAR>& w, Int lowerBound, Int upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w,
-  Int lowerBound, Int upperBound )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, Int lowerBound, Int upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -560,11 +559,11 @@ void HermitianEig<Complex<float>>
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z,
-  Int il, Int iu )
+( UpperOrLower uplo, Matrix<F>& A, 
+  Matrix<BASE(F)>& w, Matrix<F>& Z, Int il, Int iu, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -578,18 +577,17 @@ void HermitianEig
     lapack::HermitianEig
     ( 'V', 'I', uploChar, n, A.Buffer(), A.LDim(), 0, 0, ilConv, iuConv, absTol,
       w.Buffer(), Z.Buffer(), Z.LDim() );
+    hermitian_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  DistMatrix<F>& paddedZ,
-  Int lowerBound, Int upperBound )
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ, 
+  Int lowerBound, Int upperBound, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -734,24 +732,22 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
+
+    hermitian_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<float>& paddedZ,
-  Int lowerBound, Int upperBound )
+( UpperOrLower uplo, DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
+  Int lowerBound, Int upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float>>& paddedZ,
-  Int lowerBound, Int upperBound )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
+  Int lowerBound, Int upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -760,10 +756,11 @@ void HermitianEig<Complex<float>>
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, BASE(F) vl, BASE(F) vu )
+( UpperOrLower uplo, Matrix<F>& A, 
+  Matrix<BASE(F)>& w, BASE(F) vl, BASE(F) vu, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -774,17 +771,17 @@ void HermitianEig
     ( 'N', 'V', uploChar, n, A.Buffer(), A.LDim(), vl, vu, 0, 0, absTol,
       w.Buffer(), 0, 1 );
     w.ResizeTo( numEigs, 1 );
+    Sort( w, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  BASE(F) lowerBound, BASE(F) upperBound )
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, BASE(F) lowerBound, BASE(F) upperBound,
+  SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -846,22 +843,22 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling ) 
         Scale( 1/scale, w );
+
+    Sort( w, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w,
-  float lowerBound, float upperBound )
+( UpperOrLower uplo, DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w, float lowerBound, float upperBound,
+  SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w,
-  float lowerBound, float upperBound )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, float lowerBound, float upperBound,
+  SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 //----------------------------------------------------------------------------//
@@ -871,10 +868,10 @@ void HermitianEig<Complex<float>>
 template<typename F>
 void HermitianEig
 ( UpperOrLower uplo, Matrix<F>& A, Matrix<BASE(F)>& w, Matrix<F>& Z, 
-  BASE(F) vl, BASE(F) vu )
+  BASE(F) vl, BASE(F) vu, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
@@ -887,18 +884,17 @@ void HermitianEig
       w.Buffer(), Z.Buffer(), Z.LDim() );
     w.ResizeTo( numEigs, 1 );
     Z.ResizeTo( n, numEigs );
+    hermitian_eig::Sort( w, Z, sort );
 }
 
 template<typename F>
 void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  DistMatrix<F>& paddedZ,
-  BASE(F) lowerBound, BASE(F) upperBound )
+( UpperOrLower uplo, DistMatrix<F>& A,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& paddedZ,
+  BASE(F) lowerBound, BASE(F) upperBound, SortType sort )
 {
 #ifndef RELEASE
-    CallStackEntry entry("HermitianEig");
+    CallStackEntry cse("HermitianEig");
 #endif
     typedef BASE(F) Real;
     EnsurePMRRR();
@@ -1056,151 +1052,149 @@ void HermitianEig
     // Rescale the eigenvalues if necessary
     if( needRescaling )
         Scale( 1/scale, w );
+
+    hermitian_eig::Sort( w, paddedZ, sort );
 }
 
 template<>
 void HermitianEig<float>
-( UpperOrLower uplo, 
-  DistMatrix<float>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<float>& paddedZ,
-  float lowerBound, float upperBound )
+( UpperOrLower uplo, DistMatrix<float>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<float>& paddedZ,
+  float lowerBound, float upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 template<>
 void HermitianEig<Complex<float>>
-( UpperOrLower uplo, 
-  DistMatrix<Complex<float>>& A,
-  DistMatrix<float,VR,STAR>& w,
-  DistMatrix<Complex<float>>& paddedZ,
-  float lowerBound, float upperBound )
+( UpperOrLower uplo, DistMatrix<Complex<float>>& A,
+  DistMatrix<float,VR,STAR>& w, DistMatrix<Complex<float>>& paddedZ,
+  float lowerBound, float upperBound, SortType sort )
 { LogicError("HermitianEig not yet implemented for float"); }
 
 // Full set of eigenvalues
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w );
+( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w );
+( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<float>>& A, Matrix<float>& w );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<double>>& A, Matrix<double>& w );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, SortType sort );
 
 // Full set of eigenpairs
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Matrix<float>& Z );
+( UpperOrLower uplo, Matrix<float>& A, 
+  Matrix<float>& w, Matrix<float>& Z, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z );
+( UpperOrLower uplo, Matrix<double>& A, 
+  Matrix<double>& w, Matrix<double>& Z, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, Matrix<Complex<float>>& Z, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, Matrix<Complex<double>>& Z, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
-  DistMatrix<double>& Z );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double>>& Z );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double>>& Z, 
+  SortType sort );
 
 // Integer range of eigenvalues
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Int il, Int iu );
+( UpperOrLower uplo, Matrix<float>& A, 
+  Matrix<float>& w, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Int il, Int iu );
+( UpperOrLower uplo, Matrix<double>& A, 
+  Matrix<double>& w, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<float>>& A, Matrix<float>& w, Int il, Int iu );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<double>>& A, Matrix<double>& w, Int il, Int iu );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
-  Int il, Int iu );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w, 
-  Int il, Int iu );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, Int il, Int iu, SortType sort );
 
 // Integer range of eigenpairs
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Matrix<float>& Z, 
-  Int il, Int iu );
+( UpperOrLower uplo, Matrix<float>& A, 
+  Matrix<float>& w, Matrix<float>& Z, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z,
-  Int il, Int iu );
+( UpperOrLower uplo, Matrix<double>& A, 
+  Matrix<double>& w, Matrix<double>& Z, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z,
-  Int il, Int iu );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, Matrix<Complex<float>>& Z, Int il, Int iu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z,
-  Int il, Int iu );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, Matrix<Complex<double>>& Z, Int il, Int iu, 
+  SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
-  DistMatrix<double>& Z, Int il, Int iu );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, Int il, Int iu,
+  SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double>>& Z, Int il, Int iu );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double>>& Z, 
+  Int il, Int iu, SortType sort );
 
 // Floating-point range of eigenvalues
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, 
-  float vl, float vu );
+( UpperOrLower uplo, Matrix<float>& A, 
+  Matrix<float>& w, float vl, float vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, 
-  double vl, double vu );
+( UpperOrLower uplo, Matrix<double>& A, 
+  Matrix<double>& w, double vl, double vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<float>>& A, Matrix<float>& w, 
-  float vl, float vu );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, float vl, float vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<Complex<double>>& A, Matrix<double>& w, 
-  double vl, double vu );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, double vl, double vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
-  double vl, double vu );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, double vl, double vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w,
-  double vl, double vu );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, double vl, double vu, SortType sort );
 
 // Floating-point range of eigenpairs
 template void HermitianEig
-( UpperOrLower uplo, Matrix<float>& A, Matrix<float>& w, Matrix<float>& Z, 
-  float vl, float vu );
+( UpperOrLower uplo, Matrix<float>& A, 
+  Matrix<float>& w, Matrix<float>& Z, float vl, float vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z,
-  double vl, double vu );
+( UpperOrLower uplo, Matrix<double>& A, 
+  Matrix<double>& w, Matrix<double>& Z, double vl, double vu, SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<float>>& A, Matrix<float>& w, Matrix<Complex<float>>& Z,
-  float vl, float vu );
+( UpperOrLower uplo, Matrix<Complex<float>>& A, 
+  Matrix<float>& w, Matrix<Complex<float>>& Z, float vl, float vu,
+  SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<double>>& A, Matrix<double>& w, Matrix<Complex<double>>& Z,
-  double vl, double vu );
+( UpperOrLower uplo, Matrix<Complex<double>>& A, 
+  Matrix<double>& w, Matrix<Complex<double>>& Z, double vl, double vu,
+  SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, 
-  DistMatrix<double>& Z, double vl, double vu );
+( UpperOrLower uplo, DistMatrix<double>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double vl, double vu,
+  SortType sort );
 template void HermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<double>>& A, DistMatrix<double,VR,STAR>& w,
-  DistMatrix<Complex<double>>& Z, double vl, double vu );
+( UpperOrLower uplo, DistMatrix<Complex<double>>& A, 
+  DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double>>& Z, 
+  double vl, double vu, SortType sort );
 
 } // namespace elem
 

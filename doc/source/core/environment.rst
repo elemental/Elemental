@@ -520,6 +520,14 @@ Other typedefs and enums
 
    An enum for specifying ``LEFT`` or ``RIGHT``.
 
+.. cpp:type:: enum SortType
+
+   An enum for specifying a sorting strategy:
+
+   * ``UNSORTED``: do not sort
+   * ``DESCENDING``: smallest values first
+   * ``ASCENDING``: largest values first
+
 .. cpp:type:: enum NormType
 
    An enum that can be set to either

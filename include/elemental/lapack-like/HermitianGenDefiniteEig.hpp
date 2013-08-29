@@ -27,7 +27,7 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -40,16 +40,15 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w );
+    HermitianEig( uplo, A, w, sort );
 }
 
 template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<F>& B,
-  DistMatrix<BASE(F),VR,STAR>& w )
+  DistMatrix<F>& A, DistMatrix<F>& B,
+  DistMatrix<BASE(F),VR,STAR>& w, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -63,7 +62,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w );
+    HermitianEig( uplo, A, w, sort );
 }
 
 //----------------------------------------------------------------------------//
@@ -74,7 +73,8 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X )
+  Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -87,20 +87,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X );
+    HermitianEig( uplo, A, w, X, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 
@@ -109,7 +105,8 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
-  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X )
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -123,20 +120,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X );
+    HermitianEig( uplo, A, w, X, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 
@@ -149,7 +142,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
-  Int a, Int b )
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -162,17 +155,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b );
+    HermitianEig( uplo, A, w, a, b, sort );
 }
 
 template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<F>& B,
+  DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w,
-  Int a, Int b )
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -186,7 +178,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b );
+    HermitianEig( uplo, A, w, a, b, sort );
 }
 
 //----------------------------------------------------------------------------//
@@ -198,7 +190,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  Int a, Int b )
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -211,20 +203,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b );
+    HermitianEig( uplo, A, w, X, a, b, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 
@@ -232,11 +220,9 @@ template<typename F>
 inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
-  DistMatrix<F>& A,
-  DistMatrix<F>& B,
-  DistMatrix<BASE(F),VR,STAR>& w,
-  DistMatrix<F>& X,
-  Int a, Int b )
+  DistMatrix<F>& A, DistMatrix<F>& B,
+  DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -250,20 +236,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b );
+    HermitianEig( uplo, A, w, X, a, b, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 
@@ -276,7 +258,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w,
-  BASE(F) a, BASE(F) b )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -289,7 +271,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b );
+    HermitianEig( uplo, A, w, a, b, sort );
 }
 
 template<typename F> 
@@ -297,7 +279,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<BASE(F),VR,STAR>& w,
-  BASE(F) a, BASE(F) b )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -311,7 +293,7 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, a, b );
+    HermitianEig( uplo, A, w, a, b, sort );
 }
 
 //----------------------------------------------------------------------------//
@@ -323,7 +305,7 @@ inline void
 HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   Matrix<F>& A, Matrix<F>& B, Matrix<BASE(F)>& w, Matrix<F>& X,
-  BASE(F) a, BASE(F) b )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -336,20 +318,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b );
+    HermitianEig( uplo, A, w, X, a, b, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 
@@ -359,7 +337,7 @@ HermitianGenDefiniteEig
 ( HermitianGenDefiniteEigType type, UpperOrLower uplo, 
   DistMatrix<F>& A, DistMatrix<F>& B,
   DistMatrix<BASE(F),VR,STAR>& w, DistMatrix<F>& X,
-  BASE(F) a, BASE(F) b )
+  BASE(F) a, BASE(F) b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianGenDefiniteEig");
@@ -373,20 +351,16 @@ HermitianGenDefiniteEig
         TwoSidedTrsm( uplo, NON_UNIT, A, B );
     else
         TwoSidedTrmm( uplo, NON_UNIT, A, B );
-    HermitianEig( uplo, A, w, X, a, b );
+    HermitianEig( uplo, A, w, X, a, b, sort );
     if( type == AXBX || type == ABX )
     {
-        if( uplo == LOWER )
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), B, X );
-        else
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? ADJOINT : NORMAL );
+        Trsm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
     else /* type == BAX */
     {
-        if( uplo == LOWER )
-            Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), B, X );
-        else
-            Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), B, X );
+        const Orientation orientation = ( uplo==LOWER ? NORMAL : ADJOINT );
+        Trmm( LEFT, uplo, orientation, NON_UNIT, F(1), B, X );
     }
 }
 

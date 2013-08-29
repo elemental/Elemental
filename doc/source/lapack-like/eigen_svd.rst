@@ -29,6 +29,12 @@ As of now, all three approaches start with Householder tridiagonalization
 (ala :cpp:func:`HermitianTridiag`) and then call Matthias Petschow and 
 Paolo Bientinesi's PMRRR for the tridiagonal eigenvalue problem.
 
+.. note::
+
+   Unfortunately, PMRRR currently only supports double-precision problems, and 
+   so the parallel versions of these routines are limited to real and complex 
+   double-precision matrices.
+
 .. note:: 
 
    Please see the :ref:`lapack-tuning` section for information on optimizing
@@ -38,76 +44,45 @@ Paolo Bientinesi's PMRRR for the tridiagonal eigenvalue problem.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, SortType sort=UNSORTED )
 
-   Compute the full set of eigenvalues of the double-precision Hermitian matrix
-   `A`.
+   Compute the full set of eigenvalues of the Hermitian matrix `A`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z, SortType sort=UNSORTED )
 
-   Compute the full set of eigenpairs of the double-precision Hermitian matrix 
-   `A`.
+   Compute the full set of eigenpairs of the Hermitian matrix `A`.
 
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, int a, int b, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, int a, int b, SortType sort=UNSORTED )
 
-   Compute the eigenvalues of a double-precision Hermitian matrix `A` with 
-   indices in the range :math:`a,a+1,...,b`.
+   Compute the eigenvalues of a Hermitian matrix `A` with indices in the range 
+   :math:`a,a+1,...,b`.
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z, SortType sort=UNSORTED )
 
-   Compute the eigenpairs of a double-precision Hermitian matrix `A` with 
-   indices in the range :math:`a,a+1,...,b`.
+   Compute the eigenpairs of a Hermitian matrix `A` with indices in the range 
+   :math:`a,a+1,...,b`.
 
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
 
-   Compute the eigenvalues of a double-precision Hermitian matrix `A` lying in 
+   Compute the eigenvalues of a Hermitian matrix `A` lying in the half-open 
+   interval :math:`(a,b]`.
+
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<F>& A, Matrix<typename Base<F>::type>& w, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z, SortType sort=UNSORTED )
+
+   Compute the eigenpairs of a Hermitian matrix `A` with eigenvalues lying in 
    the half-open interval :math:`(a,b]`.
-
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<double>& A, Matrix<double>& w, Matrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<double>& w, Matrix<Complex<double> >& Z )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<double,VR,STAR>& w, DistMatrix<Complex<double> >& Z )
-
-   Compute the eigenpairs of a double-precision Hermitian matrix `A` with 
-   eigenvalues lying in the half-open interval :math:`(a,b]`.
-
-Sorting the eigenvalues/eigenpairs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Since extra time is required in order to sort the eigenvalues/eigenpairs, 
-they are not sorted by default. However, this can be remedied by the appropriate
-routine from the following list:
-
-.. cpp:function:: void hermitian_eig::Sort( Matrix<R>& w )
-.. cpp:function:: void hermitian_eig::Sort( DistMatrix<R,VR,STAR>& w )
-
-   Sort a set of eigenvalues in either ascending or descending order.
-
-.. cpp:function:: void hermitian_eig::Sort( Matrix<typename Base<F>::type>& w, Matrix<F>& Z )
-.. cpp:function:: void hermitian_eig::Sort( DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z )
-
-   Sort a set of eigenpairs in either ascending or descending order 
-   (based on the eigenvalues).
 
 Skew-Hermitian eigensolver
 --------------------------
@@ -127,6 +102,12 @@ This fact implies a fast method for solving skew-Hermitian eigenvalue problems:
 
 Please see the :cpp:func:`HermitianEig` documentation for more details.
 
+.. note::
+
+   Unfortunately, PMRRR currently only supports double-precision problems, and 
+   so the parallel versions of these routines are limited to real and complex 
+   double-precision matrices.
+
 .. note:: 
 
    Please see the :ref:`lapack-tuning` section for information on optimizing
@@ -136,58 +117,44 @@ Please see the :cpp:func:`HermitianEig` documentation for more details.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, SortType sort=UNSORTED )
 
-   Compute the full set of eigenvalues of the double-precision skew-Hermitian 
-   matrix `G`.
+   Compute the full set of eigenvalues of the skew-Hermitian matrix `G`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, Matrix<Complex<typename Base<F>::type> >& Z, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, DistMatrix<Complex<typename Base<F>::type> >& Z, SortType sort=UNSORTED )
 
-   Compute the full set of eigenpairs of the double-precision skew-Hermitian 
-   matrix `G`.
+   Compute the full set of eigenpairs of the skew-Hermitian matrix `G`.
 
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag, int a, int b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag, int a, int b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, int a, int b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, int a, int b, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, int a, int b, SortType sort=UNSORTED )
 
-   Compute the eigenvalues of a double-precision skew-Hermitian matrix `G` with
+   Compute the eigenvalues of a skew-Hermitian matrix `G` with
    indices in the range :math:`a,a+1,...,b`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z, int a, int b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z, int a, int b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, Matrix<Complex<typename Base<F>::type> >& Z, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, DistMatrix<Complex<typename Base<F>::type> >& Z, SortType sort=UNSORTED )
 
-   Compute the eigenpairs of a double-precision skew-Hermitian matrix `G` with 
+   Compute the eigenpairs of a skew-Hermitian matrix `G` with 
    indices in the range :math:`a,a+1,...,b`.
 
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag, double a, double b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag, double a, double b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, double a, double b )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
 
-   Compute the eigenvalues of a double-precision skew-Hermitian matrix `G` 
+   Compute the eigenvalues of a skew-Hermitian matrix `G` 
    lying in the half-open interval :math:`(a,b]i`.
 
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<double>& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z, double a, double b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<double> >& G, Matrix<double>& wImag, Matrix<Complex<double> >& Z )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<double>& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z, double a, double b )
-.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<Complex<double> >& G, DistMatrix<double,VR,STAR>& wImag, DistMatrix<Complex<double> >& Z )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, Matrix<F>& G, Matrix<typename Base<F>::type>& wImag, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void SkewHermitianEig( UpperOrLower uplo, DistMatrix<F>& G, DistMatrix<typename Base<F>::type,VR,STAR>& wImag, DistMatrix<F>& Z, SortType sort=UNSORTED )
 
-   Compute the eigenpairs of a double-precision skew-Hermitian matrix `G` with 
+   Compute the eigenpairs of a skew-Hermitian matrix `G` with 
    eigenvalues lying in the half-open interval :math:`(a,b]i`.
 
 Hermitian generalized-definite eigensolvers
@@ -223,65 +190,51 @@ which uses the ``AXBX`` enum value.
 Full spectrum computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, SortType sort=UNSORTED )
 
    Compute the full set of eigenvalues of a generalized EVP involving the 
-   double-precision Hermitian matrices `A` and `B`, where `B` is also
-   positive-definite.
+   Hermitian matrices `A` and `B`, where `B` is also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, Matrix<typename Base<F>::type>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<typename Base<F>::type>& Z, SortType sort=UNSORTED )
 
    Compute the full set of eigenpairs of a generalized EVP involving the 
-   double-precision Hermitian matrices `A` and `B`, where `B` is also
-   positive-definite.
+   Hermitian matrices `A` and `B`, where `B` is also positive-definite.
 
 Index-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w, int a, int b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w, int a, int b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, int a, int b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, int a, int b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, int a, int b, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, int a, int b, SortType sort=UNSORTED )
 
    Compute the eigenvalues with indices in the range :math:`a,a+1,...,b` of a 
-   generalized EVP involving the double-precision Hermitian matrices `A` and 
-   `B`, where `B` is also positive-definite.
+   generalized EVP involving the Hermitian matrices `A` and `B`, where `B` is 
+   also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w, Matrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, int a, int b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z, SortType sort=UNSORTED )
 
    Compute the eigenpairs with indices in the range :math:`a,a+1,...,b` of a 
-   generalized EVP involving the double-precision Hermitian matrices `A` and 
-   `B`, where `B` is also positive-definite.
+   generalized EVP involving the Hermitian matrices `A` and `B`, where `B` is 
+   also positive-definite.
 
 Range-based subset computation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w, double a, double b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w, double a, double b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, double a, double b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, double a, double b )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, typename Base<F>::type a, typename Base<F>::type b, SortType sort=UNSORTED )
 
    Compute the eigenvalues lying in the half-open interval :math:`(a,b]` of a 
-   generalized EVP involving the double-precision Hermitian matrices `A` and 
-   `B`, where `B` is also positive-definite.
+   generalized EVP involving the Hermitian matrices `A` and `B`, where `B` is 
+   also positive-definite.
 
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<double>& A, Matrix<double>& B, Matrix<double>& w, Matrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<Complex<double> >& A, Matrix<Complex<double> >& B, Matrix<double>& w, Matrix<double>& Z )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<double>& A, DistMatrix<double>& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z, double a, double b )
-.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<Complex<double> >& A, DistMatrix<Complex<double> >& B, DistMatrix<double,VR,STAR>& w, DistMatrix<double>& Z )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, Matrix<F>& A, Matrix<F>& B, Matrix<typename Base<F>::type>& w, Matrix<F>& Z, SortType sort=UNSORTED )
+.. cpp:function:: void HermitianGenDefiniteEig( HermitianGenDefiniteEigType type, UpperOrLower uplo, DistMatrix<F>& A, DistMatrix<F>& B, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Z, SortType sort=UNSORTED )
 
    Compute the eigenpairs whose eigenvalues lie in the half-open interval 
-   :math:`(a,b]` of a generalized EVP involving the double-precision Hermitian 
-   matrices `A` and `B`, where `B` is also positive-definite.
+   :math:`(a,b]` of a generalized EVP involving the Hermitian matrices `A` and 
+   `B`, where `B` is also positive-definite.
 
 Unitary eigensolver
 -------------------

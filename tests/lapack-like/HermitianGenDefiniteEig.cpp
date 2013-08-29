@@ -238,7 +238,8 @@ void TestHermitianGenDefiniteEig
 ( bool testCorrectness, bool print,
   HermitianGenDefiniteEigType eigType, 
   bool onlyEigvals, UpperOrLower uplo, 
-  Int m, char range, BASE(F) vl, BASE(F) vu, Int il, Int iu, const Grid& g )
+  Int m, char range, BASE(F) vl, BASE(F) vu, Int il, Int iu, SortType sort,
+  const Grid& g )
 {
     typedef BASE(F) Real;
     DistMatrix<F> A(g), AOrig(g);
@@ -287,20 +288,20 @@ void TestHermitianGenDefiniteEig
     if( onlyEigvals )
     {
         if( range == 'A' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, sort );
         else if( range == 'I' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, il, iu );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, il, iu, sort );
         else
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, vl, vu );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, vl, vu, sort );
     }
     else
     {
         if( range == 'A' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, sort );
         else if( range == 'I' )
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, il, iu );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, il, iu, sort );
         else
-            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, vl, vu );
+            HermitianGenDefiniteEig( eigType, uplo, A, B, w, X, vl, vu, sort );
     }
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
@@ -347,6 +348,7 @@ main( int argc, char* argv[] )
         const Int iu = Input("--iu","upper bound of index range",100);
         const double vl = Input("--vl","lower bound of value range",0.);
         const double vu = Input("--vu","upper bound of value range",100.);
+        const Int sortInt = Input("--sort","sort type",0);
         const char uploChar = Input("--uplo","upper or lower storage: L/U",'L');
         const Int m = Input("--height","height of matrix",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
@@ -366,6 +368,7 @@ main( int argc, char* argv[] )
         SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         if( range != 'A' && range != 'I' && range != 'V' )
             throw runtime_error("'range' must be 'A', 'I', or 'V'");
+        const SortType sort = static_cast<SortType>(sortInt);
         if( testCorrectness && onlyEigvals && commRank==0 )
             cout << "Cannot test correctness with only eigenvalues." << endl;
         HermitianGenDefiniteEigType eigType;
@@ -402,7 +405,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
         TestHermitianGenDefiniteEig<double>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -416,7 +419,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEig<double>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -430,7 +433,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEig<double>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -441,7 +444,7 @@ main( int argc, char* argv[] )
         }
         TestHermitianGenDefiniteEig<Complex<double>>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -455,7 +458,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( ROW_MAJOR );
         TestHermitianGenDefiniteEig<Complex<double>>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
 
         if( commRank == 0 )
         {
@@ -469,7 +472,7 @@ main( int argc, char* argv[] )
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
         TestHermitianGenDefiniteEig<Complex<double>>
         ( testCorrectness, print, 
-          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, g );
+          eigType, onlyEigvals, uplo, m, range, vl, vu, il, iu, sort, g );
     }
     catch( exception& e ) { ReportException(e); }
 

@@ -166,6 +166,16 @@ LeftOrRight CharToLeftOrRight( char c );
 }
 using namespace left_or_right_wrapper;
 
+namespace sort_type_wrapper {
+enum SortType
+{
+    UNSORTED,
+    DESCENDING,
+    ASCENDING
+};
+}
+using namespace sort_type_wrapper;
+
 namespace norm_type_wrapper {
 enum NormType
 {

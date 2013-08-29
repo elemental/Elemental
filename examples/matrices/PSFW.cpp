@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Zeros.hpp"
 #include "elemental/io.hpp"
 using namespace elem;
@@ -83,10 +82,8 @@ main( int argc, char* argv[] )
 #ifdef HAVE_PMRRR
         DistMatrix<double,VR,STAR> wEven, wOdd;
         DistMatrix<double> XEven, XOdd;
-        HermitianEig( LOWER, AEven, wEven, XEven );
-        HermitianEig( LOWER, AOdd,  wOdd,  XOdd  );
-        hermitian_eig::Sort( wEven, XEven );
-        hermitian_eig::Sort( wOdd,  XOdd  );
+        HermitianEig( LOWER, AEven, wEven, XEven, ASCENDING );
+        HermitianEig( LOWER, AOdd,  wOdd,  XOdd,  ASCENDING );
         if( display )
         {
             Display( XEven, "Even eigenvectors" );
