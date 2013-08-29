@@ -505,6 +505,15 @@ DistMatrix<T,MC,STAR>::GetDiagonal
 }
 
 template<typename T>
+DistMatrix<T,MC,STAR>
+DistMatrix<T,MC,STAR>::GetDiagonal( Int offset ) const
+{
+    DistMatrix<T,MC,STAR> d( this->Grid() );
+    GetDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
 void
 DistMatrix<T,MC,STAR>::SetDiagonal
 ( const DistMatrix<T,MC,STAR>& d, Int offset )
@@ -1562,6 +1571,24 @@ DistMatrix<T,MC,STAR>::GetImagPartOfDiagonal
         const Int jLoc = jStart+k*r;
         dBuf[k*dLDim] = ImagPart(thisBuf[iLoc+jLoc*thisLDim]);
     }
+}
+
+template<typename T>
+DistMatrix<BASE(T),MC,STAR>
+DistMatrix<T,MC,STAR>::GetRealPartOfDiagonal( Int offset ) const
+{
+    DistMatrix<BASE(T),MC,STAR> d( this->Grid() );
+    GetRealPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
+DistMatrix<BASE(T),MC,STAR>
+DistMatrix<T,MC,STAR>::GetImagPartOfDiagonal( Int offset ) const
+{
+    DistMatrix<BASE(T),MC,STAR> d( this->Grid() );
+    GetImagPartOfDiagonal( d, offset );
+    return d;
 }
 
 template<typename T>

@@ -79,6 +79,8 @@ public:
     void Update( Int i, Int j, T alpha );
 
     void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
+    Matrix<T> GetDiagonal( Int offset=0 ) const;
+
     void SetDiagonal( const Matrix<T>& d, Int offset=0 );
     void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
 
@@ -98,6 +100,9 @@ public:
 
     void GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
+    Matrix<BASE(T)> GetRealPartOfDiagonal( Int offset=0 ) const;
+    Matrix<BASE(T)> GetImagPartOfDiagonal( Int offset=0 ) const;
+
     void SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );

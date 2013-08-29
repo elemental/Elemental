@@ -10,7 +10,7 @@
 #ifndef ELEM_LAPACK_HERMITIANEIG_SORT_HPP
 #define ELEM_LAPACK_HERMITIANEIG_SORT_HPP
 
-#include "elemental/blas-like/level1/Sort.hpp"
+#include "elemental/lapack-like/Sort.hpp"
 
 namespace elem {
 

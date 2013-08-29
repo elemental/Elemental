@@ -1,6 +1,6 @@
 Functionality
 =============
-- Use the Gershgorin median (rather than mean) for spectral splits in SDC
+- Consistently implement 'GetDiagonal' functionality for DistMatrix
 - Ability to change default grid with command-line options
 - Quadratic-time Haar generation via random Householder reflectors
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)

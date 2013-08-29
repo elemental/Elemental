@@ -131,6 +131,8 @@ public:
 
     void GetDiagonal( DistMatrix<T,MC,STAR>& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, Int offset=0 ) const;
+    DistMatrix<T,MC,STAR> GetDiagonal( Int offset=0 ) const;
+
     void SetDiagonal( const DistMatrix<T,MC,STAR>& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MC>& d, Int offset=0 );
 
@@ -165,6 +167,9 @@ public:
     ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+
     void SetRealPartOfDiagonal
     ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes

@@ -56,8 +56,7 @@ to view the bottom-right :math:`6 \times 7` submatrix using
 
      #include "elemental.hpp"
      ...
-     Matrix<Complex<double> > ABR;
-     View( ABR, A, 1, 2, 3, 4 );
+     auto ABR = View( A, 1, 2, 3, 4 );
 
 since the bottom-right :math:`3 \times 4` submatrix beings at index 
 :math:`(1,2)`. In general, to view the :math:`M \times N` submatrix starting
@@ -170,6 +169,10 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
       superdiagonal has offset :math:`+1`).
 
+   .. cpp:function:: Matrix<T> GetDiagonal( Int offset=0 ) const
+
+      Efficiently construct and return the diagonal via C++11 move semantics.
+
    .. cpp:function:: void SetDiagonal( const Matrix<T>& d, int offset=0 )
 
       Set the entries in the `offset` diagonal entries from the contents of 
@@ -184,58 +187,43 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       Many of the following routines are only valid for complex datatypes.
 
    .. cpp:function:: typename Base<T>::type GetRealPart( int i, int j ) const
-
-      Return the real part of entry :math:`(i,j)`.
-
    .. cpp:function:: typename Base<T>::type GetImagPart( int i, int j ) const
 
-      Return the imaginary part of entry :math:`(i,j)`.
+      Return the real (imaginary) part of entry :math:`(i,j)`.
 
    .. cpp:function:: void SetRealPart( int i, int j, typename Base<T>::type alpha )
-
-      Set the real part of entry :math:`(i,j)` to :math:`\alpha`.
-
    .. cpp:function:: void SetImagPart( int i, int j, typename Base<T>::type alpha )
 
-      Set the imaginary part of entry :math:`(i,j)` to :math:`\alpha`.
+      Set the real (imaginary) part of entry :math:`(i,j)` to :math:`\alpha`.
 
    .. cpp:function:: void UpdateRealPart( int i, int j, typename Base<T>::type alpha )
-
-      Add :math:`\alpha` to the real part of entry :math:`(i,j)`.
-
    .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha ) 
 
-      Add :math:`\alpha` to the imaginary part of entry :math:`(i,j)`.
+      Add :math:`\alpha` to the real (imaginary) part of entry :math:`(i,j)`.
 
    .. cpp:function:: void GetRealPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
-
-      Modify :math:`d` into a column-vector containing the real parts of the
-      entries in the `offset` diagonal.
-
    .. cpp:function:: void GetImagPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
-      Modify :math:`d` into a column-vector containing the imaginary parts of 
-      the entries in the `offset` diagonal.
+      Modify :math:`d` into a column-vector containing the real (imaginary) 
+      parts of the entries in the `offset` diagonal.
+
+   .. cpp:function:: Matrix<typename Base<T>::type> GetRealPartOfDiagonal( Int offset=0 ) const
+   .. cpp:function:: Matrix<typename Base<T>::type> GetRealPartOfDiagonal( Int offset=0 ) const
+
+      Use C++11 move semantics to return the real (imaginary) part of the 
+      diagonal.
 
    .. cpp:function:: void SetRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
-
-      Set the real parts of the entries in the `offset` diagonal from the 
-      contents of the column-vector :math:`d`.
-
    .. cpp:function:: void SetImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
-      Set the imaginary parts of the entries in the `offset` diagonal from 
-      the column-vector :math:`d`.
+      Set the real (imaginary) parts of the entries in the `offset` diagonal 
+      from the contents of the column-vector :math:`d`.
 
    .. cpp:function:: void UpdateRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
-
-      Add the contents of the column-vector :math:`d` onto the real parts of the
-      entries in the `offset` diagonal.
-
    .. cpp:function:: void UpdateImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
-      Add the contents of the column-vector :math:`d` onto the imaginary parts 
-      of the entries in the `offset` diagonal.
+      Add the contents of the column-vector :math:`d` onto the real (imaginary)
+      parts of the entries in the `offset` diagonal.
 
    .. rubric:: Views
 

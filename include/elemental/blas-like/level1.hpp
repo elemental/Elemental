@@ -28,7 +28,6 @@
 #include "./level1/Scale.hpp"
 #include "./level1/ScaleTrapezoid.hpp"
 #include "./level1/SetDiagonal.hpp"
-#include "./level1/Sort.hpp"
 #include "./level1/Transpose.hpp"
 #include "./level1/UpdateDiagonal.hpp"
 #include "./level1/Zero.hpp"

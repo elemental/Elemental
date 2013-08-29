@@ -356,6 +356,15 @@ Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 }
 
 template<typename T>
+Matrix<T>
+Matrix<T>::GetDiagonal( Int offset ) const
+{ 
+    Matrix<T> d;
+    GetDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
 void
 Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
 { 
@@ -511,6 +520,24 @@ Matrix<T>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
     else
         for( Int j=0; j<diagLength; ++j )
             d.Set_( j, 0 ) = elem::ImagPart( Get_(j-offset,j) );
+}
+
+template<typename T>
+Matrix<BASE(T)>
+Matrix<T>::GetRealPartOfDiagonal( Int offset ) const
+{ 
+    Matrix<BASE(T)> d;
+    GetRealPartOfDiagonal( d, offset );
+    return d;
+}
+
+template<typename T>
+Matrix<BASE(T)>
+Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
+{ 
+    Matrix<BASE(T)> d;
+    GetImagPartOfDiagonal( d, offset );
+    return d;
 }
 
 template<typename T>

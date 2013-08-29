@@ -13,11 +13,11 @@
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/UpdateDiagonal.hpp"
+#include "elemental/lapack-like/Median.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/One.hpp"
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Sign.hpp"
-#include "elemental/lapack-like/Trace.hpp"
 #include "elemental/matrices/Haar.hpp"
 #include "elemental/matrices/Identity.hpp"
 
@@ -367,12 +367,12 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const Real gershCenter = Trace(A) / n;
+    const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -381,7 +381,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real shift = SampleBall<Real>(-gershCenter,spread);
+        const Real shift = SampleBall<Real>(-median.value,spread);
 
         G = A;
         UpdateDiagonal( G, shift );
@@ -417,12 +417,11 @@ SpectralDivide
 #endif
     typedef Complex<Real> F;
     const Int n = A.Height();
-    const F gershCenter = Trace(A) / n;
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -431,14 +430,14 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const F shift = SampleBall<F>(-gershCenter,spread);
-
         const Real angle = Uniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
-
         G = A;
-        UpdateDiagonal( G, shift );
         Scale( gamma, G );
+
+        const ValueInt<Real> median = Median(G.GetRealPartOfDiagonal());
+        const F shift = SampleBall<F>(-median.value,spread);
+        UpdateDiagonal( G, shift );
 
         //part = SignDivide( A, G );
         part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
@@ -470,12 +469,12 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const Real gershCenter = Trace(A) / n;
+    const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -484,7 +483,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const Real shift = SampleBall<Real>(-gershCenter,spread);
+        const Real shift = SampleBall<Real>(-median.value,spread);
 
         Q = A;
         UpdateDiagonal( Q, shift );
@@ -520,12 +519,11 @@ SpectralDivide
 #endif
     typedef Complex<Real> F;
     const Int n = A.Height();
-    const F gershCenter = Trace(A) / n;
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -534,14 +532,14 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        const F shift = SampleBall<F>(-gershCenter,spread);
-
         const Real angle = Uniform<Real>(0,2*Pi);
         const F gamma = F(Cos(angle),Sin(angle));
-
         Q = A;
-        UpdateDiagonal( Q, shift );
         Scale( gamma, Q );
+
+        const ValueInt<Real> median = Median(Q.GetRealPartOfDiagonal());
+        const F shift = SampleBall<F>(-median.value,spread);
+        UpdateDiagonal( Q, shift );
 
         //part = SignDivide( A, Q, true );
         part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );
@@ -572,12 +570,12 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const Real gershCenter = Trace(A) / n;
+    const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -586,7 +584,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        Real shift = SampleBall<Real>(-gershCenter,spread);
+        Real shift = SampleBall<Real>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         G = A;
@@ -623,12 +621,11 @@ SpectralDivide
 #endif
     typedef Complex<Real> F;
     const Int n = A.Height();
-    const F gershCenter = Trace(A) / n;
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -637,16 +634,16 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        F shift = SampleBall<F>(-gershCenter,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
-
         const Real angle = Uniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
-
         G = A;
-        UpdateDiagonal( G, shift );
         Scale( gamma, G );
+
+        const ValueInt<Real> median = Median(G.GetRealPartOfDiagonal());
+        F shift = SampleBall<F>(-median.value,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        UpdateDiagonal( G, shift );
 
         //part = SignDivide( A, G );
         part = RandomizedSignDivide( A, G, false, maxInnerIts, relTol );
@@ -678,12 +675,12 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const Real gershCenter = Trace(A) / n;
     const Real infNorm = InfinityNorm(A);
+    const ValueInt<Real> median = Median(A.GetDiagonal());
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -692,7 +689,7 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        Real shift = SampleBall<Real>(-gershCenter,spread);
+        Real shift = SampleBall<Real>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         Q = A;
@@ -729,12 +726,11 @@ SpectralDivide
 #endif
     typedef Complex<Real> F;
     const Int n = A.Height();
-    const F gershCenter = Trace(A) / n;
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
-    const Real spread = 100*eps*(infNorm-Abs(gershCenter));
+    const Real spread = 100*eps*infNorm;
 
     Int it=0;
     ValueInt<Real> part;
@@ -743,16 +739,16 @@ SpectralDivide
         ACopy = A;
     while( it < maxOuterIts )
     {
-        F shift = SampleBall<F>(-gershCenter,spread);
-        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
-
         const Real angle = Uniform<Real>(0,2*Pi);
         F gamma = F(Cos(angle),Sin(angle));
         mpi::Broadcast( gamma, 0, A.Grid().VCComm() );
-
         Q = A;
-        UpdateDiagonal( Q, shift );
         Scale( gamma, Q );
+
+        const ValueInt<Real> median = Median(Q.GetRealPartOfDiagonal());
+        F shift = SampleBall<F>(-median.value,spread);
+        mpi::Broadcast( shift, 0, A.Grid().VCComm() );
+        UpdateDiagonal( Q, shift );
 
         //part = SignDivide( A, Q, true );
         part = RandomizedSignDivide( A, Q, true, maxInnerIts, relTol );

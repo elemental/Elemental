@@ -7,8 +7,8 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_BLAS_SORT_HPP
-#define ELEM_BLAS_SORT_HPP
+#ifndef ELEM_LAPACK_SORT_HPP
+#define ELEM_LAPACK_SORT_HPP
 
 namespace elem {
 
@@ -119,4 +119,4 @@ TaggedSort( const DistMatrix<Real,U,V>& x, SortType sort=ASCENDING )
 
 } // namespace elem
 
-#endif // ifndef ELEM_BLAS_SORT_HPP
+#endif // ifndef ELEM_LAPACK_SORT_HPP
