@@ -12,12 +12,12 @@
 
 namespace elem {
 
-template<typename F> 
+template<typename F1,typename F2> 
 inline void
 CauchyLike
-( Matrix<F>& A,
-  const std::vector<F>& r, const std::vector<F>& s,
-  const std::vector<F>& x, const std::vector<F>& y )
+( Matrix<F1>& A,
+  const std::vector<F2>& r, const std::vector<F2>& s,
+  const std::vector<F2>& x, const std::vector<F2>& y )
 {
 #ifndef RELEASE
     CallStackEntry cse("CauchyLike");
@@ -60,12 +60,12 @@ CauchyLike
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F1,typename F2,Distribution U,Distribution V>
 inline void
 CauchyLike
-( DistMatrix<F,U,V>& A,
-  const std::vector<F>& r, const std::vector<F>& s, 
-  const std::vector<F>& x, const std::vector<F>& y )
+( DistMatrix<F1,U,V>& A,
+  const std::vector<F2>& r, const std::vector<F2>& s, 
+  const std::vector<F2>& x, const std::vector<F2>& y )
 {
 #ifndef RELEASE
     CallStackEntry cse("CauchyLike");

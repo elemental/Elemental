@@ -12,9 +12,9 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename S,typename T> 
 inline void
-Toeplitz( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
+Toeplitz( Matrix<S>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
     CallStackEntry cse("Toeplitz");
@@ -38,9 +38,9 @@ Toeplitz( Int m, Int n, const std::vector<T>& a )
     return A;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename S,typename T,Distribution U,Distribution V>
 inline void
-Toeplitz( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
+Toeplitz( DistMatrix<S,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
     CallStackEntry cse("Toeplitz");

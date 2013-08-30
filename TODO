@@ -39,6 +39,7 @@ Functionality
 
 Maintenance
 ===========
+- Document SDC for HermitianEig
 - Document move semantics for (Dist)Matrix
 - Document Int
 - Update SWIG interface to allow for Int != int

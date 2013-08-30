@@ -26,6 +26,7 @@ main( int argc, char* argv[] )
 
     try 
     {
+        const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
@@ -36,7 +37,11 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Grid& g = DefaultGrid();
-        auto A = Uniform<C>( g, n, n );
+        DistMatrix<C> A(g);
+        if( matType == 0 )
+            A = Uniform<C>( g, n, n );
+        else
+            A = Haar<C>( g, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the Schur decomposition of A, but do not overwrite A
@@ -48,6 +53,7 @@ main( int argc, char* argv[] )
             Display( A, "A" );
             Display( T, "T" );
             Display( Q, "Q" );
+            Display( T.GetDiagonal(), "w" );
         }
 
         DistMatrix<C> G(g);
@@ -55,10 +61,6 @@ main( int argc, char* argv[] )
         Gemm( NORMAL, ADJOINT, C(-1), G, Q, C(1), A );
         MakeTrapezoidal( LOWER, T, -1 );
         const Real frobOffT = FrobeniusNorm( T );
-        if( display )
-        {
-            Display( A, "E" );
-        }
         const Real frobE = FrobeniusNorm( A ); 
         if( mpi::WorldRank() == 0 )
         {

@@ -19,7 +19,6 @@
 #include "elemental/lapack-like/QR.hpp"
 #include "elemental/lapack-like/Sign.hpp"
 #include "elemental/matrices/Haar.hpp"
-#include "elemental/matrices/Identity.hpp"
 
 // See Z. Bai, J. Demmel, J. Dongarra, A. Petitet, H. Robinson, and K. Stanley's
 // "The spectral decomposition of nonsymmetric matrices on distributed memory
@@ -174,8 +173,8 @@ SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     const Real oneA = OneNorm( A );
     if( returnQ )
     {
-        Matrix<F> B;
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        Matrix<F> B;
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
@@ -186,7 +185,7 @@ SignDivide( Matrix<F>& A, Matrix<F>& G, bool returnQ=false )
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
+    auto part = ComputePartition( A );
     part.value /= oneA;
     return part;
 }
@@ -217,8 +216,8 @@ SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
     const Real oneA = OneNorm( A );
     if( returnQ )
     {
-        DistMatrix<F> B(g);
         ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, G, t );
+        DistMatrix<F> B(g);
         Gemm( ADJOINT, NORMAL, F(1), G, A, B );
         Gemm( NORMAL, NORMAL, F(1), B, G, A );
     }
@@ -229,7 +228,7 @@ SignDivide( DistMatrix<F>& A, DistMatrix<F>& G, bool returnQ=false )
     }
 
     // Return || E21 ||1 / || A ||1 and the chosen rank
-    ValueInt<Real> part = ComputePartition( A );
+    auto part = ComputePartition( A );
     part.value /= oneA;
     return part;
 }
@@ -251,7 +250,7 @@ RandomizedSignDivide
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
-    Matrix<F> S( G );
+    auto S( G );
     Sign( S );
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
@@ -313,7 +312,7 @@ RandomizedSignDivide
 
     // S := sgn(G)
     // S := 1/2 ( S + I )
-    DistMatrix<F> S( G );
+    auto S( G );
     Sign( S );
     UpdateDiagonal( S, F(1) );
     Scale( F(1)/F(2), S );
@@ -435,7 +434,7 @@ SpectralDivide
         G = A;
         Scale( gamma, G );
 
-        const ValueInt<Real> median = Median(G.GetRealPartOfDiagonal());
+        const auto median = Median(G.GetRealPartOfDiagonal());
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( G, shift );
 
@@ -469,7 +468,7 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const ValueInt<Real> median = Median(A.GetDiagonal());
+    const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
@@ -537,7 +536,7 @@ SpectralDivide
         Q = A;
         Scale( gamma, Q );
 
-        const ValueInt<Real> median = Median(Q.GetRealPartOfDiagonal());
+        const auto median = Median(Q.GetRealPartOfDiagonal());
         const F shift = SampleBall<F>(-median.value,spread);
         UpdateDiagonal( Q, shift );
 
@@ -570,7 +569,7 @@ SpectralDivide
     CallStackEntry cse("schur::SpectralDivide");
 #endif
     const Int n = A.Height();
-    const ValueInt<Real> median = Median(A.GetDiagonal());
+    const auto median = Median(A.GetDiagonal());
     const Real infNorm = InfinityNorm(A);
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
@@ -640,7 +639,7 @@ SpectralDivide
         G = A;
         Scale( gamma, G );
 
-        const ValueInt<Real> median = Median(G.GetRealPartOfDiagonal());
+        const auto median = Median(G.GetRealPartOfDiagonal());
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
         UpdateDiagonal( G, shift );
@@ -676,7 +675,7 @@ SpectralDivide
 #endif
     const Int n = A.Height();
     const Real infNorm = InfinityNorm(A);
-    const ValueInt<Real> median = Median(A.GetDiagonal());
+    const auto median = Median(A.GetDiagonal());
     const Real eps = lapack::MachineEpsilon<Real>();
     if( relTol == Real(0) )
         relTol = 500*n*eps;
@@ -745,7 +744,7 @@ SpectralDivide
         Q = A;
         Scale( gamma, Q );
 
-        const ValueInt<Real> median = Median(Q.GetRealPartOfDiagonal());
+        const auto median = Median(Q.GetRealPartOfDiagonal());
         F shift = SampleBall<F>(-median.value,spread);
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
         UpdateDiagonal( Q, shift );
@@ -783,14 +782,13 @@ SDC
     const Int n = A.Height();
     if( n <= cutoff )
     {
-        Matrix<Complex<Real> > w;
+        Matrix<Complex<Real>> w;
         schur::QR( A, w );
         return;
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = 
-        SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
+    const auto part = SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -815,14 +813,13 @@ SDC
     const Int n = A.Height();
     if( n <= cutoff )
     {
-        Matrix<Complex<Real> > w;
+        Matrix<Complex<Real>> w;
         schur::QR( A, Q, w, formATR );
         return;
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = 
-        SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
+    const auto part = SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
     Matrix<F> ATL, ATR,
               ABL, ABR;
     PartitionDownDiagonal
@@ -832,9 +829,9 @@ SDC
     PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the top-left quadrant and update Schur vectors and ATR
-    Matrix<F> Z, G;
+    Matrix<F> Z;
     SDC( ATL, Z, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
-    G = QL;
+    auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, Z, QL );
     if( formATR )
         Gemm( ADJOINT, NORMAL, F(1), Z, ATR, G );
@@ -862,7 +859,7 @@ SDC
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
-        Matrix<Complex<Real> > w;
+        Matrix<Complex<Real>> w;
         if( g.VCRank() == A_CIRC_CIRC.Root() )
             schur::QR( A_CIRC_CIRC.Matrix(), w );
         A = A_CIRC_CIRC;
@@ -870,8 +867,7 @@ SDC
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = 
-        SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
+    const auto part = SpectralDivide( A, maxInnerIts, maxOuterIts, relTol );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -898,7 +894,7 @@ SDC
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
-        Matrix<Complex<Real> > w;
+        Matrix<Complex<Real>> w;
         if( g.VCRank() == A_CIRC_CIRC.Root() )
             schur::QR( A_CIRC_CIRC.Matrix(), Q_CIRC_CIRC.Matrix(), w, formATR );
         A = A_CIRC_CIRC;
@@ -907,8 +903,7 @@ SDC
     }
 
     // Perform this level's split
-    const ValueInt<Real> part = 
-        SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
+    const auto part = SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
     PartitionDownDiagonal
@@ -923,8 +918,7 @@ SDC
     SDC( ABR, ZB, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
 
     // Update the Schur vectors
-    DistMatrix<F> G(g);
-    G = QL;
+    auto G( QL );
     Gemm( NORMAL, NORMAL, F(1), G, ZT, QL );
     G = QR;
     Gemm( NORMAL, NORMAL, F(1), G, ZB, QR );

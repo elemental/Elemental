@@ -14,9 +14,9 @@
 
 namespace elem {
 
-template<typename T> 
+template<typename S,typename T> 
 inline void
-Diagonal( Matrix<T>& D, const std::vector<T>& d )
+Diagonal( Matrix<S>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
     CallStackEntry cse("Diagonal");
@@ -37,9 +37,9 @@ Diagonal( const std::vector<T>& d )
     return D;
 }
 
-template<typename T,Distribution U,Distribution V>
+template<typename S,typename T,Distribution U,Distribution V>
 inline void
-Diagonal( DistMatrix<T,U,V>& D, const std::vector<T>& d )
+Diagonal( DistMatrix<S,U,V>& D, const std::vector<T>& d )
 {
 #ifndef RELEASE
     CallStackEntry cse("Diagonal");

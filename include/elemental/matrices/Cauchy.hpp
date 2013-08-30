@@ -12,9 +12,9 @@
 
 namespace elem {
 
-template<typename F> 
+template<typename F1,typename F2> 
 inline void
-Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
+Cauchy( Matrix<F1>& A, const std::vector<F2>& x, const std::vector<F2>& y )
 {
 #ifndef RELEASE
     CallStackEntry cse("Cauchy");
@@ -23,7 +23,7 @@ Cauchy( Matrix<F>& A, const std::vector<F>& x, const std::vector<F>& y )
     const Int n = y.size();
     A.ResizeTo( m, n );
 
-    const F one = F(1);
+    const F1 one = F1(1);
     for( Int j=0; j<n; ++j )
     {
         for( Int i=0; i<m; ++i )
@@ -52,9 +52,10 @@ Cauchy( const std::vector<F>& x, const std::vector<F>& y )
     return A;
 }
 
-template<typename F,Distribution U,Distribution V>
+template<typename F1,typename F2,Distribution U,Distribution V>
 inline void
-Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
+Cauchy
+( DistMatrix<F1,U,V>& A, const std::vector<F2>& x, const std::vector<F2>& y )
 {
 #ifndef RELEASE
     CallStackEntry cse("Cauchy");
@@ -63,7 +64,7 @@ Cauchy( DistMatrix<F,U,V>& A, const std::vector<F>& x, const std::vector<F>& y )
     const Int n = y.size();
     A.ResizeTo( m, n );
 
-    const F one = F(1);
+    const F1 one = F1(1);
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
     const Int colShift = A.ColShift();
