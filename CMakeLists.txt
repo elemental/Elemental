@@ -643,7 +643,7 @@ if(ELEM_EXAMPLES)
   set(core_EXAMPLES Constructors)
   set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 
-    BusingerGolub GaussianElimination HermitianQDWH HPDInverse ID 
+    BusingerGolub GaussianElimination HermitianQDWH HermitianSDC HPDInverse ID 
     KyFanAndSchatten LDL LDLInverse LeastSquares Polar Pseudoinverse QDWH 
     RealSchur Schur SequentialQR Skeleton QR SequentialSVD Sign SimpleSVD SVD)
   set(matrices_EXAMPLES 

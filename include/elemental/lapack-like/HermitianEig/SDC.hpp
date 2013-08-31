@@ -276,7 +276,7 @@ SpectralDivide
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         G = A;
-        UpdateDiagonal( G, shift );
+        UpdateDiagonal( G, F(shift) );
 
         //part = SignDivide( uplo, A, G );
         part = RandomizedSignDivide( uplo, A, G, false, maxInnerIts, relTol );
@@ -327,7 +327,7 @@ SpectralDivide
         const Real shift = SampleBall<Real>(-median.value,spread);
 
         Q = A;
-        UpdateDiagonal( Q, shift );
+        UpdateDiagonal( Q, F(shift) );
 
         //part = SignDivide( uplo, A, Q, true );
         part = RandomizedSignDivide( uplo, A, Q, true, maxInnerIts, relTol );
@@ -379,7 +379,7 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         G = A;
-        UpdateDiagonal( G, shift );
+        UpdateDiagonal( G, F(shift) );
 
         //part = SignDivide( uplo, A, G );
         part = RandomizedSignDivide( uplo, A, G, false, maxInnerIts, relTol );
@@ -431,7 +431,7 @@ SpectralDivide
         mpi::Broadcast( shift, 0, A.Grid().VCComm() );
 
         Q = A;
-        UpdateDiagonal( Q, shift );
+        UpdateDiagonal( Q, F(shift) );
 
         //part = SignDivide( uplo, A, Q, true );
         part = RandomizedSignDivide( uplo, A, Q, true, maxInnerIts, relTol );
@@ -548,7 +548,7 @@ SDC
         HermitianEig( uplo, A, w );
         MakeZeros( A );
         DistMatrix<Real,MD,STAR> w_MD_STAR(A.Grid());
-        w_MD_STAR.AlignWithDiag( A );
+        w_MD_STAR.AlignWithDiagonal( A.DistData() );
         w_MD_STAR = w;
         A.SetRealPartOfDiagonal( w_MD_STAR );
         return;
@@ -586,7 +586,7 @@ SDC
         HermitianEig( uplo, A, w, Q );
         MakeZeros( A );
         DistMatrix<Real,MD,STAR> w_MD_STAR(A.Grid());
-        w_MD_STAR.AlignWithDiag( A );
+        w_MD_STAR.AlignWithDiagonal( A.DistData() );
         w_MD_STAR = w;
         A.SetRealPartOfDiagonal( w_MD_STAR );
         return;

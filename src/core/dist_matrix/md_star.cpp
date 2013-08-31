@@ -693,7 +693,8 @@ DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,VR,STAR>& A )
 #ifndef RELEASE
     CallStackEntry entry("[MD,* ] = [VR,* ]");
 #endif
-    LogicError("[MD,* ] = [VR,* ] not yet implemented");
+    DistMatrix<T,STAR,STAR> A_STAR_STAR(A);
+    *this = A_STAR_STAR;
     return *this;
 }
 
