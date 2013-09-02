@@ -438,7 +438,8 @@ DistMatrix<T,MC,MR>::GetDiagonal
         !d.AlignedWithDiagonal( *this, offset ) )
     {
         std::ostringstream os;
-        os << "offset:         " << offset << "\n"
+        os << mpi::WorldRank() << "\n"
+           << "offset:         " << offset << "\n"
            << "colAlignment:   " << this->colAlignment_ << "\n"
            << "rowAlignment:   " << this->rowAlignment_ << "\n"
            << "d.diagPath:     " << d.diagPath_ << "\n"
@@ -484,6 +485,7 @@ DistMatrix<T,MC,MR>::GetDiagonal
     T* dBuf = d.Buffer();
     const T* buffer = this->LockedBuffer();
     const Int ldim = this->LDim();
+
     PARALLEL_FOR
     for( Int k=0; k<localDiagLength; ++k )
     {
@@ -893,13 +895,12 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
     CallStackEntry entry("[MC,MR] = [MC,MR]");
     this->AssertNotLocked();
 #endif
-    this->SetAlignmentsAndResize
-    ( A.ColAlignment(), A.RowAlignment(), A.Height(), A.Width() );
-    if( !this->Participating() && !A.Participating() )
-        return *this;
-
     if( this->Grid() == A.Grid() )
     {
+        this->SetAlignmentsAndResize
+        ( A.ColAlignment(), A.RowAlignment(), A.Height(), A.Width() );
+        if( !this->Participating() && !A.Participating() )
+            return *this;
         if( this->ColAlignment() == A.ColAlignment() &&
             this->RowAlignment() == A.RowAlignment() )
         {
@@ -966,169 +967,191 @@ DistMatrix<T,MC,MR>::operator=( const DistMatrix<T,MC,MR>& A )
     }
     else // the grids don't match
     {
-        if( !mpi::CongruentComms( A.Grid().ViewingComm(), 
-                                  this->Grid().ViewingComm() ) )
-            LogicError
-            ("Redistributing between nonmatching grids currently requires"
-             " the viewing communicators to match.");
-
-        // Compute the number of process rows and columns that each process 
-        // needs to send to.
-        const Int colStride = this->ColStride();
-        const Int rowStride = this->RowStride();
-        const Int colRank = this->ColRank();
-        const Int rowRank = this->RowRank();
-        const Int colStrideA = A.ColStride();
-        const Int rowStrideA = A.RowStride();
-        const Int colRankA = A.ColRank();
-        const Int rowRankA = A.RowRank();
-        const Int colGCD = GCD( colStride, colStrideA );
-        const Int rowGCD = GCD( rowStride, rowStrideA );
-        const Int colLCM = colStride*colStrideA / colGCD;
-        const Int rowLCM = rowStride*rowStrideA / rowGCD;
-        const Int numColSends = colStride / colGCD;
-        const Int numRowSends = rowStride / rowGCD;
-        const Int localColStride = colLCM / colStride;
-        const Int localRowStride = rowLCM / rowStride;
-        const Int localColStrideA = numColSends;
-        const Int localRowStrideA = numRowSends;
-
-        const Int colAlign = this->ColAlignment();
-        const Int rowAlign = this->RowAlignment();
-        const Int colAlignA = A.ColAlignment();
-        const Int rowAlignA = A.RowAlignment();
-
-        const bool inThisGrid = this->Participating();
-        const bool inAGrid = A.Participating();
-
-        const Int maxSendSize = 
-            (A.Height()/(colStrideA*localColStrideA)+1) * 
-            (A.Width()/(rowStrideA*localRowStrideA)+1);
-
-        // Have each member of A's grid individually send to all numRow x numCol
-        // processes in order, while the members of this grid receive from all 
-        // necessary processes at each step.
-        Int requiredMemory = 0;
-        if( inAGrid )
-            requiredMemory += maxSendSize;
-        if( inThisGrid )
-            requiredMemory += maxSendSize;
-        T* auxBuf = this->auxMemory_.Require( requiredMemory );
-        Int offset = 0;
-        T* sendBuf = &auxBuf[offset];
-        if( inAGrid )
-            offset += maxSendSize;
-        T* recvBuf = &auxBuf[offset];
-
-        Int recvRow = 0; // avoid compiler warnings...
-        if( inAGrid )
-            recvRow = (((colRankA+colStrideA-colAlignA) % colStrideA) + colAlign) % colStride;
-        for( Int colSend=0; colSend<numColSends; ++colSend )
-        {
-            Int recvCol = 0; // avoid compiler warnings...
-            if( inAGrid )
-                recvCol = (((rowRankA+rowStrideA-rowAlignA) % rowStrideA) + rowAlign) % rowStride;
-            for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
-            {
-                mpi::Request sendRequest;
-                // Fire off this round of non-blocking sends
-                if( inAGrid )
-                {
-                    // Pack the data
-                    Int sendHeight = Length( A.LocalHeight(), colSend, numColSends );
-                    Int sendWidth = Length( A.LocalWidth(), rowSend, numRowSends );
-                    const T* ABuffer = A.LockedBuffer();
-                    const Int ALDim = A.LDim();
-                    PARALLEL_FOR
-                    for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
-                    {
-                        const Int j = rowSend+jLoc*localRowStrideA;
-                        for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
-                        {
-                            const Int i = colSend+iLoc*localColStrideA;
-                            sendBuf[iLoc+jLoc*sendHeight] = ABuffer[i+j*ALDim];
-                        }
-                    }
-                    // Send data
-                    const Int recvVCRank = recvRow + recvCol*colStride;
-                    const Int recvViewingRank = this->Grid().VCToViewingMap( recvVCRank );
-                    mpi::ISend
-                    ( sendBuf, sendHeight*sendWidth, recvViewingRank,
-                      this->Grid().ViewingComm(), sendRequest );
-                }
-                // Perform this round of recv's
-                if( inThisGrid )
-                {
-                    const Int sendColOffset = (colSend*colStrideA+colAlignA) % colStrideA;
-                    const Int recvColOffset = (colSend*colStrideA+colAlign) % colStride;
-                    const Int sendRowOffset = (rowSend*rowStrideA+rowAlignA) % rowStrideA;
-                    const Int recvRowOffset = (rowSend*rowStrideA+rowAlign) % rowStride;
-
-                    const Int firstSendRow = (((colRank+colStride-recvColOffset)%colStride)+sendColOffset)%colStrideA;
-                    const Int firstSendCol = (((rowRank+rowStride-recvRowOffset)%rowStride)+sendRowOffset)%rowStrideA;
-
-                    const Int colShift = (colRank+colStride-recvColOffset)%colStride;
-                    const Int rowShift = (rowRank+rowStride-recvRowOffset)%rowStride;
-                    const Int numColRecvs = Length( colStrideA, colShift, colStride ); 
-                    const Int numRowRecvs = Length( rowStrideA, rowShift, rowStride );
-
-                    // Recv data
-                    // For now, simply receive sequentially. Until we switch to 
-                    // nonblocking recv's, we won't be using much of the 
-                    // recvBuf
-                    Int sendRow = firstSendRow;
-                    for( Int colRecv=0; colRecv<numColRecvs; ++colRecv )
-                    {
-                        const Int sendColShift = Shift( sendRow, colAlignA, colStrideA ) + colSend*colStrideA;
-                        const Int sendHeight = Length( A.Height(), sendColShift, colLCM );
-                        const Int localColOffset = (sendColShift-this->ColShift()) / colStride;
-
-                        Int sendCol = firstSendCol;
-                        for( Int rowRecv=0; rowRecv<numRowRecvs; ++rowRecv )
-                        {
-                            const Int sendRowShift = Shift( sendCol, rowAlignA, rowStrideA ) + rowSend*rowStrideA;
-                            const Int sendWidth = Length( A.Width(), sendRowShift, rowLCM );
-                            const Int localRowOffset = (sendRowShift-this->RowShift()) / rowStride;
-
-                            const Int sendVCRank = sendRow+sendCol*colStrideA;
-                            const Int sendViewingRank = A.Grid().VCToViewingMap( sendVCRank );
-
-                            mpi::Recv
-                            ( recvBuf, sendHeight*sendWidth, sendViewingRank, this->Grid().ViewingComm() );
-                            
-                            // Unpack the data
-                            T* buffer = this->Buffer();
-                            const Int ldim = this->LDim();
-                            PARALLEL_FOR
-                            for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
-                            {
-                                const Int j = localRowOffset+jLoc*localRowStride;
-                                for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
-                                {
-                                    const Int i = localColOffset+iLoc*localColStride;
-                                    buffer[i+j*ldim] = recvBuf[iLoc+jLoc*sendHeight];
-                                }
-                            }
-                            // Set up the next send col
-                            sendCol = (sendCol + rowStride) % rowStrideA;
-                        }
-                        // Set up the next send row
-                        sendRow = (sendRow + colStride) % colStrideA;
-                    }
-                }
-                // Ensure that this round of non-blocking sends completes
-                if( inAGrid )
-                {
-                    mpi::Wait( sendRequest );
-                    recvCol = (recvCol + rowStrideA) % rowStride;
-                }
-            }
-            if( inAGrid )
-                recvRow = (recvRow + colStrideA) % colStride;
-        }
-        this->auxMemory_.Release();
+        CopyFromDifferentGrid( A );
     }
     return *this;
+}
+
+template<typename T>
+void DistMatrix<T,MC,MR>::CopyFromDifferentGrid( const DistMatrix<T,MC,MR>& A )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[MC,MR]::CopyFromDifferentGrid");
+#endif
+    this->ResizeTo( A.Height(), A.Width() ); 
+    // Just need to ensure that each viewing comm contains the other team's
+    // owning comm. Congruence is too strong.
+
+    // Compute the number of process rows and columns that each process 
+    // needs to send to.
+    const Int colStride = this->ColStride();
+    const Int rowStride = this->RowStride();
+    const Int colRank = this->ColRank();
+    const Int rowRank = this->RowRank();
+    const Int colStrideA = A.ColStride();
+    const Int rowStrideA = A.RowStride();
+    const Int colRankA = A.ColRank();
+    const Int rowRankA = A.RowRank();
+    const Int colGCD = GCD( colStride, colStrideA );
+    const Int rowGCD = GCD( rowStride, rowStrideA );
+    const Int colLCM = colStride*colStrideA / colGCD;
+    const Int rowLCM = rowStride*rowStrideA / rowGCD;
+    const Int numColSends = colStride / colGCD;
+    const Int numRowSends = rowStride / rowGCD;
+    const Int localColStride = colLCM / colStride;
+    const Int localRowStride = rowLCM / rowStride;
+    const Int localColStrideA = numColSends;
+    const Int localRowStrideA = numRowSends;
+
+    const Int colAlign = this->ColAlignment();
+    const Int rowAlign = this->RowAlignment();
+    const Int colAlignA = A.ColAlignment();
+    const Int rowAlignA = A.RowAlignment();
+
+    const bool inThisGrid = this->Participating();
+    const bool inAGrid = A.Participating();
+    if( !inThisGrid && !inAGrid )
+        return;
+
+    const Int maxSendSize = 
+        (A.Height()/(colStrideA*localColStrideA)+1) * 
+        (A.Width()/(rowStrideA*localRowStrideA)+1);
+
+    // Translate the ranks from A's VC communicator to this's viewing so that
+    // we can match send/recv communicators
+    const int sizeA = A.Grid().Size();
+    std::vector<int> rankMap(sizeA), ranks(sizeA);
+    for( int j=0; j<sizeA; ++j )
+        ranks[j] = j;
+    mpi::Group viewingGroup;
+    mpi::CommGroup( this->Grid().ViewingComm(), viewingGroup );
+    mpi::GroupTranslateRanks
+    ( A.Grid().OwningGroup(), sizeA, &ranks[0], viewingGroup, &rankMap[0] );
+
+    // Have each member of A's grid individually send to all numRow x numCol
+    // processes in order, while the members of this grid receive from all 
+    // necessary processes at each step.
+    Int requiredMemory = 0;
+    if( inAGrid )
+        requiredMemory += maxSendSize;
+    if( inThisGrid )
+        requiredMemory += maxSendSize;
+    T* auxBuf = this->auxMemory_.Require( requiredMemory );
+    Int offset = 0;
+    T* sendBuf = &auxBuf[offset];
+    if( inAGrid )
+        offset += maxSendSize;
+    T* recvBuf = &auxBuf[offset];
+
+    Int recvRow = 0; // avoid compiler warnings...
+    if( inAGrid )
+        recvRow = (((colRankA+colStrideA-colAlignA)%colStrideA)+colAlign) % 
+                  colStride;
+    for( Int colSend=0; colSend<numColSends; ++colSend )
+    {
+        Int recvCol = 0; // avoid compiler warnings...
+        if( inAGrid )
+            recvCol = (((rowRankA+rowStrideA-rowAlignA)%rowStrideA)+rowAlign) % 
+                      rowStride;
+        for( Int rowSend=0; rowSend<numRowSends; ++rowSend )
+        {
+            mpi::Request sendRequest;
+            // Fire off this round of non-blocking sends
+            if( inAGrid )
+            {
+                // Pack the data
+                Int sendHeight = Length(A.LocalHeight(),colSend,numColSends);
+                Int sendWidth = Length(A.LocalWidth(),rowSend,numRowSends);
+                const T* ABuffer = A.LockedBuffer();
+                const Int ALDim = A.LDim();
+                PARALLEL_FOR
+                for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
+                {
+                    const Int j = rowSend+jLoc*localRowStrideA;
+                    for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
+                    {
+                        const Int i = colSend+iLoc*localColStrideA;
+                        sendBuf[iLoc+jLoc*sendHeight] = ABuffer[i+j*ALDim];
+                    }
+                }
+                // Send data
+                const Int recvVCRank = recvRow + recvCol*colStride;
+                const Int recvViewingRank = 
+                    this->Grid().VCToViewingMap( recvVCRank );
+                mpi::ISend
+                ( sendBuf, sendHeight*sendWidth, recvViewingRank,
+                  this->Grid().ViewingComm(), sendRequest );
+            }
+            // Perform this round of recv's
+            if( inThisGrid )
+            {
+                const Int sendColOffset = (colSend*colStrideA+colAlignA) % colStrideA;
+                const Int recvColOffset = (colSend*colStrideA+colAlign) % colStride;
+                const Int sendRowOffset = (rowSend*rowStrideA+rowAlignA) % rowStrideA;
+                const Int recvRowOffset = (rowSend*rowStrideA+rowAlign) % rowStride;
+
+                const Int firstSendRow = (((colRank+colStride-recvColOffset)%colStride)+sendColOffset)%colStrideA;
+                const Int firstSendCol = (((rowRank+rowStride-recvRowOffset)%rowStride)+sendRowOffset)%rowStrideA;
+
+                const Int colShift = (colRank+colStride-recvColOffset)%colStride;
+                const Int rowShift = (rowRank+rowStride-recvRowOffset)%rowStride;
+                const Int numColRecvs = Length( colStrideA, colShift, colStride ); 
+                const Int numRowRecvs = Length( rowStrideA, rowShift, rowStride );
+
+                // Recv data
+                // For now, simply receive sequentially. Until we switch to 
+                // nonblocking recv's, we won't be using much of the 
+                // recvBuf
+                Int sendRow = firstSendRow;
+                for( Int colRecv=0; colRecv<numColRecvs; ++colRecv )
+                {
+                    const Int sendColShift = Shift( sendRow, colAlignA, colStrideA ) + colSend*colStrideA;
+                    const Int sendHeight = Length( A.Height(), sendColShift, colLCM );
+                    const Int localColOffset = (sendColShift-this->ColShift()) / colStride;
+
+                    Int sendCol = firstSendCol;
+                    for( Int rowRecv=0; rowRecv<numRowRecvs; ++rowRecv )
+                    {
+                        const Int sendRowShift = Shift( sendCol, rowAlignA, rowStrideA ) + rowSend*rowStrideA;
+                        const Int sendWidth = Length( A.Width(), sendRowShift, rowLCM );
+                        const Int localRowOffset = (sendRowShift-this->RowShift()) / rowStride;
+
+                        const Int sendVCRank = sendRow+sendCol*colStrideA;
+                        mpi::Recv
+                        ( recvBuf, sendHeight*sendWidth, rankMap[sendVCRank],
+                          this->Grid().ViewingComm() );
+                        
+                        // Unpack the data
+                        T* buffer = this->Buffer();
+                        const Int ldim = this->LDim();
+                        PARALLEL_FOR
+                        for( Int jLoc=0; jLoc<sendWidth; ++jLoc )
+                        {
+                            const Int j = localRowOffset+jLoc*localRowStride;
+                            for( Int iLoc=0; iLoc<sendHeight; ++iLoc )
+                            {
+                                const Int i = localColOffset+iLoc*localColStride;
+                                buffer[i+j*ldim] = recvBuf[iLoc+jLoc*sendHeight];
+                            }
+                        }
+                        // Set up the next send col
+                        sendCol = (sendCol + rowStride) % rowStrideA;
+                    }
+                    // Set up the next send row
+                    sendRow = (sendRow + colStride) % colStrideA;
+                }
+            }
+            // Ensure that this round of non-blocking sends completes
+            if( inAGrid )
+            {
+                mpi::Wait( sendRequest );
+                recvCol = (recvCol + rowStrideA) % rowStride;
+            }
+        }
+        if( inAGrid )
+            recvRow = (recvRow + colStrideA) % colStride;
+    }
+    this->auxMemory_.Release();
 }
 
 // PAUSED PASS HERE

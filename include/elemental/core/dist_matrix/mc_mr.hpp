@@ -206,6 +206,7 @@ public:
     ( const DistMatrix<BASE(T),STAR,MD>& d, Int offset=0 );
 
 private:
+    void CopyFromDifferentGrid( const DistMatrix<T,MC,MR>& A );
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;

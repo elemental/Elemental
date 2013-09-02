@@ -318,14 +318,17 @@ void Finalize()
         if( ::elemInitializedMpi )
         {
             // Destroy the types and ops needed for ValueInt
-            // TODO: DestroyValueIntType<Int>();
-            // TODO: DestroyValueIntType<float>();
-            // TODO: DestroyValueIntType<double>();
+            mpi::DestroyValueIntType<Int>();
+            mpi::DestroyValueIntType<float>();
+            mpi::DestroyValueIntType<double>();
             mpi::DestroyMaxLocOp<Int>();
             mpi::DestroyMaxLocOp<float>();
             mpi::DestroyMaxLocOp<double>();
 
             // Do the same for ValueIntPair
+            mpi::DestroyValueIntPairType<Int>();
+            mpi::DestroyValueIntPairType<float>();
+            mpi::DestroyValueIntPairType<double>();
             mpi::DestroyMaxLocPairOp<Int>();
             mpi::DestroyMaxLocPairOp<float>();
             mpi::DestroyMaxLocPairOp<double>();

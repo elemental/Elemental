@@ -96,7 +96,19 @@ Grid::SetUpGrid()
     // Split the viewing comm into the owning and not owning subsets
     mpi::CommSplit( viewingComm_, inGrid_, owningRank_, owningComm_ );
 
+    // Set up the map from the VC group to the viewingGroup_ ranks.
+    // Since the VC communicator preserves the ordering of the owningGroup_
+    // ranks, we can simply translate from owningGroup_.
+    std::vector<int> ranks(size_);
+    for( int i=0; i<size_; ++i )
+        ranks[i] = i;
+    vectorColToViewingMap_.resize(size_);
+    mpi::GroupTranslateRanks
+    ( owningGroup_, size_, &ranks[0], viewingGroup_, 
+      &vectorColToViewingMap_[0] );
+
     diagPathsAndRanks_.resize(2*size_);
+    MemZero( &diagPathsAndRanks_[0], 2*size_ );
     if( inGrid_ )
     {
         // Create a cartesian communicator
@@ -166,18 +178,9 @@ Grid::SetUpGrid()
         vectorColRank_ = mpi::UNDEFINED;
         vectorRowRank_ = mpi::UNDEFINED;
     }
-    mpi::Broadcast( &diagPathsAndRanks_[0], 2*size_, 0, viewingComm_ );
-
-    // Set up the map from the VC group to the viewingGroup_ ranks.
-    // Since the VC communicator preserves the ordering of the owningGroup_
-    // ranks, we can simply translate from owningGroup_.
-    std::vector<int> ranks(size_);
-    for( int i=0; i<size_; ++i )
-        ranks[i] = i;
-    vectorColToViewingMap_.resize(size_);
-    mpi::GroupTranslateRanks
-    ( owningGroup_, size_, &ranks[0], viewingGroup_, 
-      &vectorColToViewingMap_[0] );
+    mpi::Broadcast
+    ( &diagPathsAndRanks_[0], 2*size_, 
+      vectorColToViewingMap_[0], viewingComm_ );
 }
 
 inline 

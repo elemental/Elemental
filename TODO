@@ -39,6 +39,8 @@ Functionality
 
 Maintenance
 ===========
+- Find cause of occasional invalid reads in PMR_process_r_queue
+- Find cause of minor memory leak in schur::SDC
 - Document SDC for HermitianEig
 - Document move semantics for (Dist)Matrix
 - Document Int

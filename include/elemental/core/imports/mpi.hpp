@@ -487,6 +487,8 @@ template<> mpi::Datatype& ValueIntPairType<double>();
 
 template<typename R> void CreateValueIntType();
 template<typename R> void CreateValueIntPairType();
+template<typename R> void DestroyValueIntType();
+template<typename R> void DestroyValueIntPairType();
 
 template<typename R> mpi::Op MaxLocOp();
 template<> mpi::Op MaxLocOp<Int>();

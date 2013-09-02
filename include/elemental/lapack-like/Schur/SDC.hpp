@@ -845,6 +845,72 @@ SDC
 }
 
 template<typename F>
+inline void PushSubproblems
+( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
+  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub )
+{
+#ifndef RELEASE
+    CallStackEntry cse("PushSubproblems");
+#endif
+    // The trivial push
+    /*
+    ATLSub = View( ATL );
+    ABRSub = View( ABR );
+    */
+
+    // Split based on the work estimates
+    typedef BASE(F) Real;
+    const Int nLeft = ATL.Height();
+    const Int nRight = ABR.Height();
+    const Real leftWork = Pow(Real(nLeft),Real(3));
+    const Real rightWork = Pow(Real(nRight),Real(3));
+    const Real ratio = leftWork / (leftWork+rightWork);
+    const Grid& g = ATL.Grid();
+    // It should be guaranteed that p >= 2
+    const Int p = g.Size();
+    const Int pLeftProp = round(ratio*p);
+    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
+    const Int pRight = g.Size() - pLeft;
+
+    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
+    for( int j=0; j<pLeft; ++j )
+        leftRanks[j] = j;
+    for( int j=0; j<pRight; ++j )
+        rightRanks[j] = j+pLeft;
+    mpi::Group group = g.OwningGroup();
+    mpi::Group leftGroup, rightGroup;
+    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
+    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
+    Grid *leftGrid, *rightGrid;
+    leftGrid = new Grid( g.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
+    rightGrid = new Grid( g.VCComm(), rightGroup, Grid::FindFactor(pRight) );
+
+    ATLSub.SetGrid( *leftGrid ); 
+    ABRSub.SetGrid( *rightGrid );
+    ATLSub = ATL;
+    ABRSub = ABR;
+}
+
+template<typename F>
+inline void PullSubproblems
+( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
+  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub )
+{
+#ifndef RELEASE
+    CallStackEntry cse("PullSubproblems");
+#endif
+    // The trivial pull is empty
+    ATL = ATLSub;
+    ABR = ABRSub;
+    const Grid *leftGrid = &ATLSub.Grid();
+    const Grid *rightGrid = &ABRSub.Grid();
+    ATLSub.Empty();
+    ABRSub.Empty();
+    delete leftGrid;
+    delete rightGrid;
+}
+
+template<typename F>
 inline void
 SDC
 ( DistMatrix<F>& A, Int cutoff=256, 
@@ -856,6 +922,12 @@ SDC
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
+    if( A.Grid().Size() == 1 )
+    {
+        Matrix<Complex<Real>> w;
+        schur::QR( A.Matrix(), w );
+        return;
+    }
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A );
@@ -874,9 +946,101 @@ SDC
     ( A, ATL, ATR,
          ABL, ABR, part.index );
 
-    // Recurse on the two subproblems
-    SDC( ATL, cutoff, maxInnerIts, maxOuterIts, relTol );
-    SDC( ABR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    DistMatrix<F> ATLSub, ABRSub;
+    PushSubproblems( ATL, ABR, ATLSub, ABRSub );
+    if( ATLSub.Participating() )
+        SDC( ATLSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+    if( ABRSub.Participating() )
+        SDC( ABRSub, cutoff, maxInnerIts, maxOuterIts, relTol );
+    PullSubproblems( ATL, ABR, ATLSub, ABRSub );
+}
+
+template<typename F>
+inline void PushSubproblems
+( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
+  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
+{
+#ifndef RELEASE
+    CallStackEntry cse("PushSubproblems");
+#endif
+    // The trivial push
+    /*
+    ATLSub = View( ATL );
+    ABRSub = View( ABR );
+    ZTSub.SetGrid( ATL.Grid() );
+    ZBSub.SetGrid( ABR.Grid() );
+    */
+
+    // Split based on the work estimates
+    typedef BASE(F) Real;
+    const Int nLeft = ATL.Height();
+    const Int nRight = ABR.Height();
+    const Real leftWork = Pow(Real(nLeft),Real(3));
+    const Real rightWork = Pow(Real(nRight),Real(3));
+    const Real ratio = leftWork / (leftWork+rightWork);
+    const Grid& g = ATL.Grid();
+    // It should be guaranteed that p >= 2
+    const Int p = g.Size();
+    const Int pLeftProp = round(ratio*p);
+    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
+    const Int pRight = g.Size() - pLeft;
+
+    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
+    for( int j=0; j<pLeft; ++j )
+        leftRanks[j] = j;
+    for( int j=0; j<pRight; ++j )
+        rightRanks[j] = j+pLeft;
+    mpi::Group group = g.OwningGroup();
+    mpi::Group leftGroup, rightGroup;
+    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
+    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
+    Grid *leftGrid, *rightGrid;
+    leftGrid = new Grid( g.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
+    rightGrid = new Grid( g.VCComm(), rightGroup, Grid::FindFactor(pRight) );
+
+    ATLSub.SetGrid( *leftGrid );
+    ABRSub.SetGrid( *rightGrid );
+    ZTSub.SetGrid( *leftGrid );
+    ZBSub.SetGrid( *rightGrid );
+    ATLSub = ATL;
+    ABRSub = ABR;
+    ZTSub.ResizeTo( nLeft, nLeft );
+    ZBSub.ResizeTo( nRight, nRight );
+}
+
+template<typename F>
+inline void PullSubproblems
+( DistMatrix<F>& ATL,    DistMatrix<F>& ABR,
+  DistMatrix<F>& ZT,     DistMatrix<F>& ZB,
+  DistMatrix<F>& ATLSub, DistMatrix<F>& ABRSub,
+  DistMatrix<F>& ZTSub,  DistMatrix<F>& ZBSub )
+{
+#ifndef RELEASE
+    CallStackEntry cse("PullSubproblems");
+#endif
+    // The trivial pull
+    /*
+    ZT = View( ZTSub );
+    ZB = View( ZBSub );
+    */
+
+    ATL = ATLSub;
+    ABR = ABRSub;
+    ZT = ZTSub;
+    ZB = ZBSub;
+    const Grid *leftGrid = &ATLSub.Grid();
+    const Grid *rightGrid = &ABRSub.Grid();
+    ATLSub.Empty();
+    ABRSub.Empty();
+    ZTSub.Empty();
+    ZBSub.Empty();
+    mpi::Group leftOwning = leftGrid->OwningGroup();
+    mpi::Group rightOwning = rightGrid->OwningGroup();
+    delete leftGrid;
+    delete rightGrid;
+    mpi::GroupFree( leftOwning );
+    mpi::GroupFree( rightOwning );
 }
 
 template<typename F>
@@ -891,6 +1055,13 @@ SDC
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
+    if( A.Grid().Size() == 1 )
+    {
+        Q.ResizeTo( n, n );
+        Matrix<Complex<Real>> w;
+        schur::QR( A.Matrix(), Q.Matrix(), w, formATR );
+        return;
+    }
     if( n <= cutoff )
     {
         DistMatrix<F,CIRC,CIRC> A_CIRC_CIRC( A ), Q_CIRC_CIRC( n, n, g );
@@ -903,6 +1074,7 @@ SDC
     }
 
     // Perform this level's split
+    const Real infNorm = InfinityNorm( A );
     const auto part = SpectralDivide( A, Q, maxInnerIts, maxOuterIts, relTol );
     DistMatrix<F> ATL(g), ATR(g),
                   ABL(g), ABR(g);
@@ -913,9 +1085,16 @@ SDC
     PartitionRight( Q, QL, QR, part.index );
 
     // Recurse on the two subproblems
+    DistMatrix<F> ATLSub, ABRSub, ZTSub, ZBSub;
+    PushSubproblems( ATL, ABR, ATLSub, ABRSub, ZTSub, ZBSub );
+    if( ATLSub.Participating() )
+        SDC( ATLSub, ZTSub, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    if( ABRSub.Participating() )
+        SDC( ABRSub, ZBSub, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    
+    // Ensure that the results are back on this level's grid
     DistMatrix<F> ZT(g), ZB(g);
-    SDC( ATL, ZT, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
-    SDC( ABR, ZB, formATR, cutoff, maxInnerIts, maxOuterIts, relTol );
+    PullSubproblems( ATL, ABR, ZT, ZB, ATLSub, ABRSub, ZTSub, ZBSub );
 
     // Update the Schur vectors
     auto G( QL );
