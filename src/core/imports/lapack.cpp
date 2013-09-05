@@ -456,7 +456,7 @@ int HermitianEig
       w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyRwork, &lrwork,
       &dummyIwork, &liwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     lrwork = dummyRwork;
     liwork = dummyIwork;
     std::vector<scomplex> work(lwork);
@@ -499,7 +499,7 @@ int HermitianEig
       w, Z, &ldz, &isuppz[0], &dummyWork, &lwork, &dummyRwork, &lrwork,
       &dummyIwork, &liwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     lrwork = dummyRwork;
     liwork = dummyIwork;
     std::vector<dcomplex> work(lwork);
@@ -788,7 +788,7 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
       &rwork[0], &iwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<scomplex> work(lwork);
     LAPACK(cgesdd)
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &work[0], &lwork,
@@ -828,7 +828,7 @@ void DivideAndConquerSVD
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &dummyWork, &lwork,
       &rwork[0], &iwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<dcomplex> work(lwork);
     LAPACK(zgesdd)
     ( &jobz, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, &work[0], &lwork,
@@ -939,7 +939,7 @@ void QRSVD
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
       &dummyWork, &lwork, &rwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<scomplex> work(lwork);
     LAPACK(cgesvd)
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
@@ -976,7 +976,7 @@ void QRSVD
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
       &dummyWork, &lwork, &rwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<dcomplex> work(lwork);
     LAPACK(zgesvd)
     ( &jobu, &jobva, &m, &n, A, &lda, s, U, &ldu, VAdj, &ldva, 
@@ -1081,7 +1081,7 @@ void SVD( int m, int n, scomplex* A, int lda, float* s )
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       &dummyWork, &lwork, &rwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<scomplex> work(lwork);
     LAPACK(cgesvd)
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
@@ -1116,7 +1116,7 @@ void SVD( int m, int n, dcomplex* A, int lda, double* s )
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
       &dummyWork, &lwork, &rwork[0], &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<dcomplex> work(lwork);
     LAPACK(zgesvd)
     ( &jobu, &jobva, &m, &n, A, &lda, s, 0, &fakeLDim, 0, &fakeLDim, 
@@ -1227,7 +1227,7 @@ void HessenbergEig( int n, scomplex* H, int ldh, scomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       &dummyWork, &lwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<scomplex> work(lwork);
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
@@ -1260,7 +1260,7 @@ void HessenbergEig( int n, dcomplex* H, int ldh, dcomplex* w )
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       &dummyWork, &lwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<dcomplex> work(lwork);
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
@@ -1377,7 +1377,7 @@ void HessenbergSchur
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       &dummyWork, &lwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<scomplex> work(lwork);
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
@@ -1414,7 +1414,7 @@ void HessenbergSchur
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
       &dummyWork, &lwork, &info );
 
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
     std::vector<dcomplex> work(lwork);
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, H, &ldh, w, 0, &fakeLDim, 
@@ -1560,7 +1560,7 @@ void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
     std::vector<scomplex> tau( n );
     LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &lda, &tau[0], &dummyWork, &lwork, &info );
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
@@ -1568,7 +1568,7 @@ void Eig( int n, scomplex* A, int lda, scomplex* w, bool fullTriangle )
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
       &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Reduce to Hessenberg form
     std::vector<scomplex> work( lwork );
@@ -1610,7 +1610,7 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
     std::vector<dcomplex> tau( n );
     LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &lda, &tau[0], &dummyWork, &lwork, &info );
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compz='N';
@@ -1618,7 +1618,7 @@ void Eig( int n, dcomplex* A, int lda, dcomplex* w, bool fullTriangle )
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, 0, &fakeLDim, 
       &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Reduce to Hessenberg form
     std::vector<dcomplex> work( lwork );
@@ -1811,20 +1811,20 @@ void Schur
     std::vector<scomplex> tau( n );
     LAPACK(cgehrd)
     ( &n, &ilo, &ihi, A, &lda, &tau[0], &dummyWork, &lwork, &info );
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     LAPACK(cunghr)
     ( &n, &ilo, &ihi, Q, &ldq, &tau[0], &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     LAPACK(chseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
       &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Reduce to Hessenberg form
     std::vector<scomplex> work( lwork );
@@ -1881,20 +1881,20 @@ void Schur
     std::vector<dcomplex> tau( n );
     LAPACK(zgehrd)
     ( &n, &ilo, &ihi, A, &lda, &tau[0], &dummyWork, &lwork, &info );
-    lwork = dummyWork.real;
+    lwork = dummyWork.real();
 
     // Query the explicit Q formation workspace
     int negOne=-1; 
     LAPACK(zunghr)
     ( &n, &ilo, &ihi, Q, &ldq, &tau[0], &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Query the QR algorithm workspace size
     const char job = ( fullTriangle ? 'S' : 'E' ), compz='V';
     LAPACK(zhseqr)
     ( &job, &compz, &n, &ilo, &ihi, A, &lda, w, Q, &ldq, 
       &dummyWork, &negOne, &info );
-    lwork = std::max( int(dummyWork.real), lwork );
+    lwork = std::max( int(dummyWork.real()), lwork );
 
     // Reduce to Hessenberg form
     std::vector<dcomplex> work( lwork );

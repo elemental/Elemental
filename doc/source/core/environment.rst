@@ -216,164 +216,20 @@ Custom exceptions
 Complex data
 ------------
 
-.. cpp:type:: struct Complex<R>
+.. cpp:type:: struct Complex<Real>
 
-   .. cpp:type:: R BaseType
-
-   .. cpp:member:: R real  
-   
-      The real part of the complex number
-
-   .. cpp:member:: R imag
-
-      The imaginary part of the complex number
-
-   .. cpp:function:: Complex()
- 
-      This default constructor is a no-op.
-
-   .. cpp:function:: Complex( R a )
-
-      Construction from a real value.
-
-   .. cpp:function:: Complex( R a, R b )
-   
-      Construction from a complex value.
-
-   .. cpp:function:: Complex( const std::complex<R>& alpha )
-
-      Construction from an ``std::complex<R>`` instance.
-
-   .. cpp:function:: Complex<R>& operator=( const R& alpha )
-
-      Assignment from a real value.
-
-   .. cpp:function:: Complex<R>& operator+=( const R& alpha )
-
-      Increment with a real value.
-
-   .. cpp:function:: Complex<R>& operator-=( const R& alpha )
-
-      Decrement with a real value.
-
-   .. cpp:function:: Complex<R>& operator*=( const R& alpha )
-
-      Scale with a real value.
-
-   .. cpp:function:: Complex<R>& operator/=( const R& alpha )
-
-      Divide with a real value.
-
-   .. cpp:function:: Complex<R>& operator=( const Complex<R>& alpha )
-
-      Assignment from a complex value.
-
-   .. cpp:function:: Complex<R>& operator+=( const Complex<R>& alpha )
-
-      Increment with a complex value.
-
-   .. cpp:function:: Complex<R>& operator-=( const Complex<R>& alpha )
-
-      Decrement with a complex value.
-
-   .. cpp:function:: Complex<R>& operator*=( const Complex<R>& alpha )
-
-      Scale with a complex value.
-
-   .. cpp:function:: Complex<R>& operator/=( const Complex<R>& alpha )
-
-      Divide with a complex value.
+   Currently a typedef of ``std::complex<Real>``
 
 .. cpp:type:: struct Base<F>
 
    .. cpp:type:: type
 
       The underlying real datatype of the (potentially complex) datatype `F`.
-      For example, ``typename Base<Complex<double> >::type`` and 
+      For example, ``typename Base<Complex<double>>::type`` and 
       ``typename Base<double>::type`` are both equivalent to ``double``.
       This is often extremely useful in implementing routines which are 
       templated over real and complex datatypes but still make use of real 
       datatypes.
-
-.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) addition.
-
-.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha, const R& beta )
-
-   (complex,real) addition.
-
-.. cpp:function:: Complex<R> operator+( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) addition.
-
-.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) subtraction.
-
-.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha, R& beta )
-
-   (complex,real) subtraction.
-
-.. cpp:function:: Complex<R> operator-( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) subtraction.
-
-.. cpp:function:: Complex<R> operator*( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) multiplication.
-
-.. cpp:function:: Complex<R> operator*( const Complex<R>& alpha, R& beta )
-
-   (complex,real) multiplication.
-
-.. cpp:function:: Complex<R> operator*( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) multiplication.
-
-.. cpp:function:: Complex<R> operator/( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) division.
-
-.. cpp:function:: Complex<R> operator/( const Complex<R>& alpha, const R& beta )
-
-   (complex,real) division.
-
-.. cpp:function:: Complex<R> operator/( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) division.
-
-.. cpp:function:: Complex<R> operator+( const Complex<R>& alpha )
-
-   Returns `alpha`.
-
-.. cpp:function:: Complex<R> operator-( const Complex<R>& alpha )
-
-   Returns negative `alpha`.
-
-.. cpp:function:: bool operator==( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) equality check.
-
-.. cpp:function:: bool operator==( const Complex<R>& alpha, const R& beta )
-
-   (complex,real) equality check.
-
-.. cpp:function:: bool operator==( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) equality check.
-
-.. cpp:function:: bool operator!=( const Complex<R>& alpha, const Complex<R>& beta )
-
-   (complex,complex) inequality check.
-
-.. cpp:function:: bool operator!=( const Complex<R>& alpha, const R& beta )
-
-   (complex,real) inequality check.
-
-.. cpp:function:: bool operator!=( const R& alpha, const Complex<R>& beta )
-
-   (real,complex) inequality check.
 
 .. cpp:function:: std::ostream& operator<<( std::ostream& os, Complex<R> alpha )
 
@@ -403,32 +259,26 @@ Scalar manipulation
       |\alpha|_{\mbox{fast}} = |\mathcal{R}(\alpha)| + |\mathcal{I}(\alpha)|
 
 .. cpp:function:: F RealPart( const F& alpha )
-
-   Return the real part of the real or complex variable :math:`\alpha`.
-
 .. cpp:function:: F ImagPart( const F& alpha )
 
-   Return the imaginary part of the real or complex variable :math:`\alpha`.
+   Return the real (imaginary) part of the real or complex variable 
+   :math:`\alpha`.
 
 .. cpp:function:: void SetRealPart( F& alpha, typename Base<F>::type& beta )
-
-   Set the real part of the real or complex variable :math:`\alpha` to 
-   :math:`\beta`.
-
 .. cpp:function:: void SetImagPart( F& alpha, typename Base<F>::type& beta )
 
-   Set the imaginary part of the complex variable :math:`\alpha` to 
-   :math:`\beta`. If :math:`\alpha` has a real type, an error is thrown.
+   Set the real (imaginary) part of the real or complex variable 
+   :math:`\alpha` to :math:`\beta`. 
+   If :math:`\alpha` has a real type, an error is thrown when an attempt is
+   made to set the imaginary component.
 
 .. cpp:function:: void UpdateRealPart( F& alpha, typename Base<F>::type& beta )
-
-   Update the real part of the real or complex variable :math:`\alpha` to 
-   :math:`\beta`.
-
 .. cpp:function:: void UpdateImagPart( F& alpha, typename Base<F>::type& beta )
 
-   Update the imaginary part of the complex variable :math:`\alpha` to 
-   :math:`\beta`. If :math:`\alpha` has a real type, an error is thrown.
+   Update the real (imaginary) part of the real or complex variable 
+   :math:`\alpha` to :math:`\beta`.
+   If :math:`\alpha` has a real type, an error is thrown when an attempt is
+   made to update the imaginary component.
 
 .. cpp:function:: F Conj( const F& alpha )
 

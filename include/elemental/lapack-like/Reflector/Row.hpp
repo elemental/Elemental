@@ -165,7 +165,7 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
         alpha = chi.GetLocal(0,0);
     mpi::Broadcast( alpha, rowAlignment, rowComm );
 
-    if( norm == R(0) && alpha.imag == R(0) )
+    if( norm == R(0) && alpha.imag() == R(0) )
     {
         if( gridCol == rowAlignment )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
@@ -173,10 +173,10 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     }
 
     R beta;
-    if( alpha.real <= 0 )
-        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    if( alpha.real() <= 0 )
+        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     else
-        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
 
     const R one = 1;
     const R safeMin = lapack::MachineSafeMin<R>();
@@ -197,13 +197,13 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
         localNorm = Nrm2( x.LockedMatrix() );
         mpi::AllGather( &localNorm, 1, &localNorms[0], 1, rowComm );
         norm = blas::Nrm2( gridWidth, &localNorms[0], 1 );
-        if( alpha.real <= 0 )
-            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        if( alpha.real() <= 0 )
+            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
-            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
     Scale( one/(alpha-beta), x );
 
     for( Int j=0; j<count; ++j )

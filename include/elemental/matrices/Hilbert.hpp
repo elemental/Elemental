@@ -27,7 +27,7 @@ MakeHilbert( Matrix<F>& A )
     const F one = F(1);
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, one/(i+j+1) );
+            A.Set( i, j, one/F(i+j+1) );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -55,7 +55,7 @@ MakeHilbert( DistMatrix<F,U,V>& A )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            A.SetLocal( iLoc, jLoc, one/(i+j+1) );
+            A.SetLocal( iLoc, jLoc, one/F(i+j+1) );
         }
     }
 }

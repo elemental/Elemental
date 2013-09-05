@@ -179,17 +179,17 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     R norm = Nrm2( x );
     C alpha = chi.Get(0,0);
 
-    if( norm == 0 && alpha.imag == R(0) )
+    if( norm == 0 && alpha.imag() == R(0) )
     {
         chi.Set(0,0,-chi.Get(0,0));
         return C(2);
     }
 
     R beta;
-    if( alpha.real <= 0 )
-        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    if( alpha.real() <= 0 )
+        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     else
-        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
 
     const R one = 1;
     const R safeMin = lapack::MachineSafeMin<R>();
@@ -208,13 +208,13 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
         } while( Abs(beta) < safeInv );
 
         norm = Nrm2( x );
-        if( alpha.real <= 0 )
-            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        if( alpha.real() <= 0 )
+            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
-            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
     Scale( one/(alpha-beta), x );
 
     for( Int j=0; j<count; ++j )
@@ -235,17 +235,17 @@ Reflector( Complex<R>& chi, Int m, Complex<R>* x, Int incx )
     R norm = blas::Nrm2( m, x, incx );
     C alpha = chi;
 
-    if( norm == 0 && alpha.imag == R(0) )
+    if( norm == 0 && alpha.imag() == R(0) )
     {
         chi = -chi;
         return C(2);
     }
 
     R beta;
-    if( alpha.real <= 0 )
-        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    if( alpha.real() <= 0 )
+        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     else
-        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
 
     const R one = 1;
     const R safeMin = lapack::MachineSafeMin<R>();
@@ -264,13 +264,13 @@ Reflector( Complex<R>& chi, Int m, Complex<R>* x, Int incx )
         } while( Abs(beta) < safeInv );
 
         norm = blas::Nrm2( m, x, incx );
-        if( alpha.real <= 0 )
-            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        if( alpha.real() <= 0 )
+            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
-            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
     blas::Scal( m, one/(alpha-beta), x, incx );
 
     for( Int j=0; j<count; ++j )

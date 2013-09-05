@@ -73,7 +73,7 @@ Unb( Matrix<F>& A )
         if( alpha == F(0) )
             throw SingularMatrixException();
 
-        blas::Scal( m-(j+1), 1/alpha, A.Buffer(j+1,j), 1 );
+        blas::Scal( m-(j+1), F(1)/alpha, A.Buffer(j+1,j), 1 );
         blas::Geru
         ( m-(j+1), n-(j+1),
           F(-1), A.LockedBuffer(j+1,j), 1, A.LockedBuffer(j,j+1), A.LDim(),

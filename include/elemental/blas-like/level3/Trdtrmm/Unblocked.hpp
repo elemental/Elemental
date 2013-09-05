@@ -63,7 +63,7 @@ TrdtrmmLUnblocked( Orientation orientation, Matrix<F>& L )
             l10[k*ldim] /= delta11;
 
         // lambda11 := 1 / delta11
-        LBuffer[j+j*ldim] = 1 / delta11;
+        LBuffer[j+j*ldim] = F(1) / delta11;
     }
 }
 
@@ -117,7 +117,7 @@ TrdtrmmUUnblocked( Orientation orientation, Matrix<F>& U )
             u01[k] /= delta11;
 
         // lambda11 := 1 / delta11
-        UBuffer[j+j*ldim] = 1 / delta11;
+        UBuffer[j+j*ldim] = F(1) / delta11;
     }
 }
 

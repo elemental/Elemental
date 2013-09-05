@@ -127,7 +127,6 @@ BusingerGolub
     CallStackEntry entry("id::BusingerGolub");
 #endif
     typedef BASE(F) Real;
-    const Grid& g = A.Grid();
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A

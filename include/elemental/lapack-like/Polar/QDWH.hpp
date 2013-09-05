@@ -50,6 +50,7 @@ QDWHInner
     CallStackEntry entry("polar::QDWHInner");
 #endif
     typedef BASE(F) Real;
+    typedef Complex<Real> Cpx;
     const Int m = A.Height();
     const Int n = A.Width();
     const Real oneThird = Real(1)/Real(3);
@@ -72,7 +73,7 @@ QDWHInner
         ALast = A;
 
         Real L2;
-        Complex<Real> dd, sqd;
+        Cpx dd, sqd;
         if( Abs(1-L) < tol )
         {
             L2 = 1;
@@ -83,14 +84,14 @@ QDWHInner
         {
             L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-            sqd = Sqrt( 1+dd );
+            sqd = Sqrt( Real(1)+dd );
         }
-        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Cpx arg = Real(8) - Real(4)*dd + Real(8)*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Complex<Real> alpha = a-b/c;
-        const Complex<Real> beta = b/c;
+        const Cpx alpha = a-b/c;
+        const Cpx beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -193,6 +194,7 @@ QDWHInner
     CallStackEntry entry("polar::QDWHInner");
 #endif
     typedef BASE(F) Real;
+    typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -216,7 +218,7 @@ QDWHInner
         ALast = A;
 
         Real L2;
-        Complex<Real> dd, sqd;
+        Cpx dd, sqd;
         if( Abs(1-L) < tol )
         {
             L2 = 1;
@@ -227,14 +229,14 @@ QDWHInner
         {
             L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-            sqd = Sqrt( 1+dd );
+            sqd = Sqrt( Real(1)+dd );
         }
-        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Cpx arg = Real(8) - Real(4)*dd + Real(8)*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Complex<Real> alpha = a-b/c;
-        const Complex<Real> beta = b/c;
+        const Cpx alpha = a-b/c;
+        const Cpx beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -346,6 +348,7 @@ QDWHInner
         LogicError("Height must be same as width");
 
     typedef BASE(F) Real;
+    typedef Complex<Real> Cpx;
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
 
@@ -365,7 +368,7 @@ QDWHInner
         ALast = A;
 
         Real L2;
-        Complex<Real> dd, sqd;
+        Cpx dd, sqd;
         if( Abs(1-L) < tol )
         {
             L2 = 1;
@@ -376,14 +379,14 @@ QDWHInner
         {
             L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-            sqd = Sqrt( 1+dd );
+            sqd = Sqrt( Real(1)+dd );
         }
-        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Cpx arg = Real(8) - Real(4)*dd + Real(8)*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Complex<Real> alpha = a-b/c;
-        const Complex<Real> beta = b/c;
+        const Cpx alpha = a-b/c;
+        const Cpx beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 
@@ -488,6 +491,7 @@ QDWHInner
         LogicError("Height must be same as width");
 
     typedef BASE(F) Real;
+    typedef Complex<Real> Cpx;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     const Real oneThird = Real(1)/Real(3);
@@ -508,7 +512,7 @@ QDWHInner
         ALast = A;
 
         Real L2;
-        Complex<Real> dd, sqd;
+        Cpx dd, sqd;
         if( Abs(1-L) < tol )
         {
             L2 = 1;
@@ -519,14 +523,14 @@ QDWHInner
         {
             L2 = L*L;
             dd = Pow( 4*(1-L2)/(L2*L2), oneThird );
-            sqd = Sqrt( 1+dd );
+            sqd = Sqrt( Real(1)+dd );
         }
-        const Complex<Real> arg = 8 - 4*dd + 8*(2-L2)/(L2*sqd);
-        const Real a = (sqd + Sqrt( arg )/2).real;
+        const Cpx arg = Real(8) - Real(4)*dd + Real(8)*(2-L2)/(L2*sqd);
+        const Real a = (sqd + Sqrt(arg)/Real(2)).real();
         const Real b = (a-1)*(a-1)/4;
         const Real c = a+b-1;
-        const Complex<Real> alpha = a-b/c;
-        const Complex<Real> beta = b/c;
+        const Cpx alpha = a-b/c;
+        const Cpx beta = b/c;
 
         L = L*(a+b*L2)/(1+c*L2);
 

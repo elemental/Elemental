@@ -56,7 +56,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // a21 := a21 - (alpha11/2)l21
         for( Int k=0; k<a21Height; ++k )
-            a21[k] -= (alpha11/2)*l21[k];
+            a21[k] -= (alpha11/F(2))*l21[k];
 
         // A22 := A22 - (l21 a21' + a21 l21')
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
@@ -64,7 +64,7 @@ TwoSidedTrsmLUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& L )
 
         // a21 := a21 - (alpha11/2)l21
         for( Int k=0; k<a21Height; ++k )
-            a21[k] -= (alpha11/2)*l21[k];
+            a21[k] -= (alpha11/F(2))*l21[k];
     }
 }
 
@@ -113,7 +113,7 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         // a12 := a12 - (alpha11/2)u12
         for( Int k=0; k<a21Height; ++k )
-            a12[k*lda] -= (alpha11/2)*u12[k*ldu];
+            a12[k*lda] -= (alpha11/F(2))*u12[k*ldu];
 
         // A22 := A22 - (a12' u12 + u12' a12)
         F* A22 = &ABuffer[(j+1)+(j+1)*lda];
@@ -126,7 +126,7 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
 
         // a12 := a12 - (alpha11/2)u12
         for( Int k=0; k<a21Height; ++k )
-            a12[k*lda] -= (alpha11/2)*u12[k*ldu];
+            a12[k*lda] -= (alpha11/F(2))*u12[k*ldu];
     }
 }
 

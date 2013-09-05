@@ -57,4 +57,4 @@ Maintenance
 - Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
 - Consistent handling of unblocked routines
-- Use C++11's std::complex, extern templates, and perhaps std::thread
+- Use C++11's extern templates, and perhaps std::thread
