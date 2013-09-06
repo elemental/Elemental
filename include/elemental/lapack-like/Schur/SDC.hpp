@@ -850,6 +850,32 @@ SDC
     Gemm( NORMAL, NORMAL, F(1), G, Z, QR );
 }
 
+inline void SplitGrid
+( int nLeft, int nRight, const Grid& grid, Grid*& leftGrid, Grid*& rightGrid )
+{
+    typedef double Real;
+    const Real leftWork = Pow(Real(nLeft),Real(3));
+    const Real rightWork = Pow(Real(nRight),Real(3));
+    const Real ratio = leftWork / (leftWork+rightWork);
+    // It should be guaranteed that p >= 2
+    const Int p = grid.Size();
+    const Int pLeftProp = round(ratio*p);
+    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
+    const Int pRight = p - pLeft;
+
+    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
+    for( int j=0; j<pLeft; ++j )
+        leftRanks[j] = j;
+    for( int j=0; j<pRight; ++j )
+        rightRanks[j] = j+pLeft;
+    mpi::Group group = grid.OwningGroup();
+    mpi::Group leftGroup, rightGroup;
+    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
+    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
+    leftGrid = new Grid( grid.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
+    rightGrid = new Grid( grid.VCComm(), rightGroup, Grid::FindFactor(pRight) );
+}
+
 template<typename F>
 inline void PushSubproblems
 ( DistMatrix<F>& ATL,    DistMatrix<F>& ABR, 
@@ -869,32 +895,8 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    typedef BASE(F) Real;
-    const Int nLeft = ATL.Height();
-    const Int nRight = ABR.Height();
-    const Real leftWork = Pow(Real(nLeft),Real(3));
-    const Real rightWork = Pow(Real(nRight),Real(3));
-    const Real ratio = leftWork / (leftWork+rightWork);
-    const Grid& g = ATL.Grid();
-    // It should be guaranteed that p >= 2
-    const Int p = g.Size();
-    const Int pLeftProp = round(ratio*p);
-    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
-    const Int pRight = g.Size() - pLeft;
-
-    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
-    for( int j=0; j<pLeft; ++j )
-        leftRanks[j] = j;
-    for( int j=0; j<pRight; ++j )
-        rightRanks[j] = j+pLeft;
-    mpi::Group group = g.OwningGroup();
-    mpi::Group leftGroup, rightGroup;
-    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
-    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
     Grid *leftGrid, *rightGrid;
-    leftGrid = new Grid( g.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
-    rightGrid = new Grid( g.VCComm(), rightGroup, Grid::FindFactor(pRight) );
-
+    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
     ATLSub.SetGrid( *leftGrid ); 
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
@@ -1023,32 +1025,8 @@ inline void PushSubproblems
     */
 
     // Split based on the work estimates
-    typedef BASE(F) Real;
-    const Int nLeft = ATL.Height();
-    const Int nRight = ABR.Height();
-    const Real leftWork = Pow(Real(nLeft),Real(3));
-    const Real rightWork = Pow(Real(nRight),Real(3));
-    const Real ratio = leftWork / (leftWork+rightWork);
-    const Grid& g = ATL.Grid();
-    // It should be guaranteed that p >= 2
-    const Int p = g.Size();
-    const Int pLeftProp = round(ratio*p);
-    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
-    const Int pRight = g.Size() - pLeft;
-
-    std::vector<int> leftRanks(pLeft), rightRanks(pRight);
-    for( int j=0; j<pLeft; ++j )
-        leftRanks[j] = j;
-    for( int j=0; j<pRight; ++j )
-        rightRanks[j] = j+pLeft;
-    mpi::Group group = g.OwningGroup();
-    mpi::Group leftGroup, rightGroup;
-    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
-    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
     Grid *leftGrid, *rightGrid;
-    leftGrid = new Grid( g.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
-    rightGrid = new Grid( g.VCComm(), rightGroup, Grid::FindFactor(pRight) );
-
+    SplitGrid( ATL.Height(), ABR.Height(), ATL.Grid(), leftGrid, rightGrid );
     ATLSub.SetGrid( *leftGrid );
     ABRSub.SetGrid( *rightGrid );
     wTSub.SetGrid( *leftGrid );
