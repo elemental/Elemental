@@ -84,6 +84,29 @@ Range-based subset computation
    Compute the eigenpairs of a Hermitian matrix `A` with eigenvalues lying in 
    the half-open interval :math:`(a,b]`.
 
+Spectral divide and conquer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The primary references for this approach is Demmel et al.'s *Fast linear algebra
+is stable* and Nakatsukasa et al.'s *Stable and efficient spectral divide and conquer algorithms for the symmetric eigenvalue problem*.
+
+.. cpp:function:: void hermitian_eig::SDC( Matrix<F>& A, Matrix<typename Base<F>::type>& w, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void hermitian_eig::SDC( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+
+   Compute the eigenvalues of the matrix :math:`A` via a QDWH-based spectral 
+   divide and conquer process. 
+
+   The cutoff controls when the problem is sufficiently small to switch to 
+   a standard algorithm, the number of inner iterations is how many attempts 
+   to make with the same randomized URV decomposition, and the number of outer 
+   iterations is how many random Mobius transformations to try for each spectral
+   split before giving up.
+
+.. cpp:function:: void hermitian_eig::SDC( Matrix<F>& A, Matrix<typename Base<F>::type>& w, Matrix<F>& Q, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void hermitian_eig::SDC( DistMatrix<F>& A, DistMatrix<typename Base<F>::type,VR,STAR>& w, DistMatrix<F>& Q, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+
+   Attempt to also compute the eigenvectors.
+
 Skew-Hermitian eigensolver
 --------------------------
 Essentially identical to the Hermitian eigensolver, :cpp:func:`HermitianEig`;
@@ -269,8 +292,8 @@ Granat et al.'s parallel QR algorithm.
 Hessenberg QR algorithm
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cpp:function:: void schur::QR( Matrix<F>& A )
-.. cpp:function:: void schur::QR( Matrix<F>& A, Matrix<F>& Q )
+.. cpp:function:: void schur::QR( Matrix<F>& A, Matrix<Complex<typename Base<F>::type>>& w )
+.. cpp:function:: void schur::QR( Matrix<F>& A, Matrix<Complex<typename Base<F>::type>>& w, Matrix<F>& Q )
 
    Use a sequential QR algorithm to compute the Schur decomposition.
 
@@ -282,8 +305,8 @@ is stable*. While the current implementation needs a large number of algorithmic
 improvements, especially with respect to choosing the Mobius transformations,
 it tends to succeed on random matrices.
 
-.. cpp:function:: void schur::SDC( Matrix<F>& A, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
-.. cpp:function:: void schur::SDC( DistMatrix<F>& A, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( Matrix<F>& A, Matrix<Complex<typename Base<F>::type>>& w, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( DistMatrix<F>& A, DistMatrix<Complex<typename Base<F>::type>,VR,STAR>& w, bool formATR=false, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
 
    Compute the eigenvalues of the matrix :math:`A` via a spectral divide and
    conquer process. On exit, the eigenvalues of :math:`A` will be stored on its
@@ -296,8 +319,8 @@ it tends to succeed on random matrices.
    the number of outer iterations is how many random Mobius transformations to
    try for each spectral split before giving up.
 
-.. cpp:function:: void schur::SDC( Matrix<F>& A, Matrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
-.. cpp:function:: void schur::SDC( DistMatrix<F>& A, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( Matrix<F>& A, Matrix<Complex<typename Base<F>::type>>& w, Matrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
+.. cpp:function:: void schur::SDC( DistMatrix<F>& A, DistMatrix<Complex<typename Base<F>::type>,VR,STAR>& w, DistMatrix<F>& Q, bool formATR=true, Int cutoff=256, Int maxInnerIts=1, Int maxOuterIts=10, typename Base<F>::type relTol=0 )
 
    Attempt to also compute the Schur vectors.
 

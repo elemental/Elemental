@@ -1,5 +1,6 @@
 Functionality
 =============
+- Distribute between different grids for any distribution
 - Consistently implement 'GetDiagonal' functionality for DistMatrix
 - Ability to change default grid with command-line options
 - Quadratic-time Haar generation via random Householder reflectors

@@ -15,7 +15,7 @@ namespace schur {
 
 template<typename F>
 inline void
-QR( Matrix<F>& A, Matrix<Complex<BASE(F)> >& w, bool formATR=false )
+QR( Matrix<F>& A, Matrix<COMPLEX(F)>& w, bool formATR=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::qr");
@@ -28,7 +28,7 @@ QR( Matrix<F>& A, Matrix<Complex<BASE(F)> >& w, bool formATR=false )
 template<typename F>
 inline void
 QR
-( Matrix<F>& A, Matrix<F>& Q, Matrix<Complex<BASE(F)> >& w, bool formATR=true )
+( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q, bool formATR=true )
 {
 #ifndef RELEASE
     CallStackEntry cse("schur::qr");

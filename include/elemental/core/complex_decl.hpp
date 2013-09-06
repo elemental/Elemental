@@ -39,6 +39,7 @@ template<typename Real> struct Base { };
 %extend Base<Complex<double> > { typedef double type; }
 #endif
 #define BASE(F) typename Base<F>::type 
+#define COMPLEX(F) Complex<BASE(F)>
 
 // For querying whether or not a scalar is complex,
 // e.g., IsComplex<Scalar>::val

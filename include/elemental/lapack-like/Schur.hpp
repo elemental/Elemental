@@ -18,42 +18,42 @@ namespace elem {
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A )
+Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    schur::QR( A );
+    schur::QR( A, w );
 }
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A, Matrix<F>& Q )
+Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    schur::QR( A, Q );
+    schur::QR( A, w, Q );
 }
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A )
+Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    schur::SDC( A );
+    schur::SDC( A, w );
 }
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A, DistMatrix<F>& Q )
+Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w, DistMatrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    schur::SDC( A, Q );
+    schur::SDC( A, w, Q );
 }
 
 } // namespace elem

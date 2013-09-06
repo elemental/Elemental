@@ -41,30 +41,31 @@ main( int argc, char* argv[] )
 
         // Attempt to compute the spectral decomposition of A, 
         // but do not overwrite A
-        DistMatrix<C> D( A ), Q(g);
+        DistMatrix<C> ACopy( A ), Q(g);
+        DistMatrix<Real,VR,STAR>  w(g);
         hermitian_eig::SDC
-        ( LOWER, D, Q, cutoff, maxInnerIts, maxOuterIts, relTol );
-        MakeTriangular( LOWER, D ); 
+        ( LOWER, ACopy, w, Q, cutoff, maxInnerIts, maxOuterIts, relTol );
 
         if( display )
         {
             Display( A, "A" );
             Display( Q, "Q" );
-            Display( D.GetRealPartOfDiagonal(), "w" );
+            Display( w, "w" );
         }
 
-        DistMatrix<C> G(g);
-        Gemm( NORMAL, NORMAL, C(1), Q, D, G );
+        auto G( Q );
+        DiagonalScale( RIGHT, NORMAL, w, G );
         Gemm( NORMAL, ADJOINT, C(-1), G, Q, C(1), A );
-        MakeTrapezoidal( LOWER, D, -1 );
-        const Real frobOffD = HermitianFrobeniusNorm( LOWER, D );
         const Real frobE = FrobeniusNorm( A ); 
+        MakeIdentity( A );
+        Herk( LOWER, ADJOINT, C(-1), Q, C(1), A );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, A );
         if( mpi::WorldRank() == 0 )
         {
             std::cout << " || A - Q D Q^H ||_F / || A ||_F = " << frobE/frobA 
                       << "\n"
-                      << " || off(D) ||_F      / || A ||_F = " << frobOffD/frobA
-                      << "\n"
+                      << " || I - Q^H Q ||_F   / || A ||_F = " 
+                      << frobOrthog/frobA << "\n"
                       << std::endl;
         }
     }

@@ -46,28 +46,31 @@ main( int argc, char* argv[] )
 
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<C> T( A ), Q(g);
-        schur::SDC( T, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
+        DistMatrix<C,VR,STAR> w(g);
+        schur::SDC( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
+        MakeTriangular( UPPER, T );
 
         if( display )
         {
             Display( A, "A" );
             Display( T, "T" );
             Display( Q, "Q" );
-            Display( T.GetDiagonal(), "w" );
+            Display( w, "w" );
         }
 
         DistMatrix<C> G(g);
         Gemm( NORMAL, NORMAL, C(1), Q, T, G );
         Gemm( NORMAL, ADJOINT, C(-1), G, Q, C(1), A );
-        MakeTrapezoidal( LOWER, T, -1 );
-        const Real frobOffT = FrobeniusNorm( T );
         const Real frobE = FrobeniusNorm( A ); 
+        MakeIdentity( A );
+        Herk( LOWER, ADJOINT, C(-1), Q, C(1), A );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, A );
         if( mpi::WorldRank() == 0 )
         {
             std::cout << " || A - Q T Q^H ||_F / || A ||_F = " << frobE/frobA 
                       << "\n"
-                      << " || stril(T) ||_F    / || A ||_F = " << frobOffT/frobA
-                      << "\n"
+                      << " || I - Q^H Q ||_F   / || A ||_F = " 
+                      << frobOrthog/frobA << "\n"
                       << std::endl;
         }
     }

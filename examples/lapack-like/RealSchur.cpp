@@ -25,6 +25,7 @@ main( int argc, char* argv[] )
 
     try 
     {
+        const Int matType = Input("--matType","0: uniform, 1: Haar",0);
         const Int n = Input("--size","height of matrix",100);
         const Int cutoff = Input("--cutoff","cutoff for QR alg.",256);
         const Int maxInnerIts = Input("--maxInnerIts","maximum RURV its",1);
@@ -35,35 +36,39 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         const Grid& g = DefaultGrid();
-        auto A = Uniform<Real>( g, n, n );
+        DistMatrix<Real> A(g);
+        if( matType == 0 )
+            A = Uniform<Real>( g, n, n );
+        else
+            A = Haar<Real>( g, n );
         const Real frobA = FrobeniusNorm( A );
 
         // Compute the Schur decomposition of A, but do not overwrite A
         DistMatrix<Real> T( A ), Q(g);
-        schur::SDC( T, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
+        DistMatrix<Complex<Real>,VR,STAR> w(g);
+        schur::SDC( T, w, Q, true, cutoff, maxInnerIts, maxOuterIts, relTol );
+        MakeTrapezoidal( UPPER, T, -1 );
         if( display )
         {
             Display( A, "A" );
             Display( T, "T" );
             Display( Q, "Q" );
+            Display( w, "w" );
         }
 
         DistMatrix<Real> G(g);
         Gemm( NORMAL, NORMAL, Real(1), Q, T, G );
         Gemm( NORMAL, ADJOINT, Real(-1), G, Q, Real(1), A );
-        MakeTrapezoidal( LOWER, T, -2 );
-        const Real frobOffT = FrobeniusNorm( T );
-        if( display )
-        {
-            Display( A, "E" );
-        }
-        const Real frobE = FrobeniusNorm( A ); 
+        const Real frobE = FrobeniusNorm( A );
+        MakeIdentity( A );
+        Herk( LOWER, ADJOINT, Real(-1), Q, Real(1), A );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, A );
         if( mpi::WorldRank() == 0 )
         {
-            std::cout << " || A - Q T Q^H ||_F / || A ||_F = " << frobE/frobA 
+            std::cout << " || A - Q T Q^H ||_F / || A ||_F = " << frobE/frobA
                       << "\n"
-                      << " || stril(T) ||_F    / || A ||_F = " << frobOffT/frobA
-                      << "\n"
+                      << " || I - Q^H Q ||_F   / || A ||_F = "
+                      << frobOrthog/frobA << "\n"
                       << std::endl;
         }
     }
