@@ -104,7 +104,7 @@ struct MakeGaussianHelper<T,MC,STAR>
                     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                         buffer[iLoc+j*localHeight] = Normal( mean, stddev );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
             // Unpack
             T* localBuffer = A.Buffer();
@@ -164,7 +164,7 @@ struct MakeGaussianHelper<T,MR,STAR>
                 for( Int i=0; i<localHeight; ++i )
                     buffer[i+j*localHeight] = Normal( mean, stddev );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -194,7 +194,7 @@ struct MakeGaussianHelper<T,STAR,MC>
                 for( Int i=0; i<m; ++i )
                     buffer[i+jLoc*m] = Normal( mean, stddev );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -240,7 +240,7 @@ struct MakeGaussianHelper<T,STAR,MR>
                 for( Int i=0; i<m; ++i )
                     buffer[i+j*m] = Normal( mean, stddev );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -268,14 +268,13 @@ struct MakeGaussianHelper<T,STAR,STAR>
         if( grid.InGrid() )
         {
             std::vector<T> buffer( bufSize );
-
             if( grid.Rank() == 0 )
             {
                 for( Int j=0; j<n; ++j )
                     for( Int i=0; i<m; ++i )
                         buffer[i+j*m] = Normal( mean, stddev );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.Comm() );
 
             // Unpack
             T* localBuffer = A.Buffer();

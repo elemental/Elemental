@@ -105,7 +105,7 @@ struct MakeUniformHelper<T,MC,STAR>
                         buffer[iLoc+j*localHeight] = 
                             SampleBall( center, radius );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
             // Unpack
             T* localBuffer = A.Buffer();
@@ -165,7 +165,7 @@ struct MakeUniformHelper<T,MR,STAR>
                 for( Int i=0; i<localHeight; ++i )
                     buffer[i+j*localHeight] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -195,7 +195,7 @@ struct MakeUniformHelper<T,STAR,MC>
                 for( Int i=0; i<m; ++i )
                     buffer[i+jLoc*m] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -241,7 +241,7 @@ struct MakeUniformHelper<T,STAR,MR>
                 for( Int i=0; i<m; ++i )
                     buffer[i+j*m] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
@@ -276,7 +276,7 @@ struct MakeUniformHelper<T,STAR,STAR>
                     for( Int i=0; i<m; ++i )
                         buffer[i+j*m] = SampleBall( center, radius );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.Comm() );
 
             // Unpack
             T* localBuffer = A.Buffer();

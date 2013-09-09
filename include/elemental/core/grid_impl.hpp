@@ -104,11 +104,11 @@ Grid::SetUpGrid()
         ranks[i] = i;
     vectorColToViewingMap_.resize(size_);
     mpi::GroupTranslateRanks
-    ( owningGroup_, size_, &ranks[0], viewingGroup_, 
-      &vectorColToViewingMap_[0] );
+    ( owningGroup_, size_, ranks.data(), viewingGroup_, 
+      vectorColToViewingMap_.data() );
 
     diagPathsAndRanks_.resize(2*size_);
-    MemZero( &diagPathsAndRanks_[0], 2*size_ );
+    MemZero( diagPathsAndRanks_.data(), 2*size_ );
     if( inGrid_ )
     {
         // Create a cartesian communicator
@@ -157,7 +157,8 @@ Grid::SetUpGrid()
             }
         }
         mpi::AllGather
-        ( &myDiagPathAndRank[0], 2, &diagPathsAndRanks_[0], 2, vectorColComm_ );
+        ( myDiagPathAndRank.data(), 2, 
+          diagPathsAndRanks_.data(), 2, vectorColComm_ );
 
 #ifndef RELEASE
         mpi::ErrorHandlerSet
@@ -179,7 +180,7 @@ Grid::SetUpGrid()
         vectorRowRank_ = mpi::UNDEFINED;
     }
     mpi::Broadcast
-    ( &diagPathsAndRanks_[0], 2*size_, 
+    ( diagPathsAndRanks_.data(), 2*size_, 
       vectorColToViewingMap_[0], viewingComm_ );
 }
 

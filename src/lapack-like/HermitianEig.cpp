@@ -215,7 +215,7 @@ void HermitianEig
         std::vector<Real> wVector(n);
         pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], g.VRComm() );
+          wVector.data(), g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -361,7 +361,7 @@ void HermitianEig
         std::vector<Real> wVector(n);
         pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm() );
+          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm() );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -523,7 +523,7 @@ void HermitianEig
         std::vector<Real> wVector(n);
         pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], g.VRComm(), int(lowerBound), int(upperBound) );
+          wVector.data(), g.VRComm(), int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         for( Int iLocal=0; iLocal<w.LocalHeight(); ++iLocal )
@@ -677,7 +677,7 @@ void HermitianEig
         std::vector<Real> wVector(n);
         pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(), 
-          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
+          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm(), 
           int(lowerBound), int(upperBound) );
 
         // Copy wVector into the distributed matrix w[VR,* ]
@@ -831,7 +831,7 @@ void HermitianEig
         std::vector<Real> wVector(n);
         pmrrr::Info info = pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], g.VRComm(), lowerBound, upperBound );
+          wVector.data(), g.VRComm(), lowerBound, upperBound );
 
         // Copy wVector into the distributed matrix w[VR,* ]
         const Int k = info.numGlobalEigenvalues;
@@ -962,10 +962,10 @@ void HermitianEig
     {
         // Get an estimate of the amount of memory to allocate
         std::vector<Real> dVector(n), eVector(n), wVector(n);
-        elem::MemCopy( &dVector[0], d_STAR_STAR.Buffer(), n );
-        elem::MemCopy( &eVector[0], e_STAR_STAR.Buffer(), n );
+        elem::MemCopy( dVector.data(), d_STAR_STAR.Buffer(), n );
+        elem::MemCopy( eVector.data(), e_STAR_STAR.Buffer(), n );
         pmrrr::Estimate estimate = pmrrr::EigEstimate
-        ( int(n), &dVector[0], &eVector[0], &wVector[0], g.VRComm(), 
+        ( int(n), dVector.data(), eVector.data(), wVector.data(), g.VRComm(), 
           lowerBound, upperBound );
         std::vector<Real>().swap( dVector );
         std::vector<Real>().swap( eVector );
@@ -995,7 +995,7 @@ void HermitianEig
         // Now perform the actual computation
         pmrrr::Info info = pmrrr::Eig
         ( int(n), d_STAR_STAR.Buffer(), e_STAR_STAR.Buffer(),
-          &wVector[0], Z_STAR_VR_Buffer, int(n), g.VRComm(), 
+          wVector.data(), Z_STAR_VR_Buffer, int(n), g.VRComm(), 
           lowerBound, upperBound );
         k = info.numGlobalEigenvalues;
 

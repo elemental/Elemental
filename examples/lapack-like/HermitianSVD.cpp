@@ -64,15 +64,15 @@ main( int argc, char* argv[] )
         const Int rowStride = H.RowStride();
         const Int localHeight = H.LocalHeight();
         const Int localWidth = H.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            // Our process owns the rows colShift:colStride:n,
+            //           and the columns rowShift:rowStride:n
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
+                const Int i = colShift + iLoc*colStride;
+                H.SetLocal( iLoc, jLoc, C(i+j,i-j) );
             }
         }
         // Alternatively, we could have sequentially filled the matrix with 
@@ -82,7 +82,6 @@ main( int argc, char* argv[] )
         //
         // More convenient interfaces are being investigated.
         //
-
         if( print )
             Print( H, "H" );
 
@@ -99,7 +98,6 @@ main( int argc, char* argv[] )
         DistMatrix<R,VR,STAR> s( g );
         DistMatrix<C> U( g ), V( g );
         HermitianSVD( LOWER, H, s, U, V ); // only use lower half of H
-
         if( print )
         {
             Print( s, "Singular values of H" );

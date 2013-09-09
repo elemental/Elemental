@@ -122,7 +122,8 @@ TwoSidedTrsmUUnb( UnitOrNonUnit diag, Matrix<F>& A, const Matrix<F>& U )
         for( Int k=0; k<a21Height; ++k )
             u12Conj[k] = Conj(u12[k*ldu]);
         blas::Her2
-        ( 'U', a21Height, F(-1), &u12Conj[0], 1, &a12Conj[0], 1, A22, lda );
+        ( 'U', a21Height, 
+          F(-1), u12Conj.data(), 1, a12Conj.data(), 1, A22, lda );
 
         // a12 := a12 - (alpha11/2)u12
         for( Int k=0; k<a21Height; ++k )

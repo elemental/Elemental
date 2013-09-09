@@ -50,15 +50,15 @@ main( int argc, char* argv[] )
         const Int rowStride = S.RowStride();
         const Int localHeight = S.LocalHeight();
         const Int localWidth = S.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
                 // Our process owns the rows colShift:colStride:n,
                 //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                S.SetLocal( iLocal, jLocal, C(i-j,i+j) );
+                const Int i = colShift + iLoc*colStride;
+                const Int j = rowShift + jLoc*rowStride;
+                S.SetLocal( iLoc, jLoc, C(i-j,i+j) );
             }
         }
 

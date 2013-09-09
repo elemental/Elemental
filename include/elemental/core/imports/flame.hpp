@@ -51,10 +51,10 @@ inline void FlaSVD
   double* U, int ldu, double* V, int ldv, 
   int numAccum=32, int maxNumIts=30, int bAlg=512 )
 {
-    std::vector<Complex<double> > G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
+    std::vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
     FLA_Bsvd_v_opd_var1
-    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, &G[0], 1, k-1, &H[0], 1, k-1,
-      U, 1, ldu, V, 1, ldv, bAlg );
+    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, 
+      G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
 }
 
 inline void FlaSVD
@@ -62,10 +62,10 @@ inline void FlaSVD
   Complex<double>* U, int ldu, Complex<double>* V, int ldv, 
   int numAccum=32, int maxNumIts=30, int bAlg=512 )
 {
-    std::vector<Complex<double> > G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
+    std::vector<Complex<double>> G( (k-1)*numAccum ), H( (k-1)*numAccum ); 
     FLA_Bsvd_v_opz_var1
-    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, &G[0], 1, k-1, &H[0], 1, k-1,
-      U, 1, ldu, V, 1, ldv, bAlg );
+    ( k, mU, mV, numAccum, maxNumIts, d, 1, e, 1, 
+      G.data(), 1, k-1, H.data(), 1, k-1, U, 1, ldu, V, 1, ldv, bAlg );
 }
 
 } // namespace elem

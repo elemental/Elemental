@@ -80,7 +80,7 @@ MakeHermitianUniformSpectrum
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
             d[j] = Uniform<R>( lower, upper );
-    mpi::Broadcast( &d[0], n, 0, grid.Comm() );
+    mpi::Broadcast( d.data(), n, 0, grid.Comm() );
     DistMatrix<F> ABackup( grid );
     if( standardDist )
         Diagonal( A, d );

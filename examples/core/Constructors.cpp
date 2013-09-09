@@ -53,32 +53,31 @@ main( int argc, char* argv[] )
             std::vector<double> localData( localHeight*localWidth );
 
             // Fill local data for identity
-            for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             {
                 // Form global column index from local column index
-                const Int j = gridCol + jLocal*gridWidth;
-                for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+                const Int j = gridCol + jLoc*gridWidth;
+                for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 {
                     // Form global row index from local row index
-                    const Int i = gridRow + iLocal*gridHeight;     
-
+                    const Int i = gridRow + iLoc*gridHeight;     
                     // If diagonal entry, set to one, otherwise zero
                     if( i == j )
-                        localData[iLocal+jLocal*localHeight] = 1.;
+                        localData[iLoc+jLoc*localHeight] = 1.;
                     else
-                        localData[iLocal+jLocal*localHeight] = 0.;
+                        localData[iLoc+jLoc*localHeight] = 0.;
                 }
             }
 
             DistMatrix<double> 
-                X( n, n, 0, 0, &localData[0], localHeight, grid );
+                X( n, n, 0, 0, localData.data(), localHeight, grid );
             if( print )
                 Print( X, "Identity constructed from local buffers" );
 
             // Build another set of local buffers and attach it to X.
             // This time, make it all two's.
             std::vector<double> localTwos( localHeight*localWidth, 2 ); 
-            X.Attach( n, n, 0, 0, &localTwos[0], localHeight, grid );
+            X.Attach( n, n, 0, 0, localTwos.data(), localHeight, grid );
             if( print )
                 Print( X, "After viewing local buffers of all two's" );
         }

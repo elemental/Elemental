@@ -221,7 +221,7 @@ Full
                     for( Int jLoc=0; jLoc<nLocal; ++jLoc )    
                         pivotBuffer[jLoc] = A.GetLocal(iLoc,jLoc);
                     mpi::SendRecv
-                    ( &pivotBuffer[0], nLocal, 
+                    ( pivotBuffer.data(), nLocal, 
                       pivOwnerRow, pivOwnerRow, g.ColComm() );
                     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                         A.SetLocal( iLoc, jLoc, pivotBuffer[jLoc] );
@@ -232,7 +232,7 @@ Full
                     for( Int jLoc=0; jLoc<nLocal; ++jLoc )    
                         pivotBuffer[jLoc] = A.GetLocal(iLoc,jLoc);
                     mpi::SendRecv
-                    ( &pivotBuffer[0], nLocal, 
+                    ( pivotBuffer.data(), nLocal, 
                       curOwnerRow, curOwnerRow, g.ColComm() );
                     for( Int jLoc=0; jLoc<nLocal; ++jLoc )
                         A.SetLocal( iLoc, jLoc, pivotBuffer[jLoc] );
@@ -269,7 +269,7 @@ Full
                     for( Int iLoc=0; iLoc<mLocal; ++iLoc )    
                         pivotBuffer[iLoc] = A.GetLocal(iLoc,jLoc);
                     mpi::SendRecv
-                    ( &pivotBuffer[0], mLocal, 
+                    ( pivotBuffer.data(), mLocal, 
                       pivOwnerCol, pivOwnerCol, g.RowComm() );
                     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                         A.SetLocal( iLoc, jLoc, pivotBuffer[iLoc] );
@@ -280,7 +280,7 @@ Full
                     for( Int iLoc=0; iLoc<mLocal; ++iLoc )    
                         pivotBuffer[iLoc] = A.GetLocal(iLoc,jLoc);
                     mpi::SendRecv
-                    ( &pivotBuffer[0], mLocal, 
+                    ( pivotBuffer.data(), mLocal, 
                       curOwnerCol, curOwnerCol, g.RowComm() );
                     for( Int iLoc=0; iLoc<mLocal; ++iLoc )
                         A.SetLocal( iLoc, jLoc, pivotBuffer[iLoc] );

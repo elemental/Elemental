@@ -36,9 +36,9 @@ Median( const Matrix<Real>& x )
         pairs[i].value = xBuffer[i*stride];
         pairs[i].index = i;
     }
-    std::sort( &pairs[0], &pairs[m], ValueInt<Real>::Lesser );
+    std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Lesser );
 
-    return pairs[m/2];
+    return pairs[k/2];
 }
 
 template<typename Real,Distribution U,Distribution V>

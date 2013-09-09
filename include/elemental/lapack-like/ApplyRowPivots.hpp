@@ -303,8 +303,8 @@ ApplyRowPivots
     // Communicate all pivot rows
     std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
-    ( &sendData[0], &sendCounts[0], &sendDispls[0],
-      &recvData[0], &recvCounts[0], &recvDispls[0], g.ColComm() );
+    ( sendData.data(), sendCounts.data(), sendDispls.data(),
+      recvData.data(), recvCounts.data(), recvDispls.data(), g.ColComm() );
 
     // Unpack the recv data
     for( Int k=0; k<r; ++k )

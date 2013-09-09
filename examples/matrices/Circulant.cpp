@@ -64,13 +64,13 @@ main( int argc, char* argv[] )
         // Form the thresholded result
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                const double absValue = Abs(A.GetLocal(iLocal,jLocal));
+                const double absValue = Abs(A.GetLocal(iLoc,jLoc));
                 if( absValue < 1e-13 )
-                    A.SetLocal(iLocal,jLocal,0);
+                    A.SetLocal(iLoc,jLoc,0);
             }
         }
         if( display )

@@ -65,7 +65,7 @@ MakeNormalUniformSpectrum
     if( grid.Rank() == 0 )
         for( Int j=0; j<n; ++j )
             d[j] = SampleBall<C>( center, radius );
-    mpi::Broadcast( &d[0], n, 0, grid.Comm() );
+    mpi::Broadcast( d.data(), n, 0, grid.Comm() );
     DistMatrix<C> ABackup( grid );
     if( standardDist )
         Diagonal( A, d );

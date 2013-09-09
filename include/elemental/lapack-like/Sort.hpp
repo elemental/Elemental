@@ -31,9 +31,9 @@ Sort( Matrix<Real>& X, SortType sort=ASCENDING )
     {
         Real* XCol = X.Buffer(0,j);
         if( sort == ASCENDING )
-            std::sort( &XCol[0], &XCol[m] );
+            std::sort( XCol, XCol+m );
         else
-            std::sort( &XCol[0], &XCol[m], std::greater<Real>() );
+            std::sort( XCol, XCol+m, std::greater<Real>() );
     }
 }
 
@@ -92,9 +92,9 @@ TaggedSort( const Matrix<Real>& x, SortType sort=ASCENDING )
     }
 
     if( sort == ASCENDING )
-        std::sort( &pairs[0], &pairs[m], ValueInt<Real>::Lesser );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Lesser );
     else if( sort == DESCENDING )
-        std::sort( &pairs[0], &pairs[m], ValueInt<Real>::Greater );
+        std::sort( pairs.begin(), pairs.end(), ValueInt<Real>::Greater );
 
     return pairs;
 }

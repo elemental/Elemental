@@ -47,11 +47,10 @@ FindPivot( const std::vector<Real>& norms, Int col )
 #ifndef RELEASE
     CallStackEntry entry("qr::FindPivot");
 #endif
-    const Int n = norms.size();
-    const Real* maxNorm = std::max_element( &norms[col], &norms[0]+n );
+    const auto maxNorm = std::max_element( norms.begin()+col, norms.end() );
     ValueInt<Real> pivot;
     pivot.value = *maxNorm;
-    pivot.index = maxNorm - &norms[0];
+    pivot.index = maxNorm - norms.begin();
     return pivot;
 }
 
@@ -118,7 +117,8 @@ BusingerGolub
         // Perform the swap
         if( col != pivot.index )
         {
-            MemSwap( A.Buffer(0,col), A.Buffer(0,pivot.index), &swapBuf[0], m );
+            MemSwap
+            ( A.Buffer(0,col), A.Buffer(0,pivot.index), swapBuf.data(), m );
             norms[pivot.index] = norms[col];
             origNorms[pivot.index] = origNorms[col];
         }
@@ -286,7 +286,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Find the maximum relative scales 
     std::vector<Real> scales(localWidth);
     mpi::AllReduce
-    ( &localScales[0], &scales[0], localWidth, mpi::MAX, colComm );
+    ( localScales.data(), scales.data(), localWidth, mpi::MAX, colComm );
 
     // Equilibrate the local scaled sums to the maximum scale
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -301,7 +301,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Now sum the local contributions (can ignore results where scale is 0)
     std::vector<Real> scaledSquares(localWidth); 
     mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], localWidth, colComm );
+    ( localScaledSquares.data(), scaledSquares.data(), localWidth, colComm );
 
     // Finish the computation
     Real maxLocalNorm = 0;
@@ -361,7 +361,7 @@ ReplaceColumnNorms
     // Find the maximum relative scales 
     std::vector<Real> scales(numInaccurate);
     mpi::AllReduce
-    ( &localScales[0], &scales[0], numInaccurate, mpi::MAX, colComm );
+    ( localScales.data(), scales.data(), numInaccurate, mpi::MAX, colComm );
 
     // Equilibrate the local scaled sums to the maximum scale
     for( Int s=0; s<numInaccurate; ++s )
@@ -376,7 +376,7 @@ ReplaceColumnNorms
     // Now sum the local contributions (can ignore results where scale is 0)
     std::vector<Real> scaledSquares(numInaccurate); 
     mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], numInaccurate, colComm );
+    ( localScaledSquares.data(), scaledSquares.data(), numInaccurate, colComm );
 
     // Finish the computation
     for( Int s=0; s<numInaccurate; ++s )
@@ -478,7 +478,7 @@ BusingerGolub
                 const Int pivotColLocal = (pivot.index-rowShift) / rowStride;
                 MemSwap
                 ( A.Buffer(0,colLocal), A.Buffer(0,pivotColLocal),
-                  &swapBuf[0], mLocal );
+                  swapBuf.data(), mLocal );
                 norms[pivotColLocal] = norms[colLocal];
                 origNorms[pivotColLocal] = origNorms[colLocal];
             }

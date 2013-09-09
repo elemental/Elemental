@@ -196,7 +196,7 @@ Panel
                     B.SetLocal( iLoc, j, A.GetLocal(offset,j) );
             }
             // The owning row broadcasts within process columns
-            mpi::Broadcast( &pivotBuffer[0], n, ownerRow, g.ColComm() );
+            mpi::Broadcast( pivotBuffer.data(), n, ownerRow, g.ColComm() );
         }
         // Overwrite the current row with the pivot row
         for( Int j=0; j<n; ++j )

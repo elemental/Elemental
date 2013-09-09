@@ -43,15 +43,15 @@ int Corrupt( DistMatrix<F>& A, double probCorrupt )
     Int numLocalCorrupt = 0;
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             if( Uniform<Real>() <= probCorrupt )
             {
                 ++numLocalCorrupt;
                 const F perturb = SampleBall<F>();
-                A.SetLocal( iLocal, jLocal, A.GetLocal(iLocal,jLocal)+perturb );
+                A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)+perturb );
             }
         }
     }
@@ -67,12 +67,12 @@ void NormalizeEntries( DistMatrix<F,U,V>& A )
 {
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
-    for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
-        for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
-            const F alpha = A.GetLocal( iLocal, jLocal );
-            A.SetLocal( iLocal, jLocal, alpha/Abs(alpha) );
+            const F alpha = A.GetLocal( iLoc, jLoc );
+            A.SetLocal( iLoc, jLoc, alpha/Abs(alpha) );
         }
     }
 }

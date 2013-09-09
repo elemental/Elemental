@@ -123,8 +123,8 @@ ComputePartition( DistMatrix<F>& A )
             }
         }
     }
-    mpi::AllReduce( &colSums[0], n-1, g.VCComm() );
-    mpi::AllReduce( &rowSums[0], n-1, g.VCComm() );
+    mpi::AllReduce( colSums.data(), n-1, g.VCComm() );
+    mpi::AllReduce( rowSums.data(), n-1, g.VCComm() );
 
     // Compute the list of norms and its minimum value/index
     // TODO: Think of the proper way to parallelize this if necessary
@@ -870,8 +870,8 @@ inline void SplitGrid
         rightRanks[j] = j+pLeft;
     mpi::Group group = grid.OwningGroup();
     mpi::Group leftGroup, rightGroup;
-    mpi::GroupIncl( group, pLeft, &leftRanks[0], leftGroup );
-    mpi::GroupIncl( group, pRight, &rightRanks[0], rightGroup );
+    mpi::GroupIncl( group, pLeft, leftRanks.data(), leftGroup );
+    mpi::GroupIncl( group, pRight, rightRanks.data(), rightGroup );
     leftGrid = new Grid( grid.VCComm(), leftGroup, Grid::FindFactor(pLeft) );
     rightGrid = new Grid( grid.VCComm(), rightGroup, Grid::FindFactor(pRight) );
 }

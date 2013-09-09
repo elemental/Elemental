@@ -85,7 +85,7 @@ HermitianTridiag
         mpi::Group owningGroup = g.OwningGroup();
         mpi::Group squareGroup;
         mpi::GroupIncl
-        ( owningGroup, squareRanks.size(), &squareRanks[0], squareGroup );
+        ( owningGroup, squareRanks.size(), squareRanks.data(), squareGroup );
 
         mpi::Comm viewingComm = g.ViewingComm();
         const Grid squareGrid( viewingComm, squareGroup, pSqrt );

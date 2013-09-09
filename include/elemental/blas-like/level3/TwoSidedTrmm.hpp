@@ -48,7 +48,8 @@ TwoSidedTrmmLUnb( UnitOrNonUnit diag, Matrix<T>& A, const Matrix<T>& L )
             a10Conj[k] = Conj(a10[k*lda]);
         for( Int k=0; k<j; ++k )
             l10Conj[k] = Conj(l10[k*ldl]);
-        blas::Her2( 'L', j, T(1), &a10Conj[0], 1, &l10Conj[0], 1, A00, lda );
+        blas::Her2
+        ( 'L', j, T(1), a10Conj.data(), 1, l10Conj.data(), 1, A00, lda );
 
         // a10 := a10 + (alpha11/2)l10
         for( Int k=0; k<j; ++k )

@@ -37,7 +37,7 @@ main( int argc, char* argv[] )
         mpi::Group group, sqrtGroup;
         
         mpi::CommGroup( comm, group );
-        mpi::GroupIncl( group, sqrtRanks.size(), &sqrtRanks[0], sqrtGroup );
+        mpi::GroupIncl( group, sqrtRanks.size(), sqrtRanks.data(), sqrtGroup );
 
         const Grid grid( comm );
         const Grid sqrtGrid( comm, sqrtGroup, grid.Height() );

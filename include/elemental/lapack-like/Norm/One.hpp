@@ -104,7 +104,8 @@ OneNorm( const DistMatrix<F,U,V>& A )
     // Sum our partial column sums to get the column sums over A[* ,V]
     std::vector<R> myColSums( localWidth );
     mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::AllReduce( &myPartialColSums[0], &myColSums[0], localWidth, colComm );
+    mpi::AllReduce
+    ( myPartialColSums.data(), myColSums.data(), localWidth, colComm );
 
     // Find the maximum out of the column sums
     R myMaxColSum = 0;
@@ -180,7 +181,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         }
         std::vector<R> colSums( height );
         mpi::AllReduce
-        ( &partialColSums[0], &colSums[0], height, A.Grid().VCComm() );
+        ( partialColSums.data(), colSums.data(), height, A.Grid().VCComm() );
 
         // Find the maximum sum
         for( Int j=0; j<height; ++j )
@@ -224,7 +225,7 @@ HermitianOneNorm( UpperOrLower uplo, const DistMatrix<F>& A )
         }
         std::vector<R> colSums( height );
         mpi::AllReduce
-        ( &partialColSums[0], &colSums[0], height, A.Grid().VCComm() );
+        ( partialColSums.data(), colSums.data(), height, A.Grid().VCComm() );
 
         // Find the maximum sum
         for( Int j=0; j<height; ++j )

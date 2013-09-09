@@ -74,8 +74,8 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
 
     std::vector<R> localNorms(gridWidth);
     R localNorm = Nrm2( x.LockedMatrix() ); 
-    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, rowComm );
-    R norm = blas::Nrm2( gridWidth, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
+    R norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
 
     if( norm == 0 )
     {
@@ -112,8 +112,8 @@ Row( DistMatrix<R>& chi, DistMatrix<R>& x )
         } while( Abs(beta) < safeInv );
 
         localNorm = Nrm2( x.LockedMatrix() );
-        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, rowComm );
-        norm = blas::Nrm2( gridWidth, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
+        norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
         if( alpha <= 0 )
             beta = lapack::SafeNorm( alpha, norm );
         else
@@ -157,8 +157,8 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 
     std::vector<R> localNorms(gridWidth);
     R localNorm = Nrm2( x.LockedMatrix() ); 
-    mpi::AllGather( &localNorm, 1, &localNorms[0], 1, rowComm );
-    R norm = blas::Nrm2( gridWidth, &localNorms[0], 1 );
+    mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
+    R norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
 
     C alpha;
     if( gridCol == rowAlignment )
@@ -195,8 +195,8 @@ Row( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
         } while( Abs(beta) < safeInv );
 
         localNorm = Nrm2( x.LockedMatrix() );
-        mpi::AllGather( &localNorm, 1, &localNorms[0], 1, rowComm );
-        norm = blas::Nrm2( gridWidth, &localNorms[0], 1 );
+        mpi::AllGather( &localNorm, 1, localNorms.data(), 1, rowComm );
+        norm = blas::Nrm2( gridWidth, localNorms.data(), 1 );
         if( alpha.real() <= 0 )
             beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
