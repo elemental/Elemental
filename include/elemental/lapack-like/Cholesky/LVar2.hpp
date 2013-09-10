@@ -30,36 +30,20 @@ LVar2( Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    // Matrix views
-    Matrix<F> 
-        ATL, ATR,   A00, A01, A02,
-        ABL, ABR,   A10, A11, A12,
-                    A20, A21, A22;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = std::min(bsize,n-k);
+        auto A10 = View( A, k,    0, nb,       k  );
+        auto A11 = View( A, k,    k, nb,       nb );
+        auto A20 = View( A, k+nb, 0, n-(k+nb), k  );
+        auto A21 = View( A, k+nb, k, n-(k+nb), nb );
 
-        //--------------------------------------------------------------------//
         Herk( LOWER, NORMAL, F(-1), A10, F(1), A11 );
         cholesky::LVar3Unb( A11 );
         Gemm( NORMAL, ADJOINT, F(-1), A20, A10, F(1), A21 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
@@ -73,37 +57,25 @@ LVar2( DistMatrix<F>& A )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
     const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<F> 
-        ATL(g), ATR(g),   A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),   A10(g), A11(g), A12(g),
-                          A20(g), A21(g), A22(g);
-
-    // Temporary distributions
     DistMatrix<F,MR,  STAR> A10Adj_MR_STAR(g);
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
     DistMatrix<F,MC,  STAR> X11_MC_STAR(g);
     DistMatrix<F,MC,  STAR> X21_MC_STAR(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
-
+        const Int nb = std::min(bsize,n-k);
+        auto A10 = View( A, k,    0,    nb,       k        );
+        auto A11 = View( A, k,    k,    nb,       nb       );
+        auto A20 = View( A, k+nb, 0,    n-(k+nb), k        );
+        auto A21 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
+ 
         A10Adj_MR_STAR.AlignWith( A10 );
-        X11_MC_STAR.AlignWith( A10 );
-        X21_MC_STAR.AlignWith( A20 );
-        //--------------------------------------------------------------------//
         A10Adj_MR_STAR.AdjointFrom( A10 );
+        X11_MC_STAR.AlignWith( A10 );
         LocalGemm( NORMAL, NORMAL, F(1), A10, A10Adj_MR_STAR, X11_MC_STAR );
         A11.SumScatterUpdate( F(-1), X11_MC_STAR );
 
@@ -111,6 +83,7 @@ LVar2( DistMatrix<F>& A )
         LocalCholesky( LOWER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
+        X21_MC_STAR.AlignWith( A20 );
         LocalGemm( NORMAL, NORMAL, F(1), A20, A10Adj_MR_STAR, X21_MC_STAR );
         A21.SumScatterUpdate( F(-1), X21_MC_STAR );
 
@@ -118,13 +91,6 @@ LVar2( DistMatrix<F>& A )
         LocalTrsm
         ( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A21_VC_STAR );
         A21 = A21_VC_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

@@ -46,44 +46,33 @@ UVar3Square( DistMatrix<F>& A )
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );
 
-    // Matrix views
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary matrix distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 ); 
-    while( ABR.Height() > 0 )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = std::min(bsize,n-k);
+        auto A11 = View( A, k,    k,    nb,       nb       );
+        auto A12 = View( A, k,    k+nb, nb,       n-(k+nb) );
+        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
 
-        A12_STAR_MC.AlignWith( A22 );
-        A12_STAR_MR.AlignWith( A22 );
-        A12_STAR_VR.AlignWith( A22 );
-        //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
+        A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
+        A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
         // SendRecv to form A12[* ,MC] from A12[* ,MR]
+        A12_STAR_MC.AlignWith( A22 );
         A12_STAR_MC.ResizeTo( A12.Height(), A12.Width() );
         {
             if( onDiagonal )
@@ -107,13 +96,6 @@ UVar3Square( DistMatrix<F>& A )
         LocalTrrk
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

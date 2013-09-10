@@ -5,7 +5,6 @@ Functionality
 - Ability to change default grid with command-line options
 - Quadratic-time Haar generation via random Householder reflectors
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-- 'PartitionTracker' class instead of Repartition/SlidePartition
 - Way for DistMatrix with single process to view Matrix, and operator=
 - (Generalized) Spectral Divide and Conquer
 - More Sign algorithms
@@ -40,6 +39,7 @@ Functionality
 
 Maintenance
 ===========
+- Move AdjointFrom and TransposeFrom into Adjoint and Transpose
 - Find cause of occasional invalid reads in PMR_process_r_queue
 - Find cause of minor memory leak in schur::SDC
 - Document SDC for HermitianEig
