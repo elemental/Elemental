@@ -13,7 +13,7 @@
 #include "elemental/blas-like/level1/Adjoint.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
-#include "elemental/blas-like/level3/Gemm.hpp"
+#include "elemental/blas-like/level3/Trmm.hpp"
 #include "elemental/lapack-like/QR.hpp"
 
 #include "elemental/lapack-like/SVD/GolubReinsch.hpp"
@@ -48,7 +48,7 @@ ChanUpper
         // from the SVD of the R from the QR factorization of A
         //
         // Perhaps this should be broken into pieces.
-        DistMatrix<F> ACopy( A );
+        auto ACopy( A );
         Gemm( NORMAL, NORMAL, F(1), ACopy, R, F(0), A );
     }
     else
@@ -101,9 +101,8 @@ Chan
         LogicError("Nonsensical switchpoint for SVD");
 #endif
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     BASE(F) scale;
-    svd::CheckScale( A, needRescaling, scale );
+    bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         Scale( scale, A );
 
@@ -138,10 +137,8 @@ Chan( DistMatrix<F>& A, DistMatrix<BASE(F),VR,STAR>& s, double heightRatio=1.2 )
     CallStackEntry entry("svd::Chan");
 #endif
     // Check if we need to rescale the matrix, and do so if necessary
-    typedef BASE(F) R;
-    bool needRescaling;
-    R scale;
-    svd::CheckScale( A, needRescaling, scale );
+    BASE(F) scale;
+    bool needRescaling = svd::CheckScale( A, scale );
     if( needRescaling )
         Scale( scale, A );
 

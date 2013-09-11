@@ -34,11 +34,11 @@ LVar2( Matrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A10 = View( A, k,    0, nb,       k  );
-        auto A11 = View( A, k,    k, nb,       nb );
-        auto A20 = View( A, k+nb, 0, n-(k+nb), k  );
-        auto A21 = View( A, k+nb, k, n-(k+nb), nb );
+        const Int nb = Min(bsize,n-k);
+        auto A10 = ViewRange( A, k,    0, k+nb, k    );
+        auto A11 = ViewRange( A, k,    k, k+nb, k+nb );
+        auto A20 = ViewRange( A, k+nb, 0, n,    k    );
+        auto A21 = ViewRange( A, k+nb, k, n,    k+nb );
 
         Herk( LOWER, NORMAL, F(-1), A10, F(1), A11 );
         cholesky::LVar3Unb( A11 );
@@ -67,11 +67,11 @@ LVar2( DistMatrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A10 = View( A, k,    0,    nb,       k        );
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A20 = View( A, k+nb, 0,    n-(k+nb), k        );
-        auto A21 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A10 = ViewRange( A, k,    0, k+nb, k    );
+        auto A11 = ViewRange( A, k,    k, k+nb, k+nb );
+        auto A20 = ViewRange( A, k+nb, 0, n,    k    );
+        auto A21 = ViewRange( A, k+nb, k, n,    k+nb );
  
         A10Adj_MR_STAR.AlignWith( A10 );
         A10Adj_MR_STAR.AdjointFrom( A10 );

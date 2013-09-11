@@ -44,23 +44,21 @@ GolubReinschUpper
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
 
     // NOTE: lapack::BidiagQRAlg expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g ),
-                               e_STAR_STAR( g );
-    View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
+                               eHat_STAR_STAR( k, 1, g );
+    auto e_STAR_STAR = View( eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
     // Initialize U and VAdj to the appropriate identity matrices
     DistMatrix<F,VC,STAR> U_VC_STAR( g );
-    DistMatrix<F,STAR,VC> VAdj_STAR_VC( g );
     U_VC_STAR.AlignWith( A );
-    VAdj_STAR_VC.AlignWith( V );
     Identity( U_VC_STAR, m, k );
+    DistMatrix<F,STAR,VC> VAdj_STAR_VC( g );
+    VAdj_STAR_VC.AlignWith( V );
     Identity( VAdj_STAR_VC, k, n );
 
     // Compute the SVD of the bidiagonal matrix and accumulate the Givens
@@ -75,7 +73,7 @@ GolubReinschUpper
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and VAdj into a standard matrix dist.
-    DistMatrix<F> B( A );
+    auto B( A );
     if( m >= n )
     {
         DistMatrix<F> AT(g), AB(g);
@@ -88,10 +86,9 @@ GolubReinschUpper
     }
     else
     {
+        auto VAdjL_STAR_VC = LockedView( VAdj_STAR_VC, 0, 0, k, m );
         DistMatrix<F> VT(g), VB(g);
-        DistMatrix<F,STAR,VC> VAdjL_STAR_VC(g), VAdjR_STAR_VC(g);
         PartitionDown( V, VT, VB, m );
-        PartitionRight( VAdj_STAR_VC, VAdjL_STAR_VC, VAdjR_STAR_VC, m );
         Adjoint( VAdjL_STAR_VC, VT );
         MakeZeros( VB );
     }
@@ -125,9 +122,8 @@ GolubReinschUpper_FLA
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
 
     // In order to use serial QR kernels, we need the full bidiagonal matrix
     // on each process
@@ -149,23 +145,21 @@ GolubReinschUpper_FLA
 
     // Make a copy of A (for the Householder vectors) and pull the necessary 
     // portions of U and V into a standard matrix dist.
-    DistMatrix<F> B( A );
+    auto B( A );
     if( m >= n )
     {
+        auto UT_VC_STAR = LockedView( U_VC_STAR, 0, 0, n, k );
         DistMatrix<F> AT(g), AB(g);
-        DistMatrix<F,VC,STAR> UT_VC_STAR(g), UB_VC_STAR(g);
         PartitionDown( A, AT, AB, n );
-        PartitionDown( U_VC_STAR, UT_VC_STAR, UB_VC_STAR, n );
         AT = UT_VC_STAR;
         MakeZeros( AB );
         V = V_VC_STAR;
     }
     else
     {
+        auto VT_VC_STAR = LockedView( V_VC_STAR, 0, 0, m, k );
         DistMatrix<F> VT(g), VB(g);
-        DistMatrix<F,VC,STAR> VT_VC_STAR(g), VB_VC_STAR(g);
         PartitionDown( V, VT, VB, m );
-        PartitionDown( V_VC_STAR, VT_VC_STAR, VB_VC_STAR, m );
         VT = VT_VC_STAR;
         MakeZeros( VB );
     }
@@ -223,18 +217,16 @@ GolubReinschUpper
     Bidiag( A, tP, tQ );
 
     // Grab copies of the diagonal and sub/super-diagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR(g), e_MD_STAR(g);
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, offdiagonal );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( offdiagonal );
 
     // In order to use serial DQDS kernels, we need the full bidiagonal matrix
     // on each process
     //
     // NOTE: lapack::BidiagDQDS expects e to be of length k
     DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
-                               eHat_STAR_STAR( k, 1, g ),
-                               e_STAR_STAR( g );
-    View( e_STAR_STAR, eHat_STAR_STAR, 0, 0, k-1, 1 );
+                               eHat_STAR_STAR( k, 1, g );
+    auto e_STAR_STAR = View( eHat_STAR_STAR, 0, 0, k-1, 1 );
     e_STAR_STAR = e_MD_STAR;
 
     // Compute the singular values of the bidiagonal matrix via DQDS

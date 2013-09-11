@@ -26,47 +26,35 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         LogicError("p must be a vector that conforms with A");
 #endif
     typedef BASE(F) Real;
+    const Int m = A.Height();
     const Int n = A.Width();
-    // Matrix views
-    Matrix<F> 
-        ATL, ATR,  A00, a01,     A02,  
-        ABL, ABR,  a10, alpha11, a12,  
-                   A20, a21,     A22;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Width() < A.Width() )
+    for( Int k=0; k<n; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
+        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
 
-        //--------------------------------------------------------------------//
         // Find the index and value of the pivot candidate
-        const Int offset = A00.Height();
         ValueInt<Real> pivot;
         pivot.value = FastAbs(alpha11.Get(0,0));
-        pivot.index = offset;
+        pivot.index = k;
         for( Int i=0; i<a21.Height(); ++i )
         {
             const Real value = FastAbs(a21.Get(i,0));
             if( value > pivot.value )
             {
                 pivot.value = value;
-                pivot.index = offset + i + 1;
+                pivot.index = k + i + 1;
             }
         }
-        p.Set( offset, 0, pivot.index+pivotOffset );
+        p.Set( k, 0, pivot.index+pivotOffset );
 
         // Swap the pivot row and current row
         for( Int j=0; j<n; ++j )
         {
-            const F temp = A.Get(offset,j);
-            A.Set( offset,      j, A.Get(pivot.index,j) ); 
+            const F temp = A.Get(k,j);
+            A.Set( k,           j, A.Get(pivot.index,j) ); 
             A.Set( pivot.index, j, temp                 );
         }
 
@@ -77,13 +65,6 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         const F alpha11Inv = F(1) / alpha;
         Scale( alpha11Inv, a21 );
         Geru( F(-1), a21, a12, A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 
@@ -110,50 +91,32 @@ Panel
     const Int colShift = B.ColShift();
     const Int colAlignment = B.ColAlignment();
 
-    // Matrix views
-    DistMatrix<F,STAR,STAR> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  
-                         A20(g), a21(g),     A22(g);
-
-    DistMatrix<F,MC,STAR>
-        BL(g), BR(g),
-        B0(g), b1(g), B2(g);
-
     // For packing rows of data for pivoting
     const Int n = A.Width();
+    const Int mB = B.Height();
+    const Int nB = B.Width();
     std::vector<F> pivotBuffer( n );
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionRight( B, BL, BR, 0 );
-    while( ATL.Height() < A.Height() )
+    for( Int k=0; k<n; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21     = ViewRange( A, k+1, k,   n,   k+1 );
+        auto A22     = ViewRange( A, k+1, k+1, n,   n   );
+        auto b1      = ViewRange( B, 0,   k,   mB,  k+1 );
+        auto B2      = ViewRange( B, 0,   k+1, mB,  nB  );
 
-        RepartitionRight
-        ( BL, /**/ BR,  
-          B0, /**/ b1, B2, 1 );
-
-        //--------------------------------------------------------------------//
         // Store the index/value of the local pivot candidate
-        const Int offset = A00.Height();
         ValueInt<Real> localPivot;
         localPivot.value = FastAbs(alpha11.GetLocal(0,0));
-        localPivot.index = offset;
+        localPivot.index = k;
         for( Int i=0; i<a21.Height(); ++i )
         {
             const Real value = FastAbs(a21.GetLocal(i,0));
             if( value > localPivot.value )
             {
                 localPivot.value = value;
-                localPivot.index = offset + i + 1;
+                localPivot.index = k + i + 1;
             }
         }
         for( Int i=0; i<B.LocalHeight(); ++i )
@@ -162,30 +125,30 @@ Panel
             if( value > localPivot.value )
             {
                 localPivot.value = value;
-                localPivot.index = A.Height() + colShift + i*r;
+                localPivot.index = n + colShift + i*r;
             }
         }
 
         // Compute and store the location of the new pivot
         const ValueInt<Real> pivot = 
             mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), g.ColComm() );
-        p.SetLocal(offset,0,pivot.index+pivotOffset);
+        p.SetLocal(k,0,pivot.index+pivotOffset);
 
         // Perform the pivot within this panel
-        if( pivot.index < A.Height() )
+        if( pivot.index < n )
         {
             // Pack pivot into temporary
             for( Int j=0; j<n; ++j )
                 pivotBuffer[j] = A.GetLocal( pivot.index, j );
             // Replace pivot with current
             for( Int j=0; j<n; ++j )
-                A.SetLocal( pivot.index, j, A.GetLocal(offset,j) );
+                A.SetLocal( pivot.index, j, A.GetLocal(k,j) );
         }
         else
         {
             // The owning row of the pivot row packs it into the row buffer
             // and then overwrites with the current row
-            const Int relIndex = pivot.index - A.Height();
+            const Int relIndex = pivot.index - n;
             const Int ownerRow = (colAlignment+relIndex) % r;
             if( g.Row() == ownerRow )
             {
@@ -193,14 +156,14 @@ Panel
                 for( Int j=0; j<n; ++j )
                     pivotBuffer[j] = B.GetLocal( iLoc, j );
                 for( Int j=0; j<n; ++j )
-                    B.SetLocal( iLoc, j, A.GetLocal(offset,j) );
+                    B.SetLocal( iLoc, j, A.GetLocal(k,j) );
             }
             // The owning row broadcasts within process columns
             mpi::Broadcast( pivotBuffer.data(), n, ownerRow, g.ColComm() );
         }
         // Overwrite the current row with the pivot row
         for( Int j=0; j<n; ++j )
-            A.SetLocal( offset, j, pivotBuffer[j] );
+            A.SetLocal( k, j, pivotBuffer[j] );
 
         // Now we can perform the update of the current panel
         const F alpha = alpha11.GetLocal(0,0);
@@ -211,17 +174,6 @@ Panel
         Scale( alpha11Inv, b1  );
         Geru( F(-1), a21.Matrix(), a12.Matrix(), A22.Matrix() );
         Geru( F(-1), b1.Matrix(), a12.Matrix(), B2.Matrix() );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-
-        SlidePartitionRight
-        ( BL,     /**/ BR,  
-          B0, b1, /**/ B2 );
     }
 }
 

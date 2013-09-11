@@ -35,7 +35,7 @@ template<typename T,Distribution U,Distribution V>
 DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B );
 
 //
-// Viewing a submatrix
+// Viewing a submatrix from (i,j) to (i+height,j+width)
 //
 
 template<typename T>
@@ -63,6 +63,38 @@ void LockedView
 template<typename T,Distribution U,Distribution V>
 DistMatrix<T,U,V> LockedView
 ( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width );
+
+//
+// Viewing a submatrix [iBeg:iEnd),[jBeg:jEnd)
+//
+
+template<typename T>
+void ViewRange
+( Matrix<T>& A, Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T>
+Matrix<T> ViewRange
+( Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T,Distribution U,Distribution V>
+void ViewRange
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> ViewRange
+( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+
+template<typename T>
+void LockedViewRange
+( Matrix<T>& A, const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T>
+Matrix<T> LockedViewRange
+( const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T,Distribution U,Distribution V>
+void LockedViewRange
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd );
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> LockedViewRange
+( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd );
 
 //
 // View two horizontally connected matrices

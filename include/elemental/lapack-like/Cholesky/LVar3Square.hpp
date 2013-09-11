@@ -30,9 +30,8 @@ LVar3Square( DistMatrix<F>& A )
     if( A.Grid().Height() != A.Grid().Width() )
         LogicError("CholeskyLVar3Square requires a square process grid");
 #endif
-    const Grid& g = A.Grid();
-
     // Find the process holding our transposed data
+    const Grid& g = A.Grid();
     const Int r = g.Height();
     Int transposeRank;
     {
@@ -56,10 +55,10 @@ LVar3Square( DistMatrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A21 = View( A, k+nb, k,    n-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
@@ -86,8 +85,8 @@ LVar3Square( DistMatrix<F>& A )
             }
             else
             {
-                const Int sendSize = A22.LocalHeight()*A11.Width();
-                const Int recvSize = A22.LocalWidth()*A11.Height();
+                const Int sendSize = A21.LocalHeight()*A21.Width();
+                const Int recvSize = A11.Height()*A22.LocalWidth();
                 // We know that the ldim is the height since we have manually 
                 // created both temporary matrices.
                 mpi::SendRecv 

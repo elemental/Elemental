@@ -93,11 +93,11 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A21 = View( A, k+nb, k,    n-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
-        auto d1  = View( d, k,    0,    nb,       1        );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+        auto d1 = View( d, k, 0, nb, 1 );
 
         ldl::Var3Unb( orientation, A11, d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
@@ -139,11 +139,11 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A21 = View( A, k+nb, k,    n-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
-        auto d1  = View( d, k,    0,    nb,       1        );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+        auto d1 = View( d, k, 0, nb, 1 );
 
         A11_STAR_STAR = A11;
         LocalLDL( orientation, A11_STAR_STAR, d1_STAR_STAR );

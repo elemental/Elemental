@@ -30,38 +30,25 @@ void L( Matrix<F>& A, Matrix<F>& t )
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
-    typedef BASE(F) R;
-    const Int tHeight = Max(A.Height()-1,0);
-    t.ResizeTo( tHeight, 1 );
-
-    // Matrix views 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  alpha21T,
-        ABL, ABR,  a10, alpha11, a12,  a21B,
-                   A20, a21,     A22;
-
-    // Temporary matrices
-    Matrix<F> w21;
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height()+1 < A.Height() )
+    const Int n = A.Height();
+    if( n == 0 )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        t.ResizeTo( 0, 1 );
+        return;
+    }
+    t.ResizeTo( n-1, 1 );
 
-        PartitionDown
-        ( a21, alpha21T,
-               a21B,     1 );
+    Matrix<F> w21;
+    for( Int k=0; k<n-1; ++k )
+    {
+        auto a21      = ViewRange( A, k+1, k,   n,   k+1 );
+        auto alpha21T = ViewRange( A, k+1, k,   k+2, k+1 );
+        auto a21B     = ViewRange( A, k+2, k,   n,   k+1 );
+        auto A22      = ViewRange( A, k+1, k+1, n,   n   );
 
-        //--------------------------------------------------------------------//
         const F tau = Reflector( alpha21T, a21B );
-        const R epsilon1 = alpha21T.GetRealPart(0,0);
-        t.Set(A00.Height(),0,tau);
+        const BASE(F) epsilon1 = alpha21T.GetRealPart(0,0);
+        t.Set(k,0,tau);
         alpha21T.Set(0,0,F(1));
 
         Zeros( w21, a21.Height(), 1 );
@@ -70,13 +57,6 @@ void L( Matrix<F>& A, Matrix<F>& t )
         Axpy( alpha, a21, w21 );
         Her2( LOWER, F(-1), a21, w21, A22 );
         alpha21T.Set(0,0,epsilon1);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 
@@ -92,116 +72,71 @@ void L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
     if( t.Viewing() )
         LogicError("t must not be a view");
 #endif
+    const Int n = A.Height();
+    if( n == 0 )
+    {
+        t.ResizeTo( 0, 1 );
+        return;
+    }
     const Grid& g = A.Grid();
     DistMatrix<F,MD,STAR> tDiag(g);
     tDiag.AlignWithDiagonal( A, -1 );
-    tDiag.ResizeTo( A.Height()-1, 1 );
+    tDiag.ResizeTo( n-1, 1 );
 
-    // Matrix views 
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MD,STAR> tT(g),  t0(g), 
-                          tB(g),  t1(g),
-                                  t2(g);
-
-    // Temporary distributions
     DistMatrix<F> WPan(g);
-    DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
-    DistMatrix<F,MC,  STAR> APan_MC_STAR(g),  A11_MC_STAR(g),
-                                              A21_MC_STAR(g);
-    DistMatrix<F,MR,  STAR> APan_MR_STAR(g),  A11_MR_STAR(g),
-                                              A21_MR_STAR(g);
-    DistMatrix<F,MC,  STAR> WPan_MC_STAR(g),  W11_MC_STAR(g),
-                                              W21_MC_STAR(g);
-    DistMatrix<F,MR,  STAR> WPan_MR_STAR(g),  W11_MR_STAR(g),
-                                              W21_MR_STAR(g);
+    DistMatrix<F,STAR,STAR> A11_STAR_STAR(g), t1_STAR_STAR(g);
+    DistMatrix<F,MC,  STAR> APan_MC_STAR(g), WPan_MC_STAR(g);
+    DistMatrix<F,MR,  STAR> APan_MR_STAR(g), WPan_MR_STAR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( tDiag, tT,
-             tB, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k); 
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
+        auto ABR = ViewRange( A, k,    k,    n,    n    );
+        const Int nbt = Min(bsize,(n-1)-k);
+        auto t1 = View( tDiag, k, 0, nbt, 1 );
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-        
         if( A22.Height() > 0 )
         {
             WPan.AlignWith( A11 );
+            WPan.ResizeTo( n-k, nb );
             APan_MC_STAR.AlignWith( A11 );
+            APan_MC_STAR.ResizeTo( n-k, nb );
             WPan_MC_STAR.AlignWith( A11 );
+            WPan_MC_STAR.ResizeTo( n-k, nb );
             APan_MR_STAR.AlignWith( A11 );
+            APan_MR_STAR.ResizeTo( n-k, nb );
             WPan_MR_STAR.AlignWith( A11 );
-            //----------------------------------------------------------------//
-            WPan.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            APan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            WPan_MR_STAR.ResizeTo( ABR.Height(), A11.Width() );
+            WPan_MR_STAR.ResizeTo( n-k, nb );
 
             hermitian_tridiag::PanelL
             ( ABR, WPan, t1,
               APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
 
-            PartitionDown
-            ( APan_MC_STAR, A11_MC_STAR,
-                            A21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( APan_MR_STAR, A11_MR_STAR,
-                            A21_MR_STAR, A11.Height() );
-            PartitionDown
-            ( WPan_MC_STAR, W11_MC_STAR,
-                            W21_MC_STAR, A11.Height() );
-            PartitionDown
-            ( WPan_MR_STAR, W11_MR_STAR,
-                            W21_MR_STAR, A11.Height() );
+            auto A21_MC_STAR = LockedViewRange( APan_MC_STAR, nb, 0, n-k, nb );
+            auto A21_MR_STAR = LockedViewRange( APan_MR_STAR, nb, 0, n-k, nb );
+            auto W21_MC_STAR = LockedViewRange( WPan_MC_STAR, nb, 0, n-k, nb );
+            auto W21_MR_STAR = LockedViewRange( WPan_MR_STAR, nb, 0, n-k, nb );
 
             LocalTrr2k
             ( LOWER, ADJOINT, ADJOINT,
               F(-1), A21_MC_STAR, W21_MR_STAR,
                      W21_MC_STAR, A21_MR_STAR,
               F(1),  A22 );
-            //----------------------------------------------------------------//
         }
         else
         {
             A11_STAR_STAR = A11;
-            t1_STAR_STAR.ResizeTo( t1.Height(), 1 );
-
+            t1_STAR_STAR.ResizeTo( nbt, 1 );
             HermitianTridiag
             ( LOWER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
-
             A11 = A11_STAR_STAR;
             t1 = t1_STAR_STAR;
         }
-
-        SlidePartitionDown
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
-
     // Redistribute from matrix-diagonal form to fully replicated
     t = tDiag;
 }

@@ -111,8 +111,8 @@ BusingerGolub
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    auto RL = LockedView( A, 0, 0, numSteps, numSteps );
-    auto RR = LockedView( A, 0, numSteps, numSteps, n-numSteps );
+    auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
+    auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }
@@ -143,8 +143,8 @@ BusingerGolub
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    auto RL = LockedView( A, 0, 0, numSteps, numSteps );
-    auto RR = LockedView( A, 0, numSteps, numSteps, n-numSteps );
+    auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
+    auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }

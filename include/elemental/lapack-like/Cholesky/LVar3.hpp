@@ -25,15 +25,14 @@ LVar3Unb( Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) R;
-
+    typedef BASE(F) Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
     for( Int j=0; j<n; ++j )
     {
-        R alpha = RealPart(ABuffer[j+j*lda]);
-        if( alpha <= R(0) )
+        Real alpha = RealPart(ABuffer[j+j*lda]);
+        if( alpha <= Real(0) )
             LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
         ABuffer[j+j*lda] = alpha;
@@ -56,15 +55,14 @@ ReverseLVar3Unb( Matrix<F>& A )
     if( A.Height() != A.Width() )
         LogicError("Can only compute Cholesky factor of square matrices");
 #endif
-    typedef BASE(F) R;
-
+    typedef BASE(F) Real;
     const Int n = A.Height();
     const Int lda = A.LDim();
     F* ABuffer = A.Buffer();
     for( Int j=n-1; j>=0; --j )
     {
-        R alpha = RealPart(ABuffer[j+j*lda]);
-        if( alpha <= R(0) )
+        Real alpha = RealPart(ABuffer[j+j*lda]);
+        if( alpha <= Real(0) )
             LogicError("A was not numerically HPD");
         alpha = Sqrt( alpha );
         ABuffer[j+j*lda] = alpha;
@@ -91,10 +89,10 @@ LVar3( Matrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A21 = View( A, k+nb, k,    n-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
         cholesky::LVar3Unb( A11 );
         Trsm( RIGHT, LOWER, ADJOINT, NON_UNIT, F(1), A11, A21 );
@@ -113,12 +111,13 @@ ReverseLVar3( Matrix<F>& A )
 #endif
     const Int n = A.Height();
     const Int bsize = Blocksize();
-    for( Int k=0; k<n; k+=bsize )
+    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A00 = View( A, 0,        0,        n-(k+nb), n-(k+nb) );
-        auto A10 = View( A, n-(k+nb), 0,        nb,       n-(k+nb) );
-        auto A11 = View( A, n-(k+nb), n-(k+nb), nb,       nb       );
+        const Int nb = Min(bsize,n-k);
+        auto A00 = ViewRange( A, 0, 0, k,    k    );
+        auto A10 = ViewRange( A, k, 0, k+nb, k    );
+        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
 
         cholesky::ReverseLVar3Unb( A11 );
         Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A11, A10 );
@@ -146,10 +145,10 @@ LVar3( DistMatrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A21 = View( A, k+nb, k,    n-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, n-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
         A11_STAR_STAR = A11;
         LocalCholesky( LOWER, A11_STAR_STAR );
@@ -194,12 +193,13 @@ ReverseLVar3( DistMatrix<F>& A )
 
     const Int n = A.Height();
     const Int bsize = Blocksize();
-    for( Int k=0; k<n; k+=bsize )
+    const Int kLast = bsize*( n%bsize ? n/bsize : (n/bsize)-1 );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A00 = View( A, 0,        0,        n-(k+nb), n-(k+nb) );
-        auto A10 = View( A, n-(k+nb), 0,        nb,       n-(k+nb) );
-        auto A11 = View( A, n-(k+nb), n-(k+nb), nb,       nb       );
+        const Int nb = Min(bsize,n-k);
+        auto A00 = ViewRange( A, 0, 0, k,    k    );
+        auto A10 = ViewRange( A, k, 0, k+nb, k    );
+        auto A11 = ViewRange( A, k, k, k+nb, k+nb );
 
         A11_STAR_STAR = A11;
         LocalReverseCholesky( LOWER, A11_STAR_STAR );

@@ -550,8 +550,6 @@ AbstractDistMatrix<T>::SetLocalRealPart
 ( Int iLoc, Int jLoc, BASE(T) alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
 
-// HERE
-
 template<typename T>
 void
 AbstractDistMatrix<T>::SetLocalImagPart

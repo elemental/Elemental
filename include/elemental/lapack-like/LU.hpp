@@ -43,15 +43,15 @@ LU( Matrix<F>& A )
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = std::min(m,n);
+    const Int minDim = Min(m,n);
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
-        const Int nb = std::min(bsize,minDim-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );   
-        auto A12 = View( A, k,    k+nb, nb,       n-(k+nb) );
-        auto A21 = View( A, k+nb, k,    m-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, m-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );   
+        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
 
         lu::Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
@@ -75,15 +75,15 @@ LU( DistMatrix<F>& A )
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = std::min(m,n);
+    const Int minDim = Min(m,n);
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
-        const Int nb = std::min(bsize,minDim-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A12 = View( A, k,    k+nb, nb,       n-(k+nb) );
-        auto A21 = View( A, k+nb, k,    m-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, m-(k+nb), n-(k+nb) );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );          
+        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
 
         A11_STAR_STAR = A11;
         LocalLU( A11_STAR_STAR );
@@ -122,20 +122,20 @@ LU( Matrix<F>& A, Matrix<Int>& p )
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = std::min(m,n);
+    const Int minDim = Min(m,n);
     p.ResizeTo( minDim, 1 );
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
-        const Int nb = std::min(bsize,minDim-k);
-        auto A11  = View( A, k,    k,    nb,       nb       );
-        auto A12  = View( A, k,    k+nb, nb,       n-(k+nb) );
-        auto A21  = View( A, k+nb, k,    m-(k+nb), nb       );
-        auto A22  = View( A, k+nb, k+nb, m-(k+nb), n-(k+nb) );
-        auto ABL  = View( A, k,    0,    m-k,      k        );
-        auto ABRL = View( A, k,    k,    m-k,      nb       );
-        auto ABRR = View( A, k,    k+nb, m-k,      n-(k+nb) );
-        auto p1   = View( p, k,    0,    nb,       1        );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A12  = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21  = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22  = ViewRange( A, k+nb, k+nb, m,    n    );
+        auto ABL  = ViewRange( A, k,    0,    m,    k    );
+        auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
+        auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
+        auto p1 = View( p, k, 0, nb, 1 );
 
         lu::Panel( ABRL, p1, k );
 
@@ -180,18 +180,21 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
 
     const Int m = A.Height();
     const Int n = A.Width();
-    const Int minDim = std::min(m,n);
+    const Int minDim = Min(m,n);
     p.ResizeTo( minDim, 1 );
     const Int bsize = Blocksize();
     for( Int k=0; k<minDim; k+=bsize )
     {
-        const Int nb = std::min(bsize,minDim-k);
-        auto A11 = View( A, k,    k,    nb,       nb       );
-        auto A12 = View( A, k,    k+nb, nb,       n-(k+nb) );
-        auto A21 = View( A, k+nb, k,    m-(k+nb), nb       );
-        auto A22 = View( A, k+nb, k+nb, m-(k+nb), n-(k+nb) );
-        auto AB  = View( A, k,    0,    m-k,      n        );
-        auto p1  = View( p, k,    0,    nb,       1        );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A12  = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21  = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22  = ViewRange( A, k+nb, k+nb, m,    n    );
+        auto AB   = ViewRange( A, k,    0,    m,    n    );
+        auto ABL  = ViewRange( A, k,    0,    m,    k    );
+        auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
+        auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
+        auto p1 = View( p, k, 0, nb, 1 );
 
         A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;

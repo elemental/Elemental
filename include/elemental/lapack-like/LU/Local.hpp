@@ -25,36 +25,21 @@ UnbFLAME( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("lu::UnbFLAME");
 #endif
-    // Matrix views 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  alpha21T,
-        ABL, ABR,  a10, alpha11, a12,  a21B,
-                   A20, a21,     A22;
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    for( Int k=0; k<minDim; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
+        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
 
-        //--------------------------------------------------------------------//
         F alpha = alpha11.Get(0,0);
         if( alpha == F(0) )
             throw SingularMatrixException();
         Scale( 1/alpha, a21 );
         Geru( F(-1), a21, a12, A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 

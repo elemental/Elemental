@@ -331,6 +331,48 @@ inline DistMatrix<T,U,V> LockedView
 }
 
 template<typename T>
+void ViewRange
+( Matrix<T>& A, Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T>
+Matrix<T> ViewRange
+( Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T,Distribution U,Distribution V>
+void ViewRange
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> ViewRange
+( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); } 
+
+template<typename T>
+void LockedViewRange
+( Matrix<T>& A, const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T>
+Matrix<T> LockedViewRange
+( const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T,Distribution U,Distribution V>
+void LockedViewRange
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> LockedViewRange
+( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); }
+
+template<typename T>
 inline void View1x2
 ( Matrix<T>& A,
   Matrix<T>& BL, Matrix<T>& BR )

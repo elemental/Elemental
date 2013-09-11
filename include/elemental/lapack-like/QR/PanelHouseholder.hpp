@@ -25,35 +25,23 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::PanelHouseholder");
 #endif
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.ResizeTo( minDim, 1 );
 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
-        ABL, ABR,  a10, alpha11, a12,
-                   A20, a21,     A22;
     Matrix<F> z;
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    for( Int k=0; k<minDim; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
+        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
 
-        View2x1( aLeftCol, alpha11,
-                           a21 );
-
-        View2x1( ARightPan, a12,
-                            A22 );
-
-        //--------------------------------------------------------------------//
         // Compute the Householder reflector
         const F tau = Reflector( alpha11, a21 );
-        t.Set( A00.Width(), 0, tau );
+        t.Set( k, 0, tau );
 
         // Apply the Householder reflector
         const F alpha = alpha11.Get(0,0);
@@ -62,13 +50,6 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         Gemv( ADJOINT, F(1), ARightPan, aLeftCol, F(0), z );
         Ger( -Conj(tau), aLeftCol, z, ARightPan );
         alpha11.Set(0,0,alpha);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 
@@ -95,41 +76,24 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         LogicError("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
-
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
-                         A20(g), a21(g),     A22(g);
-
-    // Temporary distributions
     DistMatrix<F,MC,STAR> aLeftCol_MC_STAR(g);
     DistMatrix<F,MR,STAR> z_MR_STAR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.ResizeTo( minDim, 1 );
+
+    for( Int k=0; k<minDim; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
+        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
 
-        View2x1( aLeftCol, alpha11,
-                           a21 );
-
-        View2x1( ARightPan, a12,
-                            A22 );
-
-        aLeftCol_MC_STAR.AlignWith( ARightPan );
-        z_MR_STAR.AlignWith( ARightPan );
-        //--------------------------------------------------------------------//
         // Compute the Householder reflector
         const F tau = Reflector( alpha11, a21 );
-        t.Set( A00.Width(), 0, tau );
+        t.Set( k, 0, tau );
 
         // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
@@ -140,7 +104,9 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
+        aLeftCol_MC_STAR.AlignWith( ARightPan );
         aLeftCol_MC_STAR = aLeftCol;
+        z_MR_STAR.AlignWith( ARightPan );
         Zeros( z_MR_STAR, ARightPan.Width(), 1 );
         LocalGemv
         ( ADJOINT, F(1), ARightPan, aLeftCol_MC_STAR, F(0), z_MR_STAR );
@@ -152,13 +118,6 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
           ARightPan.Matrix() );
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 

@@ -25,47 +25,26 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
 {
 #ifndef RELEASE
     CallStackEntry entry("lq::PanelHouseholder");
-    if( t.Height() != Min(A.Height(),A.Width()) || t.Width() != 1 )
-        LogicError
-        ("t must be a vector of height equal to the minimum dimension of A");
 #endif
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  aTopRow, ABottomPan,
-        ABL, ABR,  a10, alpha11, a12,
-                   A20, a21,     A22;
-    Matrix<F>
-        tT,  t0,
-        tB,  tau1,
-             t2;
-
     Matrix<F> z, aTopRowConj;
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+#ifndef RELEASE
+    if( t.Height() != minDim || t.Width() != 1 )
+        LogicError("t must be a vector of length minDim(A)");
+#endif
+    for( Int k=0; k<minDim; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11    = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12        = ViewRange( A, k,   k+1, k+1, n   );
+        auto aTopRow    = ViewRange( A, k,   k,   k+1, n   );
+        auto ABottomPan = ViewRange( A, k+1, k,   m,   n   );
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2, 1 );
-
-        View1x2( aTopRow, alpha11, a12 );
-        View1x2( ABottomPan, a21, A22 );
-        //--------------------------------------------------------------------//
         // Compute the Householder reflector
         const F tau = Reflector( alpha11, a12 );
-        tau1.Set( 0, 0, tau );
+        t.Set( k, 0, tau );
 
         // Apply the Householder reflector
         const F alpha = alpha11.Get(0,0);
@@ -75,19 +54,6 @@ PanelHouseholder( Matrix<F>& A, Matrix<F>& t )
         Gemv( NORMAL, F(1), ABottomPan, aTopRowConj, F(0), z );
         Ger( -Conj(tau), z, aTopRowConj, ABottomPan );
         alpha11.Set(0,0,alpha);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 
@@ -110,58 +76,31 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     CallStackEntry entry("lq::PanelHouseholder");
     if( A.Grid() != t.Grid() )
         LogicError("{A,t} must be distributed over the same grid");
-    if( t.Height() != Min(A.Height(),A.Width()) || t.Width() != 1 )
-        LogicError
-        ("t must be a vector of height equal to the minimum dimension of A");
     if( !t.AlignedWithDiagonal( A, 0 ) )
         LogicError("t must be aligned with A's main diagonal");
 #endif
     const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aTopRow(g), ABottomPan(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
-                         A20(g), a21(g),     A22(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
-
-    // Temporary distributions
     DistMatrix<F> aTopRowConj(g);
     DistMatrix<F,STAR,MR  > aTopRowConj_STAR_MR(g);
     DistMatrix<F,MC,  STAR> z_MC_STAR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+#ifndef RELEASE
+    if( t.Height() != minDim || t.Width() != 1 )
+        LogicError("t must be a vector of length minDim(A)");
+#endif
+    for( Int k=0; k<minDim; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11    = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12        = ViewRange( A, k,   k+1, k+1, n   );
+        auto aTopRow    = ViewRange( A, k,   k,   k+1, n   );
+        auto ABottomPan = ViewRange( A, k+1, k,   m,   n   );
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2, 1 );
-
-        View1x2( aTopRow, alpha11, a12 );
-        View1x2( ABottomPan, a21, A22 );
-
-        aTopRowConj_STAR_MR.AlignWith( ABottomPan );
-        z_MC_STAR.AlignWith( ABottomPan );
-        //--------------------------------------------------------------------//
         // Compute the Householder reflector
         const F tau = Reflector( alpha11, a12 );
-        tau1.Set( 0, 0, tau );
+        t.Set( k, 0, tau );
 
         // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
@@ -172,8 +111,10 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
+        aTopRowConj_STAR_MR.AlignWith( ABottomPan );
         Conjugate( aTopRow, aTopRowConj );
         aTopRowConj_STAR_MR = aTopRowConj;
+        z_MC_STAR.AlignWith( ABottomPan );
         Zeros( z_MC_STAR, ABottomPan.Height(), 1 );
         LocalGemv
         ( NORMAL, F(1), ABottomPan, aTopRowConj_STAR_MR, F(0), z_MC_STAR );
@@ -185,19 +126,6 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
           ABottomPan.Matrix() );
         if( myDiagonalEntry )
             alpha11.SetLocal(0,0,alpha);
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 

@@ -33,11 +33,11 @@ UVar2( Matrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A01 = View( A, 0, k,    k,  nb       );
-        auto A02 = View( A, 0, k+nb, k,  n-(k+nb) );
-        auto A11 = View( A, k, k,    nb, nb       );
-        auto A12 = View( A, k, k+nb, nb, n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A01 = ViewRange( A, 0, k,    k,    k+nb );
+        auto A02 = ViewRange( A, 0, k+nb, k,    n    );
+        auto A11 = ViewRange( A, k, k,    k+nb, k+nb );
+        auto A12 = ViewRange( A, k, k+nb, k+nb, n    );
 
         Herk( UPPER, ADJOINT, F(-1), A01, F(1), A11 );
         cholesky::UVar3Unb( A11 );
@@ -69,11 +69,11 @@ UVar2( DistMatrix<F>& A )
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-        auto A01 = View( A, 0, k,    k,  nb       );
-        auto A02 = View( A, 0, k+nb, k,  n-(k+nb) );
-        auto A11 = View( A, k, k,    nb, nb       );
-        auto A12 = View( A, k, k+nb, nb, n-(k+nb) );
+        const Int nb = Min(bsize,n-k);
+        auto A01 = ViewRange( A, 0, k,    k,    k+nb );
+        auto A02 = ViewRange( A, 0, k+nb, k,    n    );
+        auto A11 = ViewRange( A, k, k,    k+nb, k+nb );
+        auto A12 = ViewRange( A, k, k+nb, k+nb, n    );
 
         A01_MC_STAR.AlignWith( A01 );
         A01_MC_STAR = A01;

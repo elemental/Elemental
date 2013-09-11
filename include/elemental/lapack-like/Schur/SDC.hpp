@@ -860,7 +860,7 @@ inline void SplitGrid
     // It should be guaranteed that p >= 2
     const Int p = grid.Size();
     const Int pLeftProp = round(ratio*p);
-    const Int pLeft = std::max(1,std::min(p-1,pLeftProp));
+    const Int pLeft = Max(1,Min(p-1,pLeftProp));
     const Int pRight = p - pLeft;
 
     std::vector<int> leftRanks(pLeft), rightRanks(pRight);
