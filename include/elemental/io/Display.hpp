@@ -74,7 +74,7 @@ Display( const Matrix<Complex<T> >& A, std::string title="Default" )
         {
             const Complex<T> alpha = A.Get(i,j);
             const Complex<double> alphaDouble = 
-                Complex<double>(alpha.real,alpha.imag); 
+                Complex<double>(alpha.real(),alpha.imag()); 
             ADouble->Set( i, j, alphaDouble );
         }
     }

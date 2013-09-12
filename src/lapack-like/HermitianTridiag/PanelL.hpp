@@ -60,14 +60,12 @@ void PanelL
 
     std::vector<F> w21LastBuffer(n/r+1);
     DistMatrix<F> w21Last(g);
-    DistMatrix<F,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a21_MR_STAR(g);
-    DistMatrix<F,MC,STAR> p21_MC_STAR(g), p21B_MC_STAR(g);
-    DistMatrix<F,MR,STAR> q21_MR_STAR(g);
-    DistMatrix<F,MR,STAR> x01_MR_STAR(g);
-    DistMatrix<F,MR,STAR> y01_MR_STAR(g);
-    DistMatrix<F,MC,STAR> a21Last_MC_STAR(g), w21Last_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a21Last_MR_STAR(g), w21Last_MR_STAR(g);
+    DistMatrix<F,MC,STAR> a21_MC_STAR(g), a21B_MC_STAR(g),
+                          p21_MC_STAR(g), p21B_MC_STAR(g),
+                          a21Last_MC_STAR(g), w21Last_MC_STAR(g);
+    DistMatrix<F,MR,STAR> a21_MR_STAR(g), q21_MR_STAR(g),
+                          x01_MR_STAR(g), y01_MR_STAR(g),
+                          a21Last_MR_STAR(g), w21Last_MR_STAR(g);
 
     F tau = 0;
     F w21LastFirstEntry = 0;
@@ -101,9 +99,6 @@ void PanelL
         a21_MR_STAR.ResizeTo( n-(k+1), 1 );
         p21_MC_STAR.AlignWith( A22 );
         p21_MC_STAR.ResizeTo( n-(k+1), 1 );
-        q21_MR_STAR.AlignWith( A22 );
-        x01_MR_STAR.AlignWith( W20B );
-        y01_MR_STAR.AlignWith( W20B );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
         // panel's square
@@ -365,10 +360,13 @@ void PanelL
         //   p21[MC,* ] := tril(A22)[MC,MR] a21[MR,* ]
         //   q21[MR,* ] := tril(A22,-1)'[MR,MC] a21[MC,* ]
         Zero( p21_MC_STAR );
+        q21_MR_STAR.AlignWith( A22 );
         Zeros( q21_MR_STAR, a21.Height(), 1 );
         internal::LocalSymvColAccumulateL
         ( F(1), A22, a21_MC_STAR, a21_MR_STAR, p21_MC_STAR, q21_MR_STAR, true );
 
+        x01_MR_STAR.AlignWith( W20B );
+        y01_MR_STAR.AlignWith( W20B );
         Zeros( x01_MR_STAR, W20B.Width(), 1 );
         Zeros( y01_MR_STAR, W20B.Width(), 1 );
         LocalGemv( ADJOINT, F(1), W20B, a21B_MC_STAR, F(0), x01_MR_STAR );

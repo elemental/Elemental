@@ -107,27 +107,26 @@ void InPlaceRedist
 }
 
 template<typename F>
-void CheckScale
-( UpperOrLower uplo, DistMatrix<F>& A, 
-  bool& needRescaling, BASE(F)& scale )
+bool CheckScale( UpperOrLower uplo, DistMatrix<F>& A, BASE(F)& scale )
 {
     typedef BASE(F) Real;
 
     scale = 1;
-    needRescaling = false;
     const Real maxNormOfA = HermitianMaxNorm( uplo, A );
     const Real underflowThreshold = lapack::MachineUnderflowThreshold<Real>();
     const Real overflowThreshold = lapack::MachineOverflowThreshold<Real>();
     if( maxNormOfA > 0 && maxNormOfA < underflowThreshold )
     {
-        needRescaling = true;
         scale = underflowThreshold / maxNormOfA;
+        return true;
     }
     else if( maxNormOfA > overflowThreshold )
     {
-        needRescaling = true;
         scale = overflowThreshold / maxNormOfA;
+        return true;
     }
+    else
+        return false;
 }
 
 } // namespace hermitian_eig
@@ -185,9 +184,8 @@ void HermitianEig
     }
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -198,13 +196,12 @@ void HermitianEig
     const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
     auto d_MD_STAR = A.GetRealPartOfDiagonal();
     auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( n-1, 1, n, g );
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
@@ -313,9 +310,8 @@ void HermitianEig
     }
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -331,8 +327,8 @@ void HermitianEig
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
-    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
+                               e_STAR_STAR( n-1, 1, n, g );
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
@@ -486,9 +482,8 @@ void HermitianEig
     }
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -621,9 +616,8 @@ void HermitianEig
     }
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -786,9 +780,8 @@ void HermitianEig
     else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
@@ -912,9 +905,8 @@ void HermitianEig
     else w.Empty();
 
     // Check if we need to rescale the matrix, and do so if necessary
-    bool needRescaling;
     Real scale;
-    hermitian_eig::CheckScale( uplo, A, needRescaling, scale );
+    const bool needRescaling = hermitian_eig::CheckScale( uplo, A, scale );
     if( needRescaling )
         ScaleTrapezoid( F(scale), uplo, A );
 
