@@ -55,11 +55,10 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         auto A01 = ViewRange( A, 0, k, k,    k+nb );
         auto A11 = ViewRange( A, k, k, k+nb, k+nb );
         auto ATL = ViewRange( A, 0, 0, k+nb, k+nb );
-        const Int nbt = Min(bsize,(n-1)-k);
-        auto t1 = View( tDiag, k, 0, nbt, 1 );
-        
+
         if( k > 0 )
         {
+            auto t1 = View( tDiag, k-1, 0, nb, 1 );
             WPan.AlignWith( A01 );
             WPan.ResizeTo( k+nb, nb );
             APan_MC_STAR.AlignWith( A00 );
@@ -88,8 +87,9 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
         }
         else
         {
+            auto t1 = View( tDiag, 0, 0, nb-1, 1 );
             A11_STAR_STAR = A11;
-            t1_STAR_STAR.ResizeTo( nbt, 1 );
+            t1_STAR_STAR.ResizeTo( nb-1, 1 );
             HermitianTridiag
             ( UPPER, A11_STAR_STAR.Matrix(), t1_STAR_STAR.Matrix() );
             A11 = A11_STAR_STAR;

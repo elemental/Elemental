@@ -40,8 +40,7 @@ HermitianFromEVD
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-
+        const Int nb = Min(bsize,n-k);
         auto Z1 = LockedView( Z, 0, k, m,  nb );
         auto w1 = LockedView( w, k, 0, nb, 1  );
 
@@ -92,8 +91,7 @@ HermitianFromEVD
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
-        const Int nb = std::min(bsize,n-k);
-
+        const Int nb = Min(bsize,n-k);
         auto Z1 = LockedView( Z, 0, k, m,  nb );
         auto w1 = LockedView( w, k, 0, nb, 1  );
 

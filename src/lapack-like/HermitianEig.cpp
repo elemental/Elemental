@@ -171,8 +171,6 @@ void HermitianEig
     const Int k = n;
     const Grid& g = A.Grid();
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     if( w.Viewing() )
     {
         if( w.ColAlignment() != 0 )
@@ -197,17 +195,16 @@ void HermitianEig
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
     A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
@@ -278,8 +275,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     const Int n = A.Height();
     const Int k = n; // full set of eigenpairs
     const Grid& g = A.Grid();
@@ -329,17 +324,15 @@ void HermitianEig
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
-                               e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR );
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( n-1, 1, n, g );
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
@@ -475,8 +468,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     const Int n = A.Height();
     const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
@@ -505,17 +496,15 @@ void HermitianEig
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
@@ -594,8 +583,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     const Int n = A.Height();
     const Int k = (upperBound - lowerBound) + 1;
     const Grid& g = A.Grid();
@@ -645,17 +632,15 @@ void HermitianEig
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]
@@ -788,8 +773,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -813,17 +796,15 @@ void HermitianEig
     HermitianTridiag( uplo, A );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR.
@@ -901,8 +882,6 @@ void HermitianEig
     if( A.Height() != A.Width() )
         LogicError("Hermitian matrices must be square");
 
-    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
     const Int n = A.Height();
     const Grid& g = A.Grid();
 
@@ -944,17 +923,15 @@ void HermitianEig
     HermitianTridiag( uplo, A, t );
 
     // Grab copies of the diagonal and subdiagonal of A
-    DistMatrix<Real,MD,STAR> d_MD_STAR( n,   1, g ),
-                             e_MD_STAR( n-1, 1, g );
-    A.GetRealPartOfDiagonal( d_MD_STAR );
-    A.GetRealPartOfDiagonal( e_MD_STAR, subdiagonal );
+    const Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d_MD_STAR = A.GetRealPartOfDiagonal();
+    auto e_MD_STAR = A.GetRealPartOfDiagonal( subdiagonal );
 
     // In order to call pmrrr, we need full copies of the diagonal and 
     // subdiagonal in vectors of length n. We accomplish this for e by 
     // making its leading dimension n.
-    DistMatrix<Real,STAR,STAR> d_STAR_STAR( n,   1,    g ),
+    DistMatrix<Real,STAR,STAR> d_STAR_STAR( d_MD_STAR ),
                                e_STAR_STAR( n-1, 1, n, g );
-    d_STAR_STAR = d_MD_STAR;
     e_STAR_STAR = e_MD_STAR;
 
     // Solve the tridiagonal eigenvalue problem with PMRRR into Z[* ,VR]

@@ -23,57 +23,27 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("rq::Householder");
 #endif
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.ResizeTo( minDim, 1 );
 
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,  ATopPan, 
-        ABL, ABR,  A10, A11, A12,  ABottomPan,
-                   A20, A21, A22;
-    Matrix<F>
-        tT,  t0,
-        tB,  t1,
-             t2;
-
-    PartitionUpOffsetDiagonal
-    ( A.Width()-A.Height(),
-      A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionUp
-    ( t, tT,
-         tB, 0 );
-    while( ABR.Height() < A.Height() && ABR.Width() < A.Width() )
+    const Int iOff = ( n>=m ? 0   : m-n ); 
+    const Int jOff = ( n>=m ? n-m : 0   );
+ 
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( minDim, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        const Int nb = Min(bsize,minDim-k);
+        const Int ki = k + iOff;
+        const Int kj = k + jOff;
+        auto ATopPan    = View( A, 0,  0, ki, kj+nb ); 
+        auto ABottomPan = View( A, ki, 0, nb, kj+nb );
+        auto t1 = View( t, k, 0, nb, 1 );
 
-        RepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
-
-        View1x2( ATopPan, A00, A01 );
-        View1x2( ABottomPan, A10, A11 );
-        //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 }
 
@@ -97,7 +67,10 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     if( A.Grid() != t.Grid() )
         LogicError("{A,s} must be distributed over the same grid");
 #endif
-    const Int offset = A.Width()-A.Height();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int offset = n-m;
     if( t.Viewing() )
     {
         if( !t.AlignedWithDiagonal( A, offset ) ) 
@@ -107,58 +80,24 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     {
         t.AlignWithDiagonal( A, offset );
     }
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    t.ResizeTo( minDim, 1 );
 
-    // Matrix views
-    const Grid& g = A.Grid();
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ATopPan(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  ABottomPan(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  t1(g),
-                t2(g);
+    const Int iOff = ( n>=m ? 0   : m-n );
+    const Int jOff = ( n>=m ? n-m : 0   );
 
-    PartitionUpOffsetDiagonal
-    ( offset,
-      A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionUp
-    ( t, tT,
-         tB, 0 );
-    while( ABR.Height() < A.Height() && ABR.Width() < A.Width() )
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( minDim, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
+        const Int nb = Min(bsize,minDim-k);
+        const Int ki = k + iOff;
+        const Int kj = k + jOff;
+        auto ATopPan    = View( A, 0,  0, ki, kj+nb ); 
+        auto ABottomPan = View( A, ki, 0, nb, kj+nb );
+        auto t1 = View( t, k, 0, nb, 1 );
 
-        RepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
-
-        View1x2( ATopPan, A00, A01 );
-        View1x2( ABottomPan, A10, A11 );
-        //--------------------------------------------------------------------//
         PanelHouseholder( ABottomPan, t1 );
         ApplyQ( RIGHT, ADJOINT, ABottomPan, t1, ATopPan );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
     }
 }
 
