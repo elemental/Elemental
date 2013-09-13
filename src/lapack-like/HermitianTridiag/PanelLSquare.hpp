@@ -36,7 +36,7 @@ void PanelLSquare
         LogicError("A must be square");
     if( n != W.Height() )
         LogicError("A and W must be the same height");
-    if( n < nW )
+    if( n <= nW )
         LogicError("W must be a column panel");
     if( W.ColAlignment() != A.ColAlignment() || 
         W.RowAlignment() != A.RowAlignment() )

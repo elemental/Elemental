@@ -59,22 +59,8 @@ void TestCorrectness
         Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
-    /*
-    auto Q = Identity<F>( g, m, m );
-    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
-    auto G = Zeros<F>( g, m, m );
-    Gemm( NORMAL, NORMAL, F(1), Q, B, G );
-    Gemm( NORMAL, ADJOINT, F(1), G, Q, B );
-    */
-    auto QH = Identity<F>( g, m, m );
-    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, QH );
-    auto G = Zeros<F>( g, m, m );
-    Gemm( ADJOINT, NORMAL, F(1), QH, B, G );
-    Gemm( NORMAL, NORMAL, F(1), G, QH, B );
-    /*
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
     hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
-    */
     if( print )
         Print( B, "Rotated tridiagonal" );
     if( display )
@@ -123,23 +109,8 @@ void TestHermitianTridiag
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
 
-    if( IsComplex<F>::val )
-    {
-        if( g.Rank() == 0 )
-            std::cout << "Forcing real input" << std::endl;
-        DistMatrix<BASE(F)> AReal(g);
-        //HermitianUniformSpectrum( AReal, m, -10, 10 );
-        Wigner( AReal, m );
-        A.ResizeTo( m, m );
-        for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
-            for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
-                A.SetLocal( iLoc, jLoc, AReal.GetLocal(iLoc,jLoc) );
-    }
-    else
-    {
-        //HermitianUniformSpectrum( A, m, -10, 10 );
-        Wigner( A, m );
-    }
+    //HermitianUniformSpectrum( A, m, -10, 10 );
+    Wigner( A, m );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

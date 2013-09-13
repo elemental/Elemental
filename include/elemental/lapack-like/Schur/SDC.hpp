@@ -778,7 +778,6 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
 #endif
-    typedef BASE(F) Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     if( n <= cutoff )
@@ -812,7 +811,6 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
 #endif
-    typedef BASE(F) Real;
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
     Q.ResizeTo( n, n );
@@ -963,7 +961,6 @@ SDC
 #ifndef RELEASE
     CallStackEntry cse("schur::SDC");
 #endif
-    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Height();
     w.ResizeTo( n, 1 );
