@@ -287,12 +287,11 @@ void Initialize( int& argc, char**& argv )
     mpi::CreateMaxLocPairOp<float>();
     mpi::CreateMaxLocPairOp<double>();
 
-    // Seed the random number generators using Katzgrabber's approach
-    // from "Random Numbers in Scientific Computing: An Introduction"
-    // NOTE: srand no longer needed after C++11
     const unsigned rank = mpi::CommRank( mpi::COMM_WORLD );
-    const long secs = time(NULL);
-    const long seed = abs(((secs*181)*((rank-83)*359))%104729);
+    // TODO: Allow for switching on/off reproducibility?
+    //const long secs = time(NULL);
+    const long secs = 21;
+    const long seed = (secs<<16) | (rank && 0xFFFF);
     ::generator.seed( seed );
 }
 

@@ -51,7 +51,7 @@ void U( Matrix<F>& A, Matrix<F>& t )
         t.Set( k-1, 0, tau );
         alpha01B.Set(0,0,F(1));
 
-        Zeros( w01, a01.Height(), 1 );
+        Zeros( w01, k, 1 );
         Hemv( UPPER, tau, A00, a01, F(0), w01 );
         const F alpha = -tau*Dot( w01, a01 )/F(2);
         Axpy( alpha, a01, w01 );
@@ -114,7 +114,8 @@ void U( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
             hermitian_tridiag::PanelU
             ( ATL, WPan, t1,
-              APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
+              APan_MC_STAR, APan_MR_STAR, 
+              WPan_MC_STAR, WPan_MR_STAR );
 
             auto A01_MC_STAR = LockedViewRange( APan_MC_STAR, 0, 0, k, nb );
             auto A01_MR_STAR = LockedViewRange( APan_MR_STAR, 0, 0, k, nb );

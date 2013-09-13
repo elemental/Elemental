@@ -9,10 +9,12 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/matrices/Wigner.hpp"
 #include "elemental/io/Display.hpp"
 using namespace std;
 using namespace elem;
@@ -28,7 +30,8 @@ void TestCorrectness
     typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
-
+    const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
+    const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
@@ -56,8 +59,22 @@ void TestCorrectness
         Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
+    /*
+    auto Q = Identity<F>( g, m, m );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, Q );
+    auto G = Zeros<F>( g, m, m );
+    Gemm( NORMAL, NORMAL, F(1), Q, B, G );
+    Gemm( NORMAL, ADJOINT, F(1), G, Q, B );
+    */
+    auto QH = Identity<F>( g, m, m );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, QH );
+    auto G = Zeros<F>( g, m, m );
+    Gemm( ADJOINT, NORMAL, F(1), QH, B, G );
+    Gemm( NORMAL, NORMAL, F(1), G, QH, B );
+    /*
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
     hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    */
     if( print )
         Print( B, "Rotated tridiagonal" );
     if( display )
@@ -71,17 +88,30 @@ void TestCorrectness
         Print( B, "Error in rotated tridiagonal" );
     if( display )
         Display( B, "Error in rotated tridiagonal" );
+    const Real infNormError = HermitianInfinityNorm( uplo, B );
+    const Real frobNormError = HermitianFrobeniusNorm( uplo, B );
 
-    const Real infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
-    const Real frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-    const Real infNormOfError = HermitianInfinityNorm( uplo, B );
-    const Real frobNormOfError = HermitianFrobeniusNorm( uplo, B );
+    // Compute || I - Q Q^H ||
+    MakeIdentity( B );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    DistMatrix<F> QHAdj( g );
+    Adjoint( B, QHAdj );
+    MakeIdentity( B );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
+    Axpy( F(-1), B, QHAdj );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    UpdateDiagonal( B, F(-1) );
+    const Real infNormQError = InfinityNorm( B );
+    const Real frobNormQError = FrobeniusNorm( B ); 
+
     if( g.Rank() == 0 )
     {
-        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
-             << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
-             << "    ||AOrig - Q^H A Q||_oo     = " << infNormOfError << "\n"
-             << "    ||AOrig - Q^H A Q||_F      = " << frobNormOfError << endl;
+        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormAOrig << "\n"
+             << "    ||AOrig||_F                = " << frobNormAOrig << "\n"
+             << "    || I - Q^H Q ||_oo         = " << infNormQError << "\n"
+             << "    || I - Q^H Q ||_F          = " << frobNormQError << "\n"
+             << "    ||AOrig - Q^H A Q||_oo     = " << infNormError << "\n"
+             << "    ||AOrig - Q^H A Q||_F      = " << frobNormError << endl;
     }
 }
 
@@ -93,7 +123,23 @@ void TestHermitianTridiag
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
 
-    HermitianUniformSpectrum( A, m, -10, 10 );
+    if( IsComplex<F>::val )
+    {
+        if( g.Rank() == 0 )
+            std::cout << "Forcing real input" << std::endl;
+        DistMatrix<BASE(F)> AReal(g);
+        //HermitianUniformSpectrum( AReal, m, -10, 10 );
+        Wigner( AReal, m );
+        A.ResizeTo( m, m );
+        for( Int jLoc=0; jLoc<A.LocalWidth(); ++jLoc )
+            for( Int iLoc=0; iLoc<A.LocalHeight(); ++iLoc )
+                A.SetLocal( iLoc, jLoc, AReal.GetLocal(iLoc,jLoc) );
+    }
+    else
+    {
+        //HermitianUniformSpectrum( A, m, -10, 10 );
+        Wigner( A, m );
+    }
     if( testCorrectness )
     {
         if( g.Rank() == 0 )

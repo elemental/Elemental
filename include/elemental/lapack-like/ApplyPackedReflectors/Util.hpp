@@ -20,21 +20,13 @@ FixDiagonal
 #ifndef RELEASE
     CallStackEntry cse("FixDiagonal");
 #endif
-    if( conjugation == CONJUGATED )
+    for( Int j=0; j<SInv.Height(); ++j )
     {
-        for( Int j=0; j<SInv.Height(); ++j )
-        {
-            const F value = F(1)/Conj(t.Get(j,0));
-            SInv.Set(j,j,value);
-        }
-    }
-    else
-    {
-        for( Int j=0; j<SInv.Height(); ++j )
-        {
-            const F value = F(1)/t.Get(j,0);
-            SInv.Set(j,j,value);
-        }
+        const F value = t.Get(j,0);
+        if( conjugation == CONJUGATED )
+            SInv.Set(j,j,F(1)/Conj(value));
+        else
+            SInv.Set(j,j,F(1)/value);
     }
 }
 
@@ -48,21 +40,13 @@ FixDiagonal
 #ifndef RELEASE
     CallStackEntry cse("FixDiagonal");
 #endif
-    if( conjugation == CONJUGATED )
+    for( Int j=0; j<SInv.Height(); ++j )
     {
-        for( Int j=0; j<SInv.Height(); ++j )
-        {
-            const F value = F(1)/Conj(t.GetLocal(j,0));
-            SInv.SetLocal(j,j,value);
-        }
-    }
-    else
-    {
-        for( Int j=0; j<SInv.Height(); ++j )
-        {
-            const F value = F(1)/t.GetLocal(j,0);
-            SInv.SetLocal(j,j,value);
-        }
+        const F value = t.GetLocal(j,0);
+        if( conjugation == CONJUGATED )
+            SInv.SetLocal( j, j, F(1)/Conj(value) );
+        else
+            SInv.SetLocal( j, j, F(1)/value );
     }
 }
 

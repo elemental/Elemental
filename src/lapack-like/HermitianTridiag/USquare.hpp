@@ -72,7 +72,8 @@ void USquare( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& t )
 
             hermitian_tridiag::PanelUSquare
             ( ATL, WPan, t1,
-              APan_MC_STAR, APan_MR_STAR, WPan_MC_STAR, WPan_MR_STAR );
+              APan_MC_STAR, APan_MR_STAR, 
+              WPan_MC_STAR, WPan_MR_STAR );
 
             auto A01_MC_STAR = LockedViewRange( APan_MC_STAR, 0, 0, k, nb );
             auto A01_MR_STAR = LockedViewRange( APan_MR_STAR, 0, 0, k, nb );

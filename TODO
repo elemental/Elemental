@@ -39,6 +39,8 @@ Functionality
 
 Maintenance
 ===========
+- Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
+  and BLIS
 - Move AdjointFrom and TransposeFrom into Adjoint and Transpose
 - Find cause of occasional invalid reads in PMR_process_r_queue
 - Find cause of minor memory leak in schur::SDC

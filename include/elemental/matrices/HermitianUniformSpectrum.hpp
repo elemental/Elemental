@@ -67,13 +67,6 @@ MakeHermitianUniformSpectrum
     const bool isComplex = IsComplex<F>::val;
     const bool standardDist = ( U == MC && V == MR );
 
-    // Sample the diagonal matrix D from the half-open interval (lower,upper]
-    // and then rotate it with a random Householder similarity transformation:
-    //
-    //  (I-2uu^H) D (I-2uu^H)^H = D - 2(u (D u)^H + (D u) u^H) + 
-    //                                (4 u^H D u) u u^H
-    //
-
     // Form d and D
     const Int n = A.Height();
     std::vector<F> d( n );
