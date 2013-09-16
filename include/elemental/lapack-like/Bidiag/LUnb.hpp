@@ -31,46 +31,30 @@ inline void LUnb
         LogicError("A must be at least as wide as it is tall");
 #endif
     const Grid& g = A.Grid();
-    const Int tPHeight = A.Height();
-    const Int tQHeight = Max(A.Height()-1,0);
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int tPHeight = m;
+    const Int tQHeight = Max(m-1,0);
     tP.ResizeTo( tPHeight, 1 );
     tQ.ResizeTo( tQHeight, 1 );
 
-    // Matrix views 
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  alpha21T(g), a1R(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),  a21B(g),     A2R(g),
-                         A20(g), a21(g),     A22(g);
-
-    // Temporary matrices
     DistMatrix<F,MC,  STAR> a21_MC_STAR(g);
     DistMatrix<F,STAR,MR  > a1R_STAR_MR(g);
     DistMatrix<F,MR,  STAR> x12Adj_MR_STAR(g);
     DistMatrix<F,MC,  STAR> w21_MC_STAR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Width() < A.Width() )
+    for( Int k=0; k<m; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        View1x2( a1R, alpha11, a12 );
-        View1x2( A2R, a21, A22 );
-
-        a21_MC_STAR.AlignWith( A22 );
-        a1R_STAR_MR.AlignWith( A2R );
-        x12Adj_MR_STAR.AlignWith( A22 );
-        w21_MC_STAR.AlignWith( A2R );
+        auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12     = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21     = ViewRange( A, k+1, k,   m,   k+1 );
+        auto A22     = ViewRange( A, k+1, k+1, m,   n   );
+        auto a1R     = ViewRange( A, k,   k,   k+1, n   );
+        auto A2R     = ViewRange( A, k+1, k,   m,   n   );
 
         const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );
-        //--------------------------------------------------------------------//
 
         // Due to deficiencies in the BLAS ?gemv routines, this section is
         // easier if we temporary conjugate a1R = | alpha11, a12 |
@@ -80,7 +64,7 @@ inline void LUnb
         //     I - conj(tauP) | 1 | | 1, v^H | | alpha11 | = | epsilonP |
         //                    | v |            |   a12^T | = |    0     |
         const F tauP = Reflector( alpha11, a12 );
-        tP.Set(A00.Height(),0,tauP);
+        tP.Set(k,0,tauP);
         F epsilonP=0;
         if( thisIsMyCol && thisIsMyRow )
             epsilonP = alpha11.GetLocal(0,0);
@@ -88,7 +72,9 @@ inline void LUnb
         // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
         //             | v |                                 | v |
         alpha11.Set(0,0,F(1));
+        a1R_STAR_MR.AlignWith( A2R );
         a1R_STAR_MR = a1R;
+        w21_MC_STAR.AlignWith( A2R );
         Zeros( w21_MC_STAR, a21.Height(), 1 );
         LocalGemv( NORMAL, F(1), A2R, a1R_STAR_MR, F(0), w21_MC_STAR );
         w21_MC_STAR.SumOverRow();
@@ -110,6 +96,7 @@ inline void LUnb
         if( A22.Height() != 0 )
         {
             // Expose the subvector we seek to zero, a21B
+            DistMatrix<F> alpha21T(g), a21B(g);
             PartitionDown
             ( a21, alpha21T,
                    a21B, 1 );
@@ -118,7 +105,7 @@ inline void LUnb
             //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
             //                    | u |            | a21B     | = |    0     |
             const F tauQ = Reflector( alpha21T, a21B );
-            tQ.Set(A00.Height(),0,tauQ);
+            tQ.Set(k,0,tauQ);
             F epsilonQ=0;
             if( nextIsMyRow && thisIsMyCol )
                 epsilonQ = alpha21T.GetLocal(0,0);
@@ -126,7 +113,9 @@ inline void LUnb
             // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
             //           | u |  
             alpha21T.Set(0,0,F(1));
+            a21_MC_STAR.AlignWith( A22 );
             a21_MC_STAR = a21;
+            x12Adj_MR_STAR.AlignWith( A22 );
             Zeros( x12Adj_MR_STAR, a12.Width(), 1 );
             LocalGemv( ADJOINT, F(1), A22, a21_MC_STAR, F(0), x12Adj_MR_STAR );
             x12Adj_MR_STAR.SumOverCol();
@@ -140,13 +129,6 @@ inline void LUnb
             if( nextIsMyRow && thisIsMyCol )
                 alpha21T.SetLocal(0,0,epsilonQ);
         }
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 

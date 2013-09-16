@@ -92,8 +92,8 @@ void PanelUSquare
         auto W00      = ViewRange( W, 0,    0,    kA,   k    );
         auto A00Pan   = ViewRange( A, 0,    off,  kA,   kA   );
         auto a01      = ViewRange( A, 0,    kA,   kA,   kA+1 );
-        auto a01T     = ViewRange( A, 0,    kA,   kA-1, kA+1  );
-        auto alpha01B = ViewRange( A, kA-1, kA,   kA,   kA+1  );
+        auto a01T     = ViewRange( A, 0,    kA,   kA-1, kA+1 );
+        auto alpha01B = ViewRange( A, kA-1, kA,   kA,   kA+1 );
         auto alpha11  = ViewRange( A, kA,   kA,   kA+1, kA+1 );
         auto ACol     = ViewRange( A, 0,    kA,   kA+1, kA+1 );
         auto WCol     = ViewRange( W, 0,    k,    kA+1, k+1  );
@@ -105,12 +105,12 @@ void PanelUSquare
         auto epsilon1 = View( e, k, 0, 1, 1 );
 
         a01_MC_STAR.AlignWith( A00 );
-        a01_MC_STAR.ResizeTo( kA, 1 );
         a01_MR_STAR.AlignWith( A00 );
-        a01_MR_STAR.ResizeTo( kA, 1 );
         p01_MC_STAR.AlignWith( A00 );
-        p01_MC_STAR.ResizeTo( kA, 1 );
         q01_MR_STAR.AlignWith( A00 );
+        a01_MC_STAR.ResizeTo( kA, 1 );
+        a01_MR_STAR.ResizeTo( kA, 1 );
+        p01_MC_STAR.ResizeTo( kA, 1 );
         q01_MR_STAR.ResizeTo( kA, 1 );
 
         // View the portions of A02 and W0T outside of this panel's square

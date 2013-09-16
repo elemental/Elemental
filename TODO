@@ -39,6 +39,7 @@ Functionality
 
 Maintenance
 ===========
+- README's in each directory explaining the contents of the folder
 - Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
   and BLIS
 - Move AdjointFrom and TransposeFrom into Adjoint and Transpose

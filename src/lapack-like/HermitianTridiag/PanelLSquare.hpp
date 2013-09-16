@@ -105,12 +105,12 @@ void PanelLSquare
         auto epsilon1 = View( e, k, 0, 1, 1 );
 
         a21_MC_STAR.AlignWith( A22 );
-        a21_MC_STAR.ResizeTo( n-(k+1), 1 );
         a21_MR_STAR.AlignWith( A22 );
-        a21_MR_STAR.ResizeTo( n-(k+1), 1 );
         p21_MC_STAR.AlignWith( A22 );
-        p21_MC_STAR.ResizeTo( n-(k+1), 1 );
         q21_MR_STAR.AlignWith( A22 );
+        a21_MC_STAR.ResizeTo( n-(k+1), 1 );
+        a21_MR_STAR.ResizeTo( n-(k+1), 1 );
+        p21_MC_STAR.ResizeTo( n-(k+1), 1 );
         q21_MR_STAR.ResizeTo( n-(k+1), 1 );
 
         // View the portions of a21[MC,* ] and p21[MC,* ] below the current
