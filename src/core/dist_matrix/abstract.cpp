@@ -207,7 +207,7 @@ void
 AbstractDistMatrix<T>::Align( Int colAlignment, Int rowAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::Align");    
+    CallStackEntry cse("AbstractDistMatrix::Align");    
 #endif
     Empty();
     colAlignment_ = colAlignment;
@@ -222,7 +222,7 @@ void
 AbstractDistMatrix<T>::AlignCols( Int colAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::AlignCols"); 
+    CallStackEntry cse("AbstractDistMatrix::AlignCols"); 
 #endif
     EmptyData();
     colAlignment_ = colAlignment;
@@ -235,7 +235,7 @@ void
 AbstractDistMatrix<T>::AlignRows( Int rowAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::AlignRows"); 
+    CallStackEntry cse("AbstractDistMatrix::AlignRows"); 
 #endif
     EmptyData();
     rowAlignment_ = rowAlignment;

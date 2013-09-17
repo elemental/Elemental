@@ -10,6 +10,14 @@
 
 namespace elem {
 
+template<typename T>
+void
+Matrix<T>::ComplainIfReal() const
+{ 
+    if( !IsComplex<T>::val )
+        LogicError("Called complex-only routine with real data");
+}
+
 //
 // Assertions
 //
@@ -311,104 +319,6 @@ Matrix<T>::Get( Int i, Int j ) const
 }
 
 template<typename T>
-void
-Matrix<T>::Set( Int i, Int j, T alpha ) 
-{
-#ifndef RELEASE
-    CallStackEntry cse("Matrix::Set");
-    AssertValidEntry( i, j );
-    if( Locked() )
-        LogicError("Cannot modify data of locked matrices");
-#endif
-    Set_( i, j ) = alpha;
-}
-
-template<typename T>
-void
-Matrix<T>::Update( Int i, Int j, T alpha ) 
-{
-#ifndef RELEASE
-    CallStackEntry cse("Matrix::Update");
-    AssertValidEntry( i, j );
-    if( Locked() )
-        LogicError("Cannot modify data of locked matrices");
-#endif
-    Set_( i, j ) += alpha;
-}
-
-template<typename T>
-void
-Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
-{ 
-#ifndef RELEASE
-    CallStackEntry cse("Matrix::GetDiagonal");
-    if( d.Locked() )
-        LogicError("d must not be a locked view");
-#endif
-    const Int diagLength = DiagonalLength(offset);
-    d.ResizeTo( diagLength, 1 );
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = Get_(j,j+offset);
-    else
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = Get_(j-offset,j);
-}
-
-template<typename T>
-Matrix<T>
-Matrix<T>::GetDiagonal( Int offset ) const
-{ 
-    Matrix<T> d;
-    GetDiagonal( d, offset );
-    return d;
-}
-
-template<typename T>
-void
-Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
-{ 
-#ifndef RELEASE
-    CallStackEntry cse("Matrix::SetDiagonal");
-    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        LogicError("d is not a column-vector of the right length");
-#endif
-    const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            Set_( j, j+offset ) = d.Get_(j,0);
-    else
-        for( Int j=0; j<diagLength; ++j )
-            Set_( j-offset, j ) = d.Get_(j,0);
-}
-
-template<typename T>
-void
-Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
-{ 
-#ifndef RELEASE
-    CallStackEntry cse("Matrix::UpdateDiagonal");
-    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
-        LogicError("d is not a column-vector of the right length");
-#endif
-    const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            Set_( j, j+offset ) += d.Get(j,0);
-    else
-        for( Int j=0; j<diagLength; ++j )
-            Set_( j-offset, j ) += d.Get(j,0);
-}
-
-template<typename T>
-void
-Matrix<T>::ComplainIfReal() const
-{ 
-    if( !IsComplex<T>::val )
-        LogicError("Called complex-only routine with real data");
-}
-
-template<typename T>
 BASE(T)
 Matrix<T>::GetRealPart( Int i, Int j ) const
 {
@@ -428,6 +338,19 @@ Matrix<T>::GetImagPart( Int i, Int j ) const
     AssertValidEntry( i, j );
 #endif
     return elem::ImagPart( Get_( i, j ) );
+}
+
+template<typename T>
+void
+Matrix<T>::Set( Int i, Int j, T alpha ) 
+{
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::Set");
+    AssertValidEntry( i, j );
+    if( Locked() )
+        LogicError("Cannot modify data of locked matrices");
+#endif
+    Set_( i, j ) = alpha;
 }
 
 template<typename T>
@@ -458,6 +381,19 @@ Matrix<T>::SetImagPart( Int i, Int j, BASE(T) alpha )
 }
 
 template<typename T>
+void
+Matrix<T>::Update( Int i, Int j, T alpha ) 
+{
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::Update");
+    AssertValidEntry( i, j );
+    if( Locked() )
+        LogicError("Cannot modify data of locked matrices");
+#endif
+    Set_( i, j ) += alpha;
+}
+
+template<typename T>
 void 
 Matrix<T>::UpdateRealPart( Int i, Int j, BASE(T) alpha )
 {
@@ -483,7 +419,24 @@ Matrix<T>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
     ComplainIfReal();
     elem::UpdateImagPart( Set_( i, j ), alpha );
 }
-   
+
+template<typename T>
+void
+Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::GetDiagonal");
+    if( d.Locked() )
+        LogicError("d must not be a locked view");
+#endif
+    const Int diagLength = DiagonalLength(offset);
+    d.ResizeTo( diagLength, 1 );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        d.Set_( k, 0 ) = Get_(k+iOff,k+jOff);
+}
+
 template<typename T>
 void
 Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
@@ -495,12 +448,10 @@ Matrix<T>::GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 #endif
     const Int diagLength = DiagonalLength(offset);
     d.ResizeTo( diagLength, 1 );
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = elem::RealPart( Get_(j,j+offset) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = elem::RealPart( Get_(j-offset,j) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        d.Set_( k, 0 ) = elem::RealPart( Get_(k+iOff,k+jOff) );
 }
 
 template<typename T>
@@ -514,12 +465,19 @@ Matrix<T>::GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset ) const
 #endif
     const Int diagLength = DiagonalLength(offset);
     d.ResizeTo( diagLength, 1 );
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = elem::ImagPart( Get_(j,j+offset) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            d.Set_( j, 0 ) = elem::ImagPart( Get_(j-offset,j) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        d.Set_( k, 0 ) = elem::ImagPart( Get_(k+iOff,k+jOff) );
+}
+
+template<typename T>
+Matrix<T>
+Matrix<T>::GetDiagonal( Int offset ) const
+{ 
+    Matrix<T> d;
+    GetDiagonal( d, offset );
+    return d;
 }
 
 template<typename T>
@@ -542,6 +500,22 @@ Matrix<T>::GetImagPartOfDiagonal( Int offset ) const
 
 template<typename T>
 void
+Matrix<T>::SetDiagonal( const Matrix<T>& d, Int offset )
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::SetDiagonal");
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
+        LogicError("d is not a column-vector of the right length");
+#endif
+    const Int diagLength = DiagonalLength(offset);
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        Set_( k+iOff, k+jOff ) = d.Get_(k,0);
+}
+
+template<typename T>
+void
 Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 { 
 #ifndef RELEASE
@@ -550,12 +524,10 @@ Matrix<T>::SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
         LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            elem::SetRealPart( Set_(j,j+offset), d.Get_(j,0) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            elem::SetRealPart( Set_(j-offset,j), d.Get_(j,0) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        elem::SetRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -569,12 +541,26 @@ Matrix<T>::SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 #endif
     ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            elem::SetImagPart( Set_(j,j+offset), d.Get_(j,0) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            elem::SetImagPart( Set_(j-offset,j), d.Get_(j,0) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        elem::SetImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
+}
+
+template<typename T>
+void
+Matrix<T>::UpdateDiagonal( const Matrix<T>& d, Int offset )
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::UpdateDiagonal");
+    if( d.Height() != DiagonalLength(offset) || d.Width() != 1 )
+        LogicError("d is not a column-vector of the right length");
+#endif
+    const Int diagLength = DiagonalLength(offset);
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        Set_( k+iOff, k+jOff ) += d.Get(k,0);
 }
 
 template<typename T>
@@ -587,12 +573,10 @@ Matrix<T>::UpdateRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
         LogicError("d is not a column-vector of the right length");
 #endif
     const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            elem::UpdateRealPart( Set_(j,j+offset), d.Get_(j,0) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            elem::UpdateRealPart( Set_(j-offset,j), d.Get_(j,0) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        elem::UpdateRealPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>
@@ -606,12 +590,10 @@ Matrix<T>::UpdateImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset )
 #endif
     ComplainIfReal();
     const Int diagLength = DiagonalLength(offset);
-    if( offset >= 0 )
-        for( Int j=0; j<diagLength; ++j )
-            elem::UpdateImagPart( Set_(j,j+offset), d.Get_(j,0) );
-    else
-        for( Int j=0; j<diagLength; ++j )
-            elem::UpdateImagPart( Set_(j-offset,j), d.Get_(j,0) );
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+    for( Int k=0; k<diagLength; ++k )
+        elem::UpdateImagPart( Set_(k+iOff,k+jOff), d.Get_(k,0) );
 }
 
 template<typename T>

@@ -56,11 +56,11 @@ main( int argc, char* argv[] )
         // Make a copy of A and then overwrite it with its LDL factorization
         // WARNING: There is no pivoting here!
         DistMatrix<C> factA( A );
-        DistMatrix<C,MC,STAR> d;
         if( conjugate )
-            LDLH( factA, d );
+            LDLH( factA );
         else
-            LDLT( factA, d );
+            LDLT( factA );
+        auto d = factA.GetDiagonal();
 
         DistMatrix<C> L( factA );
         MakeTriangular( LOWER, L );

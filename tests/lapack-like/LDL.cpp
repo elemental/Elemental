@@ -24,7 +24,6 @@ template<typename F>
 void TestCorrectness
 ( bool conjugated, bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<F,MC,STAR>& d,
   const DistMatrix<F>& AOrig )
 {
     typedef BASE(F) Real;
@@ -41,7 +40,7 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, UNIT, F(1), A, Y );
     else
         Trmm( LEFT, LOWER, TRANSPOSE, UNIT, F(1), A, Y );
-    DiagonalScale( LEFT, NORMAL, d, Y );
+    DiagonalScale( LEFT, NORMAL, A.GetDiagonal(), Y );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
     if( conjugated )
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
@@ -91,7 +90,6 @@ void TestLDL
     }
     if( print )
         Print( A, "A" );
-    DistMatrix<F,MC,STAR> d(g);
 
     if( g.Rank() == 0 )
     {
@@ -101,9 +99,9 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( !conjugated )
-        LDLT( A, d );
+        LDLT( A );
     else
-        LDLH( A, d );
+        LDLH( A );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -117,7 +115,7 @@ void TestLDL
     if( print )
         Print( A, "A after factorization" );
     if( testCorrectness )
-        TestCorrectness( conjugated, print, A, d, AOrig );
+        TestCorrectness( conjugated, print, A, AOrig );
 }
 
 int 

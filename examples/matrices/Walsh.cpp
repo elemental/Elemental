@@ -38,8 +38,8 @@ main( int argc, char* argv[] )
 
         if( !binary )
         {
-            DistMatrix<double,MC,STAR> d;
-            LDLH( W, d );
+            LDLH( W );
+            auto d = W.GetDiagonal();
             MakeTriangular( LOWER, W );
             SetDiagonal( W, 1. );
 

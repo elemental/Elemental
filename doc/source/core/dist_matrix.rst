@@ -147,37 +147,16 @@ to be available for all matrix distributions.
       Return the `(i,j)` entry of the global matrix. This operation is 
       collective.
 
-   .. cpp:function:: void Set( int i, int j, T alpha )
-
-      Set the `(i,j)` entry of the global matrix to :math:`\alpha`. This 
-      operation is collective.
-
-   .. cpp:function:: void Update( int i, int j, T alpha )
-
-      Add :math:`\alpha` to the `(i,j)` entry of the global matrix. This 
-      operation is collective.
-
-   .. cpp:function:: T GetLocal( int iLocal, int jLocal ) const
-
-      Return the `(iLocal,jLocal)` entry of our local matrix.
-
-   .. cpp:function:: void SetLocal( int iLocal, int jLocal, T alpha )
-
-      Set the `(iLocal,jLocal)` entry of our local matrix to :math:`\alpha`.
-
-   .. cpp:function:: void UpdateLocal( int iLoca, int jLocal, T alpha )
-
-      Add :math:`\alpha` to the `(iLocal,jLocal)` entry of our local matrix.
-
-   .. note::
-
-      Many of the following routines are only valid for complex datatypes.
-
    .. cpp:function:: typename Base<T>::type GetRealPart( int i, int j ) const
    .. cpp:function:: typename Base<T>::type GetImagPart( int i, int j ) const
 
       Return the real (imaginary) part of the `(i,j)` entry of the global 
       matrix. This operation is collective.
+
+   .. cpp:function:: void Set( int i, int j, T alpha )
+
+      Set the `(i,j)` entry of the global matrix to :math:`\alpha`. This 
+      operation is collective.
 
    .. cpp:function:: void SetRealPart( int i, int j, typename Base<T>::type alpha )
    .. cpp:function:: void SetImagPart( int i, int j, typename Base<T>::type alpha )
@@ -185,11 +164,20 @@ to be available for all matrix distributions.
       Set the real (imaginary) part of the `(i,j)` entry of the global matrix to
       :math:`\alpha`.
 
+   .. cpp:function:: void Update( int i, int j, T alpha )
+
+      Add :math:`\alpha` to the `(i,j)` entry of the global matrix. This 
+      operation is collective.
+
    .. cpp:function:: void UpdateRealPart( int i, int j, typename Base<T>::type alpha )
    .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha )
 
       Add :math:`\alpha` to the real (imaginary) part of the `(i,j)` entry of 
       the global matrix.
+
+   .. cpp:function:: T GetLocal( int iLocal, int jLocal ) const
+
+      Return the `(iLocal,jLocal)` entry of our local matrix.
 
    .. cpp:function:: typename Base<T>::type GetRealPartLocal( int iLocal, int jLocal ) const
    .. cpp:function:: typename Base<T>::type GetLocalImagPart( int iLocal, int jLocal ) const
@@ -197,11 +185,19 @@ to be available for all matrix distributions.
       Return the real (imaginary) part of the `(iLocal,jLocal)` entry of our 
       local matrix.
 
+   .. cpp:function:: void SetLocal( int iLocal, int jLocal, T alpha )
+
+      Set the `(iLocal,jLocal)` entry of our local matrix to :math:`\alpha`.
+
    .. cpp:function:: void SetLocalRealPart( int iLocal, int jLocal, typename Base<T>::type alpha )
    .. cpp:function:: void SetLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
 
       Set the real (imaginary) part of the `(iLocal,jLocal)` entry of our local 
       matrix.
+
+   .. cpp:function:: void UpdateLocal( int iLoca, int jLocal, T alpha )
+
+      Add :math:`\alpha` to the `(iLocal,jLocal)` entry of our local matrix.
 
    .. cpp:function:: void UpdateRealPartLocal( int iLocal, int jLocal, typename Base<T>::type alpha )
    .. cpp:function:: void UpdateLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
@@ -473,34 +469,24 @@ It should also be noted that this is the default distribution format for the
       Thus, `d` can be formed locally if the distribution can
       be aligned with that of the `offset` diagonal of :math:`A[M_C,M_R]`. 
 
+   .. cpp:function:: void GetRealPartOfDiagonal( DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 ) const
+   .. cpp:function:: void GetRealPartOfDiagonal( DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 ) const
+   .. cpp:function:: void GetImagPartOfDiagonal( DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 ) const
+   .. cpp:function:: void GetImagPartOfDiagonal( DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 ) const
+
+   .. cpp:function:: DistMatrix<T,MD,STAR> GetDiagonal( int offset=0 ) const
+   .. cpp:function:: DistMatrix<typename Base<T>::type,MD,STAR> GetRealPartOfDiagonal( int offset=0 ) const
+   .. cpp:function:: DistMatrix<typename Base<T>::type,MD,STAR> GetImagPartOfDiagonal( int offset=0 ) const
+
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,MD,STAR>& d, int offset=0 )
    .. cpp:function:: void SetDiagonal( const DistMatrix<T,STAR,MD>& d, int offset=0 )
 
       Same as :cpp:func:`DistMatrix\<T>::GetDiagonal`, but in reverse.
 
-   .. note:: 
-
-      Many of the following routines are only valid for complex datatypes and
-      are analogous to their general counterparts from above in the obvious 
-      manner.
-
-   .. cpp:function:: void GetRealPartOfDiagonal( DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 ) const
-
-   .. cpp:function:: void GetImagPartOfDiagonal( DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 ) const
-
-   .. cpp:function:: void GetRealPartOfDiagonal( DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 ) const
-
-   .. cpp:function:: void GetImagPartOfDiagonal( DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 ) const
-
-   .. cpp:function:: DistMatrix<typename Base<T>::type,MD,STAR> GetRealPartOfDiagonal( int offset=0 ) const
-   .. cpp:function:: DistMatrix<typename Base<T>::type,MD,STAR> GetImagPartOfDiagonal( int offset=0 ) const
-
    .. cpp:function:: void SetRealPartOfDiagonal( const DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 )
-
-   .. cpp:function:: void SetImagPartOfDiagonal( const DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 )
-
    .. cpp:function:: void SetRealPartOfDiagonal( const DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 )
 
+   .. cpp:function:: void SetImagPartOfDiagonal( const DistMatrix<typename Base<T>::type,MD,STAR>& d, int offset=0 )
    .. cpp:function:: void SetImagPartOfDiagonal( const DistMatrix<typename Base<T>::type,STAR,MD>& d, int offset=0 )
 
    .. rubric:: Alignment

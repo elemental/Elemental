@@ -13,9 +13,7 @@
 // TODO: Reorganize LDL implementation?
 namespace elem {
 template<typename F>
-void LocalLDL
-( Orientation orientation, 
-  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d );
+void LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A );
 } // namespace elem
 
 #include "./LDL/Var3.hpp"
@@ -24,15 +22,12 @@ namespace elem {
 
 template<typename F>
 inline void
-LocalLDL
-( Orientation orientation,
-  DistMatrix<F,STAR,STAR>& A, DistMatrix<F,STAR,STAR>& d )
+LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("LocalLDL");
 #endif
-    d.ResizeTo( A.Height(), 1 );
-    ldl::Var3( orientation, A.Matrix(), d.Matrix() );
+    ldl::Var3( orientation, A.Matrix() );
 }
 
 template<typename F>
@@ -42,8 +37,7 @@ LDLH( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LDLH");
 #endif
-    Matrix<F> d;
-    LDLH( A, d );
+    ldl::Var3( ADJOINT, A );
 }
 
 template<typename F>
@@ -53,28 +47,7 @@ LDLH( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LDLH");
 #endif
-    DistMatrix<F,MC,STAR> d( A.Grid() );
-    LDLH( A, d );
-}
-
-template<typename F>
-inline void
-LDLH( Matrix<F>& A, Matrix<F>& d )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LDLH");
-#endif
-    ldl::Var3( ADJOINT, A, d );
-}
-
-template<typename F>
-inline void 
-LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LDLH");
-#endif
-    ldl::Var3( ADJOINT, A, d );
+    ldl::Var3( ADJOINT, A );
 }
 
 template<typename F>
@@ -84,8 +57,7 @@ LDLT( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LDLT");
 #endif
-    Matrix<F> d;
-    LDLT( A, d );
+    ldl::Var3( TRANSPOSE, A );
 }
 
 template<typename F>
@@ -95,28 +67,7 @@ LDLT( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LDLT");
 #endif
-    DistMatrix<F,MC,STAR> d( A.Grid() );
-    LDLT( A, d );
-}
-
-template<typename F>
-inline void
-LDLT( Matrix<F>& A, Matrix<F>& d )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LDLT");
-#endif
-    ldl::Var3( TRANSPOSE, A, d );
-}
-
-template<typename F>
-inline void 
-LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
-{
-#ifndef RELEASE
-    CallStackEntry entry("LDLT");
-#endif
-    ldl::Var3( TRANSPOSE, A, d );
+    ldl::Var3( TRANSPOSE, A );
 }
 
 } // namespace elem

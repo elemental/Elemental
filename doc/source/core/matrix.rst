@@ -154,13 +154,28 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
 
       Return entry :math:`(i,j)`.
 
+   .. cpp:function:: typename Base<T>::type GetRealPart( int i, int j ) const
+   .. cpp:function:: typename Base<T>::type GetImagPart( int i, int j ) const
+
+      Return the real (imaginary) part of entry :math:`(i,j)`.
+
    .. cpp:function:: void Set( int i, int j, T alpha )
 
       Set entry :math:`(i,j)` to :math:`\alpha`.
 
+   .. cpp:function:: void SetRealPart( int i, int j, typename Base<T>::type alpha )
+   .. cpp:function:: void SetImagPart( int i, int j, typename Base<T>::type alpha )
+
+      Set the real (imaginary) part of entry :math:`(i,j)` to :math:`\alpha`.
+
    .. cpp:function:: void Update( int i, int j, T alpha )
 
       Add :math:`\alpha` to entry :math:`(i,j)`.
+
+   .. cpp:function:: void UpdateRealPart( int i, int j, typename Base<T>::type alpha )
+   .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha ) 
+
+      Add :math:`\alpha` to the real (imaginary) part of entry :math:`(i,j)`.
 
    .. cpp:function:: void GetDiagonal( Matrix<T>& d, int offset=0 ) const
 
@@ -169,43 +184,15 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       offset :math:`0`, the subdiagonal has offset :math:`-1`, and the 
       superdiagonal has offset :math:`+1`).
 
-   .. cpp:function:: Matrix<T> GetDiagonal( Int offset=0 ) const
-
-      Efficiently construct and return the diagonal via C++11 move semantics.
-
-   .. cpp:function:: void SetDiagonal( const Matrix<T>& d, int offset=0 )
-
-      Set the entries in the `offset` diagonal entries from the contents of 
-      the column-vector :math:`d`.
-
-   .. cpp:function:: void UpdateDiagonal( const Matrix<T>& d, int offset=0 )
-
-      Add the contents of :math:`d` onto the entries in the `offset` diagonal.
-
-   .. note::
-
-      Many of the following routines are only valid for complex datatypes.
-
-   .. cpp:function:: typename Base<T>::type GetRealPart( int i, int j ) const
-   .. cpp:function:: typename Base<T>::type GetImagPart( int i, int j ) const
-
-      Return the real (imaginary) part of entry :math:`(i,j)`.
-
-   .. cpp:function:: void SetRealPart( int i, int j, typename Base<T>::type alpha )
-   .. cpp:function:: void SetImagPart( int i, int j, typename Base<T>::type alpha )
-
-      Set the real (imaginary) part of entry :math:`(i,j)` to :math:`\alpha`.
-
-   .. cpp:function:: void UpdateRealPart( int i, int j, typename Base<T>::type alpha )
-   .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha ) 
-
-      Add :math:`\alpha` to the real (imaginary) part of entry :math:`(i,j)`.
-
    .. cpp:function:: void GetRealPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
    .. cpp:function:: void GetImagPartOfDiagonal( Matrix<typename Base<T>::type>& d, int offset=0 ) const
 
       Modify :math:`d` into a column-vector containing the real (imaginary) 
       parts of the entries in the `offset` diagonal.
+
+   .. cpp:function:: Matrix<T> GetDiagonal( Int offset=0 ) const
+
+      Efficiently construct and return the diagonal via C++11 move semantics.
 
    .. cpp:function:: Matrix<typename Base<T>::type> GetRealPartOfDiagonal( Int offset=0 ) const
    .. cpp:function:: Matrix<typename Base<T>::type> GetRealPartOfDiagonal( Int offset=0 ) const
@@ -213,11 +200,20 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       Use C++11 move semantics to return the real (imaginary) part of the 
       diagonal.
 
+   .. cpp:function:: void SetDiagonal( const Matrix<T>& d, int offset=0 )
+
+      Set the entries in the `offset` diagonal entries from the contents of 
+      the column-vector :math:`d`.
+
    .. cpp:function:: void SetRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
    .. cpp:function:: void SetImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
 
       Set the real (imaginary) parts of the entries in the `offset` diagonal 
       from the contents of the column-vector :math:`d`.
+
+   .. cpp:function:: void UpdateDiagonal( const Matrix<T>& d, int offset=0 )
+
+      Add the contents of :math:`d` onto the entries in the `offset` diagonal.
 
    .. cpp:function:: void UpdateRealPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )
    .. cpp:function:: void UpdateImagPartOfDiagonal( const Matrix<typename Base<T>::type>& d, int offset=0 )

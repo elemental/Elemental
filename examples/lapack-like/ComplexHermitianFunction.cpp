@@ -12,15 +12,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
-
-// A functor for returning the imaginary exponential of a real number
-class ImagExpFunctor {
-public:
-    C operator()( R alpha ) const { return Exp(Complex<R>(0,alpha)); } 
-};
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -63,8 +57,8 @@ main( int argc, char* argv[] )
             Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
-        ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
-
+        ComplexHermitianFunction
+        ( LOWER, H, []( Real alpha ) { return Exp(Complex<Real>(0,alpha)); } );
         if( print )
             Print( H, "exp(i*H)" );
     }

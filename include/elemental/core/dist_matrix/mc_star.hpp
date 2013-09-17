@@ -98,7 +98,13 @@ public:
 
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
+    virtual void SetRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex datatypes
+    virtual void SetImagPart( Int i, Int j, BASE(T) u );
     virtual void Update( Int i, Int j, T alpha );
+    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex datatypes
+    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     virtual void ResizeTo( Int height, Int width );
     virtual void ResizeTo( Int height, Int width, Int ldim );
@@ -108,18 +114,6 @@ public:
     virtual void AlignWith( const AbstractDistMatrix<T>& A );
     virtual void AlignColsWith( const elem::DistData& data );
     virtual void AlignColsWith( const AbstractDistMatrix<T>& A );
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex datatypes
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex datatypes
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [MC,* ] distribution                              //
@@ -131,10 +125,30 @@ public:
 
     void GetDiagonal( DistMatrix<T,MC,STAR>& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal
+    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
+    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal
+    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
+    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
     DistMatrix<T,MC,STAR> GetDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
     void SetDiagonal( const DistMatrix<T,MC,STAR>& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MC>& d, Int offset=0 );
+    void SetRealPartOfDiagonal
+    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
+    // Only valid for complex datatypes
+    void SetImagPartOfDiagonal
+    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
+    void SetRealPartOfDiagonal
+    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
+    // Only valid for complex datatypes
+    void SetImagPartOfDiagonal
+    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
 
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
     void AlignWithDiagonal( const AbstractDistMatrix<T>& A, Int offset=0 );
@@ -154,34 +168,20 @@ public:
     // AllReduce sum over process row
     void SumOverRow();
 
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
-    void GetRealPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
-    void GetImagPartOfDiagonal
-    ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
-    DistMatrix<BASE(T),MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
-    DistMatrix<BASE(T),MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
-
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
-    // Only valid for complex datatypes
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
-    void SetRealPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
-    // Only valid for complex datatypes
-    void SetImagPartOfDiagonal
-    ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
-
 private:
+    template<typename S,class Function>
+    void GetDiagonalHelper
+    ( DistMatrix<S,MC,STAR>& d, Int offset, Function func ) const;
+    template<typename S,class Function>
+    void GetDiagonalHelper
+    ( DistMatrix<S,STAR,MC>& d, Int offset, Function func ) const;
+    template<typename S,class Function>
+    void SetDiagonalHelper
+    ( const DistMatrix<S,MC,STAR>& d, Int offset, Function func );
+    template<typename S,class Function>
+    void SetDiagonalHelper
+    ( const DistMatrix<S,STAR,MC>& d, Int offset, Function func );
+
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;

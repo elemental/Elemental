@@ -19,7 +19,7 @@ namespace ldl {
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3Unb( Orientation orientation, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3Unb");
@@ -29,20 +29,16 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
-    d.ResizeTo( n, 1 );
 
     F* ABuffer = A.Buffer();
-    F* dBuffer = d.Buffer();
     const Int ldim = A.LDim();
     for( Int j=0; j<n; ++j )
     {
         const Int a21Height = n - (j+1);
 
-        // Extract and store the diagonal of D
         const F alpha11 = ABuffer[j+j*ldim];
         if( alpha11 == F(0) )
             throw SingularMatrixException();
-        dBuffer[j] = alpha11; 
 
         F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( orientation == ADJOINT )
@@ -77,7 +73,7 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
-Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3( Orientation orientation, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
@@ -87,9 +83,8 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
-    d.ResizeTo( n, 1 );
 
-    Matrix<F> S21;
+    Matrix<F> d1, S21;
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -97,9 +92,9 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
         auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
         auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
-        auto d1 = View( d, k, 0, nb, 1 );
 
-        ldl::Var3Unb( orientation, A11, d1 );
+        ldl::Var3Unb( orientation, A11 );
+        A11.GetDiagonal( d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
@@ -109,7 +104,7 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 
 template<typename F>
 inline void
-Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+Var3( Orientation orientation, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
@@ -117,16 +112,9 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
         LogicError("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( A.Grid() != d.Grid() )
-        LogicError("A and d must use the same grid");
-    if( d.Viewing() && d.ColAlignment() != A.ColAlignment() )
-        LogicError("d must be aligned with A");
 #endif
     const Grid& g = A.Grid();
-    if( !d.Viewing() )
-        d.AlignWith( A );
     const Int n = A.Height();
-    d.ResizeTo( n, 1 );
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
@@ -143,12 +131,11 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
         auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
         auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
         auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
-        auto d1 = View( d, k, 0, nb, 1 );
 
         A11_STAR_STAR = A11;
-        LocalLDL( orientation, A11_STAR_STAR, d1_STAR_STAR );
+        LocalLDL( orientation, A11_STAR_STAR );
+        A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         A11 = A11_STAR_STAR;
-        d1 = d1_STAR_STAR;
 
         A21_VC_STAR.AlignWith( A22 );
         A21_VC_STAR = A21;

@@ -52,7 +52,7 @@ DistMatrix<T,STAR,MR>::DistMatrix( const DistMatrix<T,STAR,MR>& A )
 : AbstractDistMatrix<T>(A.Grid())
 {
 #ifndef RELEASE
-    CallStackEntry entry("DistMatrix[* ,MR]::DistMatrix");
+    CallStackEntry cse("DistMatrix[* ,MR]::DistMatrix");
 #endif
     this->SetShifts();
     if( &A != this )
@@ -67,7 +67,7 @@ DistMatrix<T,STAR,MR>::DistMatrix( const DistMatrix<T,U,V>& A )
 : AbstractDistMatrix<T>(A.Grid())
 {
 #ifndef RELEASE
-    CallStackEntry entry("DistMatrix[* ,MR]::DistMatrix");
+    CallStackEntry cse("DistMatrix[* ,MR]::DistMatrix");
 #endif
     this->SetShifts();
     if( STAR != U || MR != V || 
@@ -134,7 +134,7 @@ void
 DistMatrix<T,STAR,MR>::AlignWith( const elem::DistData& data )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::AlignWith");
+    CallStackEntry cse("[* ,MR]::AlignWith");
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
@@ -176,7 +176,7 @@ DistMatrix<T,STAR,MR>::Attach
   T* buffer, Int ldim, const elem::Grid& g )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::Attach");
+    CallStackEntry cse("[* ,MR]::Attach");
 #endif
     this->Empty();
 
@@ -200,7 +200,7 @@ DistMatrix<T,STAR,MR>::LockedAttach
   const T* buffer, Int ldim, const elem::Grid& g )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::LockedAttach");
+    CallStackEntry cse("[* ,MR]::LockedAttach");
 #endif
     this->Empty();
 
@@ -222,7 +222,7 @@ void
 DistMatrix<T,STAR,MR>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::ResizeTo");
+    CallStackEntry cse("[* ,MR]::ResizeTo");
     this->AssertNotLocked();
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
@@ -239,7 +239,7 @@ void
 DistMatrix<T,STAR,MR>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::ResizeTo");
+    CallStackEntry cse("[* ,MR]::ResizeTo");
     this->AssertNotLocked();
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
@@ -256,7 +256,7 @@ T
 DistMatrix<T,STAR,MR>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::Get");
+    CallStackEntry cse("[* ,MR]::Get");
     this->AssertValidEntry( i, j );
     if( !this->Participating() )
         LogicError("Should only be called by members of grid");
@@ -281,7 +281,7 @@ void
 DistMatrix<T,STAR,MR>::Set( Int i, Int j, T u )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::Set");
+    CallStackEntry cse("[* ,MR]::Set");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -296,10 +296,45 @@ DistMatrix<T,STAR,MR>::Set( Int i, Int j, T u )
 
 template<typename T>
 void
+DistMatrix<T,STAR,MR>::SetRealPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[* ,MR]::SetRealPart");
+    this->AssertValidEntry( i, j );
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
+    if( g.Col() == ownerCol )
+    {
+        const Int jLoc = (j-this->RowShift()) / g.Width();
+        this->SetLocalRealPart( i, jLoc, u );
+    }
+}
+
+template<typename T>
+void
+DistMatrix<T,STAR,MR>::SetImagPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[* ,MR]::SetImagPart");
+    this->AssertValidEntry( i, j );
+#endif
+    this->ComplainIfReal();
+    const elem::Grid& g = this->Grid();
+    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
+    if( g.Col() == ownerCol )
+    {
+        const Int jLoc = (j-this->RowShift()) / g.Width();
+        this->SetLocalImagPart( i, jLoc, u );
+    }
+}
+
+template<typename T>
+void
 DistMatrix<T,STAR,MR>::Update( Int i, Int j, T u )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::Update");
+    CallStackEntry cse("[* ,MR]::Update");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -312,6 +347,41 @@ DistMatrix<T,STAR,MR>::Update( Int i, Int j, T u )
     }
 }
 
+template<typename T>
+void
+DistMatrix<T,STAR,MR>::UpdateRealPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[* ,MR]::UpdateRealPart");
+    this->AssertValidEntry( i, j );
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
+    if( g.Col() == ownerCol )
+    {
+        const Int jLoc = (j-this->RowShift()) / g.Width();
+        this->UpdateLocalRealPart( i, jLoc, u );
+    }
+}
+
+template<typename T>
+void
+DistMatrix<T,STAR,MR>::UpdateImagPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[* ,MR]::UpdateImagPart");
+    this->AssertValidEntry( i, j );
+#endif
+    this->ComplainIfReal();
+    const elem::Grid& g = this->Grid();
+    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
+    if( g.Col() == ownerCol )
+    {
+        const Int jLoc = (j-this->RowShift()) / g.Width();
+        this->UpdateLocalImagPart( i, jLoc, u );
+    }
+}
+
 //
 // Utility functions, e.g., SumOverCol
 //
@@ -321,7 +391,7 @@ void
 DistMatrix<T,STAR,MR>::SumOverCol()
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::SumOverCol");
+    CallStackEntry cse("[* ,MR]::SumOverCol");
     this->AssertNotLocked();
 #endif
     const Grid& g = this->Grid();
@@ -366,7 +436,7 @@ void
 DistMatrix<T,STAR,MR>::AdjointFrom( const DistMatrix<T,VR,STAR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::AdjointFrom");
+    CallStackEntry cse("[* ,MR]::AdjointFrom");
 #endif
     this->TransposeFrom( A, true );
 }
@@ -377,7 +447,7 @@ DistMatrix<T,STAR,MR>::TransposeFrom
 ( const DistMatrix<T,VR,STAR>& A, bool conjugate )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::TransposeFrom");
+    CallStackEntry cse("[* ,MR]::TransposeFrom");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -550,7 +620,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,MC,MR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [MC,MR]");
+    CallStackEntry cse("[* ,MR] = [MC,MR]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -773,7 +843,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,MC,STAR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [MC,* ]");
+    CallStackEntry cse("[* ,MR] = [MC,* ]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
     if( this->Viewing() )
@@ -792,7 +862,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,MR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,MR]");
+    CallStackEntry cse("[* ,MR] = [* ,MR]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -867,9 +937,11 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,MD,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [MD,* ]");
+    CallStackEntry cse("[* ,MR] = [MD,* ]");
 #endif
-    LogicError("[* ,MR] = [MD,* ] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -878,9 +950,11 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,MD>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,MD]");
+    CallStackEntry cse("[* ,MR] = [* ,MD]");
 #endif
-    LogicError("[* ,MR] = [* ,MD] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -889,7 +963,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,MR,MC>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [MR,MC]");
+    CallStackEntry cse("[* ,MR] = [MR,MC]");
 #endif
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
@@ -910,7 +984,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,MR,STAR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [MR,* ]");
+    CallStackEntry cse("[* ,MR] = [MR,* ]");
 #endif
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VR,STAR>> A_VR_STAR
@@ -936,7 +1010,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,MC>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,MC]");
+    CallStackEntry cse("[* ,MR] = [* ,MC]");
 #endif
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,STAR,VC>> A_STAR_VC
@@ -962,7 +1036,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,VC,STAR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [VC,* ]");
+    CallStackEntry cse("[* ,MR] = [VC,* ]");
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,MC,MR> A_MC_MR(false,true,0,this->RowAlignment(),g);
@@ -976,7 +1050,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,VC>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,VC]");
+    CallStackEntry cse("[* ,MR] = [* ,VC]");
 #endif
     const elem::Grid& g = this->Grid();
     DistMatrix<T,STAR,VR> A_STAR_VR(true,this->RowAlignment(),g);
@@ -990,7 +1064,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,VR,STAR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [VR,* ]");
+    CallStackEntry cse("[* ,MR] = [VR,* ]");
 #endif
     const elem::Grid& g = this->Grid();
     std::unique_ptr<DistMatrix<T,VC,STAR>> A_VC_STAR
@@ -1011,7 +1085,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,VR>& A )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,VR]");
+    CallStackEntry cse("[* ,MR] = [* ,VR]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -1155,7 +1229,7 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [* ,* ]");
+    CallStackEntry cse("[* ,MR] = [* ,* ]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -1188,87 +1262,13 @@ const DistMatrix<T,STAR,MR>&
 DistMatrix<T,STAR,MR>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[* ,MR] = [o ,o ]");
+    CallStackEntry cse("[* ,MR] = [o ,o ]");
 #endif
     DistMatrix<T,MC,MR> A_MC_MR( A );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
     *this = A_MC_MR;
     return *this;
-}
-
-//
-// Routines which explicitly work in the complex plane
-//
-
-template<typename T>
-void
-DistMatrix<T,STAR,MR>::SetRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::SetRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    if( g.Col() == ownerCol )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalRealPart( i, jLoc, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,STAR,MR>::SetImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::SetImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    if( g.Col() == ownerCol )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->SetLocalImagPart( i, jLoc, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,STAR,MR>::UpdateRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::UpdateRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    if( g.Col() == ownerCol )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalRealPart( i, jLoc, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,STAR,MR>::UpdateImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[* ,MR]::UpdateImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid();
-    const Int ownerCol = (j + this->RowAlignment()) % g.Width();
-    if( g.Col() == ownerCol )
-    {
-        const Int jLoc = (j-this->RowShift()) / g.Width();
-        this->UpdateLocalImagPart( i, jLoc, u );
-    }
 }
 
 #define PROTO(T) template class DistMatrix<T,STAR,MR>

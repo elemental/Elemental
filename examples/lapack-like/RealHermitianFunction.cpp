@@ -17,12 +17,6 @@ using namespace elem;
 typedef double Real;
 typedef Complex<Real> C;
 
-// A functor for returning the exponential of a real number
-class ExpFunctor {
-public:
-    Real operator()( Real alpha ) const { return Exp(alpha); }
-};
-
 int
 main( int argc, char* argv[] )
 {
@@ -61,7 +55,8 @@ main( int argc, char* argv[] )
             Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
-        RealHermitianFunction( LOWER, H, ExpFunctor() );
+        RealHermitianFunction
+        ( LOWER, H, []( Real alpha ) { return Exp(alpha); } );
         if( print )
         {
             MakeHermitian( LOWER, H );

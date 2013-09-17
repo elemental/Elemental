@@ -58,7 +58,7 @@ DistMatrix<T,MD,STAR>::DistMatrix( const DistMatrix<T,MD,STAR>& A )
 : AbstractDistMatrix<T>(A.Grid()), diagPath_(0)
 {
 #ifndef RELEASE
-    CallStackEntry entry("DistMatrix[MD,* ]::DistMatrix");
+    CallStackEntry cse("DistMatrix[MD,* ]::DistMatrix");
 #endif
     this->SetShifts();
     if( &A != this )
@@ -73,7 +73,7 @@ DistMatrix<T,MD,STAR>::DistMatrix( const DistMatrix<T,U,V>& A )
 : AbstractDistMatrix<T>(A.Grid()), diagPath_(0)
 {
 #ifndef RELEASE
-    CallStackEntry entry("DistMatrix[MD,* ]::DistMatrix");
+    CallStackEntry cse("DistMatrix[MD,* ]::DistMatrix");
 #endif
     this->SetShifts();
     if( MD != U || STAR != V || 
@@ -162,7 +162,7 @@ void
 DistMatrix<T,MD,STAR>::AlignWith( const elem::DistData& data )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::AlignWith");
+    CallStackEntry cse("[MD,* ]::AlignWith");
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
@@ -205,7 +205,7 @@ DistMatrix<T,MD,STAR>::AlignedWithDiagonal
 ( const elem::DistData& data, Int offset ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::AlignedWithDiagonal");
+    CallStackEntry cse("[MD,* ]::AlignedWithDiagonal");
 #endif
     const Grid& grid = this->Grid();
     if( grid != *data.grid )
@@ -274,7 +274,7 @@ DistMatrix<T,MD,STAR>::AlignWithDiagonal
 ( const elem::DistData& data, Int offset )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::AlignWithDiagonal");
+    CallStackEntry cse("[MD,* ]::AlignWithDiagonal");
 #endif
     const Grid& grid = *data.grid;
     this->SetGrid( grid );
@@ -347,7 +347,7 @@ DistMatrix<T,MD,STAR>::Attach
   T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::Attach");
+    CallStackEntry cse("[MD,* ]::Attach");
 #endif
     this->Empty();
 
@@ -372,7 +372,7 @@ DistMatrix<T,MD,STAR>::LockedAttach
   const T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::LockedAttach");
+    CallStackEntry cse("[MD,* ]::LockedAttach");
 #endif
     this->Empty();
 
@@ -395,7 +395,7 @@ void
 DistMatrix<T,MD,STAR>::ResizeTo( Int height, Int width )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::ResizeTo");
+    CallStackEntry cse("[MD,* ]::ResizeTo");
     this->AssertNotLocked();
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
@@ -412,7 +412,7 @@ void
 DistMatrix<T,MD,STAR>::ResizeTo( Int height, Int width, Int ldim )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::ResizeTo");
+    CallStackEntry cse("[MD,* ]::ResizeTo");
     this->AssertNotLocked();
     if( height < 0 || width < 0 )
         LogicError("Height and width must be non-negative");
@@ -429,7 +429,7 @@ T
 DistMatrix<T,MD,STAR>::Get( Int i, Int j ) const
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::Get");
+    CallStackEntry cse("[MD,* ]::Get");
     this->AssertValidEntry( i, j );
 #endif
     // We will determine the owner of entry (i,j) and broadcast from it
@@ -455,7 +455,7 @@ void
 DistMatrix<T,MD,STAR>::Set( Int i, Int j, T u )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::Set");
+    CallStackEntry cse("[MD,* ]::Set");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -473,10 +473,53 @@ DistMatrix<T,MD,STAR>::Set( Int i, Int j, T u )
 
 template<typename T>
 void
+DistMatrix<T,MD,STAR>::SetRealPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[MD,* ]::SetRealPart");
+    this->AssertValidEntry( i, j );
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int ownerRow = (i + this->colAlignment_) % r;
+    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
+    const Int ownerRank = ownerRow + r*ownerCol;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLoc = (i-this->ColShift()) / g.LCM();
+        this->SetLocalRealPart( iLoc, j, u );
+    }
+}
+
+template<typename T>
+void
+DistMatrix<T,MD,STAR>::SetImagPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[MD,* ]::SetImagPart");
+    this->AssertValidEntry( i, j );
+#endif
+    this->ComplainIfReal();
+    const elem::Grid& g = this->Grid();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int ownerRow = (i + this->colAlignment_) % r;
+    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
+    const Int ownerRank = ownerRow + r*ownerCol;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLoc = (i-this->ColShift()) / g.LCM();
+        this->SetLocalImagPart( iLoc, j, u );
+    }
+}
+
+template<typename T>
+void
 DistMatrix<T,MD,STAR>::Update( Int i, Int j, T u )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::Update");
+    CallStackEntry cse("[MD,* ]::Update");
     this->AssertValidEntry( i, j );
 #endif
     const elem::Grid& g = this->Grid();
@@ -489,6 +532,49 @@ DistMatrix<T,MD,STAR>::Update( Int i, Int j, T u )
     {
         const Int iLoc = (i-this->ColShift()) / g.LCM();
         this->UpdateLocal(iLoc,j,u);
+    }
+}
+
+template<typename T>
+void
+DistMatrix<T,MD,STAR>::UpdateRealPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[MD,* ]::UpdateRealPart");
+    this->AssertValidEntry( i, j );
+#endif
+    const elem::Grid& g = this->Grid();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int ownerRow = (i + this->colAlignment_) % r;
+    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
+    const Int ownerRank = ownerRow + r*ownerCol;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLoc = (i-this->ColShift()) / g.LCM();
+        this->UpdateLocalRealPart( iLoc, j, u );
+    }
+}
+
+template<typename T>
+void
+DistMatrix<T,MD,STAR>::UpdateImagPart( Int i, Int j, BASE(T) u )
+{
+#ifndef RELEASE
+    CallStackEntry cse("[MD,* ]::UpdateImagPart");
+    this->AssertValidEntry( i, j );
+#endif
+    this->ComplainIfReal();
+    const elem::Grid& g = this->Grid();
+    const Int r = g.Height();
+    const Int c = g.Width();
+    const Int ownerRow = (i + this->colAlignment_) % r;
+    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
+    const Int ownerRank = ownerRow + r*ownerCol;
+    if( g.VCRank() == ownerRank )
+    {
+        const Int iLoc = (i-this->ColShift()) / g.LCM();
+        this->UpdateLocalImagPart( iLoc, j, u );
     }
 }
 
@@ -558,9 +644,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MC,MR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [MC,MR]");
+    CallStackEntry cse("[MD,* ] = [MC,MR]");
 #endif
-    LogicError("[MD,* ] = [MC,MR] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -569,9 +657,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MC,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [MC,* ]");
+    CallStackEntry cse("[MD,* ] = [MC,* ]");
 #endif
-    LogicError("[MD,* ] = [MC,* ] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -580,9 +670,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,MR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,MR]");
+    CallStackEntry cse("[MD,* ] = [* ,MR]");
 #endif
-    LogicError("[MD,* ] = [* ,MR] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -591,7 +683,7 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MD,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [MD,* ]");
+    CallStackEntry cse("[MD,* ] = [MD,* ]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -615,7 +707,9 @@ DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MD,STAR>& A )
         if( this->Grid().Rank() == 0 )
             std::cerr << "Unaligned [MD,* ] <- [MD,* ]." << std::endl;
 #endif
-        LogicError("Unaligned [MD,* ] = [MD,* ] not yet implemented");
+        // TODO: More efficient implementation?
+        DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+        *this = A_STAR_STAR;
     }
     return *this;
 }
@@ -625,9 +719,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,MD>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,MD]");
+    CallStackEntry cse("[MD,* ] = [* ,MD]");
 #endif
-    LogicError("[MD,* ] = [* ,MD] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -636,9 +732,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MR,MC>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [MR,MC]");
+    CallStackEntry cse("[MD,* ] = [MR,MC]");
 #endif
-    LogicError("[MD,* ] = [MR,MC] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -647,9 +745,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,MR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [MR,* ]");
+    CallStackEntry cse("[MD,* ] = [MR,* ]");
 #endif
-    LogicError("[MD,* ] = [MR,* ] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -658,9 +758,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,MC>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,MC]");
+    CallStackEntry cse("[MD,* ] = [* ,MC]");
 #endif
-    LogicError("[MD,* ] = [* ,MC] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -669,9 +771,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,VC,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [VC,* ]");
+    CallStackEntry cse("[MD,* ] = [VC,* ]");
 #endif
-    LogicError("[MD,* ] = [VC,* ] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -680,9 +784,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,VC>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,VC]");
+    CallStackEntry cse("[MD,* ] = [* ,VC]");
 #endif
-    LogicError("[MD,* ] = [* ,VC] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -691,8 +797,9 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,VR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [VR,* ]");
+    CallStackEntry cse("[MD,* ] = [VR,* ]");
 #endif
+    // TODO: More efficient implementation?
     DistMatrix<T,STAR,STAR> A_STAR_STAR(A);
     *this = A_STAR_STAR;
     return *this;
@@ -703,9 +810,11 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,VR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,VR]");
+    CallStackEntry cse("[MD,* ] = [* ,VR]");
 #endif
-    LogicError("[MD,* ] = [* ,VR] not yet implemented");
+    // TODO: More efficient implementation?
+    DistMatrix<T,STAR,STAR> A_STAR_STAR( A );
+    *this = A_STAR_STAR;
     return *this;
 }
 
@@ -714,7 +823,7 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [* ,* ]");
+    CallStackEntry cse("[MD,* ] = [* ,* ]");
     this->AssertNotLocked();
     this->AssertSameGrid( A.Grid() );
 #endif
@@ -748,103 +857,13 @@ const DistMatrix<T,MD,STAR>&
 DistMatrix<T,MD,STAR>::operator=( const DistMatrix<T,CIRC,CIRC>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("[MD,* ] = [o ,o ]");
+    CallStackEntry cse("[MD,* ] = [o ,o ]");
 #endif
     DistMatrix<T,MC,MR> A_MC_MR( A.Grid() );
     A_MC_MR.AlignWith( *this );
     A_MC_MR = A;
     *this = A_MC_MR;
     return *this;
-}
-
-//
-// Routines which explicitly work in the complex plane
-//
-
-template<typename T>
-void
-DistMatrix<T,MD,STAR>::SetRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::SetRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int ownerRow = (i + this->colAlignment_) % r;
-    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
-    const Int ownerRank = ownerRow + r*ownerCol;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.LCM();
-        this->SetLocalRealPart( iLoc, j, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,MD,STAR>::SetImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::SetImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int ownerRow = (i + this->colAlignment_) % r;
-    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
-    const Int ownerRank = ownerRow + r*ownerCol;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.LCM();
-        this->SetLocalImagPart( iLoc, j, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,MD,STAR>::UpdateRealPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::UpdateRealPart");
-    this->AssertValidEntry( i, j );
-#endif
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int ownerRow = (i + this->colAlignment_) % r;
-    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
-    const Int ownerRank = ownerRow + r*ownerCol;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.LCM();
-        this->UpdateLocalRealPart( iLoc, j, u );
-    }
-}
-
-template<typename T>
-void
-DistMatrix<T,MD,STAR>::UpdateImagPart( Int i, Int j, BASE(T) u )
-{
-#ifndef RELEASE
-    CallStackEntry entry("[MD,* ]::UpdateImagPart");
-    this->AssertValidEntry( i, j );
-#endif
-    this->ComplainIfReal();
-    const elem::Grid& g = this->Grid();
-    const Int r = g.Height();
-    const Int c = g.Width();
-    const Int ownerRow = (i + this->colAlignment_) % r;
-    const Int ownerCol = (i + this->colAlignment_ + this->diagPath_) % c;
-    const Int ownerRank = ownerRow + r*ownerCol;
-    if( g.VCRank() == ownerRank )
-    {
-        const Int iLoc = (i-this->ColShift()) / g.LCM();
-        this->UpdateLocalImagPart( iLoc, j, u );
-    }
 }
 
 #define PROTO(T) template class DistMatrix<T,MD,STAR>

@@ -16,12 +16,6 @@ using namespace elem;
 // Create a typedef for convenience
 typedef double Real;
 
-// A functor for returning the exponential of a real number
-class ExpFunctor {
-public:
-    Real operator()( Real alpha ) const { return std::exp(alpha); }
-};
-
 int
 main( int argc, char* argv[] )
 {
@@ -60,7 +54,8 @@ main( int argc, char* argv[] )
             Print( H, "H" );
 
         // Reform the matrix with the exponentials of the original eigenvalues
-        RealHermitianFunction( LOWER, H, ExpFunctor() );
+        RealHermitianFunction
+        ( LOWER, H, []( Real alpha ) { return Exp(alpha); } );
         if( print )
         {
             MakeHermitian( LOWER, H );
