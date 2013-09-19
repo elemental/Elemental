@@ -63,10 +63,8 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            Matrix<F> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, m );
+            Matrix<F> XT, XB;
+            PartitionDown( X, XT, XB, m );
             XT = B;
             Zero( XB );
 
@@ -91,10 +89,8 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            Matrix<F> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, n );
+            Matrix<F> XT, XB;
+            PartitionDown( X, XT, XB, n );
             XT = B;
             Zero( XB );
 
@@ -178,10 +174,8 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            DistMatrix<F> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, m );
+            DistMatrix<F> XT(g), XB(g);
+            PartitionDown( X, XT, XB, m );
             XT = B;
             Zero( XB );
 
@@ -206,10 +200,8 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            DistMatrix<F> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, n );
+            DistMatrix<F> XT(g), XB(g);
+            PartitionDown( X, XT, XB, n );
             XT = B;
             Zero( XB );
 

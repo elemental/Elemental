@@ -95,6 +95,14 @@ public:
     : std::runtime_error( msg ) { }
 };
 
+// An exception which signifies a zero pivot was chosen, though the matrix
+// may not actually be singular
+class ZeroPivotException : public std::runtime_error
+{
+    ZeroPivotException( const char* msg="Zero pivot was chosen" )
+    : std::runtime_error( msg ) { }
+};
+
 // An exception which signifies that a matrix was unexpectedly non-HPD
 class NonHPDMatrixException  : public std::runtime_error
 {

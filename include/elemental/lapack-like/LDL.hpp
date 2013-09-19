@@ -10,12 +10,12 @@
 #ifndef ELEM_LAPACK_LDL_HPP
 #define ELEM_LAPACK_LDL_HPP
 
-// TODO: Reorganize LDL implementation?
 namespace elem {
 template<typename F>
 void LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A );
 } // namespace elem
 
+#include "./LDL/BunchKaufman.hpp"
 #include "./LDL/Var3.hpp"
 
 namespace elem {
@@ -25,7 +25,7 @@ inline void
 LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LocalLDL");
+    CallStackEntry cse("LocalLDL");
 #endif
     ldl::Var3( orientation, A.Matrix() );
 }
@@ -35,9 +35,19 @@ inline void
 LDLH( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LDLH");
+    CallStackEntry cse("LDLH");
 #endif
     ldl::Var3( ADJOINT, A );
+}
+
+template<typename F>
+inline void
+LDLH( Matrix<F>& A, Matrix<Int>& p )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LDLH");
+#endif
+    ldl::BunchKaufman( ADJOINT, A, p );
 }
 
 template<typename F>
@@ -45,7 +55,7 @@ inline void
 LDLH( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LDLH");
+    CallStackEntry cse("LDLH");
 #endif
     ldl::Var3( ADJOINT, A );
 }
@@ -55,9 +65,19 @@ inline void
 LDLT( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LDLT");
+    CallStackEntry cse("LDLT");
 #endif
     ldl::Var3( TRANSPOSE, A );
+}
+
+template<typename F>
+inline void
+LDLT( Matrix<F>& A, Matrix<Int>& p )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LDLT");
+#endif
+    ldl::BunchKaufman( TRANSPOSE, A, p );
 }
 
 template<typename F>
@@ -65,7 +85,7 @@ inline void
 LDLT( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("LDLT");
+    CallStackEntry cse("LDLT");
 #endif
     ldl::Var3( TRANSPOSE, A );
 }

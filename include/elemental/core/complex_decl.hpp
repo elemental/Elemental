@@ -81,6 +81,8 @@ void UpdateImagPart( Complex<Real>& alpha, const Real& beta );
 // Euclidean (l_2) magnitudes
 template<typename F>
 BASE(F) Abs( const F& alpha );
+template<typename F>
+BASE(F) SafeAbs( const F& alpha );
 
 // Square-root free (l_1) magnitudes
 template<typename F>

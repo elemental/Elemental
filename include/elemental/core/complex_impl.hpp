@@ -94,6 +94,16 @@ inline BASE(F)
 Abs( const F& alpha )
 { return std::abs(alpha); }
 
+template<typename Real>
+inline Real
+SafeAbs( const Real& alpha )
+{ return Abs(alpha); }
+
+template<typename Real>
+inline Real
+SafeAbs( const Complex<Real>& alpha )
+{ return lapack::SafeNorm( alpha.real(), alpha.imag() ); }
+
 template<typename F>
 inline BASE(F)
 FastAbs( const F& alpha )
