@@ -129,9 +129,9 @@ DistMatrix<T,CIRC,CIRC>::~DistMatrix()
 
 template<typename T>
 void
-DistMatrix<T,CIRC,CIRC>::Swap( DistMatrix<T,CIRC,CIRC>& A )
+DistMatrix<T,CIRC,CIRC>::ShallowSwap( DistMatrix<T,CIRC,CIRC>& A )
 {
-    AbstractDistMatrix<T>::Swap( A );        
+    AbstractDistMatrix<T>::ShallowSwap( A );        
     std::swap( root_, A.root_ );
 }
 

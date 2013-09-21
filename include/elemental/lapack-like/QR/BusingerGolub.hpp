@@ -76,7 +76,6 @@ BusingerGolub
     t.ResizeTo( maxSteps, 1 );
 
     Matrix<F> z;
-    std::vector<F> swapBuf( m );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
@@ -105,12 +104,12 @@ BusingerGolub
         p.Set( k, 0, pivot.index );
  
         // Perform the swap
-        if( k != pivot.index )
+        const Int jPiv = pivot.index;
+        if( jPiv != k )
         {
-            MemSwap
-            ( A.Buffer(0,k), A.Buffer(0,pivot.index), swapBuf.data(), m );
-            norms[pivot.index] = norms[k];
-            origNorms[pivot.index] = origNorms[k];
+            blas::Swap( m, A.Buffer(0,k), 1, A.Buffer(0,jPiv), 1 );
+            norms[jPiv] = norms[k];
+            origNorms[jPiv] = origNorms[k];
         }
 
         // Compute and apply the Householder reflector for this column
@@ -399,7 +398,6 @@ BusingerGolub
     const Int rowAlign = A.RowAlignment();
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
-    std::vector<F> swapBuf( mLocal );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
@@ -435,37 +433,36 @@ BusingerGolub
         p.Set( k, 0, pivot.index );
 
         // Perform the swap
-        const Int colOwner = (k+rowAlign) % rowStride;
-        const Int pivotColOwner = (pivot.index+rowAlign) % rowStride;
-        const bool myCol = ( g.Col() == colOwner );
-        const bool myPivotCol = ( g.Col() == pivotColOwner );
-        if( k != pivot.index )
+        const Int jPiv = pivot.index;
+        const Int curOwner = (k+rowAlign) % rowStride;
+        const Int pivOwner = (jPiv+rowAlign) % rowStride;
+        const bool myCur = ( g.Col() == curOwner );
+        const bool myPiv = ( g.Col() == pivOwner );
+        if( jPiv != k )
         {
-            if( myCol && myPivotCol )
+            if( myCur && myPiv )
             {
-                const Int kLocal = (k-rowShift) / rowStride;
-                const Int pivotColLocal = (pivot.index-rowShift) / rowStride;
-                MemSwap
-                ( A.Buffer(0,kLocal), A.Buffer(0,pivotColLocal),
-                  swapBuf.data(), mLocal );
-                norms[pivotColLocal] = norms[kLocal];
-                origNorms[pivotColLocal] = origNorms[kLocal];
+                const Int kLoc    = (k   -rowShift) / rowStride;
+                const Int jPivLoc = (jPiv-rowShift) / rowStride;
+                blas::Swap
+                ( mLocal, A.Buffer(0,kLoc), 1, A.Buffer(0,jPivLoc), 1 );
+                norms[jPivLoc] = norms[kLoc];
+                origNorms[jPivLoc] = origNorms[kLoc];
             }
-            else if( myCol )
+            else if( myCur )
             {
-                const Int kLocal = (k-rowShift) / rowStride;
+                const Int kLoc = (k-rowShift) / rowStride;
                 mpi::SendRecv
-                ( A.Buffer(0,kLocal), mLocal, 
-                  pivotColOwner, pivotColOwner, g.RowComm() );
-                mpi::Send( norms[kLocal], pivotColOwner, g.RowComm() );
+                ( A.Buffer(0,kLoc), mLocal, pivOwner, pivOwner, g.RowComm() );
+                mpi::Send( norms[kLoc], pivOwner, g.RowComm() );
             }
-            else if( myPivotCol )
+            else if( myPiv )
             {
-                const Int pivotColLocal = (pivot.index-rowShift) / rowStride;
+                const Int jPivLoc = (jPiv-rowShift) / rowStride;
                 mpi::SendRecv
-                ( A.Buffer(0,pivotColLocal), mLocal,
-                  colOwner, colOwner, g.RowComm() );
-                norms[pivotColLocal] = mpi::Recv<Real>( colOwner, g.RowComm() );
+                ( A.Buffer(0,jPivLoc), mLocal, 
+                  curOwner, curOwner, g.RowComm() );
+                norms[jPivLoc] = mpi::Recv<Real>( curOwner, g.RowComm() );
             }
         }
 

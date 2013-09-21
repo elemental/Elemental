@@ -26,7 +26,9 @@ public:
     Memory( Memory<G>&& mem );
     Memory<G>& operator=( Memory<G>&& mem );
 #endif
-    void Swap( Memory<G>& mem );
+
+    // Exchange metadata with 'mem'
+    void ShallowSwap( Memory<G>& mem );
 
     G* Buffer() const;
     std::size_t Size()   const;

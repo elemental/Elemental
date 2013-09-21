@@ -93,6 +93,17 @@ enum HermitianGenDefiniteEigType
 }
 using namespace hermitian_gen_definite_eig_type_wrapper;
 
+namespace ldl_pivot_type_wrapper {
+enum LDLPivotType
+{
+    BUNCH_KAUFMAN_A,
+    BUNCH_KAUFMAN_D,
+    BUNCH_KAUFMAN_BOUNDED,
+    BUNCH_PARLETT
+};
+}
+using namespace ldl_pivot_type_wrapper;
+
 } // namespace elem
 
 #endif // ifndef ELEM_LAPACK_DECL_HPP

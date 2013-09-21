@@ -15,7 +15,7 @@ template<typename F>
 void LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A );
 } // namespace elem
 
-#include "./LDL/BunchKaufman.hpp"
+#include "./LDL/Pivoted.hpp"
 #include "./LDL/Var3.hpp"
 
 namespace elem {
@@ -47,7 +47,7 @@ LDLH( Matrix<F>& A, Matrix<Int>& p )
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::BunchKaufman( ADJOINT, A, p );
+    ldl::Pivoted( ADJOINT, A, p );
 }
 
 template<typename F>
@@ -77,7 +77,7 @@ LDLT( Matrix<F>& A, Matrix<Int>& p )
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::BunchKaufman( TRANSPOSE, A, p );
+    ldl::Pivoted( TRANSPOSE, A, p );
 }
 
 template<typename F>

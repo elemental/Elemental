@@ -7,10 +7,12 @@
    http://opensource.org/licenses/BSD-2-Clause
 */
 #pragma once
-#ifndef ELEM_LAPACK_LDL_BUNCHKAUFMAN_HPP
-#define ELEM_LAPACK_LDL_BUNCHKAUFMAN_HPP
+#ifndef ELEM_LAPACK_LDL_PIVOTED_HPP
+#define ELEM_LAPACK_LDL_PIVOTED_HPP
 
+#include "elemental/blas-like/level1/Max.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/Swap.hpp"
 #include "elemental/blas-like/level2/Syr.hpp"
 
 // TODO: Reference LAPACK's dsytf2 and zhetf2
@@ -18,151 +20,24 @@
 namespace elem {
 namespace ldl {
 
-template<typename F>
-inline ValueInt<BASE(F)>
-FindMax( const Matrix<F>& x )
-{
-    typedef BASE(F) Real;
-    const Int m = x.Height();
-    const Int n = x.Width();
-
-    ValueInt<Real> pivot;
-    pivot.index = 0;
-    pivot.value = 0;
-    if( n == 1 )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            const Real abs = Abs(x.Get(i,0));
-            if( abs > pivot.value )
-            {
-                pivot.index = i;
-                pivot.value = abs;
-            }
-        }
-    }
-    else
-    {
-        for( Int j=0; j<n; ++j )
-        {
-            const Real abs = Abs(x.Get(0,j));
-            if( abs > pivot.value )
-            {
-                pivot.index = j;
-                pivot.value = abs;
-            }
-        }
-    }
-    return pivot;
-}
-
-template<typename F>
-inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
-{
-#ifndef RELEASE
-    CallStackEntry cse("ldl::Swap");
-#endif
-    const Int mX = X.Height();
-    const Int nX = X.Width();
-
-    if( orientation == NORMAL )
-    {
-#ifndef RELEASE
-        if( Y.Height() != mX || Y.Width() != nX )
-            LogicError("Invalid submatrix sizes");
-#endif
-        // TODO: Optimize memory access patterns
-        for( Int j=0; j<nX; ++j )
-        {
-            for( Int i=0; i<mX; ++i )
-            {
-                const F alpha = X.Get(i,j);    
-                X.Set( i, j, Y.Get(i,j) );
-                Y.Set( i, j, alpha      );
-            }
-        }
-    }
-    else
-    {
-        const bool conjugate = ( orientation==ADJOINT );
-#ifndef RELEASE
-        if( Y.Width() != mX || Y.Height() != nX )
-            LogicError("Invalid submatrix sizes");
-#endif
-        // TODO: Optimize memory access patterns
-        for( Int j=0; j<nX; ++j )
-        {
-            for( Int i=0; i<mX; ++i )
-            {
-                const F alpha = X.Get(i,j);
-                if( conjugate )
-                {
-                    X.Set( i, j, Conj(Y.Get(j,i)) ); 
-                    Y.Set( j, i, Conj(alpha)      );
-                }
-                else
-                {
-                    X.Set( i, j, Y.Get(j,i) ); 
-                    Y.Set( j, i, alpha      );
-                }
-            }
-        }
-    }
-}
-
-template<typename F>
-inline void ApplyPivot
-( Orientation orientation, Matrix<F>& A, int to, int from )
-{
-#ifndef RELEASE
-    CallStackEntry cse("ldl::ApplyPivot");
-    if( orientation == NORMAL )
-        LogicError("Invalid orientation");
-#endif
-    const Int n = A.Height();
-    if( to != from )
-    {
-        // Bottom swap
-        auto aToBot   = ViewRange( A, from+1, to,   n, to+1   );
-        auto aFromBot = ViewRange( A, from+1, from, n, from+1 );
-        Swap( NORMAL, aToBot, aFromBot );
-        // Inner swap
-        auto aToInner   = ViewRange( A, to+1, to,   from,   to+1 );
-        auto aFromInner = ViewRange( A, from, to+1, from+1, from );
-        Swap( orientation, aToInner, aFromInner );
-        // Corner swap
-        if( orientation == ADJOINT )
-            A.Set( from, to, Conj(A.Get(from,to)) );
-        // Diagonal swap
-        {
-            const F value = A.Get(from,from);
-            A.Set( from, from, A.Get(to,to) );
-            A.Set( to,   to,   value        );
-        }
-        // Left swap
-        // NOTE: LAPACK would only swap two entries here if nb=2
-        //       (otherwise no left swap)
-        auto aToLeft   = ViewRange( A, to,   0, to+1,   to );
-        auto aFromLeft = ViewRange( A, from, 0, from+1, to );
-        Swap( NORMAL, aToLeft, aFromLeft );
-    }
-}
-
-// TODO: Add support for Algorithm D. Currently using Algorithm A
+// TODO: Add support for Algorithm D, Bunch-Parlett, etc.. 
+// Currently using Algorithm A Bunch-Kaufman.
 template<typename F>
 inline Int
-ChoosePivot( const Matrix<F>& A, Matrix<Int>& p, Int k, BASE(F) gamma )
+ChoosePivot
+( const Matrix<F>& A, Matrix<Int>& p, Int k, 
+  LDLPivotType pivotType, BASE(F) gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
 #endif
     typedef BASE(F) Real;
     const Int n = A.Height();
+    if( pivotType != BUNCH_KAUFMAN_A )
+        LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
 
-    const F alpha11 = A.Get( k, k );
-    const Real alpha11Abs = Abs(alpha11);
-    auto a21 = LockedViewRange( A, k+1, k, n, k+1 );
-    auto a21Pair = FindMax( a21 );
+    const Real alpha11Abs = Abs(A.Get(k,k));
+    auto a21Pair = VectorMax( LockedViewRange(A,k+1,k,n,k+1) );
     const Int r = (k+1) + a21Pair.index;
     const Real colMax = a21Pair.value;
     if( colMax == Real(0) && alpha11Abs == Real(0) )
@@ -175,10 +50,10 @@ ChoosePivot( const Matrix<F>& A, Matrix<Int>& p, Int k, BASE(F) gamma )
     else
     {
         // Find maximum off-diag value in row r (exploit symmetry)
-        auto aLeft   = LockedViewRange( A, r,   0, r+1, r   );
-        auto aBottom = LockedViewRange( A, r+1, r, n,   r+1 );
-        auto leftPair   = FindMax( aLeft );
-        auto bottomPair = FindMax( aBottom );
+        //auto aLeft   = LockedViewRange( A, r,   0, r+1, r   );
+        //auto aBottom = LockedViewRange( A, r+1, r, n,   r+1 );
+        auto leftPair   = VectorMax( LockedViewRange(A,r,  0,r+1,r  ) );
+        auto bottomPair = VectorMax( LockedViewRange(A,r+1,r,n,  r+1) );
         const Real rowMax = Max(leftPair.value,bottomPair.value);
 
         if( alpha11Abs >= gamma*colMax*(colMax/rowMax) )
@@ -199,16 +74,17 @@ ChoosePivot( const Matrix<F>& A, Matrix<Int>& p, Int k, BASE(F) gamma )
     return p.Get( k, 0 );
 }
 
-// Unblocked sequential BunchKaufman
-// TODO: Better documentation of LAPACK approach to diagonal-block inversion
+// Unblocked sequential pivoted LDL
+// TODO: Extract 2x2 inversion into external routine
 template<typename F>
 inline void
-BunchKaufman
+Pivoted
 ( Orientation orientation, Matrix<F>& A, Matrix<Int>& p, 
+  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("ldl::BunchKaufman");
+    CallStackEntry entry("ldl::Pivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
     if( orientation == NORMAL )
@@ -222,13 +98,13 @@ BunchKaufman
     while( k < n )
     {
         // Determine the pivot (block)
-        const Int pivot = ChoosePivot( A, p, k, gamma );
+        const Int pivot = ChoosePivot( A, p, k, pivotType, gamma );
         const Int nb   = ( pivot >= 0 ? 1     : 2      );
         const Int from = ( pivot >= 0 ? pivot : -pivot );
         const Int to = k + (nb-1);
 
         // Apply the symmetric pivot
-        ApplyPivot( orientation, A, to, from );
+        SymmetricSwap( LOWER, A, to, from, conjugate );
 
         if( conjugate )
         {
@@ -307,4 +183,4 @@ BunchKaufman
 } // namespace ldl
 } // namespace elem
 
-#endif // ifndef ELEM_LAPACK_LDL_BUNCHKAUFMAN_HPP
+#endif // ifndef ELEM_LAPACK_LDL_PIVOTED_HPP

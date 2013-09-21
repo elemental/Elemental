@@ -132,8 +132,6 @@ public:
     // Routines that can be overridden in derived classes                     //
     //------------------------------------------------------------------------//
 
-    virtual void Swap( AbstractDistMatrix<T>& A );
-
     virtual bool Participating() const;
     virtual void AlignWith( const elem::DistData& data );
     virtual void AlignWith( const AbstractDistMatrix<T>& A );
@@ -203,6 +201,9 @@ protected:
 
     // Build around a particular grid
     AbstractDistMatrix( const elem::Grid& g );
+
+    // Exchange metadata with A
+    virtual void ShallowSwap( AbstractDistMatrix<T>& A );
 
     void SetShifts();
     void SetColShift();

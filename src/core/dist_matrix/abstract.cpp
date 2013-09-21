@@ -33,16 +33,16 @@ AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
   colShift_(A.colShift_), rowShift_(A.rowShift_),
   grid_(A.grid_)
 { 
-    matrix_.Swap( A.matrix_ );
-    auxMemory_.Swap( A.auxMemory_ );
+    matrix_.ShallowSwap( A.matrix_ );
+    auxMemory_.ShallowSwap( A.auxMemory_ );
 }
 
 template<typename T>
 AbstractDistMatrix<T>& 
 AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
 {
-    auxMemory_.Swap( A.auxMemory_ );
-    matrix_.Swap( A.matrix_ );
+    auxMemory_.ShallowSwap( A.auxMemory_ );
+    matrix_.ShallowSwap( A.matrix_ );
     viewType_ = A.viewType_;
     height_ = A.height_;
     width_ = A.width_;
@@ -62,10 +62,10 @@ AbstractDistMatrix<T>::~AbstractDistMatrix()
 
 template<typename T>
 void 
-AbstractDistMatrix<T>::Swap( AbstractDistMatrix<T>& A )
+AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
 {
-    matrix_.Swap( A.matrix_ );
-    auxMemory_.Swap( A.auxMemory_ );
+    matrix_.ShallowSwap( A.matrix_ );
+    auxMemory_.ShallowSwap( A.auxMemory_ );
     std::swap( viewType_, A.viewType_ );
     std::swap( height_ , A.height_ );
     std::swap( width_, A.width_ );

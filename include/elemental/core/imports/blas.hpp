@@ -77,7 +77,13 @@ void Scal( int n, float alpha, float* x, int incx );
 void Scal( int n, double alpha, double* x, int incx );
 void Scal( int n, scomplex alpha, scomplex* x, int incx );
 void Scal( int n, dcomplex alpha, dcomplex* x, int incx );
-template<typename F> void Scal( int n, F alpha, F* x, int incx );
+template<typename T> void Scal( int n, T alpha, T* x, int incx );
+
+void Swap( int n, float* x, int incx, float* y, int incy );
+void Swap( int n, double* x, int incx, double* y, int incy );
+void Swap( int n, scomplex* x, int incx, scomplex* y, int incy );
+void Swap( int n, dcomplex* x, int incx, dcomplex* y, int incy );
+template<typename T> void Swap( int n, T* x, int incx, T* y, int incy );
             
 //----------------------------------------------------------------//
 // Level 2 BLAS                                                   //
@@ -571,6 +577,18 @@ inline void Scal( int n, T alpha, T* x, int incx )
     for( int i=0; i<n; ++i )
         x[i*incx] *= alpha;
 }
+
+template<typename T>
+inline void Swap( int n, T* x, int incx, T* y, int incy )
+{
+    for( int i=0; i<n; ++i )
+    {
+        const T temp = x[i*incx];
+        x[i*incx] = y[i*incy];
+        y[i*incy] = temp;
+    }
+}
+
 
 // 
 // Level 2 BLAS

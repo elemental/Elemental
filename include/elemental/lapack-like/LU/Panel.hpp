@@ -11,6 +11,7 @@
 #define ELEM_LAPACK_LU_PANEL_HPP
 
 #include "elemental/blas-like/level1/Scale.hpp"
+#include "elemental/blas-like/level1/Swap.hpp"
 #include "elemental/blas-like/level2/Geru.hpp"
 
 namespace elem {
@@ -22,12 +23,16 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
 {
 #ifndef RELEASE
     CallStackEntry entry("lu::Panel");
-    if( A.Width() != p.Height() || p.Width() != 1 )
-        LogicError("p must be a vector that conforms with A");
 #endif
     typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
+#ifndef RELEASE
+    if( m < n )
+        LogicError("Must be a column panel");
+#endif
+    p.ResizeTo( n, 1 );
+
     for( Int k=0; k<n; ++k )
     {
         auto alpha11 = ViewRange( A, k,   k,   k+1, k+1 );
@@ -36,26 +41,16 @@ Panel( Matrix<F>& A, Matrix<Int>& p, Int pivotOffset=0 )
         auto A22     = ViewRange( A, k+1, k+1, m,   n   );
 
         // Find the index and value of the pivot candidate
-        ValueInt<Real> pivot;
-        pivot.value = FastAbs(alpha11.Get(0,0));
-        pivot.index = k;
-        for( Int i=0; i<a21.Height(); ++i )
-        {
-            const Real value = FastAbs(a21.Get(i,0));
-            if( value > pivot.value )
-            {
-                pivot.value = value;
-                pivot.index = k + i + 1;
-            }
-        }
-        p.Set( k, 0, pivot.index+pivotOffset );
+        auto pivot = VectorMax( ViewRange(A,k,k,m,k+1) );
+        const Int iPiv = pivot.index + k;
+        p.Set( k, 0, iPiv+pivotOffset );
 
         // Swap the pivot row and current row
-        for( Int j=0; j<n; ++j )
+        if( iPiv != k )
         {
-            const F temp = A.Get(k,j);
-            A.Set( k,           j, A.Get(pivot.index,j) ); 
-            A.Set( pivot.index, j, temp                 );
+            auto aCurRow = ViewRange( A, k,    0, k+1,    n );
+            auto aPivRow = ViewRange( A, iPiv, 0, iPiv+1, n );
+            Swap( NORMAL, aCurRow, aPivRow );
         }
 
         // Now we can perform the update of the current panel
@@ -132,23 +127,24 @@ Panel
         // Compute and store the location of the new pivot
         const ValueInt<Real> pivot = 
             mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), g.ColComm() );
-        p.SetLocal(k,0,pivot.index+pivotOffset);
+        const Int iPiv = pivot.index;
+        p.SetLocal( k, 0, iPiv+pivotOffset );
 
         // Perform the pivot within this panel
-        if( pivot.index < n )
+        if( iPiv < n )
         {
             // Pack pivot into temporary
             for( Int j=0; j<n; ++j )
-                pivotBuffer[j] = A.GetLocal( pivot.index, j );
+                pivotBuffer[j] = A.GetLocal( iPiv, j );
             // Replace pivot with current
             for( Int j=0; j<n; ++j )
-                A.SetLocal( pivot.index, j, A.GetLocal(k,j) );
+                A.SetLocal( iPiv, j, A.GetLocal(k,j) );
         }
         else
         {
             // The owning row of the pivot row packs it into the row buffer
             // and then overwrites with the current row
-            const Int relIndex = pivot.index - n;
+            const Int relIndex = iPiv - n;
             const Int ownerRow = (colAlignment+relIndex) % r;
             if( g.Row() == ownerRow )
             {

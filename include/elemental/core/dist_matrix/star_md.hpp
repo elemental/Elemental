@@ -98,8 +98,6 @@ public:
     // Collective routines
     //
 
-    virtual void Swap( DistMatrix<T,STAR,MD>& A );
-
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
     virtual void SetRealPart( Int i, Int j, BASE(T) u );
@@ -153,6 +151,9 @@ private:
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
+
+    // Exchange metadata with A
+    virtual void ShallowSwap( DistMatrix<T,STAR,MD>& A );
 };
 
 } // namespace elem

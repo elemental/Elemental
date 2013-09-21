@@ -70,6 +70,17 @@ void BLAS(zscal)
 ( const int* n, const elem::dcomplex* alpha, elem::dcomplex* x,
   const int* incx );
 
+void BLAS(sswap)
+( const int* n, float* x, const int* incx, float* y, const int* incy );
+void BLAS(dswap)
+( const int* n, double* x, const int* incx, double* y, const int* incy );
+void BLAS(cswap)
+( const int* n, elem::scomplex* x, const int* incx, 
+                elem::scomplex* y, const int* incy );
+void BLAS(zswap)
+( const int* n, elem::dcomplex* x, const int* incx, 
+                elem::dcomplex* y, const int* incy );
+
 //------------------------------------------------------------------------//
 // Level 2 BLAS                                                           //
 //------------------------------------------------------------------------//
@@ -597,6 +608,18 @@ void Scal( int n, scomplex alpha, scomplex* x, int incx )
 
 void Scal( int n, dcomplex alpha, dcomplex* x, int incx )
 { BLAS(zscal)( &n, &alpha, x, &incx ); }
+
+void Swap( int n, float* x, int incx, float* y, int incy )
+{ BLAS(sswap)( &n, x, &incx, y, &incy ); }
+
+void Swap( int n, double* x, int incx, double* y, int incy )
+{ BLAS(dswap)( &n, x, &incx, y, &incy ); }
+
+void Swap( int n, scomplex* x, int incx, scomplex* y, int incy )
+{ BLAS(cswap)( &n, x, &incx, y, &incy ); }
+
+void Swap( int n, dcomplex* x, int incx, dcomplex* y, int incy )
+{ BLAS(zswap)( &n, x, &incx, y, &incy ); }
 
 //----------------------------------------------------------------------------//
 // Level 2 BLAS                                                               //

@@ -45,9 +45,6 @@ public:
     Matrix<T>& operator=( Matrix<T>&& A );
 #endif
 
-    // Swap
-    void Swap( Matrix<T>& A );
-
     //
     // Destructor
     //
@@ -146,6 +143,9 @@ private:
     Memory<T> memory_;
 
     void ComplainIfReal() const;
+
+    // Exchange metadata with A
+    void ShallowSwap( Matrix<T>& A );
 
     const T& Get_( Int i, Int j ) const;
     T& Set_( Int i, Int j );

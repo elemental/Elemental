@@ -103,9 +103,9 @@ DistMatrix<T,MD,STAR>::~DistMatrix()
 
 template<typename T>
 void
-DistMatrix<T,MD,STAR>::Swap( DistMatrix<T,MD,STAR>& A )
+DistMatrix<T,MD,STAR>::ShallowSwap( DistMatrix<T,MD,STAR>& A )
 {
-    AbstractDistMatrix<T>::Swap( A );
+    AbstractDistMatrix<T>::ShallowSwap( A );
     std::swap( diagPath_, A.diagPath_ );
 }
 

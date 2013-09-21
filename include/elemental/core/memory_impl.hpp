@@ -28,16 +28,16 @@ template<typename G>
 inline
 Memory<G>::Memory( Memory<G>&& mem )
 : size_(mem.size_), buffer_(nullptr)
-{ Swap(mem); }
+{ ShallowSwap(mem); }
 
 template<typename G>
 inline Memory<G>&
 Memory<G>::operator=( Memory<G>&& mem )
-{ Swap( mem ); return *this; }
+{ ShallowSwap( mem ); return *this; }
 
 template<typename G>
 inline void
-Memory<G>::Swap( Memory<G>& mem )
+Memory<G>::ShallowSwap( Memory<G>& mem )
 {
     std::swap(size_,mem.size_);
     std::swap(buffer_,mem.buffer_);

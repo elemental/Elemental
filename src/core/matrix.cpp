@@ -162,7 +162,7 @@ Matrix<T>::operator=( Matrix<T>&& A )
 #endif
     if( this == &A )
         LogicError("Tried to move to self");
-    memory_.Swap( A.memory_ );
+    memory_.ShallowSwap( A.memory_ );
     std::swap( data_, A.data_ );
     viewType_ = A.viewType_;
     height_ = A.height_;
@@ -174,9 +174,9 @@ Matrix<T>::operator=( Matrix<T>&& A )
 
 template<typename T>
 void
-Matrix<T>::Swap( Matrix<T>& A )
+Matrix<T>::ShallowSwap( Matrix<T>& A )
 {
-    memory_.Swap( A.memory_ );
+    memory_.ShallowSwap( A.memory_ );
     std::swap( data_, A.data_ );
     std::swap( viewType_, A.viewType_ );
     std::swap( height_, A.height_ );
