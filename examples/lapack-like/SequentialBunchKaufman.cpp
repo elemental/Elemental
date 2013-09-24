@@ -33,12 +33,15 @@ main( int argc, char* argv[] )
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
+        const Int nb = Input("--nb","algorithmic blocksize",96);
         const double realMean = Input("--realMean","real mean",0.); 
         const double imagMean = Input("--imagMean","imag mean",0.);
         const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();
+
+        SetBlocksize( nb );
 
         C mean( realMean, imagMean );
         Matrix<C> A;
@@ -67,6 +70,20 @@ main( int argc, char* argv[] )
             Print( A,     "A"     );
             Print( factA, "factA" );
             Print( p,     "p"     );
+        }
+
+        // Do the same thing with the unblocked algorithm
+        Matrix<Int> pUnb;
+        Matrix<C> factAUnb( A );
+        MakeTriangular( LOWER, factAUnb );
+        if( conjugate )
+            ldl::UnblockedPivoted( ADJOINT, factAUnb, pUnb );
+        else
+            ldl::UnblockedPivoted( TRANSPOSE, factAUnb, pUnb );
+        if( mpi::WorldRank() == 0 )
+        {
+            Print( factAUnb, "factAUnb" );
+            Print( pUnb,     "pUnb"     );
         }
     }
     catch( exception& e ) { ReportException(e); }

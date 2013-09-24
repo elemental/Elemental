@@ -68,6 +68,34 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
 }
 
 template<typename F>
+inline void RowSwap( Matrix<F>& A, Int to, Int from )
+{
+#ifndef RELEASE
+    CallStackEntry cse("RowSwap");
+#endif
+    if( to == from )
+        return;
+    const Int n = A.Width();
+    auto aToRow   = ViewRange( A, to,   0, to+1,   n );
+    auto aFromRow = ViewRange( A, from, 0, from+1, n );
+    Swap( NORMAL, aToRow, aFromRow );
+}
+
+template<typename F>
+inline void ColumnSwap( Matrix<F>& A, Int to, Int from )
+{
+#ifndef RELEASE
+    CallStackEntry cse("RowSwap");
+#endif
+    if( to == from )
+        return;
+    const Int m = A.Width();
+    auto aToCol   = ViewRange( A, 0, to,   m, to+1   );
+    auto aFromCol = ViewRange( A, 0, from, m, from+1 );
+    Swap( NORMAL, aToCol, aFromCol );
+}
+
+template<typename F>
 inline void SymmetricSwap
 ( UpperOrLower uplo, Matrix<F>& A, int to, int from, bool conjugate=false )
 {
@@ -76,42 +104,41 @@ inline void SymmetricSwap
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
+    if( to == from )
+        return;
     const Int n = A.Height();
     const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
     if( uplo == LOWER )
-    {
-        if( to != from )
+    { 
+        // Bottom swap
+        if( from+1 < n )
         {
-            // Bottom swap
-            if( from+1 < n )
-            {
-                auto aToBot   = ViewRange( A, from+1, to,   n, to+1   );
-                auto aFromBot = ViewRange( A, from+1, from, n, from+1 );
-                Swap( NORMAL, aToBot, aFromBot );
-            }
-            // Inner swap
-            if( to+1 < from )
-            {
-                auto aToInner   = ViewRange( A, to+1, to,   from,   to+1 );
-                auto aFromInner = ViewRange( A, from, to+1, from+1, from );
-                Swap( orientation, aToInner, aFromInner );
-            }
-            // Corner swap
-            if( conjugate )
-                A.Set( from, to, Conj(A.Get(from,to)) );
-            // Diagonal swap
-            {
-                const F value = A.Get(from,from);
-                A.Set( from, from, A.Get(to,to) );
-                A.Set( to,   to,   value        );
-            }
-            // Left swap
-            if( to > 0 )
-            {
-                auto aToLeft   = ViewRange( A, to,   0, to+1,   to );
-                auto aFromLeft = ViewRange( A, from, 0, from+1, to );
-                Swap( NORMAL, aToLeft, aFromLeft );
-            }
+            auto aToBot   = ViewRange( A, from+1, to,   n, to+1   );
+            auto aFromBot = ViewRange( A, from+1, from, n, from+1 );
+            Swap( NORMAL, aToBot, aFromBot );
+        }
+        // Inner swap
+        if( to+1 < from )
+        {
+            auto aToInner   = ViewRange( A, to+1, to,   from,   to+1 );
+            auto aFromInner = ViewRange( A, from, to+1, from+1, from );
+            Swap( orientation, aToInner, aFromInner );
+        }
+        // Corner swap
+        if( conjugate )
+            A.Set( from, to, Conj(A.Get(from,to)) );
+        // Diagonal swap
+        {
+            const F value = A.Get(from,from);
+            A.Set( from, from, A.Get(to,to) );
+            A.Set( to,   to,   value        );
+        }
+        // Left swap
+        if( to > 0 )
+        {
+            auto aToLeft   = ViewRange( A, to,   0, to+1,   to );
+            auto aFromLeft = ViewRange( A, from, 0, from+1, to );
+            Swap( NORMAL, aToLeft, aFromLeft );
         }
     }
     else

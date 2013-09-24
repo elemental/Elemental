@@ -20,6 +20,8 @@
 #include "./level2/Syr.hpp"
 #include "./level2/Syr2.hpp"
 #include "./level2/Trmv.hpp"
+#include "./level2/Trr.hpp"
+#include "./level2/Trr2.hpp"
 #include "./level2/Trsv.hpp"
 
 #endif // ifndef ELEM_BLAS_LEVEL2_HPP
