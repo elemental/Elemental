@@ -56,6 +56,8 @@ NewtonStep( const Matrix<F>& X, Matrix<F>& XNew, Scaling scaling=FROB_NORM )
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
     else if( scaling == NONE )
         mu = 1;
+    else
+        LogicError("Scaling case not handled");
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
@@ -89,6 +91,8 @@ NewtonStep
         mu = Sqrt( FrobeniusNorm(XNew)/FrobeniusNorm(X) );
     else if( scaling == NONE )
         mu = 1;
+    else
+        LogicError("Scaling case not handled");
 
     // Overwrite XNew with the new iterate
     const Real halfMu = mu/Real(2);
@@ -166,7 +170,7 @@ Newton
             break;
     }
     if( X != &A )
-        A = *XNew;
+        A = *X;
     return numIts;
 }
 
@@ -203,7 +207,7 @@ Newton
             break;
     }
     if( X != &A )
-        A = *XNew;
+        A = *X;
     return numIts;
 }
 
@@ -216,7 +220,7 @@ inline void
 Sign( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     sign::Newton( A );
 }
@@ -226,7 +230,7 @@ inline void
 Sign( Matrix<F>& A, Matrix<F>& N )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     Matrix<F> ACopy( A );
     sign::Newton( A );
@@ -238,7 +242,7 @@ inline void
 Sign( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     sign::Newton( A );
 }
@@ -248,7 +252,7 @@ inline void
 Sign( DistMatrix<F>& A, DistMatrix<F>& N )
 {
 #ifndef RELEASE
-    PushCallStack("Sign");
+    CallStackEntry cse("Sign");
 #endif
     DistMatrix<F> ACopy( A );
     sign::Newton( A );

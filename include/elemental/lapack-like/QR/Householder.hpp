@@ -34,62 +34,21 @@ Householder( Matrix<F>& A, Matrix<F>& t )
 #ifndef RELEASE
     CallStackEntry entry("qr::Householder");
 #endif
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.ResizeTo( minDim, 1 );
 
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,  ALeftPan, ARightPan,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
-    Matrix<F>
-        tT,  t0,
-        tB,  t1,
-             t2;
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto ALeftPan  = ViewRange( A, k, k,    m, k+nb );
+        auto ARightPan = ViewRange( A, k, k+nb, m, n    ); 
+        auto t1 = View( t, k, 0, nb, 1 );
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-
-        View2x1
-        ( ALeftPan, A11,
-                    A21 );
-
-        View2x1
-        ( ARightPan, A12,
-                     A22 );
-
-        //--------------------------------------------------------------------//
         PanelHouseholder( ALeftPan, t1 );
         ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
@@ -113,7 +72,6 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     if( A.Grid() != t.Grid() )
         LogicError("{A,s} must be distributed over the same grid");
 #endif
-    const Grid& g = A.Grid();
     if( t.Viewing() )
     {
         if( !t.AlignedWithDiagonal( A ) ) 
@@ -123,62 +81,22 @@ Householder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
     {
         t.AlignWithDiagonal( A );
     }
-    t.ResizeTo( Min(A.Height(),A.Width()), 1 );
 
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  ALeftPan(g), ARightPan(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  t1(g),
-                t2(g);
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    t.ResizeTo( minDim, 1 );
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( t, tT,
-         tB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto ALeftPan  = ViewRange( A, k, k,    m, k+nb );
+        auto ARightPan = ViewRange( A, k, k+nb, m, n    ); 
+        auto t1 = View( t, k, 0, nb, 1 );
 
-        RepartitionDown
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
-
-        View2x1
-        ( ALeftPan, A11,
-                    A21 );
-
-        View2x1
-        ( ARightPan, A12,
-                     A22 );
-
-        //--------------------------------------------------------------------//
         PanelHouseholder( ALeftPan, t1 );
         ApplyQ( LEFT, ADJOINT, ALeftPan, t1, ARightPan );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

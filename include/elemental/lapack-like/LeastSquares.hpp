@@ -52,8 +52,7 @@ LeastSquares
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            Matrix<F> AT;
-            LockedView( AT, A, 0, 0, n, n );
+            auto AT = LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
         }
         else
@@ -64,16 +63,13 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            Matrix<F> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, m );
+            Matrix<F> XT, XB;
+            PartitionDown( X, XT, XB, m );
             XT = B;
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            Matrix<F> AL;
-            LockedView( AL, A, 0, 0, m, m );
+            auto AL = LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -93,16 +89,13 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            Matrix<F> XT,
-                      XB;
-            PartitionDown( X, XT,
-                              XB, n );
+            Matrix<F> XT, XB;
+            PartitionDown( X, XT, XB, n );
             XT = B;
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            Matrix<F> AT;
-            LockedView( AT, A, 0, 0, n, n );
+            auto AT = LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
@@ -124,8 +117,7 @@ LeastSquares
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            Matrix<F> AL;
-            LockedView( AL, A, 0, 0, m, m );
+            auto AL = LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
         }
     }
@@ -171,8 +163,7 @@ LeastSquares
             X.ResizeTo( n, X.Width() );
 
             // Solve against R (checking for singularities)
-            DistMatrix<F> AT( g );
-            LockedView( AT, A, 0, 0, n, n );
+            auto AT = LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), AT, X, true );
         }
         else
@@ -183,16 +174,13 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( n, B.Width() );
-            DistMatrix<F> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, m );
+            DistMatrix<F> XT(g), XB(g);
+            PartitionDown( X, XT, XB, m );
             XT = B;
             Zero( XB );
 
             // Solve against L (checking for singularities)
-            DistMatrix<F> AL( g );
-            LockedView( AL, A, 0, 0, m, m );
+            auto AL = LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), AL, XT, true );
 
             // Apply Q' to X 
@@ -212,16 +200,13 @@ LeastSquares
 
             // Copy B into X
             X.ResizeTo( m, B.Width() );
-            DistMatrix<F> XT( g ),
-                          XB( g );
-            PartitionDown( X, XT,
-                              XB, n );
+            DistMatrix<F> XT(g), XB(g);
+            PartitionDown( X, XT, XB, n );
             XT = B;
             Zero( XB );
 
             // Solve against R' (checking for singularities)
-            DistMatrix<F> AT( g );
-            LockedView( AT, A, 0, 0, n, n );
+            auto AT = LockedView( A, 0, 0, n, n );
             Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), AT, XT, true );
 
             // Apply Q to X
@@ -243,8 +228,7 @@ LeastSquares
             X.ResizeTo( m, X.Width() );
 
             // Solve against L' (check for singularities)
-            DistMatrix<F> AL( g );
-            LockedView( AL, A, 0, 0, m, m );
+            auto AL = LockedView( A, 0, 0, m, m );
             Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), AL, X, true );
         }
     }

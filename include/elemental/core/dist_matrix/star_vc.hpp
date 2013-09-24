@@ -54,6 +54,13 @@ public:
 
     ~DistMatrix();
 
+#ifndef SWIG
+    // Move constructor
+    DistMatrix( DistMatrix<T,STAR,VC>&& A );
+    // Move assignment
+    DistMatrix<T,STAR,VC>& operator=( DistMatrix<T,STAR,VC>&& A );
+#endif
+
     const DistMatrix<T,STAR,VC>& operator=( const DistMatrix<T,MC,MR>& A );
     const DistMatrix<T,STAR,VC>& operator=( const DistMatrix<T,MC,STAR>& A );
     const DistMatrix<T,STAR,VC>& operator=( const DistMatrix<T,STAR,MR>& A );
@@ -89,7 +96,13 @@ public:
 
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
+    virtual void SetRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex data
+    virtual void SetImagPart( Int i, Int j, BASE(T) u );
     virtual void Update( Int i, Int j, T alpha );
+    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex data
+    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     virtual void ResizeTo( Int height, Int width );
     virtual void ResizeTo( Int height, Int width, Int ldim );
@@ -99,18 +112,6 @@ public:
     virtual void AlignWith( const AbstractDistMatrix<T>& A );
     virtual void AlignRowsWith( const elem::DistData& data );
     virtual void AlignRowsWith( const AbstractDistMatrix<T>& A );
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,VC] distribution                              //

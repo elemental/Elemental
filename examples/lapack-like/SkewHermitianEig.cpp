@@ -14,14 +14,13 @@
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/SkewHermitianEig.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Identity.hpp"
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -39,23 +38,8 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        // Create a 2d process grid from a communicator. In our case, it is
-        // MPI_COMM_WORLD. There is another constructor that allows you to 
-        // specify the grid dimensions, Grid g( comm, r, c ), which creates an 
-        // r x c grid.
-        Grid g( mpi::COMM_WORLD );
-    
-        // Create an n x n complex distributed matrix, 
-        // We distribute the matrix using grid 'g'.
-        //
-        // There are quite a few available constructors, including ones that 
-        // allow you to pass in your own local buffer and to specify the 
-        // distribution alignments (i.e., which process row and column owns the
-        // top-left element)
-        DistMatrix<C> S( n, n, g );
+        DistMatrix<C> S( n, n );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
         // We will fill entry (i,j) with the complex value (i-j,i+j) so that 
         // the global matrix is skew-Hermitian. However, only one triangle of 
         // the matrix actually needs to be filled, the symmetry can be implicit.
@@ -66,32 +50,29 @@ main( int argc, char* argv[] )
         const Int rowStride = S.RowStride();
         const Int localHeight = S.LocalHeight();
         const Int localWidth = S.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
                 // Our process owns the rows colShift:colStride:n,
                 //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                S.SetLocal( iLocal, jLocal, C(i-j,i+j) );
+                const Int i = colShift + iLoc*colStride;
+                const Int j = rowShift + jLoc*rowStride;
+                S.SetLocal( iLoc, jLoc, C(i-j,i+j) );
             }
         }
 
         // Make a backup of S before we overwrite it within the eigensolver
-        DistMatrix<C> SCopy( S );
+        auto SCopy( S );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        DistMatrix<R,VR,STAR> wImag( g );
-        DistMatrix<C> X( g );
-        SkewHermitianEig( LOWER, S, wImag, X ); // only use lower half of S
-
-        // Optional: sort the eigenpairs
-        hermitian_eig::Sort( wImag, X );
+        DistMatrix<Real,VR,STAR> wImag;
+        DistMatrix<C> X;
+        SkewHermitianEig( LOWER, S, wImag, X, ASCENDING );
 
         if( print )
         {
@@ -101,17 +82,17 @@ main( int argc, char* argv[] )
         }
 
         // Check the residual, || S X - Omega X ||_F
-        const R frobS = HermitianFrobeniusNorm( LOWER, SCopy );
-        DistMatrix<C> E( X );
+        const Real frobS = HermitianFrobeniusNorm( LOWER, SCopy );
+        auto E( X );
         Scale( C(0,1), E );
         DiagonalScale( RIGHT, NORMAL, wImag, E );
         Gemm( NORMAL, NORMAL, C(-1), SCopy, X, C(1), E );
-        const R frobResid = FrobeniusNorm( E );
+        const Real frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X
         Identity( E, n, n );
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
-        const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::WorldRank() == 0 )
         {

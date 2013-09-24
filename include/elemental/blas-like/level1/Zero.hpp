@@ -21,9 +21,7 @@ Zero( Matrix<T>& A )
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    PARALLEL_FOR
     for( Int j=0; j<width; ++j )
         MemZero( A.Buffer(0,j), height );
 }

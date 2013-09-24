@@ -59,7 +59,7 @@ Estimate EigEstimate
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, &ZSupport[0] );
+      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;
@@ -93,7 +93,7 @@ Info Eig( int n, double* d, double* e, double* w, mpi::Comm comm )
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
-      &nz, &offset, w, 0, &ldz, &ZSupport[0] );
+      &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        
@@ -128,7 +128,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &vl, &vu, &il, &iu, &highAccuracy, comm,
-      &nz, &offset, w, Z, &ldz, &ZSupport[0] );
+      &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        
@@ -164,7 +164,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, &ZSupport[0] );
+      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        
@@ -199,7 +199,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &lowerBound, &upperBound, &il, &iu, 
-      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, &ZSupport[0] );
+      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        
@@ -237,7 +237,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
-      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, &ZSupport[0] );
+      &highAccuracy, comm, &nz, &offset, w, 0, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        
@@ -275,7 +275,7 @@ Info Eig
     std::vector<int> ZSupport(2*n);
     int retval = PMRRR
     ( &jobz, &range, &n, d, e, &vl, &vu, &lowerBound, &upperBound, 
-      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, &ZSupport[0] );
+      &highAccuracy, comm, &nz, &offset, w, Z, &ldz, ZSupport.data() );
     if( retval != 0 )
     {
         std::ostringstream msg;        

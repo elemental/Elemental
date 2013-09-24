@@ -42,35 +42,35 @@ namespace elem {
 // which is accomplished by setting tau=2, and v=0.
 //
 
-template<typename R>
-inline R
-Reflector( Matrix<R>& chi, Matrix<R>& x )
+template<typename Real>
+inline Real
+Reflector( Matrix<Real>& chi, Matrix<Real>& x )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
 #endif
-    R norm = Nrm2( x );
-    if( norm == 0 )
+    Real norm = Nrm2( x );
+    if( norm == Real(0) )
     {
         chi.Set(0,0,-chi.Get(0,0));
-        return R(2);
+        return Real(2);
     }
 
-    R beta;
-    R alpha = chi.Get(0,0);
+    Real beta;
+    Real alpha = chi.Get(0,0);
     if( alpha <= 0 )
         beta = lapack::SafeNorm( alpha, norm );
     else
         beta = -lapack::SafeNorm( alpha, norm );
 
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
+    const Real one = 1;
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
     Int count = 0;
     if( Abs(beta) < safeInv )
     {
-        R invOfSafeInv = one/safeInv;
+        Real invOfSafeInv = one/safeInv;
         do
         {
             ++count;
@@ -86,7 +86,7 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    R tau = (beta-alpha) / beta;
+    Real tau = (beta-alpha) / beta;
     Scale( one/(alpha-beta), x );
 
     for( Int j=0; j<count; ++j )
@@ -95,36 +95,36 @@ Reflector( Matrix<R>& chi, Matrix<R>& x )
     return tau;
 }
 
-template<typename R>
-inline R
-Reflector( R& chi, Int m, R* x, Int incx )
+template<typename Real>
+inline Real
+Reflector( Real& chi, Int m, Real* x, Int incx )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
 #endif
-    R norm = blas::Nrm2( m, x, incx );
+    Real norm = blas::Nrm2( m, x, incx );
     if( norm == 0 )
     {
         x[0] = -x[0];
-        return R(2);
+        return Real(2);
     }
 
-    R beta;
-    R alpha = chi;
+    Real beta;
+    Real alpha = chi;
     if( alpha <= 0 )
         beta = lapack::SafeNorm( alpha, norm );
     else
         beta = -lapack::SafeNorm( alpha, norm );
 
     // Avoid overflow by scaling the vector
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
+    const Real one = 1;
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
     Int count=0;
     if( Abs(beta) < safeInv )
     {
-        R invOfSafeInv = one/safeInv;
+        Real invOfSafeInv = one/safeInv;
         do
         {
             ++count;
@@ -140,7 +140,7 @@ Reflector( R& chi, Int m, R* x, Int incx )
             beta = -lapack::SafeNorm( alpha, norm );
     }
 
-    R tau = (beta-alpha) / beta;
+    Real tau = (beta-alpha) / beta;
     blas::Scal( m, one/(alpha-beta), x, incx );
 
     for( Int j=0; j<count; ++j )
@@ -167,38 +167,38 @@ Reflector( R& chi, Int m, R* x, Int incx )
 // which is accomplished by setting tau=2, and v=0.
 //
 
-template<typename R>
-inline Complex<R>
-Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
+template<typename Real>
+inline Complex<Real>
+Reflector( Matrix<Complex<Real> >& chi, Matrix<Complex<Real> >& x )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
 
-    R norm = Nrm2( x );
+    Real norm = Nrm2( x );
     C alpha = chi.Get(0,0);
 
-    if( norm == 0 && alpha.imag == R(0) )
+    if( norm == Real(0) && alpha.imag() == Real(0) )
     {
         chi.Set(0,0,-chi.Get(0,0));
         return C(2);
     }
 
-    R beta;
-    if( alpha.real <= 0 )
-        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    Real beta;
+    if( alpha.real() <= 0 )
+        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     else
-        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
 
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
+    const Real one = 1;
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
     Int count = 0;
     if( Abs(beta) < safeInv )
     {
-        R invOfSafeInv = one/safeInv;
+        Real invOfSafeInv = one/safeInv;
         do
         {
             ++count;
@@ -208,13 +208,13 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
         } while( Abs(beta) < safeInv );
 
         norm = Nrm2( x );
-        if( alpha.real <= 0 )
-            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        if( alpha.real() <= 0 )
+            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
-            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
     Scale( one/(alpha-beta), x );
 
     for( Int j=0; j<count; ++j )
@@ -223,38 +223,38 @@ Reflector( Matrix<Complex<R> >& chi, Matrix<Complex<R> >& x )
     return tau;
 }
 
-template<typename R>
-inline Complex<R>
-Reflector( Complex<R>& chi, Int m, Complex<R>* x, Int incx )
+template<typename Real>
+inline Complex<Real>
+Reflector( Complex<Real>& chi, Int m, Complex<Real>* x, Int incx )
 {
 #ifndef RELEASE
     CallStackEntry entry("Reflector");
 #endif
-    typedef Complex<R> C;
+    typedef Complex<Real> C;
 
-    R norm = blas::Nrm2( m, x, incx );
+    Real norm = blas::Nrm2( m, x, incx );
     C alpha = chi;
 
-    if( norm == 0 && alpha.imag == R(0) )
+    if( norm == Real(0) && alpha.imag() == Real(0) )
     {
         chi = -chi;
         return C(2);
     }
 
-    R beta;
-    if( alpha.real <= 0 )
-        beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+    Real beta;
+    if( alpha.real() <= 0 )
+        beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     else
-        beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
 
-    const R one = 1;
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R epsilon = lapack::MachineEpsilon<R>();
-    const R safeInv = safeMin/epsilon;
+    const Real one = 1;
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real epsilon = lapack::MachineEpsilon<Real>();
+    const Real safeInv = safeMin/epsilon;
     Int count = 0;
     if( Abs(beta) < safeInv )
     {
-        R invOfSafeInv = one/safeInv;
+        Real invOfSafeInv = one/safeInv;
         do
         {
             ++count;
@@ -264,13 +264,13 @@ Reflector( Complex<R>& chi, Int m, Complex<R>* x, Int incx )
         } while( Abs(beta) < safeInv );
 
         norm = blas::Nrm2( m, x, incx );
-        if( alpha.real <= 0 )
-            beta = lapack::SafeNorm( alpha.real, alpha.imag, norm );
+        if( alpha.real() <= 0 )
+            beta = lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
         else
-            beta = -lapack::SafeNorm( alpha.real, alpha.imag, norm );
+            beta = -lapack::SafeNorm( alpha.real(), alpha.imag(), norm );
     }
 
-    C tau = C( (beta-alpha.real)/beta, -alpha.imag/beta );
+    C tau = C( (beta-alpha.real())/beta, -alpha.imag()/beta );
     blas::Scal( m, one/(alpha-beta), x, incx );
 
     for( Int j=0; j<count; ++j )

@@ -9,40 +9,40 @@
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
+#include "elemental/blas-like/level1/UpdateDiagonal.hpp"
 #include "elemental/lapack-like/HermitianTridiag.hpp"
 #include "elemental/lapack-like/Norm/Infinity.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/matrices/Wigner.hpp"
+#include "elemental/io/Display.hpp"
 using namespace std;
 using namespace elem;
 
 template<typename F> 
 void TestCorrectness
-( bool print,
-  UpperOrLower uplo, 
+( UpperOrLower uplo, 
   const DistMatrix<F>& A, 
   const DistMatrix<F,STAR,STAR>& t,
-        DistMatrix<F>& AOrig )
+        DistMatrix<F>& AOrig,
+  bool print, bool display )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
-
-    Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
-
+    const Real infNormAOrig = HermitianInfinityNorm( uplo, AOrig );
+    const Real frobNormAOrig = HermitianFrobeniusNorm( uplo, AOrig );
     if( g.Rank() == 0 )
         cout << "Testing error..." << endl;
 
     // Grab the diagonal and subdiagonal of the symmetric tridiagonal matrix
-    DistMatrix<R,MD,STAR> d(g);
-    DistMatrix<R,MD,STAR> e(g);
-    A.GetRealPartOfDiagonal( d );
-    A.GetRealPartOfDiagonal( e, subdiagonal );
+    Int subdiagonal = ( uplo==LOWER ? -1 : +1 );
+    auto d = A.GetRealPartOfDiagonal();
+    auto e = A.GetRealPartOfDiagonal( subdiagonal );
      
     // Grab a full copy of e so that we may fill the opposite subdiagonal 
-    DistMatrix<R,STAR,STAR> e_STAR_STAR(g);
-    DistMatrix<R,MD,STAR> eOpposite(g);
-    e_STAR_STAR = e;
+    DistMatrix<Real,STAR,STAR> e_STAR_STAR( e );
+    DistMatrix<Real,MD,STAR> eOpposite(g);
     eOpposite.AlignWithDiagonal( A.DistData(), -subdiagonal );
     eOpposite = e_STAR_STAR;
     
@@ -55,12 +55,16 @@ void TestCorrectness
     B.SetRealPartOfDiagonal( eOpposite, -subdiagonal );
     if( print )
         Print( B, "Tridiagonal" );
+    if( display )
+        Display( B, "Tridiagonal" );
 
     // Reverse the accumulated Householder transforms, ignoring symmetry
     hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
     hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
     if( print )
         Print( B, "Rotated tridiagonal" );
+    if( display )
+        Display( B, "Rotated tridiagonal" );
 
     // Compare the appropriate triangle of AOrig and B
     MakeTriangular( uplo, AOrig );
@@ -68,29 +72,45 @@ void TestCorrectness
     Axpy( F(-1), AOrig, B );
     if( print )
         Print( B, "Error in rotated tridiagonal" );
+    if( display )
+        Display( B, "Error in rotated tridiagonal" );
+    const Real infNormError = HermitianInfinityNorm( uplo, B );
+    const Real frobNormError = HermitianFrobeniusNorm( uplo, B );
 
-    const R infNormOfAOrig = HermitianInfinityNorm( uplo, AOrig );
-    const R frobNormOfAOrig = HermitianFrobeniusNorm( uplo, AOrig );
-    const R infNormOfError = HermitianInfinityNorm( uplo, B );
-    const R frobNormOfError = HermitianFrobeniusNorm( uplo, B );
+    // Compute || I - Q Q^H ||
+    MakeIdentity( B );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    DistMatrix<F> QHAdj( g );
+    Adjoint( B, QHAdj );
+    MakeIdentity( B );
+    hermitian_tridiag::ApplyQ( LEFT, uplo, NORMAL, A, t, B );
+    Axpy( F(-1), B, QHAdj );
+    hermitian_tridiag::ApplyQ( RIGHT, uplo, ADJOINT, A, t, B );
+    UpdateDiagonal( B, F(-1) );
+    const Real infNormQError = InfinityNorm( B );
+    const Real frobNormQError = FrobeniusNorm( B ); 
+
     if( g.Rank() == 0 )
     {
-        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormOfAOrig << "\n"
-             << "    ||AOrig||_F                = " << frobNormOfAOrig << "\n"
-             << "    ||AOrig - Q^H A Q||_oo     = " << infNormOfError << "\n"
-             << "    ||AOrig - Q^H A Q||_F      = " << frobNormOfError << endl;
+        cout << "    ||AOrig||_1 = ||AOrig||_oo = " << infNormAOrig << "\n"
+             << "    ||AOrig||_F                = " << frobNormAOrig << "\n"
+             << "    || I - Q^H Q ||_oo         = " << infNormQError << "\n"
+             << "    || I - Q^H Q ||_F          = " << frobNormQError << "\n"
+             << "    ||AOrig - Q^H A Q||_oo     = " << infNormError << "\n"
+             << "    ||AOrig - Q^H A Q||_F      = " << frobNormError << endl;
     }
 }
 
 template<typename F>
 void TestHermitianTridiag
-( bool testCorrectness, bool print,
-  UpperOrLower uplo, Int m, const Grid& g )
+( UpperOrLower uplo, Int m, const Grid& g, 
+  bool testCorrectness, bool print, bool display )
 {
     DistMatrix<F> A(g), AOrig(g);
     DistMatrix<F,STAR,STAR> t(g);
 
-    HermitianUniformSpectrum( A, m, -10, 10 );
+    //HermitianUniformSpectrum( A, m, -10, 10 );
+    Wigner( A, m );
     if( testCorrectness )
     {
         if( g.Rank() == 0 )
@@ -104,6 +124,8 @@ void TestHermitianTridiag
     }
     if( print )
         Print( A, "A" );
+    if( display )
+        Display( A, "A" );
 
     if( g.Rank() == 0 )
     {
@@ -128,8 +150,13 @@ void TestHermitianTridiag
         Print( A, "A after HermitianTridiag" );
         Print( t, "t after HermitianTridiag" );
     }
+    if( display )
+    {
+        Display( A, "A after HermitianTridiag" );
+        Display( t, "t after HermitianTridiag" );
+    }
     if( testCorrectness )
-        TestCorrectness( print, uplo, A, t, AOrig );
+        TestCorrectness( uplo, A, t, AOrig, print, display );
 }
 
 int 
@@ -150,6 +177,7 @@ main( int argc, char* argv[] )
         const bool testCorrectness = Input
             ("--correctness","test correctness?",true);
         const bool print = Input("--print","print matrices?",false);
+        const bool display = Input("--display","display matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -159,7 +187,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocal );
-        SetLocalSymvBlocksize<Complex<double> >( nbLocal );
+        SetLocalSymvBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test HermitianTridiag" << uploChar << endl;
@@ -171,7 +199,8 @@ main( int argc, char* argv[] )
                  << "----------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<double>( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<double>
+        ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
         {
@@ -182,7 +211,9 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<double>( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<double>
+        ( uplo, m, g, testCorrectness, print, display );
+
 
         if( commRank == 0 )
         {
@@ -193,7 +224,8 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<double>( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<double>
+        ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
         {
@@ -202,8 +234,8 @@ main( int argc, char* argv[] )
                  << "------------------------------------------" << endl;
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_NORMAL );
-        TestHermitianTridiag<Complex<double> >
-        ( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<Complex<double>>
+        ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
         {
@@ -215,8 +247,8 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( ROW_MAJOR );
-        TestHermitianTridiag<Complex<double> >
-        ( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<Complex<double>>
+        ( uplo, m, g, testCorrectness, print, display );
 
         if( commRank == 0 )
         {
@@ -228,8 +260,8 @@ main( int argc, char* argv[] )
         }
         SetHermitianTridiagApproach( HERMITIAN_TRIDIAG_SQUARE );
         SetHermitianTridiagGridOrder( COLUMN_MAJOR );
-        TestHermitianTridiag<Complex<double> >
-        ( testCorrectness, print, uplo, m, g );
+        TestHermitianTridiag<Complex<double>>
+        ( uplo, m, g, testCorrectness, print, display );
     }
     catch( exception& e ) { ReportException(e); }
 

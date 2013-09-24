@@ -18,22 +18,24 @@ namespace elem {
 // Grab the full set of eigenvalues                                           //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
-SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag )
+SkewHermitianEig
+( UpperOrLower uplo, Matrix<Real>& G, Matrix<Real>& wImag, 
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real>> A( n, n );
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -44,36 +46,37 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag )
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag );
+    HermitianEig( uplo, A, wImag, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
-SkewHermitianEig( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag )
+SkewHermitianEig
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag );
+    HermitianEig( uplo, G, wImag, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -82,7 +85,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real>> A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -90,61 +93,62 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag );
+    HermitianEig( uplo, A, wImag, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag );
+    HermitianEig( uplo, G, wImag, sort );
 }
 
 //----------------------------------------------------------------------------//
 // Grab the full set of eigenpairs                                            //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z )
+( UpperOrLower uplo, Matrix<Real>& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real>> A( n, n );
 
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -155,39 +159,39 @@ SkewHermitianEig
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z );
+    HermitianEig( uplo, A, wImag, Z, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<R> >& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z )
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
 
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z );
+    HermitianEig( uplo, G, wImag, Z, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -196,7 +200,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real>> A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -204,63 +208,63 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z );
+    HermitianEig( uplo, A, wImag, Z, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
 
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z );
+    HermitianEig( uplo, G, wImag, Z, sort );
 }
 
 //----------------------------------------------------------------------------//
 // Grab the eigenvalues with indices in a specified range                     //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, Int a, Int b )
+( UpperOrLower uplo, Matrix<Real>& G, 
+  Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
 
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real> > A( n, n );
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -271,38 +275,37 @@ SkewHermitianEig
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag, Int a, Int b )
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  Int a, Int b )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -311,7 +314,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real> > A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -319,64 +322,63 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  Int a, Int b )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag, Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b, sort );
 }
 
 //----------------------------------------------------------------------------//
 // Grab the eigenpairs with indices in a specified range                      //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z,
-  Int a, Int b )
+( UpperOrLower uplo, Matrix<Real>& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
 
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real> > A( n, n );
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -387,41 +389,39 @@ SkewHermitianEig
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<R> >& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z,
-  Int a, Int b )
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z,
-  Int a, Int b )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -430,7 +430,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real> > A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -438,63 +438,63 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z,
-  Int a, Int b )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  Int a, Int b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b, sort );
 }
 
 //----------------------------------------------------------------------------//
 // Grab the eigenvalues in the interval i(a,b]                                //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
-SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, R a, R b )
+SkewHermitianEig
+( UpperOrLower uplo, Matrix<Real>& G, 
+  Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     Int n = G.Height();
 
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real> > A( n, n );
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -505,38 +505,37 @@ SkewHermitianEig( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, R a, R b )
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<Complex<R> >& G, Matrix<R>& wImag, R a, R b )
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  R a, R b )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -545,7 +544,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real> > A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -553,64 +552,64 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, a, b );
+    HermitianEig( uplo, A, wImag, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  R a, R b )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag,
+  Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, a, b );
+    HermitianEig( uplo, G, wImag, a, b, sort );
 }
 
 //----------------------------------------------------------------------------//
 // Grab the eigenpairs with eigenvalues in the interval i(a,b]                //
 //----------------------------------------------------------------------------//
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, Matrix<R>& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z,
-  R a, R b )
+( UpperOrLower uplo, Matrix<Real>& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("SkewHermitian matrices must be square");
     Int n = G.Height();
 
-    Matrix<Complex<R> > A( n, n );
+    Matrix<Complex<Real> > A( n, n );
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     if( uplo == LOWER )
         for( Int j=0; j<n; ++j )
             for( Int i=j; i<n; ++i )
@@ -621,41 +620,39 @@ SkewHermitianEig
                 ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  Matrix<Complex<R> >& G, Matrix<R>& wImag, Matrix<Complex<R> >& Z,
-  R a, R b )
+( UpperOrLower uplo, Matrix<Complex<Real> >& G, 
+  Matrix<Real>& wImag, Matrix<Complex<Real> >& Z,
+  Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<R>& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z,
-  R a, R b )
+( UpperOrLower uplo, DistMatrix<Real>& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     EnsurePMRRR();
     if( G.Height() != G.Width() )
@@ -664,7 +661,7 @@ SkewHermitianEig
     Int n = G.Height();
     const Grid& grid = G.Grid();
 
-    DistMatrix<Complex<R> > A(grid);
+    DistMatrix<Complex<Real> > A(grid);
     A.AlignWith( G.DistData() );
     A.ResizeTo( n, n );
 
@@ -672,39 +669,37 @@ SkewHermitianEig
     const Int localWidth = A.LocalWidth();
     const Int ALDim = A.LDim();
     const Int GLDim = G.LDim();    
-    const Complex<R> negativeImagOne(0,-1);
-    const R* GBuffer = G.Buffer();
-    Complex<R>* ABuffer = A.Buffer();
+    const Complex<Real> negativeImagOne(0,-1);
+    const Real* GBuffer = G.Buffer();
+    Complex<Real>* ABuffer = A.Buffer();
     // Just copy the entire local matrix instead of worrying about symmetry
     for( Int j=0; j<localWidth; ++j )
         for( Int i=0; i<localHeight; ++i )
             ABuffer[i+j*ALDim] = negativeImagOne*GBuffer[i+j*GLDim];
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, A, wImag, Z, a, b );
+    HermitianEig( uplo, A, wImag, Z, a, b, sort );
 }
 
-template<typename R>
+template<typename Real>
 inline void
 SkewHermitianEig
-( UpperOrLower uplo, 
-  DistMatrix<Complex<R> >& G,
-  DistMatrix<R,VR,STAR>& wImag,
-  DistMatrix<Complex<R> >& Z,
-  R a, R b )
+( UpperOrLower uplo, DistMatrix<Complex<Real> >& G,
+  DistMatrix<Real,VR,STAR>& wImag, DistMatrix<Complex<Real> >& Z,
+  Real a, Real b, SortType sort=UNSORTED )
 {
 #ifndef RELEASE
-    CallStackEntry entry("SkewHermitianEig");
+    CallStackEntry cse("SkewHermitianEig");
 #endif
     if( G.Height() != G.Width() )
         LogicError("Skew-Hermitian matrices must be square");
     
     // Make G Hermitian by scaling by -i
-    const Complex<R> negativeImagOne(0,-1);
+    const Complex<Real> negativeImagOne(0,-1);
     ScaleTrapezoid( negativeImagOne, uplo, G );
 
     // Perform the Hermitian eigensolve
-    HermitianEig( uplo, G, wImag, Z, a, b );
+    HermitianEig( uplo, G, wImag, Z, a, b, sort );
 }
 
 } // namespace elem

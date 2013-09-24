@@ -14,13 +14,7 @@ using namespace std;
 using namespace elem;
 
 // Create a typedef for convenience
-typedef double R;
-
-// A functor for returning the exponential of a real number
-class ExpFunctor {
-public:
-    R operator()( R alpha ) const { return std::exp(alpha); }
-};
+typedef double Real;
 
 int
 main( int argc, char* argv[] )
@@ -34,39 +28,34 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<R> H( n, n, g );
+        DistMatrix<Real> H( n, n );
 
-        // Fill the matrix since we did not pass in a buffer. 
-        //
         // We will fill entry (i,j) with the value i+j so that
         // the global matrix is symmetric. However, only one triangle of the 
         // matrix actually needs to be filled, the symmetry can be implicit.
-        //
         const Int colShift = H.ColShift(); // first row we own
         const Int rowShift = H.RowShift(); // first col we own
         const Int colStride = H.ColStride();
         const Int rowStride = H.RowStride();
         const Int localHeight = H.LocalHeight();
         const Int localWidth = H.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            // Our process owns the rows colShift:colStride:n,
+            //           and the columns rowShift:rowStride:n
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, R(i+j) );
+                const Int i = colShift + iLoc*colStride;
+                H.SetLocal( iLoc, jLoc, Real(i+j) );
             }
         }
-
         if( print )
             Print( H, "H" );
 
         // Reform the matrix with the exponentials of the original eigenvalues
-        RealHermitianFunction( LOWER, H, ExpFunctor() );
-
+        RealHermitianFunction
+        ( LOWER, H, []( Real alpha ) { return Exp(alpha); } );
         if( print )
         {
             MakeHermitian( LOWER, H );

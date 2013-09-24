@@ -12,34 +12,12 @@
 
 namespace elem {
 
-template<typename R>
-inline void
-Fourier( Matrix<Complex<R> >& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Fourier");
-#endif
-    A.ResizeTo( n, n );
-    MakeFourier( A );
-}
-
-template<typename R,Distribution U,Distribution V>
-inline void
-Fourier( DistMatrix<Complex<R>,U,V>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Fourier");
-#endif
-    A.ResizeTo( n, n );
-    MakeFourier( A );
-}
-
 template<typename R> 
 inline void
 MakeFourier( Matrix<Complex<R> >& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeFourier");
+    CallStackEntry cse("MakeFourier");
 #endif
     typedef Complex<R> F;
     const Int m = A.Height();
@@ -66,7 +44,7 @@ inline void
 MakeFourier( DistMatrix<Complex<R>,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeFourier");
+    CallStackEntry cse("MakeFourier");
 #endif
     typedef Complex<R> F;
     const Int m = A.Height();
@@ -94,6 +72,46 @@ MakeFourier( DistMatrix<Complex<R>,U,V>& A )
             A.SetLocal( iLoc, jLoc, F(realPart,imagPart) );
         }
     }
+}
+
+template<typename R>
+inline void
+Fourier( Matrix<Complex<R> >& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Fourier");
+#endif
+    A.ResizeTo( n, n );
+    MakeFourier( A );
+}
+
+template<typename R>
+inline Matrix<Complex<R> >
+Fourier( Int n )
+{
+    Matrix<Complex<R> > A( n, n );
+    MakeFourier( A );
+    return A;
+}
+
+template<typename R,Distribution U,Distribution V>
+inline void
+Fourier( DistMatrix<Complex<R>,U,V>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Fourier");
+#endif
+    A.ResizeTo( n, n );
+    MakeFourier( A );
+}
+
+template<typename R,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<Complex<R>,U,V>
+Fourier( const Grid& g, Int n )
+{
+    DistMatrix<Complex<R>,U,V> A( n, n, g );
+    MakeFourier( A );
+    return A;
 }
 
 } // namespace elem

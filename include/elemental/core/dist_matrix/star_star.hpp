@@ -46,6 +46,13 @@ public:
 
     ~DistMatrix();
 
+#ifndef SWIG
+    // Move constructor
+    DistMatrix( DistMatrix<T,STAR,STAR>&& A );
+    // Move assignment
+    DistMatrix<T,STAR,STAR>& operator=( DistMatrix<T,STAR,STAR>&& A );
+#endif
+
     const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MC,MR>& A );
     const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MC,STAR>& A );
     const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,MR>& A );
@@ -83,22 +90,16 @@ public:
 
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
-    virtual void Update( Int i, Int j, T alpha );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
     virtual void SetRealPart( Int i, Int j, BASE(T) u );
     // Only valid for complex data
     virtual void SetImagPart( Int i, Int j, BASE(T) u );
+    virtual void Update( Int i, Int j, T alpha );
     virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
     // Only valid for complex data
     virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
+
+    virtual void ResizeTo( Int height, Int width );
+    virtual void ResizeTo( Int height, Int width, Int ldim );
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,* ] distribution                              //
@@ -107,6 +108,22 @@ public:
     //
     // Collective routines
     //
+
+    void GetDiagonal( DistMatrix<T,STAR,STAR>& d, Int offset=0 ) const;
+    void GetRealPartOfDiagonal
+    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
+    void GetImagPartOfDiagonal
+    ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
+    DistMatrix<T,STAR,STAR> GetDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
+    DistMatrix<BASE(T),STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
+
+    void SetDiagonal( const DistMatrix<T,STAR,STAR>& d, Int offset=0 );
+    void SetRealPartOfDiagonal
+    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
+    // Only valid for complex datatypes
+    void SetImagPartOfDiagonal
+    ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
     
     // (Immutable) view of a distributed matrix's buffer
     void Attach
@@ -121,6 +138,13 @@ public:
     void SumOverGrid(); 
 
 private:
+    template<typename S,class Function>
+    void GetDiagonalHelper
+    ( DistMatrix<S,STAR,STAR>& d, Int offset, Function func ) const;
+    template<typename S,class Function>
+    void SetDiagonalHelper
+    ( const DistMatrix<S,STAR,STAR>& d, Int offset, Function func );
+
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;

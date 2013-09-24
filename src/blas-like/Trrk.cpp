@@ -116,15 +116,15 @@ template void TrrkTT
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<float> alpha, const Matrix<Complex<float> >& A, 
-                        const Matrix<Complex<float> >& B,
-  Complex<float> beta,        Matrix<Complex<float> >& C );
+  Complex<float> alpha, const Matrix<Complex<float>>& A, 
+                        const Matrix<Complex<float>>& B,
+  Complex<float> beta,        Matrix<Complex<float>>& C );
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<float> alpha, const DistMatrix<Complex<float> >& A, 
-                        const DistMatrix<Complex<float> >& B,
-  Complex<float> beta,        DistMatrix<Complex<float> >& C );
+  Complex<float> alpha, const DistMatrix<Complex<float>>& A, 
+                        const DistMatrix<Complex<float>>& B,
+  Complex<float> beta,        DistMatrix<Complex<float>>& C );
 template void LocalTrrk
 ( UpperOrLower uplo,
   Complex<float> alpha, const DistMatrix<Complex<float>,MC,  STAR>& A,
@@ -135,7 +135,7 @@ template void LocalTrrk
   Orientation orientationOfB,
   Complex<float> alpha, const DistMatrix<Complex<float>,MC,STAR>& A,
                         const DistMatrix<Complex<float>,MR,STAR>& B,
-  Complex<float> beta,        DistMatrix<Complex<float> >& C );
+  Complex<float> beta,        DistMatrix<Complex<float>>& C );
 template void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -151,27 +151,27 @@ template void LocalTrrk
 namespace internal {
 template void TrrkNN
 ( UpperOrLower uplo,
-  Complex<float> alpha, const Matrix<Complex<float> >& A, 
-                        const Matrix<Complex<float> >& B,
-  Complex<float> beta,        Matrix<Complex<float> >& C );
+  Complex<float> alpha, const Matrix<Complex<float>>& A, 
+                        const Matrix<Complex<float>>& B,
+  Complex<float> beta,        Matrix<Complex<float>>& C );
 template void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
-  Complex<float> alpha, const Matrix<Complex<float> >& A, 
-                        const Matrix<Complex<float> >& B,
-  Complex<float> beta,        Matrix<Complex<float> >& C );
+  Complex<float> alpha, const Matrix<Complex<float>>& A, 
+                        const Matrix<Complex<float>>& B,
+  Complex<float> beta,        Matrix<Complex<float>>& C );
 template void TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
-  Complex<float> alpha, const Matrix<Complex<float> >& A, 
-                        const Matrix<Complex<float> >& B,
-  Complex<float> beta,        Matrix<Complex<float> >& C );
+  Complex<float> alpha, const Matrix<Complex<float>>& A, 
+                        const Matrix<Complex<float>>& B,
+  Complex<float> beta,        Matrix<Complex<float>>& C );
 template void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<float> alpha, const Matrix<Complex<float> >& A, 
-                        const Matrix<Complex<float> >& B,
-  Complex<float> beta,        Matrix<Complex<float> >& C );
+  Complex<float> alpha, const Matrix<Complex<float>>& A, 
+                        const Matrix<Complex<float>>& B,
+  Complex<float> beta,        Matrix<Complex<float>>& C );
 } // namespace internal
 #endif // ifndef DISABLE_COMPLEX
 #endif // ifndef DISABLE_FLOAT
@@ -234,15 +234,15 @@ template void TrrkTT
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<double> alpha, const Matrix<Complex<double> >& A, 
-                         const Matrix<Complex<double> >& B,
-  Complex<double> beta,        Matrix<Complex<double> >& C );
+  Complex<double> alpha, const Matrix<Complex<double>>& A, 
+                         const Matrix<Complex<double>>& B,
+  Complex<double> beta,        Matrix<Complex<double>>& C );
 template void Trrk
 ( UpperOrLower uplo, 
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<double> alpha, const DistMatrix<Complex<double> >& A, 
-                         const DistMatrix<Complex<double> >& B,
-  Complex<double> beta,        DistMatrix<Complex<double> >& C );
+  Complex<double> alpha, const DistMatrix<Complex<double>>& A, 
+                         const DistMatrix<Complex<double>>& B,
+  Complex<double> beta,        DistMatrix<Complex<double>>& C );
 template void LocalTrrk
 ( UpperOrLower uplo,
   Complex<double> alpha, const DistMatrix<Complex<double>,MC,  STAR>& A,
@@ -253,7 +253,7 @@ template void LocalTrrk
   Orientation orientationOfB,
   Complex<double> alpha, const DistMatrix<Complex<double>,MC,STAR>& A,
                          const DistMatrix<Complex<double>,MR,STAR>& B,
-  Complex<double> beta,        DistMatrix<Complex<double> >& C );
+  Complex<double> beta,        DistMatrix<Complex<double>>& C );
 template void LocalTrrk
 ( UpperOrLower uplo,
   Orientation orientationOfA,
@@ -269,27 +269,27 @@ template void LocalTrrk
 namespace internal {
 template void TrrkNN
 ( UpperOrLower uplo,
-  Complex<double> alpha, const Matrix<Complex<double> >& A, 
-                         const Matrix<Complex<double> >& B,
-  Complex<double> beta,        Matrix<Complex<double> >& C );
+  Complex<double> alpha, const Matrix<Complex<double>>& A, 
+                         const Matrix<Complex<double>>& B,
+  Complex<double> beta,        Matrix<Complex<double>>& C );
 template void TrrkNT
 ( UpperOrLower uplo,
   Orientation orientationOfB,
-  Complex<double> alpha, const Matrix<Complex<double> >& A, 
-                         const Matrix<Complex<double> >& B,
-  Complex<double> beta,        Matrix<Complex<double> >& C );
+  Complex<double> alpha, const Matrix<Complex<double>>& A, 
+                         const Matrix<Complex<double>>& B,
+  Complex<double> beta,        Matrix<Complex<double>>& C );
 template void TrrkTN
 ( UpperOrLower uplo,
   Orientation orientationOfA,
-  Complex<double> alpha, const Matrix<Complex<double> >& A, 
-                         const Matrix<Complex<double> >& B,
-  Complex<double> beta,        Matrix<Complex<double> >& C );
+  Complex<double> alpha, const Matrix<Complex<double>>& A, 
+                         const Matrix<Complex<double>>& B,
+  Complex<double> beta,        Matrix<Complex<double>>& C );
 template void TrrkTT
 ( UpperOrLower uplo,
   Orientation orientationOfA, Orientation orientationOfB,
-  Complex<double> alpha, const Matrix<Complex<double> >& A, 
-                         const Matrix<Complex<double> >& B,
-  Complex<double> beta,        Matrix<Complex<double> >& C );
+  Complex<double> alpha, const Matrix<Complex<double>>& A, 
+                         const Matrix<Complex<double>>& B,
+  Complex<double> beta,        Matrix<Complex<double>>& C );
 } // namespace internal
 #endif // ifndef DISABLE_COMPLEX
 

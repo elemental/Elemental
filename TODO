@@ -1,30 +1,30 @@
 Functionality
 =============
-- Fast Haar generation/application (and IID normal generation as well)
+- Distribute between different grids for any distribution
+- Consistently implement 'GetDiagonal' functionality for DistMatrix
+- Ability to change default grid with command-line options
+- Quadratic-time Haar generation via random Householder reflectors
 - Have matrix data zeroed by default? (to prevent NaN initialization bugs)
-- 'PartitionTracker' class instead of Repartition/SlidePartition
 - Way for DistMatrix with single process to view Matrix, and operator=
 - (Generalized) Spectral Divide and Conquer
 - More Sign algorithms
 - Ostrowski matrices
-- Power-method-like p-norm estimation (especially when p=2)
+- Power-method-like p-norm estimation
 - Support for BLIS and fused Trmv's to accelerate HermitianEig
 - Transpose option for LeastSquares
 - QL factorization
 - Strong RRQR and RRLQ 
 - CUR decompositions (already have (pseudo-)skeleton)
 - Complete Orthogonal Decompositions (especially URV)
-- Clean up pivoted LU and pivot applications (especially in sequential cases)
 - LU with rook pivoting
 - Square process grid specialization of LDL (used to exist...)
-- Pivoted LDL (Bunch-Kaufman and Bunch-Parlett)
-- Blocked Aasen's
-- Pivoted Cholesky
+- Pivoted Cholesky and LDL (Bunch-Kaufman and Bunch-Parlett)
+- (Blocked) Aasen's
 - TSQR
 - TSLU (via tournament pivoting)
 - Lower version of reduction to bidiagonal form
 - Reduction to Hessenberg form
-- Nonsymmetric (generalized) eigensolver
+- Nonsymmetric (generalized) eigensolver via QR algorithm
 - Visualization similar to EigTool or Higham's Matrix Computation Toolbox
 - Wrappers for more LAPACK eigensolvers
 - Sequential versions of Trr2k 
@@ -39,6 +39,14 @@ Functionality
 
 Maintenance
 ===========
+- README's in each directory explaining the contents of the folder
+- Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
+  and BLIS
+- Move AdjointFrom and TransposeFrom into Adjoint and Transpose
+- Find cause of occasional invalid reads in PMR_process_r_queue
+- Find cause of minor memory leak in schur::SDC
+- Document SDC for HermitianEig
+- Document move semantics for (Dist)Matrix
 - Document Int
 - Update SWIG interface to allow for Int != int
 - Convert 'AlignWith' routines to be requirements rather than actions, similar
@@ -47,12 +55,10 @@ Maintenance
 - Documentation for detailed interfaces which reside in sub-namespaces
 - Update elemvariables to support usage of Qt5
 - Many more references
-- Update documentation for new special matrices
+- Update documentation for special matrices
 - Update documentation for imported routines (and in general)
 - References for Interpolative and Skeleton Decomposition 
 - Document UnitaryCoherence (and see if simpler implementation possible)
 - Separate out local blas-like and lapack-like operations
 - Consistent handling of unblocked routines
-- Switch to C++11 for better 64-bit integer and std::complex support, as well as
-  std::thread, extern templates, _Pragma, auto, and syntactic sugar
-- Further improvements for the speed of the build process
+- Use C++11's extern templates, and perhaps std::thread

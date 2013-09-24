@@ -25,6 +25,7 @@ public:
     void AssertValidDimensions( Int height, Int width, Int ldim ) const;
     void AssertValidEntry( Int i, Int j ) const;
     
+    //
     // Constructors
     // 
 
@@ -35,6 +36,14 @@ public:
     ( Int height, Int width, const T* buffer, Int ldim, bool fixed=false );
     Matrix( Int height, Int width, T* buffer, Int ldim, bool fixed=false );
     Matrix( const Matrix<T>& A );
+
+#ifndef SWIG
+    // Move constructor
+    Matrix( Matrix<T>&& A );
+
+    // Move assignment
+    Matrix<T>& operator=( Matrix<T>&& A );
+#endif
 
     //
     // Destructor
@@ -67,6 +76,8 @@ public:
     void Update( Int i, Int j, T alpha );
 
     void GetDiagonal( Matrix<T>& d, Int offset=0 ) const;
+    Matrix<T> GetDiagonal( Int offset=0 ) const;
+
     void SetDiagonal( const Matrix<T>& d, Int offset=0 );
     void UpdateDiagonal( const Matrix<T>& d, Int offset=0 );
 
@@ -86,6 +97,9 @@ public:
 
     void GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
+    Matrix<BASE(T)> GetRealPartOfDiagonal( Int offset=0 ) const;
+    Matrix<BASE(T)> GetImagPartOfDiagonal( Int offset=0 ) const;
+
     void SetRealPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
     // Only valid for complex data
     void SetImagPartOfDiagonal( const Matrix<BASE(T)>& d, Int offset=0 );
@@ -129,6 +143,9 @@ private:
     Memory<T> memory_;
 
     void ComplainIfReal() const;
+
+    // Exchange metadata with A
+    void ShallowSwap( Matrix<T>& A );
 
     const T& Get_( Int i, Int j ) const;
     T& Set_( Int i, Int j );

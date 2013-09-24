@@ -12,6 +12,8 @@
 
 namespace elem {
 
+Int LastOffset( Int n, Int bsize );
+
 Int DiagonalLength( Int height, Int width, Int offset=0 );
 
 Int GCD( Int a, Int b ); 

@@ -47,11 +47,10 @@ FindPivot( const std::vector<Real>& norms, Int col )
 #ifndef RELEASE
     CallStackEntry entry("qr::FindPivot");
 #endif
-    const Int n = norms.size();
-    const Real* maxNorm = std::max_element( &norms[col], &norms[0]+n );
+    const auto maxNorm = std::max_element( norms.begin()+col, norms.end() );
     ValueInt<Real> pivot;
     pivot.value = *maxNorm;
-    pivot.index = maxNorm - &norms[0];
+    pivot.index = maxNorm - norms.begin();
     return pivot;
 }
 
@@ -63,21 +62,20 @@ BusingerGolub
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( maxSteps > Min(A.Height(),A.Width()) )
-        LogicError("Too many steps requested");
+
 #endif
     typedef BASE(F) Real;
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+#ifndef RELEASE
+    if( maxSteps > minDim )
+        LogicError("Too many steps requested");
+#endif
     p.ResizeTo( maxSteps, 1 );
     t.ResizeTo( maxSteps, 1 );
 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  aLeftCol, ARightPan,
-        ABL, ABR,  a10, alpha11, a12,
-                   A20, a21,     A22;
     Matrix<F> z;
-
-    const Int m = A.Height();
-    std::vector<F> swapBuf( m );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
@@ -87,45 +85,36 @@ BusingerGolub
     std::vector<Real> norms = origNorms;
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    for( Int col=0; col<maxSteps; ++col )
+    for( Int k=0; k<maxSteps; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12       = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
+        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
 
-        View2x1( aLeftCol, alpha11,
-                           a21 );
-
-        View2x1( ARightPan, a12,
-                            A22 );
-
-        //--------------------------------------------------------------------//
         // Find the next column pivot
-        const ValueInt<Real> pivot = FindPivot( norms, col );
+        const ValueInt<Real> pivot = FindPivot( norms, k );
         if( pivot.value <= tol*maxOrigNorm )
         {
-            p.ResizeTo( col, 1 );
-            t.ResizeTo( col, 1 );
+            p.ResizeTo( k, 1 );
+            t.ResizeTo( k, 1 );
             break;
         }
-        p.Set( col, 0, pivot.index );
+        p.Set( k, 0, pivot.index );
  
         // Perform the swap
-        if( col != pivot.index )
+        const Int jPiv = pivot.index;
+        if( jPiv != k )
         {
-            MemSwap( A.Buffer(0,col), A.Buffer(0,pivot.index), &swapBuf[0], m );
-            norms[pivot.index] = norms[col];
-            origNorms[pivot.index] = origNorms[col];
+            blas::Swap( m, A.Buffer(0,k), 1, A.Buffer(0,jPiv), 1 );
+            norms[jPiv] = norms[k];
+            origNorms[jPiv] = origNorms[k];
         }
 
         // Compute and apply the Householder reflector for this column
         const F tau = Reflector( alpha11, a21 );
-        t.Set( col, 0, tau );
+        t.Set( k, 0, tau );
         const F alpha = alpha11.Get(0,0);
         alpha11.Set(0,0,1);
         Zeros( z, ARightPan.Width(), 1 );
@@ -134,31 +123,23 @@ BusingerGolub
         alpha11.Set(0,0,alpha);
 
         // Update the column norm estimates in the same manner as LAWN 176
-        for( Int k=0; k<a12.Width(); ++k )
+        for( Int j=k+1; j<n; ++j )
         {
-            const Int j = k + col+1;    
             if( norms[j] != Real(0) )
             {
-                Real gamma = Abs(a12.Get(0,k)) / norms[j];
+                Real gamma = Abs(A.Get(k,j)) / norms[j];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[j] / origNorms[j];
                 const Real phi = gamma*(ratio*ratio);
                 if( phi <= updateTol || alwaysRecompute )
                 {
-                    norms[j] = blas::Nrm2( m-(col+1), A.Buffer(col+1,j), 1 );
+                    norms[j] = blas::Nrm2( m-(k+1), A.Buffer(k+1,j), 1 );
                     origNorms[j] = norms[j];
                 }
                 else
                     norms[j] *= Sqrt(gamma);
             }
         }
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 
@@ -286,7 +267,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Find the maximum relative scales 
     std::vector<Real> scales(localWidth);
     mpi::AllReduce
-    ( &localScales[0], &scales[0], localWidth, mpi::MAX, colComm );
+    ( localScales.data(), scales.data(), localWidth, mpi::MAX, colComm );
 
     // Equilibrate the local scaled sums to the maximum scale
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
@@ -301,7 +282,7 @@ ColumnNorms( const DistMatrix<F>& A, std::vector<BASE(F)>& norms )
     // Now sum the local contributions (can ignore results where scale is 0)
     std::vector<Real> scaledSquares(localWidth); 
     mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], localWidth, colComm );
+    ( localScaledSquares.data(), scaledSquares.data(), localWidth, colComm );
 
     // Finish the computation
     Real maxLocalNorm = 0;
@@ -361,7 +342,7 @@ ReplaceColumnNorms
     // Find the maximum relative scales 
     std::vector<Real> scales(numInaccurate);
     mpi::AllReduce
-    ( &localScales[0], &scales[0], numInaccurate, mpi::MAX, colComm );
+    ( localScales.data(), scales.data(), numInaccurate, mpi::MAX, colComm );
 
     // Equilibrate the local scaled sums to the maximum scale
     for( Int s=0; s<numInaccurate; ++s )
@@ -376,7 +357,7 @@ ReplaceColumnNorms
     // Now sum the local contributions (can ignore results where scale is 0)
     std::vector<Real> scaledSquares(numInaccurate); 
     mpi::AllReduce
-    ( &localScaledSquares[0], &scaledSquares[0], numInaccurate, colComm );
+    ( localScaledSquares.data(), scaledSquares.data(), numInaccurate, colComm );
 
     // Finish the computation
     for( Int s=0; s<numInaccurate; ++s )
@@ -398,28 +379,25 @@ BusingerGolub
 {
 #ifndef RELEASE
     CallStackEntry entry("qr::BusingerGolub");
-    if( maxSteps > Min(A.Height(),A.Width()) )
-        LogicError("Too many steps requested");
     if( A.Grid() != p.Grid() || A.Grid() != t.Grid() )
         LogicError("A, t, and p must have the same grid");
 #endif
     typedef BASE(F) Real;
-    const Grid& g = A.Grid();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+#ifndef RELEASE
+    if( maxSteps > minDim )
+        LogicError("Too many steps requested");
+#endif
     t.ResizeTo( maxSteps, 1 );
     p.ResizeTo( maxSteps, 1 );
-
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  aLeftCol(g), ARightPan(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),
-                         A20(g), a21(g),     A22(g);
-    DistMatrix<F> z(g);
 
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
     const Int rowAlign = A.RowAlignment();
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
-    std::vector<F> swapBuf( mLocal );
 
     // Initialize two copies of the column norms, one will be consistently
     // updated, but the original copy will be kept to determine when the 
@@ -430,79 +408,67 @@ BusingerGolub
     const Real updateTol = Sqrt(lapack::MachineEpsilon<Real>());
     std::vector<Int> inaccurateNorms;
 
-    // Temporary distributions
+    const Grid& g = A.Grid();
+    DistMatrix<F> z(g);
     DistMatrix<F,MC,STAR> aLeftCol_MC_STAR(g);
     DistMatrix<F,MR,STAR> z_MR_STAR(g);
     DistMatrix<F,STAR,MR> a12_STAR_MR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    for( Int col=0; col<maxSteps; ++col )
+    for( Int k=0; k<maxSteps; ++k )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
+        auto alpha11   = ViewRange( A, k,   k,   k+1, k+1 );
+        auto a12       = ViewRange( A, k,   k+1, k+1, n   );
+        auto a21       = ViewRange( A, k+1, k,   m,   k+1 );
+        auto aLeftCol  = ViewRange( A, k,   k,   m,   k+1 );
+        auto ARightPan = ViewRange( A, k,   k+1, m,   n   );
 
-        View2x1( aLeftCol, alpha11,
-                           a21 );
-
-        View2x1( ARightPan, a12,
-                            A22 );
-
-        aLeftCol_MC_STAR.AlignWith( ARightPan );
-        z_MR_STAR.AlignWith( ARightPan );
-        //--------------------------------------------------------------------//
         // Find the next column pivot
-        const ValueInt<Real> pivot = FindColumnPivot( A, norms, col );
+        const ValueInt<Real> pivot = FindColumnPivot( A, norms, k );
         if( pivot.value <= tol*maxOrigNorm )
         {
-            p.ResizeTo( col, 1 );
-            t.ResizeTo( col, 1 );
+            p.ResizeTo( k, 1 );
+            t.ResizeTo( k, 1 );
             break;
         }
-        p.Set( col, 0, pivot.index );
+        p.Set( k, 0, pivot.index );
 
         // Perform the swap
-        const Int colOwner = (col+rowAlign) % rowStride;
-        const Int pivotColOwner = (pivot.index+rowAlign) % rowStride;
-        const bool myCol = ( g.Col() == colOwner );
-        const bool myPivotCol = ( g.Col() == pivotColOwner );
-        if( col != pivot.index )
+        const Int jPiv = pivot.index;
+        const Int curOwner = (k+rowAlign) % rowStride;
+        const Int pivOwner = (jPiv+rowAlign) % rowStride;
+        const bool myCur = ( g.Col() == curOwner );
+        const bool myPiv = ( g.Col() == pivOwner );
+        if( jPiv != k )
         {
-            if( myCol && myPivotCol )
+            if( myCur && myPiv )
             {
-                const Int colLocal = (col-rowShift) / rowStride;
-                const Int pivotColLocal = (pivot.index-rowShift) / rowStride;
-                MemSwap
-                ( A.Buffer(0,colLocal), A.Buffer(0,pivotColLocal),
-                  &swapBuf[0], mLocal );
-                norms[pivotColLocal] = norms[colLocal];
-                origNorms[pivotColLocal] = origNorms[colLocal];
+                const Int kLoc    = (k   -rowShift) / rowStride;
+                const Int jPivLoc = (jPiv-rowShift) / rowStride;
+                blas::Swap
+                ( mLocal, A.Buffer(0,kLoc), 1, A.Buffer(0,jPivLoc), 1 );
+                norms[jPivLoc] = norms[kLoc];
+                origNorms[jPivLoc] = origNorms[kLoc];
             }
-            else if( myCol )
+            else if( myCur )
             {
-                const Int colLocal = (col-rowShift) / rowStride;
+                const Int kLoc = (k-rowShift) / rowStride;
                 mpi::SendRecv
-                ( A.Buffer(0,colLocal), mLocal, 
-                  pivotColOwner, pivotColOwner, g.RowComm() );
-                mpi::Send( norms[colLocal], pivotColOwner, g.RowComm() );
+                ( A.Buffer(0,kLoc), mLocal, pivOwner, pivOwner, g.RowComm() );
+                mpi::Send( norms[kLoc], pivOwner, g.RowComm() );
             }
-            else if( myPivotCol )
+            else if( myPiv )
             {
-                const Int pivotColLocal = (pivot.index-rowShift) / rowStride;
+                const Int jPivLoc = (jPiv-rowShift) / rowStride;
                 mpi::SendRecv
-                ( A.Buffer(0,pivotColLocal), mLocal,
-                  colOwner, colOwner, g.RowComm() );
-                norms[pivotColLocal] = mpi::Recv<Real>( colOwner, g.RowComm() );
+                ( A.Buffer(0,jPivLoc), mLocal, 
+                  curOwner, curOwner, g.RowComm() );
+                norms[jPivLoc] = mpi::Recv<Real>( curOwner, g.RowComm() );
             }
         }
 
         // Compute the Householder reflector
         const F tau = Reflector( alpha11, a21 );
-        t.Set( A00.Width(), 0, tau );
+        t.Set( k, 0, tau );
 
         // Apply the Householder reflector
         const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
@@ -513,7 +479,9 @@ BusingerGolub
             alpha = alpha11.GetLocal(0,0);
             alpha11.SetLocal(0,0,1);
         }
+        aLeftCol_MC_STAR.AlignWith( ARightPan );
         aLeftCol_MC_STAR = aLeftCol;
+        z_MR_STAR.AlignWith( ARightPan );
         Zeros( z_MR_STAR, ARightPan.Width(), 1 );
         LocalGemv
         ( ADJOINT, F(1), ARightPan, aLeftCol_MC_STAR, F(0), z_MR_STAR );
@@ -538,14 +506,13 @@ BusingerGolub
         const Int a12LocalWidth = a12_STAR_MR.LocalWidth();
         const Int a12RowShift = a12_STAR_MR.RowShift();
         inaccurateNorms.resize(0);
-        for( Int kLocal=0; kLocal<a12LocalWidth; ++kLocal )
+        for( Int jLoc12=0; jLoc12<a12LocalWidth; ++jLoc12 )
         {
-            const Int k = a12RowShift + kLocal*rowStride;
-            const Int j = k + col+1;
+            const Int j = (k+1) + a12RowShift + jLoc12*rowStride;
             const Int jLoc = (j-rowShift) / rowStride;
             if( norms[jLoc] != Real(0) )
             {
-                const Real beta = Abs(a12_STAR_MR.GetLocal(0,kLocal));
+                const Real beta = Abs(a12_STAR_MR.GetLocal(0,jLoc12));
                 Real gamma = beta / norms[jLoc];
                 gamma = std::max( Real(0), (Real(1)-gamma)*(Real(1)+gamma) );
                 const Real ratio = norms[jLoc] / origNorms[jLoc];
@@ -558,13 +525,6 @@ BusingerGolub
         }
         // Step 2: Compute the replacement norms and also reset origNorms
         ReplaceColumnNorms( A, inaccurateNorms, norms, origNorms );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
     }
 }
 

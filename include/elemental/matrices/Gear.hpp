@@ -19,7 +19,7 @@ inline void
 Gear( Matrix<T>& G, Int n, Int s, Int t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gear");
+    CallStackEntry cse("Gear");
 #endif
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
@@ -44,12 +44,21 @@ Gear( Matrix<T>& G, Int n, Int s, Int t )
         G.Set( n-1, n+t, T(-1) );
 }
 
+template<typename T> 
+inline Matrix<T>
+Gear( Int n, Int s, Int t )
+{
+    Matrix<T> G;
+    Gear( G, n, s, t );
+    return G;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Gear");
+    CallStackEntry cse("Gear");
 #endif
     if( s == 0 || s > n || s < -n )
         LogicError("Invalid s value");
@@ -72,6 +81,15 @@ Gear( DistMatrix<T,U,V>& G, Int n, Int s, Int t )
         G.Set( n-1, n-t, T(1) );
     else
         G.Set( n-1, n+t, T(-1) );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Gear( const Grid& g, Int n, Int s, Int t )
+{
+    DistMatrix<T,U,V> G(g);
+    Gear( G, n, s, t );
+    return G;
 }
 
 } // namespace elem

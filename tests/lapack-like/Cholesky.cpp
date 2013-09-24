@@ -24,13 +24,12 @@ void TestCorrectness
   const DistMatrix<F>& A,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
-    DistMatrix<F> X(g), Y(g);
-    Uniform( X, m, 100 );
-    Y = X;
+    auto X = Uniform<F>( g, m, 100 );
+    auto Y( X );
 
     if( uplo == LOWER )
     {
@@ -39,14 +38,14 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = OneNorm( Y );
-        const R infNormOfError = InfinityNorm( Y );
-        const R frobNormOfError = FrobeniusNorm( Y );
-        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const R oneNormOfX = OneNorm( X );
-        const R infNormOfX = InfinityNorm( X );
-        const R frobNormOfX = FrobeniusNorm( X );
+        const Real oneNormOfError = OneNorm( Y );
+        const Real infNormOfError = InfinityNorm( Y );
+        const Real frobNormOfError = FrobeniusNorm( Y );
+        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real oneNormOfX = OneNorm( X );
+        const Real infNormOfX = InfinityNorm( X );
+        const Real frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -66,14 +65,14 @@ void TestCorrectness
         Trmm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, Y );
         Trmm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, Y );
         Hemm( LEFT, UPPER, F(-1), AOrig, X, F(1), Y );
-        const R oneNormOfError = OneNorm( Y );
-        const R infNormOfError = InfinityNorm( Y );
-        const R frobNormOfError = FrobeniusNorm( Y );
-        const R infNormOfA = HermitianInfinityNorm( uplo, AOrig );
-        const R frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
-        const R oneNormOfX = OneNorm( X );
-        const R infNormOfX = InfinityNorm( X );
-        const R frobNormOfX = FrobeniusNorm( X );
+        const Real oneNormOfError = OneNorm( Y );
+        const Real infNormOfError = InfinityNorm( Y );
+        const Real frobNormOfError = FrobeniusNorm( Y );
+        const Real infNormOfA = HermitianInfinityNorm( uplo, AOrig );
+        const Real frobNormOfA = HermitianFrobeniusNorm( uplo, AOrig );
+        const Real oneNormOfX = OneNorm( X );
+        const Real infNormOfX = InfinityNorm( X );
+        const Real frobNormOfX = FrobeniusNorm( X );
         if( g.Rank() == 0 )
         {
             cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -161,7 +160,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test Cholesky" << uploChar << endl;
@@ -181,7 +180,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestCholesky<Complex<double> >
+        TestCholesky<Complex<double>>
         ( testCorrectness, printMatrices, uplo, m, g );
     }
     catch( exception& e ) { ReportException(e); }

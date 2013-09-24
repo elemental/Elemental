@@ -149,9 +149,8 @@ ApplyRowPivots
     // TODO: Optimize this routine
 
     // Make a copy of the first b rows
-    Matrix<F> ARowPanView;
-    LockedView( ARowPanView, A, 0, 0, b, n );
-    Matrix<F> ARowPanCopy( ARowPanView );
+    auto ARowPanView = LockedView( A, 0, 0, b, n );
+    auto ARowPanCopy( ARowPanView );
 
     // Make a copy of the preimage rows
     Matrix<F> APreimageCopy( b, n );
@@ -304,8 +303,8 @@ ApplyRowPivots
     // Communicate all pivot rows
     std::vector<F> recvData( mpi::Pad(totalRecv) );
     mpi::AllToAll
-    ( &sendData[0], &sendCounts[0], &sendDispls[0],
-      &recvData[0], &recvCounts[0], &recvDispls[0], g.ColComm() );
+    ( sendData.data(), sendCounts.data(), sendDispls.data(),
+      recvData.data(), recvCounts.data(), recvDispls.data(), g.ColComm() );
 
     // Unpack the recv data
     for( Int k=0; k<r; ++k )

@@ -12,31 +12,39 @@
 
 namespace elem {
 
-// Draw each entry from a uniform PDF over the closed unit ball.
+// Draw each entry from a uniform PDF over a closed ball.
 template<typename T>
 inline void
 MakeUniform( Matrix<T>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeUniform");
+    CallStackEntry cse("MakeUniform");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, center+radius*SampleUnitBall<T>() );
+            A.Set( i, j, SampleBall( center, radius ) );
 }
 
 template<typename T>
 inline void
-Uniform
-( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
+Uniform( Matrix<T>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
+}
+
+template<typename T>
+inline Matrix<T>
+Uniform( Int m, Int n, T center=0, BASE(T) radius=1 )
+{
+    Matrix<T> A( m, n );
+    MakeUniform( A, center, radius );
+    return A;
 }
 
 namespace internal {
@@ -58,7 +66,7 @@ struct MakeUniformHelper<T,CIRC,CIRC>
             const Int width = A.Width();
             for( Int j=0; j<width; ++j )
                 for( Int i=0; i<height; ++i )
-                    A.SetLocal( i, j, center+radius*SampleUnitBall<T>() );
+                    A.SetLocal( i, j, SampleBall( center, radius ) );
         }
     }
 };
@@ -72,7 +80,7 @@ struct MakeUniformHelper<T,MC,MR>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLoc, jLoc, SampleBall( center, radius ) );
     }
 };
 
@@ -95,16 +103,14 @@ struct MakeUniformHelper<T,MC,STAR>
                 for( Int j=0; j<n; ++j )
                     for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                         buffer[iLoc+j*localHeight] = 
-                            center + radius*SampleUnitBall<T>();
+                            SampleBall( center, radius );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
             // Unpack
             T* localBuffer = A.Buffer();
             const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<n; ++j )
             {
                 const T* bufferCol = &buffer[j*localHeight];
@@ -124,7 +130,7 @@ struct MakeUniformHelper<T,MD,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
     }
 };
 
@@ -137,7 +143,7 @@ struct MakeUniformHelper<T,MR,MC>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, jLoc, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLoc, jLoc, SampleBall( center, radius ) );
     }
 };
 
@@ -157,16 +163,14 @@ struct MakeUniformHelper<T,MR,STAR>
         {
             for( Int j=0; j<n; ++j )
                 for( Int i=0; i<localHeight; ++i )
-                    buffer[i+j*localHeight] = center+radius*SampleUnitBall<T>();
+                    buffer[i+j*localHeight] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
         const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for COLLAPSE(2)
-#endif
+        PARALLEL_FOR COLLAPSE(2)
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 localBuffer[iLoc+j*ldim] = buffer[iLoc+j*localHeight];
@@ -189,16 +193,14 @@ struct MakeUniformHelper<T,STAR,MC>
         {
             for( Int jLoc=0; jLoc<localWidth; ++jLoc )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+jLoc*m] = center+radius*SampleUnitBall<T>();
+                    buffer[i+jLoc*m] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.RowComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.RowComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
         const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*m];
@@ -217,7 +219,7 @@ struct MakeUniformHelper<T,STAR,MD>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
     }
 };
 
@@ -237,16 +239,14 @@ struct MakeUniformHelper<T,STAR,MR>
         {
             for( Int j=0; j<localWidth; ++j )
                 for( Int i=0; i<m; ++i )
-                    buffer[i+j*m] = center+radius*SampleUnitBall<T>();
+                    buffer[i+j*m] = SampleBall( center, radius );
         }
-        mpi::Broadcast( &buffer[0], bufSize, 0, grid.ColComm() );
+        mpi::Broadcast( buffer.data(), bufSize, 0, grid.ColComm() );
 
         // Unpack
         T* localBuffer = A.Buffer();
         const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+        PARALLEL_FOR
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
             const T* bufferCol = &buffer[jLoc*m];
@@ -274,16 +274,14 @@ struct MakeUniformHelper<T,STAR,STAR>
             {
                 for( Int j=0; j<n; ++j )
                     for( Int i=0; i<m; ++i )
-                        buffer[i+j*m] = center+radius*SampleUnitBall<T>();
+                        buffer[i+j*m] = SampleBall( center, radius );
             }
-            mpi::Broadcast( &buffer[0], bufSize, 0, grid.Comm() );
+            mpi::Broadcast( buffer.data(), bufSize, 0, grid.Comm() );
 
             // Unpack
             T* localBuffer = A.Buffer();
             const Int ldim = A.LDim();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+            PARALLEL_FOR
             for( Int j=0; j<n; ++j )
             {
                 const T* bufferCol = &buffer[j*m];
@@ -303,7 +301,7 @@ struct MakeUniformHelper<T,STAR,VC>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
     }
 };
 
@@ -316,7 +314,7 @@ struct MakeUniformHelper<T,STAR,VR>
         const Int localWidth = A.LocalWidth();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             for( Int i=0; i<m; ++i )
-                A.SetLocal( i, jLoc, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( i, jLoc, SampleBall( center, radius ) );
     }
 };
 
@@ -329,7 +327,7 @@ struct MakeUniformHelper<T,VC,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
     }
 };
 
@@ -342,7 +340,7 @@ struct MakeUniformHelper<T,VR,STAR>
         const Int localHeight = A.LocalHeight();
         for( Int j=0; j<n; ++j )
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-                A.SetLocal( iLoc, j, center+radius*SampleUnitBall<T>() );
+                A.SetLocal( iLoc, j, SampleBall( center, radius ) );
     }
 };
 
@@ -353,7 +351,7 @@ inline void
 MakeUniform( DistMatrix<T,U,V>& A, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     internal::MakeUniformHelper<T,U,V>::Func( A, center, radius );
 }
@@ -363,10 +361,19 @@ inline void
 Uniform( DistMatrix<T,U,V>& A, Int m, Int n, T center=0, BASE(T) radius=1 )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Uniform");
+    CallStackEntry cse("Uniform");
 #endif
     A.ResizeTo( m, n );
     MakeUniform( A, center, radius );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Uniform( const Grid& g, Int m, Int n, T center=0, BASE(T) radius=1 )
+{
+    DistMatrix<T,U,V> A( m, n, g );
+    MakeUniform( A, center, radius );
+    return A;
 }
 
 } // namespace elem

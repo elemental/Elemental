@@ -17,7 +17,7 @@ inline void
 Ris( Matrix<F>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Ris");
+    CallStackEntry cse("Ris");
 #endif
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
@@ -26,12 +26,21 @@ Ris( Matrix<F>& R, Int n )
             R.Set( i, j, oneHalf/(n-i-j-oneHalf) );
 }
 
+template<typename F> 
+inline Matrix<F>
+Ris( Int n )
+{
+    Matrix<F> R;
+    Ris( R, n );
+    return R;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Ris( DistMatrix<F,U,V>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Ris");
+    CallStackEntry cse("Ris");
 #endif
     const F oneHalf = F(1)/F(2);
     R.ResizeTo( n, n );
@@ -50,6 +59,15 @@ Ris( DistMatrix<F,U,V>& R, Int n )
             R.SetLocal( iLoc, jLoc, oneHalf/(n-i-j-oneHalf) );
         }
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Ris( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> R(g);
+    Ris( R, n );
+    return R;
 }
 
 } // namespace elem

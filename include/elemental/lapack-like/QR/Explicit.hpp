@@ -19,38 +19,62 @@ namespace qr {
 
 template<typename F>
 inline void
-Explicit( Matrix<F>& A )
+Explicit( Matrix<F>& A, bool colPiv=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("qr::Explicit");
 #endif
     Matrix<F> t;
-    QR( A, t );
+    if( colPiv )
+    {
+        Matrix<Int> p;
+        QR( A, t, p );
+    }
+    else
+    {
+        QR( A, t );
+    }
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
 
 template<typename F>
 inline void
-Explicit( DistMatrix<F>& A )
+Explicit( DistMatrix<F>& A, bool colPiv=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("qr::Explicit");
 #endif
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t( g );
-    QR( A, t );
+    DistMatrix<F,MD,STAR> t(g);
+    if( colPiv )
+    {
+        DistMatrix<Int,VR,STAR> p(g);
+        QR( A, t, p );
+    }
+    else
+    {
+        QR( A, t );
+    }
     ExpandPackedReflectors( LOWER, VERTICAL, UNCONJUGATED, 0, A, t );
 }
 
 template<typename F>
 inline void
-Explicit( Matrix<F>& A, Matrix<F>& R )
+Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("qr::Explicit");
 #endif
     Matrix<F> t;
-    QR( A, t );
+    if( colPiv )
+    {
+        Matrix<Int> p;
+        QR( A, t, p );
+    }
+    else
+    {
+        QR( A, t );
+    }
     Matrix<F> AT,
               AB;
     PartitionDown
@@ -63,14 +87,22 @@ Explicit( Matrix<F>& A, Matrix<F>& R )
 
 template<typename F>
 inline void
-Explicit( DistMatrix<F>& A, DistMatrix<F>& R )
+Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
 {
 #ifndef RELEASE
     CallStackEntry cse("qr::Explicit");
 #endif
     const Grid& g = A.Grid();
-    DistMatrix<F,MD,STAR> t( g );
-    QR( A, t );
+    DistMatrix<F,MD,STAR> t(g);
+    if( colPiv )
+    {
+        DistMatrix<Int,VR,STAR> p(g);
+        QR( A, t, p );
+    }
+    else
+    {
+        QR( A, t );
+    }
     DistMatrix<F> AT(g),
                   AB(g);
     PartitionDown

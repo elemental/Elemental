@@ -111,9 +111,8 @@ BusingerGolub
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    Matrix<F> RL, RR;
-    LockedView( RL, A, 0, 0, numSteps, numSteps );
-    LockedView( RR, A, 0, numSteps, numSteps, n-numSteps );
+    auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
+    auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }
@@ -128,7 +127,6 @@ BusingerGolub
     CallStackEntry entry("id::BusingerGolub");
 #endif
     typedef BASE(F) Real;
-    const Grid& g = A.Grid();
     const Int n = A.Width();
 
     // Perform the pivoted QR factorization on a copy of A
@@ -145,9 +143,8 @@ BusingerGolub
         pinvTol = tol;
 
     // Now form a minimizer of || RL Z - RR ||_2 via pseudo triangular solves
-    DistMatrix<F> RL(g), RR(g);
-    LockedView( RL, A, 0, 0, numSteps, numSteps );
-    LockedView( RR, A, 0, numSteps, numSteps, n-numSteps );
+    auto RL = LockedViewRange( A, 0, 0,        numSteps, numSteps );
+    auto RR = LockedViewRange( A, 0, numSteps, numSteps, n        );
     Z = RR;
     PseudoTrsm( RL, Z, pinvTol );
 }

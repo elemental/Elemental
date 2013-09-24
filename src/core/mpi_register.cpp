@@ -124,6 +124,19 @@ template void CreateValueIntType<float>();
 template void CreateValueIntType<double>();
 
 template<typename T>
+void DestroyValueIntType()
+{
+#ifndef RELEASE
+    CallStackEntry cse("DestroyValueIntType");
+#endif
+    Datatype& type = ValueIntType<T>();
+    MPI_Type_free( &type );
+}
+template void DestroyValueIntType<Int>();
+template void DestroyValueIntType<float>();
+template void DestroyValueIntType<double>();
+
+template<typename T>
 void CreateValueIntPairType()
 {
 #ifndef RELEASE
@@ -154,6 +167,19 @@ void CreateValueIntPairType()
 template void CreateValueIntPairType<Int>();
 template void CreateValueIntPairType<float>();
 template void CreateValueIntPairType<double>();
+
+template<typename T>
+void DestroyValueIntPairType()
+{
+#ifndef RELEASE
+    CallStackEntry cse("DestroyValueIntPairType");
+#endif
+    Datatype& type = ValueIntPairType<T>();
+    MPI_Type_free( &type );
+}
+template void DestroyValueIntPairType<Int>();
+template void DestroyValueIntPairType<float>();
+template void DestroyValueIntPairType<double>();
 
 template<>
 void CreateMaxLocOp<Int>()

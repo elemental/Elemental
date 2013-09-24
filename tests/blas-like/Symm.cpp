@@ -112,7 +112,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestSymm<Complex<double> >
+        TestSymm<Complex<double>>
         ( side, uplo, m, n, Complex<double>(3), Complex<double>(4), print, g ); 
     }
     catch( exception& e ) { ReportException(e); }

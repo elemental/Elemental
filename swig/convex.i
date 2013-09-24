@@ -19,14 +19,14 @@
  
 %include "elemental/convex/LogBarrier.hpp"
 %include "elemental/convex/LogDetDivergence.hpp"
-%include "elemental/convex/SingularValueSoftThreshold.hpp"
+%include "elemental/convex/SVT.hpp"
 %include "elemental/convex/SoftThreshold.hpp"
 %include "elemental/convex/UnitaryCoherence.hpp" 
 
 namespace elem {
 OVERLOAD0(LogBarrier)
 OVERLOAD0(LogDetDivergence)
-OVERLOAD0(SingularValueSoftThreshold)
+OVERLOAD0(SVT)
 OVERLOAD0(SoftThreshold)
 OVERLOAD0(UnitaryCoherence)
 }

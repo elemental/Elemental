@@ -15,9 +15,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -31,19 +31,16 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> L(g), A(g);
-        Uniform( L, n, n );
+        const Grid& g = DefaultGrid();
+        auto L = Uniform<C>( g, n, n );
         MakeTrapezoidal( LOWER, L, -1 );
-        Zeros( A, n, n );
+        auto A = Zeros<C>( g, n, n );
         Herk( LOWER, NORMAL, C(1), L, C(0), A );
-
         if( print )
             Print( A, "A" );
 
         // Replace A with its matrix square root
         HPSDSquareRoot( LOWER, A );
-
         if( print )
         {
             MakeHermitian( LOWER, A );

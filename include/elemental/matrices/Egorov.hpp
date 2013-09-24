@@ -12,34 +12,12 @@
 
 namespace elem {
 
-template<typename R,class RealFunctor>
-inline void
-Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Egorov");
-#endif
-    A.ResizeTo( n, n );
-    MakeEgorov( A, phase );
-}
-
-template<typename R,Distribution U,Distribution V,class RealFunctor>
-inline void
-Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Egorov");
-#endif
-    A.ResizeTo( n, n );
-    MakeEgorov( A, phase );
-}
-
 template<typename R,class RealFunctor> 
 inline void
 MakeEgorov( Matrix<Complex<R> >& A, const RealFunctor& phase )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeEgorov");
+    CallStackEntry cse("MakeEgorov");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -60,7 +38,7 @@ inline void
 MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeEgorov");
+    CallStackEntry cse("MakeEgorov");
 #endif
     const Int localHeight = A.LocalHeight();
     const Int localWidth = A.LocalWidth();
@@ -80,6 +58,46 @@ MakeEgorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase )
             A.SetLocal( iLoc, jLoc, Complex<R>(realPart,imagPart) );
         }
     }
+}
+
+template<typename R,class RealFunctor>
+inline void
+Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Egorov");
+#endif
+    A.ResizeTo( n, n );
+    MakeEgorov( A, phase );
+}
+
+template<typename R,class RealFunctor>
+inline Matrix<Complex<R> >
+Egorov( const RealFunctor& phase, Int n )
+{
+    Matrix<Complex<R> > A( n, n );
+    MakeEgorov( A, phase );
+    return A;
+}
+
+template<typename R,Distribution U,Distribution V,class RealFunctor>
+inline void
+Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Egorov");
+#endif
+    A.ResizeTo( n, n );
+    MakeEgorov( A, phase );
+}
+
+template<typename R,Distribution U=MC,Distribution V=MR,class RealFunctor>
+inline DistMatrix<Complex<R>,U,V>
+Egorov( const Grid& g, const RealFunctor& phase, Int n )
+{
+    DistMatrix<Complex<R>,U,V> A( n, n, g );
+    MakeEgorov( A, phase );
+    return A;
 }
 
 } // namespace elem

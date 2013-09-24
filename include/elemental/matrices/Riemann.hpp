@@ -17,7 +17,7 @@ inline void
 Riemann( Matrix<T>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Riemann");
+    CallStackEntry cse("Riemann");
 #endif
     R.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -32,12 +32,21 @@ Riemann( Matrix<T>& R, Int n )
     }
 }
 
+template<typename T> 
+inline Matrix<T>
+Riemann( Int n )
+{
+    Matrix<T> R;
+    Riemann( R, n );
+    return R;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Riemann( DistMatrix<T,U,V>& R, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Riemann");
+    CallStackEntry cse("Riemann");
 #endif
     R.ResizeTo( n, n );
     const Int localHeight = R.LocalHeight();
@@ -58,6 +67,15 @@ Riemann( DistMatrix<T,U,V>& R, Int n )
                 R.SetLocal( iLoc, jLoc, T(-1) );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Riemann( const Grid& g, Int n )
+{
+    DistMatrix<T,U,V> R(g);
+    Riemann( R, n );
+    return R;
 }
 
 } // namespace elem

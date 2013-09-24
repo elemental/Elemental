@@ -55,36 +55,20 @@ LVar3( UnitOrNonUnit diag, Matrix<F>& L )
     if( L.Height() != L.Width() )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif
-    // Matrix views
-    Matrix<F> 
-        LTL, LTR,  L00, L01, L02,
-        LBL, LBR,  L10, L11, L12,
-                   L20, L21, L22;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() )
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
+        auto L10 = ViewRange( L, k,    0, k+nb, k    );
+        auto L11 = ViewRange( L, k,    k, k+nb, k+nb );
+        auto L20 = ViewRange( L, k+nb, 0, n,    k    );
+        auto L21 = ViewRange( L, k+nb, k, n,    k+nb );
 
-        //--------------------------------------------------------------------//
         Trsm( LEFT, LOWER, NORMAL, diag, F(-1), L11, L10 );
         Gemm( NORMAL, NORMAL, F(1), L21, L10, F(1), L20 );
         Trsm( RIGHT, LOWER, NORMAL, diag, F(1), L11, L21 );
         LVar3Unb( diag, L11 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 }
 
@@ -98,41 +82,30 @@ LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif
     const Grid& g = L.Grid();
-
-    // Matrix views
-    DistMatrix<F> 
-        LTL(g), LTR(g),  L00(g), L01(g), L02(g),
-        LBL(g), LBR(g),  L10(g), L11(g), L12(g),
-                         L20(g), L21(g), L22(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,MR  > L10_STAR_MR(g);
     DistMatrix<F,STAR,VR  > L10_STAR_VR(g);
     DistMatrix<F,STAR,STAR> L11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> L21_MC_STAR(g);
     DistMatrix<F,VC,  STAR> L21_VC_STAR(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( L, LTL, LTR,
-         LBL, LBR, 0 );
-    while( LTL.Height() < L.Height() )
+    const Int n = L.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, /**/ L01, L02,
-         /*************/ /******************/
-               /**/       L10, /**/ L11, L12,
-          LBL, /**/ LBR,  L20, /**/ L21, L22 );
+        const Int nb = Min(bsize,n-k);
+        auto L10 = ViewRange( L, k,    0, k+nb, k    );
+        auto L11 = ViewRange( L, k,    k, k+nb, k+nb );
+        auto L20 = ViewRange( L, k+nb, 0, n,    k    );
+        auto L21 = ViewRange( L, k+nb, k, n,    k+nb );
 
-        L10_STAR_MR.AlignWith( L20 );
-        L21_MC_STAR.AlignWith( L20 );
-        //--------------------------------------------------------------------//
         L10_STAR_VR = L10;
         L11_STAR_STAR = L11;
         LocalTrsm
         ( LEFT, LOWER, NORMAL, diag, F(-1), L11_STAR_STAR, L10_STAR_VR );
 
+        L21_MC_STAR.AlignWith( L20 );
         L21_MC_STAR = L21;
+        L10_STAR_MR.AlignWith( L20 );
         L10_STAR_MR = L10_STAR_VR;
         LocalGemm
         ( NORMAL, NORMAL, F(1), L21_MC_STAR, L10_STAR_MR, F(1), L20 );
@@ -144,13 +117,6 @@ LVar3( UnitOrNonUnit diag, DistMatrix<F>& L )
         LocalTriangularInverse( LOWER, diag, L11_STAR_STAR );
         L11 = L11_STAR_STAR;
         L21 = L21_VC_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( LTL, /**/ LTR,  L00, L01, /**/ L02,
-               /**/       L10, L11, /**/ L12,
-         /*************/ /******************/
-          LBL, /**/ LBR,  L20, L21, /**/ L22 );
     }
 }
 

@@ -19,7 +19,7 @@ inline void
 Lotkin( Matrix<F>& A, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lotkin");
+    CallStackEntry cse("Lotkin");
 #endif
     Hilbert( A, n );
     // Set first row to all ones
@@ -27,12 +27,21 @@ Lotkin( Matrix<F>& A, Int n )
         A.Set( 0, j, F(1) );
 }
 
+template<typename F>
+inline Matrix<F>
+Lotkin( Int n )
+{
+    Matrix<F> A;
+    Lotkin( A, n );
+    return A;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Lotkin( DistMatrix<F,U,V>& A, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Lotkin");
+    CallStackEntry cse("Lotkin");
 #endif
     Hilbert( A, n );
     // Set first row to all ones
@@ -42,6 +51,15 @@ Lotkin( DistMatrix<F,U,V>& A, Int n )
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
             A.SetLocal( 0, jLoc, F(1) );
     } 
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Lotkin( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> A(g);
+    Lotkin( A, n );
+    return A;
 }
 
 // TODO: MakeLotkin?

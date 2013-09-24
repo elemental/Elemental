@@ -29,9 +29,8 @@ UVar3Square( DistMatrix<F>& A )
     if( A.Grid().Height() != A.Grid().Width() )
         LogicError("CholeskyUVar3Square assumes a square process grid.");
 #endif
-    const Grid& g = A.Grid();
-
     // Find the process holding our transposed data
+    const Grid& g = A.Grid();
     const Int r = g.Height();
     Int transposeRank;
     {
@@ -46,57 +45,46 @@ UVar3Square( DistMatrix<F>& A )
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );
 
-    // Matrix views
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-
-    // Temporary matrix distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,STAR,MC  > A12_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 ); 
-    while( ABR.Height() > 0 )
+    const Int n = A.Height();
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
-        A12_STAR_MC.AlignWith( A22 );
-        A12_STAR_MR.AlignWith( A22 );
-        A12_STAR_VR.AlignWith( A22 );
-        //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
         LocalCholesky( UPPER, A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
+        A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
+        A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
         // SendRecv to form A12[* ,MC] from A12[* ,MR]
+        A12_STAR_MC.AlignWith( A22 );
         A12_STAR_MC.ResizeTo( A12.Height(), A12.Width() );
         {
             if( onDiagonal )
             {
-                const Int size = A11.Height()*A22.LocalWidth();
+                const Int size = A12.Height()*A12.LocalWidth();
                 MemCopy
                 ( A12_STAR_MC.Buffer(), 
                   A12_STAR_MR.Buffer(), size );
             }
             else
             {
-                const Int sendSize = A11.Height()*A22.LocalWidth();
-                const Int recvSize = A11.Width()*A22.LocalHeight();
+                const Int sendSize = A12.Height()*A12.LocalWidth();
+                const Int recvSize = A22.LocalHeight()*A11.Width();
                 // We know that the ldim is the height since we have manually
                 // created both temporary matrices.
                 mpi::SendRecv
@@ -107,13 +95,6 @@ UVar3Square( DistMatrix<F>& A )
         LocalTrrk
         ( UPPER, ADJOINT, F(-1), A12_STAR_MC, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

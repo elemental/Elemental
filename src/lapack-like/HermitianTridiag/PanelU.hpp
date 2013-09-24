@@ -27,155 +27,84 @@ void PanelU
   DistMatrix<F,MC,STAR>& W_MC_STAR,
   DistMatrix<F,MR,STAR>& W_MR_STAR )
 {
-    const Int panelSize = W.Width();
-    const Int topSize = W.Height()-panelSize;
+    const Int n = A.Height();
+    const Int nW = W.Width();
+    //const Int topSize = W.Height()-panelSize;
 #ifndef RELEASE
     CallStackEntry entry("hermitian_tridiag::PanelU");
     if( A.Grid() != W.Grid() || W.Grid() != t.Grid() )
         LogicError("A, W, and t must be distributed over the same grid.");
-    if( A.Height() != A.Width() )
+    if( n != A.Width() )
         LogicError("A must be square.");
-    if( A.Height() != W.Height() )
+    if( n != W.Height() )
         LogicError( "A and W must be the same height.");
-    if( W.Height() < panelSize )
+    if( n <= nW )
         LogicError("W must be a column panel.");
-    if( t.Height() != W.Width() || t.Width() != 1 )
+    if( t.Height() != nW || t.Width() != 1 )
         LogicError
         ("t must be a column vector of the same length as W's width.");
 #endif
-    typedef BASE(F) R;
-
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int c = g.Width();
     const Int p = g.Size();
+    const Int off = n-nW;
 
     // Create a distributed matrix for storing the superdiagonal
-    DistMatrix<R,MD,STAR> e(g);
-    DistMatrix<F> expandedABR(g);
-    View( expandedABR, A, topSize-1, topSize-1, panelSize+1, panelSize+1 );
+    auto expandedABR = ViewRange( A, off-1, off-1, n, n );
+    DistMatrix<Real,MD,STAR> e(g);
     e.AlignWithDiagonal( expandedABR.DistData(), 1 );
-    e.ResizeTo( panelSize, 1 );
+    e.ResizeTo( nW, 1 );
 
-    // Matrix views 
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), a01(g),     A02(g),  ACol(g), a01T(g),
-        ABL(g), ABR(g),  a10(g), alpha11(g), a12(g),           alpha01B(g),
-                         A20(g), a21(g),     A22(g),  A02T(g), A00Pan(g);
-    DistMatrix<F> 
-        WTL(g), WTR(g),  W00(g), w01(g),     W02(g),  WCol(g),
-        WBL(g), WBR(g),  w10(g), omega11(g), w12(g),
-                         W20(g), w21(g),     W22(g),  W02T(g), w01Last(g);
-    DistMatrix<R,MD,STAR> eT(g),  e0(g),
-                          eB(g),  epsilon1(g),
-                                  e2(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  tau1(g),
-                t2(g);
+    std::vector<F> w01LastBuffer(n/r+1);
+    DistMatrix<F> w01Last(g);
+    DistMatrix<F,MC,STAR> a01_MC_STAR(g), p01_MC_STAR(g),
+                          a01Last_MC_STAR(g), w01Last_MC_STAR(g);
+    DistMatrix<F,MR,STAR> a01_MR_STAR(g), q01_MR_STAR(g),
+                          x21_MR_STAR(g), y21_MR_STAR(g),
+                          a01Last_MR_STAR(g), w01Last_MR_STAR(g);
 
-    // Temporary distributions
-    std::vector<F> w01LastBuffer(A.Height()/r+1);
-    DistMatrix<F,MC,STAR> a01_MC_STAR(g);
-    DistMatrix<F,MC,STAR> a01T_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a01_MR_STAR(g);
-    DistMatrix<F,MC,STAR> p01_MC_STAR(g);
-    DistMatrix<F,MC,STAR> p01T_MC_STAR(g);
-    DistMatrix<F,MR,STAR> q01_MR_STAR(g);
-    DistMatrix<F,MR,STAR> x21_MR_STAR(g);
-    DistMatrix<F,MR,STAR> y21_MR_STAR(g);
-    DistMatrix<F,MC,STAR> a01Last_MC_STAR(g);
-    DistMatrix<F,MR,STAR> a01Last_MR_STAR(g);
-    DistMatrix<F,MC,STAR> w01Last_MC_STAR(g);
-    DistMatrix<F,MR,STAR> w01Last_MR_STAR(g);
-
-    PartitionUpOffsetDiagonal
-    ( A.Width()-A.Height(),
-      A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionUpOffsetDiagonal
-    ( W.Width()-W.Height(),
-      W, WTL, WTR,
-         WBL, WBR, 0 );
-    PartitionUp
-    ( e, eT,
-         eB, 0 );
-    PartitionUp
-    ( t, tT,
-         tB, 0 );
-    bool firstIteration = true;
     F tau = 0;
     F w01LastBottomEntry = 0;
-    while( WBR.Width() < panelSize )
+    for( Int k=nW-1; k>=0; --k )
     {
-        RepartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12, 
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22, 1 );
-        
-        RepartitionUpDiagonal
-        ( WTL, /**/ WTR,  W00, w01,     /**/ W02,
-               /**/       w10, omega11, /**/ w12,
-         /*************/ /**********************/
-          WBL, /**/ WBR,  W20, w21,     /**/ W22, 1 );
-
-        RepartitionUp
-        ( eT,  e0,
-               epsilon1,
-         /**/ /********/
-          eB,  e2, 1 );
-
-        RepartitionUp
-        ( tT,  t0,
-               tau1,
-         /**/ /****/
-          tB,  t2, 1 );
-
-        View2x1
-        ( ACol, a01,
-                alpha11 );
-
-        View2x1
-        ( WCol, w01,
-                omega11 );
-
-        // View the portions of A02 and W0T outside of this panel's square
-        View( A02T, A02, 0, 0, topSize, A02.Width() );
-        View( W02T, W02, 0, 0, topSize, W02.Width() );
-
-        // View the portion of A00 inside the current panel
-        View( A00Pan, A00, 0, topSize, A00.Height(), A00.Width()-topSize );
-
-        if( !firstIteration )
+        const Int kA = k+off;
+        const bool firstIteration = ( k == nW-1 );
+        if( !firstIteration ) 
         {
-            View
-            ( a01Last_MC_STAR, APan_MC_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            View
-            ( a01Last_MR_STAR, APan_MR_STAR, 0, WTL.Width(), ACol.Height(), 1 );
-            View( w01Last, W, 0, WTL.Width(), ACol.Height(), 1 );
+            a01Last_MC_STAR = View( APan_MC_STAR, 0, k+1, kA+1, 1 );
+            a01Last_MR_STAR = View( APan_MR_STAR, 0, k+1, kA+1, 1 );
+            w01Last         = View( W,            0, k+1, kA+1, 1 );
         }
-            
-        PartitionUp
-        ( a01, a01T,
-               alpha01B, 1 );
+
+        auto A00      = ViewRange( A, 0,    0,    kA,   kA   );
+        auto W00      = ViewRange( W, 0,    0,    kA,   k    );
+        auto A00Pan   = ViewRange( A, 0,    off,  kA,   kA   );
+        auto a01      = ViewRange( A, 0,    kA,   kA,   kA+1 );
+        auto a01T     = ViewRange( A, 0,    kA,   kA-1, kA+1 );
+        auto alpha01B = ViewRange( A, kA-1, kA,   kA,   kA+1 );
+        auto alpha11  = ViewRange( A, kA,   kA,   kA+1, kA+1 );
+        auto ACol     = ViewRange( A, 0,    kA,   kA+1, kA+1 );
+        auto WCol     = ViewRange( W, 0,    k,    kA+1, k+1  );
+        auto A02      = ViewRange( A, 0,    kA+1, kA,   n    );
+        auto A02T     = ViewRange( A, 0,    kA+1, off,  n    );
+        auto W02T     = ViewRange( W, 0,    k+1,  off,  nW   );
+        auto tau1     = View( t, k, 0, 1, 1 );
+        auto epsilon1 = View( e, k, 0, 1, 1 );
 
         a01_MC_STAR.AlignWith( A00 );
         a01_MR_STAR.AlignWith( A00 );
         p01_MC_STAR.AlignWith( A00 );
-        q01_MR_STAR.AlignWith( A00 );
-        x21_MR_STAR.AlignWith( A02T );
-        y21_MR_STAR.AlignWith( A02T );
-        
-        a01_MC_STAR.ResizeTo( a01.Height(), 1 );
-        a01_MR_STAR.ResizeTo( a01.Height(), 1 );
-        p01_MC_STAR.ResizeTo( a01.Height(), 1 );
+        a01_MC_STAR.ResizeTo( kA, 1 );
+        a01_MR_STAR.ResizeTo( kA, 1 );
+        p01_MC_STAR.ResizeTo( kA, 1 );
 
         // View the portions of a01[MC,* ] and p01[MC,* ] above the current
         // panel's square
-        View( a01T_MC_STAR, a01_MC_STAR, 0, 0, topSize, 1 );
-        View( p01T_MC_STAR, p01_MC_STAR, 0, 0, topSize, 1 );
-        //--------------------------------------------------------------------//
+        auto a01T_MC_STAR = View( a01_MC_STAR, 0, 0, off, 1 );
+        auto p01T_MC_STAR = View( p01_MC_STAR, 0, 0, off, 1 );
+
         const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
         if( thisIsMyCol )
         {
@@ -212,21 +141,21 @@ void PanelU
             {
                 // Pack the broadcast buffer with a01 and tau
                 MemCopy
-                ( &rowBroadcastBuffer[0], a01.Buffer(), a01LocalHeight );
+                ( rowBroadcastBuffer.data(), a01.Buffer(), a01LocalHeight );
                 rowBroadcastBuffer[a01LocalHeight] = tau;
             }
             // Broadcast a01 and tau across the process row
             mpi::Broadcast
-            ( &rowBroadcastBuffer[0], 
+            ( rowBroadcastBuffer.data(), 
               a01LocalHeight+1, a01.RowAlignment(), g.RowComm() );
             // Store a01[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
             MemCopy
-            ( a01_MC_STAR.Buffer(), &rowBroadcastBuffer[0], a01LocalHeight );
+            ( a01_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a01LocalHeight );
             // Store a01[MC,* ] into APan[MC,* ]
             MemCopy
             ( APan_MC_STAR.Buffer(0,W00.Width()), 
-              &rowBroadcastBuffer[0], a01LocalHeight );
+              rowBroadcastBuffer.data(), a01LocalHeight );
             // Store tau
             tau = rowBroadcastBuffer[a01LocalHeight];
             
@@ -246,24 +175,25 @@ void PanelU
             if( thisIsMyCol ) 
             {
                 // Pack the broadcast buffer with a01, w01Last, and tau
-                MemCopy( &rowBroadcastBuffer[0], a01.Buffer(), a01LocalHeight );
+                MemCopy
+                ( rowBroadcastBuffer.data(), a01.Buffer(), a01LocalHeight );
                 MemCopy
                 ( &rowBroadcastBuffer[a01LocalHeight], 
-                  &w01LastBuffer[0], w01LastLocalHeight );
+                  w01LastBuffer.data(), w01LastLocalHeight );
                 rowBroadcastBuffer[a01LocalHeight+w01LastLocalHeight] = tau;
             }
             // Broadcast a01, w01Last, and tau across the process row
             mpi::Broadcast
-            ( &rowBroadcastBuffer[0], 
+            ( rowBroadcastBuffer.data(), 
               a01LocalHeight+w01LastLocalHeight+1, 
               a01.RowAlignment(), g.RowComm() );
             // Store a01[MC,* ] into its DistMatrix class 
             MemCopy
-            ( a01_MC_STAR.Buffer(), &rowBroadcastBuffer[0], a01LocalHeight );
+            ( a01_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a01LocalHeight );
             // Store a01[MC,* ] into APan[MC,* ]
             MemCopy
             ( APan_MC_STAR.Buffer(0,W00.Width()), 
-              &rowBroadcastBuffer[0], a01LocalHeight );
+              rowBroadcastBuffer.data(), a01LocalHeight );
             // Store w01Last[MC,* ] into its DistMatrix class
             w01Last_MC_STAR.AlignWith( A00 );
             w01Last_MC_STAR.ResizeTo( a01.Height()+1, 1 );
@@ -378,18 +308,10 @@ void PanelU
             // entries. We trash the lower triangle of our panel of A since we 
             // are only doing slightly more work and we can replace it
             // afterwards.
-            DistMatrix<F,MC,STAR> a01Last_MC_STAR_Top(g),
-                                  w01Last_MC_STAR_Top(g);
-            DistMatrix<F,MR,STAR> a01Last_MR_STAR_TopPan(g),
-                                  w01Last_MR_STAR_TopPan(g);
-            View( a01Last_MC_STAR_Top, a01Last_MC_STAR, 0, 0, a01.Height(), 1 );
-            View( w01Last_MC_STAR_Top, w01Last_MC_STAR, 0, 0, a01.Height(), 1 );
-            View
-            ( a01Last_MR_STAR_TopPan, 
-              a01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
-            View
-            ( w01Last_MR_STAR_TopPan,
-              w01Last_MR_STAR, topSize, 0, a01.Height()-topSize, 1 );
+            auto a01Last_MC_STAR_Top = View( a01Last_MC_STAR, 0, 0, kA, 1 );
+            auto w01Last_MC_STAR_Top = View( w01Last_MC_STAR, 0, 0, kA, 1 );
+            auto a01Last_MR_STAR_TopPan = View( a01Last_MR_STAR, off, 0, k, 1 );
+            auto w01Last_MR_STAR_TopPan = View( w01Last_MR_STAR, off, 0, k, 1 );
             const F* a01_MC_STAR_Buffer = a01Last_MC_STAR_Top.Buffer();
             const F* w01_MC_STAR_Buffer = w01Last_MC_STAR_Top.Buffer();
             const F* a01_MR_STAR_Buffer = a01Last_MR_STAR_TopPan.Buffer();
@@ -411,10 +333,13 @@ void PanelU
         //   p01[MC,* ] := triu(A00)[MC,MR] a01[MR,* ]
         //   q01[MR,* ] := triu(A00,+1)'[MR,MC] a01[MC,* ]
         Zero( p01_MC_STAR );
+        q01_MR_STAR.AlignWith( A00 );
         Zeros( q01_MR_STAR, a01.Height(), 1 );
         internal::LocalSymvColAccumulateU
         ( F(1), A00, a01_MC_STAR, a01_MR_STAR, p01_MC_STAR, q01_MR_STAR, true );
 
+        x21_MR_STAR.AlignWith( A02T );
+        y21_MR_STAR.AlignWith( A02T );
         Zeros( x21_MR_STAR, A02.Width(), 1 );
         Zeros( y21_MR_STAR, A02.Width(), 1 );
         LocalGemv( ADJOINT, F(1), W02T, a01T_MC_STAR, F(0), x21_MR_STAR );
@@ -430,7 +355,7 @@ void PanelU
             std::vector<F> colSumSendBuffer(reduceSize),
                            colSumRecvBuffer(reduceSize);
             MemCopy
-            ( &colSumSendBuffer[0], x21_MR_STAR.Buffer(), x21LocalHeight );
+            ( colSumSendBuffer.data(), x21_MR_STAR.Buffer(), x21LocalHeight );
             MemCopy
             ( &colSumSendBuffer[x21LocalHeight],
               y21_MR_STAR.Buffer(), y21LocalHeight );
@@ -438,10 +363,10 @@ void PanelU
             ( &colSumSendBuffer[x21LocalHeight+y21LocalHeight],
               q01_MR_STAR.Buffer(), q01LocalHeight );
             mpi::AllReduce
-            ( &colSumSendBuffer[0], &colSumRecvBuffer[0],
+            ( colSumSendBuffer.data(), colSumRecvBuffer.data(),
               reduceSize, g.ColComm() );
             MemCopy
-            ( x21_MR_STAR.Buffer(), &colSumRecvBuffer[0], x21LocalHeight );
+            ( x21_MR_STAR.Buffer(), colSumRecvBuffer.data(), x21LocalHeight );
             MemCopy
             ( y21_MR_STAR.Buffer(), 
               &colSumRecvBuffer[x21LocalHeight], y21LocalHeight );
@@ -465,7 +390,7 @@ void PanelU
 
             // Pack p01[MC,* ]
             MemCopy
-            ( &reduceToOneSendBuffer[0], p01_MC_STAR.Buffer(), localHeight );
+            ( reduceToOneSendBuffer.data(), p01_MC_STAR.Buffer(), localHeight );
 
             // Fill in contributions to q01[MC,MR] from q01[MR,* ]
             const bool contributing = 
@@ -523,7 +448,7 @@ void PanelU
             const Int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
             const Int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
             mpi::Reduce
-            ( &reduceToOneSendBuffer[0], &reduceToOneRecvBuffer[0],
+            ( reduceToOneSendBuffer.data(), reduceToOneRecvBuffer.data(),
               2*localHeight, nextProcessCol, g.RowComm() );
             if( g.Col() == nextProcessCol )
             {
@@ -537,8 +462,8 @@ void PanelU
                 // We know a priori that the last element of a01 is one.
                 const F* a01_MC_STAR_Buffer = a01_MC_STAR.Buffer();
                 F myDotProduct = blas::Dot
-                    ( localHeight, &reduceToOneRecvBuffer[0], 1, 
-                                   &a01_MC_STAR_Buffer[0],    1 );
+                    ( localHeight, reduceToOneRecvBuffer.data(), 1, 
+                                   a01_MC_STAR_Buffer,           1 );
                 F sendBuffer[2], recvBuffer[2];
                 sendBuffer[0] = myDotProduct;
                 sendBuffer[1] = ( g.Row()==nextProcessRow ? 
@@ -568,7 +493,7 @@ void PanelU
 
             // Pack p01[MC,* ]
             MemCopy
-            ( &allReduceSendBuffer[0], p01_MC_STAR.Buffer(), localHeight );
+            ( allReduceSendBuffer.data(), p01_MC_STAR.Buffer(), localHeight );
 
             // Fill in contributions to q01[MC,* ] from q01[MR,* ]
             const bool contributing = 
@@ -624,7 +549,7 @@ void PanelU
                 MemZero( &allReduceSendBuffer[localHeight], localHeight );
 
             mpi::AllReduce
-            ( &allReduceSendBuffer[0], &allReduceRecvBuffer[0],
+            ( allReduceSendBuffer.data(), allReduceRecvBuffer.data(),
               2*localHeight, g.RowComm() );
 
             // Combine the second half into the first half        
@@ -636,15 +561,13 @@ void PanelU
             // We know a priori that the last element of a01 is one.
             const F* a01_MC_STAR_Buffer = a01_MC_STAR.Buffer();
             F myDotProduct = blas::Dot
-                ( localHeight, &allReduceRecvBuffer[0], 1, 
-                               a01_MC_STAR_Buffer,      1 );
+                ( localHeight, allReduceRecvBuffer.data(), 1, 
+                               a01_MC_STAR_Buffer,         1 );
             const F dotProduct = mpi::AllReduce( myDotProduct, g.ColComm() );
 
             // Grab views into W[MC,* ] and W[MR,* ]
-            DistMatrix<F,MC,STAR> w01_MC_STAR(g);
-            DistMatrix<F,MR,STAR> w01_MR_STAR(g);
-            View( w01_MC_STAR, W_MC_STAR, 0, W00.Width(), w01.Height(), 1 );
-            View( w01_MR_STAR, W_MR_STAR, 0, W00.Width(), w01.Height(), 1 );
+            auto w01_MC_STAR = View( W_MC_STAR, 0, k, kA, 1 );
+            auto w01_MR_STAR = View( W_MR_STAR, 0, k, kA, 1 );
 
             // Store w01[MC,* ]
             F scale = dotProduct*Conj(tau) / F(2);
@@ -656,33 +579,6 @@ void PanelU
             // Form w01[MR,* ]
             w01_MR_STAR = w01_MC_STAR;
         }
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUp
-        ( tT,  t0,
-         /**/ /****/
-               tau1,
-          tB,  t2 );
-
-        SlidePartitionUp
-        ( eT,  e0,
-         /**/ /********/
-               epsilon1,
-          eB,  e2 );
-
-        SlidePartitionUpDiagonal
-        ( WTL, /**/ WTR,  W00, /**/ w01,     W02,
-         /*************/ /**********************/
-               /**/       w10, /**/ omega11, w12,
-          WBL, /**/ WBR,  W20, /**/ w21,     W22 );
-
-        SlidePartitionUpDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22 );
-
-        firstIteration = false;
     }
 
     expandedABR.SetRealPartOfDiagonal( e, 1 );

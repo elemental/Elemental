@@ -27,10 +27,10 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> A, B, C;
-        Riemann( A, n );
-        Redheffer( B, n );
-        GCDMatrix( C, n, n );
+        const Grid& g = DefaultGrid();
+        auto A = Riemann<double>( g, n );
+        auto B = Redheffer<double>( g, n );
+        auto C = GCDMatrix<double>( g, n, n );
         if( display )
         {
             Display( A, "Riemann" );

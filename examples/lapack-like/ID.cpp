@@ -35,13 +35,12 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<C> A;
-        Uniform( A, m, n );
+        const Grid& g = DefaultGrid();
+        auto A = Uniform<C>( g, m, n );
         const Real frobA = FrobeniusNorm( A );
         if( print )
             Print( A, "A" );
 
-        const Grid& g = A.Grid();
         DistMatrix<Int,VR,STAR> p(g);
         DistMatrix<C,STAR,VR> Z(g);
         ID( A, p, Z, maxSteps, tol );
@@ -54,7 +53,7 @@ main( int argc, char* argv[] )
 
         // Pivot A and form the matrix of its (hopefully) dominant columns
         ApplyColumnPivots( A, p );
-        DistMatrix<C> hatA( A );
+        auto hatA( A );
         hatA.ResizeTo( m, numSteps );
         if( print )
         {

@@ -94,13 +94,12 @@ Syr2
         DistMatrix<T,MR,STAR> x_MR_STAR(g), y_MR_STAR(g);
 
         x_MC_STAR.AlignWith( A );
-        x_MR_STAR.AlignWith( A );
-        y_MC_STAR.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+        x_MR_STAR.AlignWith( A );
         x_MR_STAR = x_MC_STAR;
+        y_MC_STAR.AlignWith( A );
         y_MC_STAR = y;
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y_MC_STAR;
 
         const T* xBuffer = x_MC_STAR.LockedBuffer();
@@ -137,7 +136,6 @@ Syr2
                     ACol[iLoc] += gamma*xBuffer[iLoc] + delta*yBuffer[iLoc];
             }
         }
-        //--------------------------------------------------------------------//
     }
     else if( x.Width() == 1 )
     {
@@ -147,13 +145,12 @@ Syr2
         DistMatrix<T,STAR,MR> y_STAR_MR(g);
 
         x_MC_STAR.AlignWith( A );
-        x_MR_STAR.AlignWith( A );
-        y_STAR_MC.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_MC_STAR = x;
+        x_MR_STAR.AlignWith( A );
         x_MR_STAR = x_MC_STAR;
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+        y_STAR_MC.AlignWith( A );
         y_STAR_MC = y_STAR_MR;
 
         const T* xBuffer = x_MC_STAR.LockedBuffer();
@@ -193,7 +190,6 @@ Syr2
                                   delta*yBuffer[iLoc*incy];
             }
         }
-        //--------------------------------------------------------------------//
     }
     else if( y.Width() == 1 )
     {
@@ -202,14 +198,13 @@ Syr2
         DistMatrix<T,MC,STAR> y_MC_STAR(g);
         DistMatrix<T,MR,STAR> y_MR_STAR(g);
 
-        x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
-        y_MC_STAR.AlignWith( A );
-        y_MR_STAR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MR = x;
+        x_STAR_MC.AlignWith( A );
         x_STAR_MC = x_STAR_MR;
+        y_MC_STAR.AlignWith( A );
         y_MC_STAR = y;
+        y_MR_STAR.AlignWith( A );
         y_MR_STAR = y_MC_STAR;
 
         const T* xBuffer = x_STAR_MC.LockedBuffer();
@@ -249,21 +244,19 @@ Syr2
                                   delta*yBuffer[iLoc];
             }
         }
-        //--------------------------------------------------------------------//
     }
     else
     {
         DistMatrix<T,STAR,MC> x_STAR_MC(g), y_STAR_MC(g);
         DistMatrix<T,STAR,MR> x_STAR_MR(g), y_STAR_MR(g);
 
-        x_STAR_MC.AlignWith( A );
         x_STAR_MR.AlignWith( A );
-        y_STAR_MC.AlignWith( A );
-        y_STAR_MR.AlignWith( A );
-        //--------------------------------------------------------------------//
         x_STAR_MR = x;
+        x_STAR_MC.AlignWith( A );
         x_STAR_MC = x_STAR_MR;
+        y_STAR_MR.AlignWith( A );
         y_STAR_MR = y;
+        y_STAR_MC.AlignWith( A );
         y_STAR_MC = y_STAR_MR;
 
         const T* xBuffer = x_STAR_MC.LockedBuffer();
@@ -304,7 +297,6 @@ Syr2
                                   delta*yBuffer[iLoc*incy];
             }
         }
-        //--------------------------------------------------------------------//
     }
 }
 

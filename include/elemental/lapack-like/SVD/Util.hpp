@@ -17,31 +17,31 @@ namespace elem {
 namespace svd {
 
 template<typename F>
-inline void
-CheckScale( DistMatrix<F>& A, bool& needRescaling, BASE(F)& scale )
+inline bool
+CheckScale( DistMatrix<F>& A, BASE(F)& scale )
 {
-    typedef BASE(F) R;
-
     scale = 1;
-    needRescaling = false;
-    const R oneNormOfA = OneNorm( A );
-    const R safeMin = lapack::MachineSafeMin<R>();
-    const R precision = lapack::MachinePrecision<R>();
-    const R smallNumber = safeMin/precision;
-    const R bigNumber = 1/smallNumber;
-    const R rhoMin = Sqrt(smallNumber);
-    const R rhoMax = Min( Sqrt(bigNumber), 1/Sqrt(Sqrt(safeMin)) );
+    typedef BASE(F) Real;
+    const Real oneNormOfA = OneNorm( A );
+    const Real safeMin = lapack::MachineSafeMin<Real>();
+    const Real precision = lapack::MachinePrecision<Real>();
+    const Real smallNumber = safeMin/precision;
+    const Real bigNumber = 1/smallNumber;
+    const Real rhoMin = Sqrt(smallNumber);
+    const Real rhoMax = Min( Sqrt(bigNumber), 1/Sqrt(Sqrt(safeMin)) );
 
     if( oneNormOfA > 0 && oneNormOfA < rhoMin )
     {
-        needRescaling = true;
         scale = rhoMin/oneNormOfA;
+        return true;
     }
     else if( oneNormOfA > rhoMax )
     {
-        needRescaling = true;
         scale = rhoMax/oneNormOfA;
+        return true;
     }
+    else
+        return false;
 }
 
 template<typename F>

@@ -21,9 +21,7 @@ SetDiagonal( Matrix<T>& A, T alpha )
 #endif
     const Int height = A.Height();
     const Int width = A.Width();
-#ifdef HAVE_OPENMP
-#pragma omp parallel for
-#endif
+    PARALLEL_FOR
     for( Int j=0; j<Min(height,width); ++j )
         A.Set(j,j,alpha);
 }

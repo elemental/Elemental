@@ -43,13 +43,11 @@ be thrown.
 
 :math:`LDL^H` factorization
 ---------------------------
-Though the Cholesky factorization is ideal for most HPD matrices, there exist 
-many Hermitian matrices whose eigenvalues are not all positive. The 
+Though the Cholesky factorization is ideal for most HPD matrices, the 
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
 factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
-and diagonal :math:`D` such that :math:`A = L D L^H`. If :math:`A` is found to 
-be numerically singular, then a :cpp:type:`SingularMatrixException` will be 
-thrown.
+and diagonal :math:`D` such that :math:`A = L D L^H`. If a zero pivot is 
+attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
 
    .. warning::
 
@@ -62,17 +60,11 @@ thrown.
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`.
 
-.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& d )
-.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
-
-   Same as above, but also return the diagonal in the column vector `d`.
-
 :math:`LDL^T` factorization
 ---------------------------
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
-:math:`LDL^T` factorization targets symmetric matrices. If :math:`A` is found to 
-be numerically singular, then a :cpp:type:`SingularMatrixException` will be 
-thrown.
+:math:`LDL^T` factorization targets symmetric matrices. If a zero pivot is
+attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
 
    .. warning::
 
@@ -84,11 +76,6 @@ thrown.
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`.
-
-.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& d )
-.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
-
-   Same as above, but also return the diagonal in the vector `d`.
 
 :math:`LU` factorization
 ------------------------
@@ -193,6 +180,17 @@ trapezoid.
 
 Detailed interface
 ^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: void qr::Explicit( Matrix<F>& A, bool colPiv=false )
+.. cpp:function:: void qr::Explicit( DistMatrix<F>& A, bool colPiv=false )
+
+   Overwrite :math:`A` with the orthogonal matrix from its QR factorization
+   (with or without column pivoting).
+
+.. cpp:function:: void qr::Explicit( Matrix<F>& A, Matrix<F>& R, bool colPiv=false )
+.. cpp:function:: void qr::Explicit( DistMatrix<F>& A, DistMatrix<F>& R, bool colPiv=false )
+
+   Additionally explicitly return the :math:`R` from the QR factorization.
 
 .. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const Matrix<F>& A, const Matrix<F>& t, Matrix<F>& B )
 .. cpp:function:: void qr::ApplyQ( LeftOrRight side, Orientation orientation, const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& t, DistMatrix<F>& B )

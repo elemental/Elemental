@@ -24,7 +24,7 @@ void TestCorrectness
   const DistMatrix<F,MD,STAR>& t,
         DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
     const Int n = A.Width();
@@ -34,24 +34,18 @@ void TestCorrectness
         cout << "  Testing orthogonality of Q..." << endl;
 
     // Form Z := Q Q^H as an approximation to identity
-    DistMatrix<F> Z(g);
-    Identity( Z, m, n );
+    auto Z = Identity<F>( g, m, n );
     rq::ApplyQ( RIGHT, NORMAL, A, t, Z );
     rq::ApplyQ( RIGHT, ADJOINT, A, t, Z );
-    
-    DistMatrix<F> ZUpper(g);
-    View( ZUpper, Z, 0, 0, minDim, minDim );
-
-    // Form Identity
-    DistMatrix<F> X(g);
-    Identity( X, minDim, minDim );
+    auto ZUpper = View( Z, 0, 0, minDim, minDim );
 
     // Form X := I - Q Q^H
+    auto X = Identity<F>( g, minDim, minDim );
     Axpy( F(-1), ZUpper, X );
 
-    R oneNormOfError = OneNorm( X );
-    R infNormOfError = InfinityNorm( X );
-    R frobNormOfError = FrobeniusNorm( X );
+    Real oneNormOfError = OneNorm( X );
+    Real infNormOfError = InfinityNorm( X );
+    Real frobNormOfError = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "    ||Q^H Q - I||_1  = " << oneNormOfError << "\n"
@@ -63,16 +57,16 @@ void TestCorrectness
         cout << "  Testing if A = RQ..." << endl;
 
     // Form RQ
-    DistMatrix<F> U( A );
+    auto U( A );
     MakeTrapezoidal( UPPER, U, 0, RIGHT );
     rq::ApplyQ( RIGHT, NORMAL, A, t, U );
 
     // Form R Q - A
     Axpy( F(-1), AOrig, U );
     
-    const R oneNormOfA = OneNorm( AOrig );
-    const R infNormOfA = InfinityNorm( AOrig );
-    const R frobNormOfA = FrobeniusNorm( AOrig );
+    const Real oneNormOfA = OneNorm( AOrig );
+    const Real infNormOfA = InfinityNorm( AOrig );
+    const Real frobNormOfA = FrobeniusNorm( AOrig );
     oneNormOfError = OneNorm( U );
     infNormOfError = InfinityNorm( U );
     frobNormOfError = FrobeniusNorm( U );
@@ -179,7 +173,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestRQ<Complex<double> >( testCorrectness, print, m, n, g );
+        TestRQ<Complex<double>>( testCorrectness, print, m, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 

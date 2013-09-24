@@ -14,34 +14,12 @@
 
 namespace elem {
 
-template<typename T>
-inline void
-Jordan( Matrix<T>& J, Int n, T lambda )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Jordan");
-#endif
-    J.ResizeTo( n, n );
-    MakeJordan( J, lambda );
-}
-
-template<typename T,Distribution U,Distribution V>
-inline void
-Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Jordan");
-#endif
-    J.ResizeTo( n, n );
-    MakeJordan( J, lambda );
-}
-
 template<typename T> 
 inline void
 MakeJordan( Matrix<T>& J, T lambda )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeJordan");
+    CallStackEntry cse("MakeJordan");
 #endif
     Zero( J );
     const Int m = J.Height();
@@ -59,7 +37,7 @@ inline void
 MakeJordan( DistMatrix<T,U,V>& J, T lambda )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeJordan");
+    CallStackEntry cse("MakeJordan");
 #endif
     Zero( J.Matrix() );
 
@@ -81,6 +59,46 @@ MakeJordan( DistMatrix<T,U,V>& J, T lambda )
                 J.SetLocal( iLoc, jLoc, T(1) );
         }
     }
+}
+
+template<typename T>
+inline void
+Jordan( Matrix<T>& J, Int n, T lambda )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Jordan");
+#endif
+    J.ResizeTo( n, n );
+    MakeJordan( J, lambda );
+}
+
+template<typename T>
+inline Matrix<T>
+Jordan( Int n, T lambda )
+{
+    Matrix<T> J( n, n );
+    MakeJordan( J, lambda );
+    return J;
+}
+
+template<typename T,Distribution U,Distribution V>
+inline void
+Jordan( DistMatrix<T,U,V>& J, Int n, T lambda )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Jordan");
+#endif
+    J.ResizeTo( n, n );
+    MakeJordan( J, lambda );
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Jordan( const Grid& g, Int n, T lambda )
+{
+    DistMatrix<T,U,V> J( n, n, g );
+    MakeJordan( J, lambda );
+    return J;
 }
 
 } // namespace elem

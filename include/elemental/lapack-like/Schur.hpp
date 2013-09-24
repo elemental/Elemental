@@ -10,31 +10,50 @@
 #ifndef ELEM_LAPACK_SCHUR_HPP
 #define ELEM_LAPACK_SCHUR_HPP
 
-#include "elemental/lapack-like/Schur/InverseFreeSDC.hpp"
+#include "elemental/lapack-like/Schur/QR.hpp"
 #include "elemental/lapack-like/Schur/SDC.hpp"
+#include "elemental/lapack-like/Schur/InverseFreeSDC.hpp"
 
 namespace elem {
 
 template<typename F>
 inline void
-Schur( Matrix<F>& A )
+Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    LogicError("This routine not yet written");
-    // TODO: Call LAPACK...
+    schur::QR( A, w );
 }
 
 template<typename F>
 inline void
-Schur( DistMatrix<F>& A )
+Schur( Matrix<F>& A, Matrix<COMPLEX(F)>& w, Matrix<F>& Q )
 {
 #ifndef RELEASE
     CallStackEntry cse("Schur");
 #endif
-    LogicError("This routine not yet written");
-    // TODO: Spectral D&C
+    schur::QR( A, w, Q );
+}
+
+template<typename F>
+inline void
+Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Schur");
+#endif
+    schur::SDC( A, w );
+}
+
+template<typename F>
+inline void
+Schur( DistMatrix<F>& A, DistMatrix<COMPLEX(F),VR,STAR>& w, DistMatrix<F>& Q )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Schur");
+#endif
+    schur::SDC( A, w, Q );
 }
 
 } // namespace elem

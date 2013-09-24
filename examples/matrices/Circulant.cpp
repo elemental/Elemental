@@ -15,6 +15,9 @@
 #include "elemental/io.hpp"
 using namespace elem;
 
+typedef double Real;
+typedef Complex<Real> C;
+
 int 
 main( int argc, char* argv[] )
 {
@@ -29,11 +32,11 @@ main( int argc, char* argv[] )
         PrintInputReport();
 
         // Create a circulant matrix
-        DistMatrix<Complex<double> > A;
-        std::vector<Complex<double> > a( n );
+        const Grid& g = DefaultGrid();
+        std::vector<C> a( n );
         for( Int j=0; j<n; ++j )
             a[j] = j;
-        Circulant( A, a );
+        auto A = Circulant( g, a );
         if( display )
             Display( A, "Circulant" );
         if( print )
@@ -41,21 +44,18 @@ main( int argc, char* argv[] )
 
         // Create a Fourier matrix, which can be used to diagonalize circulant
         // matrices
-        DistMatrix<Complex<double> > F;
-        Fourier( F, n );
+        auto F = Fourier<Real>( g, n );
         if( display )
             Display( F, "DFT matrix" );
         if( print )
             Print( F, "DFT matrix:" );
         
         // Form B := A F
-        DistMatrix<Complex<double> > B;
-        Zeros( B, n, n );
-        Gemm( NORMAL, NORMAL, Complex<double>(1), A, F, Complex<double>(0), B );
+        auto B = Zeros<C>( g, n, n );
+        Gemm( NORMAL, NORMAL, C(1), A, F, C(0), B );
 
         // Form A := F^H B = F^H \hat A F
-        Gemm
-        ( ADJOINT, NORMAL, Complex<double>(1), F, B, Complex<double>(0), A );
+        Gemm( ADJOINT, NORMAL, C(1), F, B, C(0), A );
         if( display )
             Display( A, "F^H A F" );
         if( print )
@@ -64,13 +64,13 @@ main( int argc, char* argv[] )
         // Form the thresholded result
         const Int localHeight = A.LocalHeight();
         const Int localWidth = A.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                const double absValue = Abs(A.GetLocal(iLocal,jLocal));
+                const double absValue = Abs(A.GetLocal(iLoc,jLoc));
                 if( absValue < 1e-13 )
-                    A.SetLocal(iLocal,jLocal,0);
+                    A.SetLocal(iLoc,jLoc,0);
             }
         }
         if( display )

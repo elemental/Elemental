@@ -129,12 +129,12 @@ AxpyInterface<T>::HandleLocalToGlobalData()
         // Message exists, so recv and pack    
         const Int count = mpi::GetCount<byte>( status );
 #ifndef RELEASE
-        if( count < 4*sizeof(Int)+sizeof(T) )
+        if( count < Int(4*sizeof(Int)+sizeof(T)) )
             LogicError("Count was too small");
 #endif
         const Int source = status.MPI_SOURCE;
         recvVector_.resize( count );
-        byte* recvBuffer = &recvVector_[0];
+        byte* recvBuffer = recvVector_.data();
         mpi::TaggedRecv( recvBuffer, count, source, DATA_TAG, g.VCComm() );
 
         // Extract the header
@@ -237,7 +237,7 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         const Int source = status.MPI_SOURCE;
         const Int recvSize = 4*sizeof(Int);
         recvVector_.resize( recvSize );
-        byte* recvBuffer = &recvVector_[0];
+        byte* recvBuffer = recvVector_.data();
         mpi::TaggedRecv
         ( recvBuffer, recvSize, source, DATA_REQUEST_TAG, g.VCComm() );
 
@@ -270,7 +270,7 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
               replySendRequests_[source], sendingReply_[source] );
 
         // Pack the reply header
-        byte* sendBuffer = &replyVectors_[source][index][0];
+        byte* sendBuffer = replyVectors_[source][index].data();
         byte* sendHead = sendBuffer;
         *reinterpret_cast<Int*>(sendHead) = myRow; sendHead += sizeof(Int);
         *reinterpret_cast<Int*>(sendHead) = myCol; sendHead += sizeof(Int);
@@ -565,12 +565,12 @@ AxpyInterface<T>::AxpyLocalToGlobal
                 ( bufferSize, dataVectors_[destination], 
                   dataSendRequests_[destination], sendingData_[destination] );
 #ifndef RELEASE
-            if( dataVectors_[destination][index].size() != bufferSize )
+            if( Int(dataVectors_[destination][index].size()) != bufferSize )
                 LogicError("Error in ReadyForSend");
 #endif
 
             // Pack the header
-            byte* sendBuffer = &dataVectors_[destination][index][0];
+            byte* sendBuffer = dataVectors_[destination][index].data();
             byte* head = sendBuffer;
             *reinterpret_cast<Int*>(head) = i; head += sizeof(Int);
             *reinterpret_cast<Int*>(head) = j; head += sizeof(Int);
@@ -633,7 +633,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
               requestSendRequests_[rank], sendingRequest_[rank] );
 
         // Copy the request header into the send buffer
-        byte* sendBuffer = &requestVectors_[rank][index][0];
+        byte* sendBuffer = requestVectors_[rank][index].data();
         byte* head = sendBuffer;
         *reinterpret_cast<Int*>(head) = i; head += sizeof(Int);
         *reinterpret_cast<Int*>(head) = j; head += sizeof(Int);
@@ -660,7 +660,7 @@ AxpyInterface<T>::AxpyGlobalToLocal
             // Ensure that we have a recv buffer
             const Int count = mpi::GetCount<byte>( status );
             recvVector_.resize( count );
-            byte* recvBuffer = &recvVector_[0];
+            byte* recvBuffer = recvVector_.data();
 
             // Receive the data
             mpi::TaggedRecv
@@ -700,7 +700,7 @@ template<typename T>
 inline Int
 AxpyInterface<T>::ReadyForSend
 ( Int sendSize,
-  std::deque<std::vector<byte> >& sendVectors,
+  std::deque<std::vector<byte>>& sendVectors,
   std::deque<mpi::Request>& requests, 
   std::deque<bool>& requestStatuses )
 {
@@ -709,7 +709,8 @@ AxpyInterface<T>::ReadyForSend
 #endif
     const Int numCreated = sendVectors.size();
 #ifndef RELEASE
-    if( numCreated != requests.size() || numCreated != requestStatuses.size() )
+    if( numCreated != Int(requests.size()) || 
+        numCreated != Int(requestStatuses.size()) )
         LogicError("size mismatch");
 #endif
     for( Int i=0; i<numCreated; ++i )

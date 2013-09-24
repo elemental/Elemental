@@ -29,13 +29,13 @@ ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
     if( tol < 0 )
         LogicError("negative threshold does not make sense");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Int m = A.Height();
     const Int n = A.Width();
-    const R frobNorm = FrobeniusNorm( A );
-    if( tol == R(0) )
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
     {
-        const R eps = lapack::MachineEpsilon<R>();
+        const Real eps = lapack::MachineEpsilon<Real>();
         tol = m*frobNorm*eps;
     }
 
@@ -62,7 +62,7 @@ ThresholdedTall( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
     A = Y;
     for( Int j=0; j<n; ++j )
     {
-        const R sigma = s.Get( j, 0 );
+        const Real sigma = s.Get( j, 0 );
         for( Int i=0; i<m; ++i )
             A.Set( i, j, A.Get(i,j)/sigma );
     }
@@ -82,13 +82,13 @@ ThresholdedTall
         LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = A.Height();
-    const R frobNorm = FrobeniusNorm( A );
-    if( tol == R(0) )
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
     {
-        const R eps = lapack::MachineEpsilon<R>();
+        const Real eps = lapack::MachineEpsilon<Real>();
         tol = m*frobNorm*eps;
     }
 
@@ -116,14 +116,14 @@ ThresholdedTall
     //       from the corresponding computed singular value.
     A = Y;
     {
-        DistMatrix<R,MR,STAR> s_MR_STAR(g);
+        DistMatrix<Real,MR,STAR> s_MR_STAR(g);
         s_MR_STAR.AlignWith( A.DistData() );
         s_MR_STAR = s;
         const Int localWidth = A.LocalWidth();
         const Int localHeight = A.LocalHeight();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 A.SetLocal( iLoc, jLoc, A.GetLocal(iLoc,jLoc)/sigma );
         }
@@ -141,12 +141,12 @@ ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
     if( tol < 0 )
         LogicError("negative threshold does not make sense");
 #endif
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Int n = A.Width();
-    const R frobNorm = FrobeniusNorm( A );
-    if( tol == R(0) )
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
     {
-        const R eps = lapack::MachineEpsilon<R>();
+        const Real eps = lapack::MachineEpsilon<Real>();
         tol = n*frobNorm*eps;
     }
 
@@ -172,7 +172,7 @@ ThresholdedWide( Matrix<F>& A, Matrix<BASE(F)>& s, Matrix<F>& V, BASE(F) tol=0 )
     //       from the corresponding computed singular value.
     for( Int j=0; j<k; ++j )
     {
-        const R sigma = s.Get( j, 0 );
+        const Real sigma = s.Get( j, 0 );
         for( Int i=0; i<n; ++i )
             V.Set( i, j, V.Get(i,j)/sigma );
     }
@@ -193,13 +193,13 @@ ThresholdedWide
         LogicError("negative threshold does not make sense");
 #endif
     EnsurePMRRR();
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int n = A.Width();
-    const R frobNorm = FrobeniusNorm( A );
-    if( tol == R(0) )
+    const Real frobNorm = FrobeniusNorm( A );
+    if( tol == Real(0) )
     {
-        const R eps = lapack::MachineEpsilon<R>();
+        const Real eps = lapack::MachineEpsilon<Real>();
         tol = n*frobNorm*eps;
     }
 
@@ -226,14 +226,14 @@ ThresholdedWide
     //       each column of V and normalize via it, as it might vary slightly
     //       from the corresponding computed singular value.
     {
-        DistMatrix<R,MR,STAR> s_MR_STAR( g );
+        DistMatrix<Real,MR,STAR> s_MR_STAR( g );
         s_MR_STAR.AlignWith( V.DistData() );
         s_MR_STAR = s;
         const Int localWidth = V.LocalWidth();
         const Int localHeight = V.LocalHeight();
         for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R sigma = s_MR_STAR.GetLocal( jLoc, 0 );
+            const Real sigma = s_MR_STAR.GetLocal( jLoc, 0 );
             for( Int iLoc=0; iLoc<localHeight; ++iLoc )
                 V.SetLocal( iLoc, jLoc, V.GetLocal(iLoc,jLoc)/sigma );
         }

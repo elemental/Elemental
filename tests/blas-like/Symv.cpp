@@ -85,7 +85,7 @@ main( int argc, char* argv[] )
         const UpperOrLower uplo = CharToUpperOrLower( uploChar );
         SetBlocksize( nb );
         SetLocalSymvBlocksize<double>( nbLocalDouble );
-        SetLocalSymvBlocksize<Complex<double> >( nbLocalComplexDouble );
+        SetLocalSymvBlocksize<Complex<double>>( nbLocalComplexDouble );
 
         ComplainIfDebug();
         if( commRank == 0 )
@@ -105,7 +105,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestSymv<Complex<double> >
+        TestSymv<Complex<double>>
         ( uplo, m, Complex<double>(3), Complex<double>(4), print, g );
     }
     catch( exception& e ) { ReportException(e); }

@@ -55,36 +55,22 @@ UVar3( UnitOrNonUnit diag, Matrix<F>& U )
     if( U.Height() != U.Width() )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif
-    // Matrix views
-    Matrix<F> 
-        UTL, UTR,  U00, U01, U02,
-        UBL, UBR,  U10, U11, U12,
-                   U20, U21, U22;
-
-    // Start the algorithm
-    PartitionUpDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UBR.Height() < U.Height() )
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+        const Int nb = Min(bsize,n-k);
+        auto U01 = ViewRange( U, 0,    k,    k,    k+nb );
+        auto U02 = ViewRange( U, 0,    k+nb, k,    n    );
+        auto U11 = ViewRange( U, k,    k,    k+nb, k+nb );
+        auto U12 = ViewRange( U, k,    k+nb, k+nb, n    );
+        auto U22 = ViewRange( U, k+nb, k+nb, n,    n    );
 
-        //--------------------------------------------------------------------//
         Trsm( RIGHT, UPPER, NORMAL, diag, F(-1), U11, U01 );
         Gemm( NORMAL, NORMAL, F(1), U01, U12, F(1), U02 );
         Trsm( LEFT, UPPER, NORMAL, diag, F(1), U11, U12 );
         UVar3Unb( diag, U11 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
     }
 }
 
@@ -98,35 +84,24 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
         LogicError("Nonsquare matrices cannot be triangular");
 #endif
     const Grid& g = U.Grid();
-
-    // Matrix views
-    DistMatrix<F> 
-        UTL(g), UTR(g),  U00(g), U01(g), U02(g),
-        UBL(g), UBR(g),  U10(g), U11(g), U12(g),
-                         U20(g), U21(g), U22(g);
-
-    // Temporary distributions
     DistMatrix<F,VC,  STAR> U01_VC_STAR(g);
     DistMatrix<F,STAR,STAR> U11_STAR_STAR(g);
     DistMatrix<F,STAR,VR  > U12_STAR_VR(g);
     DistMatrix<F,STAR,MC  > U01Trans_STAR_MC(g);
     DistMatrix<F,MR,  STAR> U12Trans_MR_STAR(g);
 
-    // Start the algorithm
-    PartitionUpDiagonal
-    ( U, UTL, UTR,
-         UBL, UBR, 0 );
-    while( UBR.Height() < U.Height() )
+    const Int n = U.Height();
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( n, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        RepartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, U01, /**/ U02,
-               /**/       U10, U11, /**/ U12,
-         /*************/ /******************/
-          UBL, /**/ UBR,  U20, U21, /**/ U22 );
+        const Int nb = Min(bsize,n-k);
+        auto U01 = ViewRange( U, 0,    k,    k,    k+nb );
+        auto U02 = ViewRange( U, 0,    k+nb, k,    n    );
+        auto U11 = ViewRange( U, k,    k,    k+nb, k+nb );
+        auto U12 = ViewRange( U, k,    k+nb, k+nb, n    );
+        auto U22 = ViewRange( U, k+nb, k+nb, n,    n    );
 
-        U01Trans_STAR_MC.AlignWith( U02 );
-        U12Trans_MR_STAR.AlignWith( U02 );
-        //--------------------------------------------------------------------//
         U01_VC_STAR = U01;
         U11_STAR_STAR = U11;
         LocalTrsm
@@ -134,7 +109,9 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
 
         // We transpose before the communication to avoid cache-thrashing
         // in the unpacking stage.
+        U12Trans_MR_STAR.AlignWith( U02 );
         U12Trans_MR_STAR.TransposeFrom( U12 );
+        U01Trans_STAR_MC.AlignWith( U02 );
         U01Trans_STAR_MC.TransposeFrom( U01_VC_STAR );
 
         LocalGemm
@@ -148,13 +125,6 @@ UVar3( UnitOrNonUnit diag, DistMatrix<F>& U )
         LocalTriangularInverse( UPPER, diag, U11_STAR_STAR );
         U11 = U11_STAR_STAR;
         U12 = U12_STAR_VR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionUpDiagonal
-        ( UTL, /**/ UTR,  U00, /**/ U01, U02,
-         /*************/ /******************/
-               /**/       U10, /**/ U11, U12,
-          UBL, /**/ UBR,  U20, /**/ U21, U22 );
     }
 }
 

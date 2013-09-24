@@ -8,7 +8,6 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Legendre.hpp"
 #include "elemental/io.hpp"
 using namespace elem;
@@ -26,8 +25,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> J;
-        Legendre( J, n );
+        auto J = Legendre<double>( DefaultGrid(), n );
         if( display )
         {
             Display( J, "Jacobi matrix for Legendre polynomials" );
@@ -48,14 +46,12 @@ main( int argc, char* argv[] )
         //
         DistMatrix<double,VR,STAR> points;
         DistMatrix<double> X;
-        HermitianEig( LOWER, J, points, X );
-        hermitian_eig::Sort( points, X );
+        HermitianEig( LOWER, J, points, X, ASCENDING );
         if( display )
             Display( points, "Quadrature points" );
         if( print )
             Print( points, "points" );
-        DistMatrix<double> firstRow;
-        View( firstRow, X, 0, 0, 1, n );
+        auto firstRow = View( X, 0, 0, 1, n );
         DistMatrix<double,STAR,STAR> weights = firstRow;
         for( Int j=0; j<n; ++j )
         {

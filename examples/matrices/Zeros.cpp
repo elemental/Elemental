@@ -26,8 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> A;
-        Zeros( A, m, n );
+        auto A = Zeros<double>( DefaultGrid(), m, n );
         if( display )
             Display( A, "Zeros" );
         if( print )

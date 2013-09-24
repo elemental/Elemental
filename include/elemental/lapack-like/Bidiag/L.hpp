@@ -22,111 +22,13 @@ namespace elem {
 namespace bidiag {
 
 template<typename F>
-inline void L
-( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
+inline void L( Matrix<F>& A, Matrix<F>& tP, Matrix<F>& tQ )
 {
 #ifndef RELEASE
     CallStackEntry entry("bidiag::L");
-    if( A.Height() > A.Width() )
-        LogicError("A must be at least as wide as it is tall");
 #endif
-    const Int tPHeight = A.Height();
-    const Int tQHeight = Max(A.Height()-1,0);
-    tP.ResizeTo( tPHeight, 1 );
-    tQ.ResizeTo( tQHeight, 1 );
-
-    // Matrix views 
-    Matrix<F>
-        ATL, ATR,  A00, a01,     A02,  alpha21T,  a1R,
-        ABL, ABR,  a10, alpha11, a12,  a21B,      A2R,
-                   A20, a21,     A22;
-
-    // Temporary matrices
-    Matrix<F> x12Adj, w21;
-
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() )
-    {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ a01,     A02,
-         /*************/ /**********************/
-               /**/       a10, /**/ alpha11, a12,
-          ABL, /**/ ABR,  A20, /**/ a21,     A22, 1 );
-
-        View1x2( a1R, alpha11, a12 );
-        View1x2( A2R, a21, A22 );
-
-        //--------------------------------------------------------------------//
-
-        // Due to deficiencies in the BLAS ?gemv routines, this section is 
-        // easier if we temporarily conjugate a1R = | alpha11, a12 |
-        Conjugate( a1R );
-
-        // Find tauP, v, and epsilonP such that
-        //     I - conj(tauP) | 1 | | 1, v^H | | alpha11 | = | epsilonP | 
-        //                    | v |            |   a12^T |   |    0     |
-        const F tauP = Reflector( alpha11, a12 );
-        const F epsilonP = alpha11.Get(0,0);
-        tP.Set(A00.Height(),0,tauP);
-
-        // Set a1R^T = | 1 | and form w21 := A2R a1R^T = A2R | 1 |
-        //             | v |                                 | v |
-        alpha11.Set(0,0,F(1));
-        Zeros( w21, a21.Height(), 1 );
-        Gemv( NORMAL, F(1), A2R, a1R, F(0), w21 );
-
-        // A2R := A2R - tauP w21 conj(a1R)
-        //      = A2R - tauP A2R a1R^T conj(a1R)
-        //      = A22 (I - tauP a1R^T conj(a1R))
-        //      = A22 conj(I - conj(tauP) a1R^H a1R)
-        // which compensates for the fact that the reflector was generated
-        // on the conjugated a1R.
-        Ger( -tauP, w21, a1R, A2R );
-
-        // Put epsilonP back instead of the temporary value, 1
-        alpha11.Set(0,0,epsilonP);
-
-        // Undo the temporary conjugation
-        Conjugate( a1R );
-
-        if( A22.Height() != 0 )
-        {
-            // Expose the subvector we seek to zero, a21B
-            PartitionDown
-            ( a21, alpha21T,
-                   a21B, 1 );
-
-            // Find tauQ, u, and epsilonQ such that
-            //     I - conj(tauQ) | 1 | | 1, u^H | | alpha21T | = | epsilonQ |
-            //                    | u |            |   a21B   | = |    0     |
-            const F tauQ = Reflector( alpha21T, a21B );
-            const F epsilonQ = alpha21T.Get(0,0);
-            tQ.Set(A00.Height(),0,tauQ);
-
-            // Set a21 = | 1 | and form x12^H = (a21^H A22)^H = A22^H a21
-            //           | u |
-            alpha21T.Set(0,0,F(1));
-            Zeros( x12Adj, a12.Width(), 1 );
-            Gemv( ADJOINT, F(1), A22, a21, F(0), x12Adj );
-
-            // A22 := A22 - conj(tauQ) a21 x12 
-            //      = A22 - conj(tauQ) a21 a21^H A22
-            //      = (I - conj(tauQ) a21 a21^H) A22
-            Ger( -Conj(tauQ), a21, x12Adj, A22 );
-
-            // Put epsilonQ back instead of the temporary value, 1
-            alpha21T.Set(0,0,epsilonQ);
-        }
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, a01,     /**/ A02,
-               /**/       a10, alpha11, /**/ a12,
-         /*************/ /**********************/
-          ABL, /**/ ABR,  A20, a21,     /**/ A22 );
-    }
+    // TODO: Sequential blocked implementation
+    LUnb( A, tP, tQ );
 }
 
 template<typename F> 
@@ -144,129 +46,71 @@ L( DistMatrix<F>& A, DistMatrix<F,STAR,STAR>& tP, DistMatrix<F,STAR,STAR>& tQ )
         LogicError("tP and tQ must not be views");
 #endif
     const Grid& g = A.Grid();
-    const Int tPHeight = Max(A.Height()-1,0);
-    const Int tQHeight = A.Height();
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int tPHeight = Max(m-1,0);
+    const Int tQHeight = m;
     DistMatrix<F,MD,STAR> tPDiag(g), tQDiag(g);
     tPDiag.AlignWithDiagonal( A, -1 );
     tQDiag.AlignWithDiagonal( A, 0 );
     tPDiag.ResizeTo( tPHeight, 1 );
     tQDiag.ResizeTo( tQHeight, 1 );
 
-    // Matrix views 
-    DistMatrix<F> 
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MD,STAR> tPT(g),  tP0(g), 
-                          tPB(g),  tP1(g),
-                                   tP2(g);
-    DistMatrix<F,MD,STAR> tQT(g),  tQ0(g), 
-                          tQB(g),  tQ1(g),
-                                   tQ2(g);
-
-    // Temporary distributions
-    DistMatrix<F,STAR,STAR> ABR_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> tP1_STAR_STAR(g);
-    DistMatrix<F,STAR,STAR> tQ1_STAR_STAR(g);
-    DistMatrix<F> X(g), X11(g),
-                        X21(g);
-    DistMatrix<F> Y(g), Y11(g),
-                        Y21(g);
+    DistMatrix<F> X(g), Y(g);
     DistMatrix<F,MC,  STAR> X21_MC_STAR(g);
     DistMatrix<F,MR,  STAR> Y21_MR_STAR(g);
-    DistMatrix<F,MC,  STAR> AColPan_MC_STAR(g), A11_MC_STAR(g),
-                                                A21_MC_STAR(g);
-    DistMatrix<F,STAR,MR  > ARowPan_STAR_MR(g), A11_STAR_MR(g), A12_STAR_MR(g);
+    DistMatrix<F,MC,  STAR> AColPan_MC_STAR(g);
+    DistMatrix<F,STAR,MR  > ARowPan_STAR_MR(g);
 
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( tPDiag, tPT,
-              tPB, 0 );
-    PartitionDown
-    ( tQDiag, tQT,
-              tQB, 0 );
-    while( ATL.Height() < A.Height() )
+    const Int bsize = Blocksize();
+    for( Int k=0; k<m; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,m-k);
+        const Int nbtP = Min(bsize,m-1-k);
 
-        RepartitionDown
-        ( tPT,  tP0,
-         /***/ /***/
-                tP1,
-          tPB,  tP2 );
-        
-        RepartitionDown
-        ( tQT,  tQ0,
-         /***/ /***/
-                tQ1,
-          tQB,  tQ2 );
+        auto A11 = ViewRange( A,      k,    k,    k+nb, k+nb );
+        auto A12 = ViewRange( A,      k,    k+nb, k+nb, n    );
+        auto A21 = ViewRange( A,      k+nb, k,    m,    k+nb );
+        auto A22 = ViewRange( A,      k+nb, k+nb, m,    n    );
+        auto ABR = ViewRange( A,      k,    k,    m,    n    );
+        auto tP1 = ViewRange( tPDiag, k,    0,    nbtP, 1    );
+        auto tQ1 = ViewRange( tQDiag, k,    0,    nb,   1    );
         
         if( A22.Height() > 0 )
         {
             X.AlignWith( A11 );
             Y.AlignWith( A11 );
-            X21_MC_STAR.AlignWith( A21 );
-            Y21_MR_STAR.AlignWith( A12 );
+            X.ResizeTo( ABR.Height(), nb );
+            Y.ResizeTo( ABR.Width(), nb );
+
             AColPan_MC_STAR.AlignWith( A11 );
             ARowPan_STAR_MR.AlignWith( A11 );
-            //----------------------------------------------------------------//
-            X.ResizeTo( ABR.Height(), A11.Width() );
-            Y.ResizeTo( ABR.Width(), A11.Height() );
-            AColPan_MC_STAR.ResizeTo( ABR.Height(), A11.Width() );
-            ARowPan_STAR_MR.ResizeTo( A11.Height(), ABR.Width() );
+            AColPan_MC_STAR.ResizeTo( ABR.Height(), nb );
+            ARowPan_STAR_MR.ResizeTo( nb, ABR.Width() );
 
             bidiag::PanelL
             ( ABR, tP1, tQ1, X, Y, AColPan_MC_STAR, ARowPan_STAR_MR );
 
-            PartitionDown
-            ( AColPan_MC_STAR, A11_MC_STAR,
-                               A21_MC_STAR, A11.Height() );
-            PartitionRight
-            ( ARowPan_STAR_MR, A11_STAR_MR, A12_STAR_MR, A11.Width() );
-
-            PartitionDown
-            ( X, X11,
-                 X21, A11.Height() );
-            PartitionDown
-            ( Y, Y11,
-                 Y21, A11.Width() );
+            auto X21 = LockedViewRange( X, nb, 0, ABR.Height(), nb );
+            auto Y21 = LockedViewRange( Y, nb, 0, ABR.Width(), nb );
+            X21_MC_STAR.AlignWith( A21 );
+            Y21_MR_STAR.AlignWith( A12 );
             X21_MC_STAR = X21;
             Y21_MR_STAR = Y21;
 
+            auto A21_MC_STAR = 
+                LockedViewRange( AColPan_MC_STAR, nb, 0, ABR.Height(), nb );
+            auto A12_STAR_MR = 
+                LockedViewRange( ARowPan_STAR_MR, 0, nb, nb, ABR.Width() );
             LocalGemm
             ( NORMAL, ADJOINT, F(-1), A21_MC_STAR, Y21_MR_STAR, F(1), A22 );
             LocalGemm
             ( NORMAL, NORMAL, F(-1), X21_MC_STAR, A12_STAR_MR, F(1), A22 );
-            //----------------------------------------------------------------//
         }
         else
         {
             bidiag::LUnb( ABR, tP1, tQ1 );
         }
-
-        SlidePartitionDown
-        ( tQT,  tQ0,
-                tQ1,
-         /***/ /***/
-          tQB,  tQ2 );
-
-        SlidePartitionDown
-        ( tPT,  tP0,
-                tP1,
-         /***/ /***/
-          tPB,  tP2 );
-        
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 
     // Redistribute from matrix-diagonal form to fully replicated

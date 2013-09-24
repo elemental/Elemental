@@ -26,8 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> A;
-        Kahan( A, n, phi );
+        auto A = Kahan( DefaultGrid(), n, phi );
         if( display )
             Display( A, "Kahan" );
         if( print )

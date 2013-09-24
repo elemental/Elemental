@@ -101,7 +101,7 @@ AxpyTriangle
         DistMatrix<T,U,V> XCopy( X.Grid() );
         XCopy.AlignWith( Y );
         XCopy = X;
-        AxpyTriangle( uplo, alpha, XCopy.LockedMatrix(), Y.Matrix() );
+        AxpyTriangle( uplo, alpha, XCopy, Y );
     }
 }
 

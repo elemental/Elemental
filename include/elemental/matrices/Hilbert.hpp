@@ -12,34 +12,12 @@
 
 namespace elem {
 
-template<typename F>
-inline void
-Hilbert( Matrix<F>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Hilbert");
-#endif
-    A.ResizeTo( n, n );
-    MakeHilbert( A );
-}
-
-template<typename F,Distribution U,Distribution V>
-inline void
-Hilbert( DistMatrix<F,U,V>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Hilbert");
-#endif
-    A.ResizeTo( n, n );
-    MakeHilbert( A );
-}
-
 template<typename F> 
 inline void
 MakeHilbert( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHilbert");
+    CallStackEntry cse("MakeHilbert");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -49,7 +27,7 @@ MakeHilbert( Matrix<F>& A )
     const F one = F(1);
     for( Int j=0; j<n; ++j )
         for( Int i=0; i<m; ++i )
-            A.Set( i, j, one/(i+j+1) );
+            A.Set( i, j, one/F(i+j+1) );
 }
 
 template<typename F,Distribution U,Distribution V>
@@ -57,7 +35,7 @@ inline void
 MakeHilbert( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeHilbert");
+    CallStackEntry cse("MakeHilbert");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -77,9 +55,49 @@ MakeHilbert( DistMatrix<F,U,V>& A )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
         {
             const Int i = colShift + iLoc*colStride;
-            A.SetLocal( iLoc, jLoc, one/(i+j+1) );
+            A.SetLocal( iLoc, jLoc, one/F(i+j+1) );
         }
     }
+}
+
+template<typename F>
+inline void
+Hilbert( Matrix<F>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Hilbert");
+#endif
+    A.ResizeTo( n, n );
+    MakeHilbert( A );
+}
+
+template<typename F>
+inline Matrix<F>
+Hilbert( Int n )
+{
+    Matrix<F> A( n, n );
+    MakeHilbert( A );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void
+Hilbert( DistMatrix<F,U,V>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Hilbert");
+#endif
+    A.ResizeTo( n, n );
+    MakeHilbert( A );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Hilbert( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> A( n, n, g );
+    MakeHilbert( A );
+    return A;
 }
 
 } // namespace elem

@@ -17,7 +17,7 @@ inline void
 MinIJ( Matrix<T>& M, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MinIJ");
+    CallStackEntry cse("MinIJ");
 #endif
     M.ResizeTo( n, n );
     for( Int j=0; j<n; ++j )
@@ -25,12 +25,21 @@ MinIJ( Matrix<T>& M, Int n )
             M.Set( i, j, std::min(i+1,j+1) );
 }
 
+template<typename T> 
+inline Matrix<T>
+MinIJ( Int n )
+{
+    Matrix<T> M;
+    MinIJ( M, n );
+    return M;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 MinIJ( DistMatrix<T,U,V>& M, Int n )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MinIJ");
+    CallStackEntry cse("MinIJ");
 #endif
     M.ResizeTo( n, n );
     const Int localHeight = M.LocalHeight();
@@ -48,6 +57,15 @@ MinIJ( DistMatrix<T,U,V>& M, Int n )
             M.SetLocal( iLoc, jLoc, std::min(i+1,j+1) );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+MinIJ( const Grid& g, Int n )
+{
+    DistMatrix<T,U,V> M(g);
+    MinIJ( M, n );
+    return M;
 }
 
 } // namespace elem

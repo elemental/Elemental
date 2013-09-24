@@ -12,14 +12,13 @@
 #include "elemental/blas-like/level3/Hemm.hpp"
 #include "elemental/blas-like/level3/Herk.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
 #include "elemental/matrices/Identity.hpp"
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -64,32 +63,29 @@ main( int argc, char* argv[] )
         const Int rowStride = H.RowStride();
         const Int localHeight = H.LocalHeight();
         const Int localWidth = H.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            // Our process owns the rows colShift:colStride:n,
+            //           and the columns rowShift:rowStride:n
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                // Our process owns the rows colShift:colStride:n,
-                //           and the columns rowShift:rowStride:n
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
+                const Int i = colShift + iLoc*colStride;
+                H.SetLocal( iLoc, jLoc, C(i+j,i-j) );
             }
         }
 
         // Make a backup of H before we overwrite it within the eigensolver
-        DistMatrix<C> HCopy( H );
+        auto HCopy( H );
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X[MC,MR], and an eigenvalue column vector, w[VR,* ]
         //
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        DistMatrix<R,VR,STAR> w( g );
+        DistMatrix<Real,VR,STAR> w( g );
         DistMatrix<C> X( g );
-        HermitianEig( LOWER, H, w, X ); // only use lower half of H
-
-        // Optional: sort the eigenpairs
-        hermitian_eig::Sort( w, X );
+        HermitianEig( LOWER, H, w, X, ASCENDING ); 
 
         if( print )
         {
@@ -99,16 +95,16 @@ main( int argc, char* argv[] )
         }
 
         // Check the residual, || H X - Omega X ||_F
-        const R frobH = HermitianFrobeniusNorm( LOWER, HCopy );
-        DistMatrix<C> E( X );
+        const Real frobH = HermitianFrobeniusNorm( LOWER, HCopy );
+        auto E( X );
         DiagonalScale( RIGHT, NORMAL, w, E );
         Hemm( LEFT, LOWER, C(-1), HCopy, X, C(1), E );
-        const R frobResid = FrobeniusNorm( E );
+        const Real frobResid = FrobeniusNorm( E );
 
         // Check the orthogonality of X
         Identity( E, n, n );
         Herk( LOWER, NORMAL, C(-1), X, C(1), E );
-        const R frobOrthog = HermitianFrobeniusNorm( LOWER, E );
+        const Real frobOrthog = HermitianFrobeniusNorm( LOWER, E );
 
         if( mpi::WorldRank() == 0 )
         {

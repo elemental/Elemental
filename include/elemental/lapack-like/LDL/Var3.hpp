@@ -19,7 +19,7 @@ namespace ldl {
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3Unb( Orientation orientation, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3Unb");
@@ -29,20 +29,16 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
-    d.ResizeTo( n, 1 );
 
     F* ABuffer = A.Buffer();
-    F* dBuffer = d.Buffer();
     const Int ldim = A.LDim();
     for( Int j=0; j<n; ++j )
     {
         const Int a21Height = n - (j+1);
 
-        // Extract and store the diagonal of D
         const F alpha11 = ABuffer[j+j*ldim];
         if( alpha11 == F(0) )
             throw SingularMatrixException();
-        dBuffer[j] = alpha11; 
 
         F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
         if( orientation == ADJOINT )
@@ -77,7 +73,7 @@ Var3Unb( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
-Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
+Var3( Orientation orientation, Matrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
@@ -87,64 +83,28 @@ Var3( Orientation orientation, Matrix<F>& A, Matrix<F>& d )
         LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
-    d.ResizeTo( n, 1 );
 
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,
-        ABL, ABR,  A10, A11, A12,
-                   A20, A21, A22;
-    Matrix<F> 
-        dT,  d0,
-        dB,  d1,
-             d2;
-    Matrix<F> S21;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( d, dT,
-         dB, 0 );
-    while( ABR.Height() > 0 )
+    Matrix<F> d1, S21;
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
-        RepartitionDown
-        ( dT,  d0,
-         /**/ /**/
-               d1,
-          dB,  d2 );
-
-        //--------------------------------------------------------------------//
-        ldl::Var3Unb( orientation, A11, d1 );
+        ldl::Var3Unb( orientation, A11 );
+        A11.GetDiagonal( d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
         DiagonalSolve( RIGHT, NORMAL, d1, A21 );
         internal::TrrkNT( LOWER, orientation, F(-1), S21, A21, F(1), A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( dT,  d0,
-               d1,
-         /**/ /**/
-          dB,  d2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
 template<typename F>
 inline void
-Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
+Var3( Orientation orientation, DistMatrix<F>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
@@ -152,27 +112,10 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
         LogicError("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( A.Grid() != d.Grid() )
-        LogicError("A and d must use the same grid");
-    if( d.Viewing() && d.ColAlignment() != A.ColAlignment() )
-        LogicError("d must be aligned with A");
 #endif
     const Grid& g = A.Grid();
-    if( !d.Viewing() )
-        d.AlignWith( A );
-    d.ResizeTo( A.Height(), 1 );
+    const Int n = A.Height();
 
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),
-                         A20(g), A21(g), A22(g);
-    DistMatrix<F,MC,STAR>
-        dT(g),  d0(g),
-        dB(g),  d1(g),
-                d2(g);
-
-    // Temporary matrices
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
     DistMatrix<F,VC,  STAR> A21_VC_STAR(g);
@@ -181,65 +124,37 @@ Var3( Orientation orientation, DistMatrix<F>& A, DistMatrix<F,MC,STAR>& d )
     DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
 
     const bool conjugate = ( orientation == ADJOINT );
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( d, dT,
-         dB, 0 );
-    while( ABR.Height() > 0 )
+    const Int bsize = Blocksize();
+    for( Int k=0; k<n; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,n-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
-        RepartitionDown
-        ( dT,  d0,
-         /**/ /**/
-               d1,
-          dB,  d2 );
+        A11_STAR_STAR = A11;
+        LocalLDL( orientation, A11_STAR_STAR );
+        A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
+        A11 = A11_STAR_STAR;
 
         A21_VC_STAR.AlignWith( A22 );
-        A21_VR_STAR.AlignWith( A22 );
-        S21Trans_STAR_MC.AlignWith( A22 );
-        A21AdjOrTrans_STAR_MR.AlignWith( A22 );
-        //--------------------------------------------------------------------//
-        A11_STAR_STAR = A11;
-        LocalLDL( orientation, A11_STAR_STAR, d1_STAR_STAR );
-        A11 = A11_STAR_STAR;
-        d1 = d1_STAR_STAR;
-
         A21_VC_STAR = A21;
         LocalTrsm
         ( RIGHT, LOWER, orientation, UNIT,
           F(1), A11_STAR_STAR, A21_VC_STAR );
 
+        S21Trans_STAR_MC.AlignWith( A22 );
         S21Trans_STAR_MC.TransposeFrom( A21_VC_STAR );
         DiagonalSolve( RIGHT, NORMAL, d1_STAR_STAR, A21_VC_STAR );
+        A21_VR_STAR.AlignWith( A22 );
         A21_VR_STAR = A21_VC_STAR;
+        A21AdjOrTrans_STAR_MR.AlignWith( A22 );
         A21AdjOrTrans_STAR_MR.TransposeFrom( A21_VR_STAR, conjugate );
         LocalTrrk
         ( LOWER, TRANSPOSE,
           F(-1), S21Trans_STAR_MC, A21AdjOrTrans_STAR_MR, F(1), A22 );
 
         A21 = A21_VC_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDown
-        ( dT,  d0,
-               d1,
-         /**/ /**/
-          dB,  d2 );
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 

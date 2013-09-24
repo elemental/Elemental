@@ -17,34 +17,12 @@
 
 namespace elem {
 
-template<typename F>
-inline void
-GKS( Matrix<F>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("GKS");
-#endif
-    A.ResizeTo( n, n );
-    MakeGKS( A );
-}
-
-template<typename F,Distribution U,Distribution V>
-inline void
-GKS( DistMatrix<F,U,V>& A, Int n )
-{
-#ifndef RELEASE
-    CallStackEntry entry("GKS");
-#endif
-    A.ResizeTo( n, n );
-    MakeGKS( A );
-}
-
 template<typename F> 
 inline void
 MakeGKS( Matrix<F>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeGKS");
+    CallStackEntry cse("MakeGKS");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -66,7 +44,7 @@ inline void
 MakeGKS( DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeGKS");
+    CallStackEntry cse("MakeGKS");
 #endif
     const Int m = A.Height();
     const Int n = A.Width();
@@ -94,6 +72,35 @@ MakeGKS( DistMatrix<F,U,V>& A )
                 A.SetLocal( iLoc, jLoc, 0 );
         }
     }
+}
+
+template<typename F>
+inline Matrix<F>
+GKS( Int n )
+{
+    Matrix<F> A( n, n );
+    MakeGKS( A );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void
+GKS( DistMatrix<F,U,V>& A, Int n )
+{
+#ifndef RELEASE
+    CallStackEntry cse("GKS");
+#endif
+    A.ResizeTo( n, n );
+    MakeGKS( A );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+GKS( const Grid& g, Int n )
+{
+    DistMatrix<F,U,V> A( n, n, g );
+    MakeGKS( A );
+    return A;
 }
 
 } // namespace elem

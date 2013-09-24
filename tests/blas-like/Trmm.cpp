@@ -107,7 +107,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTrmm<Complex<double> >
+        TestTrmm<Complex<double>>
         ( print, side, uplo, orientation, diag, m, n, Complex<double>(3), g );
     }
     catch( exception& e ) { ReportException(e); }

@@ -12,6 +12,9 @@
 
 namespace elem {
 
+inline Int LastOffset( Int n, Int bsize )
+{ return bsize*( n%bsize ? n/bsize : (n/bsize)-1 ); }
+
 inline Int
 DiagonalLength( Int height, Int width, Int offset )
 {

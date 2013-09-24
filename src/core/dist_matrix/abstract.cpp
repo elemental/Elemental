@@ -24,8 +24,59 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
 { }
 
 template<typename T>
+AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
+: viewType_(A.viewType_),
+  height_(A.height_), width_(A.width_), 
+  constrainedColAlignment_(A.constrainedColAlignment_), 
+  constrainedRowAlignment_(A.constrainedRowAlignment_),
+  colAlignment_(A.colAlignment_), rowAlignment_(A.rowAlignment_),
+  colShift_(A.colShift_), rowShift_(A.rowShift_),
+  grid_(A.grid_)
+{ 
+    matrix_.ShallowSwap( A.matrix_ );
+    auxMemory_.ShallowSwap( A.auxMemory_ );
+}
+
+template<typename T>
+AbstractDistMatrix<T>& 
+AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
+{
+    auxMemory_.ShallowSwap( A.auxMemory_ );
+    matrix_.ShallowSwap( A.matrix_ );
+    viewType_ = A.viewType_;
+    height_ = A.height_;
+    width_ = A.width_;
+    constrainedColAlignment_ = A.constrainedColAlignment_;
+    constrainedRowAlignment_ = A.constrainedRowAlignment_;
+    colAlignment_ = A.colAlignment_;
+    rowAlignment_ = A.rowAlignment_;
+    colShift_ = A.colShift_;
+    rowShift_ = A.rowShift_;
+    grid_ = A.grid_;
+    return *this;
+}
+
+template<typename T>
 AbstractDistMatrix<T>::~AbstractDistMatrix() 
 { }
+
+template<typename T>
+void 
+AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
+{
+    matrix_.ShallowSwap( A.matrix_ );
+    auxMemory_.ShallowSwap( A.auxMemory_ );
+    std::swap( viewType_, A.viewType_ );
+    std::swap( height_ , A.height_ );
+    std::swap( width_, A.width_ );
+    std::swap( constrainedColAlignment_, A.constrainedColAlignment_ );
+    std::swap( constrainedRowAlignment_, A.constrainedRowAlignment_ );
+    std::swap( colAlignment_, A.colAlignment_ );
+    std::swap( rowAlignment_, A.rowAlignment_ );
+    std::swap( colShift_, A.colShift_ );
+    std::swap( rowShift_, A.rowShift_ );
+    std::swap( grid_, A.grid_ );
+}
 
 #ifndef RELEASE
 template<typename T>
@@ -156,7 +207,7 @@ void
 AbstractDistMatrix<T>::Align( Int colAlignment, Int rowAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::Align");    
+    CallStackEntry cse("AbstractDistMatrix::Align");    
 #endif
     Empty();
     colAlignment_ = colAlignment;
@@ -171,7 +222,7 @@ void
 AbstractDistMatrix<T>::AlignCols( Int colAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::AlignCols"); 
+    CallStackEntry cse("AbstractDistMatrix::AlignCols"); 
 #endif
     EmptyData();
     colAlignment_ = colAlignment;
@@ -184,7 +235,7 @@ void
 AbstractDistMatrix<T>::AlignRows( Int rowAlignment )
 { 
 #ifndef RELEASE
-    CallStackEntry entry("AbstractDistMatrix::AlignRows"); 
+    CallStackEntry cse("AbstractDistMatrix::AlignRows"); 
 #endif
     EmptyData();
     rowAlignment_ = rowAlignment;
@@ -498,8 +549,6 @@ void
 AbstractDistMatrix<T>::SetLocalRealPart
 ( Int iLoc, Int jLoc, BASE(T) alpha )
 { matrix_.SetRealPart(iLoc,jLoc,alpha); }
-
-// HERE
 
 template<typename T>
 void

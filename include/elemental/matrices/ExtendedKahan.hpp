@@ -24,36 +24,12 @@
 
 namespace elem {
 
-template<typename F>
-inline void
-ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ExtendedKahan");
-#endif
-    const Int n = 3*(1u<<k);
-    A.ResizeTo( n, n );
-    MakeExtendedKahan( A, phi, mu );
-}
-
-template<typename F,Distribution U,Distribution V>
-inline void
-ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
-{
-#ifndef RELEASE
-    CallStackEntry entry("ExtendedKahan");
-#endif
-    const Int n = 3*(1u<<k);
-    A.ResizeTo( n, n );
-    MakeExtendedKahan( A, phi, mu );
-}
-
 template<typename F> 
 inline void
 MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeExtendedKahan");
+    CallStackEntry cse("MakeExtendedKahan");
 #endif
     typedef BASE(F) R;
 
@@ -77,13 +53,12 @@ MakeExtendedKahan( Matrix<F>& A, BASE(F) phi, BASE(F) mu )
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
-    Matrix<F> ABlock;
-    View( ABlock, A, 2*l, 2*l, l, l );
+    auto ABlock = View( A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
-    View( ABlock, A, 0, l, l, l );
+    ABlock = View( A, 0, l, l, l );
     MakeWalsh( ABlock, k );
     Scale( -phi, ABlock );
-    View( ABlock, A, l, 2*l, l, l );
+    ABlock = View( A, l, 2*l, l, l );
     MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
@@ -100,7 +75,7 @@ inline void
 MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeExtendedKahan");
+    CallStackEntry cse("MakeExtendedKahan");
 #endif
     typedef BASE(F) R;
 
@@ -124,13 +99,12 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
     // Start by setting A to the identity, and then modify the necessary 
     // l x l blocks of its 3 x 3 partitioning.
     MakeIdentity( A );
-    DistMatrix<F,U,V> ABlock( A.Grid() );
-    View( ABlock, A, 2*l, 2*l, l, l );
+    auto ABlock = View( A, 2*l, 2*l, l, l );
     Scale( mu, ABlock );
-    View( ABlock, A, 0, l, l, l );
+    ABlock = View( A, 0, l, l, l );
     MakeWalsh( ABlock, k );
     Scale( -phi, ABlock );
-    View( ABlock, A, l, 2*l, l, l );
+    ABlock = View( A, l, 2*l, l, l );
     MakeWalsh( ABlock, k );
     Scale( phi, ABlock );
 
@@ -145,6 +119,50 @@ MakeExtendedKahan( DistMatrix<F,U,V>& A, BASE(F) phi, BASE(F) mu )
         d.SetLocal( iLoc, 0, Pow(zeta,R(i)) );
     }
     DiagonalScale( LEFT, NORMAL, d, A );
+}
+
+template<typename F>
+inline void
+ExtendedKahan( Matrix<F>& A, Int k, BASE(F) phi, BASE(F) mu )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ExtendedKahan");
+#endif
+    const Int n = 3*(1u<<k);
+    A.ResizeTo( n, n );
+    MakeExtendedKahan( A, phi, mu );
+}
+
+template<typename F>
+inline Matrix<F>
+ExtendedKahan( Int k, BASE(F) phi, BASE(F) mu )
+{
+    const Int n = 3*(1u<<k);
+    Matrix<F> A( n, n );
+    MakeExtendedKahan( A, phi, mu );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void
+ExtendedKahan( DistMatrix<F,U,V>& A, Int k, BASE(F) phi, BASE(F) mu )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ExtendedKahan");
+#endif
+    const Int n = 3*(1u<<k);
+    A.ResizeTo( n, n );
+    MakeExtendedKahan( A, phi, mu );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+ExtendedKahan( const Grid& g, Int k, BASE(F) phi, BASE(F) mu )
+{
+    const Int n = 3*(1u<<k);
+    DistMatrix<F,U,V> A( n, n, g );
+    MakeExtendedKahan( A, phi, mu );
+    return A;
 }
 
 } // namespace elem

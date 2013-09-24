@@ -24,10 +24,9 @@ template<typename F>
 void TestCorrectness
 ( bool conjugated, bool print, 
   const DistMatrix<F>& A,
-  const DistMatrix<F,MC,STAR>& d,
   const DistMatrix<F>& AOrig )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     const Grid& g = A.Grid();
     const Int m = AOrig.Height();
 
@@ -41,20 +40,20 @@ void TestCorrectness
         Trmm( LEFT, LOWER, ADJOINT, UNIT, F(1), A, Y );
     else
         Trmm( LEFT, LOWER, TRANSPOSE, UNIT, F(1), A, Y );
-    DiagonalScale( LEFT, NORMAL, d, Y );
+    DiagonalScale( LEFT, NORMAL, A.GetDiagonal(), Y );
     Trmm( LEFT, LOWER, NORMAL, UNIT, F(1), A, Y );
     if( conjugated )
         Hemm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
     else
         Symm( LEFT, LOWER, F(-1), AOrig, X, F(1), Y );
-    const R oneNormOfError = OneNorm( Y );
-    const R infNormOfError = InfinityNorm( Y );
-    const R frobNormOfError = FrobeniusNorm( Y );
-    const R infNormOfA = HermitianInfinityNorm( LOWER, AOrig );
-    const R frobNormOfA = HermitianFrobeniusNorm( LOWER, AOrig );
-    const R oneNormOfX = OneNorm( X );
-    const R infNormOfX = InfinityNorm( X );
-    const R frobNormOfX = FrobeniusNorm( X );
+    const Real oneNormOfError = OneNorm( Y );
+    const Real infNormOfError = InfinityNorm( Y );
+    const Real frobNormOfError = FrobeniusNorm( Y );
+    const Real infNormOfA = HermitianInfinityNorm( LOWER, AOrig );
+    const Real frobNormOfA = HermitianFrobeniusNorm( LOWER, AOrig );
+    const Real oneNormOfX = OneNorm( X );
+    const Real infNormOfX = InfinityNorm( X );
+    const Real frobNormOfX = FrobeniusNorm( X );
     if( g.Rank() == 0 )
     {
         cout << "||A||_1 = ||A||_oo   = " << infNormOfA << "\n"
@@ -91,7 +90,6 @@ void TestLDL
     }
     if( print )
         Print( A, "A" );
-    DistMatrix<F,MC,STAR> d(g);
 
     if( g.Rank() == 0 )
     {
@@ -101,9 +99,9 @@ void TestLDL
     mpi::Barrier( g.Comm() );
     const double startTime = mpi::Time();
     if( !conjugated )
-        LDLT( A, d );
+        LDLT( A );
     else
-        LDLH( A, d );
+        LDLH( A );
     mpi::Barrier( g.Comm() );
     const double runTime = mpi::Time() - startTime;
     const double realGFlops = 1./3.*Pow(double(m),3.)/(1.e9*runTime);
@@ -117,7 +115,7 @@ void TestLDL
     if( print )
         Print( A, "A after factorization" );
     if( testCorrectness )
-        TestCorrectness( conjugated, print, A, d, AOrig );
+        TestCorrectness( conjugated, print, A, AOrig );
 }
 
 int 
@@ -146,7 +144,7 @@ main( int argc, char* argv[] )
         const Grid g( comm, r );
         SetBlocksize( nb );
         SetLocalTrrkBlocksize<double>( nbLocal );
-        SetLocalTrrkBlocksize<Complex<double> >( nbLocal );
+        SetLocalTrrkBlocksize<Complex<double>>( nbLocal );
         ComplainIfDebug();
         if( commRank == 0 )
             cout << "Will test LDL" << (conjugated?"^H":"^T") << endl;
@@ -165,7 +163,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestLDL<Complex<double> >( conjugated, testCorrectness, print, m, g );
+        TestLDL<Complex<double>>( conjugated, testCorrectness, print, m, g );
     }
     catch( exception& e ) { ReportException(e); }
 

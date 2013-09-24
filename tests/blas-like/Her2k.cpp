@@ -95,7 +95,7 @@ main( int argc, char* argv[] )
         const Orientation orientation = CharToOrientation( transChar );
         SetBlocksize( nb );
         SetLocalTrr2kBlocksize<double>( nbLocal );
-        SetLocalTrr2kBlocksize<Complex<double> >( nbLocal );
+        SetLocalTrr2kBlocksize<Complex<double>>( nbLocal );
 
         ComplainIfDebug();
         if( commRank == 0 )
@@ -115,7 +115,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestHer2k<Complex<double> >
+        TestHer2k<Complex<double>>
         ( print, uplo, orientation, m, k, 
           Complex<double>(3), Complex<double>(4), g );
     }

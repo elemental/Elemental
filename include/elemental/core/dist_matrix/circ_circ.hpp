@@ -53,6 +53,13 @@ public:
 
     ~DistMatrix();
 
+#ifndef SWIG
+    // Move constructor
+    DistMatrix( DistMatrix<T,CIRC,CIRC>&& A );
+    // Move assignment
+    DistMatrix<T,CIRC,CIRC>& operator=( DistMatrix<T,CIRC,CIRC>&& A );
+#endif
+
     void CopyFromRoot( const Matrix<T>& A );
     void CopyFromNonRoot();
 
@@ -95,24 +102,18 @@ public:
 
     virtual T Get( Int i, Int j ) const;
     virtual void Set( Int i, Int j, T alpha );
+    virtual void SetRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex data
+    virtual void SetImagPart( Int i, Int j, BASE(T) u );
     virtual void Update( Int i, Int j, T alpha );
+    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
+    // Only valid for complex data
+    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     virtual void ResizeTo( Int height, Int width );
     virtual void ResizeTo( Int height, Int width, Int ldim );
 
     virtual void MakeConsistent();
-
-    //
-    // Though the following routines are meant for complex data, all but two
-    // logically applies to real data.
-    //
-
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
 
     //------------------------------------------------------------------------//
     // Routines specific to [o ,o ] distribution                              //
@@ -140,6 +141,9 @@ private:
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
+
+    // Exchange metadata with A
+    virtual void ShallowSwap( DistMatrix<T,CIRC,CIRC>& A );
 };
 
 } // namespace elem

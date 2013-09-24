@@ -37,13 +37,13 @@ Singular-value soft-thresholding
 Overwrites :math:`A` with :math:`U S_{\tau}(\Sigma) V^H`, where :math:`U \Sigma V^H` is the singular-value decomposition of :math:`A` upon input and :math:`S_{\tau}` performs soft-thresholding with parameter :math:`\tau`.
 The return value is the rank of the soft-thresholded matrix.
 
-.. cpp:function:: int SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau )
-.. cpp:function:: int SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau )
+.. cpp:function:: int SVT( Matrix<F>& A, typename Base<F>::type tau )
+.. cpp:function:: int SVT( DistMatrix<F>& A, typename Base<F>::type tau )
 
    Uses a thresholded cross-product SVD.
 
-.. cpp:function:: int SingularValueSoftThreshold( Matrix<F>& A, typename Base<F>::type tau, int numSteps )
-.. cpp:function:: int SingularValueSoftThreshold( DistMatrix<F>& A, typename Base<F>::type tau, int numSteps )
+.. cpp:function:: int SVT( Matrix<F>& A, typename Base<F>::type tau, int numSteps )
+.. cpp:function:: int SVT( DistMatrix<F>& A, typename Base<F>::type tau, int numSteps )
 
    Same as above, but run the thresholded cross-product SVD on the :math:`R` 
    from the partial :math:`QR` decomposition produced from `numSteps` iterations

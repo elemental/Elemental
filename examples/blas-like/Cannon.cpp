@@ -31,7 +31,7 @@ main( int argc, char* argv[] )
 
         Grid g( mpi::COMM_WORLD );
         if( g.Height() != g.Width() )
-            throw std::logic_error("This routine requires a square grid");
+            LogicError("This routine requires a square grid");
 
         DistMatrix<double> A(g), B(g), C(g);
         Uniform( A, m, k );

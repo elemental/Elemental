@@ -17,7 +17,7 @@ inline void
 Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hankel");
+    CallStackEntry cse("Hankel");
 #endif
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
@@ -29,12 +29,21 @@ Hankel( Matrix<T>& A, Int m, Int n, const std::vector<T>& a )
             A.Set( i, j, a[i+j] );
 }
 
+template<typename T> 
+inline Matrix<T>
+Hankel( Int m, Int n, const std::vector<T>& a )
+{
+    Matrix<T> A;
+    Hankel( A, m, n, a );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Hankel");
+    CallStackEntry cse("Hankel");
 #endif
     const Int length = m+n-1;
     if( a.size() != (Unsigned)length )
@@ -56,6 +65,15 @@ Hankel( DistMatrix<T,U,V>& A, Int m, Int n, const std::vector<T>& a )
             A.SetLocal( iLoc, jLoc, a[i+j] );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+Hankel( const Grid& g, Int m, Int n, const std::vector<T>& a )
+{
+    DistMatrix<T,U,V> A(g);
+    Hankel( A, m, n, a );
+    return A;
 }
 
 } // namespace elem

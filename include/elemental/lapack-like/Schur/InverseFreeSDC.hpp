@@ -173,11 +173,12 @@ InverseFreeSign( DistMatrix<F>& X, Int maxIts=100, BASE(F) tau=0 )
 
 template<typename F>
 inline BASE(F)
-InverseFreeSpectralDivide( Matrix<F>& X )
+InverseFreeSignDivide( Matrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSpectralDivide");
+    CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
+    typedef BASE(F) Real;
     const Int n = X.Width();
     if( X.Height() != 2*n )
         LogicError("Matrix should be 2n x n");
@@ -202,29 +203,25 @@ InverseFreeSpectralDivide( Matrix<F>& X )
     qr::ApplyQ( LEFT, ADJOINT, A, t, B );
     RQ( B, t );
 
-    // TODO: Compute rank more carefully
-    const F trace = Trace(B);
-    const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = Max( Min( roundedTrace, n ), 0 );
-
     // A := Q^H A Q
     A = ACopy;
     rq::ApplyQ( LEFT, ADJOINT, B, t, A );
     rq::ApplyQ( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
-    Matrix<F> E21;
-    LockedView( E21, A, rank, 0, n-rank, rank );
-    return OneNorm(E21)/OneNorm(ACopy);
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= OneNorm(ACopy);
+    return part;
 }
 
 template<typename F>
-inline BASE(F)
-InverseFreeSpectralDivide( DistMatrix<F>& X )
+inline ValueInt<BASE(F)>
+InverseFreeSignDivide( DistMatrix<F>& X )
 {
 #ifndef RELEASE
-    CallStackEntry cse("schur::InverseFreeSpectralDivide");
+    CallStackEntry cse("schur::InverseFreeSignDivide");
 #endif
+    typedef BASE(F) Real;
     const Grid& g = X.Grid();
     const Int n = X.Width();
     if( X.Height() != 2*n )
@@ -250,21 +247,20 @@ InverseFreeSpectralDivide( DistMatrix<F>& X )
     qr::ApplyQ( LEFT, ADJOINT, A, t, B );
     RQ( B, t );
 
-    // TODO: Compute rank more carefully
-    const F trace = Trace(B);
-    const Int roundedTrace = Int(round(RealPart(trace)));
-    const Int rank = Max( Min( roundedTrace, n ), 0 );
-
     // A := Q^H A Q
     A = ACopy;
     rq::ApplyQ( LEFT, ADJOINT, B, t, A );
     rq::ApplyQ( RIGHT, NORMAL, B, t, A );
 
     // Return || E21 ||1 / || A ||1
-    DistMatrix<F> E21(g);
-    LockedView( E21, A, rank, 0, n-rank, rank );
-    return OneNorm(E21)/OneNorm(ACopy);
+    // Return || E21 ||1 / || A ||1
+    ValueInt<Real> part = ComputePartition( A );
+    part.value /= OneNorm(ACopy);
+    return part;
 }
+
+// TODO: RandomizedInverseFreeSignDivide which uses high-level algorithm
+//       of http://parlab.eecs.berkeley.edu/sites/all/parlab/files/Communication%20Avoiding%20Nonsymmetric.pdf
 
 } // namespace schur
 } // namespace elem

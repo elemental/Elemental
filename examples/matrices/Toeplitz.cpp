@@ -31,8 +31,7 @@ main( int argc, char* argv[] )
         for( Int j=0; j<length; ++j )
             a[j] = j;
 
-        DistMatrix<double> A;
-        Toeplitz( A, m, n, a );
+        auto A = Toeplitz( DefaultGrid(), m, n, a );
         if( display )
             Display( A, "Toeplitz" );
         if( print )

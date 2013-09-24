@@ -17,7 +17,7 @@ inline void
 KMS( Matrix<T>& K, Int n, T rho )
 {
 #ifndef RELEASE
-    CallStackEntry entry("KMS");
+    CallStackEntry cse("KMS");
 #endif
     for( Int j=0; j<n; ++j )
     {
@@ -28,12 +28,21 @@ KMS( Matrix<T>& K, Int n, T rho )
     }
 }
 
+template<typename T> 
+inline Matrix<T>
+KMS( Int n, T rho )
+{
+    Matrix<T> K;
+    KMS( K, n, rho );
+    return K;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void
 KMS( DistMatrix<T,U,V>& K, Int n, T rho )
 {
 #ifndef RELEASE
-    CallStackEntry entry("KMS");
+    CallStackEntry cse("KMS");
 #endif
     const Int localHeight = K.LocalHeight();
     const Int localWidth = K.LocalWidth();
@@ -53,6 +62,15 @@ KMS( DistMatrix<T,U,V>& K, Int n, T rho )
                 K.SetLocal( iLoc, jLoc, Conj(Pow(rho,T(i-j))) );
         }
     }
+}
+
+template<typename T,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<T,U,V>
+KMS( const Grid& g, Int n, T rho )
+{
+    DistMatrix<T,U,V> K(g);
+    KMS( K, n, rho );
+    return K;
 }
 
 } // namespace elem

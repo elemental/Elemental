@@ -23,8 +23,11 @@ Though Elemental already contains high-quality implementations of a large
 portion of BLAS and LAPACK-like routines, there are a few important reasons 
 why ScaLAPACK or PLAPACK might be more appropriate:
 
-* Elemental does not yet support non-Hermitian eigenvalue problems, but 
-  ScaLAPACK does.
+* Elemental does not yet fully support parallel Schur decompositions 
+  (there is currently only a prototype spectral divide and conquer 
+  implementation). ScaLAPACK contains a parallel Hessenberg QR algorithm which,
+  while both robust and state-of-the-art, is unfortunately known to not be 
+  scalable.
 * Elemental does not yet provide routines for narrowly banded linear systems,
   though ScaLAPACK does (though you may want to consider the sparse-direct 
   solver, `Clique <http://github.com/poulson/Clique>`__, which is built on 
@@ -54,8 +57,8 @@ why ScaLAPACK or PLAPACK might be more appropriate:
 
 Dependencies
 ============
-* Functioning C++03 and ANSI C compilers.
-* A working MPI implementation.
+* Functioning C++11 and ANSI C compilers.
+* A working MPI2 implementation.
 * BLAS and LAPACK (ideally version 3.3 or greater) implementations. If 
   a sufficiently up-to-date LAPACK implementation is not provided, then 
   a working F90 compiler is required in order to build Elemental's eigensolvers

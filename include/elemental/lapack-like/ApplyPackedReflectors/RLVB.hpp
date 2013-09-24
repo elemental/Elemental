@@ -46,47 +46,33 @@ RLVB
 {
 #ifndef RELEASE
     CallStackEntry cse("apply_packed_reflectors::RLVB");
-    // TODO: Proper dimension checks
-    if( t.Height() != H.DiagonalLength(offset) )
+    if( H.Height() != A.Width() )
+        LogicError("H's height must match A's width");
+#endif
+    const Int mA = A.Height();
+    const Int nA = A.Width();
+    const Int diagLength = H.DiagonalLength(offset);
+#ifndef RELEASE
+    if( t.Height() != diagLength )
         LogicError("t must be the same length as H's offset diag");
 #endif
-    Matrix<F>
-        HTL, HTR,  H00, H01, H02,  HPan, HPanCopy,
-        HBL, HBR,  H10, H11, H12,
-                   H20, H21, H22;
-    Matrix<F> ARight;
-    Matrix<F>
-        tT,  t0,
-        tB,  t1,
-             t2;
-    Matrix<F> SInv, Z;
+    Matrix<F> HPanCopy, SInv, Z;
 
-    LockedPartitionUpOffsetDiagonal
-    ( offset,
-      H, HTL, HTR,
-         HBL, HBR, 0 );
-    LockedPartitionUp
-    ( t, tT,
-         tB, 0 );
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( diagLength, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+        const Int nb = Min(bsize,diagLength-k);
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
 
-        LockedRepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
+        auto HPan = LockedViewRange( H, ki, kj, nA, kj+nb );
+        auto ARight = ViewRange( A, 0, ki, mA, nA );
+        auto t1 = LockedView( t, k, 0, nb, 1 );
 
-        LockedView2x1( HPan, H11, H21 );
-        View
-        ( ARight, A, 0, A.Width()-HPan.Height(), A.Height(), HPan.Height() );
-
-        //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTriangular( LOWER, HPanCopy );
         SetDiagonal( HPanCopy, F(1) );
@@ -97,19 +83,6 @@ RLVB
         Gemm( NORMAL, NORMAL, F(1), ARight, HPanCopy, Z );
         Trsm( RIGHT, LOWER, NORMAL, NON_UNIT, F(1), SInv, Z );
         Gemm( NORMAL, ADJOINT, F(-1), Z, HPanCopy, F(1), ARight );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
-
-        SlideLockedPartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
     }
 }
 
@@ -123,23 +96,18 @@ RLVB
     CallStackEntry cse("apply_packed_reflectors::RLVB");
     if( H.Grid() != t.Grid() || t.Grid() != A.Grid() )
         LogicError("{H,t,A} must be distributed over the same grid");
-    // TODO: Proper dimension checks
-    if( t.Height() != H.DiagonalLength(offset) )
+#endif
+    const Int mA = A.Height();
+    const Int nA = A.Width();
+    const Int diagLength = H.DiagonalLength(offset);
+#ifndef RELEASE
+    if( t.Height() != diagLength )
         LogicError("t must be the same length as H's offset diag");
     if( !t.AlignedWithDiagonal( H, offset ) )
         LogicError("t must be aligned with H's 'offset' diagonal");
 #endif
     const Grid& g = H.Grid();
-    DistMatrix<F>
-        HTL(g), HTR(g),  H00(g), H01(g), H02(g),  HPan(g), HPanCopy(g),
-        HBL(g), HBR(g),  H10(g), H11(g), H12(g),
-                         H20(g), H21(g), H22(g);
-    DistMatrix<F> ARight(g);
-    DistMatrix<F,MD,STAR>
-        tT(g),  t0(g),
-        tB(g),  t1(g),
-                t2(g);
-    
+    DistMatrix<F> HPanCopy(g);
     DistMatrix<F,VC,  STAR> HPan_VC_STAR(g);
     DistMatrix<F,MR,  STAR> HPan_MR_STAR(g);
     DistMatrix<F,STAR,STAR> t1_STAR_STAR(g);
@@ -147,41 +115,27 @@ RLVB
     DistMatrix<F,STAR,MC  > ZAdj_STAR_MC(g);
     DistMatrix<F,STAR,VC  > ZAdj_STAR_VC(g);
 
-    LockedPartitionUpOffsetDiagonal
-    ( offset,
-      H, HTL, HTR,
-         HBL, HBR, 0 );
-    LockedPartitionUp
-    ( t, tT,
-         tB, 0 );
-    while( HBR.Height() < H.Height() && HBR.Width() < H.Width() )
+    const Int iOff = ( offset>=0 ? 0      : -offset );
+    const Int jOff = ( offset>=0 ? offset : 0       );
+
+    const Int bsize = Blocksize();
+    const Int kLast = LastOffset( diagLength, bsize );
+    for( Int k=kLast; k>=0; k-=bsize )
     {
-        LockedRepartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, H01, /**/ H02,
-               /**/       H10, H11, /**/ H12,
-         /*************/ /******************/
-          HBL, /**/ HBR,  H20, H21, /**/ H22 );
+        const Int nb = Min(bsize,diagLength-k);
+        const Int ki = k+iOff;
+        const Int kj = k+jOff;
 
-        LockedRepartitionUp
-        ( tT,  t0,
-               t1,
-         /**/ /**/
-          tB,  t2 );
+        auto HPan = LockedViewRange( H, ki, kj, nA, kj+nb );
+        auto ARight = ViewRange( A, 0, ki, mA, nA );
+        auto t1 = LockedView( t, k, 0, nb, 1 );
 
-        LockedView2x1( HPan, H11, H21 );
-        View
-        ( ARight, A, 0, A.Width()-HPan.Height(), A.Height(), HPan.Height() );
-
-        HPan_MR_STAR.AlignWith( ARight );
-        ZAdj_STAR_MC.AlignWith( ARight );
-        ZAdj_STAR_VC.AlignWith( ARight );
-        //--------------------------------------------------------------------//
         HPanCopy = HPan;
         MakeTriangular( LOWER, HPanCopy );
         SetDiagonal( HPanCopy, F(1) );
 
         HPan_VC_STAR = HPanCopy;
-        Zeros( SInv_STAR_STAR, HPan.Width(), HPan.Width() );
+        Zeros( SInv_STAR_STAR, nb, nb );
         Herk
         ( LOWER, ADJOINT, 
           F(1), HPan_VC_STAR.LockedMatrix(),
@@ -190,8 +144,11 @@ RLVB
         t1_STAR_STAR = t1;
         FixDiagonal( conjugation, t1_STAR_STAR, SInv_STAR_STAR );
 
+        HPan_MR_STAR.AlignWith( ARight );
         HPan_MR_STAR = HPan_VC_STAR;
+        ZAdj_STAR_MC.AlignWith( ARight );
         LocalGemm( ADJOINT, ADJOINT, F(1), HPan_MR_STAR, ARight, ZAdj_STAR_MC );
+        ZAdj_STAR_VC.AlignWith( ARight );
         ZAdj_STAR_VC.SumScatterFrom( ZAdj_STAR_MC );
  
         LocalTrsm
@@ -200,19 +157,6 @@ RLVB
         ZAdj_STAR_MC = ZAdj_STAR_VC;
         LocalGemm
         ( ADJOINT, ADJOINT, F(-1), ZAdj_STAR_MC, HPan_MR_STAR, F(1), ARight );
-        //--------------------------------------------------------------------//
-
-        SlideLockedPartitionUpDiagonal
-        ( HTL, /**/ HTR,  H00, /**/ H01, H02,
-         /*************/ /******************/
-               /**/       H10, /**/ H11, H12,
-          HBL, /**/ HBR,  H20, /**/ H21, H22 );
-
-        SlideLockedPartitionUp
-        ( tT,  t0,
-         /**/ /**/
-               t1,
-          tB,  t2 );
     }
 }
 

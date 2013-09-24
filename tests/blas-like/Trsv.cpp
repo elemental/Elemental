@@ -20,7 +20,7 @@ void TestTrsv
 ( bool print, UpperOrLower uplo, Orientation orientation, UnitOrNonUnit diag,
   Int n, const Grid& g )
 {
-    typedef BASE(F) R;
+    typedef BASE(F) Real;
     DistMatrix<F> A(g), x(g), y(g);
 
     // Generate random A and x
@@ -58,8 +58,8 @@ void TestTrsv
         Print( y, "y after solve" );
 
     Axpy( F(-1), x, y );
-    const R xNorm = FrobeniusNorm( x );
-    const R yNorm = FrobeniusNorm( y );
+    const Real xNorm = FrobeniusNorm( x );
+    const Real yNorm = FrobeniusNorm( y );
     if( g.Rank() == 0 )
     {
         std::cout << "|| x - y ||_2 = " << yNorm << "\n"
@@ -118,7 +118,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestTrsv<Complex<double> >( print, uplo, orientation, diag, n, g );
+        TestTrsv<Complex<double>>( print, uplo, orientation, diag, n, g );
     }
     catch( exception& e ) { ReportException(e); }
 

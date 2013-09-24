@@ -41,36 +41,22 @@ LU( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry entry("LU");
 #endif
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02, 
-        ABL, ABR,  A10, A11, A12,  
-                   A20, A21, A22;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );   
+        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
 
-        //--------------------------------------------------------------------//
         lu::Unb( A11 );
         Trsm( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11, A21 );
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
@@ -82,40 +68,28 @@ LU( DistMatrix<F>& A )
     CallStackEntry entry("LU");
 #endif
     const Grid& g = A.Grid();
-
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g), 
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
-                         A20(g), A21(g), A22(g);
-
-    // Temporary distributions
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,STAR,MR  > A12_STAR_MR(g);
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11 = ViewRange( A, k,    k,    k+nb, k+nb );          
+        auto A12 = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21 = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22 = ViewRange( A, k+nb, k+nb, m,    n    );
 
-        A12_STAR_VR.AlignWith( A22 );
-        A12_STAR_MR.AlignWith( A22 );
-        A21_MC_STAR.AlignWith( A22 );
-        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        //--------------------------------------------------------------------//
         A11_STAR_STAR = A11;
         LocalLU( A11_STAR_STAR );
         A11 = A11_STAR_STAR;
 
+        A21_MC_STAR.AlignWith( A22 );
         A21_MC_STAR = A21;
         LocalTrsm
         ( RIGHT, UPPER, NORMAL, NON_UNIT, F(1), A11_STAR_STAR, A21_MC_STAR );
@@ -123,20 +97,15 @@ LU( DistMatrix<F>& A )
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
+        A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
+        A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
         A12 = A12_STAR_MR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
     }
 }
 
@@ -149,67 +118,33 @@ LU( Matrix<F>& A, Matrix<Int>& p )
 #ifndef RELEASE
     CallStackEntry entry("LU");
 #endif
-    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
-
-    // Matrix views
-    Matrix<F>
-        ATL, ATR,  A00, A01, A02,  ABRL, ABRR,
-        ABL, ABR,  A10, A11, A12,  
-                   A20, A21, A22;
-
-    Matrix<Int>
-        pT,  p0, 
-        pB,  p1,
-             p2;
-
-    // Pivot composition
     std::vector<Int> image, preimage;
 
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( p, pT,
-         pB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    p.ResizeTo( minDim, 1 );
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A12  = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21  = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22  = ViewRange( A, k+nb, k+nb, m,    n    );
+        auto ABL  = ViewRange( A, k,    0,    m,    k    );
+        auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
+        auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
+        auto p1 = View( p, k, 0, nb, 1 );
 
-        RepartitionDown
-        ( pT,  p0,
-         /**/ /**/
-               p1,
-          pB,  p2 );
+        lu::Panel( ABRL, p1, k );
 
-        PartitionRight( ABR, ABRL, ABRR, A11.Width() );
-
-        const Int pivotOffset = A01.Height();
-        //--------------------------------------------------------------------//
-        lu::Panel( ABRL, p1, pivotOffset );
-        ComposePivots( p1, pivotOffset, image, preimage );
+        ComposePivots( p1, k, image, preimage );
         ApplyRowPivots( ABL, image, preimage );
         ApplyRowPivots( ABRR, image, preimage );
 
         Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A11, A12 );
         Gemm( NORMAL, NORMAL, F(-1), A21, A12, F(1), A22 );
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDown
-        ( pT,  p0,
-               p1,
-         /**/ /**/
-          pB,  p2 );
     }
 }
 
@@ -234,72 +169,49 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
     if( A.Grid() != p.Grid() )
         LogicError("{A,p} must be distributed over the same grid");
 #endif
+    std::vector<Int> image, preimage;
+
     const Grid& g = A.Grid();
-    p.ResizeTo( Min(A.Height(),A.Width()), 1 );
-
-    // Matrix views
-    DistMatrix<F>
-        ATL(g), ATR(g),  A00(g), A01(g), A02(g),  AB(g),
-        ABL(g), ABR(g),  A10(g), A11(g), A12(g),  
-                         A20(g), A21(g), A22(g);
-
-    DistMatrix<Int,VC,STAR>
-        pT(g),  p0(g), 
-        pB(g),  p1(g),
-                p2(g);
-
-    // Temporary distributions
     DistMatrix<F,  STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,  MC,  STAR> A21_MC_STAR(g);
     DistMatrix<F,  STAR,VR  > A12_STAR_VR(g);
     DistMatrix<F,  STAR,MR  > A12_STAR_MR(g);
     DistMatrix<Int,STAR,STAR> p1_STAR_STAR(g);
 
-    // Pivot composition
-    std::vector<Int> image, preimage;
-
-    // Start the algorithm
-    PartitionDownDiagonal
-    ( A, ATL, ATR,
-         ABL, ABR, 0 );
-    PartitionDown
-    ( p, pT,
-         pB, 0 );
-    while( ATL.Height() < A.Height() && ATL.Width() < A.Width() )
+    const Int m = A.Height();
+    const Int n = A.Width();
+    const Int minDim = Min(m,n);
+    p.ResizeTo( minDim, 1 );
+    const Int bsize = Blocksize();
+    for( Int k=0; k<minDim; k+=bsize )
     {
-        RepartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, /**/ A01, A02,
-         /*************/ /******************/
-               /**/       A10, /**/ A11, A12,
-          ABL, /**/ ABR,  A20, /**/ A21, A22 );
+        const Int nb = Min(bsize,minDim-k);
+        auto A11  = ViewRange( A, k,    k,    k+nb, k+nb );
+        auto A12  = ViewRange( A, k,    k+nb, k+nb, n    );
+        auto A21  = ViewRange( A, k+nb, k,    m,    k+nb );
+        auto A22  = ViewRange( A, k+nb, k+nb, m,    n    );
+        auto AB   = ViewRange( A, k,    0,    m,    n    );
+        auto ABL  = ViewRange( A, k,    0,    m,    k    );
+        auto ABRL = ViewRange( A, k,    k,    m,    k+nb );
+        auto ABRR = ViewRange( A, k,    k+nb, m,    n    );
+        auto p1 = View( p, k, 0, nb, 1 );
 
-        RepartitionDown
-        ( pT,  p0,
-         /**/ /**/
-               p1,
-          pB,  p2 );
-
-        View1x2( AB, ABL, ABR );
-
-        const Int pivotOffset = A01.Height();
-        A12_STAR_VR.AlignWith( A22 );
-        A12_STAR_MR.AlignWith( A22 );
         A21_MC_STAR.AlignWith( A22 );
-        A11_STAR_STAR.ResizeTo( A11.Height(), A11.Width() );
-        p1_STAR_STAR.ResizeTo( p1.Height(), 1 );
-        //--------------------------------------------------------------------//
         A21_MC_STAR = A21;
         A11_STAR_STAR = A11;
-        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, pivotOffset );
-        ComposePivots( p1_STAR_STAR, pivotOffset, image, preimage );
+        p1_STAR_STAR.ResizeTo( p1.Height(), 1 );
+        lu::Panel( A11_STAR_STAR, A21_MC_STAR, p1_STAR_STAR, k );
+        ComposePivots( p1_STAR_STAR, k, image, preimage );
         ApplyRowPivots( AB, image, preimage );
 
         // Perhaps we should give up perfectly distributing this operation since
         // it's total contribution is only O(n^2)
+        A12_STAR_VR.AlignWith( A22 );
         A12_STAR_VR = A12;
         LocalTrsm
         ( LEFT, LOWER, NORMAL, UNIT, F(1), A11_STAR_STAR, A12_STAR_VR );
 
+        A12_STAR_MR.AlignWith( A22 );
         A12_STAR_MR = A12_STAR_VR;
         LocalGemm( NORMAL, NORMAL, F(-1), A21_MC_STAR, A12_STAR_MR, F(1), A22 );
 
@@ -307,19 +219,6 @@ LU( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
         A12 = A12_STAR_MR;
         A21 = A21_MC_STAR;
         p1 = p1_STAR_STAR;
-        //--------------------------------------------------------------------//
-
-        SlidePartitionDownDiagonal
-        ( ATL, /**/ ATR,  A00, A01, /**/ A02,
-               /**/       A10, A11, /**/ A12,
-         /*************/ /******************/
-          ABL, /**/ ABR,  A20, A21, /**/ A22 );
-
-        SlidePartitionDown
-        ( pT,  p0,
-               p1,
-         /**/ /**/
-          pB,  p2 );
     }
 }
 

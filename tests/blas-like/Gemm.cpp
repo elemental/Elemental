@@ -250,7 +250,7 @@ main( int argc, char* argv[] )
                  << "Testing with double-precision complex:\n"
                  << "--------------------------------------" << endl;
         }
-        TestGemm<Complex<double> >
+        TestGemm<Complex<double>>
         ( print, orientA, orientB, m, n, k, 
           Complex<double>(3), Complex<double>(4), g );
     }

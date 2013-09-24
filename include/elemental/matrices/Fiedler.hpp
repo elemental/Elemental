@@ -17,7 +17,7 @@ inline void
 Fiedler( Matrix<F>& A, const std::vector<F>& c )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Fiedler");
+    CallStackEntry cse("Fiedler");
 #endif
     const Int n = c.size();
     A.ResizeTo( n, n );
@@ -26,12 +26,21 @@ Fiedler( Matrix<F>& A, const std::vector<F>& c )
             A.Set( i, j, Abs(c[i]-c[j]) );
 }
 
+template<typename F> 
+inline Matrix<F>
+Fiedler( const std::vector<F>& c )
+{
+    Matrix<F> A;
+    Fiedler( A, c ); 
+    return A;
+}
+
 template<typename F,Distribution U,Distribution V>
 inline void
 Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
 {
 #ifndef RELEASE
-    CallStackEntry entry("Fiedler");
+    CallStackEntry cse("Fiedler");
 #endif
     const Int n = c.size();
     A.ResizeTo( n, n );
@@ -50,6 +59,15 @@ Fiedler( DistMatrix<F,U,V>& A, const std::vector<F>& c )
             A.SetLocal( iLoc, jLoc, Abs(c[i]-c[j]) );
         }
     }
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Fiedler( const Grid& g, const std::vector<F>& c )
+{
+    DistMatrix<F,U,V> A(g);
+    Fiedler( A, c );
+    return A;
 }
 
 } // namespace elem

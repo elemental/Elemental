@@ -82,7 +82,7 @@ UnitaryCoherence( DistMatrix<F>& U )
             blas::Nrm2( localHeight, Z.LockedBuffer(0,jLocal), 1 );
         normsSquared[jLocal] = localNorm*localNorm;
     }
-    mpi::AllReduce( &normsSquared[0], localWidth, grid.ColComm() );
+    mpi::AllReduce( normsSquared.data(), localWidth, grid.ColComm() );
     R maxLocalNormSquared = 
         *std::max_element( normsSquared.begin(), normsSquared.end() );
     const R maxNormSquared = 

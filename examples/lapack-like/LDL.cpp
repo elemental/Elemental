@@ -10,20 +10,20 @@
 #include "elemental-lite.hpp"
 #include "elemental/blas-like/level1/Axpy.hpp"
 #include "elemental/blas-like/level1/DiagonalScale.hpp"
+#include "elemental/blas-like/level1/MakeSymmetric.hpp"
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/blas-like/level1/Transpose.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
-#include "elemental/matrices/HermitianUniformSpectrum.hpp"
-#include "elemental/matrices/Uniform.hpp"
+#include "elemental/matrices/Wigner.hpp"
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -33,33 +33,34 @@ main( int argc, char* argv[] )
     try 
     {
         const Int n = Input("--size","size of matrix to factor",100);
+        const double realMean = Input("--realMean","real mean",0.); 
+        const double imagMean = Input("--imagMean","imag mean",0.);
+        const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
         ProcessInput();
         PrintInputReport();
 
         const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
-        Grid g( mpi::COMM_WORLD );
-        DistMatrix<C> A( g );
+        C mean( realMean, imagMean );
+        DistMatrix<C> A;
         if( conjugate )
         {
-            HermitianUniformSpectrum( A, n, -30, -20 );
+            Wigner( A, n, mean, stddev );
         }
         else
         {
-            Uniform( A, n, n );
-            DistMatrix<C> ATrans( g );
-            Transpose( A, ATrans );
-            Axpy( C(1), ATrans, A );
+            Gaussian( A, n, n, mean, stddev );
+            MakeSymmetric( LOWER, A );
         }
 
         // Make a copy of A and then overwrite it with its LDL factorization
         // WARNING: There is no pivoting here!
         DistMatrix<C> factA( A );
-        DistMatrix<C,MC,STAR> d( g );
         if( conjugate )
-            LDLH( factA, d );
+            LDLH( factA );
         else
-            LDLT( factA, d );
+            LDLT( factA );
+        auto d = factA.GetDiagonal();
 
         DistMatrix<C> L( factA );
         MakeTriangular( LOWER, L );
@@ -68,7 +69,7 @@ main( int argc, char* argv[] )
         DistMatrix<C> LD( L );
         DiagonalScale( RIGHT, NORMAL, d, LD );
         Gemm( NORMAL, orientation, C(-1), LD, L, C(1), A );
-        const R frobNormOfError = FrobeniusNorm( A );
+        const Real frobNormOfError = FrobeniusNorm( A );
         if( mpi::WorldRank() == 0 )
             std::cout << "|| A - L D L^[T/H] ||_F = " << frobNormOfError << "\n"
                       << std::endl;

@@ -28,7 +28,12 @@ OVERLOAD0(Hermitian ## name ## Norm)
 OVERLOAD0(Symmetric ## name ## Norm)
 %enddef
 
-%include "elemental/lapack-like/ConditionNumber.hpp"
+%include "elemental/lapack-like/Condition.hpp"
+%include "elemental/lapack-like/Condition/Frobenius.hpp"
+%include "elemental/lapack-like/Condition/Infinity.hpp"
+%include "elemental/lapack-like/Condition/Max.hpp"
+%include "elemental/lapack-like/Condition/One.hpp"
+%include "elemental/lapack-like/Condition/Two.hpp"
 %include "elemental/lapack-like/Determinant.hpp"
 %include "elemental/lapack-like/Norm.hpp"
 %include "elemental/lapack-like/Norm/Entrywise.hpp"
@@ -41,15 +46,19 @@ OVERLOAD0(Symmetric ## name ## Norm)
 %include "elemental/lapack-like/Norm/Nuclear.hpp"
 %include "elemental/lapack-like/Norm/Schatten.hpp"
 %include "elemental/lapack-like/Norm/Two.hpp"
-%include "elemental/lapack-like/Norm/TwoLowerBound.hpp"
-%include "elemental/lapack-like/Norm/TwoUpperBound.hpp"
+%include "elemental/lapack-like/Norm/TwoEstimate.hpp"
 %include "elemental/lapack-like/Norm/Zero.hpp"
 %include "elemental/lapack-like/Trace.hpp"
 %include "elemental/lapack-like/Hadamard.hpp"
 %include "elemental/lapack-like/HilbertSchmidt.hpp"
 
 namespace elem {
-OVERLOAD01(ConditionNumber)
+OVERLOAD01(Condition)
+OVERLOAD01(FrobeniusCondition)
+OVERLOAD01(InfinityCondition)
+OVERLOAD01(MaxCondition)
+OVERLOAD01(OneCondition)
+OVERLOAD01(TwoCondition)
 OVERLOAD0(Determinant)
 // SWIG doesn't like empty macro arguments. Who knows, maybe C++ doesn't either
 // OVERLOAD_NORM()
@@ -66,8 +75,7 @@ OVERLOAD_NORM(One)
 OVERLOAD_NORM(Nuclear)
 OVERLOAD_NORM(Schatten)
 OVERLOAD_NORM(Two)
-OVERLOAD0(TwoNormLowerBound)
-OVERLOAD0(TwoNormUpperBound)
+OVERLOAD0(TwoNormEstimate)
 OVERLOAD01(ZeroNorm)
 OVERLOAD0(Trace)
 OVERLOAD01(Hadamard)

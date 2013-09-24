@@ -21,35 +21,18 @@ Axpy( T alpha, const Matrix<T>& X, Matrix<T>& Y )
 #endif
     // If X and Y are vectors, we can allow one to be a column and the other
     // to be a row. Otherwise we force X and Y to be the same dimension.
-    if( (X.Height()==1 || X.Width()==1) && (Y.Height()==1 || Y.Width()==1) )
+    if( X.Height()==1 || X.Width()==1 )
     {
-        const unsigned XLength = ( X.Width()==1 ? X.Height() : X.Width() );
+        const Int XLength = ( X.Width()==1 ? X.Height() : X.Width() );
+        const Int XStride = ( X.Width()==1 ? 1          : X.LDim() );
+        const Int YStride = ( Y.Width()==1 ? 1          : Y.LDim() );
 #ifndef RELEASE
-        const unsigned YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
+        const Int YLength = ( Y.Width()==1 ? Y.Height() : Y.Width() );
         if( XLength != YLength )
             LogicError("Nonconformal Axpy");
 #endif
-        if( X.Width()==1 && Y.Width()==1 )
-        {
-            blas::Axpy
-            ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), 1 );
-        }
-        else if( X.Width()==1 )
-        {
-            blas::Axpy
-            ( XLength, alpha, X.LockedBuffer(0,0), 1, Y.Buffer(0,0), Y.LDim() );
-        }
-        else if( Y.Width()==1 )
-        {
-            blas::Axpy
-            ( XLength, alpha, X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), 1 );
-        }
-        else
-        {
-            blas::Axpy
-            ( XLength, alpha,
-              X.LockedBuffer(0,0), X.LDim(), Y.Buffer(0,0), Y.LDim() );
-        }
+        blas::Axpy
+        ( XLength, alpha, X.LockedBuffer(), XStride, Y.Buffer(), YStride );
     }
     else
     {

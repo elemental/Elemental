@@ -12,15 +12,9 @@
 using namespace std;
 using namespace elem;
 
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
-
-// A functor for returning the imaginary exponential of a real number
-class ImagExpFunctor {
-public:
-    C operator()( R alpha ) const { return Exp(Complex<R>(0,alpha)); } 
-};
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -48,24 +42,23 @@ main( int argc, char* argv[] )
         const Int rowStride = H.RowStride();
         const Int localHeight = H.LocalHeight();
         const Int localWidth = H.LocalWidth();
-        for( Int jLocal=0; jLocal<localWidth; ++jLocal )
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            for( Int iLocal=0; iLocal<localHeight; ++iLocal )
+            // Our process owns the rows colShift:colStride:n-1,
+            //           and the columns rowShift:rowStride:n-1
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                // Our process owns the rows colShift:colStride:n-1,
-                //           and the columns rowShift:rowStride:n-1
-                const Int i = colShift + iLocal*colStride;
-                const Int j = rowShift + jLocal*rowStride;
-                H.SetLocal( iLocal, jLocal, C(i+j,i-j) );
+                const Int i = colShift + iLoc*colStride;
+                H.SetLocal( iLoc, jLoc, C(i+j,i-j) );
             }
         }
-
         if( print )
             Print( H, "H" );
 
         // Reform H with the exponentials of the original eigenvalues
-        ComplexHermitianFunction( LOWER, H, ImagExpFunctor() );
-
+        ComplexHermitianFunction
+        ( LOWER, H, []( Real alpha ) { return Exp(Complex<Real>(0,alpha)); } );
         if( print )
             Print( H, "exp(i*H)" );
     }

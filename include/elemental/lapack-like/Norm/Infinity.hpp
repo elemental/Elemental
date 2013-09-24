@@ -77,7 +77,8 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     // Sum our partial row sums to get the row sums over A[U,* ]
     std::vector<R> myRowSums( localHeight );
     mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-    mpi::AllReduce( &myPartialRowSums[0], &myRowSums[0], localHeight, rowComm );
+    mpi::AllReduce
+    ( myPartialRowSums.data(), myRowSums.data(), localHeight, rowComm );
 
     // Find the maximum out of the row sums
     R myMaxRowSum = 0;

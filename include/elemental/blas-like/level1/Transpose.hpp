@@ -55,19 +55,9 @@ Transpose
     else
     {
         DistMatrix<T,Z,W> C( B.Grid() );
-        if( B.Viewing() || B.ConstrainedColAlignment() )
-            C.AlignRowsWith( B );
-        if( B.Viewing() || B.ConstrainedRowAlignment() )
-            C.AlignColsWith( B );
+        C.AlignRowsWith( B );
+        C.AlignColsWith( B );
         C = A;
-
-        if( !B.Viewing() )
-        {
-            if( !B.ConstrainedColAlignment() )
-                B.AlignColsWith( C );
-            if( !B.ConstrainedRowAlignment() )
-                B.AlignRowsWith( C );
-        }
         B.ResizeTo( A.Width(), A.Height() );
         Transpose( C.LockedMatrix(), B.Matrix(), conjugate );
     }

@@ -16,34 +16,12 @@
 
 namespace elem {
 
-template<typename F>
-inline void
-Kahan( Matrix<F>& A, Int n, F phi )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Kahan");
-#endif
-    A.ResizeTo( n, n );
-    MakeKahan( A, phi );
-}
-
-template<typename F,Distribution U,Distribution V>
-inline void
-Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
-{
-#ifndef RELEASE
-    CallStackEntry entry("Kahan");
-#endif
-    A.ResizeTo( n, n );
-    MakeKahan( A, phi );
-}
-
 template<typename F> 
 inline void
 MakeKahan( Matrix<F>& A, F phi )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeKahan");
+    CallStackEntry cse("MakeKahan");
 #endif
     typedef BASE(F) R;
 
@@ -71,7 +49,7 @@ inline void
 MakeKahan( DistMatrix<F,U,V>& A, F phi )
 {
 #ifndef RELEASE
-    CallStackEntry entry("MakeKahan");
+    CallStackEntry cse("MakeKahan");
 #endif
     typedef BASE(F) R;
 
@@ -105,6 +83,46 @@ MakeKahan( DistMatrix<F,U,V>& A, F phi )
                 A.SetLocal( iLoc, jLoc, -phi*zetaPow );
         }
     }
+}
+
+template<typename F>
+inline void
+Kahan( Matrix<F>& A, Int n, F phi )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Kahan");
+#endif
+    A.ResizeTo( n, n );
+    MakeKahan( A, phi );
+}
+
+template<typename F>
+inline Matrix<F>
+Kahan( Int n, F phi )
+{
+    Matrix<F> A( n, n );
+    MakeKahan( A, phi );
+    return A;
+}
+
+template<typename F,Distribution U,Distribution V>
+inline void
+Kahan( DistMatrix<F,U,V>& A, Int n, F phi )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Kahan");
+#endif
+    A.ResizeTo( n, n );
+    MakeKahan( A, phi );
+}
+
+template<typename F,Distribution U=MC,Distribution V=MR>
+inline DistMatrix<F,U,V>
+Kahan( const Grid& g, Int n, F phi )
+{
+    DistMatrix<F,U,V> A( n, n, g );
+    MakeKahan( A, phi );
+    return A;
 }
 
 } // namespace elem

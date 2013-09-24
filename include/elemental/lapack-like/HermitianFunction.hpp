@@ -21,10 +21,10 @@ namespace elem {
 // therefore result in a Hermitian matrix, which we store in-place.
 //
 
-template<typename F,class RealFunctor>
+template<typename F,class RealFunction>
 inline void
 RealHermitianFunction
-( UpperOrLower uplo, Matrix<F>& A, const RealFunctor& f )
+( UpperOrLower uplo, Matrix<F>& A, RealFunction func )
 {
 #ifndef RELEASE
     CallStackEntry entry("RealHermitianFunction");
@@ -43,17 +43,17 @@ RealHermitianFunction
     for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
-        w.Set(i,0,f(omega));
+        w.Set(i,0,func(omega));
     }
 
     // A := Z f(Omega) Z^H
     HermitianFromEVD( uplo, A, w, Z );
 }
 
-template<typename F,class RealFunctor>
+template<typename F,class RealFunction>
 inline void
 RealHermitianFunction
-( UpperOrLower uplo, DistMatrix<F>& A, const RealFunctor& f )
+( UpperOrLower uplo, DistMatrix<F>& A, RealFunction func )
 {
 #ifndef RELEASE
     CallStackEntry entry("RealHermitianFunction");
@@ -74,7 +74,7 @@ RealHermitianFunction
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
-        w.SetLocal(iLoc,0,f(omega));
+        w.SetLocal(iLoc,0,func(omega));
     }
 
     // A := Z f(Omega) Z^H
@@ -88,10 +88,10 @@ RealHermitianFunction
 // symmetric matrix as input and produces a complex normal matrix.
 //
 
-template<typename R,class ComplexFunctor>
+template<typename R,class Function>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, Matrix<Complex<R> >& A, const ComplexFunctor& f )
+( UpperOrLower uplo, Matrix<Complex<R> >& A, Function func )
 {
 #ifndef RELEASE
     CallStackEntry entry("ComplexHermitianFunction");
@@ -111,17 +111,17 @@ ComplexHermitianFunction
     for( Int i=0; i<n; ++i )
     {
         const R omega = w.Get(i,0);
-        fw.Set(i,0,f(omega));
+        fw.Set(i,0,func(omega));
     }
 
     // A := Z f(Omega) Z^H
     NormalFromEVD( A, fw, Z );
 }
 
-template<typename R,class ComplexFunctor>
+template<typename R,class Function>
 inline void
 ComplexHermitianFunction
-( UpperOrLower uplo, DistMatrix<Complex<R> >& A, const ComplexFunctor& f )
+( UpperOrLower uplo, DistMatrix<Complex<R> >& A, Function func )
 {
 #ifndef RELEASE
     CallStackEntry entry("ComplexHermitianFunction");
@@ -145,7 +145,7 @@ ComplexHermitianFunction
     for( Int iLoc=0; iLoc<numLocalEigs; ++iLoc )
     {
         const R omega = w.GetLocal(iLoc,0);
-        fw.SetLocal(iLoc,0,f(omega));
+        fw.SetLocal(iLoc,0,func(omega));
     }
 
     // A := Z f(Omega) Z^H

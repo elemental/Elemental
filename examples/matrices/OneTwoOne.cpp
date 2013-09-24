@@ -25,8 +25,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> A;
-        OneTwoOne( A, n );
+        auto A = OneTwoOne<double>( DefaultGrid(), n );
         if( display )
         {
             Display( A, "1-2-1 matrix" );

@@ -8,13 +8,12 @@
 */
 // NOTE: It is possible to simply include "elemental.hpp" instead
 #include "elemental-lite.hpp"
-#include "elemental/lapack-like/HermitianEig/Sort.hpp"
-using namespace std;
 using namespace elem;
-
-// Typedef our real and complex types to 'R' and 'C' for convenience
-typedef double R;
-typedef Complex<R> C;
+using namespace std;
+ 
+// Typedef our real and complex types to 'Real' and 'C' for convenience
+typedef double Real;
+typedef Complex<Real> C;
 
 int
 main( int argc, char* argv[] )
@@ -22,10 +21,6 @@ main( int argc, char* argv[] )
     // This detects whether or not you have already initialized MPI and 
     // does so if necessary. The full routine is elem::Initialize.
     Initialize( argc, argv );
-
-    // Extract our MPI rank
-    mpi::Comm comm = mpi::COMM_WORLD;
-    const Int commRank = mpi::CommRank( comm );
 
     // Surround the Elemental calls with try/catch statements in order to 
     // safely handle any exceptions that were thrown during execution.
@@ -38,7 +33,7 @@ main( int argc, char* argv[] )
 
         // Create an n x n complex matrix residing on a single process.
         DistMatrix<C,CIRC,CIRC> HRoot( n, n );
-        if( commRank == 0 )
+        if( mpi::WorldRank() == 0 )
         {
             // Set entry (i,j) to (i+j,i-j)
             for( Int j=0; j<n; ++j )
@@ -55,14 +50,11 @@ main( int argc, char* argv[] )
 
         // Call the eigensolver. We first create an empty complex eigenvector 
         // matrix, X, and an eigenvalue column vector, w[VR,* ]
-        DistMatrix<R,VR,STAR> w_VR_STAR;
+        DistMatrix<Real,VR,STAR> w_VR_STAR;
         DistMatrix<C> X;
         // Optional: set blocksizes and algorithmic choices here. See the 
         //           'Tuning' section of the README for details.
-        HermitianEig( LOWER, H, w_VR_STAR, X );
-
-        // Sort the eigensolution
-        hermitian_eig::Sort( w_VR_STAR, X );
+        HermitianEig( LOWER, H, w_VR_STAR, X, ASCENDING );
         if( print )
         {
             Print( w_VR_STAR, "Eigenvalues of H" );
@@ -70,7 +62,7 @@ main( int argc, char* argv[] )
         }
 
         // Store a complete copy of w and X on the root
-        DistMatrix<R,CIRC,CIRC> wRoot( w_VR_STAR );
+        DistMatrix<Real,CIRC,CIRC> wRoot( w_VR_STAR );
         DistMatrix<C,CIRC,CIRC> XRoot( X );
         if( print )
         {
@@ -83,4 +75,3 @@ main( int argc, char* argv[] )
     Finalize();
     return 0;
 }
-

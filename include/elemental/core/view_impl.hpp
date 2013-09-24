@@ -28,8 +28,7 @@ inline void HandleDiagPath
 { A.diagPath_ = B.diagPath_; } 
 
 template<typename T>
-inline void View
-( Matrix<T>& A, Matrix<T>& B )
+inline void View( Matrix<T>& A, Matrix<T>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
@@ -42,9 +41,16 @@ inline void View
     A.viewType_ = VIEW;
 }
 
+template<typename T>
+inline Matrix<T> View( Matrix<T>& B )
+{
+    Matrix<T> A;
+    View( A, B );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
-inline void View
-( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
+inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("View");
@@ -70,9 +76,16 @@ inline void View
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> View( DistMatrix<T,U,V>& B )
+{
+    DistMatrix<T,U,V> A(B.Grid());
+    View( A, B );
+    return A;
+}
+
 template<typename T>
-inline void LockedView
-( Matrix<T>& A, const Matrix<T>& B )
+inline void LockedView( Matrix<T>& A, const Matrix<T>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
@@ -85,9 +98,16 @@ inline void LockedView
     A.viewType_ = LOCKED_VIEW;
 }
 
+template<typename T>
+inline Matrix<T> LockedView( const Matrix<T>& B )
+{
+    Matrix<T> A;
+    LockedView( A, B );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
-inline void LockedView
-( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
+inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView");
@@ -111,6 +131,14 @@ inline void LockedView
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
+}
+
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> LockedView( const DistMatrix<T,U,V>& B )
+{
+    DistMatrix<T,U,V> A(B.Grid());
+    LockedView( A, B );
+    return A;
 }
 
 template<typename T>
@@ -140,6 +168,14 @@ inline void View
     A.ldim_     = B.ldim_;
     A.data_     = &B.data_[i+j*B.ldim_];
     A.viewType_ = VIEW;
+}
+
+template<typename T>
+inline Matrix<T> View( Matrix<T>& B, Int i, Int j, Int height, Int width )
+{
+    Matrix<T> A;
+    View( A, B, i, j, height, width );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -190,6 +226,15 @@ inline void View
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> View
+( DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
+{
+    DistMatrix<T,U,V> A(B.Grid());
+    View( A, B, i, j, height, width );
+    return A;
+}
+
 template<typename T>
 inline void LockedView
 ( Matrix<T>& A, const Matrix<T>& B,
@@ -217,6 +262,15 @@ inline void LockedView
     A.ldim_     = B.ldim_;
     A.data_     = &B.data_[i+j*B.ldim_];
     A.viewType_ = LOCKED_VIEW;
+}
+
+template<typename T>
+inline Matrix<T> LockedView
+( const Matrix<T>& B, Int i, Int j, Int height, Int width )
+{
+    Matrix<T> A;
+    LockedView( A, B, i, j, height, width );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -267,6 +321,97 @@ inline void LockedView
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> LockedView
+( const DistMatrix<T,U,V>& B, Int i, Int j, Int height, Int width )
+{
+    DistMatrix<T,U,V> A(B.Grid());
+    LockedView( A, B, i, j, height, width );
+    return A;
+}
+
+template<typename T>
+void ViewRange
+( Matrix<T>& A, Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{ 
+#ifndef RELEASE
+    CallStackEntry cse("ViewRange");
+#endif
+    View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T>
+Matrix<T> ViewRange
+( Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ViewRange");
+#endif
+    return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T,Distribution U,Distribution V>
+void ViewRange
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ViewRange");
+#endif
+    View( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> ViewRange
+( DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ViewRange");
+#endif
+    return View( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+} 
+
+template<typename T>
+void LockedViewRange
+( Matrix<T>& A, const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LockedViewRange");
+#endif
+    LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T>
+Matrix<T> LockedViewRange
+( const Matrix<T>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LockedViewRange");
+#endif
+    return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T,Distribution U,Distribution V>
+void LockedViewRange
+( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B,
+  Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LockedViewRange");
+#endif
+    LockedView( A, B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
+template<typename T,Distribution U,Distribution V>
+DistMatrix<T,U,V> LockedViewRange
+( const DistMatrix<T,U,V>& B, Int iBeg, Int jBeg, Int iEnd, Int jEnd )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LockedViewRange");
+#endif
+    return LockedView( B, iBeg, jBeg, iEnd-iBeg, jEnd-jBeg ); 
+}
+
 template<typename T>
 inline void View1x2
 ( Matrix<T>& A,
@@ -289,10 +434,17 @@ inline void View1x2
     A.viewType_ = VIEW;
 }
 
+template<typename T>
+inline Matrix<T> View1x2( Matrix<T>& BL, Matrix<T>& BR )
+{
+    Matrix<T> A;
+    View1x2( A, BL, BR );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void View1x2
-( DistMatrix<T,U,V>& A,
-  DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("View1x2");
@@ -320,11 +472,17 @@ inline void View1x2
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> View1x2( DistMatrix<T,U,V>& BL, DistMatrix<T,U,V>& BR )
+{
+    DistMatrix<T,U,V> A(BL.Grid());
+    View1x2( A, BL, BR );
+    return A;
+}
+
 template<typename T>
 inline void LockedView1x2
-(       Matrix<T>& A,
-  const Matrix<T>& BL,
-  const Matrix<T>& BR )
+( Matrix<T>& A, const Matrix<T>& BL, const Matrix<T>& BR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView1x2");
@@ -341,6 +499,14 @@ inline void LockedView1x2
     A.ldim_     = BL.ldim_;
     A.data_     = BL.data_;
     A.viewType_ = LOCKED_VIEW;
+}
+
+template<typename T>
+inline Matrix<T> LockedView1x2( const Matrix<T>& BL, const Matrix<T>& BR )
+{
+    Matrix<T> A;
+    LockedView1x2( A, BL, BR );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -375,11 +541,17 @@ inline void LockedView1x2
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> LockedView1x2
+( const DistMatrix<T,U,V>& BL, const DistMatrix<T,U,V>& BR )
+{
+    DistMatrix<T,U,V> A(BL.Grid());
+    LockedView1x2( A, BL, BR );
+    return A;
+}
+
 template<typename T>
-inline void View2x1
-( Matrix<T>& A,
-  Matrix<T>& BT,
-  Matrix<T>& BB )
+inline void View2x1( Matrix<T>& A, Matrix<T>& BT, Matrix<T>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x1");
@@ -398,11 +570,17 @@ inline void View2x1
     A.viewType_ = VIEW;
 }
 
+template<typename T>
+inline Matrix<T> View2x1( Matrix<T>& BT, Matrix<T>& BB )
+{
+    Matrix<T> A;
+    View2x1( A, BT, BB );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void View2x1
-( DistMatrix<T,U,V>& A,
-  DistMatrix<T,U,V>& BT,
-  DistMatrix<T,U,V>& BB )
+( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("View2x1");
@@ -430,11 +608,17 @@ inline void View2x1
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> View2x1( DistMatrix<T,U,V>& BT, DistMatrix<T,U,V>& BB )
+{
+    DistMatrix<T,U,V> A(BT.Grid());
+    View2x1( A, BT, BB );
+    return A;
+}
+
 template<typename T>
 inline void LockedView2x1
-(       Matrix<T>& A,
-  const Matrix<T>& BT,
-  const Matrix<T>& BB )
+( Matrix<T>& A, const Matrix<T>& BT, const Matrix<T>& BB )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x1");
@@ -451,6 +635,15 @@ inline void LockedView2x1
     A.ldim_     = BT.ldim_;
     A.data_     = BT.data_;
     A.viewType_ = LOCKED_VIEW;
+}
+
+template<typename T>
+inline Matrix<T> LockedView2x1
+( const Matrix<T>& BT, const Matrix<T>& BB )
+{
+    Matrix<T> A;
+    LockedView2x1( A, BT, BB );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -485,6 +678,15 @@ inline void LockedView2x1
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> LockedView2x1
+( const DistMatrix<T,U,V>& BT, const DistMatrix<T,U,V>& BB )
+{
+    DistMatrix<T,U,V> A(BT.Grid());
+    LockedView2x1( A, BT, BB );
+    return A;
+}
+
 template<typename T>
 inline void View2x2
 ( Matrix<T>& A,
@@ -513,6 +715,16 @@ inline void View2x2
     A.ldim_     = BTL.ldim_;
     A.data_     = BTL.data_;
     A.viewType_ = VIEW;
+}
+
+template<typename T>
+inline Matrix<T> View2x2
+( Matrix<T>& BTL, Matrix<T>& BTR,
+  Matrix<T>& BBL, Matrix<T>& BBR )
+{
+    Matrix<T> A;
+    View2x2( A, BTL, BTR, BBL, BBR );
+    return A;
 }
 
 template<typename T,Distribution U,Distribution V>
@@ -551,6 +763,16 @@ inline void View2x2
     }
 }
 
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> View2x2
+( DistMatrix<T,U,V>& BTL, DistMatrix<T,U,V>& BTR,
+  DistMatrix<T,U,V>& BBL, DistMatrix<T,U,V>& BBR )
+{
+    DistMatrix<T,U,V> A(BTL.Grid());
+    View2x2( A, BTL, BTR, BBL, BBR );
+    return A;
+}
+
 template<typename T>
 inline void LockedView2x2
 (       Matrix<T>& A,
@@ -583,13 +805,21 @@ inline void LockedView2x2
     A.viewType_ = LOCKED_VIEW;
 }
 
+template<typename T>
+inline Matrix<T> LockedView2x2
+( const Matrix<T>& BTL, const Matrix<T>& BTR,
+  const Matrix<T>& BBL, const Matrix<T>& BBR )
+{
+    Matrix<T> A;
+    LockedView2x2( A, BTL, BTR, BBL, BBR );
+    return A;
+}
+
 template<typename T,Distribution U,Distribution V>
 inline void LockedView2x2
 (       DistMatrix<T,U,V>& A,
-  const DistMatrix<T,U,V>& BTL,
-  const DistMatrix<T,U,V>& BTR,
-  const DistMatrix<T,U,V>& BBL,
-  const DistMatrix<T,U,V>& BBR )
+  const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
+  const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR )
 {
 #ifndef RELEASE
     CallStackEntry entry("LockedView2x2");
@@ -619,6 +849,16 @@ inline void LockedView2x2
         A.colShift_ = 0;
         A.rowShift_ = 0;
     }
+}
+
+template<typename T,Distribution U,Distribution V>
+inline DistMatrix<T,U,V> LockedView2x2
+( const DistMatrix<T,U,V>& BTL, const DistMatrix<T,U,V>& BTR,
+  const DistMatrix<T,U,V>& BBL, const DistMatrix<T,U,V>& BBR )
+{
+    DistMatrix<T,U,V> A(BTL.Grid());
+    LockedView2x2( A, BTL, BTR, BBL, BBR );
+    return A;
 }
 
 } // namespace elem

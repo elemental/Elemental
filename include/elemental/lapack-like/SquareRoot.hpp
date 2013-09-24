@@ -130,7 +130,7 @@ Newton( DistMatrix<F>& A, Int maxIts=100, BASE(F) tol=0 )
         // Ensure that X holds the current iterate and break if possible
         ++numIts;
         std::swap( X, XNew );
-        if( oneDiff/oneNew < tol )
+        if( oneDiff/oneNew <= tol )
             break;
     }
     A = *X;
@@ -144,7 +144,7 @@ inline void
 SquareRoot( Matrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    CallStackEntry cse("SquareRoot");
 #endif
     square_root::Newton( A );
 }
@@ -154,7 +154,7 @@ inline void
 SquareRoot( DistMatrix<F>& A )
 {
 #ifndef RELEASE
-    PushCallStack("SquareRoot");
+    CallStackEntry cse("SquareRoot");
 #endif
     square_root::Newton( A );
 }
@@ -238,8 +238,7 @@ HPSDSquareRoot( UpperOrLower uplo, DistMatrix<F>& A )
         const R omega = w.GetLocal(iLoc,0);
         minLocalEig = std::min(minLocalEig,omega);
     }
-    R minEig;
-    mpi::AllReduce( &minLocalEig, &minEig, 1, mpi::MIN, g.VCComm() );
+    const R minEig = mpi::AllReduce( minLocalEig, mpi::MIN, g.VCComm() );
 
     // Set the tolerance equal to n ||A||_2 eps
     const Int n = A.Height();

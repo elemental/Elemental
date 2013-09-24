@@ -26,8 +26,7 @@ main( int argc, char* argv[] )
         ProcessInput();
         PrintInputReport();
 
-        DistMatrix<double> X;
-        Uniform( X, m, n );
+        auto X = Uniform<double>( DefaultGrid(), m, n );
         if( display )
             Display( X, "Uniform matrix" );
         if( print )
