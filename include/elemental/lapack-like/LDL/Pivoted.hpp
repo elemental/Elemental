@@ -27,7 +27,7 @@ namespace ldl {
 // Currently using Algorithm A Bunch-Kaufman.
 template<typename F>
 inline Int
-ChoosePivot( const Matrix<F>& A, Int k, LDLPivotType pivotType, BASE(F) gamma )
+ChoosePivot( const Matrix<F>& A, LDLPivotType pivotType, BASE(F) gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
@@ -37,28 +37,28 @@ ChoosePivot( const Matrix<F>& A, Int k, LDLPivotType pivotType, BASE(F) gamma )
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
 
-    const Real alpha11Abs = Abs(A.Get(k,k));
-    auto a21Pair = VectorMax( LockedViewRange(A,k+1,k,n,k+1) );
-    const Int r = (k+1) + a21Pair.index;
+    const Real alpha11Abs = Abs(A.Get(0,0));
+    auto a21Pair = VectorMax( LockedViewRange(A,1,0,n,1) );
+    const Int r = a21Pair.index + 1;
     const Real colMax = a21Pair.value;
     if( colMax == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
     if( alpha11Abs >= gamma*colMax )
-        return k;
+        return 0;
 
     // Find maximum off-diag value in row r (exploit symmetry)
-    auto leftPair   = VectorMax( LockedViewRange(A,r,  k,r+1,r  ) );
+    auto leftPair   = VectorMax( LockedViewRange(A,r,  0,r+1,r  ) );
     auto bottomPair = VectorMax( LockedViewRange(A,r+1,r,n,  r+1) );
     const Real rowMax = Max(leftPair.value,bottomPair.value);
 
     if( alpha11Abs >= gamma*colMax*(colMax/rowMax) )
-        return k;
+        return 0;
 
     if( Abs(A.Get(r,r)) >= gamma*rowMax )
         return r;
 
-    // Default to a 2x2 pivot with k and r
+    // Default to a 2x2 pivot with 0 and r
     return -r;
 }
 
@@ -66,7 +66,7 @@ template<typename F>
 inline Int
 ChoosePivot
 ( const Matrix<F>& A, const Matrix<F>& X, const Matrix<F>& Y, 
-  Int offset, Int k, LDLPivotType pivotType, BASE(F) gamma )
+  Int k, LDLPivotType pivotType, BASE(F) gamma )
 {
 #ifndef RELEASE
     CallStackEntry cse("ldl::ChoosePivot");
@@ -76,29 +76,28 @@ ChoosePivot
     if( pivotType != BUNCH_KAUFMAN_A )
         LogicError("So far, only Bunch-Kaufman Algorithm A is supported");
 
-    const Int kOff = offset + k;
-    auto aB1 = LockedViewRange( A, kOff, kOff, n, kOff+1 );
+    auto aB1 = LockedViewRange( A, k, k, n, k+1 );
     auto zB1( aB1 );
-    // A(kOff:n-1,kOff) -= X(k:n-offset-1,0:k-1) Y(k,0:k-1)^T
+    // A(k:n-1,k) -= X(k:n-1,0:k-1) Y(k,0:k-1)^T
     {
-        auto XBL  = LockedViewRange( X, k, 0, n-offset, k );
-        auto yRow = LockedViewRange( Y, k, 0, k+1,      k );
+        auto XBL  = LockedViewRange( X, k, 0, n,   k );
+        auto yRow = LockedViewRange( Y, k, 0, k+1, k );
         Gemv( NORMAL, F(-1), XBL, yRow, F(1), zB1 );
     } 
 
     const Real alpha11Abs = Abs(zB1.Get(0,0));
-    auto a21Pair = VectorMax( LockedViewRange(zB1,1,0,n-kOff,1) );
-    const Int r = (kOff+1) + a21Pair.index;
+    auto a21Pair = VectorMax( LockedViewRange(zB1,1,0,n-k,1) );
+    const Int r = a21Pair.index + (k+1);
     const Real colMax = a21Pair.value;
     if( colMax == Real(0) && alpha11Abs == Real(0) )
         throw SingularMatrixException();
 
     if( alpha11Abs >= gamma*colMax )
-        return kOff;
+        return k;
 
     // Find maximum off-diag value in row r (exploit symmetry)
-    auto aLeft   = LockedViewRange( A, r, kOff, r+1, r   );
-    auto aBottom = LockedViewRange( A, r, r,    n,   r+1 );
+    auto aLeft   = LockedViewRange( A, r, k, r+1, r   );
+    auto aBottom = LockedViewRange( A, r, r, n,   r+1 );
         
     auto zLeft( aLeft );
     auto zBottom( aBottom );
@@ -108,17 +107,17 @@ ChoosePivot
     // Update necessary components out-of-place
     //
 
-    // A(r,kOff:r-1) -= X(r-offset,0:k-1) Y(k:r-offset-1,0:k-1)^T
+    // A(r,k:r-1) -= X(r,0:k-1) Y(k:r-1,0:k-1)^T
     {
-        auto xMid = LockedViewRange( X, r-offset, 0, r-offset+1, k );
-        auto YBL = LockedViewRange( Y, k, 0, r-offset, k );
+        auto xMid = LockedViewRange( X, r, 0, r+1, k );
+        auto YBL = LockedViewRange( Y, k, 0, r, k );
         Gemv( NORMAL, F(-1), YBL, xMid, F(1), zLeft );
     }
 
-    // A(r:n-1,r) -= X(r-offset:n-offset-1,0:k-1) Y(r-offset,0:k-1)^T
+    // A(r:n-1,r) -= X(r:n-1,0:k-1) Y(r,0:k-1)^T
     {
-        auto XBL = LockedViewRange( X, r-offset, 0, n-offset, k );
-        auto yRow = LockedViewRange( Y, r-offset, 0, r-offset+1, k );
+        auto XBL = LockedViewRange( X, r, 0, n, k );
+        auto yRow = LockedViewRange( Y, r, 0, r+1, k );
         Gemv( NORMAL, F(-1), XBL, yRow, F(1), zBottom );
     } 
 
@@ -127,7 +126,7 @@ ChoosePivot
     const Real rowMax = Max(leftPair.value,bottomPair.value);
 
     if( alpha11Abs >= gamma*colMax*(colMax/rowMax) )
-        return kOff;
+        return k;
 
     if( Abs(zBottom.Get(0,0)) >= gamma*rowMax )
         return r;
@@ -216,9 +215,10 @@ UnblockedPivoted
     while( k < n )
     {
         // Determine the pivot (block)
-        const Int pivot = ChoosePivot( A, k, pivotType, gamma );
-        const Int nb   = ( pivot >= 0 ? 1     : 2      );
-        const Int from = ( pivot >= 0 ? pivot : -pivot );
+        auto ABR = LockedViewRange( A, k, k, n, n );
+        const Int pivot = ChoosePivot( ABR, pivotType, gamma );
+        const Int nb   = ( pivot >= 0 ? 1       : 2      );
+        const Int from = ( pivot >= 0 ? k+pivot : k-pivot );
         const Int to = k + (nb-1);
 
         // Apply the symmetric pivot
@@ -235,26 +235,26 @@ UnblockedPivoted
         if( nb == 1 )
         {
             // Rank-one update: A22 -= a21 inv(delta11) a21'
-            const F delta11Inv = F(1)/A.Get(k,k);
-            auto a21 = ViewRange( A, k+1, k,   n, k+1 );
-            auto A22 = ViewRange( A, k+1, k+1, n, n   );
+            const F delta11Inv = F(1)/ABR.Get(0,0);
+            auto a21 = ViewRange( ABR, 1, 0, n-k, 1   );
+            auto A22 = ViewRange( ABR, 1, 1, n-k, n-k );
             Syr( LOWER, -delta11Inv, a21, A22, conjugate );
             Scale( delta11Inv, a21 );
 
-            p.Set( k, 0, pivot );
+            p.Set( k, 0, from );
         }
         else
         {
             // Rank-two update: A22 -= A21 inv(D11) A21'
-            auto D11 = ViewRange( A, k,   k,   k+2, k+2 );
-            auto A21 = ViewRange( A, k+2, k,   n,   k+2 );
-            auto A22 = ViewRange( A, k+2, k+2, n,   n   );
+            auto D11 = ViewRange( ABR, 0, 0, 2,   2   );
+            auto A21 = ViewRange( ABR, 2, 0, n-k, 2   );
+            auto A22 = ViewRange( ABR, 2, 2, n-k, n-k );
             Y21 = A21;
             SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
 
-            p.Set( k,   0, pivot );
-            p.Set( k+1, 0, pivot );
+            p.Set( k,   0, -from );
+            p.Set( k+1, 0, -from );
         }
 
         k += nb;
@@ -267,7 +267,7 @@ template<typename F>
 inline void
 PanelPivoted
 ( Orientation orientation, Matrix<F>& A, Matrix<Int>& p, 
-  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int offset=0,
+  Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
@@ -284,46 +284,45 @@ PanelPivoted
         LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const bool conjugate = ( orientation==ADJOINT );
-    Zeros( X, n-offset, bsize );
-    Zeros( Y, n-offset, bsize );
+    auto ABR = LockedViewRange( A, off, off, n, n );
+    Zeros( X, n-off, bsize );
+    Zeros( Y, n-off, bsize );
 
     Int k=0;
     while( k < bsize )
     {
         // Determine the pivot (block)
-        const Int pivot = ChoosePivot( A, X, Y, offset, k, pivotType, gamma );
-        const Int kOff = k + offset;
-        // const Int pivot = kOff;
-        const Int nb   = ( pivot >= 0 ? 1     : 2      );
-        const Int from = ( pivot >= 0 ? pivot : -pivot );
-        const Int to = kOff + (nb-1);
+        const Int pivot = ChoosePivot( ABR, X, Y, k, pivotType, gamma );
+        const Int nb   = ( pivot >= 0 ? 1         : 2         );
+        const Int from = ( pivot >= 0 ? off+pivot : off-pivot );
+        const Int to = (off+k) + (nb-1);
         if( k+nb > bsize )
         {
-            X.ResizeTo( n-offset, bsize-1 );
-            Y.ResizeTo( n-offset, bsize-1 );
+            X.ResizeTo( n-off, bsize-1 );
+            Y.ResizeTo( n-off, bsize-1 );
             break;
         }
 
         // Apply the symmetric pivot
         SymmetricSwap( LOWER, A, to, from, conjugate );
-        RowSwap( X, to-offset, from-offset );
-        RowSwap( Y, to-offset, from-offset );
+        RowSwap( X, to-off, from-off );
+        RowSwap( Y, to-off, from-off );
 
         // Update the active columns and then store the new update factors
         // TODO: Reuse updates from pivot selection where possible
         if( nb == 1 ) 
         {
-            // Update A(kOff:end,kOff) -= X(k:n-offset-1,0:k-1) Y(k,0:k-1)^T
-            auto XB0 = LockedViewRange( X, k, 0, n-offset, k );
-            auto y10 = LockedViewRange( Y, k, 0, k+1,      k );
-            auto aB1 =  ViewRange( A, kOff, kOff, n, kOff+1 );
+            // Update ABR(k:end,k) -= X(k:n-off-1,0:k-1) Y(k,0:k-1)^T
+            auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
+            auto y10 = LockedViewRange( Y,   k, 0, k+1,   k   );
+            auto aB1 =       ViewRange( ABR, k, k, n-off, k+1 );
             Gemv( NORMAL, F(-1), XB0, y10, F(1), aB1 );
 
             // Store x21 := a21/delta11 and y21 := a21
-            const F delta11Inv = F(1)/A.Get(kOff,kOff);
-            auto a21 = ViewRange( A, kOff+1, kOff, n,        kOff+1 );
-            auto x21 = ViewRange( X, k+1,    k,    n-offset, k+1    );
-            auto y21 = ViewRange( Y, k+1,    k,    n-offset, k+1    );
+            const F delta11Inv = F(1)/ABR.Get(k,k);
+            auto a21 = ViewRange( ABR, k+1, k, n-off, k+1 );
+            auto x21 = ViewRange( X,   k+1, k, n-off, k+1 );
+            auto y21 = ViewRange( Y,   k+1, k, n-off, k+1 );
             if( conjugate )
                 Conjugate( a21, y21 );
             else
@@ -331,22 +330,24 @@ PanelPivoted
             Scale( delta11Inv, a21 );
             x21 = a21;
 
-            p.Set( kOff, 0, pivot );
+            p.Set( off+k, 0, from );
         }
         else
         {
-            // Update A(k:end,k:k+1) -= X(k:n-offset-1,0:k-1) Y(k:k+1,0:k-1)^T
-            // NOTE: above-diagonal entry of A is modified
-            auto XB0 = LockedViewRange( X, k, 0, n-offset, k );
-            auto Y10 = LockedViewRange( Y, k, 0, k+2,      k );
-            auto AB1 =       ViewRange( A, kOff, kOff,   n, kOff+2 );
+            // Update ABR(k:end,k:k+1) -= X(k:n-off-1,0:k-1) Y(k:k+1,0:k-1)^T
+            // NOTE: top-right entry of AB1 is above-diagonal
+            auto XB0 = LockedViewRange( X,   k, 0, n-off, k   );
+            auto Y10 = LockedViewRange( Y,   k, 0, k+2,   k   );
+            auto AB1 =       ViewRange( ABR, k, k, n-off, k+2 );
+            const F psi = AB1.Get(0,1);
             Gemm( NORMAL, TRANSPOSE, F(-1), XB0, Y10, F(1), AB1 );
+            AB1.Set(0,1,psi);
 
             // Store X21 := A21/D11 and Y21 := A21 or Y21 := Conj(A21)
-            auto D11 = ViewRange( A, kOff,   kOff, kOff+2, kOff+2 );
-            auto A21 = ViewRange( A, kOff+2, kOff, n,      kOff+2 );
-            auto X21 = ViewRange( X, k+2, k, n-offset, k+2 );
-            auto Y21 = ViewRange( Y, k+2, k, n-offset, k+2 );
+            auto D11 = ViewRange( ABR, k,   k, k+2,   k+2 );
+            auto A21 = ViewRange( ABR, k+2, k, n-off, k+2 );
+            auto X21 = ViewRange( X,   k+2, k, n-off, k+2 );
+            auto Y21 = ViewRange( Y,   k+2, k, n-off, k+2 );
             if( conjugate )
                 Conjugate( A21, Y21 );
             else
@@ -354,16 +355,16 @@ PanelPivoted
             SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
             X21 = A21;
 
-            p.Set( kOff,   0, pivot );
-            p.Set( kOff+1, 0, pivot );
+            p.Set( off+k,   0, -from );
+            p.Set( off+k+1, 0, -from );
         }
 
         if( conjugate )
         {
             // Force the active diagonal entries to be real
-            A.Set( kOff, kOff, A.GetRealPart(kOff,kOff) );
-            A.Set( to,   to,   A.GetRealPart(to,  to  ) );
-            A.Set( from, from, A.GetRealPart(from,from) );
+            A.Set( off+k, off+k, A.GetRealPart(off+k,off+k) );
+            A.Set( to,    to,    A.GetRealPart(to,   to   ) );
+            A.Set( from,  from,  A.GetRealPart(from, from ) );
         }
 
         k += nb;
