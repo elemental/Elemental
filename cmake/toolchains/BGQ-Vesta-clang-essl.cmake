@@ -1,37 +1,52 @@
 #set(CMAKE_SYSTEM_NAME BlueGeneQ-static)
 
-# The serial compilers
-set(GCC_ROOT "/bgsys/drivers/ppcfloor/gnu-linux")
-set(GCC_NAME "powerpc64-bgq-linux")
+set(GCC_ROOT  "/bgsys/drivers/ppcfloor/gnu-linux")
+set(GCC_NAME  "powerpc64-bgq-linux")
 set(CLANG_ROOT "/home/projects/llvm")
+set(IBMCMP_ROOT "$ENV{IBM_MAIN_DIR}")
+
+set(BLAS_LIB "/soft/libraries/alcf/current/xl/BLAS/lib")
+set(LAPACK_LIB "/soft/libraries/alcf/current/xl/LAPACK/lib")
+set(ESSL_LIB "/soft/libraries/essl/current/essl/5.1/lib64")
+
+set(SPI_ROOT   "/bgsys/drivers/ppcfloor/spi")
+# V1R2M0
+#set(MPI_ROOT   "/bgsys/drivers/ppcfloor/comm/gcc")
+#set(PAMI_ROOT  "/bgsys/drivers/ppcfloor/comm/sys")
+# V1R2M1
+set(MPI_ROOT   "/bgsys/drivers/ppcfloor/comm")
+set(PAMI_ROOT  "/bgsys/drivers/ppcfloor/comm")
+
+# The serial compilers
 set(CMAKE_C_COMPILER       "${CLANG_ROOT}/bin/bgclang")
 set(CMAKE_CXX_COMPILER     "${CLANG_ROOT}/bin/bgclang++")
 set(CMAKE_Fortran_COMPILER "${GCC_ROOT}/bin/${GCC_NAME}-gfortran")
 
 # The MPI wrappers for the C and C++ compilers
-set(MPI_ROOT  "/bgsys/drivers/ppcfloor/comm/gcc")
-set(PAMI_ROOT "/bgsys/drivers/ppcfloor/comm/sys")
-set(SPI_ROOT  "/bgsys/drivers/ppcfloor/spi")
+#set(MPI_C_COMPILER   ${MPI_ROOT}/bin/mpicc)
+#set(MPI_CXX_COMPILER ${MPI_ROOT}/bin/mpicxx)
+
 set(MPI_C_COMPILE_FLAGS   "")
 set(MPI_CXX_COMPILE_FLAGS "")
 set(MPI_C_INCLUDE_PATH   "${MPI_ROOT}/include")
-set(MPI_CXX_INCLUDE_PATH "${MPI_ROOT}/include")
+set(MPI_CXX_INCLUDE_PATH "${MPI_C_INCLUDE_PATH}")
 set(MPI_C_LINK_FLAGS   "-L${MPI_ROOT}/lib -L${PAMI_ROOT}/lib -L${SPI_ROOT}/lib")
 set(MPI_CXX_LINK_FLAGS ${MPI_C_LINK_FLAGS})
-set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
-set(MPI_CXX_LIBRARIES "-lcxxmpich ${MPI_C_LIBRARIES}")
 
-#set(CXX_FLAGS_PUREDEBUG "-g -static -Bstatic")
-#set(CXX_FLAGS_PURERELEASE "-g -O2 -static -Bstatic")
-#set(CXX_FLAGS_HYBRIDDEBUG "-g -static -Bstatic")
-#set(CXX_FLAGS_HYBRIDRELEASE "-g -O2 -static -Bstatic")
-set(CXX_FLAGS_PUREDEBUG "-g")
-set(CXX_FLAGS_PURERELEASE "-g -O2")
-set(CXX_FLAGS_HYBRIDDEBUG "-g")
-set(CXX_FLAGS_HYBRIDRELEASE "-g -O2")
+# V1R2M0
+#set(MPI_C_LIBRARIES "-lmpich -lopa -lmpl -ldl -lpami -lSPI -lSPI_cnk -lpthread -lrt -lstdc++")
+#set(MPI_CXX_LIBRARIES "-lcxxmpich ${MPI_C_LIBRARIES}")
+# V1R2M1
+set(MPI_C_LIBRARIES "-lmpich-xl -lopa-xl -lmpl-xl -lpami-gcc -lSPI -lSPI_cnk -lrt -lpthread -lstdc++ -lpthread")
+set(MPI_CXX_LIBRARIES "-lmpichcxx-xl ${MPI_C_LIBRARIES}")
 
-#set(CMAKE_THREAD_LIBS_INIT "-fopenmp")
-#set(OpenMP_CXX_FLAGS "-fopenmp")
+set(CXX_PURE_DEBUG_FLAGS "-g")
+set(CXX_PURE_RELEASE_FLAGS "-g -O3")
+set(CXX_HYBRID_DEBUG_FLAGS "-g")
+set(CXX_HYBRID_RELEASE_FLAGS "-g -O3")
+
+set(CMAKE_THREAD_LIBS_INIT "-fopenmp")
+set(OpenMP_CXX_FLAGS "-fopenmp")
 
 ##############################################################
 
@@ -53,9 +68,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 ##############################################################
 
-set(LAPACK_LIB "/soft/libraries/alcf/current/gcc/LAPACK/lib")
-set(ESSL_LIB "/soft/libraries/essl/current/essl/5.1/lib64")
-set(IBMCMP_ROOT "/soft/compilers/ibmcmp-nov2012")
 set(XLF_LIB "${IBMCMP_ROOT}/xlf/bg/14.1/bglib64")
 set(XLSMP_LIB "${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64")
 
