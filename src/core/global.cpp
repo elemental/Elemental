@@ -291,7 +291,7 @@ void Initialize( int& argc, char**& argv )
     // TODO: Allow for switching on/off reproducibility?
     //const long secs = time(NULL);
     const long secs = 21;
-    const long seed = (secs<<16) | (rank && 0xFFFF);
+    const long seed = (secs<<16) | (rank & 0xFFFF);
     ::generator.seed( seed );
 }
 

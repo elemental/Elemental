@@ -89,33 +89,37 @@ OneNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("OneNorm");
 #endif
-    // Compute the partial column sums defined by our local matrix, A[U,V]
-    typedef BASE(F) R;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    std::vector<R> myPartialColSums( localWidth );
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
     {
-        myPartialColSums[jLoc] = 0;
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            myPartialColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
+        // Compute the partial column sums defined by our local matrix, A[U,V]
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        std::vector<Real> myPartialColSums( localWidth );
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+        {
+            myPartialColSums[jLoc] = 0;
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                myPartialColSums[jLoc] += Abs(A.GetLocal(iLoc,jLoc));
+        }
+
+        // Sum our partial column sums to get the column sums over A[* ,V]
+        std::vector<Real> myColSums( localWidth );
+        mpi::AllReduce
+        ( myPartialColSums.data(), myColSums.data(), localWidth, A.ColComm() );
+
+        // Find the maximum out of the column sums
+        Real myMaxColSum = 0;
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
+
+        // Find the global maximum column sum by searching the row team
+        Real maxColSum = 0;
+        norm = mpi::AllReduce( myMaxColSum, A.RowComm() );
     }
-
-    // Sum our partial column sums to get the column sums over A[* ,V]
-    std::vector<R> myColSums( localWidth );
-    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    mpi::AllReduce
-    ( myPartialColSums.data(), myColSums.data(), localWidth, colComm );
-
-    // Find the maximum out of the column sums
-    R myMaxColSum = 0;
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        myMaxColSum = std::max( myMaxColSum, myColSums[jLoc] );
-
-    // Find the global maximum column sum by searching over the MR team
-    R maxColSum = 0;
-    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-    return mpi::AllReduce( myMaxColSum, rowComm );
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
 template<typename F>

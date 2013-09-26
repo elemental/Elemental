@@ -194,7 +194,7 @@ ApplyColumnPivots
     // Extract the relevant process grid information
     const Grid& g = A.Grid();
     const Int c = g.Width();
-    const Int rowAlignment = A.RowAlignment();
+    const Int rowAlign = A.RowAlign();
     const Int rowShift = A.RowShift();
     const Int myCol = g.Col();
 
@@ -207,11 +207,11 @@ ApplyColumnPivots
     for( Int j=rowShift; j<b; j+=c )
     {
         const Int sendCol = image[j];         
-        const Int sendTo = (rowAlignment+sendCol) % c; 
+        const Int sendTo = (rowAlign+sendCol) % c; 
         sendCounts[sendTo] += localHeight;
 
         const Int recvCol = preimage[j];
-        const Int recvFrom = (rowAlignment+recvCol) % c;
+        const Int recvFrom = (rowAlign+recvCol) % c;
         recvCounts[recvFrom] += localHeight;
     }
     for( Int j=0; j<b; ++j )
@@ -219,10 +219,10 @@ ApplyColumnPivots
         const Int sendCol = image[j];
         if( sendCol >= b )
         {
-            const Int sendTo = (rowAlignment+sendCol) % c;
+            const Int sendTo = (rowAlign+sendCol) % c;
             if( sendTo == myCol )
             {
-                const Int sendFrom = (rowAlignment+j) % c;
+                const Int sendFrom = (rowAlign+j) % c;
                 recvCounts[sendFrom] += localHeight;
             }
         }
@@ -230,10 +230,10 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvFrom = (rowAlignment+recvCol) % c;
+            const Int recvFrom = (rowAlign+recvCol) % c;
             if( recvFrom == myCol )
             {
-                const Int recvTo = (rowAlignment+j) % c;
+                const Int recvTo = (rowAlign+j) % c;
                 sendCounts[recvTo] += localHeight;
             }
         }
@@ -266,7 +266,7 @@ ApplyColumnPivots
     for( Int jLoc=0; jLoc<localWidth; ++jLoc )
     {
         const Int sendCol = image[rowShift+jLoc*c];
-        const Int sendTo = (rowAlignment+sendCol) % c;
+        const Int sendTo = (rowAlign+sendCol) % c;
         const Int offset = sendDispls[sendTo]+offsets[sendTo];
         MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
         offsets[sendTo] += localHeight;
@@ -276,10 +276,10 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvFrom = (rowAlignment+recvCol) % c; 
+            const Int recvFrom = (rowAlign+recvCol) % c; 
             if( recvFrom == myCol )
             {
-                const Int recvTo = (rowAlignment+j) % c;
+                const Int recvTo = (rowAlign+j) % c;
                 const Int jLoc = (recvCol-rowShift) / c;
                 const Int offset = sendDispls[recvTo]+offsets[recvTo];
                 MemCopy( &sendData[offset], A.Buffer(0,jLoc), localHeight );
@@ -298,11 +298,11 @@ ApplyColumnPivots
     for( Int k=0; k<c; ++k )
     {
         offsets[k] = 0;
-        Int thisRowShift = Shift( k, rowAlignment, c );
+        Int thisRowShift = Shift( k, rowAlign, c );
         for( Int j=thisRowShift; j<b; j+=c )
         {
             const Int sendCol = image[j];
-            const Int sendTo = (rowAlignment+sendCol) % c;
+            const Int sendTo = (rowAlign+sendCol) % c;
             if( sendTo == myCol )
             {
                 const Int offset = recvDispls[k]+offsets[k];
@@ -317,10 +317,10 @@ ApplyColumnPivots
         const Int recvCol = preimage[j];
         if( recvCol >= b )
         {
-            const Int recvTo = (rowAlignment+j) % c;
+            const Int recvTo = (rowAlign+j) % c;
             if( recvTo == myCol )
             {
-                const Int recvFrom = (rowAlignment+recvCol) % c; 
+                const Int recvFrom = (rowAlign+recvCol) % c; 
                 const Int jLoc = (j-rowShift) / c;
                 const Int offset = recvDispls[recvFrom]+offsets[recvFrom];
                 MemCopy( A.Buffer(0,jLoc), &recvData[offset], localHeight );

@@ -50,8 +50,8 @@ LocalTrmmAccumulateLLT
                                << Z_MR_STAR.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( X_MC_STAR.ColAlignment() != L.ColAlignment() ||
-        Z_MR_STAR.ColAlignment() != L.RowAlignment() )
+    if( X_MC_STAR.ColAlign() != L.ColAlign() ||
+        Z_MR_STAR.ColAlign() != L.RowAlign() )
         LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = L.Grid();

@@ -42,11 +42,10 @@ PanelL
         LogicError("X must be a column panel");
     if( Y.Width() != panelSize )
         LogicError("Y is the wrong width");
-    if( A.ColAlignment() != X.ColAlignment() || 
-        A.RowAlignment() != X.RowAlignment() )
+    if( A.ColAlign() != X.ColAlign() || 
+        A.RowAlign() != X.RowAlign() )
         LogicError("A and X must be aligned");
-    if( A.ColAlignment() != Y.ColAlignment() ||
-        A.RowAlignment() != Y.RowAlignment() )
+    if( A.ColAlign() != Y.ColAlign() || A.RowAlign() != Y.RowAlign() )
         LogicError("A and Y must be aligned");
 #endif
     LogicError("This routine is not yet written");

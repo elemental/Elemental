@@ -142,9 +142,9 @@ inline void UUnb
         auto aB1     = ViewRange( A, k,   k,   m,   k+1 );
         auto AB2     = ViewRange( A, k,   k+1, m,   n   );
 
-        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
-        const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() );
+        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlign() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
+        const bool nextIsMyCol = ( g.Col() == a12.RowAlign() );
 
         // Find tauQ, u, and epsilonQ such that
         //     I - conj(tauQ) | 1 | | 1, u^H | | alpha11 | = | epsilonQ |

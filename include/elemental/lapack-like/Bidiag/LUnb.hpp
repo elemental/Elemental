@@ -144,9 +144,9 @@ inline void LUnb
         auto a1R     = ViewRange( A, k,   k,   k+1, n   );
         auto A2R     = ViewRange( A, k+1, k,   m,   n   );
 
-        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
-        const bool nextIsMyRow = ( g.Row() == a21.ColAlignment() );
+        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlign() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
+        const bool nextIsMyRow = ( g.Row() == a21.ColAlign() );
 
         // Due to deficiencies in the BLAS ?gemv routines, this section is
         // easier if we temporary conjugate a1R = | alpha11, a12 |

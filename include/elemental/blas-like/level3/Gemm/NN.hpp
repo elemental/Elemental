@@ -42,8 +42,7 @@ Cannon_NN
     const Grid& g = A.Grid();
     if( g.Height() != g.Width() )
         LogicError("Process grid must be square for Cannon's");
-    if( C.ColAlignment() != A.ColAlignment() || 
-        C.RowAlignment() != B.RowAlignment() )
+    if( C.ColAlign() != A.ColAlign() || C.RowAlign() != B.RowAlign() )
         LogicError("C is not properly aligned");
 
     const Int row = g.Row();

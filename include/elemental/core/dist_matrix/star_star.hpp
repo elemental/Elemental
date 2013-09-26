@@ -19,6 +19,9 @@ template<typename T>
 class DistMatrix<T,STAR,STAR> : public AbstractDistMatrix<T>
 {
 public:
+    typedef AbstractDistMatrix<T> baseType;
+    typedef DistMatrix<T,STAR,STAR> type;
+
     // TODO: Construct from a Matrix.
 
     // Create a 0 x 0 distributed matrix
@@ -40,7 +43,7 @@ public:
     ( Int height, Int width, T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,STAR,STAR>& A );
+    DistMatrix( const type& A );
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V>& A );
 
@@ -48,27 +51,25 @@ public:
 
 #ifndef SWIG
     // Move constructor
-    DistMatrix( DistMatrix<T,STAR,STAR>&& A );
+    DistMatrix( type&& A );
     // Move assignment
-    DistMatrix<T,STAR,STAR>& operator=( DistMatrix<T,STAR,STAR>&& A );
+    type& operator=( type&& A );
 #endif
 
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MC,MR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MC,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,MR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MD,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,MD>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MR,MC>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,MR,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,MC>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,VC,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,VC>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,VR,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& operator=( const DistMatrix<T,STAR,VR>& A );
-    const DistMatrix<T,STAR,STAR>& 
-    operator=( const DistMatrix<T,STAR,STAR>& A );
-    const DistMatrix<T,STAR,STAR>& 
-    operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    const type& operator=( const DistMatrix<T,MC,  MR  >& A );
+    const type& operator=( const DistMatrix<T,MC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MR  >& A );
+    const type& operator=( const DistMatrix<T,MD,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MD  >& A );
+    const type& operator=( const DistMatrix<T,MR,  MC  >& A );
+    const type& operator=( const DistMatrix<T,MR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MC  >& A );
+    const type& operator=( const DistMatrix<T,VC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VC  >& A );
+    const type& operator=( const DistMatrix<T,VR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VR  >& A );
+    const type& operator=( const DistMatrix<T,STAR,STAR>& A );
+    const type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -78,28 +79,14 @@ public:
     // Non-collective routines
     //
 
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
     virtual elem::DistData DistData() const;
-
-    //
-    // Collective routines
-    //
-
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void Update( Int i, Int j, T alpha );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
+    virtual mpi::Comm DistComm() const;
+    virtual mpi::Comm CrossComm() const;
+    virtual mpi::Comm RedundantComm() const;
+    virtual mpi::Comm ColComm() const;
+    virtual mpi::Comm RowComm() const;
+    virtual Int RowStride() const;
+    virtual Int ColStride() const;
 
     //------------------------------------------------------------------------//
     // Routines specific to [* ,* ] distribution                              //
@@ -109,16 +96,16 @@ public:
     // Collective routines
     //
 
-    void GetDiagonal( DistMatrix<T,STAR,STAR>& d, Int offset=0 ) const;
+    void GetDiagonal( type& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 ) const;
-    DistMatrix<T,STAR,STAR> GetDiagonal( Int offset=0 ) const;
+    type GetDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),STAR,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),STAR,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
-    void SetDiagonal( const DistMatrix<T,STAR,STAR>& d, Int offset=0 );
+    void SetDiagonal( const type& d, Int offset=0 );
     void SetRealPartOfDiagonal
     ( const DistMatrix<BASE(T),STAR,STAR>& d, Int offset=0 );
     // Only valid for complex datatypes

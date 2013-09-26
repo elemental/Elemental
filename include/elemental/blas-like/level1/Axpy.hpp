@@ -77,8 +77,7 @@ Axpy( T alpha, const DistMatrix<T,U,V>& X, DistMatrix<T,U,V>& Y )
         LogicError
         ("X and Y must be distributed over the same grid");
 #endif
-    if( X.ColAlignment() == Y.ColAlignment() &&
-        X.RowAlignment() == Y.RowAlignment() )
+    if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
         Axpy( alpha, X.LockedMatrix(), Y.Matrix() );
     }

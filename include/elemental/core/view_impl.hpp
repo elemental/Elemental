@@ -20,12 +20,12 @@ inline void HandleDiagPath
 template<typename T>
 inline void HandleDiagPath
 ( DistMatrix<T,MD,STAR>& A, const DistMatrix<T,MD,STAR>& B )
-{ A.diagPath_ = B.diagPath_; } 
+{ A.root_ = B.root_; } 
 
 template<typename T>
 inline void HandleDiagPath
 ( DistMatrix<T,STAR,MD>& A, const DistMatrix<T,STAR,MD>& B )
-{ A.diagPath_ = B.diagPath_; } 
+{ A.root_ = B.root_; } 
 
 template<typename T>
 inline void View( Matrix<T>& A, Matrix<T>& B )
@@ -59,8 +59,8 @@ inline void View( DistMatrix<T,U,V>& A, DistMatrix<T,U,V>& B )
     A.grid_ = B.grid_;
     A.height_ = B.Height();
     A.width_ = B.Width();
-    A.colAlignment_ = B.ColAlignment();
-    A.rowAlignment_ = B.RowAlignment();
+    A.colAlign_ = B.ColAlign();
+    A.rowAlign_ = B.RowAlign();
     HandleDiagPath( A, B );
     A.viewType_ = VIEW;
     if( A.Participating() )
@@ -116,8 +116,8 @@ inline void LockedView( DistMatrix<T,U,V>& A, const DistMatrix<T,U,V>& B )
     A.grid_ = B.grid_;
     A.height_ = B.Height();
     A.width_ = B.Width();
-    A.colAlignment_ = B.ColAlignment();
-    A.rowAlignment_ = B.RowAlignment();
+    A.colAlign_ = B.ColAlign();
+    A.rowAlign_ = B.RowAlign();
     HandleDiagPath( A, B );
     A.viewType_ = LOCKED_VIEW;
     if( A.Participating() )
@@ -197,8 +197,8 @@ inline void View
     A.height_ = height;
     A.width_  = width;
 
-    A.colAlignment_ = (B.ColAlignment()+i) % colStride;
-    A.rowAlignment_ = (B.RowAlignment()+j) % rowStride;
+    A.colAlign_ = (B.ColAlign()+i) % colStride;
+    A.rowAlign_ = (B.RowAlign()+j) % rowStride;
     HandleDiagPath( A, B );
     A.viewType_ = VIEW;
 
@@ -206,8 +206,8 @@ inline void View
     {
         const Int colRank = B.ColRank();
         const Int rowRank = B.RowRank();
-        A.colShift_ = Shift( colRank, A.ColAlignment(), colStride );
-        A.rowShift_ = Shift( rowRank, A.RowAlignment(), rowStride );
+        A.colShift_ = Shift( colRank, A.ColAlign(), colStride );
+        A.rowShift_ = Shift( rowRank, A.RowAlign(), rowStride );
 
         const Int localHeightBehind = Length(i,B.ColShift(),colStride);
         const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
@@ -294,15 +294,15 @@ inline void LockedView
     A.height_ = height;
     A.width_  = width;
 
-    A.colAlignment_ = (B.ColAlignment()+i) % colStride;
-    A.rowAlignment_ = (B.RowAlignment()+j) % rowStride;
+    A.colAlign_ = (B.ColAlign()+i) % colStride;
+    A.rowAlign_ = (B.RowAlign()+j) % rowStride;
     HandleDiagPath( A, B );
     A.viewType_ = LOCKED_VIEW;
 
     if( A.Participating() )
     {
-        A.colShift_ = Shift( colRank, A.ColAlignment(), colStride );
-        A.rowShift_ = Shift( rowRank, A.RowAlignment(), rowStride );
+        A.colShift_ = Shift( colRank, A.ColAlign(), colStride );
+        A.rowShift_ = Shift( rowRank, A.RowAlign(), rowStride );
 
         const Int localHeightBehind = Length(i,B.ColShift(),colStride);
         const Int localWidthBehind  = Length(j,B.RowShift(),rowStride);
@@ -455,8 +455,8 @@ inline void View1x2
     A.grid_ = BL.grid_;
     A.height_ = BL.Height();
     A.width_ = BL.Width() + BR.Width();
-    A.colAlignment_ = BL.ColAlignment();
-    A.rowAlignment_ = BL.RowAlignment();
+    A.colAlign_ = BL.ColAlign();
+    A.rowAlign_ = BL.RowAlign();
     HandleDiagPath( A, BL );
     A.viewType_ = VIEW;
     if( A.Participating() )
@@ -524,8 +524,8 @@ inline void LockedView1x2
     A.grid_ = BL.grid_;
     A.height_ = BL.Height();
     A.width_ = BL.Width() + BR.Width();
-    A.colAlignment_ = BL.ColAlignment();
-    A.rowAlignment_ = BL.RowAlignment();
+    A.colAlign_ = BL.ColAlign();
+    A.rowAlign_ = BL.RowAlign();
     HandleDiagPath( A, BL );
     A.viewType_ = LOCKED_VIEW;
     if( A.Participating() )
@@ -591,8 +591,8 @@ inline void View2x1
     A.grid_ = BT.grid_;
     A.height_ = BT.Height() + BB.Height();
     A.width_ = BT.Width();
-    A.colAlignment_ = BT.ColAlignment();
-    A.rowAlignment_ = BT.RowAlignment();
+    A.colAlign_ = BT.ColAlign();
+    A.rowAlign_ = BT.RowAlign();
     HandleDiagPath( A, BT );
     A.viewType_ = LOCKED_VIEW;
     if( A.Participating() )
@@ -661,8 +661,8 @@ inline void LockedView2x1
     A.grid_ = BT.grid_;
     A.height_ = BT.Height() + BB.Height();
     A.width_ = BT.Width();
-    A.colAlignment_ = BT.ColAlignment();
-    A.rowAlignment_ = BT.RowAlignment();
+    A.colAlign_ = BT.ColAlign();
+    A.rowAlign_ = BT.RowAlign();
     HandleDiagPath( A, BT );
     A.viewType_ = LOCKED_VIEW;
     if( A.Participating() )
@@ -744,8 +744,8 @@ inline void View2x2
     A.grid_ = BTL.grid_;
     A.height_ = BTL.Height() + BBL.Height();
     A.width_ = BTL.Width() + BTR.Width();
-    A.colAlignment_ = BTL.ColAlignment();
-    A.rowAlignment_ = BTL.RowAlignment();
+    A.colAlign_ = BTL.ColAlign();
+    A.rowAlign_ = BTL.RowAlign();
     HandleDiagPath( A, BTL );
     A.viewType_ = VIEW;
     if( A.Participating() )
@@ -832,8 +832,8 @@ inline void LockedView2x2
     A.grid_ = BTL.grid_;
     A.height_ = BTL.Height() + BBL.Height();
     A.width_ = BTL.Width() + BTR.Width();
-    A.colAlignment_ = BTL.ColAlignment();
-    A.rowAlignment_ = BTL.RowAlignment();
+    A.colAlign_ = BTL.ColAlign();
+    A.rowAlign_ = BTL.RowAlign();
     HandleDiagPath( A, BTL );
     A.viewType_ = LOCKED_VIEW;
     if( A.Participating() )

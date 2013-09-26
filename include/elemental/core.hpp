@@ -113,6 +113,4 @@
 #include "elemental/core/axpy_interface_decl.hpp"
 #include "elemental/core/axpy_interface_impl.hpp"
 
-#include "elemental/core/ReduceComm.hpp"
-
 #endif // ifndef ELEM_CORE_HPP

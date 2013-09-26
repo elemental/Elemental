@@ -57,15 +57,15 @@ void CheckInput
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment() )
+    if( A.ColAlign() != C.ColAlign() ||
+        B.RowAlign() != C.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
+                                  C.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -116,15 +116,15 @@ void CheckInput
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != C.ColAlignment() ||
-        B.ColAlignment() != C.RowAlignment() )
+    if( A.ColAlign() != C.ColAlign() ||
+        B.ColAlign() != C.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrrk: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
+                                  C.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -175,15 +175,15 @@ void CheckInput
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != C.ColAlignment() ||
-        B.RowAlignment() != C.RowAlignment() )
+    if( A.RowAlign() != C.ColAlign() ||
+        B.RowAlign() != C.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
+                                  C.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -240,15 +240,15 @@ void CheckInput
             << "  C[MC,MR] ~ " << C.Height() << " x " << C.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != C.ColAlignment() ||
-        B.ColAlignment() != C.RowAlignment() )
+    if( A.RowAlign() != C.ColAlign() ||
+        B.ColAlign() != C.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrrk: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,MR] ~ " << C.ColAlignment() << " , " <<
-                                  C.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,MR] ~ " << C.ColAlign() << " , " <<
+                                  C.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }

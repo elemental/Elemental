@@ -102,7 +102,7 @@ DiagonalScale
 #endif
     if( side == LEFT )
     {
-        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
         }
@@ -117,7 +117,7 @@ DiagonalScale
     }
     else
     {
-        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             DiagonalScale
             ( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
@@ -146,7 +146,7 @@ DiagonalScale
 
     if( side == LEFT )
     {
-        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
         }
@@ -160,7 +160,7 @@ DiagonalScale
     }
     else
     {
-        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             DiagonalScale( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
         }

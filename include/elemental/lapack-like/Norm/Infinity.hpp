@@ -63,31 +63,35 @@ InfinityNorm( const DistMatrix<F,U,V>& A )
     CallStackEntry entry("InfinityNorm");
 #endif
     // Compute the partial row sums defined by our local matrix, A[U,V]
-    typedef BASE(F) R;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    std::vector<R> myPartialRowSums( localHeight );
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
     {
-        myPartialRowSums[iLoc] = 0;
-        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-            myPartialRowSums[iLoc] += Abs(A.GetLocal(iLoc,jLoc));
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        std::vector<Real> myPartialRowSums( localHeight );
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        {
+            myPartialRowSums[iLoc] = 0;
+            for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+                myPartialRowSums[iLoc] += Abs(A.GetLocal(iLoc,jLoc));
+        }
+
+        // Sum our partial row sums to get the row sums over A[U,* ]
+        std::vector<Real> myRowSums( localHeight );
+        mpi::AllReduce
+        ( myPartialRowSums.data(), myRowSums.data(), localHeight, A.RowComm() );
+
+        // Find the maximum out of the row sums
+        Real myMaxRowSum = 0;
+        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLoc] );
+
+        // Find the global maximum row sum by searching over the U team
+        norm = mpi::AllReduce( myMaxRowSum, mpi::MAX, A.ColComm() );
     }
-
-    // Sum our partial row sums to get the row sums over A[U,* ]
-    std::vector<R> myRowSums( localHeight );
-    mpi::Comm rowComm = ReduceRowComm<U,V>( A.Grid() );
-    mpi::AllReduce
-    ( myPartialRowSums.data(), myRowSums.data(), localHeight, rowComm );
-
-    // Find the maximum out of the row sums
-    R myMaxRowSum = 0;
-    for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-        myMaxRowSum = std::max( myMaxRowSum, myRowSums[iLoc] );
-
-    // Find the global maximum row sum by searching over the U team
-    mpi::Comm colComm = ReduceColComm<U,V>( A.Grid() );
-    return mpi::AllReduce( myMaxRowSum, mpi::MAX, colComm );
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
 template<typename F>

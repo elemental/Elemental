@@ -295,17 +295,17 @@ Reflector( DistMatrix<F>& chi, DistMatrix<F>& x )
 #endif
     const Grid& g = x.Grid();
     F tau;
-    if( x.Width() == 1 && x.RowAlignment() == chi.RowAlignment() )
+    if( x.Width() == 1 && x.RowAlign() == chi.RowAlign() )
     {
-        if( g.Col() == x.RowAlignment() )
+        if( g.Col() == x.RowAlign() )
             tau = reflector::Col( chi, x );
-        mpi::Broadcast( tau, x.RowAlignment(), g.RowComm() );
+        mpi::Broadcast( tau, x.RowAlign(), g.RowComm() );
     }
     else
     {
-        if( g.Row() == x.ColAlignment() )
+        if( g.Row() == x.ColAlign() )
             tau = reflector::Row( chi, x );
-        mpi::Broadcast( tau, x.ColAlignment(), g.ColComm() );
+        mpi::Broadcast( tau, x.ColAlign(), g.ColComm() );
     }
     return tau;
 }

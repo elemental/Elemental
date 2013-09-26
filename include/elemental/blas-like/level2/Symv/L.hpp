@@ -58,10 +58,10 @@ LocalSymvColAccumulateL
                                << z_MR_STAR.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( x_MC_STAR.ColAlignment() != A.ColAlignment() ||
-        x_MR_STAR.ColAlignment() != A.RowAlignment() ||
-        z_MC_STAR.ColAlignment() != A.ColAlignment() ||
-        z_MR_STAR.ColAlignment() != A.RowAlignment() )
+    if( x_MC_STAR.ColAlign() != A.ColAlign() ||
+        x_MR_STAR.ColAlign() != A.RowAlign() ||
+        z_MC_STAR.ColAlign() != A.ColAlign() ||
+        z_MR_STAR.ColAlign() != A.RowAlign() )
         LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();
@@ -169,10 +169,10 @@ LocalSymvRowAccumulateL
                                << z_STAR_MR.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( x_STAR_MC.RowAlignment() != A.ColAlignment() ||
-        x_STAR_MR.RowAlignment() != A.RowAlignment() ||
-        z_STAR_MC.RowAlignment() != A.ColAlignment() ||
-        z_STAR_MR.RowAlignment() != A.RowAlignment()   )
+    if( x_STAR_MC.RowAlign() != A.ColAlign() ||
+        x_STAR_MR.RowAlign() != A.RowAlign() ||
+        z_STAR_MC.RowAlign() != A.ColAlign() ||
+        z_STAR_MR.RowAlign() != A.RowAlign()   )
         LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();

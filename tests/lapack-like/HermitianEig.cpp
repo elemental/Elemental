@@ -40,7 +40,7 @@ void TestCorrectness
         cout << "  Gathering computed eigenvalues...";
         cout.flush();
     }
-    DistMatrix<Real,MR,STAR> w_MR_STAR(true,Z.RowAlignment(),g); 
+    DistMatrix<Real,MR,STAR> w_MR_STAR(true,Z.RowAlign(),g); 
     w_MR_STAR = w;
     if( g.Rank() == 0 )
         cout << "DONE" << endl;

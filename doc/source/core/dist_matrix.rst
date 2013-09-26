@@ -28,11 +28,11 @@ the :cpp:type:`DistMatrix\<T,U,V>` class.
    
    .. cpp:member:: Distribution rowDist
 
-   .. cpp:member:: int colAlignment
+   .. cpp:member:: int colAlign
 
-   .. cpp:member:: int rowAlignment
+   .. cpp:member:: int rowAlign
 
-   .. cpp:member:: int diagPath
+   .. cpp:member:: int root
 
    .. cpp:member:: const Grid* grid
 
@@ -79,15 +79,15 @@ to be available for all matrix distributions.
 
       Return the grid that this distributed matrix is distributed over.
 
-   .. cpp:function:: T* Buffer( int iLocal=0, int jLocal=0 )
+   .. cpp:function:: T* Buffer( int iLoc=0, int jLoc=0 )
 
       Return a pointer to the portion of the local buffer that stores entry 
-      `(iLocal,jLocal)`.
+      `(iLoc,jLoc)`.
 
-   .. cpp:function:: const T* LockedBuffer( int iLocal=0, int jLocal=0 ) const
+   .. cpp:function:: const T* LockedBuffer( int iLoc=0, int jLoc=0 ) const
 
       Return a pointer to the portion of the local buffer that stores entry
-      `(iLocal,jLocal)`, but do not allow for the data to be modified through
+      `(iLoc,jLoc)`, but do not allow for the data to be modified through
       the returned pointer.
 
    .. cpp:function:: Matrix<T>& Matrix()
@@ -104,41 +104,58 @@ to be available for all matrix distributions.
 
       Free all alignment constaints.
 
-   .. cpp:function:: bool ConstrainedColAlignment() const
+   .. cpp:function:: bool ColConstrained() const
+   .. cpp:function:: bool RowConstrained() const
 
-      Return whether or not the column alignment is constrained.
+      Return whether or not the column (row) alignment is constrained.
 
-   .. cpp:function:: bool ConstrainedRowAlignment() const
+   .. cpp:function:: int ColAlign() const
+   .. cpp:function:: int RowAlign() const
 
-      Return whether or not the row alignment is constrained.
-
-   .. cpp:function:: int ColAlignment() const
-
-      Return the alignment of the columns of the matrix.
-
-   .. cpp:function:: int RowAlignment() const
-
-      Return the alignment of the rows of the matrix.
+      Return the alignment of the columns (rows) of the matrix.
 
    .. cpp:function:: int ColShift() const
-
-      Return the first global row that our process owns.
-
    .. cpp:function:: int RowShift() const
 
-      Return the first global column that our process owns.
+      Return the first global row (column) that our process owns.
+
+   .. cpp:function:: mpi::Comm ColComm() const
+   .. cpp:function:: mpi::Comm RowComm() const
+
+      Return the communicator used to distribute each column (row) of the 
+      matrix.
+
+   .. cpp:function:: int ColRank() const
+   .. cpp:function:: int RowRank() const
+
+      Return this process's rank in its column (row) communicator.
 
    .. cpp:function:: int ColStride() const
-
-      Return the number of rows between locally owned entries.
-
    .. cpp:function:: int RowStride() const
 
-      Return the number of columns between locally owned entries.
+      Return the number of rows (columns) between locally owned entries.
+      This is equal to the size of the column (row) communicator.
 
    .. cpp:function:: elem::DistData DistData() const
 
       Returns a description of the distribution and alignment information
+
+   .. cpp:function:: mpi::Comm DistComm() const
+
+      The communicator used to distribute the entire set of entries of the 
+      matrix (in some sense, the product of the column and row communicators).
+      [For this distribution, it is the `VC` communicator.]
+
+   .. cpp:function:: mpi::Comm RedundantComm() const
+
+      The communicator over which data is redundantly stored.
+      [For this distribution, it is the trivial communicator.]
+
+   .. cpp:function:: mpi::Comm CrossComm() const
+
+      The orthogonal complement of the product of the `Dist` and `Redundant`
+      communicators with respect to the process grid.
+      [For this distribution, it is the trivial communicator.]
 
    .. rubric:: Entry manipulation
 
@@ -175,35 +192,54 @@ to be available for all matrix distributions.
       Add :math:`\alpha` to the real (imaginary) part of the `(i,j)` entry of 
       the global matrix.
 
-   .. cpp:function:: T GetLocal( int iLocal, int jLocal ) const
+   .. cpp:function:: void MakeReal( Int i, Int j )
 
-      Return the `(iLocal,jLocal)` entry of our local matrix.
+      Forces the imaginary component (if it exists) of entry :math:`(i,j)` to
+      zero.
 
-   .. cpp:function:: typename Base<T>::type GetRealPartLocal( int iLocal, int jLocal ) const
-   .. cpp:function:: typename Base<T>::type GetLocalImagPart( int iLocal, int jLocal ) const
+   .. cpp:function:: void Conjugate( Int i, Int j )
 
-      Return the real (imaginary) part of the `(iLocal,jLocal)` entry of our 
+      Conjugates the imaginary component (if it exists) of entry :math:`(i,j)`.
+
+   .. cpp:function:: T GetLocal( int iLoc, int jLoc ) const
+
+      Return the `(iLoc,jLoc)` entry of our local matrix.
+
+   .. cpp:function:: typename Base<T>::type GetRealPartLocal( int iLoc, int jLoc ) const
+   .. cpp:function:: typename Base<T>::type GetLocalImagPart( int iLoc, int jLoc ) const
+
+      Return the real (imaginary) part of the `(iLoc,jLoc)` entry of our 
       local matrix.
 
-   .. cpp:function:: void SetLocal( int iLocal, int jLocal, T alpha )
+   .. cpp:function:: void SetLocal( int iLoc, int jLoc, T alpha )
 
-      Set the `(iLocal,jLocal)` entry of our local matrix to :math:`\alpha`.
+      Set the `(iLoc,jLoc)` entry of our local matrix to :math:`\alpha`.
 
-   .. cpp:function:: void SetLocalRealPart( int iLocal, int jLocal, typename Base<T>::type alpha )
-   .. cpp:function:: void SetLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
+   .. cpp:function:: void SetLocalRealPart( int iLoc, int jLoc, typename Base<T>::type alpha )
+   .. cpp:function:: void SetLocalImagPart( int iLoc, int jLoc, typename Base<T>::type alpha )
 
-      Set the real (imaginary) part of the `(iLocal,jLocal)` entry of our local 
+      Set the real (imaginary) part of the `(iLoc,jLoc)` entry of our local 
       matrix.
 
-   .. cpp:function:: void UpdateLocal( int iLoca, int jLocal, T alpha )
+   .. cpp:function:: void UpdateLocal( int iLoca, int jLoc, T alpha )
 
-      Add :math:`\alpha` to the `(iLocal,jLocal)` entry of our local matrix.
+      Add :math:`\alpha` to the `(iLoc,jLoc)` entry of our local matrix.
 
-   .. cpp:function:: void UpdateRealPartLocal( int iLocal, int jLocal, typename Base<T>::type alpha )
-   .. cpp:function:: void UpdateLocalImagPart( int iLocal, int jLocal, typename Base<T>::type alpha )
+   .. cpp:function:: void UpdateRealPartLocal( int iLoc, int jLoc, typename Base<T>::type alpha )
+   .. cpp:function:: void UpdateLocalImagPart( int iLoc, int jLoc, typename Base<T>::type alpha )
 
-      Add :math:`\alpha` to the real (imaginary) part of the `(iLocal,jLocal)` 
+      Add :math:`\alpha` to the real (imaginary) part of the `(iLoc,jLoc)` 
       entry of our local matrix.
+
+   .. cpp:function:: void MakeRealLocal( Int iLoc, Int jLoc )
+
+      Forces the imaginary component (if it exists) of entry `(iLoc,jLoc)` of
+      the local matrix to zero.
+
+   .. cpp:function:: void ConjugateLocal( Int iLoc, Int jLoc )
+
+      Conjugates the imaginary component (if it exists) of entry `(iLoc,jLoc)`
+      in the local matrix.
 
    .. rubric:: Viewing
 
@@ -350,24 +386,24 @@ It should also be noted that this is the default distribution format for the
       Create a `height` :math:`\times` `width` distributed matrix over the
       specified grid.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlign, int rowAlign, const Grid& grid )
 
       Create a `height` :math:`\times` `width` distributed matrix 
       distributed over the specified process grid, but with the top-left entry
-      owned by the `colAlignment` process row and the `rowAlignment` 
+      owned by the `colAlign` process row and the `rowAlign` 
       process column.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, int ldim, const Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlign, int rowAlign, int ldim, const Grid& grid )
 
       Same as above, but the local leading dimension is also specified.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlign, int rowAlign, const T* buffer, int ldim, const Grid& grid )
 
       View a constant distributed matrix's buffer; the buffer must correspond 
       to the local portion of an elemental distributed matrix with the 
       specified row and column alignments and leading dimension, `ldim`.
 
-   .. cpp:function:: DistMatrix( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const Grid& grid )
+   .. cpp:function:: DistMatrix( int height, int width, int colAlign, int rowAlign, T* buffer, int ldim, const Grid& grid )
 
       Same as above, but the contents of the matrix are modifiable.
 
@@ -523,13 +559,13 @@ It should also be noted that this is the default distribution format for the
 
    .. rubric:: Views
 
-   .. cpp:function:: void Attach( int height, int width, int colAlignment, int rowAlignment, T* buffer, int ldim, const Grid& grid )
+   .. cpp:function:: void Attach( int height, int width, int colAlign, int rowAlign, T* buffer, int ldim, const Grid& grid )
 
       Reconfigure this distributed matrix around an implicit ``[MC,MR]`` 
       distributed matrix of the specified dimensions, alignments, local buffer, 
       local leading dimension, and process grid.
 
-   .. cpp:function:: void LockedAttach( int height, int width, int colAlignment, int rowAlignment, const T* buffer, int ldim, const Grid& grid )
+   .. cpp:function:: void LockedAttach( int height, int width, int colAlign, int rowAlign, const T* buffer, int ldim, const Grid& grid )
 
       Same as above, but the resulting matrix is "locked", meaning that it 
       cannot modify the underlying local data.

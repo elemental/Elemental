@@ -43,19 +43,23 @@ HilbertSchmidt( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
         LogicError("Matrices must be the same size");
     if( A.Grid() != B.Grid() )
         LogicError("Grids must match");
-    if( A.ColAlignment() != B.ColAlignment() || 
-        A.RowAlignment() != B.RowAlignment() )
+    if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
 
-    F localInnerProd(0);
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            localInnerProd += Conj(A.GetLocal(iLoc,jLoc))*B.GetLocal(iLoc,jLoc);
-
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    return mpi::AllReduce( localInnerProd, comm );
+    F innerProd;
+    if( A.Participating() )
+    {
+        F localInnerProd(0);
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                localInnerProd += Conj(A.GetLocal(iLoc,jLoc))*
+                                       B.GetLocal(iLoc,jLoc);
+        innerProd = mpi::AllReduce( localInnerProd, A.DistComm() );
+    }
+    mpi::Broadcast( innerProd, A.Root(), A.CrossComm() );
+    return innerProd;
 }
 
 } // namespace elem

@@ -44,6 +44,8 @@ public:
     mpi::Comm MRComm() const;
     mpi::Comm VCComm() const;
     mpi::Comm VRComm() const;
+    mpi::Comm MDComm() const;
+    mpi::Comm MDPerpComm() const;
 
     // Advanced routines
     explicit Grid( mpi::Comm viewers, mpi::Group owners, int height );
@@ -89,9 +91,10 @@ private:
     int owningRank_;
 
     // These will only be valid if we are in the grid
-    mpi::Comm cartComm_;  // the processes that are in the grid
-    mpi::Comm matrixColComm_, matrixRowComm_;
-    mpi::Comm vectorColComm_, vectorRowComm_;
+    mpi::Comm cartComm_,  // the processes that are in the grid
+              matrixColComm_, matrixRowComm_,
+              matrixDiagComm_, matrixDiagPerpComm_,
+              vectorColComm_, vectorRowComm_;
 
     void SetUpGrid();
 

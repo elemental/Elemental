@@ -176,6 +176,32 @@ Sets all of the diagonal entries of a matrix to a given value.
 .. cpp:function:: void SetDiagonal( Matrix<T>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
 .. cpp:function:: void SetDiagonal( DistMatrix<T,U,V>& A, T alpha, int offset=0, LeftOrRight side=LEFT )
 
+Swap
+----
+
+.. cpp:function:: void Swap( Orientation orientation, Matrix<T>& A, Matrix<T>& B )
+.. cpp:function:: void Swap( Orientation orientation, DistMatrix<T,U1,V1>& A, DistMatrix<T,U2,V2>& B )
+
+   Replace :math:`A` and :math:`B` with each other, their transpose, or their
+   adjoint.
+
+.. cpp:function:: void RowSwap( Matrix<T>& A, int to, int from )
+.. cpp:function:: void RowSwap( DistMatrix<T,U,V>& A, int to, int from )
+
+   Swap rows `to` and `from` in the matrix.
+
+.. cpp:function:: void ColumnSwap( Matrix<T>& A, int to, int from )
+.. cpp:function:: void RowSwap( DistMatrix<T,U,V>& A, int to, int from )
+
+   Swap columns `to` and `from` in the matrix.
+
+.. cpp:function:: void SymmetricSwap( UpperOrLower uplo, Matrix<T>& A, int to, int from, bool conjugate=false )
+.. cpp:function:: void SymmetricSwap( UpperOrLower uplo, DistMatrix<T>& A, int to, int from, bool conjugate=false )
+
+   Symmetrically permute the `to` and `from` degrees of freedom within the 
+   implicitly symmetric (Hermitian) matrix :math:`A` which stores its data
+   in the specified triangle.
+
 UpdateDiagonal
 --------------
 .. note::

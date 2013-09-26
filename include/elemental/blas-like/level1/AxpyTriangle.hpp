@@ -58,8 +58,7 @@ AxpyTriangle
         X.Height() != Y.Height() )
         LogicError("Nonconformal AxpyTriangle");
 #endif
-    if( X.ColAlignment() == Y.ColAlignment() &&
-        X.RowAlignment() == Y.RowAlignment() )
+    if( X.ColAlign() == Y.ColAlign() && X.RowAlign() == Y.RowAlign() )
     {
         const Int localHeight = X.LocalHeight();
         const Int localWidth = X.LocalWidth();

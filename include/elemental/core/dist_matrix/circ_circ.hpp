@@ -19,6 +19,9 @@ template<typename T>
 class DistMatrix<T,CIRC,CIRC> : public AbstractDistMatrix<T>
 {
 public:
+    typedef AbstractDistMatrix<T> baseType;
+    typedef DistMatrix<T,CIRC,CIRC> type;
+
     // TODO: Construct from a Matrix. How to handle from non-root process?
 
     // Create a 0 x 0 matrix stored on a single process
@@ -45,7 +48,7 @@ public:
       Int root=0 );
 
     // Create a direct copy
-    DistMatrix( const DistMatrix<T,CIRC,CIRC>& A );
+    DistMatrix( const type& A );
     // Perform the necessary redistributions to place the matrix on a single
     // process
     template<Distribution U,Distribution V>
@@ -55,30 +58,28 @@ public:
 
 #ifndef SWIG
     // Move constructor
-    DistMatrix( DistMatrix<T,CIRC,CIRC>&& A );
+    DistMatrix( type&& A );
     // Move assignment
-    DistMatrix<T,CIRC,CIRC>& operator=( DistMatrix<T,CIRC,CIRC>&& A );
+    type& operator=( type&& A );
 #endif
 
     void CopyFromRoot( const Matrix<T>& A );
     void CopyFromNonRoot();
 
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MC,MR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MC,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MD,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MD>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MR,MC>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,MR,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,MC>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,VC,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,VC>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,VR,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& operator=( const DistMatrix<T,STAR,VR>& A );
-    const DistMatrix<T,CIRC,CIRC>& 
-    operator=( const DistMatrix<T,STAR,STAR>& A );
-    const DistMatrix<T,CIRC,CIRC>& 
-    operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    const type& operator=( const DistMatrix<T,MC,  MR  >& A );
+    const type& operator=( const DistMatrix<T,MC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MR  >& A );
+    const type& operator=( const DistMatrix<T,MD,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MD  >& A );
+    const type& operator=( const DistMatrix<T,MR,  MC  >& A );
+    const type& operator=( const DistMatrix<T,MR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MC  >& A );
+    const type& operator=( const DistMatrix<T,VC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VC  >& A );
+    const type& operator=( const DistMatrix<T,VR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VR  >& A );
+    const type& operator=( const DistMatrix<T,STAR,STAR>& A );
+    const type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -88,45 +89,23 @@ public:
     // Non-collective routines
     //
 
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
     virtual elem::DistData DistData() const;
-
-    virtual bool Participating() const;
-
-    //
-    // Collective routines
-    //
-
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void Update( Int i, Int j, T alpha );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex data
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
-    virtual void MakeConsistent();
+    virtual mpi::Comm DistComm() const;
+    virtual mpi::Comm CrossComm() const;
+    virtual mpi::Comm RedundantComm() const;
+    virtual mpi::Comm ColComm() const;
+    virtual mpi::Comm RowComm() const;
+    virtual Int RowStride() const;
+    virtual Int ColStride() const;
 
     //------------------------------------------------------------------------//
     // Routines specific to [o ,o ] distribution                              //
     //------------------------------------------------------------------------//
 
-    Int Root() const;
-
     //
     // Collective routines
     //
 
-    void SetRoot( Int root );
-    
     // (Immutable) view of the matrix's buffer (only valid pointer on root)
     void Attach
     ( Int height, Int width,
@@ -136,14 +115,13 @@ public:
       const T* buffer, Int ldim, const elem::Grid& grid, Int root );
 
 private:
-    Int root_;
 #ifndef SWIG
     template<typename S,Distribution U,Distribution V>
     friend class DistMatrix;
 #endif // ifndef SWIG
 
     // Exchange metadata with A
-    virtual void ShallowSwap( DistMatrix<T,CIRC,CIRC>& A );
+    virtual void ShallowSwap( type& A );
 };
 
 } // namespace elem

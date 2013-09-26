@@ -46,8 +46,8 @@ Transpose
     CallStackEntry entry("Transpose");
 #endif
     if( U == Z && V == W && 
-        A.ColAlignment() == B.RowAlignment() &&
-        A.RowAlignment() == B.ColAlignment() )
+        A.ColAlign() == B.RowAlign() &&
+        A.RowAlign() == B.ColAlign() )
     {
         B.ResizeTo( A.Width(), A.Height() );
         Transpose( A.LockedMatrix(), B.Matrix(), conjugate );

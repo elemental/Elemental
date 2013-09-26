@@ -54,11 +54,11 @@ PanelU
         LogicError("X must be a column panel");
     if( Y.Width() != nX )
         LogicError("Y is the wrong width");
-    if( A.ColAlignment() != X.ColAlignment() || 
-        A.RowAlignment() != X.RowAlignment() )
+    if( A.ColAlign() != X.ColAlign() || 
+        A.RowAlign() != X.RowAlign() )
         LogicError("A and X must be aligned");
-    if( A.ColAlignment() != Y.ColAlignment() ||
-        A.RowAlignment() != Y.RowAlignment() )
+    if( A.ColAlign() != Y.ColAlign() ||
+        A.RowAlign() != Y.RowAlign() )
         LogicError("A and Y must be aligned");
 #endif
     typedef BASE(F) Real;
@@ -116,9 +116,9 @@ PanelU
         auto tauQ1    = View( tQ, k, 0, 1, 1 );
         auto tauP1    = View( tP, k, 0, 1, 1 );
 
-        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlignment() );
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
-        const bool nextIsMyCol = ( g.Col() == a12.RowAlignment() ) ;
+        const bool thisIsMyRow = ( g.Row() == alpha11.ColAlign() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
+        const bool nextIsMyCol = ( g.Col() == a12.RowAlign() ) ;
 
         // Update the current column of A:
         //   aB1 := aB1 - ABL y10^H - XBL a01
@@ -255,7 +255,7 @@ PanelU
                 alpha12L.SetLocal(0,0,F(1));
             }
         }
-        mpi::Broadcast( &tauP, 1, alpha11.ColAlignment(), g.ColComm() );
+        mpi::Broadcast( &tauP, 1, alpha11.ColAlign(), g.ColComm() );
 
         //
         // (Keep in mind that a12 is currently overwritten with its conjugate.

@@ -16,10 +16,10 @@ AbstractDistMatrix<T>::AbstractDistMatrix( const elem::Grid& grid )
   height_(0), width_(0), 
   auxMemory_(), 
   matrix_(0,0,true), 
-  constrainedColAlignment_(false), 
-  constrainedRowAlignment_(false),
-  colAlignment_(0), rowAlignment_(0),
-  colShift_(0), rowShift_(0),
+  colConstrained_(false), rowConstrained_(false),
+  colAlign_(0), rowAlign_(0),
+  colShift_(0), rowShift_(0), 
+  root_(0),
   grid_(&grid)
 { }
 
@@ -27,10 +27,10 @@ template<typename T>
 AbstractDistMatrix<T>::AbstractDistMatrix( AbstractDistMatrix<T>&& A )
 : viewType_(A.viewType_),
   height_(A.height_), width_(A.width_), 
-  constrainedColAlignment_(A.constrainedColAlignment_), 
-  constrainedRowAlignment_(A.constrainedRowAlignment_),
-  colAlignment_(A.colAlignment_), rowAlignment_(A.rowAlignment_),
-  colShift_(A.colShift_), rowShift_(A.rowShift_),
+  colConstrained_(A.colConstrained_), rowConstrained_(A.rowConstrained_),
+  colAlign_(A.colAlign_), rowAlign_(A.rowAlign_),
+  colShift_(A.colShift_), rowShift_(A.rowShift_), 
+  root_(A.root_),
   grid_(A.grid_)
 { 
     matrix_.ShallowSwap( A.matrix_ );
@@ -46,12 +46,13 @@ AbstractDistMatrix<T>::operator=( AbstractDistMatrix<T>&& A )
     viewType_ = A.viewType_;
     height_ = A.height_;
     width_ = A.width_;
-    constrainedColAlignment_ = A.constrainedColAlignment_;
-    constrainedRowAlignment_ = A.constrainedRowAlignment_;
-    colAlignment_ = A.colAlignment_;
-    rowAlignment_ = A.rowAlignment_;
+    colConstrained_ = A.colConstrained_;
+    rowConstrained_ = A.rowConstrained_;
+    colAlign_ = A.colAlign_;
+    rowAlign_ = A.rowAlign_;
     colShift_ = A.colShift_;
     rowShift_ = A.rowShift_;
+    root_ = A.root_;
     grid_ = A.grid_;
     return *this;
 }
@@ -69,12 +70,13 @@ AbstractDistMatrix<T>::ShallowSwap( AbstractDistMatrix<T>& A )
     std::swap( viewType_, A.viewType_ );
     std::swap( height_ , A.height_ );
     std::swap( width_, A.width_ );
-    std::swap( constrainedColAlignment_, A.constrainedColAlignment_ );
-    std::swap( constrainedRowAlignment_, A.constrainedRowAlignment_ );
-    std::swap( colAlignment_, A.colAlignment_ );
-    std::swap( rowAlignment_, A.rowAlignment_ );
+    std::swap( colConstrained_, A.colConstrained_ );
+    std::swap( rowConstrained_, A.rowConstrained_ );
+    std::swap( colAlign_, A.colAlign_ );
+    std::swap( rowAlign_, A.rowAlign_ );
     std::swap( colShift_, A.colShift_ );
     std::swap( rowShift_, A.rowShift_ );
+    std::swap( root_, A.root_ );
     std::swap( grid_, A.grid_ );
 }
 
@@ -156,7 +158,7 @@ AssertConforming1x2
             << AR.Width();
         LogicError( msg.str() );
     }
-    if( AL.ColAlignment() != AR.ColAlignment() )
+    if( AL.ColAlign() != AR.ColAlign() )
         LogicError("1x2 is misaligned");
 }
 
@@ -173,7 +175,7 @@ AssertConforming2x1
             << AB.Width();
         LogicError( msg.str() );
     }
-    if( AT.RowAlignment() != AB.RowAlignment() )
+    if( AT.RowAlign() != AB.RowAlign() )
         LogicError("2x1 is not aligned");
 }
 
@@ -194,52 +196,52 @@ AssertConforming2x2
             << "  BR is " << ABR.Height() << " x " << ABR.Width();
         LogicError( msg.str() );
     }
-    if( ATL.ColAlignment() != ATR.ColAlignment() ||
-        ABL.ColAlignment() != ABR.ColAlignment() ||
-        ATL.RowAlignment() != ABL.RowAlignment() ||
-        ATR.RowAlignment() != ABR.RowAlignment() )
+    if( ATL.ColAlign() != ATR.ColAlign() ||
+        ABL.ColAlign() != ABR.ColAlign() ||
+        ATL.RowAlign() != ABL.RowAlign() ||
+        ATR.RowAlign() != ABR.RowAlign() )
         LogicError("2x2 set of matrices must aligned to combine");
 }
 #endif // RELEASE
 
 template<typename T>
 void
-AbstractDistMatrix<T>::Align( Int colAlignment, Int rowAlignment )
+AbstractDistMatrix<T>::Align( Int colAlign, Int rowAlign )
 { 
 #ifndef RELEASE
     CallStackEntry cse("AbstractDistMatrix::Align");    
 #endif
     Empty();
-    colAlignment_ = colAlignment;
-    rowAlignment_ = rowAlignment;
-    constrainedColAlignment_ = true;
-    constrainedRowAlignment_ = true;
+    colAlign_ = colAlign;
+    rowAlign_ = rowAlign;
+    colConstrained_ = true;
+    rowConstrained_ = true;
     SetShifts();
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignCols( Int colAlignment )
+AbstractDistMatrix<T>::AlignCols( Int colAlign )
 { 
 #ifndef RELEASE
     CallStackEntry cse("AbstractDistMatrix::AlignCols"); 
 #endif
     EmptyData();
-    colAlignment_ = colAlignment;
-    constrainedColAlignment_ = true;
+    colAlign_ = colAlign;
+    colConstrained_ = true;
     SetShifts();
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::AlignRows( Int rowAlignment )
+AbstractDistMatrix<T>::AlignRows( Int rowAlign )
 { 
 #ifndef RELEASE
     CallStackEntry cse("AbstractDistMatrix::AlignRows"); 
 #endif
     EmptyData();
-    rowAlignment_ = rowAlignment;
-    constrainedRowAlignment_ = true;
+    rowAlign_ = rowAlign;
+    rowConstrained_ = true;
     SetShifts();
 }
 
@@ -258,8 +260,8 @@ void
 AbstractDistMatrix<T>::AlignColsWith( const elem::DistData& data )
 { 
     EmptyData(); 
-    colAlignment_ = 0; 
-    constrainedColAlignment_ = false; 
+    colAlign_ = 0; 
+    colConstrained_ = false; 
     SetShifts(); 
 }
 
@@ -273,8 +275,8 @@ void
 AbstractDistMatrix<T>::AlignRowsWith( const elem::DistData& data )
 { 
     EmptyData(); 
-    rowAlignment_ = 0; 
-    constrainedRowAlignment_ = false;
+    rowAlign_ = 0; 
+    rowConstrained_ = false;
     SetShifts(); 
 }
 
@@ -285,96 +287,64 @@ AbstractDistMatrix<T>::AlignRowsWith( const AbstractDistMatrix<T>& A )
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SetAlignmentsAndResize
-( Int colAlign, Int rowAlign, Int height, Int width )
+AbstractDistMatrix<T>::AlignAndResize
+( Int colAlign, Int rowAlign, Int height, Int width, bool force )
 {
 #ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::SetAlignmentsAndResize");
+    CallStackEntry cse("AbstractDistMatrix::AlignAndResize");
 #endif
     if( !Viewing() )
     {
-        if( !ConstrainedColAlignment() )
+        if( !ColConstrained() )
         {
-            colAlignment_ = colAlign;
+            colAlign_ = colAlign;
             SetColShift(); 
         }
-        if( !ConstrainedRowAlignment() )
+        if( !RowConstrained() )
         {
-            rowAlignment_ = rowAlign;
+            rowAlign_ = rowAlign;
             SetRowShift();
         }
     }
     ResizeTo( height, width );
+    if( force )
+        if( colAlign_ != colAlign || rowAlign_ != rowAlign )
+            LogicError("Could not set alignments"); 
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::ForceAlignmentsAndResize
-( Int colAlign, Int rowAlign, Int height, Int width )
+AbstractDistMatrix<T>::AlignColsAndResize
+( Int colAlign, Int height, Int width, bool force )
 {
 #ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::ForceAlignmentsAndResize");
+    CallStackEntry cse("AbstractDistMatrix::AlignColsAndResize");
 #endif
-    SetAlignmentsAndResize( colAlign, rowAlign, height, width );
-    if( colAlignment_ != colAlign || rowAlignment_ != rowAlign )
-        LogicError("Could not set alignments"); 
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::SetColAlignmentAndResize
-( Int colAlign, Int height, Int width )
-{
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::SetColAlignmentAndResize");
-#endif
-    if( !Viewing() && !ConstrainedColAlignment() )
+    if( !Viewing() && !ColConstrained() )
     {
-        colAlignment_ = colAlign;
+        colAlign_ = colAlign;
         SetColShift(); 
     }
     ResizeTo( height, width );
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::ForceColAlignmentAndResize
-( Int colAlign, Int height, Int width )
-{
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::ForceColAlignmentAndResize");
-#endif
-    SetColAlignmentAndResize( colAlign, height, width );
-    if( colAlignment_ != colAlign )
+    if( force && colAlign_ != colAlign )
         LogicError("Could not set col alignment");
 }
 
 template<typename T>
 void
-AbstractDistMatrix<T>::SetRowAlignmentAndResize
-( Int rowAlign, Int height, Int width )
+AbstractDistMatrix<T>::AlignRowsAndResize
+( Int rowAlign, Int height, Int width, bool force )
 {
 #ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::SetRowAlignmentAndResize");
+    CallStackEntry cse("AbstractDistMatrix::AlignRowsAndResize");
 #endif
-    if( !Viewing() && !ConstrainedRowAlignment() )
+    if( !Viewing() && !RowConstrained() )
     {
-        rowAlignment_ = rowAlign;
+        rowAlign_ = rowAlign;
         SetRowShift(); 
     }
     ResizeTo( height, width );
-}
-
-template<typename T>
-void
-AbstractDistMatrix<T>::ForceRowAlignmentAndResize
-( Int rowAlign, Int height, Int width )
-{
-#ifndef RELEASE
-    CallStackEntry cse("AbstractDistMatrix::ForceRowAlignmentAndResize");
-#endif
-    SetRowAlignmentAndResize( rowAlign, height, width );
-    if( rowAlignment_ != rowAlign )
+    if( force && rowAlign_ != rowAlign )
         LogicError("Could not set row alignment");
 }
 
@@ -407,29 +377,29 @@ template<typename T>
 void
 AbstractDistMatrix<T>::FreeAlignments() 
 { 
-    constrainedColAlignment_ = false;
-    constrainedRowAlignment_ = false;
+    colConstrained_ = false;
+    rowConstrained_ = false;
 }
     
 template<typename T>
 bool
-AbstractDistMatrix<T>::ConstrainedColAlignment() const
-{ return constrainedColAlignment_; }
+AbstractDistMatrix<T>::ColConstrained() const
+{ return colConstrained_; }
 
 template<typename T>
 bool
-AbstractDistMatrix<T>::ConstrainedRowAlignment() const
-{ return constrainedRowAlignment_; }
+AbstractDistMatrix<T>::RowConstrained() const
+{ return rowConstrained_; }
 
 template<typename T>
 Int
-AbstractDistMatrix<T>::ColAlignment() const
-{ return colAlignment_; }
+AbstractDistMatrix<T>::ColAlign() const
+{ return colAlign_; }
 
 template<typename T>
 Int
-AbstractDistMatrix<T>::RowAlignment() const
-{ return rowAlignment_; }
+AbstractDistMatrix<T>::RowAlign() const
+{ return rowAlign_; }
 
 template<typename T>
 Int
@@ -440,6 +410,71 @@ template<typename T>
 Int
 AbstractDistMatrix<T>::RowShift() const
 { return rowShift_; }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::ColRank() const
+{ 
+    if( grid_->InGrid() )
+        return mpi::CommRank(ColComm());
+    else
+        return mpi::UNDEFINED;
+}
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::RowRank() const
+{
+    if( grid_->InGrid() )
+        return mpi::CommRank(RowComm());
+    else
+        return mpi::UNDEFINED;
+}
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::DistRank() const
+{ return mpi::CommRank(DistComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::CrossRank() const
+{ return mpi::CommRank(CrossComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::RedundantRank() const
+{ return mpi::CommRank(RedundantComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::DistSize() const
+{ return mpi::CommSize(DistComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::CrossSize() const
+{ return mpi::CommSize(CrossComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::RedundantSize() const
+{ return mpi::CommSize(RedundantComm()); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::RowOwner( Int i ) const
+{ return (i+ColAlign()) % ColStride(); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::ColOwner( Int j ) const
+{ return (j+RowAlign()) % RowStride(); }
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::Owner( Int i, Int j ) const
+{ return this->RowOwner(i)+this->ColOwner(j)*this->ColStride(); }
 
 template<typename T>
 const elem::Grid&
@@ -467,9 +502,283 @@ AbstractDistMatrix<T>::LDim() const
 { return matrix_.LDim(); }
 
 template<typename T>
+void
+AbstractDistMatrix<T>::ResizeTo( Int height, Int width )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::ResizeTo");
+    AssertNotLocked();
+#endif
+    height_ = height; 
+    width_ = width;
+    if( Participating() )
+        matrix_.ResizeTo_
+        ( Length(height,ColShift(),ColStride()),
+          Length(width,RowShift(),RowStride()) );
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::ResizeTo( Int height, Int width, Int ldim )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::ResizeTo");
+    AssertNotLocked();
+#endif
+    height_ = height; 
+    width_ = width;
+    if( Participating() )
+        matrix_.ResizeTo_
+        ( Length(height,ColShift(),ColStride()),
+          Length(width,RowShift(),RowStride()), ldim );
+}
+
+template<typename T>
+T
+AbstractDistMatrix<T>::Get( Int i, Int j ) const
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::Get");
+    if( !grid_->InGrid() )
+        LogicError("Get should only be called in-grid");
+#endif
+    T value;
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            value = GetLocal( iLoc, jLoc );
+        }
+        mpi::Broadcast( value, owner, DistComm() );
+    }
+    mpi::Broadcast( value, Root(), CrossComm() ); 
+    return value;
+}
+
+template<typename T>
+BASE(T)
+AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::GetRealPart");
+    if( !grid_->InGrid() )
+        LogicError("Get should only be called in-grid");
+#endif
+    BASE(T) value;
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            value = GetLocalRealPart( iLoc, jLoc );
+        }
+        mpi::Broadcast( value, owner, DistComm() );
+    }
+    mpi::Broadcast( value, Root(), CrossComm() );
+    return value;
+}
+
+template<typename T>
+BASE(T)
+AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::GetImagPart");
+    if( !grid_->InGrid() )
+        LogicError("Get should only be called in-grid");
+#endif
+    BASE(T) value;
+    if( IsComplex<T>::val )
+    {
+        if( CrossRank() == Root() )
+        {
+            const Int owner = Owner( i, j );
+            if( owner == DistRank() )
+            {
+                const Int iLoc = (i-ColShift()) / ColStride();
+                const Int jLoc = (j-RowShift()) / RowStride();
+                value = GetLocalRealPart( iLoc, jLoc );
+            }
+            mpi::Broadcast( value, owner, DistComm() );
+        }
+        mpi::Broadcast( value, Root(), CrossComm() );
+    }
+    else
+        value = 0;
+    return value;
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::Set( Int i, Int j, T value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::Set");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            SetLocal( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SetRealPart( Int i, Int j, BASE(T) value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::SetRealPart");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            SetLocalRealPart( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SetImagPart( Int i, Int j, BASE(T) value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::SetImagPart");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            SetLocalImagPart( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::Update( Int i, Int j, T value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::Update");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            UpdateLocal( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateRealPart( Int i, Int j, BASE(T) value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::UpdateRealPart");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            UpdateLocalRealPart( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateImagPart( Int i, Int j, BASE(T) value )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::UpdateImagPart");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            UpdateLocalImagPart( iLoc, jLoc, value );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::MakeReal( Int i, Int j )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::MakeReal");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            MakeRealLocal( iLoc, jLoc );
+        }
+    }
+}
+
+template<typename T>
+void
+AbstractDistMatrix<T>::Conjugate( Int i, Int j )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::Conjugate");
+#endif
+    if( CrossRank() == Root() )
+    {
+        const Int owner = Owner( i, j );
+        if( owner == DistRank() )
+        {
+            const Int iLoc = (i-ColShift()) / ColStride();
+            const Int jLoc = (j-RowShift()) / RowStride();
+            ConjugateLocal( iLoc, jLoc );
+        }
+    }
+}
+
+template<typename T>
 T
 AbstractDistMatrix<T>::GetLocal( Int i, Int j ) const
 { return matrix_.Get(i,j); }
+
+template<typename T>
+BASE(T)
+AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
+{ return matrix_.GetRealPart(iLoc,jLoc); }
+
+template<typename T>
+BASE(T)
+AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
+{ return matrix_.GetImagPart(iLoc,jLoc); }
 
 template<typename T>
 void
@@ -478,8 +787,42 @@ AbstractDistMatrix<T>::SetLocal( Int iLoc, Int jLoc, T alpha )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SetLocalRealPart
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.SetRealPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::SetLocalImagPart
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.SetImagPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::UpdateLocal( Int iLoc, Int jLoc, T alpha )
 { matrix_.Update(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateLocalRealPart
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::UpdateLocalImagPart
+( Int iLoc, Int jLoc, BASE(T) alpha )
+{ matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::MakeRealLocal( Int iLoc, Int jLoc )
+{ matrix_.MakeReal( iLoc, jLoc ); }
+
+template<typename T>
+void
+AbstractDistMatrix<T>::ConjugateLocal( Int iLoc, Int jLoc )
+{ matrix_.Conjugate( iLoc, jLoc ); }
 
 template<typename T>
 T*
@@ -509,10 +852,10 @@ AbstractDistMatrix<T>::Empty()
     viewType_ = OWNER;
     height_ = 0;
     width_ = 0;
-    colAlignment_ = 0;
-    rowAlignment_ = 0;
-    constrainedColAlignment_ = false;
-    constrainedRowAlignment_ = false;
+    colAlign_ = 0;
+    rowAlign_ = 0;
+    colConstrained_ = false;
+    rowConstrained_ = false;
 }
 
 template<typename T>
@@ -528,45 +871,7 @@ AbstractDistMatrix<T>::EmptyData()
 template<typename T>
 bool
 AbstractDistMatrix<T>::Participating() const
-{ return grid_->InGrid(); }
-
-//
-// Complex-only specializations
-//
-
-template<typename T>
-BASE(T)
-AbstractDistMatrix<T>::GetLocalRealPart( Int iLoc, Int jLoc ) const
-{ return matrix_.GetRealPart(iLoc,jLoc); }
-
-template<typename T>
-BASE(T)
-AbstractDistMatrix<T>::GetLocalImagPart( Int iLoc, Int jLoc ) const
-{ return matrix_.GetImagPart(iLoc,jLoc); }
-
-template<typename T>
-void
-AbstractDistMatrix<T>::SetLocalRealPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
-{ matrix_.SetRealPart(iLoc,jLoc,alpha); }
-
-template<typename T>
-void
-AbstractDistMatrix<T>::SetLocalImagPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
-{ matrix_.SetImagPart(iLoc,jLoc,alpha); }
-
-template<typename T>
-void
-AbstractDistMatrix<T>::UpdateLocalRealPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
-{ matrix_.UpdateRealPart(iLoc,jLoc,alpha); }
-
-template<typename T>
-void
-AbstractDistMatrix<T>::UpdateLocalImagPart
-( Int iLoc, Int jLoc, BASE(T) alpha )
-{ matrix_.UpdateImagPart(iLoc,jLoc,alpha); }
+{ return grid_->InGrid() && (CrossRank()==root_); }
 
 template<typename T>
 void
@@ -574,8 +879,8 @@ AbstractDistMatrix<T>::SetShifts()
 {
     if( Participating() )
     {
-        colShift_ = Shift(ColRank(),colAlignment_,ColStride());
-        rowShift_ = Shift(RowRank(),rowAlignment_,RowStride());
+        colShift_ = Shift(ColRank(),colAlign_,ColStride());
+        rowShift_ = Shift(RowRank(),rowAlign_,RowStride());
     }
     else
     {
@@ -589,7 +894,7 @@ void
 AbstractDistMatrix<T>::SetColShift()
 {
     if( Participating() )
-        colShift_ = Shift(ColRank(),colAlignment_,ColStride());
+        colShift_ = Shift(ColRank(),colAlign_,ColStride());
     else
         colShift_ = 0;
 }
@@ -599,7 +904,7 @@ void
 AbstractDistMatrix<T>::SetRowShift()
 {
     if( Participating() )
-        rowShift_ = Shift(RowRank(),rowAlignment_,RowStride());
+        rowShift_ = Shift(RowRank(),rowAlign_,RowStride());
     else
         rowShift_ = 0;
 }
@@ -615,21 +920,30 @@ AbstractDistMatrix<T>::SetGrid( const elem::Grid& grid )
 
 template<typename T>
 void
+AbstractDistMatrix<T>::SetRoot( Int root )
+{
+#ifndef RELEASE
+    CallStackEntry cse("ADM::SetRoot");
+    if( root < 0 || root >= mpi::CommSize(CrossComm()) )
+        LogicError("Invalid root");
+#endif
+    if( root != root_ )
+        Empty();
+    root_ = root;
+}
+
+template<typename T>
+Int
+AbstractDistMatrix<T>::Root() const
+{ return root_; }
+
+template<typename T>
+void
 AbstractDistMatrix<T>::ComplainIfReal() const
 { 
     if( !IsComplex<T>::val )
         LogicError("Called complex-only routine with real data");
 }
-
-template<typename T>
-BASE(T)
-AbstractDistMatrix<T>::GetRealPart( Int i, Int j ) const
-{ return RealPart(Get(i,j)); }
-
-template<typename T>
-BASE(T)
-AbstractDistMatrix<T>::GetImagPart( Int i, Int j ) const
-{ return ImagPart(Get(i,j)); }
 
 template<typename T>
 void
@@ -638,38 +952,39 @@ AbstractDistMatrix<T>::MakeConsistent()
 #ifndef RELEASE
     CallStackEntry cse("AbstractDistMatrix::MakeConsistent");
 #endif
-    const elem::Grid& g = this->Grid();
-    const Int root = g.VCToViewingMap(0);
-    Int message[7];
-    if( g.ViewingRank() == root )
+    const elem::Grid& g = *grid_;
+    const Int vcRoot = g.VCToViewingMap(0);
+    Int message[8];
+    if( g.ViewingRank() == vcRoot )
     {
         message[0] = viewType_;
         message[1] = height_;
         message[2] = width_;
-        message[3] = constrainedColAlignment_;
-        message[4] = constrainedRowAlignment_;
-        message[5] = colAlignment_;
-        message[6] = rowAlignment_;
+        message[3] = colConstrained_;
+        message[4] = rowConstrained_;
+        message[5] = colAlign_;
+        message[6] = rowAlign_;
+        message[7] = root_;
     }
-    mpi::Broadcast( message, 7, root, g.ViewingComm() );
+    mpi::Broadcast( message, 8, vcRoot, g.ViewingComm() );
     const ViewType newViewType = static_cast<ViewType>(message[0]);
     const Int newHeight = message[1]; 
     const Int newWidth = message[2];
     const bool newConstrainedCol = message[3];
     const bool newConstrainedRow = message[4];
-    const Int newColAlignment = message[5];
-    const Int newRowAlignment = message[6];
-    if( !this->Participating() )
+    const Int newColAlign = message[5];
+    const Int newRowAlign = message[6];
+    const Int root = message[7];
+    if( !Participating() )
     {
+        SetRoot( root );
         viewType_ = newViewType;
-        height_ = newHeight;
-        width_ = newWidth;
-        constrainedColAlignment_ = newConstrainedCol;
-        constrainedRowAlignment_ = newConstrainedRow;
-        colAlignment_ = newColAlignment;
-        rowAlignment_ = newRowAlignment;
-        colShift_ = 0;
-        rowShift_ = 0;
+        colConstrained_ = newConstrainedCol;
+        rowConstrained_ = newConstrainedRow;
+        colAlign_ = newColAlign;
+        rowAlign_ = newRowAlign;
+        SetShifts();
+        ResizeTo( newHeight, newWidth );
     }
 #ifndef RELEASE
     else
@@ -680,12 +995,12 @@ AbstractDistMatrix<T>::MakeConsistent()
             LogicError("Inconsistent height");
         if( width_ != newWidth )
             LogicError("Inconsistent width");
-        if( constrainedColAlignment_ != newConstrainedCol || 
-            colAlignment_ != newColAlignment )
+        if( colConstrained_ != newConstrainedCol || colAlign_ != newColAlign )
             LogicError("Inconsistent column constraint");
-        if( constrainedRowAlignment_ != newConstrainedRow ||
-            rowAlignment_ != newRowAlignment )
+        if( rowConstrained_ != newConstrainedRow || rowAlign_ != newRowAlign )
             LogicError("Inconsistent row constraint");
+        if( root != root_ )
+            LogicError("Inconsistent root");
     }
 #endif
 }
@@ -707,9 +1022,13 @@ PROTO(Complex<double>);
 #ifndef RELEASE
 
 #define CONFORMING(T) \
-  template void AssertConforming1x2( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR ); \
-  template void AssertConforming2x1( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB ); \
-  template void AssertConforming2x2( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR, const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR )
+  template void AssertConforming1x2\
+  ( const AbstractDistMatrix<T>& AL, const AbstractDistMatrix<T>& AR ); \
+  template void AssertConforming2x1\
+  ( const AbstractDistMatrix<T>& AT, const AbstractDistMatrix<T>& AB ); \
+  template void AssertConforming2x2\
+  ( const AbstractDistMatrix<T>& ATL, const AbstractDistMatrix<T>& ATR,\
+    const AbstractDistMatrix<T>& ABL, const AbstractDistMatrix<T>& ABR )
 
 CONFORMING(Int);
 #ifndef DISABLE_FLOAT

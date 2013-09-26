@@ -161,48 +161,52 @@ FrobeniusNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("FrobeniusNorm");
 #endif
-    typedef BASE(F) R;
-    R localScale = 0;
-    R localScaledSquare = 1;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
     {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        Real locScale=0, locScaledSquare=1;
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
-            if( alphaAbs != 0 )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             {
-                if( alphaAbs <= localScale )
+                const Real alphaAbs = Abs(A.GetLocal(iLoc,jLoc));
+                if( alphaAbs != 0 )
                 {
-                    const R relScale = alphaAbs/localScale;
-                    localScaledSquare += relScale*relScale;
-                }
-                else
-                {
-                    const R relScale = localScale/alphaAbs;
-                    localScaledSquare = localScaledSquare*relScale*relScale + 1;
-                    localScale = alphaAbs; 
+                    if( alphaAbs <= locScale )
+                    {
+                        const Real relScale = alphaAbs/locScale;
+                        locScaledSquare += relScale*relScale;
+                    }
+                    else
+                    {
+                        const Real relScale = locScale/alphaAbs;
+                        locScaledSquare = locScaledSquare*relScale*relScale + 1;
+                        locScale = alphaAbs; 
+                    }
                 }
             }
         }
+
+        // Find the maximum relative scale
+        mpi::Comm comm = A.DistComm();
+        const Real scale = mpi::AllReduce( locScale, mpi::MAX, comm );
+
+        norm = 0;
+        if( scale != 0 )
+        {
+            // Equilibrate our local scaled sum to the maximum scale
+            Real relScale = locScale/scale;
+            locScaledSquare *= relScale*relScale;
+
+            // The scaled square is now the sum of the local contributions
+            const Real scaledSquare = mpi::AllReduce( locScaledSquare, comm );
+            norm = scale*Sqrt(scaledSquare);
+        }
     }
-
-    // Find the maximum relative scale
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    const R scale = mpi::AllReduce( localScale, mpi::MAX, comm );
-
-    R norm = 0;
-    if( scale != 0 )
-    {
-        // Equilibrate our local scaled sum to the maximum scale
-        R relScale = localScale/scale;
-        localScaledSquare *= relScale*relScale;
-
-        // The scaled square is now simply the sum of the local contributions
-        const R scaledSquare = mpi::AllReduce( localScaledSquare, comm );
-        norm = scale*Sqrt(scaledSquare);
-    }
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
     return norm;
 }
 

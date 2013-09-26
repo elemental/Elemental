@@ -160,6 +160,11 @@ Grid::SetUpGrid()
         ( myDiagPathAndRank.data(), 2, 
           diagPathsAndRanks_.data(), 2, vectorColComm_ );
 
+        mpi::CommSplit
+        ( cartComm_, DiagPath(), DiagPathRank(), matrixDiagComm_ );
+        mpi::CommSplit
+        ( cartComm_, DiagPathRank(), DiagPath(), matrixDiagPerpComm_ );
+
 #ifndef RELEASE
         mpi::ErrorHandlerSet
         ( matrixColComm_, mpi::ERRORS_RETURN );
@@ -169,6 +174,10 @@ Grid::SetUpGrid()
         ( vectorColComm_, mpi::ERRORS_RETURN );
         mpi::ErrorHandlerSet
         ( vectorRowComm_, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( matrixDiagComm_, mpi::ERRORS_RETURN );
+        mpi::ErrorHandlerSet
+        ( matrixDiagPerpComm_, mpi::ERRORS_RETURN );
 #endif
     }
     else
@@ -254,6 +263,14 @@ Grid::VCComm() const
 inline mpi::Comm 
 Grid::VRComm() const
 { return vectorRowComm_; }
+
+inline mpi::Comm
+Grid::MDComm() const
+{ return matrixDiagComm_; }
+
+inline mpi::Comm
+Grid::MDPerpComm() const
+{ return matrixDiagPerpComm_; }
 
 //
 // Provided for simplicity, but redundant

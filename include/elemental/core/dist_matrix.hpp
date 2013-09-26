@@ -14,10 +14,20 @@ namespace elem {
 struct DistData
 {
     Distribution colDist, rowDist;
-    Int colAlignment, rowAlignment; 
-    Int root;     // only relevant for [o ,o ]
-    Int diagPath; // only relevant for [MD,* ]/[* ,MD] distributions
+    Int colAlign, rowAlign; 
+    Int root;  // relevant for [o ,o ]/[MD,* ]/[* ,MD]
     const Grid* grid;
+
+    template<typename T,Distribution U,Distribution V>
+    DistData( const DistMatrix<T,U,V>& A )
+    {
+        colDist = U;
+        rowDist = V;
+        colAlign = A.ColAlign();
+        rowAlign = A.RowAlign();
+        root = A.Root();
+        grid = &A.Grid();
+    }
 };
 } // namespace elem
 

@@ -60,10 +60,10 @@ LocalSymmetricAccumulateLL
                                << Z_MR_STAR.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( B_MC_STAR.ColAlignment() != A.ColAlignment() ||
-        BTrans_STAR_MR.RowAlignment() != A.RowAlignment() ||
-        Z_MC_STAR.ColAlignment() != A.ColAlignment() ||
-        Z_MR_STAR.ColAlignment() != A.RowAlignment() )
+    if( B_MC_STAR.ColAlign() != A.ColAlign() ||
+        BTrans_STAR_MR.RowAlign() != A.RowAlign() ||
+        Z_MC_STAR.ColAlign() != A.ColAlign() ||
+        Z_MR_STAR.ColAlign() != A.RowAlign() )
         LogicError("Partial matrix distributions are misaligned");
 #endif
     const Grid& g = A.Grid();

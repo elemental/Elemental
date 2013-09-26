@@ -30,6 +30,7 @@ main( int argc, char* argv[] )
         const Int blocksize = Input("--blocksize","algorithmic blocksize",64);
         Int gridHeight = Input("--gridHeight","grid height",0);
         const bool details = Input("--details","print norm details?",false);
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -50,6 +51,11 @@ main( int argc, char* argv[] )
             Uniform( B, n, numRhs );
             ACopy = A;
             X = B;
+            if( print )
+            {
+                Print( A, "A" );
+                Print( B, "B" );
+            }
 
             // Perform the LU factorization and simultaneous solve
             if( commRank == 0 )

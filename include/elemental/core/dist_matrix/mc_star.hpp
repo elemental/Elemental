@@ -22,6 +22,9 @@ template<typename T>
 class DistMatrix<T,MC,STAR> : public AbstractDistMatrix<T>
 {
 public:
+    typedef AbstractDistMatrix<T> baseType;
+    typedef DistMatrix<T,MC,STAR> type;
+
     // Create a 0 x 0 distributed matrix
     DistMatrix( const elem::Grid& g=DefaultGrid() );
 
@@ -50,7 +53,7 @@ public:
       T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
-    DistMatrix( const DistMatrix<T,MC,STAR>& A );
+    DistMatrix( const type& A );
     template<Distribution U,Distribution V>
     DistMatrix( const DistMatrix<T,U,V>& A );
 
@@ -58,25 +61,25 @@ public:
 
 #ifndef SWIG
     // Move constructor
-    DistMatrix( DistMatrix<T,MC,STAR>&& A );
+    DistMatrix( type&& A );
     // Move assignment
-    DistMatrix<T,MC,STAR>& operator=( DistMatrix<T,MC,STAR>&& A );
+    type& operator=( type&& A );
 #endif
 
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,MC,MR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,MC,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,MR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,MD,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,MD>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,MR,MC>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,MR,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,MC>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,VC,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,VC>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,VR,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,VR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,STAR,STAR>& A );
-    const DistMatrix<T,MC,STAR>& operator=( const DistMatrix<T,CIRC,CIRC>& A );
+    const type& operator=( const DistMatrix<T,MC,  MR  >& A );
+    const type& operator=( const DistMatrix<T,MC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MR  >& A );
+    const type& operator=( const DistMatrix<T,MD,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MD  >& A );
+    const type& operator=( const DistMatrix<T,MR,  MC  >& A );
+    const type& operator=( const DistMatrix<T,MR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,MC  >& A );
+    const type& operator=( const DistMatrix<T,VC,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VC  >& A );
+    const type& operator=( const DistMatrix<T,VR,  STAR>& A );
+    const type& operator=( const DistMatrix<T,STAR,VR  >& A );
+    const type& operator=( const DistMatrix<T,STAR,STAR>& A );
+    const type& operator=( const DistMatrix<T,CIRC,CIRC>& A );
 
     //------------------------------------------------------------------------//
     // Overrides of AbstractDistMatrix                                        //
@@ -86,34 +89,24 @@ public:
     // Non-collective routines
     //
 
-    virtual Int ColStride() const;
-    virtual Int RowStride() const;
-    virtual Int ColRank() const;
-    virtual Int RowRank() const;
     virtual elem::DistData DistData() const;
+    virtual mpi::Comm DistComm() const;
+    virtual mpi::Comm CrossComm() const;
+    virtual mpi::Comm RedundantComm() const;
+    virtual mpi::Comm ColComm() const;
+    virtual mpi::Comm RowComm() const;
+    virtual Int RowStride() const;
+    virtual Int ColStride() const;
 
     //
     // Collective routines
     //
 
-    virtual T Get( Int i, Int j ) const;
-    virtual void Set( Int i, Int j, T alpha );
-    virtual void SetRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex datatypes
-    virtual void SetImagPart( Int i, Int j, BASE(T) u );
-    virtual void Update( Int i, Int j, T alpha );
-    virtual void UpdateRealPart( Int i, Int j, BASE(T) u );
-    // Only valid for complex datatypes
-    virtual void UpdateImagPart( Int i, Int j, BASE(T) u );
-
-    virtual void ResizeTo( Int height, Int width );
-    virtual void ResizeTo( Int height, Int width, Int ldim );
-
     // Distribution alignment
     virtual void AlignWith( const elem::DistData& data );
-    virtual void AlignWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignWith( const baseType& A );
     virtual void AlignColsWith( const elem::DistData& data );
-    virtual void AlignColsWith( const AbstractDistMatrix<T>& A );
+    virtual void AlignColsWith( const baseType& A );
 
     //------------------------------------------------------------------------//
     // Routines specific to [MC,* ] distribution                              //
@@ -123,7 +116,7 @@ public:
     // Collective routines
     //
 
-    void GetDiagonal( DistMatrix<T,MC,STAR>& d, Int offset=0 ) const;
+    void GetDiagonal( type& d, Int offset=0 ) const;
     void GetDiagonal( DistMatrix<T,STAR,MC>& d, Int offset=0 ) const;
     void GetRealPartOfDiagonal
     ( DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 ) const;
@@ -133,11 +126,11 @@ public:
     ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal
     ( DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 ) const;
-    DistMatrix<T,MC,STAR> GetDiagonal( Int offset=0 ) const;
+    type GetDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),MC,STAR> GetRealPartOfDiagonal( Int offset=0 ) const;
     DistMatrix<BASE(T),MC,STAR> GetImagPartOfDiagonal( Int offset=0 ) const;
 
-    void SetDiagonal( const DistMatrix<T,MC,STAR>& d, Int offset=0 );
+    void SetDiagonal( const type& d, Int offset=0 );
     void SetDiagonal( const DistMatrix<T,STAR,MC>& d, Int offset=0 );
     void SetRealPartOfDiagonal
     ( const DistMatrix<BASE(T),MC,STAR>& d, Int offset=0 );
@@ -151,11 +144,9 @@ public:
     ( const DistMatrix<BASE(T),STAR,MC>& d, Int offset=0 );
 
     void AlignWithDiagonal( const elem::DistData& data, Int offset=0 );
-    void AlignWithDiagonal( const AbstractDistMatrix<T>& A, Int offset=0 );
-    bool AlignedWithDiagonal
-    ( const elem::DistData& data, Int offset=0 ) const;
-    bool AlignedWithDiagonal
-    ( const AbstractDistMatrix<T>& A, Int offset=0 ) const;
+    void AlignWithDiagonal( const baseType& A, Int offset=0 );
+    bool AlignedWithDiagonal( const elem::DistData& data, Int offset=0 ) const;
+    bool AlignedWithDiagonal( const baseType& A, Int offset=0 ) const;
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach

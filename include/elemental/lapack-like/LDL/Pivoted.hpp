@@ -226,9 +226,9 @@ UnblockedPivoted
         if( conjugate )
         {
             // Force the active diagonal entries to be real
-            A.Set( k,    k,    A.GetRealPart(k,   k   ) );
-            A.Set( to,   to,   A.GetRealPart(to,  to  ) );
-            A.Set( from, from, A.GetRealPart(from,from) );
+            A.MakeReal( k,    k    );
+            A.MakeReal( to,   to   );
+            A.MakeReal( from, from );
         }
 
         // Update trailing submatrix and store pivots
@@ -362,9 +362,9 @@ PanelPivoted
         if( conjugate )
         {
             // Force the active diagonal entries to be real
-            A.Set( off+k, off+k, A.GetRealPart(off+k,off+k) );
-            A.Set( to,    to,    A.GetRealPart(to,   to   ) );
-            A.Set( from,  from,  A.GetRealPart(from, from ) );
+            A.MakeReal( off+k, off+k );
+            A.MakeReal( to,    to    );
+            A.MakeReal( from,  from  );
         }
 
         k += nb;

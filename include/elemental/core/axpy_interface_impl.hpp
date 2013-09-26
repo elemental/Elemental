@@ -193,10 +193,10 @@ AxpyInterface<T>::HandleLocalToGlobalData()
 
         // Update Y
         const T* XBuffer = reinterpret_cast<const T*>(head);
-        const Int colAlignment = (Y.ColAlignment()+i) % r;
-        const Int rowAlignment = (Y.RowAlignment()+j) % c;
-        const Int colShift = Shift( myRow, colAlignment, r );
-        const Int rowShift = Shift( myCol, rowAlignment, c );
+        const Int colAlign = (Y.ColAlign()+i) % r;
+        const Int rowAlign = (Y.RowAlign()+j) % c;
+        const Int colShift = Shift( myRow, colAlign, r );
+        const Int rowShift = Shift( myCol, rowAlign, c );
 
         const Int localHeight = Length( height, colShift, r );
         const Int localWidth = Length( width, rowShift, c );
@@ -252,10 +252,10 @@ AxpyInterface<T>::HandleGlobalToLocalRequest()
         const Int width = *reinterpret_cast<const Int*>(recvHead);
         recvHead += sizeof(Int);
 
-        const Int colAlignment = (X.ColAlignment()+i) % r;
-        const Int rowAlignment = (X.RowAlignment()+j) % c;
-        const Int colShift = Shift( myRow, colAlignment, r );
-        const Int rowShift = Shift( myCol, rowAlignment, c );
+        const Int colAlign = (X.ColAlign()+i) % r;
+        const Int rowAlign = (X.RowAlign()+j) % c;
+        const Int colShift = Shift( myRow, colAlign, r );
+        const Int rowShift = Shift( myCol, rowAlign, c );
 
         const Int iLocalOffset = Length( i, X.ColShift(), r );
         const Int jLocalOffset = Length( j, X.RowShift(), c );
@@ -539,8 +539,8 @@ AxpyInterface<T>::AxpyLocalToGlobal
     const Int p = g.Size();
     const Int myProcessRow = g.Row();
     const Int myProcessCol = g.Col();
-    const Int colAlignment = (Y.ColAlignment() + i) % r;
-    const Int rowAlignment = (Y.RowAlignment() + j) % c;
+    const Int colAlign = (Y.ColAlign() + i) % r;
+    const Int rowAlign = (Y.RowAlign() + j) % c;
 
     const Int height = X.Height();
     const Int width = X.Width();
@@ -549,8 +549,8 @@ AxpyInterface<T>::AxpyLocalToGlobal
     Int receivingCol = myProcessCol;
     for( Int step=0; step<p; ++step )
     {
-        const Int colShift = Shift( receivingRow, colAlignment, r );
-        const Int rowShift = Shift( receivingCol, rowAlignment, c );
+        const Int colShift = Shift( receivingRow, colAlign, r );
+        const Int rowShift = Shift( receivingCol, rowAlign, c );
         const Int localHeight = Length( height, colShift, r );
         const Int localWidth = Length( width, rowShift, c );
         const Int numEntries = localHeight*localWidth;
@@ -675,10 +675,10 @@ AxpyInterface<T>::AxpyGlobalToLocal
             const T* recvData = reinterpret_cast<const T*>(head);
 
             // Compute the local heights and offsets
-            const Int colAlignment = (X.ColAlignment()+i) % r;
-            const Int rowAlignment = (X.RowAlignment()+j) % c;
-            const Int colShift = Shift( row, colAlignment, r );
-            const Int rowShift = Shift( col, rowAlignment, c );
+            const Int colAlign = (X.ColAlign()+i) % r;
+            const Int rowAlign = (X.RowAlign()+j) % c;
+            const Int colShift = Shift( row, colAlign, r );
+            const Int rowShift = Shift( col, rowAlign, c );
             const Int localHeight = Length( height, colShift, r );
             const Int localWidth = Length( width, rowShift, c );
 

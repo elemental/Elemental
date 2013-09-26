@@ -52,16 +52,16 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
         LogicError("chi must be a scalar");
     if( x.Width() != 1 )
         LogicError("x must be a column vector");
-    if( chi.Grid().Col() != chi.RowAlignment() )
+    if( chi.Grid().Col() != chi.RowAlign() )
         LogicError("Reflecting with incorrect column of processes");
-    if( x.Grid().Col() != x.RowAlignment() )
+    if( x.Grid().Col() != x.RowAlign() )
         LogicError("Reflecting with incorrect column of processes");
 #endif
     const Grid& grid = x.Grid();
     mpi::Comm colComm = grid.ColComm();
     const Int gridHeight = grid.Height();
     const Int gridRow = grid.Row();
-    const Int colAlignment = chi.ColAlignment();
+    const Int colAlign = chi.ColAlign();
 
     std::vector<R> localNorms(gridHeight);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -70,15 +70,15 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
 
     if( norm == 0 )
     {
-        if( gridRow == colAlignment )
+        if( gridRow == colAlign )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
         return R(2);
     }
 
     R alpha;
-    if( gridRow == colAlignment )
+    if( gridRow == colAlign )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( alpha, colAlignment, colComm );
+    mpi::Broadcast( alpha, colAlign, colComm );
 
     R beta;
     if( alpha <= 0 )
@@ -116,7 +116,7 @@ Col( DistMatrix<R>& chi, DistMatrix<R>& x )
 
     for( Int j=0; j<count; ++j )
         beta *= safeInv;
-    if( gridRow == colAlignment )
+    if( gridRow == colAlign )
         chi.SetLocal(0,0,beta);
         
     return tau;
@@ -134,9 +134,9 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
         LogicError("chi must be a scalar");
     if( x.Width() != 1 )
         LogicError("x must be a column vector");
-    if( chi.Grid().Col() != chi.RowAlignment() )
+    if( chi.Grid().Col() != chi.RowAlign() )
         LogicError("Reflecting with incorrect column of processes");
-    if( x.Grid().Col() != x.RowAlignment() )
+    if( x.Grid().Col() != x.RowAlign() )
         LogicError("Reflecting with incorrect column of processes");
 #endif
     typedef Complex<R> C;
@@ -144,7 +144,7 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     mpi::Comm colComm = grid.ColComm();
     const Int gridHeight = grid.Height();
     const Int gridRow = grid.Row();
-    const Int colAlignment = chi.ColAlignment();
+    const Int colAlign = chi.ColAlign();
 
     std::vector<R> localNorms(gridHeight);
     R localNorm = Nrm2( x.LockedMatrix() ); 
@@ -152,13 +152,13 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
     R norm = blas::Nrm2( gridHeight, localNorms.data(), 1 );
 
     C alpha;
-    if( gridRow == colAlignment )
+    if( gridRow == colAlign )
         alpha = chi.GetLocal(0,0);
-    mpi::Broadcast( alpha, colAlignment, colComm );
+    mpi::Broadcast( alpha, colAlign, colComm );
 
     if( norm == R(0) && alpha.imag() == R(0) )
     {
-        if( gridRow == colAlignment )
+        if( gridRow == colAlign )
             chi.SetLocal(0,0,-chi.GetLocal(0,0));
         return C(2);
     }
@@ -199,7 +199,7 @@ Col( DistMatrix<Complex<R> >& chi, DistMatrix<Complex<R> >& x )
 
     for( Int j=0; j<count; ++j )
         beta *= safeInv;
-    if( gridRow == colAlignment )
+    if( gridRow == colAlign )
         chi.SetLocal(0,0,beta);
         
     return tau;

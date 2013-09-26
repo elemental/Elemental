@@ -84,7 +84,7 @@ Panel
     const Grid& g = A.Grid();
     const Int r = g.Height();
     const Int colShift = B.ColShift();
-    const Int colAlignment = B.ColAlignment();
+    const Int colAlign = B.ColAlign();
 
     // For packing rows of data for pivoting
     const Int n = A.Width();
@@ -145,7 +145,7 @@ Panel
             // The owning row of the pivot row packs it into the row buffer
             // and then overwrites with the current row
             const Int relIndex = iPiv - n;
-            const Int ownerRow = (colAlignment+relIndex) % r;
+            const Int ownerRow = (colAlign+relIndex) % r;
             if( g.Row() == ownerRow )
             {
                 const int iLoc = (relIndex-colShift) / r;

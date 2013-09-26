@@ -107,8 +107,8 @@ PanelHouseholder( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t )
         t.Set( k, 0, tau );
 
         // Apply the Householder reflector
-        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() && 
-                                       g.Col() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlign() && 
+                                       g.Col() == alpha11.RowAlign() );
         F alpha = 0;
         if( myDiagonalEntry )
         {

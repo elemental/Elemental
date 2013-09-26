@@ -15,7 +15,7 @@
 namespace elem {
 
 template<typename F>
-inline int
+inline Int
 ZeroNorm( const Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -32,15 +32,20 @@ ZeroNorm( const Matrix<F>& A )
 }
 
 template<typename F,Distribution U,Distribution V>
-inline int
+inline Int
 ZeroNorm( const DistMatrix<F,U,V>& A )
 {
 #ifndef RELEASE
     CallStackEntry entry("ZeroNorm");
 #endif
-    const Int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    return mpi::AllReduce( numLocalNonzeros, comm );
+    Int numNonzeros;
+    if( A.Participating() )
+    {
+        const Int numLocalNonzeros = ZeroNorm( A.LockedMatrix() );
+        numNonzeros = mpi::AllReduce( numLocalNonzeros, A.DistComm() );
+    }
+    mpi::Broadcast( numNonzeros, A.Root(), A.CrossComm() );
+    return numNonzeros;
 }
 
 } // namespace elem

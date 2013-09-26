@@ -202,7 +202,7 @@ TrsmLUNSmall
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( U.ColAlignment() != X.ColAlignment() )
+    if( U.ColAlign() != X.ColAlign() )
         LogicError("U and X are assumed to be aligned");
 #endif
     const Grid& g = U.Grid();

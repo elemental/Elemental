@@ -196,7 +196,7 @@ TrsmLLNSmall
 {
 #ifndef RELEASE
     CallStackEntry entry("internal::TrsmLLNSmall");
-    if( L.ColAlignment() != X.ColAlignment() )
+    if( L.ColAlign() != X.ColAlign() )
         LogicError("L and X are assumed to be aligned");
 #endif
     const Grid& g = L.Grid();

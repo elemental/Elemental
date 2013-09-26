@@ -94,6 +94,8 @@ public:
     void UpdateRealPart( Int i, Int j, BASE(T) alpha );
     // Only valid for complex data
     void UpdateImagPart( Int i, Int j, BASE(T) alpha );
+    void MakeReal( Int i, Int j );
+    void Conjugate( Int i, Int j );
 
     void GetRealPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;
     void GetImagPartOfDiagonal( Matrix<BASE(T)>& d, Int offset=0 ) const;

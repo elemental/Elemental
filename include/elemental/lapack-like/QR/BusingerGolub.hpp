@@ -395,7 +395,7 @@ BusingerGolub
 
     const Int mLocal = A.LocalHeight();
     const Int nLocal = A.LocalWidth();
-    const Int rowAlign = A.RowAlignment();
+    const Int rowAlign = A.RowAlign();
     const Int rowShift = A.RowShift();
     const Int rowStride = A.RowStride();
 
@@ -471,8 +471,8 @@ BusingerGolub
         t.Set( k, 0, tau );
 
         // Apply the Householder reflector
-        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlignment() &&
-                                       g.Col() == alpha11.RowAlignment() );
+        const bool myDiagonalEntry = ( g.Row() == alpha11.ColAlign() &&
+                                       g.Col() == alpha11.RowAlign() );
         F alpha = 0;
         if( myDiagonalEntry )
         {

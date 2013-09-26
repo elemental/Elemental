@@ -105,7 +105,7 @@ void PanelU
         auto a01T_MC_STAR = View( a01_MC_STAR, 0, 0, off, 1 );
         auto p01T_MC_STAR = View( p01_MC_STAR, 0, 0, off, 1 );
 
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
         if( thisIsMyCol )
         {
             if( !firstIteration )
@@ -121,7 +121,7 @@ void PanelU
             }
             // Compute the Householder reflector
             tau = reflector::Col( alpha01B, a01T );
-            if( g.Row() == alpha01B.ColAlignment() )
+            if( g.Row() == alpha01B.ColAlign() )
                 tau1.SetLocal(0,0,tau);
         }
 
@@ -147,7 +147,7 @@ void PanelU
             // Broadcast a01 and tau across the process row
             mpi::Broadcast
             ( rowBroadcastBuffer.data(), 
-              a01LocalHeight+1, a01.RowAlignment(), g.RowComm() );
+              a01LocalHeight+1, a01.RowAlign(), g.RowComm() );
             // Store a01[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
             MemCopy
@@ -186,7 +186,7 @@ void PanelU
             mpi::Broadcast
             ( rowBroadcastBuffer.data(), 
               a01LocalHeight+w01LastLocalHeight+1, 
-              a01.RowAlignment(), g.RowComm() );
+              a01.RowAlign(), g.RowComm() );
             // Store a01[MC,* ] into its DistMatrix class 
             MemCopy
             ( a01_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a01LocalHeight );
@@ -205,7 +205,7 @@ void PanelU
             MemCopy
             ( W_MC_STAR.Buffer(0,W00.Width()+1),
               &rowBroadcastBuffer[a01LocalHeight], w01LastLocalHeight );
-            if( g.Col() == w01Last.RowAlignment() )
+            if( g.Col() == w01Last.RowAlign() )
             {
                 MemCopy
                 ( w01Last.Buffer(),
@@ -222,8 +222,8 @@ void PanelU
             //   AllGather to [MR,* ]
             // We can combine the two by treating a01 as [a01; 0] 
 
-            const Int colAlignSource = A00.ColAlignment();
-            const Int colAlignDest = A00.RowAlignment();
+            const Int colAlignSource = A00.ColAlign();
+            const Int colAlignDest = A00.RowAlign();
             const Int colShiftSource = A00.ColShift();
             const Int colShiftDest = A00.RowShift();
 
@@ -445,8 +445,8 @@ void PanelU
             else
                 MemZero( &reduceToOneSendBuffer[localHeight], localHeight );
 
-            const Int nextProcessRow = (alpha11.ColAlignment()+r-1) % r;
-            const Int nextProcessCol = (alpha11.RowAlignment()+c-1) % c;
+            const Int nextProcessRow = (alpha11.ColAlign()+r-1) % r;
+            const Int nextProcessCol = (alpha11.RowAlign()+c-1) % c;
             mpi::Reduce
             ( reduceToOneSendBuffer.data(), reduceToOneRecvBuffer.data(),
               2*localHeight, nextProcessCol, g.RowComm() );

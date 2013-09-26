@@ -422,6 +422,32 @@ Matrix<T>::UpdateImagPart( Int i, Int j, BASE(T) alpha )
 
 template<typename T>
 void
+Matrix<T>::MakeReal( Int i, Int j )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::MakeReal");
+    AssertValidEntry( i, j );
+    if( Locked() )
+        LogicError("Cannot modify data of locked matrices");
+#endif
+    Set( i, j, GetRealPart(i,j) );
+}
+
+template<typename T>
+void
+Matrix<T>::Conjugate( Int i, Int j )
+{
+#ifndef RELEASE
+    CallStackEntry cse("Matrix::Conjugate");
+    AssertValidEntry( i, j );
+    if( Locked() )
+        LogicError("Cannot modify data of locked matrices");
+#endif
+    Set( i, j, elem::Conj(Get(i,j)) );
+}
+
+template<typename T>
+void
 Matrix<T>::GetDiagonal( Matrix<T>& d, Int offset ) const
 { 
 #ifndef RELEASE

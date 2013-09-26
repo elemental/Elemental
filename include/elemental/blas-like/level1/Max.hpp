@@ -98,38 +98,42 @@ Max( const DistMatrix<F,U,V>& A )
     CallStackEntry cse("Max");
 #endif
     typedef BASE(F) Real;
-    // Store the index/value of the local pivot candidate
-    ValueIntPair<Real> localPivot;
-    localPivot.value = 0;
-    localPivot.indices[0] = 0;
-    localPivot.indices[1] = 0;
-    const Int mLocal = A.LocalHeight();
-    const Int nLocal = A.LocalWidth();
-    const Int colShift = A.ColShift();
-    const Int rowShift = A.RowShift();
-    const Int colStride = A.ColStride();
-    const Int rowStride = A.RowStride();
-    for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+    ValueIntPair<Real> pivot;
+    if( A.Participating() )
     {
-        const Int j = rowShift + jLoc*rowStride;
-        for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+        // Store the index/value of the local pivot candidate
+        ValueIntPair<Real> localPivot;
+        localPivot.value = 0;
+        localPivot.indices[0] = 0;
+        localPivot.indices[1] = 0;
+        const Int mLocal = A.LocalHeight();
+        const Int nLocal = A.LocalWidth();
+        const Int colShift = A.ColShift();
+        const Int rowShift = A.RowShift();
+        const Int colStride = A.ColStride();
+        const Int rowStride = A.RowStride();
+        for( Int jLoc=0; jLoc<nLocal; ++jLoc )
         {
-            const Int i = colShift + iLoc*colStride;
-            const Real value = Abs(A.GetLocal(iLoc,jLoc));
-            if( value > localPivot.value )
+            const Int j = rowShift + jLoc*rowStride;
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
             {
-                localPivot.value = value;
-                localPivot.indices[0] = i;
-                localPivot.indices[1] = j;
+                const Int i = colShift + iLoc*colStride;
+                const Real value = Abs(A.GetLocal(iLoc,jLoc));
+                if( value > localPivot.value )
+                {
+                    localPivot.value = value;
+                    localPivot.indices[0] = i;
+                    localPivot.indices[1] = j;
+                }
             }
         }
+
+        // Compute and store the location of the new pivot
+        pivot = mpi::AllReduce
+                ( localPivot, mpi::MaxLocPairOp<Real>(), A.DistComm() );
     }
-
-    // Compute and store the location of the new pivot
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    const ValueIntPair<Real> pivot =
-        mpi::AllReduce( localPivot, mpi::MaxLocPairOp<Real>(), comm );
-
+    mpi::Broadcast( pivot.indices, 2, A.Root(), A.CrossComm() );
+    mpi::Broadcast( pivot.value, A.Root(), A.CrossComm() );
     return pivot;
 }
 

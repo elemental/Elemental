@@ -34,13 +34,13 @@ UVar3Square( DistMatrix<F>& A )
     const Int r = g.Height();
     Int transposeRank;
     {
-        const Int colAlignment = A.ColAlignment();
-        const Int rowAlignment = A.RowAlignment();
+        const Int colAlign = A.ColAlign();
+        const Int rowAlign = A.RowAlign();
         const Int colShift = A.ColShift();
         const Int rowShift = A.RowShift();
 
-        const Int transposeRow = (colAlignment+rowShift) % r;
-        const Int transposeCol = (rowAlignment+colShift) % r;
+        const Int transposeRow = (colAlign+rowShift) % r;
+        const Int transposeCol = (rowAlign+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );

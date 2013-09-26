@@ -44,8 +44,7 @@ inline void Hadamard
         LogicError("Hadamard product requires equal dimensions");
     if( A.Grid() != B.Grid() )
         LogicError("A and B must have the same grids");
-    if( A.ColAlignment() != B.ColAlignment() || 
-        A.RowAlignment() != B.RowAlignment() )
+    if( A.ColAlign() != B.ColAlign() || A.RowAlign() != B.RowAlign() )
         LogicError("A and B must be aligned");
     const Grid& g = A.Grid();
     C.SetGrid( g );

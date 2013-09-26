@@ -106,12 +106,9 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
    .. rubric:: Basic information
 
    .. cpp:function:: int Height() const
-
-      Return the height of the matrix.
-
    .. cpp:function:: int Width() const
 
-      Return the width of the matrix.
+      Return the height/width of the matrix.
 
    .. cpp:function:: int DiagonalLength( int offset=0 ) const
 
@@ -130,23 +127,15 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
       instance has allocated space for.
 
    .. cpp:function:: T* Buffer()
-
-      Return a pointer to the underlying buffer.
-
    .. cpp:function:: const T* LockedBuffer() const
 
-      Return a pointer to the underlying buffer that does not allow for 
-      modifying the data.
+      Return a pointer to the (immutable) underlying buffer.
 
    .. cpp:function:: T* Buffer( int i, int j )
-
-      Return a pointer to the portion of the buffer that holds entry 
-      :math:`(i,j)`.
-
    .. cpp:function:: const T* LockedBuffer( int i, int j ) const
 
-      Return a pointer to the portion of the buffer that holds entry
-      :math:`(i,j)` that does not allow for modifying the data.
+      Return a pointer to the (immutable) portion of the buffer that holds entry
+      :math:`(i,j)`.
 
    .. rubric:: Entry manipulation
 
@@ -176,6 +165,15 @@ at entry :math:`(i,j)`, one would call ``View( ABR, A, i, j, M, N );``.
    .. cpp:function:: void UpdateImagPart( int i, int j, typename Base<T>::type alpha ) 
 
       Add :math:`\alpha` to the real (imaginary) part of entry :math:`(i,j)`.
+
+   .. cpp:function:: void MakeReal( Int i, Int j )
+ 
+      Forces the imaginary component (if it exists) of entry :math:`(i,j)` to
+      zero.
+
+   .. cpp:function:: void Conjugate( Int i, Int j )
+
+      Conjugates the imaginary component (if it exists) of entry :math:`(i,j)`.
 
    .. cpp:function:: void GetDiagonal( Matrix<T>& d, int offset=0 ) const
 

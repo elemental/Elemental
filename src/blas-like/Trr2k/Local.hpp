@@ -45,19 +45,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -92,19 +92,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -139,19 +139,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -188,19 +188,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -235,19 +235,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -285,19 +285,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        A.ColAlignment() != C.ColAlignment() ||
-        B.ColAlignment() != D.ColAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        A.ColAlign() != C.ColAlign() ||
+        B.ColAlign() != D.ColAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -334,19 +334,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -387,19 +387,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.ColAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.ColAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[MC,* ] ~ " << A.ColAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[MC,* ] ~ " << A.ColAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -434,19 +434,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -483,19 +483,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -532,19 +532,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -585,19 +585,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.RowAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.RowAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[* ,MR] ~ " << B.RowAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[* ,MR] ~ " << B.RowAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -634,19 +634,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -687,19 +687,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.ColAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.ColAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[MC,* ] ~ " << C.ColAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[MC,* ] ~ " << C.ColAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -740,19 +740,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.RowAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.RowAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[* ,MR] ~ " << D.RowAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[* ,MR] ~ " << D.RowAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }
@@ -794,19 +794,19 @@ void CheckInput
             << "  E[MC,MR] ~ " << E.Height() << " x " << E.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( A.RowAlignment() != E.ColAlignment() ||
-        B.ColAlignment() != E.RowAlignment() ||
-        C.RowAlignment() != E.ColAlignment() ||
-        D.ColAlignment() != E.RowAlignment() )
+    if( A.RowAlign() != E.ColAlign() ||
+        B.ColAlign() != E.RowAlign() ||
+        C.RowAlign() != E.ColAlign() ||
+        D.ColAlign() != E.RowAlign() )
     {
         std::ostringstream msg;
         msg << "Misaligned LocalTrr2k: \n"
-            << "  A[* ,MC] ~ " << A.RowAlignment() << "\n"
-            << "  B[MR,* ] ~ " << B.ColAlignment() << "\n"
-            << "  C[* ,MC] ~ " << C.RowAlignment() << "\n"
-            << "  D[MR,* ] ~ " << D.ColAlignment() << "\n"
-            << "  E[MC,MR] ~ " << E.ColAlignment() << " , " <<
-                                  E.RowAlignment() << "\n";
+            << "  A[* ,MC] ~ " << A.RowAlign() << "\n"
+            << "  B[MR,* ] ~ " << B.ColAlign() << "\n"
+            << "  C[* ,MC] ~ " << C.RowAlign() << "\n"
+            << "  D[MR,* ] ~ " << D.ColAlign() << "\n"
+            << "  E[MC,MR] ~ " << E.ColAlign() << " , " <<
+                                  E.RowAlign() << "\n";
         LogicError( msg.str() );
     }
 }

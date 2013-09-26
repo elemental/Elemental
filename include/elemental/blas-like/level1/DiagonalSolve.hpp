@@ -116,7 +116,7 @@ DiagonalSolve
 #endif
     if( side == LEFT )
     {
-        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             DiagonalSolve
             ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
@@ -133,7 +133,7 @@ DiagonalSolve
     }
     else
     {
-        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             DiagonalSolve
             ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),
@@ -165,7 +165,7 @@ DiagonalSolve
 
     if( side == LEFT )
     {
-        if( U == W && V == STAR && d.ColAlignment() == X.ColAlignment() )
+        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
         {
             DiagonalSolve
             ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
@@ -182,7 +182,7 @@ DiagonalSolve
     }
     else
     {
-        if( U == Z && V == STAR && d.ColAlignment() == X.RowAlignment() )
+        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
         {
             DiagonalSolve
             ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),

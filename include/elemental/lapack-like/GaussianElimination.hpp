@@ -41,9 +41,9 @@ RowEchelon( Matrix<F>& A, Matrix<F>& B )
         auto A21  = ViewRange( A, k+nb, k,    mA,   k+nb );
         auto A22  = ViewRange( A, k+nb, k+nb, mA,   nA   ); 
         auto APan = ViewRange( A, k,    k+nb, mA,   nA   );
-        auto B1   = ViewRange( B, k,    0,    k+nb, k+nB );
-        auto B2   = ViewRange( B, k+nb, 0,    mA,   k+nB );
-        auto BB   = ViewRange( B, k,    0,    mA,   k+nB );
+        auto B1   = ViewRange( B, k,    0,    k+nb, nB   );
+        auto B2   = ViewRange( B, k+nb, 0,    mA,   nB   );
+        auto BB   = ViewRange( B, k,    0,    mA,   nB   );
 
         lu::Panel( APan, p1, k );
         ComposePivots( p1, k, image, preimage );
@@ -98,9 +98,9 @@ RowEchelon( DistMatrix<F>& A, DistMatrix<F>& B )
         auto A21  = ViewRange( A, k+nb, k,    mA,   k+nb );
         auto A22  = ViewRange( A, k+nb, k+nb, mA,   nA   );          
         auto APan = ViewRange( A, k,    k+nb, mA,   nA   );
-        auto B1   = ViewRange( B, k,    0,    k+nb, k+nB );
-        auto B2   = ViewRange( B, k+nb, 0,    mA,   k+nB );
-        auto BB   = ViewRange( B, k,    0,    mA,   k+nB );
+        auto B1   = ViewRange( B, k,    0,    k+nb, nB   );
+        auto B2   = ViewRange( B, k+nb, 0,    mA,   nB   );
+        auto BB   = ViewRange( B, k,    0,    mA,   nB   );
 
         A11_STAR_STAR = A11;
         A21_MC_STAR.AlignWith( A22 );

@@ -32,11 +32,11 @@ inline void LocalGemm
             ARowDist != BColDist ||
             BRowDist != CRowDist )
             LogicError("C[X,Y] = A[X,Z] B[Z,Y]");
-        if( A.ColAlignment() != C.ColAlignment() )
+        if( A.ColAlign() != C.ColAlign() )
             LogicError("A's cols must align with C's rows");
-        if( A.RowAlignment() != B.ColAlignment() )
+        if( A.RowAlign() != B.ColAlign() )
             LogicError("A's rows must align with B's cols");
-        if( B.RowAlignment() != C.RowAlignment() )
+        if( B.RowAlign() != C.RowAlign() )
             LogicError("B's rows must align with C's rows");
         if( A.Height() != C.Height() ||
             A.Width() != B.Height() ||
@@ -56,11 +56,11 @@ inline void LocalGemm
             ARowDist != BRowDist ||
             BColDist != CRowDist )
             LogicError("C[X,Y] = A[X,Z] (B[Y,Z])^(T/H)");
-        if( A.ColAlignment() != C.ColAlignment() )
+        if( A.ColAlign() != C.ColAlign() )
             LogicError("A's cols must align with C's rows");
-        if( A.RowAlignment() != B.RowAlignment() )
+        if( A.RowAlign() != B.RowAlign() )
             LogicError("A's rows must align with B's rows");
-        if( B.ColAlignment() != C.RowAlignment() )
+        if( B.ColAlign() != C.RowAlign() )
             LogicError("B's cols must align with C's rows");
         if( A.Height() != C.Height() ||
             A.Width() != B.Width() ||
@@ -80,11 +80,11 @@ inline void LocalGemm
             AColDist != BColDist ||
             BRowDist != CRowDist )
             LogicError("C[X,Y] = (A[Z,X])^(T/H) B[Z,Y]");
-        if( A.RowAlignment() != C.ColAlignment() )
+        if( A.RowAlign() != C.ColAlign() )
             LogicError("A's rows must align with C's cols");
-        if( A.ColAlignment() != B.ColAlignment() )
+        if( A.ColAlign() != B.ColAlign() )
             LogicError("A's cols must align with B's cols");
-        if( B.RowAlignment() != C.RowAlignment() )
+        if( B.RowAlign() != C.RowAlign() )
             LogicError("B's rows must align with C's rows");
         if( A.Width() != C.Height() ||
             A.Height() != B.Height() ||
@@ -104,11 +104,11 @@ inline void LocalGemm
             AColDist != BRowDist ||
             BColDist != CRowDist )
             LogicError("C[X,Y] = (A[Z,X])^(T/H) (B[Y,Z])^(T/H)");
-        if( A.RowAlignment() != C.ColAlignment() )
+        if( A.RowAlign() != C.ColAlign() )
             LogicError("A's rows must align with C's cols");
-        if( A.ColAlignment() != B.RowAlignment() )
+        if( A.ColAlign() != B.RowAlign() )
             LogicError("A's cols must align with B's rows");
-        if( B.ColAlignment() != C.RowAlignment() )
+        if( B.ColAlign() != C.RowAlign() )
             LogicError("B's cols must align with C's rows");
         if( A.Width() != C.Height() ||
             A.Height() != B.Width() ||

@@ -90,21 +90,25 @@ MaxNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("MaxNorm");
 #endif
-    typedef BASE(F) R;
-    R localMaxAbs = 0;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
     {
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+        Real localMaxAbs = 0;
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
         {
-            const R thisAbs = Abs(A.GetLocal(iLoc,jLoc));
-            localMaxAbs = std::max( localMaxAbs, thisAbs );
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+            {
+                const Real thisAbs = Abs(A.GetLocal(iLoc,jLoc));
+                localMaxAbs = std::max( localMaxAbs, thisAbs );
+            }
         }
+        norm = mpi::AllReduce( localMaxAbs, mpi::MAX, A.DistComm() );
     }
-
-    mpi::Comm reduceComm = ReduceComm<U,V>( A.Grid() );
-    return mpi::AllReduce( localMaxAbs, mpi::MAX, reduceComm );
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
 template<typename F>

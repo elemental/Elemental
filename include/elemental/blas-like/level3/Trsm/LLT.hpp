@@ -247,7 +247,7 @@ TrsmLLTSmall
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( L.ColAlignment() != X.ColAlignment() )
+    if( L.ColAlign() != X.ColAlign() )
         LogicError("L and X must be aligned");
 #endif
     const Grid& g = L.Grid();
@@ -338,7 +338,7 @@ TrsmLLTSmall
             << "  X ~ " << X.Height() << " x " << X.Width() << "\n";
         LogicError( msg.str() );
     }
-    if( L.RowAlignment() != X.ColAlignment() )
+    if( L.RowAlign() != X.ColAlign() )
         LogicError("L and X must be aligned");
 #endif
     const Grid& g = L.Grid();

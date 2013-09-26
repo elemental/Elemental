@@ -38,8 +38,8 @@ void PanelLSquare
         LogicError("A and W must be the same height");
     if( n <= nW )
         LogicError("W must be a column panel");
-    if( W.ColAlignment() != A.ColAlignment() || 
-        W.RowAlignment() != A.RowAlignment() )
+    if( W.ColAlign() != A.ColAlign() || 
+        W.RowAlign() != A.RowAlign() )
         LogicError("W and A must be aligned");
     if( t.Height() != nW || t.Width() != 1 )
         LogicError("t must be a column vector of the same length as W's width");
@@ -52,13 +52,13 @@ void PanelLSquare
     const Int r = g.Height();
     Int transposeRank;
     {
-        const Int colAlignment = A.ColAlignment();
-        const Int rowAlignment = A.RowAlignment();
+        const Int colAlign = A.ColAlign();
+        const Int rowAlign = A.RowAlign();
         const Int colShift = A.ColShift();
         const Int rowShift = A.RowShift();
 
-        const Int transposeRow = (colAlignment+rowShift) % r;
-        const Int transposeCol = (rowAlignment+colShift) % r;
+        const Int transposeRow = (colAlign+rowShift) % r;
+        const Int transposeCol = (rowAlign+colShift) % r;
         transposeRank = transposeRow + r*transposeCol;
     }
     const bool onDiagonal = ( transposeRank == g.VCRank() );
@@ -118,7 +118,7 @@ void PanelLSquare
         auto a21B_MC_STAR = View( a21_MC_STAR, nW-(k+1), 0, n-nW, 1 );
         auto p21B_MC_STAR = View( p21_MC_STAR, nW-(k+1), 0, n-nW, 1 );
 
-        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlignment() );
+        const bool thisIsMyCol = ( g.Col() == alpha11.RowAlign() );
         if( thisIsMyCol )
         {
             if( k > 0 )
@@ -134,7 +134,7 @@ void PanelLSquare
             }
             // Compute the Householder reflector
             tau = reflector::Col( alpha21T, a21B );
-            if( g.Row() == alpha21T.ColAlignment() )
+            if( g.Row() == alpha21T.ColAlign() )
                 tau1.SetLocal(0,0,tau);
         }
 
@@ -160,7 +160,7 @@ void PanelLSquare
             // Broadcast a21 and tau across the process row
             mpi::Broadcast
             ( rowBroadcastBuffer.data(), 
-              a21LocalHeight+1, a21.RowAlignment(), g.RowComm() );
+              a21LocalHeight+1, a21.RowAlign(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class and also store a copy
             // for the next iteration
             MemCopy
@@ -219,7 +219,7 @@ void PanelLSquare
             mpi::Broadcast
             ( rowBroadcastBuffer.data(), 
               a21LocalHeight+w21LastLocalHeight+1, 
-              a21.RowAlignment(), g.RowComm() );
+              a21.RowAlign(), g.RowComm() );
             // Store a21[MC,* ] into its DistMatrix class 
             MemCopy
             ( a21_MC_STAR.Buffer(), rowBroadcastBuffer.data(), a21LocalHeight );
@@ -244,7 +244,7 @@ void PanelLSquare
             ( W_MC_STAR.Buffer(W_MC_STAR_Offset,A00.Width()-1),
               &rowBroadcastBuffer[a21LocalHeight],
               W_MC_STAR.LocalHeight()-W_MC_STAR_Offset );
-            if( g.Col() == w21Last.RowAlignment() )
+            if( g.Col() == w21Last.RowAlign() )
             {
                 MemCopy
                 ( w21Last.Buffer(),
@@ -496,8 +496,8 @@ void PanelLSquare
             // Reduce to one p21[MC,* ] to the next process column.
             const Int a21LocalHeight = a21.LocalHeight();
 
-            const Int nextProcessRow = (alpha11.ColAlignment()+1) % r;
-            const Int nextProcessCol = (alpha11.RowAlignment()+1) % r;
+            const Int nextProcessRow = (alpha11.ColAlign()+1) % r;
+            const Int nextProcessCol = (alpha11.RowAlign()+1) % r;
 
             std::vector<F> reduceToOneRecvBuffer(a21LocalHeight);
             mpi::Reduce

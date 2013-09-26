@@ -43,8 +43,8 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
         LogicError("Matrices must be the same size");
     if( A.Grid() != B.Grid() )
         LogicError("Grids must match");
-    if( A.ColAlignment() != B.ColAlignment() || 
-        A.RowAlignment() != B.RowAlignment() )
+    if( A.ColAlign() != B.ColAlign() || 
+        A.RowAlign() != B.RowAlign() )
         LogicError("Matrices must be aligned");
 
     F localSum(0);
@@ -54,8 +54,7 @@ Dotu( const DistMatrix<F,U,V>& A, const DistMatrix<F,U,V>& B )
         for( Int iLoc=0; iLoc<localHeight; ++iLoc )
             localSum += A.GetLocal(iLoc,jLoc)*B.GetLocal(iLoc,jLoc);
 
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    return mpi::AllReduce( localSum, comm );
+    return mpi::AllReduce( localSum, A.Comm() );
 }
 
 } // namespace elem

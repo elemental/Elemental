@@ -40,7 +40,7 @@ void InPlaceRedist
     const Int row = g.Row();
     const Int col = g.Col();
     const Int rowShift = paddedZ.RowShift();
-    const Int colAlignment = paddedZ.ColAlignment();
+    const Int colAlign = paddedZ.ColAlign();
     const Int localWidth = Length(width,g.VRRank(),rowAlign,p);
 
     const Int maxHeight = MaxLength(height,r);
@@ -58,7 +58,7 @@ void InPlaceRedist
     {
         Real* data = &sendBuffer[k*portionSize];
 
-        const Int thisColShift = Shift(k,colAlignment,r);
+        const Int thisColShift = Shift(k,colAlign,r);
         const Int thisLocalHeight = Length(height,thisColShift,r);
 
         INNER_PARALLEL_FOR COLLAPSE(2)
@@ -74,7 +74,7 @@ void InPlaceRedist
       recvBuffer, portionSize, g.ColComm() );
 
     // Unpack
-    const Int localHeight = Length(height,row,colAlignment,r);
+    const Int localHeight = Length(height,row,colAlign,r);
     OUTER_PARALLEL_FOR
     for( Int k=0; k<r; ++k )
     {
@@ -172,7 +172,7 @@ void HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");
@@ -286,7 +286,7 @@ void HermitianEig
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             LogicError
             ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
             LogicError
             ("paddedZ was a view but was not properly aligned");
     }
@@ -298,7 +298,7 @@ void HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");
@@ -470,7 +470,7 @@ void HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");
@@ -592,7 +592,7 @@ void HermitianEig
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             LogicError
             ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
             LogicError
             ("paddedZ was a view but was not properly aligned");
     }
@@ -604,7 +604,7 @@ void HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != k || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");
@@ -772,7 +772,7 @@ void HermitianEig
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");
@@ -890,14 +890,14 @@ void HermitianEig
         if( paddedZ.Height() != N || paddedZ.Width() != K )
             LogicError
             ("paddedZ was a view but was not properly padded");
-        if( paddedZ.ColAlignment() != 0 || paddedZ.RowAlignment() != 0 )
+        if( paddedZ.ColAlign() != 0 || paddedZ.RowAlign() != 0 )
             LogicError
             ("paddedZ was a view but was not properly aligned");
     }
 
     if( w.Viewing() )
     {
-        if( w.ColAlignment() != 0 )
+        if( w.ColAlign() != 0 )
             LogicError("w was a view but was not properly aligned");
         if( w.Height() != n || w.Width() != 1 )
             LogicError("w was a view but was not the proper size");

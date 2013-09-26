@@ -95,23 +95,26 @@ EntrywiseNorm( const DistMatrix<F,U,V>& A, BASE(F) p )
 #ifndef RELEASE
     CallStackEntry entry("EntrywiseNorm");
 #endif
-    typedef BASE(F) R;
-    R localSum = 0;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            localSum += Pow( Abs(A.GetLocal(iLoc,jLoc)), p ); 
-
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    const R sum = mpi::AllReduce( localSum, comm );
-    return Pow( sum, 1/p );
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
+    {
+        Real localSum = 0;
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                localSum += Pow( Abs(A.GetLocal(iLoc,jLoc)), p ); 
+        const Real sum = mpi::AllReduce( localSum, A.DistComm() );
+        norm = Pow( sum, 1/p );
+    }
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
 template<typename F>
 inline BASE(F)
-HermitianEntrywiseNorm
-( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) p )
+HermitianEntrywiseNorm( UpperOrLower uplo, const DistMatrix<F>& A, BASE(F) p )
 {
 #ifndef RELEASE
     CallStackEntry entry("HermitianEntrywiseNorm");

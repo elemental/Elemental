@@ -1,0 +1,9 @@
+                  DistComm  CrossComm  RedundantComm
+[o ,o ]            SELF      VC/VR      SELF
+[* ,* ]            SELF      SELF       VC/VR
+[MD,* ]/[* ,MD]    MD        MDPerp     SELF
+[MC,MR]/[MR,MC]    VC/VR     SELF       SELF
+[MC,* ]/[* ,MC]    MC        SELF       MR
+[MR,* ]/[* ,MR]    MR        SELF       MC
+[VC,* ]/[* ,VC]    VC        SELF       SELF
+[VR,* ]/[* ,VR]    VR        SELF       SELF

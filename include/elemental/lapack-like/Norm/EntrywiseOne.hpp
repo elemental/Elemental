@@ -91,16 +91,20 @@ EntrywiseOneNorm( const DistMatrix<F,U,V>& A )
 #ifndef RELEASE
     CallStackEntry entry("EntrywiseOneNorm");
 #endif
-    typedef BASE(F) R;
-    R localSum = 0;
-    const Int localHeight = A.LocalHeight();
-    const Int localWidth = A.LocalWidth();
-    for( Int jLoc=0; jLoc<localWidth; ++jLoc )
-        for( Int iLoc=0; iLoc<localHeight; ++iLoc )
-            localSum += Abs(A.GetLocal(iLoc,jLoc)); 
-
-    mpi::Comm comm = ReduceComm<U,V>( A.Grid() );
-    return mpi::AllReduce( localSum, comm );
+    typedef BASE(F) Real;
+    Real norm;
+    if( A.Participating() )
+    {
+        Real localSum = 0;
+        const Int localHeight = A.LocalHeight();
+        const Int localWidth = A.LocalWidth();
+        for( Int jLoc=0; jLoc<localWidth; ++jLoc )
+            for( Int iLoc=0; iLoc<localHeight; ++iLoc )
+                localSum += Abs(A.GetLocal(iLoc,jLoc)); 
+        norm = mpi::AllReduce( localSum, A.DistComm() );
+    }
+    mpi::Broadcast( norm, A.Root(), A.CrossComm() );
+    return norm;
 }
 
 template<typename F>
