@@ -34,22 +34,22 @@ public:
 
     // Create a height x width distributed matrix with specified alignments
     DistMatrix
-    ( Int height, Int width, Int rowAlign, const elem::Grid& g );
+    ( Int height, Int width, Int rowAlign, Int root, const elem::Grid& g );
 
     // Create a height x width distributed matrix with specified alignments
     // and leading dimension
     DistMatrix
     ( Int height, Int width, 
-      Int rowAlign, Int ldim, const elem::Grid& g );
+      Int rowAlign, Int root, Int ldim, const elem::Grid& g );
 
     // View a constant distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int rowAlign,
+    ( Int height, Int width, Int rowAlign, Int root,
       const T* buffer, Int ldim, const elem::Grid& g );
 
     // View a mutable distributed matrix's buffer
     DistMatrix
-    ( Int height, Int width, Int rowAlign,
+    ( Int height, Int width, Int rowAlign, Int root,
       T* buffer, Int ldim, const elem::Grid& g );
 
     // Create a copy of distributed matrix A
@@ -124,10 +124,10 @@ public:
 
     // (Immutable) view of a distributed matrix's buffer
     void Attach
-    ( Int height, Int width, Int rowAlign,
+    ( Int height, Int width, Int rowAlign, Int root,
       T* buffer, Int ldim, const elem::Grid& grid );
     void LockedAttach
-    ( Int height, Int width, Int rowAlign,
+    ( Int height, Int width, Int rowAlign, Int root,
       const T* buffer, Int ldim, const elem::Grid& grid );
 
 private:

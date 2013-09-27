@@ -59,6 +59,63 @@ VectorMax( const Matrix<F>& x )
     return pivot;
 }
 
+template<typename F,Distribution U,Distribution V>
+inline ValueInt<BASE(F)>
+VectorMax( const DistMatrix<F,U,V>& x )
+{
+#ifndef RELEASE
+    CallStackEntry cse("VectorMax");
+#endif
+    typedef BASE(F) Real;
+    const Int m = x.Height();
+    const Int n = x.Width();
+#ifndef RELEASE
+    if( m != 1 && n != 1 )
+        LogicError("Input should have been a vector");
+#endif
+
+    ValueInt<Real> localPivot;
+    localPivot.index = 0;
+    localPivot.value = 0;
+    if( n == 1 )
+    {
+        if( x.RowRank() == x.RowAlign() )
+        {
+            const Int mLocal = x.LocalHeight();
+            const Int colShift = x.ColShift();
+            const Int colStride = x.ColStride();
+            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
+            {
+                const Real abs = Abs(x.GetLocal(iLoc,0));
+                if( abs > localPivot.value )
+                {
+                    localPivot.index = colShift + iLoc*colStride;
+                    localPivot.value = abs;
+                }
+            }
+        }
+    }
+    else
+    {
+        if( x.ColRank() == x.ColAlign() )
+        {
+            const Int nLocal = x.LocalWidth();
+            const Int rowShift = x.RowShift();
+            const Int rowStride = x.RowStride();
+            for( Int jLoc=0; jLoc<nLocal; ++jLoc )
+            {
+                const Real abs = Abs(x.GetLocal(0,jLoc));
+                if( abs > localPivot.value )
+                {
+                    localPivot.index = rowShift + jLoc*rowStride;
+                    localPivot.value = abs;
+                }
+            }
+        }
+    }
+    return mpi::AllReduce( localPivot, mpi::MaxLocOp<Real>(), x.DistComm() );
+}
+
 template<typename F>
 inline ValueIntPair<BASE(F)>
 Max( const Matrix<F>& A )
@@ -170,9 +227,7 @@ SymmetricMax( UpperOrLower uplo, const Matrix<F>& A )
     }
     else
     {
-        for( Int j=0; j<n; ++j )
-        {
-            for( Int i=0; i<=j; ++i )
+        for( Int j=0; j<n; ++j ) { for( Int i=0; i<=j; ++i )
             {
                 const Real abs = Abs(A.Get(i,j));
                 if( abs > pivot.value )

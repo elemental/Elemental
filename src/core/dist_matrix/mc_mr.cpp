@@ -53,20 +53,14 @@ DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign,
   const T* buffer, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
-{ 
-    this->LockedAttach
-    ( height, width, colAlign, rowAlign, buffer, ldim, g ); 
-}
+{ this->LockedAttach( height, width, colAlign, rowAlign, buffer, ldim, g ); }
 
 template<typename T>
 DM<T>::DistMatrix
 ( Int height, Int width, Int colAlign, Int rowAlign,
   T* buffer, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
-{ 
-    this->Attach
-    ( height, width, colAlign, rowAlign, buffer, ldim, g );
-}
+{ this->Attach( height, width, colAlign, rowAlign, buffer, ldim, g ); }
 
 template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )

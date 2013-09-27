@@ -643,10 +643,10 @@ if(ELEM_EXAMPLES)
   set(core_EXAMPLES Constructors)
   set(blas-like_EXAMPLES Cannon Gemm Gemv)
   set(lapack-like_EXAMPLES 
-    BusingerGolub GaussianElimination HermitianQDWH HermitianSDC HPDInverse ID 
-    KyFanAndSchatten LDL LDLInverse LeastSquares Polar Pseudoinverse QDWH 
-    RealSchur Schur SequentialBunchKaufman SequentialQR SequentialSVD Skeleton 
-    QR Sign SimpleSVD SVD)
+    BunchKaufman BusingerGolub GaussianElimination HermitianQDWH HermitianSDC 
+    HPDInverse ID KyFanAndSchatten LDL LDLInverse LeastSquares Polar 
+    Pseudoinverse QDWH RealSchur Schur SequentialBunchKaufman SequentialQR 
+    SequentialSVD Skeleton QR Sign SimpleSVD SVD)
   set(matrices_EXAMPLES 
     Cauchy CauchyLike Circulant Diagonal Egorov Fourier Hankel Helmholtz1D
     Helmholtz2D Helmholtz3D HermitianUniformSpectrum Hilbert Identity Kahan 

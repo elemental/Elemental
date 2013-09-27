@@ -70,7 +70,7 @@ inline void Swap( Orientation orientation, Matrix<F>& X, Matrix<F>& Y )
 template<typename F,Distribution U1,Distribution V1,
                     Distribution U2,Distribution V2>
 inline void Swap
-( Orientation orientation, DistMatrix<F,U1,U2>& X, DistMatrix<F,U2,V2>& Y )
+( Orientation orientation, DistMatrix<F,U1,V1>& X, DistMatrix<F,U2,V2>& Y )
 {
 #ifndef RELEASE
     CallStackEntry cse("Swap");

@@ -62,6 +62,16 @@ LDLH( DistMatrix<F>& A )
 
 template<typename F>
 inline void
+LDLH( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LDLH");
+#endif
+    ldl::Pivoted( ADJOINT, A, p );
+}
+
+template<typename F>
+inline void
 LDLT( Matrix<F>& A )
 {
 #ifndef RELEASE
@@ -88,6 +98,16 @@ LDLT( DistMatrix<F>& A )
     CallStackEntry cse("LDLT");
 #endif
     ldl::Var3( TRANSPOSE, A );
+}
+
+template<typename F>
+inline void
+LDLT( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+{
+#ifndef RELEASE
+    CallStackEntry cse("LDLT");
+#endif
+    ldl::Pivoted( TRANSPOSE, A, p );
 }
 
 } // namespace elem

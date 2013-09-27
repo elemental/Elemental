@@ -27,43 +27,37 @@ DM<T>::DistMatrix( Int height, Int width, const elem::Grid& g )
 
 template<typename T>
 DM<T>::DistMatrix
-( Int height, Int width, Int rowAlignVC, const elem::Grid& g )
+( Int height, Int width, Int rowAlign, Int root, const elem::Grid& g )
 : ADM<T>(g)
 { 
-    this->root_ = g.DiagPath(rowAlignVC);
-    this->Align(0,g.DiagPathRank(rowAlignVC)); 
+    this->root_ = root;
+    this->Align(0,rowAlign); 
     this->ResizeTo(height,width); 
 }
 
 template<typename T>
 DM<T>::DistMatrix
-( Int height, Int width, Int rowAlignVC, Int ldim, const elem::Grid& g )
+( Int height, Int width, Int rowAlign, Int root, Int ldim, const elem::Grid& g )
 : ADM<T>(g)
 { 
-    this->root_ = g.DiagPath(rowAlignVC);
-    this->Align(0,g.DiagPathRank(rowAlignVC));
+    this->root_ = root;
+    this->Align(0,rowAlign);
     this->ResizeTo(height,width,ldim);
 }
 
 template<typename T>
 DM<T>::DistMatrix
-( Int height, Int width, Int rowAlignVC, const T* buffer, Int ldim,
+( Int height, Int width, Int rowAlign, Int root, const T* buffer, Int ldim,
   const elem::Grid& g )
 : ADM<T>(g)
-{ 
-    this->root_ = g.DiagPath(rowAlignVC);
-    this->LockedAttach(height,width,rowAlignVC,buffer,ldim,g); 
-}
+{ this->LockedAttach(height,width,rowAlign,root,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix
-( Int height, Int width, Int rowAlignVC, T* buffer, Int ldim,
+( Int height, Int width, Int rowAlign, Int root, T* buffer, Int ldim,
   const elem::Grid& g )
 : ADM<T>(g)
-{ 
-    this->root_ = g.DiagPath(rowAlignVC);
-    this->Attach(height,width,rowAlignVC,buffer,ldim,g); 
-}
+{ this->Attach(height,width,rowAlign,root,buffer,ldim,g); }
 
 template<typename T>
 DM<T>::DistMatrix( const DM<T>& A )
@@ -339,7 +333,7 @@ DM<T>::AlignWithDiagonal( const ADM<T>& A, Int offset )
 template<typename T>
 void
 DM<T>::Attach
-( Int height, Int width, Int rowAlignVC,
+( Int height, Int width, Int rowAlign, Int root,
   T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
@@ -350,8 +344,8 @@ DM<T>::Attach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->root_ = grid.DiagPath(rowAlignVC);
-    this->rowAlign_ = grid.DiagPathRank(rowAlignVC);
+    this->root_ = root;
+    this->rowAlign_ = rowAlign;
     this->viewType_ = VIEW;
     this->SetRowShift();
     if( this->Participating() )
@@ -364,7 +358,7 @@ DM<T>::Attach
 template<typename T>
 void
 DM<T>::LockedAttach
-( Int height, Int width, Int rowAlignVC,
+( Int height, Int width, Int rowAlign, Int root,
   const T* buffer, Int ldim, const elem::Grid& grid )
 {
 #ifndef RELEASE
@@ -375,8 +369,8 @@ DM<T>::LockedAttach
     this->grid_ = &grid;
     this->height_ = height;
     this->width_ = width;
-    this->root_ = grid.DiagPath(rowAlignVC);
-    this->rowAlign_ = grid.DiagPathRank(rowAlignVC);
+    this->root_ = root;
+    this->rowAlign_ = rowAlign;
     this->viewType_ = LOCKED_VIEW;
     this->SetRowShift();
     if( this->Participating() )
