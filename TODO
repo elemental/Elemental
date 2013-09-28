@@ -18,7 +18,6 @@ Functionality
 - Complete Orthogonal Decompositions (especially URV)
 - LU with rook pivoting
 - Square process grid specialization of LDL (used to exist...)
-- Distributed blocked Bunch-Kaufman
 - (Blocked) Aasen's
 - TSQR
 - TSLU (via tournament pivoting)
@@ -39,6 +38,7 @@ Functionality
 
 Maintenance
 ===========
+- Make transpose-options of LocalTrr(2)k more consistent with Trr(2)k
 - README's in each directory explaining the contents of the folder
 - Support for OpenBLAS [-D MATH_LIBS="-lopenblas;-lpthread;-lm;-lgfortran"]
   and BLIS

@@ -43,6 +43,12 @@ be thrown.
 
 :math:`LDL^H` factorization
 ---------------------------
+
+.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<Int>& p )
+.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+
+   Blocked Bunch-Kaufman. More details to come.
+
 Though the Cholesky factorization is ideal for most HPD matrices, the 
 :math:`LDL^H` factorization exists as slight relaxation of the Cholesky 
 factorization, i.e., it computes lower-triangular (with unit diagonal) :math:`L`
@@ -62,6 +68,12 @@ attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
 
 :math:`LDL^T` factorization
 ---------------------------
+
+.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<Int>& p )
+.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+
+   Blocked Bunch-Kaufman. More details to come.
+
 While the :math:`LDL^H` factorization targets Hermitian matrices, the 
 :math:`LDL^T` factorization targets symmetric matrices. If a zero pivot is
 attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
