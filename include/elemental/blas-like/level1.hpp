@@ -26,6 +26,7 @@
 #include "./level1/MakeTriangular.hpp"
 #include "./level1/Max.hpp"
 #include "./level1/Nrm2.hpp"
+#include "./level1/QuasiDiagonalSolve.hpp"
 #include "./level1/Scale.hpp"
 #include "./level1/ScaleTrapezoid.hpp"
 #include "./level1/SetDiagonal.hpp"

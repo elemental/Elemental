@@ -12,11 +12,11 @@
 
 namespace elem {
 
-template<typename T>
+template<typename T,typename TDiag>
 inline void
 DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<T>& d, Matrix<T>& X )
+  const Matrix<TDiag>& d, Matrix<T>& X )
 {
 #ifndef RELEASE
     CallStackEntry entry("DiagonalScale");
@@ -54,48 +54,13 @@ DiagonalScale
     }
 }
 
-template<typename T>
+template<typename T,typename TDiag,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
 inline void
 DiagonalScale
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<BASE(T)>& d, Matrix<T>& X )
-{
-#ifndef RELEASE
-    CallStackEntry entry("DiagonalScale");
-#endif
-    typedef BASE(T) R;
-
-    const Int m = X.Height();
-    const Int n = X.Width();
-    const Int ldim = X.LDim();
-    if( side == LEFT )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            const R delta = d.Get(i,0);
-            T* XBuffer = X.Buffer(i,0);
-            for( Int j=0; j<n; ++j )
-                XBuffer[j*ldim] *= delta;
-        }
-    }
-    else
-    {
-        for( Int j=0; j<n; ++j )
-        {
-            const R delta = d.Get(j,0);
-            T* XBuffer = X.Buffer(0,j);
-            for( Int i=0; i<m; ++i )
-                XBuffer[i] *= delta;
-        }
-    }
-}
-
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline void
-DiagonalScale
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<T,U,V>& d, DistMatrix<T,W,Z>& X )
+  const DistMatrix<TDiag,U,V>& d, DistMatrix<T,W,Z>& X )
 {
 #ifndef RELEASE
     CallStackEntry entry("DiagonalScale");
@@ -108,7 +73,7 @@ DiagonalScale
         }
         else
         {
-            DistMatrix<T,W,STAR> d_W_STAR( X.Grid() );
+            DistMatrix<TDiag,W,STAR> d_W_STAR( X.Grid() );
             d_W_STAR = d;
             DiagonalScale
             ( LEFT, orientation,
@@ -124,49 +89,7 @@ DiagonalScale
         }
         else
         {
-            DistMatrix<T,Z,STAR> d_Z_STAR( X.Grid() );
-            d_Z_STAR = d;
-            DiagonalScale
-            ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );
-        }
-    }
-}
-
-template<typename T,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline void
-DiagonalScale
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<BASE(T),U,V>& d, DistMatrix<T,W,Z>& X )
-{
-#ifndef RELEASE
-    CallStackEntry entry("DiagonalScale");
-#endif
-    typedef BASE(T) R;
-
-    if( side == LEFT )
-    {
-        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
-        {
-            DiagonalScale( LEFT, orientation, d.LockedMatrix(), X.Matrix() );
-        }
-        else
-        {
-            DistMatrix<R,W,STAR> d_W_STAR( X.Grid() );
-            d_W_STAR = d;
-            DiagonalScale
-            ( LEFT, orientation, d_W_STAR.LockedMatrix(), X.Matrix() );
-        }
-    }
-    else
-    {
-        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
-        {
-            DiagonalScale( RIGHT, orientation, d.LockedMatrix(), X.Matrix() );
-        }
-        else
-        {
-            DistMatrix<R,Z,STAR> d_Z_STAR( X.Grid() );
+            DistMatrix<TDiag,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
             DiagonalScale
             ( RIGHT, orientation, d_Z_STAR.LockedMatrix(), X.Matrix() );

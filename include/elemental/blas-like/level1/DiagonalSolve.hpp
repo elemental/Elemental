@@ -12,11 +12,11 @@
 
 namespace elem {
 
-template<typename F>
+template<typename F,typename FDiag>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<F>& d, Matrix<F>& X, bool checkIfSingular=true )
+  const Matrix<FDiag>& d, Matrix<F>& X, bool checkIfSingular=true )
 {
 #ifndef RELEASE
     CallStackEntry entry("DiagonalSolve");
@@ -60,55 +60,13 @@ DiagonalSolve
     }
 }
 
-template<typename F>
+template<typename F,typename FDiag,
+         Distribution U,Distribution V,
+         Distribution W,Distribution Z>
 inline void
 DiagonalSolve
 ( LeftOrRight side, Orientation orientation,
-  const Matrix<BASE(F)>& d, Matrix<F>& X,
-  bool checkIfSingular=true )
-{
-#ifndef RELEASE
-    CallStackEntry entry("DiagonalSolve");
-#endif
-    typedef BASE(F) R;
-
-    const Int m = X.Height();
-    const Int n = X.Width();
-    const Int ldim = X.LDim();
-    if( side == LEFT )
-    {
-        for( Int i=0; i<m; ++i )
-        {
-            const R delta = d.Get(i,0);
-            if( checkIfSingular && delta == R(0) )
-                throw SingularMatrixException();
-            const R deltaInv = R(1)/delta;
-            F* XBuffer = X.Buffer(i,0);
-            for( Int j=0; j<n; ++j )
-                XBuffer[j*ldim] *= deltaInv;
-        }
-    }
-    else
-    {
-        for( Int j=0; j<n; ++j )
-        {
-            const R delta = d.Get(j,0);
-            if( checkIfSingular && delta == R(0) )
-                throw SingularMatrixException();
-            const R deltaInv = R(1)/delta;
-            F* XBuffer = X.Buffer(0,j);
-            for( Int i=0; i<m; ++i )
-                XBuffer[i] *= deltaInv;
-        }
-    }
-}
-
-template<typename F,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline void
-DiagonalSolve
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<F,U,V>& d, DistMatrix<F,W,Z>& X,
+  const DistMatrix<FDiag,U,V>& d, DistMatrix<F,W,Z>& X,
   bool checkIfSingular=true )
 {
 #ifndef RELEASE
@@ -124,7 +82,7 @@ DiagonalSolve
         }
         else
         {
-            DistMatrix<F,W,STAR> d_W_STAR( X.Grid() );
+            DistMatrix<FDiag,W,STAR> d_W_STAR( X.Grid() );
             d_W_STAR = d;
             DiagonalSolve
             ( LEFT, orientation,
@@ -141,56 +99,7 @@ DiagonalSolve
         }
         else
         {
-            DistMatrix<F,Z,STAR> d_Z_STAR( X.Grid() );
-            d_Z_STAR = d;
-            DiagonalSolve
-            ( RIGHT, orientation,
-              d_Z_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
-        }
-    }
-}
-
-template<typename F,Distribution U,Distribution V,
-                    Distribution W,Distribution Z>
-inline void
-DiagonalSolve
-( LeftOrRight side, Orientation orientation,
-  const DistMatrix<BASE(F),U,V>& d, DistMatrix<F,W,Z>& X,
-  bool checkIfSingular=true )
-{
-#ifndef RELEASE
-    CallStackEntry entry("DiagonalSolve");
-#endif
-    typedef BASE(F) R;
-
-    if( side == LEFT )
-    {
-        if( U == W && V == STAR && d.ColAlign() == X.ColAlign() )
-        {
-            DiagonalSolve
-            ( LEFT, orientation, d.LockedMatrix(), X.Matrix(),
-              checkIfSingular );
-        }
-        else
-        {
-            DistMatrix<R,W,STAR> d_W_STAR( X.Grid() );
-            d_W_STAR = d;
-            DiagonalSolve
-            ( LEFT, orientation,
-              d_W_STAR.LockedMatrix(), X.Matrix(), checkIfSingular );
-        }
-    }
-    else
-    {
-        if( U == Z && V == STAR && d.ColAlign() == X.RowAlign() )
-        {
-            DiagonalSolve
-            ( RIGHT, orientation, d.LockedMatrix(), X.Matrix(),
-              checkIfSingular );
-        }
-        else
-        {
-            DistMatrix<R,Z,STAR> d_Z_STAR( X.Grid() );
+            DistMatrix<FDiag,Z,STAR> d_Z_STAR( X.Grid() );
             d_Z_STAR = d;
             DiagonalSolve
             ( RIGHT, orientation,

@@ -11,7 +11,6 @@
 #define ELEM_LAPACK_CHOLESKY_SOLVEAFTER_HPP
 
 #include "elemental/blas-like/level1/Conjugate.hpp"
-#include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 
 namespace elem {
@@ -30,47 +29,23 @@ SolveAfter
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( uplo == LOWER )
     {
-        if( uplo == LOWER )
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsv( LOWER, NORMAL, NON_UNIT, A, B );
-            Trsv( LOWER, ADJOINT, NON_UNIT, A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
-        else
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsv( UPPER, ADJOINT, NON_UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
     }
     else
     {
-        if( uplo == LOWER )
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
-        else
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
     }
 }
 
@@ -89,47 +64,23 @@ SolveAfter
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( uplo == LOWER )
     {
-        if( uplo == LOWER )
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsv( LOWER, NORMAL, NON_UNIT, A, B );
-            Trsv( LOWER, ADJOINT, NON_UNIT, A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
-        else
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsv( UPPER, ADJOINT, NON_UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
+        Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
     }
     else
     {
-        if( uplo == LOWER )
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsm( LEFT, LOWER, NORMAL, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, ADJOINT, NON_UNIT, F(1), A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
-        else
-        {
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-            Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-            if( orientation == TRANSPOSE )
-                Conjugate( B );
-        }
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
+        Trsm( LEFT, UPPER, ADJOINT, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+        if( orientation == TRANSPOSE )
+            Conjugate( B );
     }
 }
 

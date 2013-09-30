@@ -14,10 +14,13 @@
 #include "elemental/blas-like/level1/MakeTriangular.hpp"
 #include "elemental/blas-like/level1/SetDiagonal.hpp"
 #include "elemental/blas-like/level1/Transpose.hpp"
+#include "elemental/blas-like/level3/Symm.hpp"
 #include "elemental/lapack-like/ApplyPackedReflectors/Util.hpp"
 #include "elemental/lapack-like/LDL.hpp"
 #include "elemental/lapack-like/Norm/Frobenius.hpp"
 #include "elemental/matrices/HermitianUniformSpectrum.hpp"
+#include "elemental/matrices/Uniform.hpp"
+#include "elemental/matrices/Zeros.hpp"
 using namespace std;
 using namespace elem;
 
@@ -34,10 +37,12 @@ main( int argc, char* argv[] )
     {
         const Int n = Input("--size","size of matrix to factor",100);
         const Int nb = Input("--nb","algorithmic blocksize",96);
+        const Int numRhs = Input("--numRhs","number of random r.h.s.",100);
         const double realMean = Input("--realMean","real mean",0.); 
         const double imagMean = Input("--imagMean","imag mean",0.);
         const double stddev = Input("--stddev","standard dev.",1.);
         const bool conjugate = Input("--conjugate","LDL^H?",false);
+        const bool print = Input("--print","print matrices?",false);
         ProcessInput();
         PrintInputReport();
 
@@ -59,31 +64,46 @@ main( int argc, char* argv[] )
 
         // Make a copy of A and then overwrite it with its LDL factorization
         Matrix<Int> p;
-        Matrix<C> factA( A );
+        Matrix<C> dSub, factA( A );
         MakeTriangular( LOWER, factA );
         if( conjugate )
-            LDLH( factA, p );
+            LDLH( factA, dSub, p );
         else
-            LDLT( factA, p );
-        if( mpi::WorldRank() == 0 )
+            LDLT( factA, dSub, p );
+        if( print && mpi::WorldRank()==0 )
         {
             Print( A,     "A"     );
             Print( factA, "factA" );
+            Print( dSub,  "dSub"  );
             Print( p,     "p"     );
         }
 
-        // Do the same thing with the unblocked algorithm
-        Matrix<Int> pUnb;
-        Matrix<C> factAUnb( A );
-        MakeTriangular( LOWER, factAUnb );
-        if( conjugate )
-            ldl::UnblockedPivoted( ADJOINT, factAUnb, pUnb );
-        else
-            ldl::UnblockedPivoted( TRANSPOSE, factAUnb, pUnb );
+        // Generate a random set of vectors
+        Matrix<C> X;
+        Uniform( X, n, numRhs );
+        Matrix<C> B;
+        Zeros( B, n, numRhs );
+        Symm( LEFT, LOWER, C(1), A, X, C(0), B, conjugate );
+        if( print && mpi::WorldRank()==0 )
+        {
+            Print( X, "X" );
+            Print( B, "B" );
+        }
+        ldl::SolveAfter( factA, dSub, p, B, conjugate );
+        const Real AFrob = HermitianFrobeniusNorm( LOWER, A );
+        const Real XFrob = FrobeniusNorm( X );
+        Axpy( C(-1), B, X );
+        const Real errFrob = FrobeniusNorm( X );
+        if( print && mpi::WorldRank() == 0 )
+        {
+            Print( B, "XComp" );
+            Print( X, "E" );
+        }
         if( mpi::WorldRank() == 0 )
         {
-            Print( factAUnb, "factAUnb" );
-            Print( pUnb,     "pUnb"     );
+            std::cout << "|| A ||_F = " << AFrob << "\n"
+                      << "|| X ||_F = " << XFrob << "\n"
+                      << "|| X - inv(A) A X ||_F = " << errFrob << std::endl;
         }
     }
     catch( exception& e ) { ReportException(e); }

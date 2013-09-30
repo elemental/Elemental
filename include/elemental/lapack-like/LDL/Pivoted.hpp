@@ -13,6 +13,7 @@
 #include "elemental/blas-like/level1/Max.hpp"
 #include "elemental/blas-like/level1/Scale.hpp"
 #include "elemental/blas-like/level1/Swap.hpp"
+#include "elemental/blas-like/level1/Symmetric2x2Solve.hpp"
 #include "elemental/blas-like/level2/Syr.hpp"
 #include "elemental/blas-like/level2/Trr.hpp"
 #include "elemental/blas-like/level2/Trr2.hpp"
@@ -251,155 +252,11 @@ ChoosePivot
     return -r;
 }
 
-// A := A inv(D)
-template<typename F>
-inline void
-SolveAgainstSymmetric2x2
-( UpperOrLower uplo, const Matrix<F>& D, Matrix<F>& A, bool conjugated=false )
-{
-#ifndef RELEASE    
-    CallStackEntry cse("SolveAgainstSymmetric2x2");
-    if( A.Width() != 2 )
-        LogicError("A must have width 2");
-#endif
-    const Int m = A.Height();
-    if( uplo == LOWER )
-    {
-        if( conjugated )     
-        {
-            const F delta11 = D.GetRealPart(0,0);
-            const F delta21 = D.Get(1,0);
-            const F delta22 = D.GetRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
-            const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
-
-            for( Int j=0; j<m; ++j )
-            {
-                const F eta0 = xi*(phi21To11*A.Get(j,0)-phi21      *A.Get(j,1));
-                const F eta1 = xi*(phi21To22*A.Get(j,1)-Conj(phi21)*A.Get(j,0));
-                A.Set( j, 0, eta0 );
-                A.Set( j, 1, eta1 );
-            }
-        }
-        else
-        {
-            const F delta11 = D.Get(0,0);
-            const F delta21 = D.Get(1,0);
-            const F delta22 = D.Get(1,1);
-            const F chi21To11 = -delta22 / delta21;
-            const F chi21To22 = -delta11 / delta21;
-            const F chi21 = (F(1)/(F(1)-chi21To11*chi21To22))/delta21;
-
-            for( Int j=0; j<m; ++j )
-            {
-                const F eta0 = chi21*(chi21To11*A.Get(j,0)+A.Get(j,1));
-                const F eta1 = chi21*(chi21To22*A.Get(j,1)+A.Get(j,0));
-                A.Set( j, 0, eta0 );
-                A.Set( j, 1, eta1 );
-            }
-        }
-    }
-    else
-        LogicError("This option not yet supported");
-}
-
-template<typename F>
-inline void
-SolveAgainstSymmetric2x2
-( UpperOrLower uplo, 
-  const DistMatrix<F>& D, DistMatrix<F>& A, bool conjugated=false )
-{
-#ifndef RELEASE    
-    CallStackEntry cse("SolveAgainstSymmetric2x2");
-    if( A.Width() != 2 )
-        LogicError("A must have width 2");
-#endif
-    DistMatrix<F,STAR,STAR> D_STAR_STAR( D );
-
-    const Int mLocal = A.LocalHeight();
-    const bool inFirstCol = ( A.RowRank() == A.ColOwner(0) );
-    const bool inSecondCol = ( A.RowRank() == A.ColOwner(1) );
-    if( !inFirstCol && !inSecondCol )
-        return;
-
-    F *ALocCol0, *ALocCol1;
-    std::vector<F> buffer;
-    {
-        if( inFirstCol && inSecondCol )
-        {
-            ALocCol0 = A.Buffer(0,0);
-            ALocCol1 = A.Buffer(0,1);
-        }
-        else if( inFirstCol )
-        {
-            buffer.resize( mLocal );
-            ALocCol0 = A.Buffer();
-            ALocCol1 = buffer.data();
-            mpi::SendRecv
-            ( ALocCol0, mLocal, A.ColOwner(1),
-              ALocCol1, mLocal, A.ColOwner(1), A.RowComm() );
-        }
-        else if( inSecondCol )
-        {
-            buffer.resize( mLocal ); 
-            ALocCol0 = buffer.data();
-            ALocCol1 = A.Buffer();
-            mpi::SendRecv
-            ( ALocCol1, mLocal, A.ColOwner(0),
-              ALocCol0, mLocal, A.ColOwner(0), A.RowComm() );
-        }
-    }
-    if( uplo == LOWER )
-    {
-        if( conjugated )     
-        {
-            const F delta11 = D_STAR_STAR.GetLocalRealPart(0,0);
-            const F delta21 = D_STAR_STAR.GetLocal(1,0);
-            const F delta22 = D_STAR_STAR.GetLocalRealPart(1,1);
-            const F delta21Abs = SafeAbs( delta21 );
-            const F phi21To11 = delta22 / delta21Abs;
-            const F phi21To22 = delta11 / delta21Abs;
-            const F phi21 = delta21 / delta21Abs;
-            const F xi = (F(1)/(phi21To11*phi21To22-F(1)))/delta21Abs;
-
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            {
-                const F alpha0 = ALocCol0[iLoc];
-                const F alpha1 = ALocCol1[iLoc]; 
-                ALocCol0[iLoc] = xi*(phi21To11*alpha0-phi21      *alpha1);
-                ALocCol1[iLoc] = xi*(phi21To22*alpha1-Conj(phi21)*alpha0);
-            }
-        }
-        else
-        {
-            const F delta11 = D_STAR_STAR.GetLocal(0,0);
-            const F delta21 = D_STAR_STAR.GetLocal(1,0);
-            const F delta22 = D_STAR_STAR.GetLocal(1,1);
-            const F chi21To11 = -delta22 / delta21;
-            const F chi21To22 = -delta11 / delta21;
-            const F chi21 = (F(1)/(F(1)-chi21To11*chi21To22))/delta21;
-
-            for( Int iLoc=0; iLoc<mLocal; ++iLoc )
-            {
-                const F alpha0 = ALocCol0[iLoc];
-                const F alpha1 = ALocCol1[iLoc]; 
-                ALocCol0[iLoc] = chi21*(chi21To11*alpha0+alpha1);
-                ALocCol1[iLoc] = chi21*(chi21To22*alpha1+alpha0);
-            }
-        }
-    }
-    else
-        LogicError("This option not yet supported");
-}
-
 // Unblocked sequential pivoted LDL
 template<typename F>
 inline void
 UnblockedPivoted
-( Orientation orientation, Matrix<F>& A, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
@@ -407,11 +264,15 @@ UnblockedPivoted
     CallStackEntry entry("ldl::UnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
-    const bool conjugate = ( orientation==ADJOINT );
     const Int n = A.Height();
+    if( n == 0 )
+    {
+        dSub.ResizeTo( 0, 1 );
+        p.ResizeTo( 0, 1 );
+        return;
+    }
+    Zeros( dSub, n-1, 1 );
     p.ResizeTo( n, 1 );
 
     Matrix<F> Y21;
@@ -455,11 +316,15 @@ UnblockedPivoted
             auto A21 = ViewRange( ABR, 2, 0, n-k, 2   );
             auto A22 = ViewRange( ABR, 2, 2, n-k, n-k );
             Y21 = A21;
-            SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
+            Symmetric2x2Solve( RIGHT, LOWER, D11, A21, conjugate );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
 
-            p.Set( k,   0, -from );
-            p.Set( k+1, 0, -from );
+            // Only leave the main diagonal of D in A, so that routines like
+            // Trsm can still be used. Thus, return the subdiagonal.
+            dSub.Set( k, 0, D11.Get(1,0) );
+            D11.Set( 1, 0, 0 );
+            p.Set( k,   0, k    );
+            p.Set( k+1, 0, from );
         }
 
         k += nb;
@@ -469,24 +334,24 @@ UnblockedPivoted
 template<typename F>
 inline void
 UnblockedPivoted
-( Orientation orientation, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::UnblockedPivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( A.Grid() != p.Grid() )
-        LogicError("A and p must share the same grid");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
+    if( A.Grid() != dSub.Grid() || dSub.Grid() != p.Grid() )
+        LogicError("A, dSub, and p must share the same grid");
 #endif
-    const bool conjugate = ( orientation==ADJOINT );
     const Int n = A.Height();
+    dSub.AlignWithDiagonal( A, -1 );
+    Zeros( dSub, n-1, 1 );
     p.ResizeTo( n, 1 );
 
     DistMatrix<F> Y21( A.Grid() );
+    DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
 
     Int k=0;
     while( k < n )
@@ -527,11 +392,16 @@ UnblockedPivoted
             auto A21 = ViewRange( ABR, 2, 0, n-k, 2   );
             auto A22 = ViewRange( ABR, 2, 2, n-k, n-k );
             Y21 = A21;
-            SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
+            D11_STAR_STAR = D11;
+            Symmetric2x2Solve( RIGHT, LOWER, D11_STAR_STAR, A21, conjugate );
             Trr2( LOWER, F(-1), A21, Y21, A22, conjugate );
 
-            p.Set( k,   0, -from );
-            p.Set( k+1, 0, -from );
+            // Only leave the main diagonal of D in A, so that routines like
+            // Trsm can still be used. Thus, return the subdiagonal.
+            dSub.Set( k, 0, D11_STAR_STAR.GetLocal(1,0) );
+            D11.Set( 1, 0, 0 );
+            p.Set( k,   0, k    );
+            p.Set( k+1, 0, from );
         }
 
         k += nb;
@@ -543,24 +413,25 @@ UnblockedPivoted
 template<typename F>
 inline void
 PanelPivoted
-( Orientation orientation, Matrix<F>& A, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, 
   Matrix<F>& X, Matrix<F>& Y, Int bsize, Int off=0,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::PanelPivoted");
 #endif
     const Int n = A.Height();
+    if( n == 0 )
+        return;
 #ifndef RELEASE
     if( A.Width() != n )
         LogicError("A must be square");
+    if( dSub.Height() != n-1 || dSub.Width() != 1 )
+        LogicError("dSub is the wrong size" );
     if( p.Height() != n || p.Width() != 1 )
         LogicError("pivot vector is the wrong size");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
-    const bool conjugate = ( orientation==ADJOINT );
     auto ABR = LockedViewRange( A, off, off, n, n );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
@@ -629,11 +500,15 @@ PanelPivoted
                 Conjugate( A21, Y21 );
             else
                 Y21 = A21;
-            SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
+            Symmetric2x2Solve( RIGHT, LOWER, D11, A21, conjugate );
             X21 = A21;
 
-            p.Set( off+k,   0, -from );
-            p.Set( off+k+1, 0, -from );
+            // Only leave the main diagonal of D in A, so that routines like
+            // Trsm can still be used. Thus, return the subdiagonal.
+            dSub.Set( off+k, 0, D11.Get(1,0) );
+            D11.Set( 1, 0, 0 );
+            p.Set( off+k,   0, off+k );
+            p.Set( off+k+1, 0, from  );
         }
 
         if( conjugate )
@@ -651,29 +526,32 @@ PanelPivoted
 template<typename F>
 inline void
 PanelPivoted
-( Orientation orientation, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
   DistMatrix<F,MC,STAR>& X, DistMatrix<F,MR,STAR>& Y, Int bsize, Int off=0,
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::PanelPivoted");
 #endif
     const Int n = A.Height();
+    if( n == 0 )
+        return;
 #ifndef RELEASE
     if( A.Width() != n )
         LogicError("A must be square");
+    if( dSub.Height() != n-1 || dSub.Width() != 1 )
+        LogicError("dSub is the wrong size" );
     if( p.Height() != n || p.Width() != 1 )
         LogicError("pivot vector is the wrong size");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
-    const bool conjugate = ( orientation==ADJOINT );
     auto ABR = LockedViewRange( A, off, off, n, n );
     X.AlignWith( ABR );
     Y.AlignWith( ABR );
     Zeros( X, n-off, bsize );
     Zeros( Y, n-off, bsize );
+
+    DistMatrix<F,STAR,STAR> D11_STAR_STAR( A.Grid() );
 
     Int k=0;
     while( k < bsize )
@@ -743,11 +621,16 @@ PanelPivoted
                 Conjugate( A21, Y21 );
             else
                 Y21 = A21;
-            SolveAgainstSymmetric2x2( LOWER, D11, A21, conjugate );
+            D11_STAR_STAR = D11;
+            Symmetric2x2Solve( RIGHT, LOWER, D11_STAR_STAR, A21, conjugate );
             X21 = A21;
 
-            p.Set( off+k,   0, -from );
-            p.Set( off+k+1, 0, -from );
+            // Only leave the main diagonal of D in A, so that routines like
+            // Trsm can still be used. Thus, return the subdiagonal.
+            dSub.Set( off+k, 0, D11_STAR_STAR.GetLocal(1,0) );
+            D11.Set( 1, 0, 0 );
+            p.Set( off+k,   0, off+k );
+            p.Set( off+k+1, 0, from  );
         }
 
         if( conjugate )
@@ -765,7 +648,7 @@ PanelPivoted
 template<typename F>
 inline void
 Pivoted
-( Orientation orientation, Matrix<F>& A, Matrix<Int>& p, 
+( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p, bool conjugate=false,
   LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
@@ -773,10 +656,15 @@ Pivoted
     CallStackEntry entry("ldl::Pivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
+    if( n == 0 )
+    {
+        dSub.ResizeTo( 0, 1 );
+        p.ResizeTo( 0, 1 );
+        return;
+    }
+    Zeros( dSub, n-1, 1 );
     p.ResizeTo( n, 1 );
 
     Matrix<F> X, Y;
@@ -785,7 +673,8 @@ Pivoted
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
-        PanelPivoted( orientation, A, p, X, Y, nbProp, k, pivotType, gamma );
+        PanelPivoted
+        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -801,19 +690,25 @@ Pivoted
 template<typename F>
 inline void
 Pivoted
-( Orientation orientation, DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p, 
-  LDLPivotType pivotType=BUNCH_KAUFMAN_A,
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p, 
+  bool conjugate=false, LDLPivotType pivotType=BUNCH_KAUFMAN_A,
   BASE(F) gamma=(1+Sqrt(BASE(F)(17)))/8 )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Pivoted");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Grid& g = A.Grid();
     const Int n = A.Height();
+    if( n == 0 )
+    {
+        dSub.ResizeTo( 0, 1 );
+        p.ResizeTo( 0, 1 );
+        return;
+    }
+    dSub.AlignWithDiagonal( A, -1 );
+    Zeros( dSub, n-1, 1 );
     p.ResizeTo( n, 1 );
 
     DistMatrix<F,MC,STAR> X(g);
@@ -823,7 +718,8 @@ Pivoted
     while( k < n )
     {
         const Int nbProp = Min(bsize,n-k);
-        PanelPivoted( orientation, A, p, X, Y, nbProp, k, pivotType, gamma );
+        PanelPivoted
+        ( A, dSub, p, X, Y, nbProp, k, conjugate, pivotType, gamma );
         const Int nb = X.Width();
 
         // Update the bottom-right panel
@@ -834,7 +730,6 @@ Pivoted
 
         k += nb;
     }
-
 }
 
 } // namespace ldl

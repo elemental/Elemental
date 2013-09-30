@@ -10,7 +10,6 @@
 #ifndef ELEM_LAPACK_GAUSSIANELIMINATION_HPP
 #define ELEM_LAPACK_GAUSSIANELIMINATION_HPP
 
-#include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/lapack-like/LU.hpp"
 
 namespace elem {
@@ -155,10 +154,7 @@ GaussianElimination( Matrix<F>& A, Matrix<F>& B )
         LogicError("A and B must be the same height");
 #endif
     RowEchelon( A, B );
-    if( B.Width() == 1 )
-        Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-    else
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
 template<typename F> 
@@ -175,10 +171,7 @@ GaussianElimination( DistMatrix<F>& A, DistMatrix<F>& B )
         LogicError("A and B must be the same height");
 #endif
     RowEchelon( A, B );
-    if( B.Width() == 1 )
-        Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-    else
-        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+    Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
 }
 
 } // namespace elem

@@ -41,11 +41,13 @@ be thrown.
    Overwrite the `uplo` triangle of the potentially singular matrix `A` with
    its Cholesky factor.
 
-:math:`LDL^H` factorization
----------------------------
+:math:`LDL` factorization
+-------------------------
 
-.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<Int>& p )
-.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+.. cpp:function:: void LDLH( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p )
+.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<F>& dSub, Matrix<int>& p )
+.. cpp:function:: void LDLH( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p )
+.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<int,VC,STAR>& p )
 
    Blocked Bunch-Kaufman. More details to come.
 
@@ -60,34 +62,26 @@ attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
       The following routines do not pivot, so please use with caution.
 
 .. cpp:function:: void LDLH( Matrix<F>& A )
-.. cpp:function:: void LDLH( DistMatrix<F>& A )
-
-   Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
-   portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
-   the diagonal with :math:`D`.
-
-:math:`LDL^T` factorization
----------------------------
-
-.. cpp:function:: void LDLT( Matrix<F>& A, Matrix<Int>& p )
-.. cpp:function:: void LDLT( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
-
-   Blocked Bunch-Kaufman. More details to come.
-
-While the :math:`LDL^H` factorization targets Hermitian matrices, the 
-:math:`LDL^T` factorization targets symmetric matrices. If a zero pivot is
-attempted, then a :cpp:type:`SingularMatrixException` will be thrown.
-
-   .. warning::
-
-      The following routines do not pivot, so please use with caution.
-
 .. cpp:function:: void LDLT( Matrix<F>& A )
+.. cpp:function:: void LDLH( DistMatrix<F>& A )
 .. cpp:function:: void LDLT( DistMatrix<F>& A )
 
    Overwrite the strictly lower triangle of :math:`A` with the strictly lower 
    portion of :math:`L` (:math:`L` implicitly has ones on its diagonal) and 
    the diagonal with :math:`D`.
+
+Detailed interface
+^^^^^^^^^^^^^^^^^^
+
+.. cpp:function:: ldl::SolveAfter( const Matrix<F>& A, Matrix<F>& B, bool conjugated=false )
+.. cpp:function:: ldl::SolveAfter( const DistMatrix<F>& A, DistMatrix<F>& B, bool conjugated=false )
+
+   Solve linear systems using an unpivoted LDL factorization.
+
+.. cpp:function:: ldl::SolveAfter( const Matrix<F>& A, const Matrix<F>& dSub, const Matrix<int>& p, Matrix<F>& B, bool conjugated=false )
+.. cpp:function:: ldl::SolveAfter( const DistMatrix<F>& A, const DistMatrix<F,MD,STAR>& dSub, const DistMatrix<int,VC,STAR>& p, DistMatrix<F>& B, bool conjugated=false )
+
+   Solve linear systems using a pivoted LDL factorization.
 
 :math:`LU` factorization
 ------------------------

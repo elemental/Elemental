@@ -12,22 +12,23 @@
 
 namespace elem {
 template<typename F>
-void LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A );
+void LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate=false );
 } // namespace elem
 
-#include "./LDL/Pivoted.hpp"
 #include "./LDL/Var3.hpp"
+#include "./LDL/Pivoted.hpp"
+#include "./LDL/SolveAfter.hpp"
 
 namespace elem {
 
 template<typename F>
 inline void
-LocalLDL( Orientation orientation, DistMatrix<F,STAR,STAR>& A )
+LocalLDL( DistMatrix<F,STAR,STAR>& A, bool conjugate )
 {
 #ifndef RELEASE
     CallStackEntry cse("LocalLDL");
 #endif
-    ldl::Var3( orientation, A.Matrix() );
+    ldl::Var3( A.Matrix(), conjugate );
 }
 
 template<typename F>
@@ -37,17 +38,17 @@ LDLH( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Var3( ADJOINT, A );
+    ldl::Var3( A, true );
 }
 
 template<typename F>
 inline void
-LDLH( Matrix<F>& A, Matrix<Int>& p )
+LDLH( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Pivoted( ADJOINT, A, p );
+    ldl::Pivoted( A, dSub, p, true );
 }
 
 template<typename F>
@@ -57,17 +58,18 @@ LDLH( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Var3( ADJOINT, A );
+    ldl::Var3( A, true );
 }
 
 template<typename F>
 inline void
-LDLH( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+LDLH
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLH");
 #endif
-    ldl::Pivoted( ADJOINT, A, p );
+    ldl::Pivoted( A, dSub, p, true );
 }
 
 template<typename F>
@@ -77,17 +79,17 @@ LDLT( Matrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Var3( TRANSPOSE, A );
+    ldl::Var3( A, false );
 }
 
 template<typename F>
 inline void
-LDLT( Matrix<F>& A, Matrix<Int>& p )
+LDLT( Matrix<F>& A, Matrix<F>& dSub, Matrix<Int>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Pivoted( TRANSPOSE, A, p );
+    ldl::Pivoted( A, dSub, p, false );
 }
 
 template<typename F>
@@ -97,17 +99,18 @@ LDLT( DistMatrix<F>& A )
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Var3( TRANSPOSE, A );
+    ldl::Var3( A, false );
 }
 
 template<typename F>
 inline void
-LDLT( DistMatrix<F>& A, DistMatrix<Int,VC,STAR>& p )
+LDLT
+( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& dSub, DistMatrix<Int,VC,STAR>& p )
 {
 #ifndef RELEASE
     CallStackEntry cse("LDLT");
 #endif
-    ldl::Pivoted( TRANSPOSE, A, p );
+    ldl::Pivoted( A, dSub, p, false );
 }
 
 } // namespace elem

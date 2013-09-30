@@ -10,7 +10,6 @@
 #ifndef ELEM_LAPACK_LU_SOLVEAFTER_HPP
 #define ELEM_LAPACK_LU_SOLVEAFTER_HPP
 
-#include "elemental/blas-like/level2/Trsv.hpp"
 #include "elemental/blas-like/level3/Trsm.hpp"
 #include "elemental/lapack-like/ApplyRowPivots.hpp"
 
@@ -28,31 +27,15 @@ SolveAfter( Orientation orientation, const Matrix<F>& A, Matrix<F>& B )
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-        }
-        else 
-        {
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-        }
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        }
-        else
-        {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        }
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     }
 }
 
@@ -70,31 +53,15 @@ SolveAfter
     if( A.Height() != B.Height() )
         LogicError("A and B must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-        }
-        else 
-        {
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-        }
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        }
-        else
-        {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-        }
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
     }
 }
 
@@ -113,35 +80,17 @@ SolveAfter
     if( p.Height() != A.Height() )
         LogicError("A and p must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-        }
-        else 
-        {
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, p );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        }
-        else
-        {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, p );
     }
 }
 
@@ -162,35 +111,17 @@ SolveAfter
     if( A.Height() != p.Height() )
         LogicError("A and p must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-        }
-        else
-        {
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, p );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-        }
-        else
-        {
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, p );
     }
 }
 
@@ -211,43 +142,19 @@ SolveAfter
     if( q.Height() != A.Height() )
         LogicError("A and q must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-            //ApplyRowPivots( B, q );
-            ApplyInverseRowPivots( B, q );
-        }
-        else 
-        {
-            //ApplyInverseRowPivots( B, q );
-            ApplyRowPivots( B, q );
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, p );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, q );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-            //ApplyRowPivots( B, q );
-            ApplyInverseRowPivots( B, q );
-        }
-        else
-        {
-            //ApplyInverseRowPivots( B, q );
-            ApplyRowPivots( B, q );
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, q );
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, p );
     }
 }
 
@@ -272,43 +179,19 @@ SolveAfter
     if( A.Height() != q.Height() )
         LogicError("A and q must be the same height");
 #endif
-    if( B.Width() == 1 )
+    if( orientation == NORMAL )
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsv( LOWER, NORMAL, UNIT, A, B );
-            Trsv( UPPER, NORMAL, NON_UNIT, A, B );
-            //ApplyRowPivots( B, q );
-            ApplyInverseRowPivots( B, q );
-        }
-        else
-        {
-            //ApplyInverseRowPivots( B, p );
-            ApplyRowPivots( B, p );
-            Trsv( UPPER, orientation, NON_UNIT, A, B );
-            Trsv( LOWER, orientation, UNIT, A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, p );
+        Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
+        Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, q );
     }
     else
     {
-        if( orientation == NORMAL )
-        {
-            ApplyRowPivots( B, p );
-            Trsm( LEFT, LOWER, NORMAL, UNIT, F(1), A, B );
-            Trsm( LEFT, UPPER, NORMAL, NON_UNIT, F(1), A, B );
-            //ApplyRowPivots( B, q );
-            ApplyInverseRowPivots( B, q );
-        }
-        else
-        {
-            //ApplyInverseRowPivots( B, p );
-            ApplyRowPivots( B, p );
-            Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
-            Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
-            ApplyInverseRowPivots( B, p );
-        }
+        ApplyRowPivots( B, p );
+        Trsm( LEFT, UPPER, orientation, NON_UNIT, F(1), A, B );
+        Trsm( LEFT, LOWER, orientation, UNIT, F(1), A, B );
+        ApplyInverseRowPivots( B, p );
     }
 }
 

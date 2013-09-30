@@ -19,14 +19,12 @@ namespace ldl {
 // Unblocked serial LDL _without_ partial pivoting
 template<typename F> 
 inline void
-Var3Unb( Orientation orientation, Matrix<F>& A )
+Var3Unb( Matrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3Unb");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
 
@@ -41,7 +39,7 @@ Var3Unb( Orientation orientation, Matrix<F>& A )
             throw SingularMatrixException();
 
         F* RESTRICT a21 = &ABuffer[(j+1)+j*ldim];
-        if( orientation == ADJOINT )
+        if( conjugate )
         {
             // A22 := A22 - a21 (a21 / alpha11)^H
             for( Int k=0; k<a21Height; ++k )
@@ -73,16 +71,15 @@ Var3Unb( Orientation orientation, Matrix<F>& A )
 // Blocked serial LDL _without_ partial pivoting
 template<typename F>
 inline void
-Var3( Orientation orientation, Matrix<F>& A )
+Var3( Matrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T or LDL^H");
 #endif
     const Int n = A.Height();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     Matrix<F> d1, S21;
     const Int bsize = Blocksize();
@@ -93,7 +90,7 @@ Var3( Orientation orientation, Matrix<F>& A )
         auto A21 = ViewRange( A, k+nb, k,    n,    k+nb );
         auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
-        ldl::Var3Unb( orientation, A11 );
+        ldl::Var3Unb( A11, conjugate );
         A11.GetDiagonal( d1 );
         Trsm( RIGHT, LOWER, orientation, UNIT, F(1), A11, A21 );
         S21 = A21;
@@ -104,17 +101,16 @@ Var3( Orientation orientation, Matrix<F>& A )
 
 template<typename F>
 inline void
-Var3( Orientation orientation, DistMatrix<F>& A )
+Var3( DistMatrix<F>& A, bool conjugate=false )
 {
 #ifndef RELEASE
     CallStackEntry entry("ldl::Var3");
-    if( orientation == NORMAL )
-        LogicError("Can only perform LDL^T and LDL^H");
     if( A.Height() != A.Width() )
         LogicError("A must be square");
 #endif
     const Grid& g = A.Grid();
     const Int n = A.Height();
+    const Orientation orientation = ( conjugate ? ADJOINT : TRANSPOSE );
 
     DistMatrix<F,STAR,STAR> A11_STAR_STAR(g);
     DistMatrix<F,STAR,STAR> d1_STAR_STAR(g);
@@ -123,7 +119,6 @@ Var3( Orientation orientation, DistMatrix<F>& A )
     DistMatrix<F,STAR,MC  > S21Trans_STAR_MC(g);
     DistMatrix<F,STAR,MR  > A21AdjOrTrans_STAR_MR(g);
 
-    const bool conjugate = ( orientation == ADJOINT );
     const Int bsize = Blocksize();
     for( Int k=0; k<n; k+=bsize )
     {
@@ -133,7 +128,7 @@ Var3( Orientation orientation, DistMatrix<F>& A )
         auto A22 = ViewRange( A, k+nb, k+nb, n,    n    );
 
         A11_STAR_STAR = A11;
-        LocalLDL( orientation, A11_STAR_STAR );
+        LocalLDL( A11_STAR_STAR, conjugate );
         A11_STAR_STAR.GetDiagonal( d1_STAR_STAR );
         A11 = A11_STAR_STAR;
 

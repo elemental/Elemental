@@ -10,6 +10,8 @@
 #ifndef ELEM_BLAS_TRSM_HPP
 #define ELEM_BLAS_TRSM_HPP
 
+#include "elemental/blas-like/level2/Trsv.hpp"
+
 namespace elem {
 
 template<typename F,Distribution XColDist,Distribution XRowDist>
@@ -109,6 +111,23 @@ Trsm
             LogicError("Nonconformal Trsm");
     }
 #endif
+    // Call the single right-hand side algorithm if appropriate
+    if( side == LEFT && B.Width() == 1 )
+    {
+        Scale( alpha, B );
+        Trsv( uplo, orientation, diag, A, B );
+        return;
+    }
+    // TODO: Compute appropriate transpose/conjugation options to convert
+    //       to Trsv.
+    /*
+    else if( side == RIGHT && B.Height() == 1 )
+    {
+        Trsv( uplo, orientation, diag, alpha, A, B );
+        return;
+    }
+    */
+
     const Int p = B.Grid().Size();
     if( side == LEFT && uplo == LOWER )
     {
