@@ -34,6 +34,9 @@ option(ELEM_TESTS "A collection of performance and correctness tests" OFF)
 # 2) Martin's 3D Gemm code
 option(ELEM_EXPERIMENTAL "Build experimental code" OFF)
 
+# Attempt to use 64-bit integers
+option(USE_64BIT_INTS "Use 64-bit integers where possible" OFF)
+
 # Petschow and Bientinesi's Parallel Multiple Relatively Robust 
 # Representations (PMRRR) is used at the heart of all of Elemental's current 
 # eigensolvers. Since it makes use of pthreads, Windows builds cannot use 
@@ -422,6 +425,10 @@ set(MPI_LONG_LONG_CODE
      }")
 check_c_source_compiles("${MPI_IN_PLACE_CODE}" HAVE_MPI_IN_PLACE)
 check_c_source_compiles("${MPI_LONG_LONG_CODE}" HAVE_MPI_LONG_LONG)
+if(USE_64BIT_INTS AND NOT HAVE_MPI_LONG_LONG)
+  message(FATAL_ERROR 
+    "Did not detect MPI_LONG_LONG_INT and MPI_UNSIGNED_LONG_LONG")
+endif()
 
 # Look for restrict support
 include(CheckCXXSourceCompiles)
