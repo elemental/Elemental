@@ -263,14 +263,14 @@ This list of special cases is here to help clarify the notation used throughout
 Elemental's source (as well as this documentation). These are all special
 cases of :cpp:type:`Matrix\<T>`.
 
-.. cpp:type:: class Matrix<R>
+.. cpp:type:: class Matrix<Real>
 
-   Used to denote that the underlying datatype `R` is real.
+   Used to denote that the underlying datatype `Real` is real.
 
-.. cpp:type:: class Matrix<Complex<R> >
+.. cpp:type:: class Matrix<Complex<Real> >
 
-   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is
-   complex with base type `R`.
+   Used to denote that the underlying datatype :cpp:type:`Complex\<Real>` is
+   complex with base type `Real`.
 
 .. cpp:type:: class Matrix<F>
 

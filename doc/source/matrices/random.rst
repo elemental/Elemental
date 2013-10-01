@@ -89,14 +89,14 @@ These routines sample a diagonal matrix from the specified ball in the
 complex plane and then perform a similarity transformation using a random 
 Householder transform.
 
-.. cpp:function:: void NormalUniformSpectrum( Matrix<Complex<R> >& A, int n, Complex<R> center=0, R radius=1 )
-.. cpp:function:: void NormalUniformSpectrum( DistMatrix<Complex<R>,U,V>& A, int n, Complex<R> center=0, R radius=1 )
+.. cpp:function:: void NormalUniformSpectrum( Matrix<Complex<Real> >& A, int n, Complex<Real> center=0, Real radius=1 )
+.. cpp:function:: void NormalUniformSpectrum( DistMatrix<Complex<Real>,U,V>& A, int n, Complex<Real> center=0, Real radius=1 )
 
    Build the :math:`n \times n` matrix ``A`` with a spectrum sampled uniformly 
    from the ball :math:`B_{\mathrm{radius}}(\mathrm{center})`.
 
-.. cpp:function:: void MakeNormalUniformSpectrum( Matrix<Complex<R> >& A, Complex<R> center=0, R radius=1 )
-.. cpp:function:: void MakeNormalUniformSpectrum( DistMatrix<Complex<R>,U,V>& A, Complex<R> center=0, R radius=1 )
+.. cpp:function:: void MakeNormalUniformSpectrum( Matrix<Complex<Real> >& A, Complex<Real> center=0, Real radius=1 )
+.. cpp:function:: void MakeNormalUniformSpectrum( DistMatrix<Complex<Real>,U,V>& A, Complex<Real> center=0, Real radius=1 )
 
    Sample the entries of the square matrix ``A`` from the ball in the complex 
    plane centered at ``center`` with radius ``radius``.

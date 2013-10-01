@@ -222,10 +222,10 @@ Detailed interface
    Same as above, but only execute a fixed number of steps of the rank-revealing
    factorization.
 
-.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p, int maxSteps, R tol )
-.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, R tol )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<int>& p, int maxSteps, Base<F> tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<int,VR,STAR>& p, int maxSteps, Base<F> tol )
+.. cpp:function:: void qr::BusingerGolub( Matrix<F>& A, Matrix<F>& t, Matrix<int>& p, int maxSteps, Base<F> tol )
+.. cpp:function:: void qr::BusingerGolub( DistMatrix<F>& A, DistMatrix<F,MD,STAR>& t, DistMatrix<int,VR,STAR>& p, int maxSteps, Base<F> tol )
 
    Either execute `maxSteps` iterations or stop after the maximum remaining 
    column norm is less than or equal to `tol` times the maximum original column

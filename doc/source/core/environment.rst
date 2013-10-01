@@ -216,22 +216,20 @@ Custom exceptions
 Complex data
 ------------
 
-.. cpp:type:: struct Complex<Real>
+.. cpp:type:: Complex<Real>
 
    Currently a typedef of ``std::complex<Real>``
 
-.. cpp:type:: struct Base<F>
+.. cpp:type:: Base<F>
 
-   .. cpp:type:: type
+   The underlying real datatype of the (potentially complex) datatype `F`.
+   For example, ``Base<Complex<double>>`` and 
+   ``Base<double>`` are both equivalent to ``double``.
+   This is often extremely useful in implementing routines which are 
+   templated over real and complex datatypes but still make use of real 
+   datatypes.
 
-      The underlying real datatype of the (potentially complex) datatype `F`.
-      For example, ``Base<Complex<double>>`` and 
-      ``Base<double>`` are both equivalent to ``double``.
-      This is often extremely useful in implementing routines which are 
-      templated over real and complex datatypes but still make use of real 
-      datatypes.
-
-.. cpp:function:: std::ostream& operator<<( std::ostream& os, Complex<R> alpha )
+.. cpp:function:: std::ostream& operator<<( std::ostream& os, Complex<Real> alpha )
 
    Pretty prints `alpha` in the form ``a+bi``.
 
@@ -312,7 +310,7 @@ Scalar manipulation
 
    Returns the argument of the real or complex variable :math:`\alpha`.
 
-.. cpp:function:: Complex<R> Polar( const R& r, const R& theta=0 )
+.. cpp:function:: Complex<Real> Polar( const R& r, const R& theta=0 )
 
    Returns the complex variable constructed from the polar coordinates
    :math:`(r,\theta)`.

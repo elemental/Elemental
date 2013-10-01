@@ -72,8 +72,8 @@ equal to
 
    \exp(i \phi(i,j)).
 
-.. cpp:function:: void Egorov( Matrix<Complex<R> >& A, const RealFunctor& phase, int n )
-.. cpp:function:: void Egorov( DistMatrix<Complex<R>,U,V>& A, const RealFunctor& phase, int n )
+.. cpp:function:: void Egorov( Matrix<Complex<Real> >& A, const RealFunctor& phase, int n )
+.. cpp:function:: void Egorov( DistMatrix<Complex<Real>,U,V>& A, const RealFunctor& phase, int n )
 
 Extended Kahan
 --------------
@@ -104,13 +104,13 @@ The :math:`n \times n` *Discrete Fourier Transform* (DFT) matrix, say :math:`A`,
 
    \alpha_{i,j} = \frac{e^{-2\pi i j / n}}{\sqrt{n}}.
 
-.. cpp:function:: void Fourier( Matrix<Complex<R> >& A, int n )
-.. cpp:function:: void Fourier( DistMatrix<Complex<R>,U,V>& A, int n )
+.. cpp:function:: void Fourier( Matrix<Complex<Real> >& A, int n )
+.. cpp:function:: void Fourier( DistMatrix<Complex<Real>,U,V>& A, int n )
 
    Set the matrix ``A`` equal to the :math:`n \times n` DFT matrix.
 
-.. cpp:function:: void MakeFourier( Matrix<Complex<R> >& A )
-.. cpp:function:: void MakeFourier( DistMatrix<Complex<R>,U,V>& A )
+.. cpp:function:: void MakeFourier( Matrix<Complex<Real> >& A )
+.. cpp:function:: void MakeFourier( DistMatrix<Complex<Real>,U,V>& A )
 
    Turn the existing :math:`n \times n` matrix ``A`` into a DFT matrix.
 
@@ -346,8 +346,8 @@ Form
 
 where :math:`\Omega` is a complex diagonal matrix.
 
-.. cpp:function:: void NormalFromEVD( Matrix<Complex<R> >& A, const Matrix<Complex<R> >& w, const Matrix<Complex<R> >& Z )
-.. cpp:function:: void NormalFromEVD( DistMatrix<Complex<R> >& A, const DistMatrix<Complex<R>,VR,STAR>& w, const DistMatrix<Complex<R> >& Z )
+.. cpp:function:: void NormalFromEVD( Matrix<Complex<Real> >& A, const Matrix<Complex<Real> >& w, const Matrix<Complex<Real> >& Z )
+.. cpp:function:: void NormalFromEVD( DistMatrix<Complex<Real> >& A, const DistMatrix<Complex<Real>,VR,STAR>& w, const DistMatrix<Complex<Real> >& Z )
 
    The diagonal entries of :math:`\Omega` are given by the vector :math:`w`.
 

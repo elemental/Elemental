@@ -16,31 +16,31 @@ Machine information
 In all of the following functions, `R` can be equal to either `float` or
 `double`.
 
-.. cpp:function:: R lapack::MachineEpsilon<R>()
+.. cpp:function:: Real lapack::MachineEpsilon<Real>()
 
    Return the relative machine precision.
 
-.. cpp:function:: R lapack::MachineSafeMin<R>()
+.. cpp:function:: Real lapack::MachineSafeMin<Real>()
 
    Return the minimum number which can be inverted without underflow.
 
-.. cpp:function:: R lapack::MachinePrecision<R>()
+.. cpp:function:: Real lapack::MachinePrecision<Real>()
 
    Return the relative machine precision multiplied by the base.
 
-.. cpp:function:: R lapack::MachineUnderflowExponent<R>()
+.. cpp:function:: Real lapack::MachineUnderflowExponent<Real>()
 
    Return the minimum exponent before (gradual) underflow occurs.
 
-.. cpp:function:: R lapack::MachineUnderflowThreshold<R>()
+.. cpp:function:: Real lapack::MachineUnderflowThreshold<Real>()
 
    Return the underflow threshold: ``(base)^((underflow exponent)-1)``.
 
-.. cpp:function:: R lapack::MachineOverflowExponent<R>()
+.. cpp:function:: Real lapack::MachineOverflowExponent<Real>()
 
    Return the largest exponent before overflow.
     
-.. cpp:function:: R lapack::MachineOverflowThreshold<R>()
+.. cpp:function:: Real lapack::MachineOverflowThreshold<Real>()
 
    Return the overflow threshold: 
    ``(1-rel. prec.)) * (base)^(overflow exponent)``.
@@ -48,12 +48,12 @@ In all of the following functions, `R` can be equal to either `float` or
 Safe norms
 ^^^^^^^^^^
 
-.. cpp:function:: R lapack::SafeNorm( R alpha, R beta )
+.. cpp:function:: Real lapack::SafeNorm( Real alpha, Real beta )
 
    Return :math:`\sqrt{\alpha^2+\beta^2}` in a manner which avoids 
    under/overflow. `R` can be equal to either `float` or `double`.
 
-.. cpp:function:: R lapack::SafeNorm( R alpha, R beta, R gamma )
+.. cpp:function:: Real lapack::SafeNorm( Real alpha, Real beta, Real gamma )
 
    Return :math:`\sqrt{\alpha^2+\beta^2+\gamma^2}` in a manner which avoids
    under/overflow. `R` can be equal to either `float` or `double`.

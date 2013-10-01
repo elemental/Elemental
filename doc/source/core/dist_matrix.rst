@@ -278,14 +278,14 @@ This list of special cases is here to help clarify the notation used throughout
 Elemental's source (as well as this documentation). These are all special
 cases of :cpp:type:`AbstractDistMatrix\<T>`.
 
-.. cpp:type:: class AbstractDistMatrix<R>
+.. cpp:type:: class AbstractDistMatrix<Real>
 
-   Used to denote that the underlying datatype `R` is real.
+   Used to denote that the underlying datatype `Real` is real.
 
-.. cpp:type:: class AbstractDistMatrix<Complex<R> >
+.. cpp:type:: class AbstractDistMatrix<Complex<Real> >
 
-   Used to denote that the underlying datatype :cpp:type:`Complex\<R>` is 
-   complex with base type `R`.
+   Used to denote that the underlying datatype :cpp:type:`Complex\<Real>` is 
+   complex with base type `Real`.
 
 .. cpp:type:: class AbstractDistMatrix<F>
 
@@ -314,14 +314,14 @@ cases of :cpp:type:`DistMatrix\<T,U,V>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,U,V>
+.. cpp:type:: class DistMatrix<Real,U,V>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,U,V>
+.. cpp:type:: class DistMatrix<Complex<Real>,U,V>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`. 
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`. 
 
 .. cpp:type:: class DistMatrix<F,U,V>
 
@@ -654,18 +654,18 @@ cases of :cpp:type:`DistMatrix\<T,MC,MR>` = :cpp:type:`DistMatrix\<T>`.
 
    The underlying datatype is the set of double-precision complex numbers. 
 
-.. cpp:type:: class DistMatrix<R>
+.. cpp:type:: class DistMatrix<Real>
 
-.. cpp:type:: class DistMatrix<R,MC,MR>
+.. cpp:type:: class DistMatrix<Real,MC,MR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>>
+.. cpp:type:: class DistMatrix<Complex<Real>>
 
-.. cpp:type:: class DistMatrix<Complex<R>,MC,MR>
+.. cpp:type:: class DistMatrix<Complex<Real>,MC,MR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`. 
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`. 
 
 .. cpp:type:: class DistMatrix<F>
 
@@ -718,14 +718,14 @@ cases of :cpp:type:`DistMatrix\<T,MC,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,MC,STAR>
+.. cpp:type:: class DistMatrix<Real,MC,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,MC,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,MC,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,MC,STAR>
 
@@ -768,14 +768,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,MR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,MR>
+.. cpp:type:: class DistMatrix<Real,STAR,MR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,MR>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,MR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,MR>
 
@@ -819,14 +819,14 @@ cases of :cpp:type:`DistMatrix\<T,MR,MC>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,MR,MC>
+.. cpp:type:: class DistMatrix<Real,MR,MC>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,MR,MC>
+.. cpp:type:: class DistMatrix<Complex<Real>,MR,MC>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,MR,MC>
 
@@ -870,14 +870,14 @@ cases of :cpp:type:`DistMatrix\<T,MR,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,MR,STAR>
+.. cpp:type:: class DistMatrix<Real,MR,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,MR,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,MR,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,MR,STAR>
 
@@ -928,14 +928,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,MC>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,MC>
+.. cpp:type:: class DistMatrix<Real,STAR,MC>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,MC>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,MC>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,MC>
 
@@ -965,14 +965,14 @@ cases of :cpp:type:`DistMatrix\<T,MD,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,MD,STAR>
+.. cpp:type:: class DistMatrix<Real,MD,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,MD,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,MD,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,MD,STAR>
 
@@ -1002,14 +1002,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,MD>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,MD>
+.. cpp:type:: class DistMatrix<Real,STAR,MD>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,MD>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,MD>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,MD>
 
@@ -1054,14 +1054,14 @@ cases of :cpp:type:`DistMatrix\<T,VC,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,VC,STAR>
+.. cpp:type:: class DistMatrix<Real,VC,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,VC,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,VC,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,VC,STAR>
 
@@ -1103,14 +1103,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,VC>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,VC>
+.. cpp:type:: class DistMatrix<Real,STAR,VC>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,VC>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,VC>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,VC>
 
@@ -1155,14 +1155,14 @@ cases of :cpp:type:`DistMatrix\<T,VR,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,VR,STAR>
+.. cpp:type:: class DistMatrix<Real,VR,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,VR,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,VR,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,VR,STAR>
 
@@ -1204,14 +1204,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,VR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,VR>
+.. cpp:type:: class DistMatrix<Real,STAR,VR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,VR>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,VR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,VR>
 
@@ -1276,14 +1276,14 @@ cases of :cpp:type:`DistMatrix\<T,STAR,STAR>`.
 
    The underlying datatype is the set of double-precision complex numbers.
 
-.. cpp:type:: class DistMatrix<R,STAR,STAR>
+.. cpp:type:: class DistMatrix<Real,STAR,STAR>
 
-   The underlying datatype `R` is real.
+   The underlying datatype `Real` is real.
 
-.. cpp:type:: class DistMatrix<Complex<R>,STAR,STAR>
+.. cpp:type:: class DistMatrix<Complex<Real>,STAR,STAR>
 
-   The underlying datatype :cpp:type:`Complex\<R>` is complex with base type 
-   `R`.
+   The underlying datatype :cpp:type:`Complex\<Real>` is complex with base type 
+   `Real`.
 
 .. cpp:type:: class DistMatrix<F,STAR,STAR>
 
